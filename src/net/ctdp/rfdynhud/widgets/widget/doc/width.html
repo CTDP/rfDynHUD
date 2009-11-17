@@ -1,0 +1,31 @@
+<p>
+The <strong>width</strong> property defines the Widget's width.
+</p>
+
+<p>
+If the value is positive, it simply defines the Widget's width.<br />
+If the value is negative, the Widget's width is defined by (resolution_x - abs(width)).<br />
+Click the &quot;flip&quot; button to switch between these two modes.
+</p>
+
+<p>
+The width property can be given in absolute pixels or in percent and can be negative or positive.
++100% don't mean the total screen width, but total screen height * 4 / 3 to avoid scaling problems between 4:3er and 16:10er resolutions.
+Use negative percent widths to achieve this. The editor will do this automatically when dragging with the mouse.
+Hence the value could have these forms:
+<ul>
+    <li>123</li>
+    <li>-20</li>
+    <li>34%</li>
+    <li><s>110%</s></li>
+    <li>-12%</li>
+    <li>67.357%</li>
+    <li>-27.96%</li>
+</ul>
+</p>
+
+<p>
+Click the &quot;flip&quot; button to convert between positive and negative representation (preserving
+the absolute value) and click the &quot;px&quot; or &quot;%&quot; button to convert between
+pixels and percent (preserving the absolute value).
+</p>

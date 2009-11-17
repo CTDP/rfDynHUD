@@ -1,0 +1,16 @@
+<p>
+The <strong>shiftLightPosX</strong> property defines the x-coordinate on the background texture,
+where to draw the shift light.
+</p>
+
+<p>
+In other words this means, that the coordinate is not in Widget space, but in texture space.
+If your background image has a width of 1000 and you size the Widget to a width of 250,
+a value of 500 means 500 * 250 / 1000 = 125 Pixel on the HUD.
+</p>
+
+<p>
+This makes sure, that the shift light is always at the same location on the background image
+no matter what size your Widget has (the background image will aways be scaled to the same size
+as the Widget.
+</p>

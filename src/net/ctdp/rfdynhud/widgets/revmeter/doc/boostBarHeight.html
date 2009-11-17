@@ -1,0 +1,15 @@
+<p>
+The <strong>boostBarHeight</strong> property defines the boost bar's height on the background texture.
+</p>
+
+<p>
+In other words this means, that the size is not in Widget space, but in texture space.
+If your background image has a width of 1000 and you size the Widget to a width of 250,
+a value of 500 means 500 * 250 / 1000 = 125 Pixel on the HUD.
+</p>
+
+<p>
+This makes sure, that the boost bar always covers the same area on the background image
+no matter what size your Widget has (the background image will aways be scaled to the same size
+as the Widget.
+</p>

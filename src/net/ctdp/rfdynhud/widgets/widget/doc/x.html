@@ -1,0 +1,36 @@
+<p>
+The <strong>x</strong> property defines the x coordinate of the Widget.
+</p>
+
+<p>
+If the <strong>positioning</strong> property is set to TOP_LEFT, CENTER_LEFT or BOTTOM_LEFT,
+the x-coordinate is the distance of the Widget's left edge to the left border of the screen.
+</p>
+
+<p>
+If the <strong>positioning</strong> property is set to TOP_CENTER, CENTER_CENTER or BOTTOM_CENTER,
+the x-coordinate is the distance of the Widget's horizontal center to the screen's horizontal center.
+</p>
+
+<p>
+If the <strong>positioning</strong> property is set to TOP_RIGHT, CENTER_RIGHT or BOTTOM_RIGHT,
+the x-coordinate is the distance of the Widget's right edge to the right border of the screen.
+</p>
+
+<p>
+The x property can be given in absolute pixels or in percent.
++100% don't mean the total screen width, but total screen height * 4 / 3 to avoid scaling problems between 4:3er and 16:10er resolutions.
+Use the opposite positioning to achieve this. The editor will do this automatically when dragging with the mouse.
+Hence the value could have these forms:
+<ul>
+    <li>123</li>
+    <li>34%</li>
+    <li><s>110%</s></li>
+    <li>67.357%</li>
+</ul>
+</p>
+
+<p>
+Click the &quot;px&quot; or &quot;%&quot; button to convert between
+pixels and percent (preserving the absolute value).
+</p>
