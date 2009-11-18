@@ -161,13 +161,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         textureBuffer.put( (byte)textures.length );
         
-        final int n = getNumTextures();
+        final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
             textures[0].setRectangleVisible( i, getWidget( i ).isVisible() );
         
-        int rectOffset = textures[0].fillBuffer( true, 0, 0, 0, 0, textureBuffer );
+        int k = 0;
         
-        int k = 1;
+        int rectOffset = textures[0].fillBuffer( true, 0, 0, k++, 0, textureBuffer );
+        
         for ( int i = 0; i < widgetTextures.length; i++ )
         {
             Widget widget = getWidget( i );

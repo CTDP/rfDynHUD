@@ -10,8 +10,6 @@ import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
@@ -24,10 +22,10 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.Track;
 import net.ctdp.rfdynhud.widgets._util.FontUtils;
-import net.ctdp.rfdynhud.widgets._util.LongValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -60,6 +58,8 @@ public class MapWidget extends Widget
     private String markColorNextBehindKey = "#FFFF00C0";
     private Color markColorNextBehind = null;
     
+    private int maxDisplayedVehicles = 22;
+    
     private boolean displayPositionNumbers = true;
     
     private String posNumberFontKey = "Monospaced-PLAIN-9v";
@@ -70,10 +70,10 @@ public class MapWidget extends Widget
     
     private static final int ANTI_ALIAS_RADIUS_OFFSET = 1;
     
-    private final LongValue updateID = new LongValue();
+    private TransformableTexture[] itemTextures = null;
+    private int[] itemStates = null;
     
-    private final HashMap<String, TrackPosition> oldPositions = new HashMap<String, TrackPosition>();
-    private final HashSet<String> displayedDrivers = new HashSet<String>();
+    private final Point position = new Point();
     
     public void setItemRadius( int radius )
     {
@@ -212,6 +212,18 @@ public class MapWidget extends Widget
         return ( markColorNextBehind );
     }
     
+    public void setMaxDisplayedVehicles( int number )
+    {
+        this.maxDisplayedVehicles = Math.max( 1, Math.min( number, 50 ) );
+        
+        forceAndSetDirty();
+    }
+    
+    public final int getMaxDisplayedVehicles()
+    {
+        return ( maxDisplayedVehicles );
+    }
+    
     public void setDisplayPositionNumbers( boolean display )
     {
         this.displayPositionNumbers = display;
@@ -278,6 +290,38 @@ public class MapWidget extends Widget
         track = null;
     }
     
+    private void initSubTextures()
+    {
+        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResY() / 960f );
+        
+        if ( ( itemTextures != null ) && ( itemTextures.length == getMaxDisplayedVehicles() ) && ( itemTextures[0].getWidth() == itemRadius + itemRadius ) && ( itemTextures[0].getHeight() == itemRadius + itemRadius ) )
+            return;
+        
+        itemTextures = new TransformableTexture[ getMaxDisplayedVehicles() ];
+        itemStates = new int[ getMaxDisplayedVehicles() ];
+        
+        for ( int i = 0; i < getMaxDisplayedVehicles(); i++ )
+        {
+            itemTextures[i] = new TransformableTexture( itemRadius + itemRadius, itemRadius + itemRadius, 0, 0, 0, 0, 0f, 1f, 1f );
+            itemTextures[i].setVisible( false );
+            
+            if ( antialiasPositions )
+                itemTextures[i].getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+            else
+                itemTextures[i].getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF );
+            
+            itemStates[i] = -1;
+        }
+    }
+    
+    @Override
+    public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    {
+        initSubTextures();
+        
+        return ( itemTextures );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -322,7 +366,7 @@ public class MapWidget extends Widget
                 this.track = track;
         }
         
-        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResY() / 960f );
+        initSubTextures();
         
         if ( ( track != null ) && ( track.getNumWaypoints( false ) > 0 ) )
         {
@@ -419,6 +463,7 @@ public class MapWidget extends Widget
             texCanvas.getImage().clear( texture, offsetX, offsetY, width, height, true, null );
     }
     
+    /*
     private void clearPosition( Point p, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         int off2X = ( antialiasPositions ? ANTI_ALIAS_RADIUS_OFFSET : 0 ) + itemRadius;// + ( ( width - itemRadius - itemRadius - track.getXExtend( scale ) ) / 2 );
@@ -440,137 +485,99 @@ public class MapWidget extends Widget
         image.clear( texture, off2X + x0, off2Y + y0, w, h, offsetX + off2X + x0, offsetY + off2Y + y0, true, null );
         //image.clear( Color.RED, offsetX + off2X + x0, offsetY + off2Y + y0, w, h, true, null );
     }
+    */
     
     @Override
     public void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
     {
-        TextureImage2D image = texCanvas.getImage();
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        if ( ( ( track != null ) && ( texture != null ) ) && ( needsCompleteRedraw || clock1 ) )
+        if ( ( track != null ) && ( texture != null ) )
         {
             int off2 = ( antialiasPositions ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
-            
-            //int x0 = off2 + itemRadius + ( ( width - track.getXExtend( scale ) ) / 2 );
-            //int y0 = off2 + itemRadius + ( ( height - track.getZExtend( scale ) ) / 2 );
-            
-            int n = scoringInfo.getNumVehicles();
-            
-            for ( int i = 0; i < n; i++ )
-            {
-                VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
-                String driverName = vsi.getDriverName();
-                TrackPosition oldPos = oldPositions.get( driverName );
-                if ( oldPos != null )
-                {
-                    clearPosition( oldPos.position, image, offsetX, offsetY, width, height );
-                }
-                
-                displayedDrivers.remove( driverName );
-            }
-            
-            // clear disconnected drivers
-            if ( !displayedDrivers.isEmpty() )
-            {
-                for ( String driverName : displayedDrivers )
-                {
-                    TrackPosition oldPos = oldPositions.get( driverName );
-                    if ( oldPos != null )
-                    {
-                        clearPosition( oldPos.position, image, offsetX, offsetY, width, height );
-                    }
-                }
-                
-                displayedDrivers.clear();
-            }
-            
-            if ( antialiasPositions )
-                texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-            else
-                texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF );
-            
-            updateID.update( scoringInfo.getUpdateID() );
-            boolean newData = updateID.hasChanged();
             
             short ownPlace = scoringInfo.getOwnPlace();
             
             Font font = getPosNumberFont();
             FontMetrics metrics = texCanvas.getFontMetrics( font );
             
-            texCanvas.setColor( getMarkColorNormal() );
-            boolean normal = true;
-            float lapDistance = 0f;
+            boolean normal = false;
+            int n = Math.min( scoringInfo.getNumVehicles(), getMaxDisplayedVehicles() );
             for ( int i = 0; i < n; i++ )
             {
                 VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
                 //if ( !vsi.isInPits() )
                 {
-                    String driverName = vsi.getDriverName();
-                    TrackPosition oldPos = oldPositions.get( driverName );
-                    if ( oldPos == null )
-                    {
-                        oldPos = new TrackPosition();
-                        oldPositions.put( driverName, oldPos );
-                    }
+                    float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocity() * scoringInfo.getExtrapolationTime() ) % track.getTrackLength();
                     
-                    if ( isEditorMode || newData )
-                    {
-                        oldPos.lapDistance = vsi.getLapDistance();
-                        oldPos.velocity = vsi.getScalarVelocity();
-                        oldPos.timestamp = scoringInfo.getSessionNanos();
-                        
-                        lapDistance = oldPos.lapDistance;
-                    }
-                    else
-                    {
-                        lapDistance = ( oldPos.lapDistance + oldPos.velocity * ( scoringInfo.getSessionNanos() - oldPos.timestamp ) / 1000000000f ) % track.getTrackLength();
-                    }
+                    TransformableTexture tt = itemTextures[i];
+                    itemTextures[i].setVisible( true );
+                    int itemState = vsi.getPlace();
                     
-                    if ( track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, oldPos.position ) )
+                    if ( track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, position ) )
                     {
                         if ( vsi.getPlace() == 1 )
                         {
-                            texCanvas.setColor( getMarkColorLeader() );
+                            itemState |= 1 << 16;
+                            tt.getTextureCanvas().setColor( getMarkColorLeader() );
                             normal = false;
                         }
                         else if ( vsi.isPlayer() )
                         {
-                            texCanvas.setColor( getMarkColorMe() );
+                            itemState |= 2 << 16;
+                            tt.getTextureCanvas().setColor( getMarkColorMe() );
                             normal = false;
                         }
                         else if ( vsi.getPlace() == ownPlace + 1 )
                         {
-                            texCanvas.setColor( getMarkColorNextInFront() );
+                            itemState |= 3 << 16;
+                            tt.getTextureCanvas().setColor( getMarkColorNextInFront() );
                             normal = false;
                         }
                         else if ( vsi.getPlace() == ownPlace - 1 )
                         {
-                            texCanvas.setColor( getMarkColorNextBehind() );
+                            itemState |= 4 << 16;
+                            tt.getTextureCanvas().setColor( getMarkColorNextBehind() );
                             normal = false;
                         }
                         else if ( !normal )
                         {
-                            texCanvas.setColor( getMarkColorNormal() );
+                            itemState |= 5 << 16;
+                            tt.getTextureCanvas().setColor( getMarkColorNormal() );
                             normal = true;
                         }
                         
-                        //texCanvas.fillCircle( offsetX + off2 + itemRadius + oldPos.position.x, offsetY + off2 + itemRadius + oldPos.position.y, itemRadius + 1 );
-                        texCanvas.fillArc( offsetX + off2 + oldPos.position.x, offsetY + off2+ oldPos.position.y, itemRadius + itemRadius, itemRadius + itemRadius, 0, 360 );
+                        tt.setTranslation( off2 + position.x, off2+ position.y );
                         
-                        displayedDrivers.add( driverName );
-                    }
-                    
-                    if ( getDisplayPositionNumbers() )
-                    {
-                        String posStr = String.valueOf( vsi.getPlace() );
-                        Rectangle2D bounds = metrics.getStringBounds( posStr, texCanvas );
-                        float fw = (float)bounds.getWidth();
-                        float fh = (float)( metrics.getAscent() - metrics.getDescent() );
-                        
-                        image.drawString( posStr, offsetX + off2 + oldPos.position.x + itemRadius - (int)( fw / 2 ), offsetY + off2+ oldPos.position.y + itemRadius + (int)( fh / 2 ), bounds, font, getPosNumberFontColor(), false, null );
+                        if ( itemStates[i] != itemState )
+                        {
+                            itemStates[i] = itemState;
+                            
+                            tt.getTexture().clear( true, null );
+                            
+                            tt.getTextureCanvas().fillArc( 0, 0, itemRadius + itemRadius, itemRadius + itemRadius, 0, 360 );
+                            
+                            if ( getDisplayPositionNumbers() )
+                            {
+                                String posStr = String.valueOf( vsi.getPlace() );
+                                Rectangle2D bounds = metrics.getStringBounds( posStr, tt.getTextureCanvas() );
+                                float fw = (float)bounds.getWidth();
+                                float fh = (float)( metrics.getAscent() - metrics.getDescent() );
+                                
+                                tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, getPosNumberFontColor(), false, null );
+                            }
+                            
+                            if ( isEditorMode )
+                            {
+                                tt.drawInEditor( texCanvas, offsetX, offsetY );
+                            }
+                        }
                     }
                 }
             }
+            
+            for ( int i = n; i < getMaxDisplayedVehicles(); i++ )
+                itemTextures[i].setVisible( false );
         }
     }
     
@@ -589,6 +596,8 @@ public class MapWidget extends Widget
         writer.writeProperty( "markColorMe", markColorMeKey, "The color used for your own car in #RRGGBBAA (hex)." );
         writer.writeProperty( "markColorNextInFront", markColorNextInFrontKey, "The color used for the car in front of you in #RRGGBBAA (hex)." );
         writer.writeProperty( "markColorNextBehind", markColorNextBehindKey, "The color used for the car behind you in #RRGGBBAA (hex)." );
+        writer.writeProperty( "maxDisplayedVehicles", getMaxDisplayedVehicles(), "The maximum number of displayed vehicles." );
+        writer.writeProperty( "displayPosNumbers", getDisplayPositionNumbers(), "Display numbers on the position markers?" );
         writer.writeProperty( "posNumberFont", posNumberFontKey, "The font used for position numbers." );
         writer.writeProperty( "posNumberFontColor", posNumberFontColorKey, "The font color used for position numbers in the format #RRGGBB (hex)." );
     }
@@ -618,6 +627,9 @@ public class MapWidget extends Widget
         
         else if ( key.equals( "markColorNextBehind" ) )
             this.markColorNextBehindKey = value;
+        
+        else if ( key.equals( "maxDisplayedVehicles" ) )
+            this.maxDisplayedVehicles = Integer.parseInt( value );
         
         else if ( key.equals( "displayPosNumbers" ) )
             this.displayPositionNumbers = Boolean.parseBoolean( value );
@@ -726,6 +738,21 @@ public class MapWidget extends Widget
             public Object getValue()
             {
                 return ( markColorNextBehindKey );
+            }
+        } );
+        
+        props.add( new Property( "maxDisplayedVehicles", PropertyEditorType.INTEGER )
+        {
+            @Override
+            public void setValue( Object value )
+            {
+                setMaxDisplayedVehicles( (Integer)value );
+            }
+            
+            @Override
+            public Object getValue()
+            {
+                return ( getMaxDisplayedVehicles() );
             }
         } );
         

@@ -4,9 +4,9 @@ import java.awt.geom.AffineTransform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.openmali.types.twodee.Rect2i;
-
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+
+import org.openmali.types.twodee.Rect2i;
 
 /**
  * The {@link TransformableTexture} keeps one {@link TextureImage2D}
@@ -118,6 +118,11 @@ public class TransformableTexture
         return ( texture );
     }
     
+    public final Texture2DCanvas getTextureCanvas()
+    {
+        return ( texture.getTextureCanvas() );
+    }
+    
     public void generateSubRectangles( WidgetsDrawingManager widgetsManager )
     {
         final Texture2DCanvas texCanvas = widgetsManager.getMainTexture().getTextureCanvas();
@@ -151,9 +156,10 @@ public class TransformableTexture
     
     public void setVisible( boolean visible )
     {
-        this.visible = visible;
+        if ( this.visible != visible )
+            this.dirty = true;
         
-        this.dirty = true;
+        this.visible = visible;
     }
     
     public final boolean isVisible()
@@ -371,7 +377,7 @@ public class TransformableTexture
     
     public void drawInEditor( Texture2DCanvas texCanvas, int offsetX, int offsetY )
     {
-        if ( !isVisible() )
+        if ( !isVisible() || ( isTransformed() && !isRectangleVisible( 0 ) ) )
             return;
         
         texCanvas.pushClip( -1, -1, Integer.MAX_VALUE, Integer.MAX_VALUE, false );
