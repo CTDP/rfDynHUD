@@ -64,7 +64,7 @@ public class MiscWidget extends Widget
     private final StringValue leader = new StringValue();
     private boolean leaderValid = false;
     private final FloatValue fastestLap = new FloatValue( ValidityTest.GREATER_THAN, 0f );
-    private final FloatValue sessionTime = new FloatValue();
+    private final FloatValue sessionTime = new FloatValue( -1f, 0.1f );
     private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
     private final IntValue lapsCompleted = new IntValue();
     private float oldLapsRemaining = -1f;
@@ -184,7 +184,7 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -193,7 +193,7 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final java.awt.Color fontColor = getFontColor();
@@ -274,7 +274,7 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
     {
         final TextureImage2D image = texCanvas.getImage();
         final java.awt.Color backgroundColor = getBackgroundColor();
@@ -392,10 +392,13 @@ public class MiscWidget extends Widget
                 }
             }
             
-            sessionTime.update( gameData.getScoringInfo().getCurrentTime() );
+            sessionTime.update( gameData.getScoringInfo().getSessionTime() );
             float totalTime = gameData.getScoringInfo().getEndTime();
-            if ( needsCompleteRedraw || sessionTime.hasChanged() || gamePhase.hasChanged() )
+            if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase.hasChanged( false ) ) ) )
             {
+                sessionTime.setUnchanged();
+                gamePhase.setUnchanged();
+                
                 if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
                 {
                     sessionTimeString.draw( offsetX, offsetY, "--:--:--", backgroundColor, image );
@@ -428,13 +431,13 @@ public class MiscWidget extends Widget
             if ( velocity > relTopspeed )
             {
                 relTopspeed = velocity;
-                lastRelTopspeedTime = sessionNanos;
+                lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
-            else if ( ( lastRelTopspeedTime + relTopspeedResetDelay < sessionNanos ) && ( velocity < relTopspeed - 50f ) )
+            else if ( ( lastRelTopspeedTime + relTopspeedResetDelay < scoringInfo.getSessionNanos() ) && ( velocity < relTopspeed - 50f ) )
             {
                 relTopspeed = velocity;
                 oldRelTopspeed = -1f;
-                lastRelTopspeedTime = sessionNanos;
+                lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
             
             if ( needsCompleteRedraw || ( clock2 && ( relTopspeed > oldRelTopspeed ) ) )

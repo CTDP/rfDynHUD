@@ -77,6 +77,10 @@ public class CommentaryRequestInfo
         updateListeners = tmp;
     }
     
+    void prepareDataUpdate()
+    {
+    }
+    
     void onDataUpdated()
     {
         this.updateID++;

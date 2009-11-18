@@ -290,7 +290,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -299,7 +299,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         if ( track == null )
         {
@@ -442,7 +442,7 @@ public class MapWidget extends Widget
     }
     
     @Override
-    public void drawWidget( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    public void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
     {
         TextureImage2D image = texCanvas.getImage();
         ScoringInfo scoringInfo = gameData.getScoringInfo();
@@ -517,13 +517,13 @@ public class MapWidget extends Widget
                     {
                         oldPos.lapDistance = vsi.getLapDistance();
                         oldPos.velocity = vsi.getScalarVelocity();
-                        oldPos.timestamp = sessionNanos;
+                        oldPos.timestamp = scoringInfo.getSessionNanos();
                         
                         lapDistance = oldPos.lapDistance;
                     }
                     else
                     {
-                        lapDistance = ( oldPos.lapDistance + oldPos.velocity * ( sessionNanos - oldPos.timestamp ) / 1000000000f ) % track.getTrackLength();
+                        lapDistance = ( oldPos.lapDistance + oldPos.velocity * ( scoringInfo.getSessionNanos() - oldPos.timestamp ) / 1000000000f ) % track.getTrackLength();
                     }
                     
                     if ( track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, oldPos.position ) )

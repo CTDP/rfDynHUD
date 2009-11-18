@@ -720,7 +720,6 @@ public abstract class Widget implements Documented
      * Checks, if the Widget needs any changes fore it is drawn.
      * 
      * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
-     * @param sessionNanos session time in nano-seconds
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param gameData the live game data
@@ -732,13 +731,12 @@ public abstract class Widget implements Documented
      * 
      * @return true, if size has changed.
      */
-    protected abstract boolean checkForChanges( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
+    protected abstract boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method is called once to initialized {@link DrawnString}s used on this Widget.
      * 
      * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
-     * @param sessionNanos session time in nano-seconds
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param gameData the live game data
@@ -748,13 +746,12 @@ public abstract class Widget implements Documented
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void initialize( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
+    protected abstract void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method must contain the actual drawing code for this Widget.
      * 
      * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
-     * @param sessionNanos session time in nano-seconds
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param gameData the live game data
@@ -765,7 +762,7 @@ public abstract class Widget implements Documented
      * @param height the height on the texture
      * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      */
-    protected abstract void drawWidget( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw );
+    protected abstract void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw );
     
     /**
      * 
@@ -807,7 +804,6 @@ public abstract class Widget implements Documented
      * This method must contain the actual drawing code for this Widget.
      * 
      * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
-     * @param sessionNanos session time in nano-seconds
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param gameData the live game data
@@ -818,7 +814,7 @@ public abstract class Widget implements Documented
      * @param height the height on the texture
      * @param completeRedrawForced
      */
-    public final void drawWidget( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, boolean completeRedrawForced )
+    public final void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, boolean completeRedrawForced )
     {
         int offsetX = position.getEffectiveX();
         int offsetY = position.getEffectiveY();
@@ -842,12 +838,12 @@ public abstract class Widget implements Documented
         
         if ( !initialized )
         {
-            initialize( isEditorMode, sessionNanos, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2 );
+            initialize( isEditorMode, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2 );
             
             initialized = true;
         }
         
-        if ( checkForChanges( isEditorMode, sessionNanos, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2 ) )
+        if ( checkForChanges( isEditorMode, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2 ) )
         {
             completeRedrawForced = true;
             
@@ -880,7 +876,7 @@ public abstract class Widget implements Documented
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
-        drawWidget( isEditorMode, sessionNanos, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2, completeRedrawForced );
+        drawWidget( isEditorMode, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2, completeRedrawForced );
     }
     
     

@@ -158,6 +158,10 @@ public class TelemetryData
         updateListeners = tmp;
     }
     
+    void prepareDataUpdate()
+    {
+    }
+    
     void onDataUpdated()
     {
         this.updateID++;

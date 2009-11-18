@@ -197,7 +197,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -206,7 +206,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final java.awt.Color fontColor = getFontColor();
@@ -284,7 +284,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean isEditorMode, long sessionNanos, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
     {
         final TextureImage2D image = texCanvas.getImage();
         final java.awt.Color backgroundColor = getBackgroundColor();
@@ -549,7 +549,7 @@ public class TimingWidget extends Widget
             final VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
             Laptime ownFastestLaptime = vsi.getFastestLaptime();
             //float lap = ( vsi.getStintLength() > 1f ) ? scoringInfo.getCurrentTime() - vsi.getLapStartTime() : -1f;
-            float lap = scoringInfo.getCurrentTime() - vsi.getLapStartTime();
+            float lap = scoringInfo.getSessionTime() - vsi.getLapStartTime();
             
             boolean lv = ( lap > 0f );
             if ( needsCompleteRedraw || clock1 || ( lv != currLapValid ) )
@@ -557,7 +557,7 @@ public class TimingWidget extends Widget
             {
                 currLapValid = lv;
                 
-                final boolean isDelaying = isEditorMode || ( scoringInfo.getCurrentTime() <= lastLapDisplayTime );
+                final boolean isDelaying = isEditorMode || ( scoringInfo.getSessionTime() <= lastLapDisplayTime );
                 
                 final boolean absFastestIsOwn = isDelaying ? delayedAbsFastestIsOwn : ( vsi == afVSI );
                 final short sector = vsi.getSector();

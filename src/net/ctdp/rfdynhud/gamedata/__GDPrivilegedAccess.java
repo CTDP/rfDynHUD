@@ -50,13 +50,16 @@ public class __GDPrivilegedAccess
     public static final void onSessionStarted( LiveGameData gameData )
     {
         gameData.getScoringInfo().onSessionStarted();
-        gameData.setSessionStartTimestamp( System.nanoTime() );
     }
     
     public static final void onRealtimeEntered( LiveGameData gameData )
     {
-        gameData.setRealtimeEnteredTimestamp( System.nanoTime() );
         gameData.getScoringInfo().onRealtimeEntered();
+    }
+    
+    public static final void updateSessionTime( ScoringInfo scoringInfo )
+    {
+        scoringInfo.updateSessionTime();
     }
     
     public static final void setEngineBoostMapping( int boost, TelemetryData telemData )

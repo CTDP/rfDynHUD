@@ -27,10 +27,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
     private boolean running = false;
     
     private boolean sessionRunning = false;
-    private float sessionStartTime = -1f;
     
     private boolean realtimeMode = false;
-    private float realtimeStartTime = -1f;
     private boolean isComingOutOfGarage = true;
     
     private boolean isInGarage = true;
@@ -80,7 +78,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
         try
         {
             this.isComingOutOfGarage = true;
-            this.sessionStartTime = gameData.getScoringInfo().getCurrentTime();
             this.sessionRunning = true;
             
             __GDPrivilegedAccess.onSessionStarted( gameData );
@@ -150,16 +147,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
         return ( sessionRunning );
     }
     
-    /**
-     * Returns the time at which the current session has been started. (TODO: Check, if this will always be 0)
-     * 
-     * @return the time at which the current session has been started.
-     */
-    public final float getSessionStartTime()
-    {
-        return ( sessionStartTime );
-    }
-    
     public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig )
     {
         int n = widgetsConfig.getNumWidgets();
@@ -207,8 +194,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
                     widgetsManager.collectTextures( isEditorMode, widgetsManager );
                 }
             }
-            
-            this.realtimeStartTime = gameData.getScoringInfo().getCurrentTime();
             
             widgetsManager.fireOnRealtimeEntered( isEditorMode, gameData );
             
@@ -336,16 +321,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
     public final boolean isInRealtimeMode()
     {
         return ( realtimeMode );
-    }
-    
-    /**
-     * Returns the time at which the user entered realtime mode.
-     * 
-     * @return the time at which the user entered realtime mode.
-     */
-    public final float getRealtimeStartTime()
-    {
-        return ( realtimeStartTime );
     }
     
     public final void checkAndFireOnLapStarted( boolean isEditorMode )

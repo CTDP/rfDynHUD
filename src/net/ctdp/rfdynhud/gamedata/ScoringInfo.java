@@ -56,6 +56,17 @@ public class ScoringInfo
     private long updateID = 0L;
     private int sessionID = 0;
     
+    private long sessionStartTimestamp = -1L;
+    private long realtimeEnteredTimestamp = -1L;
+    private int realtimeEnteredID = 0;
+    
+    private long lastUpdateTimestamp = -1L;
+    private long sessionBaseNanos = -1L;
+    private long extrapolationNanos = 0L;
+    private float extrapolationTime = 0.0f;
+    private long sessionNanos = -1L;
+    private float sessionTime = 0.0f;
+    
     private double raceLengthPercentage = 1.0;
     
     public static interface ScoringInfoUpdateListener
@@ -279,7 +290,56 @@ public class ScoringInfo
     }
     */
     
-    public void onDataUpdated()
+    private final void setLastUpdateTimestamp()
+    {
+        lastUpdateTimestamp = System.nanoTime();
+    }
+    
+    void prepareDataUpdate()
+    {
+        setLastUpdateTimestamp();
+    }
+    
+    final void updateSessionTime()
+    {
+        extrapolationNanos = System.nanoTime() - lastUpdateTimestamp;
+        extrapolationTime = extrapolationNanos / 1000000000.0f;
+        
+        sessionNanos = sessionBaseNanos + extrapolationNanos;
+        sessionTime = sessionNanos / 1000000000.0f;
+    }
+    
+    /**
+     * Gets the nano seconds, the current session is running.
+     * 
+     * @return the nano seconds, the current session is running.
+     */
+    public final long getSessionNanos()
+    {
+        return ( sessionNanos );
+    }
+    
+    /**
+     * Returns the nano seconds since the last ScoringInfo update.
+     * 
+     * @return the nano seconds since the last ScoringInfo update.
+     */
+    public final long getExtrapolationNanos()
+    {
+        return ( extrapolationNanos );
+    }
+    
+    /**
+     * Returns the seconds since the last ScoringInfo update.
+     * 
+     * @return the seconds since the last ScoringInfo update.
+     */
+    public final float getExtrapolationTime()
+    {
+        return ( extrapolationTime );
+    }
+    
+    void onDataUpdated()
     {
         this.updateID++;
         
@@ -289,6 +349,9 @@ public class ScoringInfo
         
         resetDerivateData();
         updateStintLengths();
+        
+        sessionBaseNanos = Math.round( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) * 1000000000.0 );
+        updateSessionTime();
         
         if ( laptimesRecorder != null )
         {
@@ -348,19 +411,64 @@ public class ScoringInfo
     
     final void onSessionStarted()
     {
+        this.sessionStartTimestamp = System.nanoTime();
+        
         updateRaceLengthPercentage();
+    }
+    
+    /**
+     * Gets the system timestamp in nanoseconds, at which the current session was started.
+     * 
+     * @return the system timestamp in nanoseconds, at which the current session was started.
+     */
+    public final long getSessionStartTimestamp()
+    {
+        return ( sessionStartTimestamp );
     }
     
     final void onRealtimeEntered()
     {
+        this.realtimeEnteredTimestamp = System.nanoTime();
+        this.realtimeEnteredID++;
+        
         updateRaceLengthPercentage();
     }
     
+    /**
+     * Gets the system timestamp in nanoseconds, at which the player entered realtime mode.
+     * 
+     * @return the system timestamp in nanoseconds, at which the player entered realtime mode.
+     */
+    public final long getRealtimeEnteredTimestamp()
+    {
+        return ( realtimeEnteredTimestamp );
+    }
+    
+    /**
+     * This ID is incremented each time, the player enters realtime mode.
+     * 
+     * @return the ID of realtime enter actions.
+     */
+    public final int getRealtimeEntredID()
+    {
+        return ( realtimeEnteredID );
+    }
+    
+    /**
+     * Gets an ID, that in incremented every time, this {@link ScoringInfo} object is filled with new data from the game.
+     * 
+     * @return an ID, that in incremented every time, this {@link ScoringInfo} object is filled with new data from the game.
+     */
     public final long getUpdateID()
     {
         return ( updateID );
     }
     
+    /**
+     * This Session ID is incremented every time, a new session is started.
+     * 
+     * @return a session ID unique for each started session.
+     */
     public final int getSessionID()
     {
         return ( sessionID );
@@ -392,6 +500,11 @@ public class ScoringInfo
         onDataUpdated();
     }
     
+    /**
+     * Gets a multiplier in range [0, 1] for the race distance.
+     * 
+     * @return a multiplier in range [0, 1] for the race distance.
+     */
     public final double getRaceLengthPercentage()
     {
         return ( raceLengthPercentage );
@@ -426,17 +539,18 @@ public class ScoringInfo
     }
     
     /**
-     * current time
+     * current session time
      */
-    public final float getCurrentTime()
+    public final float getSessionTime()
     {
         // float mCurrentET
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) );
+        //return ( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) );
+        return ( sessionTime );
     }
     
     /**
-     * ending time
+     * session ending time
      */
     public final float getEndTime()
     {

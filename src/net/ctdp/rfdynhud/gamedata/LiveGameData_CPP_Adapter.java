@@ -8,6 +8,11 @@ public class LiveGameData_CPP_Adapter
 {
     private final LiveGameData gameData;
     
+    public final void prepareTelemetryDataUpdate()
+    {
+        gameData.getTelemetryData().prepareDataUpdate();
+    }
+    
     public final byte[] getTelemetryBuffer()
     {
         return ( gameData.getTelemetryData().buffer );
@@ -16,6 +21,11 @@ public class LiveGameData_CPP_Adapter
     public void notifyTelemetryUpdated()
     {
         gameData.getTelemetryData().onDataUpdated();
+    }
+    
+    public final void prepareScoringInfoDataUpdate()
+    {
+        gameData.getScoringInfo().prepareDataUpdate();
     }
     
     public final byte[] getScoringInfoBuffer()
@@ -35,13 +45,20 @@ public class LiveGameData_CPP_Adapter
     
     public void notifyScoringInfoUpdated()
     {
-        int n = gameData.getScoringInfo().getNumVehicles();
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        
+        int n = scoringInfo.getNumVehicles();
         for ( int i = 0; i < n; i++ )
         {
-            gameData.getScoringInfo().getVehicleScoringInfo( i ).onDataUpdated();
+            scoringInfo.getVehicleScoringInfo( i ).onDataUpdated();
         }
         
-        gameData.getScoringInfo().onDataUpdated();
+        scoringInfo.onDataUpdated();
+    }
+    
+    public final void prepareGraphicsInfoDataUpdate()
+    {
+        gameData.getGraphicsInfo().prepareDataUpdate();
     }
     
     public final byte[] getGraphicsInfoBuffer()
@@ -52,6 +69,11 @@ public class LiveGameData_CPP_Adapter
     public void notifyGraphicsInfoUpdated()
     {
         gameData.getGraphicsInfo().onDataUpdated();
+    }
+    
+    public final void prepareCommentaryInfoDataUpdate()
+    {
+        gameData.getCommentaryRequestInfo().prepareDataUpdate();
     }
     
     public final byte[] getCommentaryInfoBuffer()

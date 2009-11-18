@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
@@ -23,7 +24,6 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     private TransformableTexture[][] widgetTextures = null;
     private final ByteBuffer textureBuffer = TransformableTexture.createByteBuffer();
     
-    private long sessionStartTime = -1L;
     private long frameCounter = 0;
     
     private long measureStart = -1L;
@@ -64,7 +64,6 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public void fireOnSessionStarted( boolean isEditorMode, SessionType sessionType, LiveGameData gameData )
     {
-        sessionStartTime = System.nanoTime();
         //nextClockTime1 = 0L;
         //nextClockTime2 = 0L;
         
@@ -368,7 +367,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         checkFixAndBakeConfiguration( isEditorMode );
         
-        long sessionNanos = System.nanoTime() - sessionStartTime;
+        __GDPrivilegedAccess.updateSessionTime( gameData.getScoringInfo() );
+        
+        long sessionNanos = gameData.getScoringInfo().getSessionNanos();
         
         if ( measureStart == -1L )
         {
@@ -429,7 +430,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 {
                     if ( widget.isVisible() || isEditorMode )
                     {
-                        widget.drawWidget( isEditorMode, sessionNanos, clock1, clock2, gameData, texCanvas, completeRedrawForced );
+                        widget.drawWidget( isEditorMode, clock1, clock2, gameData, texCanvas, completeRedrawForced );
                     }
                     else if ( widget.needsCompleteClear() )
                     {

@@ -21,10 +21,6 @@ public class LiveGameData
     private final GraphicsInfo graphicsInfo;
     private final CommentaryRequestInfo commentaryInfo;
     
-    private long sessionStartTimestamp = -1L;
-    private long realtimeEnteredTimestamp = -1L;
-    private int realtimeEnteredID = 0;
-    
     public final VehiclePhysics getPhysics()
     {
         return ( physics );
@@ -58,32 +54,6 @@ public class LiveGameData
     public final CommentaryRequestInfo getCommentaryRequestInfo()
     {
         return ( commentaryInfo );
-    }
-    
-    final void setSessionStartTimestamp( long timestamp )
-    {
-        this.sessionStartTimestamp = timestamp;
-    }
-    
-    public final long getSessionStartTimestamp()
-    {
-        return ( sessionStartTimestamp );
-    }
-    
-    final void setRealtimeEnteredTimestamp( long timestamp )
-    {
-        this.realtimeEnteredTimestamp = timestamp;
-        this.realtimeEnteredID++;
-    }
-    
-    public final long getRealtimeEnteredTimestamp()
-    {
-        return ( realtimeEnteredTimestamp );
-    }
-    
-    public final int getRealtimeEntredID()
-    {
-        return ( realtimeEnteredID );
     }
     
     private String lastTrackName = null;

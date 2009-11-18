@@ -78,6 +78,10 @@ public class GraphicsInfo
         updateListeners = tmp;
     }
     
+    void prepareDataUpdate()
+    {
+    }
+    
     void onDataUpdated()
     {
         this.updateID++;

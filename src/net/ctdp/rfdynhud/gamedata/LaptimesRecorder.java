@@ -118,7 +118,7 @@ public class LaptimesRecorder
                         if ( !scoringInfo.getSessionType().isRace() && ( laptime.isInLap == Boolean.TRUE ) )
                             laptime.sector3 = -1f;
                         else
-                            laptime.sector3 = scoringInfo.getCurrentTime() - vsi.getLapStartTime() - laptime.sector1 - laptime.sector2;
+                            laptime.sector3 = scoringInfo.getSessionTime() - vsi.getLapStartTime() - laptime.sector1 - laptime.sector2;
                         break;
                 }
             }
