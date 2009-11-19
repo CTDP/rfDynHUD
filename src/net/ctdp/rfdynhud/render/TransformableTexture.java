@@ -71,13 +71,13 @@ public class TransformableTexture
     public static final int MAX_NUM_TEXTURES = 128;
     public static final int MAX_NUM_RECTANGLES = 128;
     
-    public static final int STRUCT_SIZE = 35 + MAX_NUM_RECTANGLES * 8;
+    public static final int STRUCT_SIZE = 39 + MAX_NUM_RECTANGLES * 8;
     
     private static final int OFFSET_VISIBLE = 1;
     private static final int OFFSET_SIZE = OFFSET_VISIBLE + MAX_NUM_TEXTURES * 1;
     private static final int OFFSET_TRANSFORMED = OFFSET_SIZE + MAX_NUM_TEXTURES * 4;
     private static final int OFFSET_TRANSLATION = OFFSET_TRANSFORMED + MAX_NUM_TEXTURES * 1;
-    private static final int OFFSET_ROT_CENTER = OFFSET_TRANSLATION + MAX_NUM_TEXTURES * 4;
+    private static final int OFFSET_ROT_CENTER = OFFSET_TRANSLATION + MAX_NUM_TEXTURES * 8;
     private static final int OFFSET_ROTATION = OFFSET_ROT_CENTER + MAX_NUM_TEXTURES * 4;
     private static final int OFFSET_SCALE = OFFSET_ROTATION + MAX_NUM_TEXTURES * 4;
     private static final int OFFSET_CLIP_RECT = OFFSET_SCALE + MAX_NUM_TEXTURES * 8;
@@ -96,7 +96,8 @@ public class TransformableTexture
     
     private boolean visible = true;
     
-    private int transX, transY;
+    private final boolean pixelPerfectPositioning;
+    private float transX, transY;
     private int rotCenterX, rotCenterY;
     private float rotation;
     private float scaleX, scaleY;
@@ -177,12 +178,12 @@ public class TransformableTexture
         return ( texture.getUsedHeight() );
     }
     
-    public void setTranslation( int transX, int transY )
+    public void setTranslation( float transX, float transY )
     {
-        this.transX = transX;
-        this.transY = transY;
+        this.transX = pixelPerfectPositioning ? Math.round( transX ) : transX;
+        this.transY = pixelPerfectPositioning ? Math.round( transY ) : transY;
         
-        if ( ( transX != 0 ) || ( transY != 0 ) )
+        if ( ( this.transX != 0.0f ) || ( this.transY != 0.0f ) )
             this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_TRANSLATION ) & 0xFF );
         else
             this.transformFlags = (byte)( ( transformFlags & ~TRANSFORM_FLAG_TRANSLATION ) & 0xFF );
@@ -190,12 +191,12 @@ public class TransformableTexture
         this.dirty = true;
     }
     
-    public final int getTransX()
+    public final float getTransX()
     {
         return ( transX );
     }
     
-    public final int getTransY()
+    public final float getTransY()
     {
         return ( transY );
     }
@@ -222,7 +223,7 @@ public class TransformableTexture
     {
         this.rotation = rotation;
         
-        if ( rotation != 0.0 )
+        if ( rotation != 0.0f )
             this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_ROTATION ) & 0xFF );
         else
             this.transformFlags = (byte)( ( transformFlags & ~TRANSFORM_FLAG_ROTATION ) & 0xFF );
@@ -250,7 +251,7 @@ public class TransformableTexture
         this.scaleX = scaleX;
         this.scaleY = scaleY;
         
-        if ( ( scaleX != 1.0 ) || ( scaleY != 1.0 ) )
+        if ( ( scaleX != 1.0f ) || ( scaleY != 1.0f ) )
             this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_SCALE ) & 0xFF );
         else
             this.transformFlags = (byte)( ( transformFlags & ~TRANSFORM_FLAG_SCALE ) & 0xFF );
@@ -310,8 +311,8 @@ public class TransformableTexture
         buffer.putShort( OFFSET_SIZE + index * 4 + 0, (short)texture.getWidth() );
         buffer.putShort( OFFSET_SIZE + index * 4 + 2, (short)texture.getHeight() );
         buffer.put( OFFSET_TRANSFORMED + index * 1, isTransformed ? transformFlags : (byte)0 );
-        buffer.putShort( OFFSET_TRANSLATION + index * 4 + 0, (short)( offsetX + transX ) );
-        buffer.putShort( OFFSET_TRANSLATION + index * 4 + 2, (short)( offsetY + transY ) );
+        buffer.putFloat( OFFSET_TRANSLATION + index * 8 + 0, offsetX + transX );
+        buffer.putFloat( OFFSET_TRANSLATION + index * 8 + 4, offsetY + transY );
         buffer.putShort( OFFSET_ROT_CENTER + index * 4 + 0, (short)rotCenterX );
         buffer.putShort( OFFSET_ROT_CENTER + index * 4 + 2, (short)rotCenterY );
         buffer.putFloat( OFFSET_ROTATION + index * 4, rotation );
@@ -429,16 +430,59 @@ public class TransformableTexture
     /**
      * Creates a (non) {@link TransformableTexture} for the main overlay. Do not use this constructor for sub-textures!
      * 
+     * @param dummy
      * @param width
      * @param height
      */
-    public TransformableTexture( int width, int height )
+    private TransformableTexture( String dummy, int width, int height )
     {
         this.texture = createTexture( width, height );
         this.isTransformed = false;
         this.transformFlags = 0;
+        this.pixelPerfectPositioning = true;
         
         this.dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 1024 );
+    }
+    
+    /**
+     * Never use this method from outside!
+     * 
+     * @param width
+     * @param height
+     * @return a main render texture.
+     */
+    public static TransformableTexture createMainTexture( int width, int height )
+    {
+        return ( new TransformableTexture( "", width, height ) );
+    }
+    
+    public TransformableTexture( int width, int height,
+                                 boolean pixelPerfectPositioning, float transX, float transY,
+                                 int rotCenterX, int rotCenterY, float rotation,
+                                 float scaleX, float scaleY
+                               )
+    {
+        this.texture = createTexture( width, height );
+        this.isTransformed = true;
+        this.transformFlags = 1;
+        this.pixelPerfectPositioning = pixelPerfectPositioning;
+        this.transX = pixelPerfectPositioning ? Math.round( transX ) : transX;
+        this.transY = pixelPerfectPositioning ? Math.round( transY ) : transY;
+        if ( ( this.transX != 0.0f ) || ( this.transY != 0.0f ) )
+            this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_TRANSLATION ) & 0xFF );
+        this.rotCenterX = rotCenterX;
+        this.rotCenterY = rotCenterY;
+        this.rotation = rotation;
+        if ( rotation != 0.0f )
+            this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_ROTATION ) & 0xFF );
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+        if ( ( scaleX != 1.0f ) || ( scaleY != 1.0f ) )
+            this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_SCALE ) & 0xFF );
+        
+        this.usedRectangles = new Rectangle[] { new Rectangle( 0, 0, width, height ) };
+        
+        this.dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 128 );
     }
     
     public TransformableTexture( int width, int height,
@@ -447,25 +491,16 @@ public class TransformableTexture
                                  float scaleX, float scaleY
                                )
     {
-        this.texture = createTexture( width, height );
-        this.isTransformed = true;
-        this.transformFlags = 1;
-        this.transX = transX;
-        this.transY = transY;
-        if ( ( transX != 0 ) || ( transY != 0 ) )
-            this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_TRANSLATION ) & 0xFF );
-        this.rotCenterX = rotCenterX;
-        this.rotCenterY = rotCenterY;
-        this.rotation = rotation;
-        if ( rotation != 0.0 )
-            this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_ROTATION ) & 0xFF );
-        this.scaleX = scaleX;
-        this.scaleY = scaleY;
-        if ( ( scaleX != 1.0 ) || ( scaleY != 1.0 ) )
-            this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_SCALE ) & 0xFF );
-        
-        this.usedRectangles = new Rectangle[] { new Rectangle( 0, 0, width, height ) };
-        
-        this.dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 128 );
+        this( width, height, true, transX, transY, rotCenterX, rotCenterY, rotation, scaleX, scaleY );
+    }
+    
+    public TransformableTexture( int width, int height, boolean pixelPerfectPositioning )
+    {
+        this( width, height, pixelPerfectPositioning, 0f, 0f, 0, 0, 0f, 1.0f, 1.0f );
+    }
+    
+    public TransformableTexture( int width, int height )
+    {
+        this( width, height, true, 0f, 0f, 0, 0, 0f, 1.0f, 1.0f );
     }
 }

@@ -664,7 +664,7 @@ public class RFDynHUDEditor implements Documented
         BufferedImage backgroundImage = loadBackgroundImage( resX, resY );
         this.gameResX = backgroundImage.getWidth();
         this.gameResY = backgroundImage.getHeight();
-        TransformableTexture overlayTexture = new TransformableTexture( gameResX, gameResY );
+        TransformableTexture overlayTexture = TransformableTexture.createMainTexture( gameResX, gameResY );
         
         editorPanel.setBackgroundImage( backgroundImage );
         editorPanel.setOverlayTexture( overlayTexture.getTexture() );
@@ -1018,7 +1018,7 @@ public class RFDynHUDEditor implements Documented
         BufferedImage backgroundImage = loadBackgroundImage( 1920, 1200 );
         this.gameResX = backgroundImage.getWidth();
         this.gameResY = backgroundImage.getHeight();
-        TransformableTexture overlayTexture = new TransformableTexture( gameResX, gameResY );
+        TransformableTexture overlayTexture = TransformableTexture.createMainTexture( gameResX, gameResY );
         WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( overlayTexture );
         
         eventsManager = new RFactorEventsManager( drawingManager, null );

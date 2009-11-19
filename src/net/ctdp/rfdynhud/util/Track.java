@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.util;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 
@@ -151,7 +152,7 @@ public class Track
      * @param point
      * @return success?
      */
-    public final boolean getInterpolatedPosition( boolean pitlane, float trackDistance, float scale, Point point )
+    public final boolean getInterpolatedPosition( boolean pitlane, float trackDistance, float scale, Point2D.Float point )
     {
         if ( ( trackDistance < 0f ) || ( trackDistance > trackLength ) )
             return ( false );
@@ -195,7 +196,7 @@ public class Track
         float vecX = wp1.posX - wp0.posX;
         float vecZ = wp1.posZ - wp0.posZ;
         
-        point.setLocation( Math.round( ( -minXPos + wp0.posX + ( vecX * alpha ) ) * scale ), Math.round( ( -minZPos + wp0.posZ + ( vecZ * alpha ) ) * scale ) );
+        point.setLocation( ( -minXPos + wp0.posX + ( vecX * alpha ) ) * scale, ( -minZPos + wp0.posZ + ( vecZ * alpha ) ) * scale );
         
         return ( true );
     }

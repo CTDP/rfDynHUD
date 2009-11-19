@@ -196,6 +196,7 @@ public class MiscWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
+        final boolean fontAntiAliased = isFontAntialiased();
         final java.awt.Color fontColor = getFontColor();
         
         final int left = 2;
@@ -205,9 +206,9 @@ public class MiscWidget extends Widget
         
         if ( getDisplayScoring() )
         {
-            scoringString1 = new DrawnString( left, top, Alignment.LEFT, false, font, fontColor, null, null, null );
-            scoringString2 = new DrawnString( null, scoringString1, left, 0, Alignment.LEFT, false, font, fontColor, "Fastest Lap: ", null, null );
-            scoringString3 = new DrawnString( null, scoringString2, left, 0, Alignment.LEFT, false, font, fontColor, "             ", null, null );
+            scoringString1 = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, null );
+            scoringString2 = new DrawnString( null, scoringString1, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fastest Lap: ", null, null );
+            scoringString3 = new DrawnString( null, scoringString2, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "             ", null, null );
         }
         else
         {
@@ -221,32 +222,32 @@ public class MiscWidget extends Widget
             if ( ( getDisplayScoring() && getDisplayVelocity() ) || ( !getDisplayScoring() && !getDisplayVelocity() ) )
             {
                 if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontColor, "Lap: ", null, null );
+                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
                 else
-                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontColor, "Laps: ", null, null );
+                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontColor, "Stint: ", null, null );
-                sessionTimeString = new DrawnString( lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontColor, "Time: ", null, null );
+                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null, null );
+                sessionTimeString = new DrawnString( lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null, null );
             }
             else if ( !getDisplayScoring() )
             {
                 if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontColor, "Lap: ", null, null );
+                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
                 else
-                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontColor, "Laps: ", null, null );
+                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontColor, "Stint: ", null, null );
-                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontColor, "Time: ", null, null );
+                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null, null );
+                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null, null );
             }
             else if ( !getDisplayVelocity() )
             {
                 if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontColor, "Lap: ", null, null );
+                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
                 else
-                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontColor, "Laps: ", null, null );
+                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontColor, "Stint: ", null, null );
-                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontColor, "Time: ", null, null );
+                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null, null );
+                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null, null );
             }
         }
         else
@@ -258,9 +259,9 @@ public class MiscWidget extends Widget
         
         if ( getDisplayVelocity() )
         {
-            absTopspeedString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontColor, "Abs. Topspeed: ", null, " km/h" );
-            relTopspeedString = new DrawnString( null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontColor, "Rel. Topspeed: ", null, " km/h" );
-            velocityString = new DrawnString( null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontColor, "Velocity: ", null, "   km/h" );
+            absTopspeedString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Abs. Topspeed: ", null, " km/h" );
+            relTopspeedString = new DrawnString( null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Rel. Topspeed: ", null, " km/h" );
+            velocityString = new DrawnString( null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Velocity: ", null, "   km/h" );
         }
         else
         {

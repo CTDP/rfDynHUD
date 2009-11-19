@@ -34,6 +34,7 @@ public class DrawnString
     private final boolean y_at_baseline;
     
     private final java.awt.Font font;
+    private final boolean fontAntiAliased;
     private final java.awt.Color fontColor;
     
     private int maxWidth = -1;
@@ -204,7 +205,7 @@ public class DrawnString
         else
             s = str;
         
-        Rectangle2D bounds = texture.getStringBounds( s, font );
+        Rectangle2D bounds = texture.getStringBounds( s, font, fontAntiAliased );
         
         return ( (int)Math.round( bounds.getWidth() ) );
     }
@@ -249,7 +250,7 @@ public class DrawnString
                     str = strs[i];
             }
             
-            w = (int)Math.round( texture.getStringBounds( str, font ).getWidth() ) + padding;
+            w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + padding;
             
             total += w;
             if ( colWidths != null )
@@ -299,7 +300,7 @@ public class DrawnString
                     str = strs[i];
             }
             
-            w = (int)Math.round( texture.getStringBounds( str, font ).getWidth() ) + padding;
+            w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + padding;
             colWidths[i] = Math.max( colWidths[i], w );
             total += colWidths[i];
         }
@@ -318,12 +319,12 @@ public class DrawnString
         return ( maxWidth );
     }
     
-    private int calcMaxHeight( java.awt.Font font, TextureImage2D texture )
+    private int calcMaxHeight( java.awt.Font font, boolean antiAliased, TextureImage2D texture )
     {
         if ( maxHeight > 0 )
             return ( maxHeight );
         
-        Rectangle2D bounds = texture.getStringBounds( MAX_HEIGHT_STRING, font );
+        Rectangle2D bounds = texture.getStringBounds( MAX_HEIGHT_STRING, font, antiAliased );
         
         this.fontDescent = texture.getFontDescent( font );
         this.maxHeight = (int)( bounds.getHeight() + fontDescent );
@@ -353,7 +354,7 @@ public class DrawnString
      */
     public final int getMaxHeight( TextureImage2D texture, boolean includingDescent )
     {
-        calcMaxHeight( font, texture );
+        calcMaxHeight( font, fontAntiAliased, texture );
         
         return ( getMaxHeight( includingDescent ) );
     }
@@ -417,10 +418,10 @@ public class DrawnString
             else
                 totalString = str;
             
-            Rectangle2D clearBounds = texture.getStringBounds( totalString, font );
+            Rectangle2D clearBounds = texture.getStringBounds( totalString, font, fontAntiAliased );
             maxWidth = (int)clearBounds.getWidth();
             //maxHeight = (int)clearBounds.getHeight();
-            calcMaxHeight( font, texture );
+            calcMaxHeight( font, fontAntiAliased, texture );
             clearYOffset = isYAtBaseline() ? (int)clearBounds.getY() : 0;
         }
         else
@@ -436,10 +437,10 @@ public class DrawnString
                 else
                     totalString = maxWidthString;
                 
-                Rectangle2D clearBounds = texture.getStringBounds( totalString, font );
+                Rectangle2D clearBounds = texture.getStringBounds( totalString, font, fontAntiAliased );
                 maxWidth = (int)clearBounds.getWidth();
                 //maxHeight = (int)clearBounds.getHeight();
-                calcMaxHeight( font, texture );
+                calcMaxHeight( font, fontAntiAliased, texture );
                 clearYOffset = isYAtBaseline() ? (int)clearBounds.getY() : 0;
             }
             
@@ -461,7 +462,7 @@ public class DrawnString
                 totalString = str;
         }
         
-        Rectangle2D bounds = texture.getStringBounds( totalString, font );
+        Rectangle2D bounds = texture.getStringBounds( totalString, font, fontAntiAliased );
         
         int x = this.getAbsX();
         if ( getAlignment() == Alignment.RIGHT )
@@ -471,7 +472,7 @@ public class DrawnString
         
         int y = this.getAbsY() - ( isYAtBaseline() ? 0 : (int)bounds.getY() );
         
-        texture.drawString( totalString, offsetX + x, offsetY + y, bounds, font, fontColor, false, dirtyRect1 );
+        texture.drawString( totalString, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, dirtyRect1 );
         
         if ( ( clearColor != null ) || ( clearBackground != null ) )
             dirtyRect1.combine( dirtyRect0 );
@@ -565,7 +566,7 @@ public class DrawnString
         Rectangle2D bounds = null;
         maxWidth = 0;
         //maxHeight = 0;
-        calcMaxHeight( font, texture );
+        calcMaxHeight( font, fontAntiAliased, texture );
         
         final int ax = getAbsX();
         final int ay = getAbsY();
@@ -595,7 +596,7 @@ public class DrawnString
             //int cw = (int)Math.round( bounds.getWidth() );
             int cw = colWidths[i];
             
-            bounds = texture.getStringBounds( str, font );
+            bounds = texture.getStringBounds( str, font, fontAntiAliased );
             
             int x = ax + maxWidth;
             if ( align == Alignment.RIGHT )
@@ -605,7 +606,7 @@ public class DrawnString
             
             int y = ay - ( isYAtBaseline() ? 0 : (int)bounds.getY() );
             
-            texture.drawString( str, offsetX + x, offsetY + y, bounds, font, fontColor, false, dirtyRect1 );
+            texture.drawString( str, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, dirtyRect1 );
             
             if ( ( i == 0 ) && ( clearColor == null ) && ( clearBackground == null ) )
                 dirtyRect0.set( dirtyRect1 );
@@ -777,12 +778,13 @@ public class DrawnString
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
+     * @param fontAntiAliased
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
+    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
     {
         this.xRelativeTo = xRelativeTo;
         this.yRelativeTo = yRelativeTo;
@@ -794,6 +796,7 @@ public class DrawnString
         this.y_at_baseline = y_at_baseline;
         
         this.font = font;
+        this.fontAntiAliased = fontAntiAliased;
         this.fontColor = fontColor;
         
         this.maxWidthString = maxWidthString;
@@ -809,14 +812,15 @@ public class DrawnString
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
+     * @param fontAntiAliased
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
+    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
     {
-        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontColor, prefix, maxWidthString, postfix );
+        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, prefix, maxWidthString, postfix );
     }
     
     /**
@@ -829,12 +833,13 @@ public class DrawnString
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
+     * @param fontAntiAliased
      * @param fontColor the used font color
      * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, java.awt.Color fontColor, String maxWidthString )
+    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String maxWidthString )
     {
-        this( xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontColor, null, maxWidthString, null );
+        this( xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, null, maxWidthString, null );
     }
     
     /**
@@ -845,12 +850,13 @@ public class DrawnString
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
+     * @param fontAntiAliased
      * @param fontColor the used font color
      * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, java.awt.Color fontColor, String maxWidthString )
+    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String maxWidthString )
     {
-        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontColor, maxWidthString );
+        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, maxWidthString );
     }
     
     /**
@@ -861,14 +867,15 @@ public class DrawnString
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
+     * @param fontAntiAliased
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
+    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
     {
-        this( null, null, x, y, alignment, y_at_baseline, font, fontColor, prefix, maxWidthString, postfix );
+        this( null, null, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, maxWidthString, postfix );
     }
     
     /**
@@ -877,14 +884,15 @@ public class DrawnString
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
+     * @param fontAntiAliased
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( int x, int y, java.awt.Font font, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
+    public DrawnString( int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
     {
-        this( x, y, Alignment.LEFT, true, font, fontColor, prefix, maxWidthString, postfix );
+        this( x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, prefix, maxWidthString, postfix );
     }
     
     /**
@@ -895,12 +903,13 @@ public class DrawnString
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
+     * @param fontAntiAliased
      * @param fontColor the used font color
      * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      */
-    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, java.awt.Color fontColor, String maxWidthString )
+    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String maxWidthString )
     {
-        this( x, y, alignment, y_at_baseline, font, fontColor, null, maxWidthString, null );
+        this( x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, null, maxWidthString, null );
     }
     
     /**
@@ -909,11 +918,12 @@ public class DrawnString
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
+     * @param fontAntiAliased
      * @param fontColor the used font color
      * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      */
-    public DrawnString( int x, int y, java.awt.Font font, java.awt.Color fontColor, String maxWidthString )
+    public DrawnString( int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String maxWidthString )
     {
-        this( x, y, Alignment.LEFT, true, font, fontColor, maxWidthString );
+        this( x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, maxWidthString );
     }
 }

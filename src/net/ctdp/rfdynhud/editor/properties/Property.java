@@ -9,20 +9,21 @@ package net.ctdp.rfdynhud.editor.properties;
  */
 public abstract class Property
 {
-    private final String key;
+    private final String name;
+    private final String nameForDisplay;
     private final boolean readonly;
     private final PropertyEditorType editorType;
     private final String buttonText;
     private final String buttonTooltip;
     
-    public final String getKey()
+    public final String getPropertyName()
     {
-        return ( key );
+        return ( name );
     }
     
-    public String getKeyForDisplay()
+    public String getNameForDisplay()
     {
-        return ( getKey() );
+        return ( nameForDisplay );
     }
     
     public final boolean isReadOnly()
@@ -59,33 +60,58 @@ public abstract class Property
     @Override
     public String toString()
     {
-        return ( this.getClass().getSimpleName() + "( \"" + getKey() + "\" = \"" + String.valueOf( getValue() ) + "\" )" );
+        return ( this.getClass().getSimpleName() + "( \"" + getPropertyName() + "\" = \"" + String.valueOf( getValue() ) + "\" )" );
     }
     
     /**
      * 
-     * @param key
+     * @param name
+     * @param nameForDisplay
      * @param readonly
      * @param editorType
      * @param buttonText
      * @param buttonTooltip
      */
-    public Property( String key, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
+    public Property( String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
-        this.key = key;
+        this.name = name;
+        this.nameForDisplay = nameForDisplay;
         this.readonly = readonly;
         this.editorType = editorType;
         this.buttonText = buttonText;
         this.buttonTooltip = buttonTooltip;
     }
     
-    public Property( String key, boolean readonly, PropertyEditorType editorType )
+    public Property( String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType )
     {
-        this( key, readonly, editorType, null, null );
+        this( name, nameForDisplay, readonly, editorType, null, null );
     }
     
-    public Property( String key, PropertyEditorType editorType )
+    public Property( String name, String nameForDisplay, PropertyEditorType editorType )
     {
-        this( key, false, editorType, null, null );
+        this( name, nameForDisplay, false, editorType, null, null );
+    }
+    
+    /**
+     * 
+     * @param name
+     * @param readonly
+     * @param editorType
+     * @param buttonText
+     * @param buttonTooltip
+     */
+    public Property( String name, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
+    {
+        this( name, name, readonly, editorType, buttonText, buttonTooltip );
+    }
+    
+    public Property( String name, boolean readonly, PropertyEditorType editorType )
+    {
+        this( name, readonly, editorType, null, null );
+    }
+    
+    public Property( String name, PropertyEditorType editorType )
+    {
+        this( name, false, editorType, null, null );
     }
 }

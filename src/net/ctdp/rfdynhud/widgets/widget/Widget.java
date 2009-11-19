@@ -1,7 +1,6 @@
 package net.ctdp.rfdynhud.widgets.widget;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -24,7 +23,6 @@ import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
-import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets._util.Position;
 import net.ctdp.rfdynhud.widgets._util.RelativePositioning;
 import net.ctdp.rfdynhud.widgets._util.Size;
@@ -55,8 +53,7 @@ public abstract class Widget implements Documented
     
     private String backgroundColorKey = "StandardBackground";
     private Color backgroundColor = null;
-    private String fontKey = "StandardFont";
-    private Font font = null;
+    private final FontProperty font = new FontProperty( this, "font", "StandardFont" );
     private String fontColorKey = "StandardFontColor";
     private Color fontColor = null;
     
@@ -362,24 +359,19 @@ public abstract class Widget implements Documented
         return ( backgroundColorKey != null );
     }
     
-    public void setFont( String font )
+    protected void setFont( String fontKey )
     {
-        this.fontKey = font;
-        this.font = null;
-        
-        forceAndSetDirty();
+        font.setFont( fontKey );
     }
     
-    public final void setFont( Font font, boolean virtual )
+    public final java.awt.Font getFont()
     {
-        setFont( FontUtils.getFontString( font, virtual ) );
+        return ( font.getFont() );
     }
     
-    public final Font getFont()
+    public final boolean isFontAntialiased()
     {
-        font = FontProperty.getFontFromFontKey( fontKey, font, getConfiguration() );
-        
-        return ( font );
+        return ( font.isAntiAliased() );
     }
     
     /**
@@ -897,7 +889,7 @@ public abstract class Widget implements Documented
             writer.writeProperty( "backgroundColor", backgroundColorKey, "The Widget's background color in the format #RRGGBBAA (hex)." );
         if ( hasText() )
         {
-            writer.writeProperty( "font", fontKey, "The used font." );
+            writer.writeProperty( font.getPropertyName(), font.getFontKey(), "The used font." );
             writer.writeProperty( "fontColor", fontColorKey, "The Widget's font color in the format #RRGGBB (hex)." );
         }
     }
@@ -934,8 +926,8 @@ public abstract class Widget implements Documented
         else if ( key.equals( "backgroundColor" ) )
             this.backgroundColorKey = value;
         
-        else if ( key.equals( "font" ) )
-            this.fontKey = value;
+        else if ( font.loadProperty( key, value ) )
+            ;
         
         else if ( key.equals( "fontColor" ) )
             this.fontColorKey = value;
@@ -1042,20 +1034,7 @@ public abstract class Widget implements Documented
         
         if ( hasText() )
         {
-            props.add( new FontProperty( "font", getConfiguration() )
-            {
-                @Override
-                public void setValue( Object value )
-                {
-                    setFont( String.valueOf( value ) );
-                }
-                
-                @Override
-                public Object getValue()
-                {
-                    return ( fontKey );
-                }
-            } );
+            props.add( font );
             
             props.add( new ColorProperty( "fontColor", getConfiguration() )
             {
@@ -1083,7 +1062,7 @@ public abstract class Widget implements Documented
         if ( property == null )
             docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/widget.html" );
         else
-            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getKey() + ".html" );
+            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getPropertyName() + ".html" );
         
         if ( docURL == null )
         {

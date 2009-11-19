@@ -120,7 +120,7 @@ public class FontCellEditor extends KeyValueCellRenderer<JPanel> implements Tabl
                 {
                     //model.setSelectedItem( prop.getValue() );
                     JFrame frame = (JFrame)button.getRootPane().getParent();
-                    FontChooserDialog d = FontChooser.getAsDialog( frame, (String)prop.getValue(), prop.getWidgetsConfiguration() );
+                    FontChooserDialog d = FontChooser.getAsDialog( frame, (String)prop.getValue(), prop.getWidget().getConfiguration() );
                     d.setLocationRelativeTo( (JFrame)button.getRootPane().getParent() );
                     d.setVisible( true );
                     

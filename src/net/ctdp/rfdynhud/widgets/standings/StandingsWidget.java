@@ -824,7 +824,7 @@ public class StandingsWidget extends Widget
         if ( !getUseAutoWidth() )
             return ( super.getMaxWidth( texCanvas ) );
         
-        DrawnString ds = new DrawnString( 10, 0, Alignment.LEFT, false, getFont(), getFontColor(), null );
+        DrawnString ds = new DrawnString( 10, 0, Alignment.LEFT, false, getFont(), isFontAntialiased(), getFontColor(), null );
         
         String[] strs = { "99.", getShowThreeLetterCodes() ? "AAAA" : "Giancarlo Fisichella___", "-1:99:99.999", "99" + ( getAbbreviate() ? "S" : " Stops" ) };
         
@@ -889,9 +889,9 @@ public class StandingsWidget extends Widget
         for ( int i = 0; i < n; i++ )
         {
             if ( i == 0 )
-                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), getFontColor(), null );
+                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), isFontAntialiased(), getFontColor(), null );
             else
-                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), getFontColor(), null );
+                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntialiased(), getFontColor(), null );
         }
     }
     

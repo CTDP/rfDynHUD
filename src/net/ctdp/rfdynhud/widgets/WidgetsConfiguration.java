@@ -527,12 +527,13 @@ public abstract class WidgetsConfiguration
     public Font removeNamedFont( String name )
     {
         Font font = fontMap.remove( name );
-        fontStringMap.remove( name );
+        String fontString = fontStringMap.remove( name );
         Boolean virtual = fontVirtualMap.remove( name );
         
         if ( font != null )
         {
-            String fontString = FontUtils.getFontString( font, virtual );
+            boolean antiAliased = FontUtils.parseAntiAliasFlag( fontString );
+            fontString = FontUtils.getFontString( font, virtual, antiAliased );
             
             resetFonts( name, fontString );
         }

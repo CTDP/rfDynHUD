@@ -22,7 +22,6 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
-import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
@@ -35,8 +34,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class TemperaturesWidget extends Widget
 {
-    private String fontKey2 = "SmallerFont";
-    private Font font2 = null;
+    private final FontProperty font2 = new FontProperty( this, "font2", "SmallerFont" );
     
     private boolean displayEngine = true;
     private boolean displayWaterTemp = true;
@@ -110,23 +108,14 @@ public class TemperaturesWidget extends Widget
         brakeSize.bake();
     }
     
-    public void setFont2( String font )
-    {
-        this.fontKey2 = font;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setFont2( Font font, boolean virtual )
-    {
-        setFont2( FontUtils.getFontString( font, virtual ) );
-    }
-    
     public final Font getFont2()
     {
-        font2 = FontProperty.getFontFromFontKey( fontKey2, font2, getConfiguration() );
-        
-        return ( font2 );
+        return ( font2.getFont() );
+    }
+    
+    public final boolean isFont2AntiAliased()
+    {
+        return ( font2.isAntiAliased() );
     }
     
     public void setDisplayEngine( boolean display )
@@ -283,7 +272,9 @@ public class TemperaturesWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
+        final boolean fontAntiAliased = isFontAntialiased();
         final java.awt.Font font2 = getFont2();
+        final boolean font2AntiAliased = isFont2AntiAliased();
         final java.awt.Color fontColor = getFontColor();
         
         final int tireWidth = tireSize.getEffectiveWidth();
@@ -298,16 +289,16 @@ public class TemperaturesWidget extends Widget
         
         if ( getDisplayEngine() )
         {
-            engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontColor, "Engine: ", null, null );
+            engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Engine: ", null, null );
             if ( getDisplayWaterTemp() )
             {
-                engineWaterTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, fontColor, "(W:", null, "°C)" );
-                engineOilTempString = new DrawnString( null, engineWaterTempString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontColor, null, null, "°C" );
+                engineWaterTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(W:", null, "°C)" );
+                engineOilTempString = new DrawnString( null, engineWaterTempString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, font2AntiAliased, fontColor, null, null, "°C" );
             }
             else
             {
                 engineWaterTempString = null;
-                engineOilTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontColor, null, null, "°C" );
+                engineOilTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
             }
             
             relY = engineHeaderString;
@@ -318,15 +309,15 @@ public class TemperaturesWidget extends Widget
         
         if ( getDisplayTires() )
         {
-            tiresHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontColor, "Tires: ", null, null );
-            tireTempFLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0, Alignment.RIGHT, false, font, fontColor, null, null, "°C" );
-            tireTempFRString = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0, Alignment.LEFT, false, font, fontColor, null, null, "°C" );
-            tireTempRLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight + 7, Alignment.RIGHT, false, font, fontColor, null, null, "°C" );
-            tireTempRRString = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight + 7, Alignment.LEFT, false, font, fontColor, null, null, "°C" );
-            tireTempFLString2 = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2, Alignment.RIGHT, true, font2, fontColor, "(", null, "°C)" );
-            tireTempFRString2 = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2, Alignment.LEFT, true, font2, fontColor, "(", null, "°C)" );
-            tireTempRLString2 = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, fontColor, "(", null, "°C)" );
-            tireTempRRString2 = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, fontColor, "(", null, "°C)" );
+            tiresHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tires: ", null, null );
+            tireTempFLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+            tireTempFRString = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+            tireTempRLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+            tireTempRRString = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+            tireTempFLString2 = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", null, "°C)" );
+            tireTempFRString2 = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", null, "°C)" );
+            tireTempRLString2 = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", null, "°C)" );
+            tireTempRRString2 = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", null, "°C)" );
             
             relY = tiresHeaderString;
             top = tireHeight * 2 + 15;
@@ -334,11 +325,11 @@ public class TemperaturesWidget extends Widget
         
         if ( getDisplayBrakes() )
         {
-            brakesHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontColor, "Brakes:" );
-            brakeTempFLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontColor, null, null, "°C" );
-            brakeTempFRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontColor, null, null, "°C" );
-            brakeTempRLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontColor, null, null, "°C" );
-            brakeTempRRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontColor, null, null, "°C" );
+            brakesHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Brakes:" );
+            brakeTempFLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+            brakeTempFRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+            brakeTempRLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+            brakeTempRRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
         }
     }
     
@@ -809,7 +800,7 @@ public class TemperaturesWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "font2", fontKey2, "The used (smaller) font." );
+        writer.writeProperty( font2.getPropertyName(), font2.getFontKey(), "The used (smaller) font." );
         writer.writeProperty( "displayEngine", getDisplayEngine(), "Display the engine part of the Widget?" );
         writer.writeProperty( "displayWaterTemp", getDisplayWaterTemp(), "Display water temperature?" );
         writer.writeProperty( "engineHeight", Size.unparseValue( engineHeight.getHeight() ), "The height of the engine bar." );
@@ -830,8 +821,8 @@ public class TemperaturesWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( key.equals( "font2" ) )
-            this.fontKey2 = value;
+        if ( font2.loadProperty( key, value ) )
+            ;
         
         else if ( key.equals( "displayEngine" ) )
             this.displayEngine = Boolean.parseBoolean( value );
@@ -874,20 +865,7 @@ public class TemperaturesWidget extends Widget
         
         FlaggedList superProps = (FlaggedList)propsList.get( propsList.size() - 1 );
         
-        superProps.add( new FontProperty( "font2", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setFont2( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( fontKey2 );
-            }
-        } );
+        superProps.add( font2 );
         
         FlaggedList props = new FlaggedList( "Specific", true );
         

@@ -159,19 +159,19 @@ public class EditorTable extends HierarchicalTable
     
     private static final boolean needsAreaClear( Property p )
     {
-        if ( p.getKey().equals( "x" ) )
+        if ( p.getPropertyName().equals( "x" ) )
             return ( true );
         
-        if ( p.getKey().equals( "y" ) )
+        if ( p.getPropertyName().equals( "y" ) )
             return ( true );
         
-        if ( p.getKey().equals( "width" ) )
+        if ( p.getPropertyName().equals( "width" ) )
             return ( true );
         
-        if ( p.getKey().equals( "height" ) )
+        if ( p.getPropertyName().equals( "height" ) )
             return ( true );
         
-        if ( p.getKey().equals( "initialVisibility" ) )
+        if ( p.getPropertyName().equals( "initialVisibility" ) )
             return ( true );
         
         return ( false );
@@ -199,7 +199,7 @@ public class EditorTable extends HierarchicalTable
         public Object getValue( JTable table, TableModel model, Object prop, int index )
         {
             if ( index == 0 )
-                return ( ( (Property)prop ).getKeyForDisplay() );
+                return ( ( (Property)prop ).getNameForDisplay() );
             
             return ( ( (Property)prop ).getValue() );
         }

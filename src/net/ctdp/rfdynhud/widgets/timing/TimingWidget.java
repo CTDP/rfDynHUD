@@ -209,6 +209,7 @@ public class TimingWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
+        final boolean fontAntiAliased = isFontAntialiased();
         final java.awt.Color fontColor = getFontColor();
         
         final int left1 = 2;
@@ -220,13 +221,13 @@ public class TimingWidget extends Widget
         
         if ( getDisplayAbsFastest() )
         {
-            absFastestLapHeaderString = new DrawnString( left1, top, Alignment.LEFT, false, font, fontColor, null );
-            absFastestLapDriverString = new DrawnString( null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontColor, "Driver: ", null, null );
-            absSector1String = new DrawnString( null, absFastestLapDriverString, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec1: ", null, null );
-            absSector2String = new DrawnString( null, absSector1String, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec2: ", null, null );
+            absFastestLapHeaderString = new DrawnString( left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
+            absFastestLapDriverString = new DrawnString( null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Driver: ", null, null );
+            absSector1String = new DrawnString( null, absFastestLapDriverString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
+            absSector2String = new DrawnString( null, absSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
             if ( !getDisplayCumulativeSectors() )
             {
-                absSector3String = new DrawnString( null, absSector2String, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec3: ", null, null );
+                absSector3String = new DrawnString( null, absSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
                 yRel = absSector3String;
             }
             else
@@ -234,7 +235,7 @@ public class TimingWidget extends Widget
                 absSector3String = null;
                 yRel = absSector2String;
             }
-            absFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontColor, " Lap: ", null, null );
+            absFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null, null );
             yRel = absFastestLapString;
             top = sectionGap;
         }
@@ -249,12 +250,12 @@ public class TimingWidget extends Widget
             yRel = null;
         }
         
-        ownFastestLapHeaderString = new DrawnString( null, yRel, left1, top, Alignment.LEFT, false, font, fontColor, null );
-        ownSector1String = new DrawnString( null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec1: ", null, null );
-        ownSector2String = new DrawnString( null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec2: ", null, null );
+        ownFastestLapHeaderString = new DrawnString( null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
+        ownSector1String = new DrawnString( null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
+        ownSector2String = new DrawnString( null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
         if ( !getDisplayCumulativeSectors() )
         {
-            ownSector3String = new DrawnString( null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec3: ", null, null );
+            ownSector3String = new DrawnString( null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
             yRel = ownSector3String;
         }
         else
@@ -262,14 +263,14 @@ public class TimingWidget extends Widget
             ownSector3String = null;
             yRel = ownSector2String;
         }
-        ownFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontColor, " Lap: ", null, null );
+        ownFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null, null );
         
-        currLapHeaderString = new DrawnString( null, ownFastestLapString, left1, sectionGap, Alignment.LEFT, false, font, fontColor, null );
-        currSector1String = new DrawnString( null, currLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec1: ", null, null );
-        currSector2String = new DrawnString( null, currSector1String, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec2: ", null, null );
+        currLapHeaderString = new DrawnString( null, ownFastestLapString, left1, sectionGap, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
+        currSector1String = new DrawnString( null, currLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
+        currSector2String = new DrawnString( null, currSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
         if ( !getDisplayCumulativeSectors() && !getForceCurrentCumulativeSectors() )
         {
-            currSector3String = new DrawnString( null, currSector2String, left2, 0, Alignment.LEFT, false, font, fontColor, "Sec3: ", null, null );
+            currSector3String = new DrawnString( null, currSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
             yRel = currSector3String;
         }
         else
@@ -277,7 +278,7 @@ public class TimingWidget extends Widget
             currSector3String = null;
             yRel = currSector2String;
         }
-        currLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontColor, " Lap: ", null, null );
+        currLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null, null );
     }
     
     /**

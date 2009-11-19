@@ -84,19 +84,19 @@ public class FontUtils
         return ( s );
     }
     
-    public static final String getFontString( Font font, boolean virtual )
+    public static final String getFontString( Font font, boolean virtual, boolean antiAliased )
     {
-        return ( font.getName() + "-" + getStyleString( font ) + "-" + font.getSize() + ( virtual ? "v" : "" ) );
+        return ( font.getName() + "-" + getStyleString( font ) + "-" + font.getSize() + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
     }
     
-    public static final String getFontString( String name, int awtFontStyle, int size, boolean virtual )
+    public static final String getFontString( String name, int awtFontStyle, int size, boolean virtual, boolean antiAliased )
     {
-        return ( name + "-" + getStyleString( awtFontStyle ) + "-" + size + ( virtual ? "v" : "" ) );
+        return ( name + "-" + getStyleString( awtFontStyle ) + "-" + size + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
     }
     
-    public static final String getFontString( String name, boolean bold, boolean italic, int size, boolean virtual )
+    public static final String getFontString( String name, boolean bold, boolean italic, int size, boolean virtual, boolean antiAliased )
     {
-        return ( name + "-" + getStyleString( bold, italic ) + "-" + size + ( virtual ? "v" : "" ) );
+        return ( name + "-" + getStyleString( bold, italic ) + "-" + size + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
     }
     
     public static int getVirtualFontSize( int size, int gameResY )
@@ -117,7 +117,7 @@ public class FontUtils
         return ( new Font( name, style, size ) );
     }
     
-    private static Object _parseFont( String str, int gameResY, boolean extractVirtualFlag )
+    private static Object _parseFont( String str, int gameResY, boolean extractVirtualFlag, boolean extractAntialiasFlag )
     {
         if ( ( str == null ) || ( str.length() < 5 ) )
             return ( null );
@@ -148,15 +148,19 @@ public class FontUtils
         
         String size = str.substring( p0 );
         
-        boolean virtual = size.endsWith( "v" );
+        boolean virtual = size.endsWith( "v" ) || size.endsWith( "va" );
+        boolean antiAliased = size.endsWith( "a" ) || size.endsWith( "va" );
         
         if ( extractVirtualFlag )
             return ( virtual );
         
-        if ( virtual )
-        {
+        if ( extractAntialiasFlag )
+            return ( antiAliased );
+        
+        if ( virtual && antiAliased )
+            size = size.substring( 0, size.length() - 2 );
+        else if ( virtual || antiAliased )
             size = size.substring( 0, size.length() - 1 );
-        }
         
         int pointSize;
         try
@@ -173,16 +177,21 @@ public class FontUtils
     
     public static Font parseFont( String str, int gameResY )
     {
-        return ( (Font)_parseFont( str, gameResY, false ) );
+        return ( (Font)_parseFont( str, gameResY, false, false ) );
     }
     
     public static Font parseVirtualFont( String str )
     {
-        return ( (Font)_parseFont( str, -1, false ) );
+        return ( (Font)_parseFont( str, -1, false, false ) );
     }
     
     public static boolean parseVirtualFlag( String str )
     {
-        return ( (Boolean)_parseFont( str, -1, true ) );
+        return ( (Boolean)_parseFont( str, -1, true, false ) );
+    }
+    
+    public static boolean parseAntiAliasFlag( String str )
+    {
+        return ( (Boolean)_parseFont( str, -1, false, true ) );
     }
 }

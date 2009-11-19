@@ -175,7 +175,7 @@ public class RFDynHUD
             
             Logger.log( "Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "..." );
             
-            this.drawingManager = new WidgetsDrawingManager( new TransformableTexture( gameResX, gameResY ) );
+            this.drawingManager = new WidgetsDrawingManager( TransformableTexture.createMainTexture( gameResX, gameResY ) );
             __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, drawingManager );
             
             this.eventsManager = new RFactorEventsManager( drawingManager, this );

@@ -285,7 +285,7 @@ public class IniWriter
         }
         else if ( value instanceof java.awt.Font )
         {
-            value = FontUtils.getFontString( (java.awt.Font)value, false );
+            value = FontUtils.getFontString( (java.awt.Font)value, false, false );
         }
         else if ( value instanceof java.awt.Color )
         {

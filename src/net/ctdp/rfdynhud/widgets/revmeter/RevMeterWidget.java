@@ -28,7 +28,6 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.TextureLoader;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
-import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
@@ -73,8 +72,7 @@ public class RevMeterWidget extends Widget
     private Color revMarkersMediumColor = null;
     private String revMarkersHighColorKey = "#FF0000";
     private Color revMarkersHighColor = null;
-    private String revMarkersFontKey = "Monospaced-BOLD-9v";
-    private Font revMarkersFont = null;
+    private final FontProperty revMarkersFont = new FontProperty( this, "revMarkersFont", "rmFont", "Monospaced-BOLD-9va" );
     private String revMarkersFontColorKey = "#FFFFFF";
     private Color revMarkersFontColor = null;
     private boolean interpolateMarkerColors = false;
@@ -87,8 +85,7 @@ public class RevMeterWidget extends Widget
     private int gearPosX = 325;
     private int gearPosY = 450;
     
-    private String gearFontKey = "GearFont";
-    private Font gearFont = null;
+    private final FontProperty gearFont = new FontProperty( this, "gearFont", "GearFont" );
     private String gearFontColorKey = "#C0BC3D";
     private Color gearFontColor = null;
     
@@ -112,8 +109,7 @@ public class RevMeterWidget extends Widget
     private int boostNumberPosX = 377;
     private int boostNumberPosY = 510;
     
-    private String boostNumberFontKey = "StandardFont";
-    private Font boostNumberFont = null;
+    private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "StandardFont" );
     
     private String boostNumberFontColorKey = "#FF0000";
     private Color boostNumberFontColor = null;
@@ -379,24 +375,14 @@ public class RevMeterWidget extends Widget
         return ( revMarkersHighColor );
     }
     
-    public void setRevMarkersFont( String font )
+    public final java.awt.Font getRevMarkersFont()
     {
-        this.revMarkersFontKey = font;
-        this.revMarkersFont = null;
-        
-        forceAndSetDirty();
+        return ( revMarkersFont.getFont() );
     }
     
-    public final void setRevMarkersFont( Font font, boolean virtual )
+    public final boolean isRevMarkersFontAntialiased()
     {
-        setRevMarkersFont( FontUtils.getFontString( font, virtual ) );
-    }
-    
-    public final Font getRevMarkersFont()
-    {
-        revMarkersFont = FontProperty.getFontFromFontKey( revMarkersFontKey, revMarkersFont, getConfiguration() );
-        
-        return ( revMarkersFont );
+        return ( revMarkersFont.isAntiAliased() );
     }
     
     public void setRevMarkersFontColor( String color )
@@ -510,24 +496,14 @@ public class RevMeterWidget extends Widget
         return ( gearPosY );
     }
     
-    public void setGearFont( String font )
+    public final java.awt.Font getGearFont()
     {
-        this.gearFontKey = font;
-        this.gearFont = null;
-        
-        forceAndSetDirty();
+        return ( gearFont.getFont() );
     }
     
-    public final void setGearFont( Font font, boolean virtual )
+    public final boolean isGearFontAntialiased()
     {
-        setGearFont( FontUtils.getFontString( font, virtual ) );
-    }
-    
-    public final Font getGearFont()
-    {
-        gearFont = FontProperty.getFontFromFontKey( gearFontKey, gearFont, getConfiguration() );
-        
-        return ( gearFont );
+        return ( gearFont.isAntiAliased() );
     }
     
     public void setGearFontColor( String color )
@@ -663,24 +639,14 @@ public class RevMeterWidget extends Widget
         return ( boostNumberPosY );
     }
     
-    public void setBoostNumberFont( String font )
+    public final java.awt.Font getBoostNumberFont()
     {
-        this.boostNumberFontKey = font;
-        this.boostNumberFont = null;
-        
-        forceAndSetDirty();
+        return ( boostNumberFont.getFont() );
     }
     
-    public final void setBoostNumberFont( Font font, boolean virtual )
+    public final boolean isBoostNumberFontAntialiased()
     {
-        setBoostNumberFont( FontUtils.getFontString( font, virtual ) );
-    }
-    
-    public final Font getBoostNumberFont()
-    {
-        boostNumberFont = FontProperty.getFontFromFontKey( boostNumberFontKey, boostNumberFont, getConfiguration() );
-        
-        return ( boostNumberFont );
+        return ( boostNumberFont.isAntiAliased() );
     }
     
     public void setBoostNumberFontColor( String color )
@@ -847,11 +813,11 @@ public class RevMeterWidget extends Widget
         //needleTexture.setRotation( 0f );
         //needleTexture.setScale( 1f, 1f );
         
-        gearString = new DrawnString( Math.round( getGearPosX() * backgroundScaleX ), Math.round( getGearPosY() * backgroundScaleY ), Alignment.LEFT, false, getGearFont(), getGearFontColor(), null );
+        gearString = new DrawnString( Math.round( getGearPosX() * backgroundScaleX ), Math.round( getGearPosY() * backgroundScaleY ), Alignment.LEFT, false, getGearFont(), isGearFontAntialiased(), getGearFontColor(), null );
         
-        boostString = new DrawnString( Math.round( getBoostNumberPosX() * backgroundScaleX ), Math.round( getBoostNumberPosY() * backgroundScaleY ), Alignment.LEFT, false, getBoostNumberFont(), getBoostNumberFontColor(), null );
+        boostString = new DrawnString( Math.round( getBoostNumberPosX() * backgroundScaleX ), Math.round( getBoostNumberPosY() * backgroundScaleY ), Alignment.LEFT, false, getBoostNumberFont(), isBoostNumberFontAntialiased(), getBoostNumberFontColor(), null );
         
-        rpmString = new DrawnString( width / 2, Math.round( getRPMPosY() * backgroundScaleY ), Alignment.CENTER, false, getFont(), getFontColor(), null );
+        rpmString = new DrawnString( width / 2, Math.round( getRPMPosY() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntialiased(), getFontColor(), null );
     }
     
     private Color interpolateColor( Color c0, Color c1, float alpha )
@@ -1100,7 +1066,7 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( "revMarkersColor", revMarkersColorKey, "The color used to draw the rev markers." );
         writer.writeProperty( "revMarkersMediumColor", revMarkersMediumColorKey, "The color used to draw the rev markers for medium boost." );
         writer.writeProperty( "revMarkersHighColor", revMarkersHighColorKey, "The color used to draw the rev markers for high revs." );
-        writer.writeProperty( "revMarkersFont", revMarkersFontKey, "The font used to draw the rev marker numbers." );
+        writer.writeProperty( revMarkersFont.getPropertyName(), revMarkersFont.getFontKey(), "The font used to draw the rev marker numbers." );
         writer.writeProperty( "revMarkersFontColor", revMarkersFontColorKey, "The font color used to draw the rev marker numbers." );
         writer.writeProperty( "displayShiftLight", getDisplayShiftLight(), "Display a shift light?" );
         writer.writeProperty( "shiftLightImageName", getShiftLightImageName(), "The name of the shift light image." );
@@ -1109,7 +1075,7 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( "shiftLightRPM", getShiftLightRPM(), "The RPM (rounds per minute) to subtract from the maximum for the level to display shoft light on" );
         writer.writeProperty( "gearPosX", getGearPosX(), "The x-offset in pixels to the gear label." );
         writer.writeProperty( "gearPosY", getGearPosY(), "The y-offset in pixels to the gear label." );
-        writer.writeProperty( "gearFont", gearFontKey, "The font used to draw the gear." );
+        writer.writeProperty( gearFont.getPropertyName(), gearFont.getFontKey(), "The font used to draw the gear." );
         writer.writeProperty( "gearFontColor", gearFontColorKey, "The font color used to draw the gear." );
         writer.writeProperty( "displayBoostBar", getDisplayBoostBar(), "Display a graphical bar for engine boost mapping?" );
         writer.writeProperty( "boostBarPosX", getBoostBarPosX(), "The x-position of the boost bar." );
@@ -1119,7 +1085,7 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( "displayBoostNumber", getDisplayBoostNumber(), "Display a number for engine boost mapping?" );
         writer.writeProperty( "boostNumberPosX", getBoostNumberPosX(), "The x-position of the boost number." );
         writer.writeProperty( "boostNumberPosY", getBoostNumberPosY(), "The y-position of the boost number." );
-        writer.writeProperty( "boostNumberFont", boostNumberFontKey, "The font used to draw the boost number." );
+        writer.writeProperty( boostNumberFont.getPropertyName(), boostNumberFont.getFontKey(), "The font used to draw the boost number." );
         writer.writeProperty( "boostNumberFontColor", boostNumberFontColorKey, "The font color used to draw the boost bar." );
         writer.writeProperty( "rpmPosY", getRPMPosY(), "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
     }
@@ -1192,8 +1158,8 @@ public class RevMeterWidget extends Widget
         else if ( key.equals( "revMarkersHighColor" ) )
             this.revMarkersHighColorKey = value;
         
-        else if ( key.equals( "revMarkersFont" ) )
-            this.revMarkersFontKey = value;
+        else if ( revMarkersFont.loadProperty( key, value ) )
+            ;
         
         else if ( key.equals( "revMarkersFontColor" ) )
             this.revMarkersFontColorKey = value;
@@ -1204,8 +1170,8 @@ public class RevMeterWidget extends Widget
         else if ( key.equals( "gearPosY" ) )
             this.gearPosY = Integer.parseInt( value );
         
-        else if ( key.equals( "gearFont" ) )
-            this.gearFontKey = value;
+        else if ( gearFont.loadProperty( key, value ) )
+            ;
         
         else if ( key.equals( "gearFontColor" ) )
             this.gearFontColorKey = value;
@@ -1237,8 +1203,8 @@ public class RevMeterWidget extends Widget
         else if ( key.equals( "boostNumberPosY" ) )
             this.boostNumberPosY = Integer.parseInt( value );
         
-        else if ( key.equals( "boostNumberFont" ) )
-            this.boostNumberFontKey = value;
+        else if ( boostNumberFont.loadProperty( key, value ) )
+            ;
         
         else if ( key.equals( "boostNumberFontColor" ) )
             this.boostNumberFontColorKey = value;
@@ -1483,20 +1449,7 @@ public class RevMeterWidget extends Widget
             }
         } );
         
-        revMarkersProps.add( new FontProperty( "rmFont", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRevMarkersFont( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( revMarkersFontKey );
-            }
-        } );
+        revMarkersProps.add( revMarkersFont );
         
         revMarkersProps.add( new ColorProperty( "rmFontColor", getConfiguration() )
         {
@@ -1618,20 +1571,7 @@ public class RevMeterWidget extends Widget
             }
         } );
         
-        gearProps.add( new FontProperty( "gearFont", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setGearFont( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( gearFontKey );
-            }
-        } );
+        gearProps.add( gearFont );
         
         gearProps.add( new ColorProperty( "gearFontColor", getConfiguration() )
         {
@@ -1760,20 +1700,7 @@ public class RevMeterWidget extends Widget
             }
         } );
         
-        boostProps.add( new FontProperty( "boostNumberFont", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setBoostNumberFont( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( boostNumberFontKey );
-            }
-        } );
+        boostProps.add( boostNumberFont );
         
         boostProps.add( new ColorProperty( "boostNumberFontColor", getConfiguration() )
         {

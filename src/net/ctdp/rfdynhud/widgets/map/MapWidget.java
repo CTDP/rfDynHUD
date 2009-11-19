@@ -7,6 +7,7 @@ import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,6 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.Track;
-import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -62,8 +62,7 @@ public class MapWidget extends Widget
     
     private boolean displayPositionNumbers = true;
     
-    private String posNumberFontKey = "Monospaced-PLAIN-9v";
-    private Font posNumberFont = null;
+    private final FontProperty posNumberFont = new FontProperty( this, "posNumberFont", "Monospaced-PLAIN-9v" );
     
     private String posNumberFontColorKey = "#000000";
     private Color posNumberFontColor = null;
@@ -73,7 +72,7 @@ public class MapWidget extends Widget
     private TransformableTexture[] itemTextures = null;
     private int[] itemStates = null;
     
-    private final Point position = new Point();
+    private final Point2D.Float position = new Point2D.Float();
     
     public void setItemRadius( int radius )
     {
@@ -236,24 +235,14 @@ public class MapWidget extends Widget
         return ( displayPositionNumbers );
     }
     
-    public void setPosNumberFont( String font )
+    public final java.awt.Font getPosNumberFont()
     {
-        this.posNumberFontKey = font;
-        this.posNumberFont = null;
-        
-        forceAndSetDirty();
+        return ( posNumberFont.getFont() );
     }
     
-    public final void setPosNumberFont( Font font, boolean virtual )
+    public final boolean isPosNumberFontAntiAliased()
     {
-        setPosNumberFont( FontUtils.getFontString( font, virtual ) );
-    }
-    
-    public final Font getPosNumberFont()
-    {
-        posNumberFont = FontProperty.getFontFromFontKey( posNumberFontKey, posNumberFont, getConfiguration() );
-        
-        return ( posNumberFont );
+        return ( posNumberFont.isAntiAliased() );
     }
     
     public void setPosNumberFontColor( String color )
@@ -290,7 +279,7 @@ public class MapWidget extends Widget
         track = null;
     }
     
-    private void initSubTextures()
+    private void initSubTextures( boolean isEditorMode )
     {
         itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResY() / 960f );
         
@@ -302,7 +291,7 @@ public class MapWidget extends Widget
         
         for ( int i = 0; i < getMaxDisplayedVehicles(); i++ )
         {
-            itemTextures[i] = new TransformableTexture( itemRadius + itemRadius, itemRadius + itemRadius, 0, 0, 0, 0, 0f, 1f, 1f );
+            itemTextures[i] = new TransformableTexture( itemRadius + itemRadius, itemRadius + itemRadius, isEditorMode );
             itemTextures[i].setVisible( false );
             
             if ( antialiasPositions )
@@ -317,7 +306,7 @@ public class MapWidget extends Widget
     @Override
     public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        initSubTextures();
+        initSubTextures( isEditorMode );
         
         return ( itemTextures );
     }
@@ -366,7 +355,7 @@ public class MapWidget extends Widget
                 this.track = track;
         }
         
-        initSubTextures();
+        initSubTextures( isEditorMode );
         
         if ( ( track != null ) && ( track.getNumWaypoints( false ) > 0 ) )
         {
@@ -498,7 +487,8 @@ public class MapWidget extends Widget
             
             short ownPlace = scoringInfo.getOwnPlace();
             
-            Font font = getPosNumberFont();
+            final Font font = getPosNumberFont();
+            final boolean posNumberFontAntiAliased = isPosNumberFontAntiAliased();
             FontMetrics metrics = texCanvas.getFontMetrics( font );
             
             boolean normal = false;
@@ -547,7 +537,7 @@ public class MapWidget extends Widget
                             normal = true;
                         }
                         
-                        tt.setTranslation( off2 + position.x, off2+ position.y );
+                        tt.setTranslation( off2 + position.x, off2 + position.y );
                         
                         if ( itemStates[i] != itemState )
                         {
@@ -564,13 +554,13 @@ public class MapWidget extends Widget
                                 float fw = (float)bounds.getWidth();
                                 float fh = (float)( metrics.getAscent() - metrics.getDescent() );
                                 
-                                tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, getPosNumberFontColor(), false, null );
+                                tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, getPosNumberFontColor(), false, null );
                             }
-                            
-                            if ( isEditorMode )
-                            {
-                                tt.drawInEditor( texCanvas, offsetX, offsetY );
-                            }
+                        }
+                        
+                        if ( isEditorMode )
+                        {
+                            tt.drawInEditor( texCanvas, offsetX, offsetY );
                         }
                     }
                 }
@@ -598,7 +588,7 @@ public class MapWidget extends Widget
         writer.writeProperty( "markColorNextBehind", markColorNextBehindKey, "The color used for the car behind you in #RRGGBBAA (hex)." );
         writer.writeProperty( "maxDisplayedVehicles", getMaxDisplayedVehicles(), "The maximum number of displayed vehicles." );
         writer.writeProperty( "displayPosNumbers", getDisplayPositionNumbers(), "Display numbers on the position markers?" );
-        writer.writeProperty( "posNumberFont", posNumberFontKey, "The font used for position numbers." );
+        writer.writeProperty( posNumberFont.getPropertyName(), posNumberFont.getFontKey(), "The font used for position numbers." );
         writer.writeProperty( "posNumberFontColor", posNumberFontColorKey, "The font color used for position numbers in the format #RRGGBB (hex)." );
     }
     
@@ -634,8 +624,8 @@ public class MapWidget extends Widget
         else if ( key.equals( "displayPosNumbers" ) )
             this.displayPositionNumbers = Boolean.parseBoolean( value );
         
-        else if ( key.equals( "posNumberFont" ) )
-            this.posNumberFontKey = value;
+        else if ( posNumberFont.loadProperty( key, value ) )
+            ;
         
         else if ( key.equals( "posNumberFontColor" ) )
             this.posNumberFontColorKey = value;
@@ -771,20 +761,7 @@ public class MapWidget extends Widget
             }
         } );
         
-        props.add( new FontProperty( "posNumberFont", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setPosNumberFont( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( posNumberFontKey );
-            }
-        } );
+        props.add( posNumberFont );
         
         props.add( new ColorProperty( "posNumberFontColor", getConfiguration() )
         {

@@ -89,6 +89,7 @@ public class FontChooser extends JPanel
     private JCheckBox boldBox;
     private JCheckBox italicBox;
     private JCheckBox virtualBox;
+    private JCheckBox antiAliasedBox;
     private JLabel sampleLabel;
     private String selectedFont;
     private boolean valueChanged = false;
@@ -100,6 +101,7 @@ public class FontChooser extends JPanel
     {
         Font font = FontUtils.parseVirtualFont( fontString );
         boolean virtual = FontUtils.parseVirtualFlag( fontString );
+        boolean antiAliased = FontUtils.parseAntiAliasFlag( fontString );
         
         fontNamesList.setSelectedIndex( -1 );
         for ( int i = 0; i < fontNamesList.getModel().getSize(); i++ )
@@ -126,13 +128,14 @@ public class FontChooser extends JPanel
         boldBox.setSelected( font.isBold() );
         italicBox.setSelected( font.isItalic() );
         virtualBox.setSelected( virtual );
+        antiAliasedBox.setSelected( antiAliased );
         
         sampleLabel.setFont( FontUtils.parseFont( fontString, gameResY ) );
     }
     
     private String composeSelectedFont()
     {
-        return ( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual() ) );
+        return ( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual(), getSelectedFontAntiAliased() ) );
     }
     
     protected void setSelectedFont( String fontString, int gameResY )
@@ -190,6 +193,11 @@ public class FontChooser extends JPanel
     public final boolean getSelectedFontVirtual()
     {
         return ( virtualBox.isSelected() );
+    }
+    
+    public final boolean getSelectedFontAntiAliased()
+    {
+        return ( antiAliasedBox.isSelected() );
     }
     
     public final boolean getValueChanged()
@@ -557,7 +565,7 @@ public class FontChooser extends JPanel
         return ( list );
     }
     
-    protected JPanel createEastPanel( Font startFont, boolean virtual, final int gameResY )
+    protected JPanel createEastPanel( Font startFont, boolean virtual, boolean antiAliased, final int gameResY )
     {
         JPanel panel = new JPanel( new BorderLayout() );
         panel.setBorder( new EmptyBorder( 0, 5, 5, 0 ) );
@@ -588,7 +596,7 @@ public class FontChooser extends JPanel
             public void valueChanged( ListSelectionEvent e )
             {
                 if ( !e.getValueIsAdjusting() )
-                    setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual() ), gameResY );
+                    setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual(), getSelectedFontAntiAliased() ), gameResY );
             }
         } );
         
@@ -603,7 +611,7 @@ public class FontChooser extends JPanel
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual() ), gameResY );
+                setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual(), getSelectedFontAntiAliased() ), gameResY );
             }
         } );
         
@@ -616,13 +624,21 @@ public class FontChooser extends JPanel
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual() ), gameResY );
+                setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual(), getSelectedFontAntiAliased() ), gameResY );
             }
         } );
         
+        JPanel pp = new JPanel( new BorderLayout() );
+        
         virtualBox = new JCheckBox( "virtual" );
         virtualBox.setSelected( virtual );
-        p.add( virtualBox, BorderLayout.SOUTH );
+        pp.add( virtualBox, BorderLayout.NORTH );
+        
+        antiAliasedBox = new JCheckBox( "antialiased" );
+        antiAliasedBox.setSelected( antiAliased );
+        pp.add( antiAliasedBox, BorderLayout.SOUTH );
+        
+        p.add( pp, BorderLayout.SOUTH );
         
         virtualBox.addActionListener( new ActionListener()
         {
@@ -638,7 +654,16 @@ public class FontChooser extends JPanel
                 
                 sizeList.setSelectedValue( size, true );
                 
-                setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), size, getSelectedFontVirtual() ), gameResY );
+                setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), size, getSelectedFontVirtual(), getSelectedFontAntiAliased() ), gameResY );
+            }
+        } );
+        
+        antiAliasedBox.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                setSelectedFont( FontUtils.getFontString( getSelectedFontFamily(), getSelectedFontBold(), getSelectedFontItalic(), getSelectedFontSize(), getSelectedFontVirtual(), getSelectedFontAntiAliased() ), gameResY );
             }
         } );
         
@@ -670,17 +695,20 @@ public class FontChooser extends JPanel
         wrapper.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
         
         Font font = widgetsConfig.getNamedFont( startFont );
-        boolean virtual;
+        boolean virtual, antiAliased;
         boolean isName = ( font != null );
         if ( isName )
         {
-            font = FontUtils.parseVirtualFont( widgetsConfig.getNamedFontString( startFont ) );
+            String fontString = widgetsConfig.getNamedFontString( startFont );
+            font = FontUtils.parseVirtualFont( fontString );
             virtual = widgetsConfig.getNamedFontVirtual( startFont );
+            antiAliased = FontUtils.parseAntiAliasFlag( fontString );
         }
         else
         {
             font = FontUtils.parseVirtualFont( startFont );
             virtual = FontUtils.parseVirtualFlag( startFont );
+            antiAliased = FontUtils.parseAntiAliasFlag( startFont );
         }
         
         wrapper.add( createNamedFontSelector( isName ? startFont : null, widgetsConfig ), BorderLayout.NORTH );
@@ -705,7 +733,7 @@ public class FontChooser extends JPanel
             fontNamesList.scrollRectToVisible( fontNamesList.getCellBounds( fontNamesList.getSelectedIndex(), fontNamesList.getSelectedIndex() ) );
         main.add( fontNamesListScrollPanel, BorderLayout.CENTER );
         
-        final JPanel eastPanel = createEastPanel( font, virtual, widgetsConfig.getGameResY() );
+        final JPanel eastPanel = createEastPanel( font, virtual, antiAliased, widgetsConfig.getGameResY() );
         main.add( eastPanel, BorderLayout.EAST );
         
         wrapper.add( main, BorderLayout.CENTER );

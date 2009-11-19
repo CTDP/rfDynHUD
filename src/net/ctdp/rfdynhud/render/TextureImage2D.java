@@ -35,6 +35,7 @@ package net.ctdp.rfdynhud.render;
 
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -2004,11 +2005,12 @@ public class TextureImage2D
         return ( clearLine );
     }
     
-    public final java.awt.geom.Rectangle2D getStringBounds( String s, java.awt.Font font )
+    public final java.awt.geom.Rectangle2D getStringBounds( String s, java.awt.Font font, boolean antiAliased )
     {
         if ( !textGraphics.getFont().equals( font ) )
         {
             textGraphics.setFont( font );
+            textGraphics.setRenderingHint( RenderingHints.KEY_ANTIALIASING, antiAliased ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF );
             
             fontMetrics = textGraphics.getFontMetrics();
         }
@@ -2036,11 +2038,12 @@ public class TextureImage2D
      * @param y the y-position of the String's baseline
      * @param bounds the String's bounds. If null, bounds will be created temporarily
      * @param font the Font to use
+     * @param antiAliased
      * @param color the Color to use
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
-    public void drawString( String s, int x, int y, java.awt.geom.Rectangle2D bounds, java.awt.Font font, java.awt.Color color, boolean markDirty, Rect2i dirtyRect )
+    public void drawString( String s, int x, int y, java.awt.geom.Rectangle2D bounds, java.awt.Font font, boolean antiAliased, java.awt.Color color, boolean markDirty, Rect2i dirtyRect )
     {
         if ( !textGraphics.getFont().equals( font ) )
         {
@@ -2082,6 +2085,7 @@ public class TextureImage2D
         }
         
         // draw the string
+        textGraphics.setRenderingHint( RenderingHints.KEY_ANTIALIASING, antiAliased ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF );
         textGraphics.drawString( s, 0, (int)-bounds.getY() );
         
         // copy the data to this TextureImage

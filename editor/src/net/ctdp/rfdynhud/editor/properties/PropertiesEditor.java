@@ -87,19 +87,19 @@ public class PropertiesEditor extends DefaultTableModel
     
     private static final boolean needsAreaClear( Property p )
     {
-        if ( p.getKey().equals( "x" ) )
+        if ( p.getPropertyName().equals( "x" ) )
             return ( true );
         
-        if ( p.getKey().equals( "y" ) )
+        if ( p.getPropertyName().equals( "y" ) )
             return ( true );
         
-        if ( p.getKey().equals( "width" ) )
+        if ( p.getPropertyName().equals( "width" ) )
             return ( true );
         
-        if ( p.getKey().equals( "height" ) )
+        if ( p.getPropertyName().equals( "height" ) )
             return ( true );
         
-        if ( p.getKey().equals( "initialVisibility" ) )
+        if ( p.getPropertyName().equals( "initialVisibility" ) )
             return ( true );
         
         return ( false );
@@ -127,7 +127,7 @@ public class PropertiesEditor extends DefaultTableModel
     public Object getValueAt( int row, int column )
     {
         if ( column == 0 )
-            return ( getProperty( row ).getKeyForDisplay() );
+            return ( getProperty( row ).getNameForDisplay() );
         
         return ( getProperty( row ).getValue() );
     }

@@ -21,7 +21,6 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
-import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.ValidityTest;
@@ -42,11 +41,9 @@ public class FuelWidget extends Widget
     private static final InputAction INPUT_ACTION_INC_PITSTOP = new InputAction( "IncPitstopAction" );
     private static final InputAction INPUT_ACTION_DEC_PITSTOP = new InputAction( "DecPitstopAction" );
     
-    private String fontKey2 = "StandardFont3";
-    private Font font2 = null;
+    private final FontProperty font2 = new FontProperty( this, "font2", "SmallerFont3" );
     
-    private String fuelFontKey = "StandardFont";
-    private Font fuelFont = null;
+    private final FontProperty fuelFont = new FontProperty( this, "fuelFont", "StandardFont" );
     
     private DrawnString fuelHeaderString = null;
     
@@ -129,44 +126,24 @@ public class FuelWidget extends Widget
         fuelBarWidth.bake();
     }
     
-    public void setFont2( String font )
-    {
-        this.fontKey2 = font;
-        this.font2 = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setFont2( Font font, boolean virtual )
-    {
-        setFont2( FontUtils.getFontString( font, virtual ) );
-    }
-    
     public final Font getFont2()
     {
-        font2 = FontProperty.getFontFromFontKey( fontKey2, font2, getConfiguration() );
-        
-        return ( font2 );
+        return ( font2.getFont() );
     }
     
-    public void setFuelFont( String font )
+    public final boolean isFont2AntiAliased()
     {
-        this.fuelFontKey = font;
-        this.fuelFont = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setFuelFont( Font font, boolean virtual )
-    {
-        setFuelFont( FontUtils.getFontString( font, virtual ) );
+        return ( font2.isAntiAliased() );
     }
     
     public final Font getFuelFont()
     {
-        fuelFont = FontProperty.getFontFromFontKey( fuelFontKey, fuelFont, getConfiguration() );
-        
-        return ( fuelFont );
+        return ( fuelFont.getFont() );
+    }
+    
+    public final boolean isFuelFontAntiAliased()
+    {
+        return ( fuelFont.isAntiAliased() );
     }
     
     /**
@@ -324,35 +301,38 @@ public class FuelWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
+        final boolean fontAntiAliased = isFontAntialiased();
         final java.awt.Font font2 = getFont2();
-        final java.awt.Font fuelFont = getFuelFont();
+        final boolean font2AntiAliased = isFont2AntiAliased();
         final java.awt.Color fontColor = getFontColor();
+        final java.awt.Font fuelFont = getFuelFont();
+        final boolean fuelFontAntiAliased = isFuelFontAntiAliased();
         final java.awt.Color fuelFontColor = getFuelFontColor();
         
         int left = 2;
         int top = -2;
         
-        fuelHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontColor, "Fuel: (", null, ")" );
+        fuelHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fuel: (", null, ")" );
         
         int fuelBarWidth = this.fuelBarWidth.getEffectiveWidth();
         int fuelBarCenter = left + fuelBarLeftOffset + ( fuelBarWidth / 2 );
         
-        fuelLoadString1 = new DrawnString( fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontColor, null, null, "L" );
-        fuelLoadString2 = new DrawnString( null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontColor, null, null, "kg" );
-        fuelLoadString3 = new DrawnString( null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, fuelFontColor, null, null, null );
+        fuelLoadString1 = new DrawnString( fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, null, "L" );
+        fuelLoadString2 = new DrawnString( null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, null, "kg" );
+        fuelLoadString3 = new DrawnString( null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null, null );
         
         int rightLeft = left + fuelBarLeftOffset + fuelBarWidth + 2;
         
-        fuelUsageHeaderString = new DrawnString( null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontColor, "Usage:", null, null );
-        fuelUsageLastLapHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontColor, "Last lap", null, null );
-        fuelUsageAvgHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 135, 2, Alignment.CENTER, false, font, fontColor, "avg.", null, null );
+        fuelUsageHeaderString = new DrawnString( null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Usage:", null, null );
+        fuelUsageLastLapHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Last lap", null, null );
+        fuelUsageAvgHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 135, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "avg.", null, null );
         
-        fuelUsageOneLapString = new DrawnString( null, fuelUsageLastLapHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontColor, null, null, null );
-        fuelUsageAvgString = new DrawnString( null, fuelUsageAvgHeaderString, rightLeft + 135, 2, Alignment.CENTER, false, font, fontColor, null, null, null );
+        fuelUsageOneLapString = new DrawnString( null, fuelUsageLastLapHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, null, null, null );
+        fuelUsageAvgString = new DrawnString( null, fuelUsageAvgHeaderString, rightLeft + 135, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, null, null, null );
         
-        nextPitstopHeaderString = new DrawnString( null, fuelUsageOneLapString, rightLeft, 7, Alignment.LEFT, false, font, fontColor, "Next Pitstop:", null, null );
-        nextPitstopLapString = new DrawnString( null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, fontColor, "Lap ", null, null );
-        nextPitstopFuelString = new DrawnString( null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, fontColor, "Fuel: ", null, null );
+        nextPitstopHeaderString = new DrawnString( null, fuelUsageOneLapString, rightLeft, 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Next Pitstop:", null, null );
+        nextPitstopLapString = new DrawnString( null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Lap ", null, null );
+        nextPitstopFuelString = new DrawnString( null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Fuel: ", null, null );
     }
     
     private void drawFuel( float fuel, int tankSize, TextureImage2D image, int x, int y, int height )
@@ -544,8 +524,8 @@ public class FuelWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "font2", fontKey2, "The used (smaller) font." );
-        writer.writeProperty( "fuelFont", fuelFontKey, "The used font for fuel load." );
+        writer.writeProperty( font2.getPropertyName(), font2.getFontKey(), "The used (smaller) font." );
+        writer.writeProperty( fuelFont.getPropertyName(), fuelFont.getFontKey(), "The used font for fuel load." );
         writer.writeProperty( "fuelFontColor", fuelFontColorKey, "The color to use for fuel load in the format #RRGGBB (hex)." );
         writer.writeProperty( "roundUpRemainingLaps", getRoundUpRemainingLaps(), "Round up remaining fuel laps to include the current lap?" );
     }
@@ -558,11 +538,11 @@ public class FuelWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( key.equals( "font2" ) )
-            this.fontKey2 = value;
+        if ( font2.loadProperty( key, value ) )
+            ;
         
-        else if ( key.equals( "fuelFont" ) )
-            this.fuelFontKey = value;
+        else if ( fuelFont.loadProperty( key, value ) )
+            ;
         
         else if ( key.equals( "fuelFontColor" ) )
             this.fuelFontColorKey = value;
@@ -581,37 +561,11 @@ public class FuelWidget extends Widget
         
         FlaggedList superProps = (FlaggedList)propsList.get( propsList.size() - 1 );
         
-        superProps.add( new FontProperty( "font2", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setFont2( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( fontKey2 );
-            }
-        } );
+        superProps.add( font2 );
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
-        props.add( new FontProperty( "fuelFont", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setFuelFont( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( fuelFontKey );
-            }
-        } );
+        props.add( fuelFont );
         
         props.add( new ColorProperty( "fuelFontColor", getConfiguration() )
         {

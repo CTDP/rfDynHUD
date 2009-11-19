@@ -368,7 +368,8 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         checkFixAndBakeConfiguration( isEditorMode );
         
-        __GDPrivilegedAccess.updateSessionTime( gameData.getScoringInfo() );
+        if ( !isEditorMode )
+            __GDPrivilegedAccess.updateSessionTime( gameData.getScoringInfo() );
         
         long sessionNanos = gameData.getScoringInfo().getSessionNanos();
         

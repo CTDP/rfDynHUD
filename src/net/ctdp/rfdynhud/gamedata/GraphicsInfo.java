@@ -100,6 +100,8 @@ public class GraphicsInfo
     
     void loadFromStream( InputStream in ) throws IOException
     {
+        prepareDataUpdate();
+        
         int offset = 0;
         int bytesToRead = BUFFER_SIZE;
         

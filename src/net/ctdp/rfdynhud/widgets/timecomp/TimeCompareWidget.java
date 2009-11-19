@@ -159,11 +159,12 @@ public class TimeCompareWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
+        final boolean fontAntiAliased = isFontAntialiased();
         final java.awt.Color fontColor = getFontColor();
         
         LocalStore store = (LocalStore)getLocalStore();
         
-        headerString = new DrawnString( 0, 0, Alignment.LEFT, false, font, fontColor, null );
+        headerString = new DrawnString( 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
         int rowHeight = headerString.getMaxHeight( texCanvas.getImage(), false );
@@ -180,11 +181,11 @@ public class TimeCompareWidget extends Widget
         DrawnString relY = headerString;
         for ( int j = 0; j < numDisplayedLaps; j++ )
         {
-            timeStrings[j] = new DrawnString( null, relY, 0, 0, Alignment.LEFT, false, font, fontColor, null );
+            timeStrings[j] = new DrawnString( null, relY, 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
             relY = timeStrings[j];
         }
         
-        timeStrings[numDisplayedLaps] = new DrawnString( null, relY, 0, 5, Alignment.LEFT, false, font, fontColor, null );
+        timeStrings[numDisplayedLaps] = new DrawnString( null, relY, 0, 5, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
         
         if ( getDisplaySectors() )
             timeStrings[0].getMinColWidths( new String[] { "00", " --.---", " --.---", " --.---", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
