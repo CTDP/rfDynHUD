@@ -5,14 +5,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
-import net.ctdp.rfdynhud.editor.properties.Property;
-import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.editor.properties.ImageProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.TextureLoader;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -24,24 +22,17 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class ImageWidget extends Widget
 {
-    private String imageName = "ctdp-fat-1994.png";
-    
     private TextureImage2D texture = null;
-    
-    public void setImageName( String imageName )
+    private final ImageProperty image = new ImageProperty( this, "imageName", "ctdp-fat-1994.png" )
     {
-        this.imageName = imageName;
-        
-        this.texture = null;
-        
-        forceCompleteRedraw();
-        forceReinitialization();
-    }
-    
-    public final String getImageName()
-    {
-        return ( imageName );
-    }
+        @Override
+        public void setValue( Object value )
+        {
+            super.setValue( value );
+            
+            texture = null;
+        }
+    };
     
     /**
      * {@inheritDoc}
@@ -70,7 +61,7 @@ public class ImageWidget extends Widget
         {
             try
             {
-                BufferedImage bi = TextureLoader.getImage( imageName );
+                BufferedImage bi = image.getBufferedImage();
                 if ( ( texture == null ) || ( bi.getWidth() != width ) || ( bi.getHeight() != height ) )
                 {
                     texture = TextureImage2D.createOfflineTexture( width, height, true );
@@ -93,7 +84,7 @@ public class ImageWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
     }
     
@@ -106,7 +97,7 @@ public class ImageWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "imageName", getImageName(), "The displayed image's name." );
+        writer.writeProperty( image, "The displayed image's name." );
     }
     
     /**
@@ -117,8 +108,7 @@ public class ImageWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( key.equals( "imageName" ) )
-            this.imageName = value;
+        if ( image.loadProperty( key, value ) );
     }
     
     /**
@@ -131,20 +121,7 @@ public class ImageWidget extends Widget
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
-        props.add( new Property( "imageName", PropertyEditorType.IMAGE )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setImageName( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getImageName() );
-            }
-        } );
+        props.add( image );
         
         propsList.add( props );
     }
@@ -165,6 +142,6 @@ public class ImageWidget extends Widget
     {
         super( name, Size.PERCENT_OFFSET + 0.17f, Size.PERCENT_OFFSET + 0.086f );
         
-        setBackgroundColor( (String)null );
+        getBackgroundColorProperty().setColor( (String)null );
     }
 }

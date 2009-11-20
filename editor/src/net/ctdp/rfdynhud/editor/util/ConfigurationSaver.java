@@ -3,6 +3,7 @@ package net.ctdp.rfdynhud.editor.util;
 import java.io.File;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -45,6 +46,16 @@ public class ConfigurationSaver
             public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException
             {
                 writer.writeSetting( key, value, quoteValue, comment );
+            }
+            
+            public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
+            {
+                writer.writeSetting( property.getPropertyName(), property.getValue(), quoteValue, comment );
+            }
+            
+            public void writeProperty( Property property, String comment ) throws IOException
+            {
+                writer.writeSetting( property.getPropertyName(), property.getValue(), comment );
             }
         };
         

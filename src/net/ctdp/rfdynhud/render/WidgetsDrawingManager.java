@@ -432,7 +432,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 {
                     if ( widget.isVisible() || isEditorMode )
                     {
-                        widget.drawWidget( isEditorMode, clock1, clock2, gameData, texCanvas, completeRedrawForced );
+                        widget.drawWidget( isEditorMode, clock1, clock2, completeRedrawForced, gameData, texCanvas );
                     }
                     else if ( widget.needsCompleteClear() )
                     {

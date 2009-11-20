@@ -3,8 +3,7 @@ package net.ctdp.rfdynhud.widgets.timecomp;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
-import net.ctdp.rfdynhud.editor.properties.Property;
-import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -27,7 +26,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class TimeCompareWidget extends Widget
 {
-    private boolean displaySectors = true;
+    private final BooleanProperty displaySectors = new BooleanProperty( this, "displaySectors", true );
     
     private DrawnString headerString = null;
     private DrawnString[] timeStrings = null;
@@ -46,18 +45,6 @@ public class TimeCompareWidget extends Widget
     protected Object createLocalStore()
     {
         return ( new LocalStore() );
-    }
-    
-    public void setDisplaySectors( boolean display )
-    {
-        this.displaySectors = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplaySectors()
-    {
-        return ( displaySectors );
     }
     
     /**
@@ -159,7 +146,7 @@ public class TimeCompareWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
-        final boolean fontAntiAliased = isFontAntialiased();
+        final boolean fontAntiAliased = isFontAntiAliased();
         final java.awt.Color fontColor = getFontColor();
         
         LocalStore store = (LocalStore)getLocalStore();
@@ -171,7 +158,7 @@ public class TimeCompareWidget extends Widget
         numDisplayedLaps = Math.max( 1, ( h - rowHeight - rowHeight - 5 ) / rowHeight );
         
         store.displayedLaps = new Laptime[ numDisplayedLaps ];
-        int numStrings = displaySectors ? 5 : 2;
+        int numStrings = displaySectors.getBooleanValue() ? 5 : 2;
         this.colWidths = new int[ numStrings ];
         
         int padding = 10;
@@ -187,7 +174,7 @@ public class TimeCompareWidget extends Widget
         
         timeStrings[numDisplayedLaps] = new DrawnString( null, relY, 0, 5, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
         
-        if ( getDisplaySectors() )
+        if ( displaySectors.getBooleanValue() )
             timeStrings[0].getMinColWidths( new String[] { "00", " --.---", " --.---", " --.---", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
         else
             timeStrings[0].getMinColWidths( new String[] { "00", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
@@ -201,7 +188,7 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final TextureImage2D image = texCanvas.getImage();
         final java.awt.Color backgroundColor = getBackgroundColor();
@@ -212,7 +199,7 @@ public class TimeCompareWidget extends Widget
         
         if ( needsCompleteRedraw )
         {
-            if ( getDisplaySectors() )
+            if ( displaySectors.getBooleanValue() )
                 headerString.draw( offsetX, offsetY, new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
             else
                 headerString.draw( offsetX, offsetY, new String[] { "#", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
@@ -226,14 +213,14 @@ public class TimeCompareWidget extends Widget
                 String[] s;
                 if ( store.displayedLaps[i] == null )
                 {
-                    if ( getDisplaySectors() )
+                    if ( displaySectors.getBooleanValue() )
                         s = new String[] { "--", "--.---", "--.---", "--.---", "-:--.---" };
                     else
                         s = new String[] { "--", "-:--.---" };
                 }
                 else
                 {
-                    if ( getDisplaySectors() )
+                    if ( displaySectors.getBooleanValue() )
                         s = new String[] { String.valueOf( store.displayedLaps[i].getLap() ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector1(), true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector2(), true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector3(), true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getLapTime(), true ) };
                     else
                         s = new String[] { String.valueOf( store.displayedLaps[i].getLap() ), TimingUtil.getTimeAsString( store.displayedLaps[i].getLapTime(), true ) };
@@ -247,7 +234,7 @@ public class TimeCompareWidget extends Widget
             String[] s;
             if ( last < 0 )
             {
-                if ( getDisplaySectors() )
+                if ( displaySectors.getBooleanValue() )
                     s = new String[] { "g", "--.---", "--.---", "--.---", "-:--.---" };
                 else
                     s = new String[] { "g", "-:--.---" };
@@ -256,7 +243,7 @@ public class TimeCompareWidget extends Widget
             {
                 Laptime lt = store.displayedLaps[last];
                 
-                if ( getDisplaySectors() )
+                if ( displaySectors.getBooleanValue() )
                     s = new String[] { "g", TimingUtil.getTimeAsGapString( lt.getSector1() - store.avgS1 ), TimingUtil.getTimeAsGapString( lt.getSector2() - store.avgS2 ), TimingUtil.getTimeAsGapString( lt.getSector3() - store.avgS3 ), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
                 else
                     s = new String[] { "g", TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
@@ -275,7 +262,7 @@ public class TimeCompareWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "displaySectors", getDisplaySectors(), "Display sector times?" );
+        writer.writeProperty( displaySectors, "Display sector times?" );
     }
     
     /**
@@ -286,8 +273,7 @@ public class TimeCompareWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( key.equals( "displaySectors" ) )
-            this.displaySectors = Boolean.parseBoolean( value );
+        if ( displaySectors.loadProperty( key, value ) );
     }
     
     /**
@@ -300,21 +286,7 @@ public class TimeCompareWidget extends Widget
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
-        
-        props.add( new Property( "displaySectors", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplaySectors( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplaySectors() );
-            }
-        } );
+        props.add( displaySectors );
         
         propsList.add( props );
     }

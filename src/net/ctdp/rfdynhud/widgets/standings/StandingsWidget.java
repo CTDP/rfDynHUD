@@ -1,10 +1,10 @@
 package net.ctdp.rfdynhud.widgets.standings;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.util.Arrays;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
@@ -24,8 +24,6 @@ import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
-import org.openmali.vecmath2.util.ColorUtils;
-
 /**
  * The {@link StandingsWidget} displays engine information.
  * 
@@ -43,22 +41,19 @@ public class StandingsWidget extends Widget
     
     private static final InputAction INPUT_ACTION_CYCLE_VIEW = new InputAction( "CycleStandingsViewAction" );
     
-    private String fontColorKey_me = "#7A7727";
-    private Color fontColor_me = null;
-    private String fontColorKey_out = "#646464";
-    private Color fontColor_out = null;
-    private String fontColorKey_finished = "#00FF00";
-    private Color fontColor_finished = null;
+    private final ColorProperty fontColor_me = new ColorProperty( this, "fontColor_me", "#7A7727" );
+    private final ColorProperty fontColor_out = new ColorProperty( this, "fontColor_out", "#646464" );
+    private final ColorProperty fontColor_finished = new ColorProperty( this, "fontColor_finished", "#00FF00" );
     
-    private boolean autoWidth = true;
+    private final BooleanProperty useAutoWidth = new BooleanProperty( this, "useAutoWidth", false );
     
-    private boolean allowRelToLeaderView = true;
-    private boolean allowRelToMeView = true;
-    private boolean allowAbsTimesView = true;
+    private final BooleanProperty allowRelToLeaderView = new BooleanProperty( this, "allowRelToLeaderView", true );
+    private final BooleanProperty allowRelToMeView = new BooleanProperty( this, "allowRelToMeView", true );
+    private final BooleanProperty allowAbsTimesView = new BooleanProperty( this, "allowAbsTimesView", true );
     
-    private boolean forceLeaderDisplayed = true;
-    private boolean showThreeLetterCodes = false;
-    private boolean abbreviate = false;
+    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "allowRelToLeaderView", true );
+    private final BooleanProperty showThreeLetterCodes = new BooleanProperty( this, "showThreeLetterCodes", false );
+    private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
     
     private DrawnString[] positionStrings = null;
     private int maxDisplayedDrivers = 100;
@@ -147,94 +142,6 @@ public class StandingsWidget extends Widget
         return ( array );
     }
     
-    public void setFontColorMe( String color )
-    {
-        this.fontColorKey_me = color;
-        this.fontColor_me = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setFontColorMe( Color color )
-    {
-        setFontColorMe( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setClutchColorMe( int red, int green, int blue )
-    {
-        setFontColorMe( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getFontColorMe()
-    {
-        fontColor_me = ColorProperty.getColorFromColorKey( fontColorKey_me, fontColor_me, getConfiguration() );
-        
-        return ( fontColor_me );
-    }
-    
-    public void setFontColorOut( String color )
-    {
-        this.fontColorKey_out = color;
-        this.fontColor_out = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setFontColorOut( Color color )
-    {
-        setFontColorMe( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setClutchColorOut( int red, int green, int blue )
-    {
-        setFontColorOut( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getFontColorOut()
-    {
-        fontColor_out = ColorProperty.getColorFromColorKey( fontColorKey_out, fontColor_out, getConfiguration() );
-        
-        return ( fontColor_out );
-    }
-    
-    public void setFontColorFinished( String color )
-    {
-        this.fontColorKey_finished = color;
-        this.fontColor_finished = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setFontColorFinished( Color color )
-    {
-        setFontColorFinished( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setClutchColorFinished( int red, int green, int blue )
-    {
-        setFontColorFinished( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getFontColorFinished()
-    {
-        fontColor_finished = ColorProperty.getColorFromColorKey( fontColorKey_finished, fontColor_finished, getConfiguration() );
-        
-        return ( fontColor_finished );
-    }
-    
-    public void setUseAutoWidth( boolean b )
-    {
-        this.autoWidth = b;
-        
-        forceCompleteRedraw();
-        setDirtyFlag();
-    }
-    
-    public final boolean getUseAutoWidth()
-    {
-        return ( autoWidth );
-    }
-    
     public void setView( StandingsView view )
     {
         LocalStore store = (LocalStore)getLocalStore();
@@ -251,24 +158,24 @@ public class StandingsWidget extends Widget
     
     public void allowViews( boolean relToLeader, boolean relToMe, boolean absTimes )
     {
-        this.allowRelToLeaderView = relToLeader;
-        this.allowRelToMeView = relToMe;
-        this.allowAbsTimesView = absTimes;
+        this.allowRelToLeaderView.setBooleanValue( relToLeader );
+        this.allowRelToMeView.setBooleanValue( relToMe );
+        this.allowAbsTimesView.setBooleanValue( absTimes );
     }
     
     public final boolean isRelToLeaderViewAllowed()
     {
-        return ( allowRelToLeaderView );
+        return ( allowRelToLeaderView.getBooleanValue() );
     }
     
     public final boolean isRelToMeViewAllowed()
     {
-        return ( allowRelToMeView );
+        return ( allowRelToMeView.getBooleanValue() );
     }
     
     public final boolean isAbsTimesViewAllowed( SessionType sessionType )
     {
-        return ( !sessionType.isRace() && allowAbsTimesView );
+        return ( !sessionType.isRace() && allowAbsTimesView.getBooleanValue() );
     }
     
     private final boolean checkView( StandingsView view, SessionType sessionType )
@@ -343,45 +250,6 @@ public class StandingsWidget extends Widget
         return ( getView() );
     }
     
-    public void setForceLeaderDisplayed( boolean forced )
-    {
-        this.forceLeaderDisplayed = forced;
-        
-        forceCompleteRedraw();
-        setDirtyFlag();
-    }
-    
-    public final boolean getForceLeaderDisplayed()
-    {
-        return ( forceLeaderDisplayed );
-    }
-    
-    public void setShowThreeLetterCodes( boolean show )
-    {
-        this.showThreeLetterCodes = show;
-        
-        forceCompleteRedraw();
-        setDirtyFlag();
-    }
-    
-    public final boolean getShowThreeLetterCodes()
-    {
-        return ( showThreeLetterCodes );
-    }
-    
-    public void setAbbreviate( boolean abb )
-    {
-        this.abbreviate = abb;
-        
-        forceCompleteRedraw();
-        setDirtyFlag();
-    }
-    
-    public final boolean getAbbreviate()
-    {
-        return ( abbreviate );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -446,7 +314,7 @@ public class StandingsWidget extends Widget
         
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        if ( getShowThreeLetterCodes() )
+        if ( showThreeLetterCodes.getBooleanValue() )
             ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
         else
             ss[1] = vsi.getDriverName();
@@ -473,7 +341,7 @@ public class StandingsWidget extends Widget
             }
             
             int stops = vsi.getNumPitstopsMade();
-            if ( getAbbreviate() )
+            if ( abbreviate.getBooleanValue() )
                 ss[3] = stops + "S";
             else if ( stops == 1 )
                 ss[3] = stops + " Stop";
@@ -501,7 +369,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        if ( getShowThreeLetterCodes() )
+        if ( showThreeLetterCodes.getBooleanValue() )
             ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
         else
             ss[1] = vsi.getDriverName();
@@ -519,14 +387,14 @@ public class StandingsWidget extends Widget
                 
                 if ( lapDiff < 0 )
                 {
-                    if ( getAbbreviate() )
+                    if ( abbreviate.getBooleanValue() )
                         ss[2] = "(" + lapDiff + "L" + ")";
                     else
                         ss[2] = "(" + lapDiff + " Lap" + ( lapDiff < -1 ? "s" : "" ) + ")";
                 }
                 else if ( lapDiff > 0 )
                 {
-                    if ( getAbbreviate() )
+                    if ( abbreviate.getBooleanValue() )
                         ss[2] = "(+" + lapDiff + "L" + ")";
                     else
                         ss[2] = "(+" + lapDiff + " Lap" + ( lapDiff > 1 ? "s" : "" ) + ")";
@@ -542,7 +410,7 @@ public class StandingsWidget extends Widget
             }
             
             int stops = vsi.getNumPitstopsMade();
-            if ( getAbbreviate() )
+            if ( abbreviate.getBooleanValue() )
                 ss[3] = stops + "S";
             else if ( stops == 1 )
                 ss[3] = stops + " Stop";
@@ -613,7 +481,7 @@ public class StandingsWidget extends Widget
                 }
             }
             
-            if ( ( i0 > 0 ) && getForceLeaderDisplayed() )
+            if ( ( i0 > 0 ) && forceLeaderDisplayed.getBooleanValue() )
             {
                 i0++;
                 
@@ -647,7 +515,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        if ( getShowThreeLetterCodes() )
+        if ( showThreeLetterCodes.getBooleanValue() )
             ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
         else
             ss[1] = vsi.getDriverName();
@@ -681,7 +549,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
-        if ( getShowThreeLetterCodes() )
+        if ( showThreeLetterCodes.getBooleanValue() )
             ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
         else
             ss[1] = vsi.getDriverName();
@@ -715,7 +583,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
-        if ( getShowThreeLetterCodes() )
+        if ( showThreeLetterCodes.getBooleanValue() )
             ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
         else
             ss[1] = vsi.getDriverName();
@@ -731,7 +599,7 @@ public class StandingsWidget extends Widget
             ss[2] = null;
         }
         
-        if ( getAbbreviate() )
+        if ( abbreviate.getBooleanValue() )
             ss[3] = vsi.getLapsCompleted() + "L";
         else if ( vsi.getLapsCompleted() == 1 )
             ss[3] = vsi.getLapsCompleted() + " Lap";
@@ -783,7 +651,7 @@ public class StandingsWidget extends Widget
                 }
             }
             
-            if ( ( i0 > 0 ) && getForceLeaderDisplayed() )
+            if ( ( i0 > 0 ) && forceLeaderDisplayed.getBooleanValue() )
             {
                 i0++;
                 
@@ -821,12 +689,12 @@ public class StandingsWidget extends Widget
     @Override
     public int getMaxWidth( Texture2DCanvas texCanvas )
     {
-        if ( !getUseAutoWidth() )
+        if ( !useAutoWidth.getBooleanValue() )
             return ( super.getMaxWidth( texCanvas ) );
         
-        DrawnString ds = new DrawnString( 10, 0, Alignment.LEFT, false, getFont(), isFontAntialiased(), getFontColor(), null );
+        DrawnString ds = new DrawnString( 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), null );
         
-        String[] strs = { "99.", getShowThreeLetterCodes() ? "AAAA" : "Giancarlo Fisichella___", "-1:99:99.999", "99" + ( getAbbreviate() ? "S" : " Stops" ) };
+        String[] strs = { "99.", showThreeLetterCodes.getBooleanValue() ? "AAAA" : "Giancarlo Fisichella___", "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
         
         ds.getMinColWidths( strs, 10, texCanvas.getImage(), colWidths );
         
@@ -862,7 +730,7 @@ public class StandingsWidget extends Widget
                 minWidth = w;
         }
         
-        if ( !getUseAutoWidth() )
+        if ( !useAutoWidth.getBooleanValue() )
             return ( false );
         
         //int padding = 2 * 8;
@@ -889,9 +757,9 @@ public class StandingsWidget extends Widget
         for ( int i = 0; i < n; i++ )
         {
             if ( i == 0 )
-                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), isFontAntialiased(), getFontColor(), null );
+                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), null );
             else
-                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntialiased(), getFontColor(), null );
+                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), null );
         }
     }
     
@@ -929,16 +797,16 @@ public class StandingsWidget extends Widget
                 case NONE:
                     //if ( playerPosStringIndex == i - i0 )
                     if ( vsi.isPlayer() )
-                        fc = getFontColorMe();
+                        fc = fontColor_me.getColor();
                     else
                         fc = null;
                     break;
                 case DNF:
                 case DQ:
-                    fc = getFontColorOut();
+                    fc = fontColor_out.getColor();
                     break;
                 case FINISHED:
-                    fc = getFontColorFinished();
+                    fc = fontColor_finished.getColor();
                     break;
             }
             
@@ -951,7 +819,7 @@ public class StandingsWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -990,14 +858,14 @@ public class StandingsWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "fontColor_me", fontColorKey_me, "The font color used for myself in the format #RRGGBB (hex)." );
-        writer.writeProperty( "fontColor_out", fontColorKey_out, "The font color used for retired drivers in the format #RRGGBB (hex)." );
-        writer.writeProperty( "fontColor_finished", fontColorKey_finished, "The font color used for finished drivers in the format #RRGGBB (hex)." );
-        writer.writeProperty( "useAutoWidth", getUseAutoWidth(), "Automatically compute and display the width?" );
+        writer.writeProperty( fontColor_me, "The font color used for myself in the format #RRGGBB (hex)." );
+        writer.writeProperty( fontColor_out, "The font color used for retired drivers in the format #RRGGBB (hex)." );
+        writer.writeProperty( fontColor_finished, "The font color used for finished drivers in the format #RRGGBB (hex)." );
+        writer.writeProperty( useAutoWidth, "Automatically compute and display the width?" );
         writer.writeProperty( "initialView", getView(), "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
-        writer.writeProperty( "forceLeaderDisplayed", getForceLeaderDisplayed(), "Display leader regardless of maximum displayed drivers setting?" );
-        writer.writeProperty( "showThreeLetterCodes", getShowThreeLetterCodes(), "Whether to display a three-letter-code for each driver, or not." );
-        writer.writeProperty( "abbreviate", getAbbreviate(), "Whether to abbreviate \"Stops\", or not." );
+        writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
+        writer.writeProperty( showThreeLetterCodes, "Whether to display a three-letter-code for each driver, or not." );
+        writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
     }
     
     /**
@@ -1008,18 +876,10 @@ public class StandingsWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( key.equals( "fontColor_me" ) )
-            this.fontColorKey_me = value;
-        
-        else if ( key.equals( "fontColor_out" ) )
-            this.fontColorKey_out = value;
-        
-        else if ( key.equals( "fontColor_finished" ) )
-            this.fontColorKey_finished = value;
-        
-        else if ( key.equals( "useAutoWidth" ) )
-            this.autoWidth = Boolean.parseBoolean( value );
-        
+        if ( fontColor_me.loadProperty( key, value ) );
+        else if ( fontColor_out.loadProperty( key, value ) );
+        else if ( fontColor_finished.loadProperty( key, value ) );
+        else if ( useAutoWidth.loadProperty( key, value ) );
         else if ( key.equals( "initialView" ) )
         {
             try
@@ -1031,15 +891,9 @@ public class StandingsWidget extends Widget
                 // Ignore and keep default!
             }
         }
-        
-        else if ( key.equals( "forceLeaderDisplayed" ) )
-            this.forceLeaderDisplayed = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "showThreeLetterCodes" ) )
-            this.showThreeLetterCodes = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "abbreviate" ) )
-            this.abbreviate = Boolean.parseBoolean( value );
+        else if ( forceLeaderDisplayed.loadProperty( key, value ) );
+        else if ( showThreeLetterCodes.loadProperty( key, value ) );
+        else if ( abbreviate.loadProperty( key, value ) );
     }
     
     /**
@@ -1052,66 +906,10 @@ public class StandingsWidget extends Widget
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
-        props.add( new ColorProperty( "fontColor_me", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setFontColorMe( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( fontColorKey_me );
-            }
-        } );
-        
-        props.add( new ColorProperty( "fontColor_out", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setFontColorOut( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( fontColorKey_out );
-            }
-        } );
-        
-        props.add( new ColorProperty( "fontColor_finished", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setFontColorFinished( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( fontColorKey_finished );
-            }
-        } );
-        
-        props.add( new Property( "useAutoWidth", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setUseAutoWidth( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getUseAutoWidth() );
-            }
-        } );
-        
+        props.add( fontColor_me );
+        props.add( fontColor_out );
+        props.add( fontColor_finished );
+        props.add( useAutoWidth );
         props.add( new Property( "initialView", PropertyEditorType.ENUM )
         {
             @Override
@@ -1130,50 +928,9 @@ public class StandingsWidget extends Widget
             }
         } );
         
-        props.add( new Property( "forceLeaderDisplayed", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setForceLeaderDisplayed( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getForceLeaderDisplayed() );
-            }
-        } );
-        
-        props.add( new Property( "showThreeLetterCodes", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setShowThreeLetterCodes( (Boolean)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getShowThreeLetterCodes() );
-            }
-        } );
-        
-        props.add( new Property( "abbreviate", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setAbbreviate( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getAbbreviate() );
-            }
-        } );
+        props.add( forceLeaderDisplayed );
+        props.add( showThreeLetterCodes );
+        props.add( abbreviate );
         
         propsList.add(  props );
     }
@@ -1182,6 +939,6 @@ public class StandingsWidget extends Widget
     {
         super( name, Size.PERCENT_OFFSET + 0.2825f, Size.PERCENT_OFFSET + 0.14916667f );
         
-        setFont( "BiggerFont" );
+        getFontProperty().setFont( "BiggerFont" );
     }
 }

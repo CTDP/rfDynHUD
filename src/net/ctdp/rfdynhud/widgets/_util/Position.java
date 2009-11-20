@@ -474,6 +474,32 @@ public class Position
         return ( unparseValue( getY() ) );
     }
     
+    public boolean loadProperty( String key, String value, String positioningKey, String xKey, String yKey )
+    {
+        if ( key.equals( positioningKey ) )
+        {
+            set( RelativePositioning.valueOf( value ), getX(), getY() );
+            
+            return ( true );
+        }
+        
+        if ( key.equals( xKey ) )
+        {
+            setX( Position.parseValue( value ) );
+            
+            return ( true );
+        }
+        
+        if ( key.equals( yKey ) )
+        {
+            setY( Position.parseValue( value ) );
+            
+            return ( true );
+        }
+        
+        return ( false );
+    }
+    
     public Property createPositioningProperty( String name )
     {
         Property prop = new Property( name, PropertyEditorType.ENUM )

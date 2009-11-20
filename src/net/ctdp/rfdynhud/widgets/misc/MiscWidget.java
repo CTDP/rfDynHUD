@@ -3,6 +3,8 @@ package net.ctdp.rfdynhud.widgets.misc;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
+import net.ctdp.rfdynhud.editor.properties.EnumProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
@@ -41,12 +43,12 @@ public class MiscWidget extends Widget
         ;
     }
     
-    private LapDisplayType lapDisplayType = LapDisplayType.CURRENT_LAP;
+    private final EnumProperty<LapDisplayType> lapDisplayType = new EnumProperty<LapDisplayType>( this, "lapDisplayType", LapDisplayType.CURRENT_LAP );
     private long relTopspeedResetDelay = 5000000000L; // five seconds
     
-    private boolean displayScoring = true;
-    private boolean displayTiming = true;
-    private boolean displayVelocity = true;
+    private final BooleanProperty displayScoring = new BooleanProperty( this, "displayScoring", true );
+    private final BooleanProperty displayTiming = new BooleanProperty( this, "displayTiming", true );
+    private final BooleanProperty displayVelocity = new BooleanProperty( this, "displayVelocity", true );
     
     private DrawnString scoringString1 = null;
     private DrawnString scoringString2 = null;
@@ -74,19 +76,6 @@ public class MiscWidget extends Widget
     private long lastRelTopspeedTime = -1L;
     private int oldVelocity = -1;
     
-    public void setLapDisplayType( LapDisplayType lapDisplayType )
-    {
-        this.lapDisplayType = lapDisplayType;
-        
-        forceReinitialization();
-        setDirtyFlag();
-    }
-    
-    public final LapDisplayType getLapDisplayType()
-    {
-        return ( lapDisplayType );
-    }
-    
     public void setRelTopspeedResetDelay( int delay )
     {
         this.relTopspeedResetDelay = delay * 1000000L;
@@ -95,42 +84,6 @@ public class MiscWidget extends Widget
     public final int getRelTopspeedResetDelay()
     {
         return ( (int)( relTopspeedResetDelay / 1000000L ) );
-    }
-    
-    public void setDisplayScoring( boolean display )
-    {
-        this.displayScoring = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayScoring()
-    {
-        return ( displayScoring );
-    }
-    
-    public void setDisplayTiming( boolean display )
-    {
-        this.displayTiming = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayTiming()
-    {
-        return ( displayTiming );
-    }
-    
-    public void setDisplayVelocity( boolean display )
-    {
-        this.displayVelocity = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayVelocity()
-    {
-        return ( displayVelocity );
     }
     
     /**
@@ -196,7 +149,7 @@ public class MiscWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
-        final boolean fontAntiAliased = isFontAntialiased();
+        final boolean fontAntiAliased = isFontAntiAliased();
         final java.awt.Color fontColor = getFontColor();
         
         final int left = 2;
@@ -204,7 +157,7 @@ public class MiscWidget extends Widget
         final int right = width - 2;
         final int top = -2;
         
-        if ( getDisplayScoring() )
+        if ( displayScoring.getBooleanValue() )
         {
             scoringString1 = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, null );
             scoringString2 = new DrawnString( null, scoringString1, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fastest Lap: ", null, null );
@@ -217,11 +170,11 @@ public class MiscWidget extends Widget
             scoringString3 = null;
         }
         
-        if ( getDisplayTiming() )
+        if ( displayTiming.getBooleanValue() )
         {
-            if ( ( getDisplayScoring() && getDisplayVelocity() ) || ( !getDisplayScoring() && !getDisplayVelocity() ) )
+            if ( ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() ) || ( !displayScoring.getBooleanValue() && !displayVelocity.getBooleanValue() ) )
             {
-                if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
+                if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
                     lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
                 else
                     lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
@@ -229,9 +182,9 @@ public class MiscWidget extends Widget
                 stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null, null );
                 sessionTimeString = new DrawnString( lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null, null );
             }
-            else if ( !getDisplayScoring() )
+            else if ( !displayScoring.getBooleanValue() )
             {
-                if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
+                if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
                     lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
                 else
                     lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
@@ -239,9 +192,9 @@ public class MiscWidget extends Widget
                 stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null, null );
                 sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null, null );
             }
-            else if ( !getDisplayVelocity() )
+            else if ( !displayVelocity.getBooleanValue() )
             {
-                if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
+                if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
                     lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
                 else
                     lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
@@ -257,7 +210,7 @@ public class MiscWidget extends Widget
             stintString = null;
         }
         
-        if ( getDisplayVelocity() )
+        if ( displayVelocity.getBooleanValue() )
         {
             absTopspeedString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Abs. Topspeed: ", null, " km/h" );
             relTopspeedString = new DrawnString( null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Rel. Topspeed: ", null, " km/h" );
@@ -275,14 +228,14 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final TextureImage2D image = texCanvas.getImage();
         final java.awt.Color backgroundColor = getBackgroundColor();
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        if ( getDisplayScoring() )
+        if ( displayScoring.getBooleanValue() )
         {
             VehicleScoringInfo leaderVSI = scoringInfo.getVehicleScoringInfo( 0 );
             leader.update( leaderVSI.getDriverName() );
@@ -323,7 +276,7 @@ public class MiscWidget extends Widget
             }
         }
         
-        if ( getDisplayTiming() )
+        if ( displayTiming.getBooleanValue() )
         {
             gamePhase.update( scoringInfo.getGamePhase() );
             VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
@@ -348,14 +301,14 @@ public class MiscWidget extends Widget
                     String string;
                     if ( ( scoringInfo.getSessionType() == SessionType.RACE ) && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )
                     {
-                        if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
+                        if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
                             string = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + (int)Math.ceil( lapsRemaining );
                         else
                             string = lapsCompleted + " / " + maxLaps + " / " + (int)Math.ceil( lapsRemaining );
                     }
                     else
                     {
-                        if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
+                        if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
                             string = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
                         else
                             string = lapsCompleted + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
@@ -366,7 +319,7 @@ public class MiscWidget extends Widget
             else if ( needsCompleteRedraw || lapsCompleted.hasChanged() )
             {
                 String string;
-                if ( getLapDisplayType() == LapDisplayType.CURRENT_LAP )
+                if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
                     string = String.valueOf( lapsCompleted.getValue() + 1 );
                 else
                     string = String.valueOf( lapsCompleted );
@@ -417,7 +370,7 @@ public class MiscWidget extends Widget
             }
         }
         
-        if ( getDisplayVelocity() )
+        if ( displayVelocity.getBooleanValue() )
         {
             float velocity = gameData.getTelemetryData().getScalarVelocityKPH();
             float topspeed = TopspeedRecorder.MASTER_TOPSPEED_RECORDER.getTopSpeed();
@@ -467,10 +420,10 @@ public class MiscWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "displayScoring", getDisplayScoring(), "Display the scoring part of the Widget?" );
-        writer.writeProperty( "displayTiming", getDisplayTiming(), "Display the timing part of the Widget?" );
-        writer.writeProperty( "displayVelocity", getDisplayVelocity(), "Display the velocity and top speed part of the Widget?" );
-        writer.writeProperty( "lapDisplayType", getLapDisplayType(), "The way the laps are displayed. Valid values: CURRENT_LAP, LAPS_DONE." );
+        writer.writeProperty( displayScoring, "Display the scoring part of the Widget?" );
+        writer.writeProperty( displayTiming, "Display the timing part of the Widget?" );
+        writer.writeProperty( displayVelocity, "Display the velocity and top speed part of the Widget?" );
+        writer.writeProperty( lapDisplayType, "The way the laps are displayed. Valid values: CURRENT_LAP, LAPS_DONE." );
         writer.writeProperty( "relTopspeedResetDelay", getRelTopspeedResetDelay(), "The delay after which the relative topspeed is resetted (in milliseconds)." );
     }
     
@@ -482,18 +435,10 @@ public class MiscWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( key.equals( "displayScoring" ) )
-            this.displayScoring = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "displayTiming" ) )
-            this.displayTiming = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "displayVelocity" ) )
-            this.displayVelocity = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "lapDisplayType" ) )
-            this.lapDisplayType = LapDisplayType.valueOf( value );
-        
+        if ( displayScoring.loadProperty( key, value ) );
+        else if ( displayTiming.loadProperty( key, value ) );
+        else if ( displayVelocity.loadProperty( key, value ) );
+        else if ( lapDisplayType.loadProperty( key, value ) );
         else if ( key.equals( "relTopspeedResetDelay" ) )
             this.relTopspeedResetDelay = Integer.parseInt( value ) * 1000000L;
     }
@@ -508,68 +453,10 @@ public class MiscWidget extends Widget
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
-        props.add( new Property( "displayScoring", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayScoring( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayScoring() );
-            }
-        } );
-        
-        props.add( new Property( "displayTiming", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayTiming( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayTiming() );
-            }
-        } );
-        
-        props.add( new Property( "displayVelocity", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayVelocity( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayVelocity() );
-            }
-        } );
-        
-        props.add( new Property( "lapDisplayType", PropertyEditorType.ENUM )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                if ( lapDisplayType == value )
-                    return;
-                
-                setLapDisplayType( (LapDisplayType)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getLapDisplayType() );
-            }
-        } );
+        props.add( displayScoring );
+        props.add( displayTiming );
+        props.add( displayVelocity );
+        props.add( lapDisplayType );
         
         props.add( new Property( "relTopspeedResetDelay", PropertyEditorType.INTEGER )
         {

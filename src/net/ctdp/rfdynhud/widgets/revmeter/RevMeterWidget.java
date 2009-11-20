@@ -12,10 +12,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
+import net.ctdp.rfdynhud.editor.properties.FloatProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
-import net.ctdp.rfdynhud.editor.properties.Property;
-import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.editor.properties.ImageProperty;
+import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
@@ -26,15 +28,12 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.TextureLoader;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-
-import org.openmali.vecmath2.util.ColorUtils;
 
 /**
  * The {@link RevMeterWidget} displays rev/RPM information.
@@ -43,9 +42,9 @@ import org.openmali.vecmath2.util.ColorUtils;
  */
 public class RevMeterWidget extends Widget
 {
-    private String backgroundImageName = "revmeter.png";
-    private String needleImageName = "needle.png";
-    private String shiftLightImageName = "shiftlight_on.png";
+    private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "revmeter.png" );
+    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "needle.png" );
+    private final ImageProperty shiftLightImageName = new ImageProperty( this, "shiftLightImageName", "imageName", "shiftlight_on.png" );
     
     private TextureImage2D backgroundTexture = null;
     private TransformableTexture needleTexture = null;
@@ -53,43 +52,78 @@ public class RevMeterWidget extends Widget
     
     private float backgroundScaleX, backgroundScaleY;
     
-    private int needleAxisBottomOffset = 12;
+    private final IntegerProperty needleAxisBottomOffset = new IntegerProperty( this, "needleAxisBottomOffset", "axisBottomOffset", 12 );
     
-    private float needleRotationForZeroRPM = (float)Math.PI * 0.68f;
-    private float needleRotationForMaxRPM = -(float)Math.PI * 0.66f;
+    private final FloatProperty needleRotationForZeroRPM = new FloatProperty( this, "rotationForZeroRPM", (float)Math.PI * 0.68f )
+    {
+        @Override
+        public void setValue( Object value )
+        {
+            super.setValue( ( (Number)value ).floatValue() * (float)Math.PI / 180f );
+        }
+        
+        @Override
+        public Object getValue()
+        {
+            return ( super.getFloatValue() * 180f / (float)Math.PI );
+        }
+    };
+    private final FloatProperty needleRotationForMaxRPM = new FloatProperty( this, "rotationForMaxRPM", -(float)Math.PI * 0.66f )
+    {
+        @Override
+        public void setValue( Object value )
+        {
+            super.setValue( ( (Number)value ).floatValue() * (float)Math.PI / 180f );
+        }
+        
+        @Override
+        public Object getValue()
+        {
+            return ( super.getFloatValue() * 180f / (float)Math.PI );
+        }
+    };
     
-    private int editorRPM = 3750;
+    private final IntegerProperty editorRPM = new IntegerProperty( this, "editorRPM", 3750 );
     
-    private boolean displayRevMarkers = true;
-    private boolean displayRevMarkerNumbers = true;
-    private int revMarkersInnerRadius = 224;
-    private int revMarkersLength = 50;
-    private int revMarkersBigStep = 1000;
-    private int revMarkersSmallStep = 200;
-    private String revMarkersColorKey = "#FFFFFF";
-    private Color revMarkersColor = null;
-    private String revMarkersMediumColorKey = "#FFFF00";
-    private Color revMarkersMediumColor = null;
-    private String revMarkersHighColorKey = "#FF0000";
-    private Color revMarkersHighColor = null;
-    private final FontProperty revMarkersFont = new FontProperty( this, "revMarkersFont", "rmFont", "Monospaced-BOLD-9va" );
-    private String revMarkersFontColorKey = "#FFFFFF";
-    private Color revMarkersFontColor = null;
-    private boolean interpolateMarkerColors = false;
+    private final BooleanProperty displayRevMarkers = new BooleanProperty( this, "displayRevMarkers", true );
+    private final BooleanProperty displayRevMarkerNumbers = new BooleanProperty( this, "displayRevMarkerNumbers", true );
+    private final IntegerProperty revMarkersInnerRadius = new IntegerProperty( this, "revMarkersInnerRadius", "innerRadius", 224 );
+    private final IntegerProperty revMarkersLength = new IntegerProperty( this, "revMarkersLength", "length", 50, 4, Integer.MAX_VALUE, false );
+    private final IntegerProperty revMarkersBigStep = new IntegerProperty( this, "revMarkersBigStep", "bigStep", 1000, 300, Integer.MAX_VALUE, false )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            fixSmallStep();
+        }
+    };
+    private final IntegerProperty revMarkersSmallStep = new IntegerProperty( this, "revMarkersSmallStep", "smallStep", 200, 20, Integer.MAX_VALUE, false )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            fixSmallStep();
+        }
+    };
+    private final ColorProperty revMarkersColor = new ColorProperty( this, "revMarkersColor", "color", "#FFFFFF" );
+    private final ColorProperty revMarkersMediumColor = new ColorProperty( this, "revMarkersMediumColor", "mediumColor", "#FFFF00" );
+    private final ColorProperty revMarkersHighColor = new ColorProperty( this, "revMarkersHighColor", "highColor", "#FF0000" );
+    private final FontProperty revMarkersFont = new FontProperty( this, "revMarkersFont", "font", "Monospaced-BOLD-9va" );
+    private final ColorProperty revMarkersFontColor = new ColorProperty( this, "revMarkersFontColor", "fontColor", "#FFFFFF" );
+    private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
-    private boolean displayShiftLight = true;
-    private int shiftLightPosX = 625;
-    private int shiftLightPosY = 42;
-    private int shiftLightRPM = -500;
+    private final BooleanProperty displayShiftLight = new BooleanProperty( this, "displayShiftLight", true );
+    private final IntegerProperty shiftLightPosX = new IntegerProperty( this, "shiftLightPosX", "posX", 625 );
+    private final IntegerProperty shiftLightPosY = new IntegerProperty( this, "shiftLightPosY", "posY", 42 );
+    private final IntegerProperty shiftLightRPM = new IntegerProperty( this, "shiftLightRPM", "activationRPM", -500 );
     
-    private int gearPosX = 325;
-    private int gearPosY = 450;
+    private final IntegerProperty gearPosX = new IntegerProperty( this, "gearPosX", "posX", 325 );
+    private final IntegerProperty gearPosY = new IntegerProperty( this, "gearPosY", "posY", 450 );
     
-    private final FontProperty gearFont = new FontProperty( this, "gearFont", "GearFont" );
-    private String gearFontColorKey = "#C0BC3D";
-    private Color gearFontColor = null;
+    private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", "GearFont" );
+    private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#C0BC3D" );
     
-    private int rpmPosY = 603;
+    private final IntegerProperty rpmPosY = new IntegerProperty( this, "rpmPosY", 603 );
     
     private DrawnString rpmString = null;
     private DrawnString gearString = null;
@@ -98,21 +132,16 @@ public class RevMeterWidget extends Widget
     private final IntValue gear = new IntValue();
     private final IntValue boost = new IntValue();
     
-    private boolean displayBoostBar = true;
-    
-    private boolean displayBoostNumber = true;
-    
-    private int boostBarPosX = 135;
-    private int boostBarPosY = 560;
-    private int boostBarWidth = 438;
-    private int boostBarHeight = 35;
-    private int boostNumberPosX = 377;
-    private int boostNumberPosY = 510;
-    
-    private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "StandardFont" );
-    
-    private String boostNumberFontColorKey = "#FF0000";
-    private Color boostNumberFontColor = null;
+    private final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
+    private final IntegerProperty boostBarPosX = new IntegerProperty( this, "boostBarPosX", "barPosX", 135 );
+    private final IntegerProperty boostBarPosY = new IntegerProperty( this, "boostBarPosY", "barPosY", 560 );
+    private final IntegerProperty boostBarWidth = new IntegerProperty( this, "boostBarWidth", "barWidth", 438 );
+    private final IntegerProperty boostBarHeight = new IntegerProperty( this, "boostBarHeight", "barHeight", 35 );
+    private final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
+    private final IntegerProperty boostNumberPosX = new IntegerProperty( this, "boostNumberPosX", "numberPosX", 377 );
+    private final IntegerProperty boostNumberPosY = new IntegerProperty( this, "boostNumberPosY", "numberPosY", 510 );
+    private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", "StandardFont" );
+    private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
     /**
      * {@inheritDoc}
@@ -123,555 +152,9 @@ public class RevMeterWidget extends Widget
         return ( new LocalStore() );
     }
     
-    public void setBackgroundImageName( String imageName )
-    {
-        this.backgroundImageName = imageName;
-        
-        this.backgroundTexture = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final String getBackgroundImageName()
-    {
-        return ( backgroundImageName );
-    }
-    
-    public void setNeedleImageName( String imageName )
-    {
-        this.needleImageName = imageName;
-        
-        this.needleTexture = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final String getNeedleImageName()
-    {
-        return ( needleImageName );
-    }
-    
-    public void setNeedleAxisBottomOffset( int offset )
-    {
-        this.needleAxisBottomOffset = offset;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getNeedleAxisBottomOffset()
-    {
-        return ( needleAxisBottomOffset );
-    }
-    
-    public void setNeedleRotationForZeroRPM( float radians )
-    {
-        this.needleRotationForZeroRPM = radians;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setNeedleRotationForZeroRPMasDegrees( float degrees )
-    {
-        setNeedleRotationForZeroRPM( degrees * (float)Math.PI / 180f );
-    }
-    
-    public final float getNeedleRotationForZeroRPM()
-    {
-        return ( needleRotationForZeroRPM );
-    }
-    
-    public final float getNeedleRotationForZeroRPMasDegrees()
-    {
-        return( needleRotationForZeroRPM * 180f / (float)Math.PI );
-    }
-    
-    public void setNeedleRotationForMaxRPM( float radians )
-    {
-        this.needleRotationForMaxRPM = radians;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setNeedleRotationForMaxRPMasDegrees( float degrees )
-    {
-        setNeedleRotationForMaxRPM( degrees * (float)Math.PI / 180f );
-    }
-    
-    public final float getNeedleRotationForMaxRPM()
-    {
-        return ( needleRotationForMaxRPM );
-    }
-    
-    public final float getNeedleRotationForMaxRPMasDegrees()
-    {
-        return( needleRotationForMaxRPM * 180f / (float)Math.PI );
-    }
-    
-    public void setEditorRPM( int rpm )
-    {
-        this.editorRPM = rpm;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getEditorRPM()
-    {
-        return ( editorRPM );
-    }
-    
-    public void setDisplayRevMarkers( boolean display )
-    {
-        this.displayRevMarkers = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayRevMarkers()
-    {
-        return ( displayRevMarkers );
-    }
-    
-    public void setDisplayRevMarkerNumbers( boolean display )
-    {
-        this.displayRevMarkerNumbers = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayRevMarkerNumbers()
-    {
-        return ( displayRevMarkerNumbers );
-    }
-    
-    public void setRevMarkersInnerRadius( int radius )
-    {
-        this.revMarkersInnerRadius = Math.max( 10, radius );
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getRevMarkersInnerRadius()
-    {
-        return ( revMarkersInnerRadius );
-    }
-    
-    public void setRevMarkersLength( int length )
-    {
-        this.revMarkersLength = Math.max( 4, length );
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getRevMarkersLength()
-    {
-        return ( revMarkersLength );
-    }
-    
     private void fixSmallStep()
     {
-        this.revMarkersSmallStep = revMarkersBigStep / Math.round( (float)revMarkersBigStep / (float)revMarkersSmallStep );
-    }
-    
-    public void setRevMarkersBigStep( int step )
-    {
-        this.revMarkersBigStep = Math.max( 300, step );
-        
-        fixSmallStep();
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getRevMarkersBigStep()
-    {
-        return ( revMarkersBigStep );
-    }
-    
-    public void setRevMarkersSmallStep( int step )
-    {
-        this.revMarkersSmallStep = Math.max( 20, step );
-        
-        fixSmallStep();
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getRevMarkersSmallStep()
-    {
-        return ( revMarkersSmallStep );
-    }
-    
-    public void setRevMarkersColor( String color )
-    {
-        this.revMarkersColorKey = color;
-        this.revMarkersColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setRevMarkersColor( Color color )
-    {
-        setRevMarkersColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setRevMarkersColor( int red, int green, int blue )
-    {
-        setRevMarkersColor( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getRevMarkersColor()
-    {
-        revMarkersColor = ColorProperty.getColorFromColorKey( revMarkersColorKey, revMarkersColor, getConfiguration() );
-        
-        return ( revMarkersColor );
-    }
-    
-    public void setRevMarkersMediumColor( String color )
-    {
-        this.revMarkersMediumColorKey = color;
-        this.revMarkersMediumColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setRevMarkersMediumColor( Color color )
-    {
-        setRevMarkersMediumColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setRevMarkersMediumColor( int red, int green, int blue )
-    {
-        setRevMarkersMediumColor( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getRevMarkersMediumColor()
-    {
-        revMarkersMediumColor = ColorProperty.getColorFromColorKey( revMarkersMediumColorKey, revMarkersMediumColor, getConfiguration() );
-        
-        return ( revMarkersMediumColor );
-    }
-    
-    public void setRevMarkersHighColor( String color )
-    {
-        this.revMarkersHighColorKey = color;
-        this.revMarkersHighColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setRevMarkersHighColor( Color color )
-    {
-        setRevMarkersHighColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setRevMarkersHighColor( int red, int green, int blue )
-    {
-        setRevMarkersHighColor( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getRevMarkersHighColor()
-    {
-        revMarkersHighColor = ColorProperty.getColorFromColorKey( revMarkersHighColorKey, revMarkersHighColor, getConfiguration() );
-        
-        return ( revMarkersHighColor );
-    }
-    
-    public final java.awt.Font getRevMarkersFont()
-    {
-        return ( revMarkersFont.getFont() );
-    }
-    
-    public final boolean isRevMarkersFontAntialiased()
-    {
-        return ( revMarkersFont.isAntiAliased() );
-    }
-    
-    public void setRevMarkersFontColor( String color )
-    {
-        this.revMarkersFontColorKey = color;
-        this.revMarkersFontColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setRevMarkersFontColor( Color color )
-    {
-        setRevMarkersFontColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setRevMarkersFontColor( int red, int green, int blue )
-    {
-        setBoostNumberFontColor( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getRevMarkersFontColor()
-    {
-        revMarkersFontColor = ColorProperty.getColorFromColorKey( revMarkersFontColorKey, revMarkersFontColor, getConfiguration() );
-        
-        return ( revMarkersFontColor );
-    }
-    
-    public void setDisplayShiftLight( boolean display )
-    {
-        this.displayShiftLight = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayShiftLight()
-    {
-        return ( displayShiftLight );
-    }
-    
-    public void setShiftLightImageName( String imageName )
-    {
-        this.shiftLightImageName = imageName;
-        
-        this.shiftLightTexture = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final String getShiftLightImageName()
-    {
-        return ( shiftLightImageName );
-    }
-    
-    public void setShiftLightPosX( int x )
-    {
-        this.shiftLightPosX = x;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getShiftLightPosX()
-    {
-        return ( shiftLightPosX );
-    }
-    
-    public void setShiftLightPosY( int y )
-    {
-        this.shiftLightPosY = y;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getShiftLightPosY()
-    {
-        return ( shiftLightPosY );
-    }
-    
-    public void setShiftLightRPM( int rpm )
-    {
-        this.shiftLightRPM = rpm;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getShiftLightRPM()
-    {
-        return ( shiftLightRPM );
-    }
-    
-    public void setGearPosX( int x )
-    {
-        this.gearPosX = x;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getGearPosX()
-    {
-        return ( gearPosX );
-    }
-    
-    public void setGearPosY( int y )
-    {
-        this.gearPosY = y;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getGearPosY()
-    {
-        return ( gearPosY );
-    }
-    
-    public final java.awt.Font getGearFont()
-    {
-        return ( gearFont.getFont() );
-    }
-    
-    public final boolean isGearFontAntialiased()
-    {
-        return ( gearFont.isAntiAliased() );
-    }
-    
-    public void setGearFontColor( String color )
-    {
-        this.gearFontColorKey = color;
-        this.gearFontColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setGearFontColor( Color color )
-    {
-        setGearFontColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setGearFontColor( int red, int green, int blue )
-    {
-        setGearFontColor( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getGearFontColor()
-    {
-        gearFontColor = ColorProperty.getColorFromColorKey( gearFontColorKey, gearFontColor, getConfiguration() );
-        
-        return ( gearFontColor );
-    }
-    
-    public void setRPMPosY( int y )
-    {
-        this.rpmPosY = y;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getRPMPosY()
-    {
-        return ( rpmPosY );
-    }
-    
-    public void setDisplayBoostBar( boolean display )
-    {
-        this.displayBoostBar = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayBoostBar()
-    {
-        return ( displayBoostBar );
-    }
-    
-    public void setBoostBarPosX( int x )
-    {
-        this.boostBarPosX = x;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getBoostBarPosX()
-    {
-        return ( boostBarPosX );
-    }
-    
-    public void setBoostBarPosY( int y )
-    {
-        this.boostBarPosY = y;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getBoostBarPosY()
-    {
-        return ( boostBarPosY );
-    }
-    
-    public void setBoostBarWidth( int width )
-    {
-        this.boostBarWidth = width;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getBoostBarWidth()
-    {
-        return ( boostBarWidth );
-    }
-    
-    public void setBoostBarHeight( int height )
-    {
-        this.boostBarHeight = height;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getBoostBarHeight()
-    {
-        return ( boostBarHeight );
-    }
-    
-    public void setDisplayBoostNumber( boolean display )
-    {
-        this.displayBoostNumber = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayBoostNumber()
-    {
-        return ( displayBoostNumber );
-    }
-    
-    public void setBoostNumberPosX( int x )
-    {
-        this.boostNumberPosX = x;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getBoostNumberPosX()
-    {
-        return ( boostNumberPosX );
-    }
-    
-    public void setBoostNumberPosY( int y )
-    {
-        this.boostNumberPosY = y;
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getBoostNumberPosY()
-    {
-        return ( boostNumberPosY );
-    }
-    
-    public final java.awt.Font getBoostNumberFont()
-    {
-        return ( boostNumberFont.getFont() );
-    }
-    
-    public final boolean isBoostNumberFontAntialiased()
-    {
-        return ( boostNumberFont.isAntiAliased() );
-    }
-    
-    public void setBoostNumberFontColor( String color )
-    {
-        this.boostNumberFontColorKey = color;
-        this.boostNumberFontColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setBoostNumberFontColor( Color color )
-    {
-        setBoostNumberFontColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setBoostNumberFontColor( int red, int green, int blue )
-    {
-        setBoostNumberFontColor( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getBoostNumberFontColor()
-    {
-        boostNumberFontColor = ColorProperty.getColorFromColorKey( boostNumberFontColorKey, boostNumberFontColor, getConfiguration() );
-        
-        return ( boostNumberFontColor );
+        this.revMarkersSmallStep.setIntegerValue( revMarkersBigStep.getIntegerValue() / Math.round( (float)revMarkersBigStep.getIntegerValue() / (float)revMarkersSmallStep.getIntegerValue() ) );
     }
     
     private void loadNeedleTexture( boolean isEditorMode )
@@ -680,9 +163,9 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi = TextureLoader.getImage( backgroundImageName );
+                BufferedImage bi = backgroundImageName.getBufferedImage();
                 float scale = getSize().getEffectiveWidth() / (float)bi.getWidth();
-                bi = TextureLoader.getImage( needleImageName );
+                bi = needleImageName.getBufferedImage();
                 int needleWidth = (int)( bi.getWidth() * scale );
                 int needleHeight = (int)( bi.getHeight() * scale );
                 if ( ( needleTexture == null ) || ( needleTexture.getWidth() != needleWidth ) || ( needleTexture.getHeight() != needleHeight ) )
@@ -706,9 +189,9 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi0 = TextureLoader.getImage( backgroundImageName );
+                BufferedImage bi0 = backgroundImageName.getBufferedImage();
                 float scale = getSize().getEffectiveWidth() / (float)bi0.getWidth();
-                BufferedImage bi = TextureLoader.getImage( shiftLightImageName );
+                BufferedImage bi = shiftLightImageName.getBufferedImage();
                 int slWidth = (int)( bi.getWidth() * scale );
                 int slHeight = (int)( bi.getHeight() * scale );
                 if ( ( shiftLightTexture == null ) || ( shiftLightTexture.getWidth() != slWidth ) || ( shiftLightTexture.getHeight() != slHeight * 2 ) )
@@ -717,7 +200,7 @@ public class RevMeterWidget extends Widget
                     shiftLightTexture.getTexture().clear( false, null );
                     shiftLightTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
                     shiftLightTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, slWidth, slHeight, 0, 0, bi.getWidth(), bi.getHeight() );
-                    shiftLightTexture.getTexture().getTextureCanvas().drawImage( bi0, 0, slHeight, slWidth, shiftLightTexture.getHeight(), getShiftLightPosX(), getShiftLightPosY(), getShiftLightPosX() + bi.getWidth(), getShiftLightPosY() + bi.getHeight() );
+                    shiftLightTexture.getTexture().getTextureCanvas().drawImage( bi0, 0, slHeight, slWidth, shiftLightTexture.getHeight(), shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), shiftLightPosX.getIntegerValue() + bi.getWidth(), shiftLightPosY.getIntegerValue() + bi.getHeight() );
                 }
             }
             catch ( Throwable t )
@@ -732,7 +215,7 @@ public class RevMeterWidget extends Widget
     {
         loadNeedleTexture( isEditorMode );
         
-        if ( getDisplayShiftLight() )
+        if ( displayShiftLight.getBooleanValue() )
         {
             loadShiftLightTexture( isEditorMode );
             
@@ -785,7 +268,7 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi = TextureLoader.getImage( backgroundImageName );
+                BufferedImage bi = backgroundImageName.getBufferedImage();
                 backgroundTexture = TextureImage2D.createOfflineTexture( width, height, true );
                 backgroundTexture.clear( false, null );
                 backgroundTexture.getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
@@ -799,25 +282,25 @@ public class RevMeterWidget extends Widget
         
         loadNeedleTexture( isEditorMode );
         
-        BufferedImage bi = TextureLoader.getImage( backgroundImageName );
+        BufferedImage bi = backgroundImageName.getBufferedImage();
         backgroundScaleX = (float)width / (float)bi.getWidth();
         backgroundScaleY = (float)height / (float)bi.getHeight();
         
-        if ( getDisplayShiftLight() )
+        if ( displayShiftLight.getBooleanValue() )
         {
             loadShiftLightTexture( isEditorMode );
         }
         
-        needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset * backgroundScaleX ) );
-        needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset * backgroundScaleX ) );
+        needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset.getIntegerValue() * backgroundScaleX ) );
+        needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset.getIntegerValue() * backgroundScaleX ) );
         //needleTexture.setRotation( 0f );
         //needleTexture.setScale( 1f, 1f );
         
-        gearString = new DrawnString( Math.round( getGearPosX() * backgroundScaleX ), Math.round( getGearPosY() * backgroundScaleY ), Alignment.LEFT, false, getGearFont(), isGearFontAntialiased(), getGearFontColor(), null );
+        gearString = new DrawnString( Math.round( gearPosX.getIntegerValue() * backgroundScaleX ), Math.round( gearPosY.getIntegerValue() * backgroundScaleY ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor(), null );
         
-        boostString = new DrawnString( Math.round( getBoostNumberPosX() * backgroundScaleX ), Math.round( getBoostNumberPosY() * backgroundScaleY ), Alignment.LEFT, false, getBoostNumberFont(), isBoostNumberFontAntialiased(), getBoostNumberFontColor(), null );
+        boostString = new DrawnString( Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX ), Math.round( boostNumberPosY.getIntegerValue() * backgroundScaleY ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor(), null );
         
-        rpmString = new DrawnString( width / 2, Math.round( getRPMPosY() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntialiased(), getFontColor(), null );
+        rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor(), null );
     }
     
     private Color interpolateColor( Color c0, Color c1, float alpha )
@@ -830,7 +313,7 @@ public class RevMeterWidget extends Widget
     
     private void drawMarks( LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
-        if ( !getDisplayRevMarkers() )
+        if ( !displayRevMarkers.getBooleanValue() )
             return;
         
         LocalStore store = (LocalStore)getLocalStore();
@@ -864,35 +347,36 @@ public class RevMeterWidget extends Widget
         AffineTransform at1 = new AffineTransform( at0 );
         AffineTransform at2 = new AffineTransform();
         
-        float innerRadius = getRevMarkersInnerRadius() * backgroundScaleX;
-        float outerRadius = ( getRevMarkersInnerRadius() + getRevMarkersLength() - 1 ) * backgroundScaleX;
+        float innerRadius = revMarkersInnerRadius.getIntegerValue() * backgroundScaleX;
+        float outerRadius = ( revMarkersInnerRadius.getIntegerValue() + revMarkersLength.getIntegerValue() - 1 ) * backgroundScaleX;
         float outerRadius2 = innerRadius + ( outerRadius - innerRadius ) * 0.75f;
         
-        Font numberFont = getRevMarkersFont();
+        Font numberFont = revMarkersFont.getFont();
         texCanvas.setFont( numberFont );
         FontMetrics metrics = texCanvas.getFontMetrics( numberFont );
         
-        for ( int rpm = 0; rpm <= maxRPM; rpm += getRevMarkersSmallStep() )
+        final int smallStep = revMarkersSmallStep.getIntegerValue();
+        for ( int rpm = 0; rpm <= maxRPM; rpm += smallStep )
         {
-            float angle = -( needleRotationForZeroRPM + ( needleRotationForMaxRPM - needleRotationForZeroRPM ) * ( rpm / maxRPM ) );
+            float angle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( rpm / maxRPM ) );
             
             at2.setToRotation( angle, centerX, centerY );
             texCanvas.setTransform( at2 );
             
             if ( rpm <= lowRPM )
-                texCanvas.setColor( getRevMarkersColor() );
+                texCanvas.setColor( revMarkersColor.getColor() );
             else if ( rpm <= mediumRPM )
-                texCanvas.setColor( interpolateMarkerColors ? interpolateColor( getRevMarkersColor(), getRevMarkersMediumColor(), ( rpm - lowRPM ) / ( mediumRPM - lowRPM ) ) : getRevMarkersMediumColor() );
+                texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersColor.getColor(), revMarkersMediumColor.getColor(), ( rpm - lowRPM ) / ( mediumRPM - lowRPM ) ) : revMarkersMediumColor.getColor() );
             else
-                texCanvas.setColor( interpolateMarkerColors ? interpolateColor( getRevMarkersMediumColor(), getRevMarkersHighColor(), ( rpm - mediumRPM ) / ( maxRPM - mediumRPM ) ) : getRevMarkersHighColor() );
+                texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxRPM - mediumRPM ) ) : revMarkersHighColor.getColor() );
             
-            if ( ( rpm % getRevMarkersBigStep() ) == 0 )
+            if ( ( rpm % revMarkersBigStep.getIntegerValue() ) == 0 )
             {
                 texCanvas.setStroke( thousand );
                 texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius ) );
                 //texCanvas.drawLine( Math.round( centerX ), Math.round( ( centerY - innerRadius ) * backgroundScaleY / backgroundScaleX ), Math.round( centerX ), Math.round( ( centerY - outerRadius ) * backgroundScaleY / backgroundScaleX ) );
                 
-                if ( getDisplayRevMarkerNumbers() )
+                if ( displayRevMarkerNumbers.getBooleanValue() )
                 {
                     String s = String.valueOf( rpm / 1000 );
                     Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
@@ -926,11 +410,11 @@ public class RevMeterWidget extends Widget
     {
         texCanvas.getImage().clear( backgroundTexture, offsetX, offsetY, width, height, true, null );
         
-        if ( getDisplayShiftLight() )
+        if ( displayShiftLight.getBooleanValue() )
         {
             loadShiftLightTexture( isEditorMode );
             
-            texCanvas.getImage().clear( offsetX + Math.round( getShiftLightPosX() * backgroundScaleX ), offsetY + Math.round( getShiftLightPosY() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
+            texCanvas.getImage().clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
         }
         
         drawMarks( gameData, texCanvas, offsetX, offsetY, width, height );
@@ -967,7 +451,7 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         TextureImage2D image = texCanvas.getImage();
         TelemetryData telemData = gameData.getTelemetryData();
@@ -982,23 +466,23 @@ public class RevMeterWidget extends Widget
         boost.update( telemData.getEngineBoostMapping() );
         if ( needsCompleteRedraw || boost.hasChanged() )
         {
-            if ( getDisplayBoostNumber() )
+            if ( displayBoostNumber.getBooleanValue() )
             {
                 boostString.draw( offsetX, offsetY, boost.getValueAsString(), backgroundTexture, image );
             }
             
-            if ( getDisplayBoostBar() )
+            if ( displayBoostBar.getBooleanValue() )
             {
                 int maxBoost = (int)gameData.getPhysics().getEngine().getBoostRange().getMaxValue();
                 boolean inverted = ( gameData.getPhysics().getEngine().getRPMIncreasePerBoostLevel() < 0f );
                 boolean tempBoost = false;
-                drawBoostBar( boost.getValue(), maxBoost, inverted, tempBoost, texCanvas, offsetX + Math.round( getBoostBarPosX() * backgroundScaleX ), offsetY + Math.round( getBoostBarPosY() * backgroundScaleY ), Math.round( getBoostBarWidth() * backgroundScaleX ), Math.round( getBoostBarHeight() * backgroundScaleY ) );
+                drawBoostBar( boost.getValue(), maxBoost, inverted, tempBoost, texCanvas, offsetX + Math.round( boostBarPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( boostBarPosY.getIntegerValue() * backgroundScaleY ), Math.round( boostBarWidth.getIntegerValue() * backgroundScaleX ), Math.round( boostBarHeight.getIntegerValue() * backgroundScaleY ) );
             }
         }
         
         LocalStore store = (LocalStore)getLocalStore();
         
-        float rpm = isEditorMode ? editorRPM : telemData.getEngineRPM();
+        float rpm = isEditorMode ? editorRPM.getIntegerValue() : telemData.getEngineRPM();
         //if ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleControl() == VehicleControl.LOCAL_PLAYER )
         float maxRPM = telemData.getEngineMaxRPM();
         if ( maxRPM > 100f )
@@ -1011,23 +495,23 @@ public class RevMeterWidget extends Widget
             rpmString.draw( offsetX, offsetY, string, backgroundTexture, image );
         }
         
-        if ( getDisplayShiftLight() )
+        if ( displayShiftLight.getBooleanValue() )
         {
             float maxRPM_boost = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM, boost.getValue() );
-            if ( rpm >= maxRPM_boost + getShiftLightRPM() )
+            if ( rpm >= maxRPM_boost + shiftLightRPM.getIntegerValue() )
             {
                 shiftLightTexture.setClipRect( 0, 0, shiftLightTexture.getWidth(), shiftLightTexture.getHeight() / 2, true );
-                shiftLightTexture.setTranslation( Math.round( getShiftLightPosX() * backgroundScaleX ), Math.round( getShiftLightPosY() * backgroundScaleY ) );
+                shiftLightTexture.setTranslation( Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ) );
             }
             else
             {
                 shiftLightTexture.setClipRect( 0, shiftLightTexture.getHeight() / 2, shiftLightTexture.getWidth(), shiftLightTexture.getHeight() / 2, true );
-                shiftLightTexture.setTranslation( Math.round( getShiftLightPosX() * backgroundScaleX ), Math.round( getShiftLightPosY() * backgroundScaleY ) - shiftLightTexture.getHeight() / 2 );
+                shiftLightTexture.setTranslation( Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ) - shiftLightTexture.getHeight() / 2 );
             }
         }
         
-        float rot0 = needleRotationForZeroRPM;
-        float rot = -( rpm / maxRPM ) * ( needleRotationForZeroRPM - needleRotationForMaxRPM );
+        float rot0 = needleRotationForZeroRPM.getFloatValue();
+        float rot = -( rpm / maxRPM ) * ( needleRotationForZeroRPM.getFloatValue() - needleRotationForMaxRPM.getFloatValue() );
         
         needleTexture.setRotation( -rot0 - rot );
         
@@ -1035,9 +519,9 @@ public class RevMeterWidget extends Widget
         {
             needleTexture.drawInEditor( texCanvas, offsetX, offsetY );
             
-            if ( getDisplayShiftLight() )
+            if ( displayShiftLight.getBooleanValue() )
             {
-                texCanvas.getImage().clear( offsetX + Math.round( getShiftLightPosX() * backgroundScaleX ), offsetX + Math.round( getShiftLightPosY() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
+                texCanvas.getImage().clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetX + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
                 shiftLightTexture.drawInEditor( texCanvas, offsetX, offsetY );
             }
         }
@@ -1051,43 +535,43 @@ public class RevMeterWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "backgroundImageName", getBackgroundImageName(), "The name of the background image." );
-        writer.writeProperty( "needleImageName", getNeedleImageName(), "The name of the needle image." );
-        writer.writeProperty( "needleAxisBottomOffset", getNeedleAxisBottomOffset(), "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
-        writer.writeProperty( "needleRotationForZeroRPM", getNeedleRotationForZeroRPMasDegrees(), "The rotation for the needle image, that is has for zero RPM (in degrees)." );
-        writer.writeProperty( "needleRotationForMaxRPM", getNeedleRotationForMaxRPMasDegrees(), "The rotation for the needle image, that is has for maximum RPM (in degrees)." );
-        writer.writeProperty( "editorRPM", getEditorRPM(), "The RPM (rounds per minute) displayed in the editor (not in rFactor)" );
-        writer.writeProperty( "displayRevMarkers", getDisplayRevMarkers(), "Display rev markers?" );
-        writer.writeProperty( "displayRevMarkerNumbers", getDisplayRevMarkerNumbers(), "Display rev marker numbers?" );
-        writer.writeProperty( "revMarkersInnerRadius", getRevMarkersInnerRadius(), "The inner radius of the rev markers (in background image space)" );
-        writer.writeProperty( "revMarkersLength", getRevMarkersLength(), "The length of the rev markers (in background image space)" );
-        writer.writeProperty( "revMarkersBigStep", getRevMarkersBigStep(), "Step size of bigger rev markers" );
-        writer.writeProperty( "revMarkersSmallStep", getRevMarkersSmallStep(), "Step size of smaller rev markers" );
-        writer.writeProperty( "revMarkersColor", revMarkersColorKey, "The color used to draw the rev markers." );
-        writer.writeProperty( "revMarkersMediumColor", revMarkersMediumColorKey, "The color used to draw the rev markers for medium boost." );
-        writer.writeProperty( "revMarkersHighColor", revMarkersHighColorKey, "The color used to draw the rev markers for high revs." );
-        writer.writeProperty( revMarkersFont.getPropertyName(), revMarkersFont.getFontKey(), "The font used to draw the rev marker numbers." );
-        writer.writeProperty( "revMarkersFontColor", revMarkersFontColorKey, "The font color used to draw the rev marker numbers." );
-        writer.writeProperty( "displayShiftLight", getDisplayShiftLight(), "Display a shift light?" );
-        writer.writeProperty( "shiftLightImageName", getShiftLightImageName(), "The name of the shift light image." );
-        writer.writeProperty( "shiftLightPosX", getShiftLightPosX(), "The x-offset in pixels to the gear label." );
-        writer.writeProperty( "shiftLightPosY", getShiftLightPosY(), "The y-offset in pixels to the gear label." );
-        writer.writeProperty( "shiftLightRPM", getShiftLightRPM(), "The RPM (rounds per minute) to subtract from the maximum for the level to display shoft light on" );
-        writer.writeProperty( "gearPosX", getGearPosX(), "The x-offset in pixels to the gear label." );
-        writer.writeProperty( "gearPosY", getGearPosY(), "The y-offset in pixels to the gear label." );
-        writer.writeProperty( gearFont.getPropertyName(), gearFont.getFontKey(), "The font used to draw the gear." );
-        writer.writeProperty( "gearFontColor", gearFontColorKey, "The font color used to draw the gear." );
-        writer.writeProperty( "displayBoostBar", getDisplayBoostBar(), "Display a graphical bar for engine boost mapping?" );
-        writer.writeProperty( "boostBarPosX", getBoostBarPosX(), "The x-position of the boost bar." );
-        writer.writeProperty( "boostBarPosY", getBoostBarPosY(), "The y-position of the boost bar." );
-        writer.writeProperty( "boostBarWidth", getBoostBarWidth(), "The width of the boost bar." );
-        writer.writeProperty( "boostBarHeight", getBoostBarHeight(), "The height of the boost bar." );
-        writer.writeProperty( "displayBoostNumber", getDisplayBoostNumber(), "Display a number for engine boost mapping?" );
-        writer.writeProperty( "boostNumberPosX", getBoostNumberPosX(), "The x-position of the boost number." );
-        writer.writeProperty( "boostNumberPosY", getBoostNumberPosY(), "The y-position of the boost number." );
-        writer.writeProperty( boostNumberFont.getPropertyName(), boostNumberFont.getFontKey(), "The font used to draw the boost number." );
-        writer.writeProperty( "boostNumberFontColor", boostNumberFontColorKey, "The font color used to draw the boost bar." );
-        writer.writeProperty( "rpmPosY", getRPMPosY(), "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
+        writer.writeProperty( backgroundImageName, "The name of the background image." );
+        writer.writeProperty( needleImageName, "The name of the needle image." );
+        writer.writeProperty( needleAxisBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
+        writer.writeProperty( needleRotationForZeroRPM, "The rotation for the needle image, that is has for zero RPM (in degrees)." );
+        writer.writeProperty( needleRotationForMaxRPM, "The rotation for the needle image, that is has for maximum RPM (in degrees)." );
+        writer.writeProperty( editorRPM, "The RPM (rounds per minute) displayed in the editor (not in rFactor)" );
+        writer.writeProperty( displayRevMarkers, "Display rev markers?" );
+        writer.writeProperty( displayRevMarkerNumbers, "Display rev marker numbers?" );
+        writer.writeProperty( revMarkersInnerRadius, "The inner radius of the rev markers (in background image space)" );
+        writer.writeProperty( revMarkersLength, "The length of the rev markers (in background image space)" );
+        writer.writeProperty( revMarkersBigStep, "Step size of bigger rev markers" );
+        writer.writeProperty( revMarkersSmallStep, "Step size of smaller rev markers" );
+        writer.writeProperty( revMarkersColor, "The color used to draw the rev markers." );
+        writer.writeProperty( revMarkersMediumColor, "The color used to draw the rev markers for medium boost." );
+        writer.writeProperty( revMarkersHighColor, "The color used to draw the rev markers for high revs." );
+        writer.writeProperty( revMarkersFont, "The font used to draw the rev marker numbers." );
+        writer.writeProperty( revMarkersFontColor, "The font color used to draw the rev marker numbers." );
+        writer.writeProperty( displayShiftLight, "Display a shift light?" );
+        writer.writeProperty( shiftLightImageName, "The name of the shift light image." );
+        writer.writeProperty( shiftLightPosX, "The x-offset in pixels to the gear label." );
+        writer.writeProperty( shiftLightPosY, "The y-offset in pixels to the gear label." );
+        writer.writeProperty( shiftLightRPM, "The RPM (rounds per minute) to subtract from the maximum for the level to display shoft light on" );
+        writer.writeProperty( gearPosX, "The x-offset in pixels to the gear label." );
+        writer.writeProperty( gearPosY, "The y-offset in pixels to the gear label." );
+        writer.writeProperty( gearFont, "The font used to draw the gear." );
+        writer.writeProperty( gearFontColor, "The font color used to draw the gear." );
+        writer.writeProperty( displayBoostBar, "Display a graphical bar for engine boost mapping?" );
+        writer.writeProperty( boostBarPosX, "The x-position of the boost bar." );
+        writer.writeProperty( boostBarPosY, "The y-position of the boost bar." );
+        writer.writeProperty( boostBarWidth, "The width of the boost bar." );
+        writer.writeProperty( boostBarHeight, "The height of the boost bar." );
+        writer.writeProperty( displayBoostNumber, "Display a number for engine boost mapping?" );
+        writer.writeProperty( boostNumberPosX, "The x-position of the boost number." );
+        writer.writeProperty( boostNumberPosY, "The y-position of the boost number." );
+        writer.writeProperty( boostNumberFont, "The font used to draw the boost number." );
+        writer.writeProperty( boostNumberFontColor, "The font color used to draw the boost bar." );
+        writer.writeProperty( rpmPosY, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
     }
     
     /**
@@ -1098,116 +582,43 @@ public class RevMeterWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( key.equals( "backgroundImageName" ) )
-            this.backgroundImageName = value;
-        
-        else if ( key.equals( "needleImageName" ) )
-            this.needleImageName = value;
-        
-        else if ( key.equals( "needleAxisBottomOffset" ) )
-            this.needleAxisBottomOffset = Integer.parseInt( value );
-        
-        else if ( key.equals( "needleRotationForZeroRPM" ) )
-            this.setNeedleRotationForZeroRPMasDegrees( Float.parseFloat( value ) );
-        
-        else if ( key.equals( "needleRotationForMaxRPM" ) )
-            this.setNeedleRotationForMaxRPMasDegrees( Float.parseFloat( value ) );
-        
-        else if ( key.equals( "editorRPM" ) )
-            this.editorRPM = Integer.parseInt( value );
-        
-        else if ( key.equals( "displayShiftLight" ) )
-            this.displayShiftLight = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "shiftLightImageName" ) )
-            this.shiftLightImageName = value;
-        
-        else if ( key.equals( "shiftLightPosX" ) )
-            this.gearPosX = Integer.parseInt( value );
-        
-        else if ( key.equals( "shiftLightPosY" ) )
-            this.gearPosY = Integer.parseInt( value );
-        
-        else if ( key.equals( "shiftLightRPM" ) )
-            this.shiftLightRPM = Integer.parseInt( value );
-        
-        else if ( key.equals( "displayRevMarkers" ) )
-            this.displayRevMarkers = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "displayRevMarkerNumbers" ) )
-            this.displayRevMarkerNumbers = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "revMarkersInnerRadius" ) )
-            this.revMarkersInnerRadius = Integer.parseInt( value );
-        
-        else if ( key.equals( "revMarkersLength" ) )
-            this.revMarkersLength = Integer.parseInt( value );
-        
-        else if ( key.equals( "revMarkersBigStep" ) )
-            this.revMarkersBigStep = Integer.parseInt( value );
-        
-        else if ( key.equals( "revMarkersSmallStep" ) )
-            this.revMarkersSmallStep = Integer.parseInt( value );
-        
-        else if ( key.equals( "revMarkersColor" ) )
-            this.revMarkersColorKey = value;
-        
-        else if ( key.equals( "revMarkersMediumColor" ) )
-            this.revMarkersMediumColorKey = value;
-        
-        else if ( key.equals( "revMarkersHighColor" ) )
-            this.revMarkersHighColorKey = value;
-        
-        else if ( revMarkersFont.loadProperty( key, value ) )
-            ;
-        
-        else if ( key.equals( "revMarkersFontColor" ) )
-            this.revMarkersFontColorKey = value;
-        
-        else if ( key.equals( "gearPosX" ) )
-            this.gearPosX = Integer.parseInt( value );
-        
-        else if ( key.equals( "gearPosY" ) )
-            this.gearPosY = Integer.parseInt( value );
-        
-        else if ( gearFont.loadProperty( key, value ) )
-            ;
-        
-        else if ( key.equals( "gearFontColor" ) )
-            this.gearFontColorKey = value;
-        
-        else if ( key.equals( "rpmPosY" ) )
-            this.rpmPosY = Integer.parseInt( value );
-        
-        else if ( key.equals( "displayBoostBar" ) )
-            this.displayBoostBar = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "boostBarPosX" ) )
-            this.boostBarPosX = Integer.parseInt( value );
-        
-        else if ( key.equals( "boostBarPosY" ) )
-            this.boostBarPosY = Integer.parseInt( value );
-        
-        else if ( key.equals( "boostBarWidth" ) )
-            this.boostBarWidth = Integer.parseInt( value );
-        
-        else if ( key.equals( "boostBarHeight" ) )
-            this.boostBarHeight = Integer.parseInt( value );
-        
-        else if ( key.equals( "displayBoostNumber" ) )
-            this.displayBoostNumber = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "boostNumberPosX" ) )
-            this.boostNumberPosX = Integer.parseInt( value );
-        
-        else if ( key.equals( "boostNumberPosY" ) )
-            this.boostNumberPosY = Integer.parseInt( value );
-        
-        else if ( boostNumberFont.loadProperty( key, value ) )
-            ;
-        
-        else if ( key.equals( "boostNumberFontColor" ) )
-            this.boostNumberFontColorKey = value;
+        if ( backgroundImageName.loadProperty( key, value ) );
+        else if ( needleImageName.loadProperty( key, value ) );
+        else if ( needleAxisBottomOffset.loadProperty( key, value ) );
+        else if ( needleRotationForZeroRPM.loadProperty( key, value ) );
+        else if ( needleRotationForMaxRPM.loadProperty( key, value ) );
+        else if ( editorRPM.loadProperty( key, value ) );
+        else if ( displayShiftLight.loadProperty( key, value ) );
+        else if ( shiftLightImageName.loadProperty( key, value ) );
+        else if ( shiftLightPosX.loadProperty( key, value ) );
+        else if ( shiftLightPosY.loadProperty( key, value ) );
+        else if ( shiftLightRPM.loadProperty( key, value ) );
+        else if ( displayRevMarkers.loadProperty( key, value ) );
+        else if ( displayRevMarkerNumbers.loadProperty( key, value ) );
+        else if ( revMarkersInnerRadius.loadProperty( key, value ) );
+        else if ( revMarkersLength.loadProperty( key, value ) );
+        else if ( revMarkersBigStep.loadProperty( key, value ) );
+        else if ( revMarkersSmallStep.loadProperty( key, value ) );
+        else if ( revMarkersColor.loadProperty( key, value ) );
+        else if ( revMarkersMediumColor.loadProperty( key, value ) );
+        else if ( revMarkersHighColor.loadProperty( key, value ) );
+        else if ( revMarkersFont.loadProperty( key, value ) );
+        else if ( revMarkersFontColor.loadProperty( key, value ) );
+        else if ( gearPosX.loadProperty( key, value ) );
+        else if ( gearPosY.loadProperty( key, value ) );
+        else if ( gearFont.loadProperty( key, value ) );
+        else if ( gearFontColor.loadProperty( key, value ) );
+        else if ( rpmPosY.loadProperty( key, value ) );
+        else if ( displayBoostBar.loadProperty( key, value ) );
+        else if ( boostBarPosX.loadProperty( key, value ) );
+        else if ( boostBarPosY.loadProperty( key, value ) );
+        else if ( boostBarWidth.loadProperty( key, value ) );
+        else if ( boostBarHeight.loadProperty( key, value ) );
+        else if ( displayBoostNumber.loadProperty( key, value ) );
+        else if ( boostNumberPosX.loadProperty( key, value ) );
+        else if ( boostNumberPosY.loadProperty( key, value ) );
+        else if ( boostNumberFont.loadProperty( key, value ) );
+        else if ( boostNumberFontColor.loadProperty( key, value ) );
     }
     
     /**
@@ -1220,517 +631,71 @@ public class RevMeterWidget extends Widget
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
-        props.add( new Property( "backgroundImageName", PropertyEditorType.IMAGE )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setBackgroundImageName( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getBackgroundImageName() );
-            }
-        } );
+        props.add( backgroundImageName );
         
         FlaggedList needleProps = new FlaggedList( "Needle", true );
         
-        needleProps.add( new Property( "imageName", PropertyEditorType.IMAGE )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setNeedleImageName( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getNeedleImageName() );
-            }
-        } );
-        
-        needleProps.add( new Property( "axisBottomOffset", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setNeedleAxisBottomOffset( (Integer)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getNeedleAxisBottomOffset() );
-            }
-        } );
-        
-        needleProps.add( new Property( "rotationForZeroRPM", PropertyEditorType.FLOAT )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setNeedleRotationForZeroRPMasDegrees( (Float)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getNeedleRotationForZeroRPMasDegrees() );
-            }
-        } );
-        
-        needleProps.add( new Property( "rotationForMaxRPM", PropertyEditorType.FLOAT )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setNeedleRotationForMaxRPMasDegrees( (Float)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getNeedleRotationForMaxRPMasDegrees() );
-            }
-        } );
+        needleProps.add( needleImageName );
+        needleProps.add( needleAxisBottomOffset );
+        needleProps.add( needleRotationForZeroRPM );
+        needleProps.add( needleRotationForMaxRPM );
         
         props.add( needleProps );
         
-        props.add( new Property( "editorRPM", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setEditorRPM( (Integer)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getEditorRPM() );
-            }
-        } );
-        
-        
+        props.add( editorRPM );
         
         FlaggedList revMarkersProps = new FlaggedList( "Rev Markers", true );
         
-        revMarkersProps.add( new Property( "displayRevMarkers", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayRevMarkers( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayRevMarkers() );
-            }
-        } );
-        
-        revMarkersProps.add( new Property( "displayRevMarkerNumbers", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayRevMarkerNumbers( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayRevMarkerNumbers() );
-            }
-        } );
-        
-        revMarkersProps.add( new Property( "rmInnerRadius", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setRevMarkersInnerRadius( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getRevMarkersInnerRadius() );
-            }
-        } );
-        
-        revMarkersProps.add( new Property( "rmLength", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setRevMarkersLength( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getRevMarkersLength() );
-            }
-        } );
-        
-        revMarkersProps.add( new Property( "rmBigStep", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRevMarkersBigStep( (Integer)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getRevMarkersBigStep() );
-            }
-        } );
-        
-        revMarkersProps.add( new Property( "rmSmallStep", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRevMarkersSmallStep( (Integer)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getRevMarkersSmallStep() );
-            }
-        } );
-        
-        revMarkersProps.add( new ColorProperty( "rmColor", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRevMarkersColor( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( revMarkersColorKey );
-            }
-        } );
-        
-        revMarkersProps.add( new ColorProperty( "rmMediumColor", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRevMarkersMediumColor( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( revMarkersMediumColorKey );
-            }
-        } );
-        
-        revMarkersProps.add( new ColorProperty( "rmHighColor", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRevMarkersHighColor( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( revMarkersHighColorKey );
-            }
-        } );
-        
+        revMarkersProps.add( displayRevMarkers );
+        revMarkersProps.add( displayRevMarkerNumbers );
+        revMarkersProps.add( revMarkersInnerRadius );
+        revMarkersProps.add( revMarkersLength );
+        revMarkersProps.add( revMarkersBigStep );
+        revMarkersProps.add( revMarkersSmallStep );
+        revMarkersProps.add( revMarkersColor );
+        revMarkersProps.add( revMarkersMediumColor );
+        revMarkersProps.add( revMarkersHighColor );
         revMarkersProps.add( revMarkersFont );
-        
-        revMarkersProps.add( new ColorProperty( "rmFontColor", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRevMarkersFontColor( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( revMarkersFontColorKey );
-            }
-        } );
+        revMarkersProps.add( revMarkersFontColor );
         
         props.add( revMarkersProps );
         
         FlaggedList shiftLightProps = new FlaggedList( "Shift Light", true );
         
-        shiftLightProps.add( new Property( "displayShiftLight", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayShiftLight( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayShiftLight() );
-            }
-        } );
-        
-        shiftLightProps.add( new Property( "imageName", PropertyEditorType.IMAGE )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setShiftLightImageName( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getShiftLightImageName() );
-            }
-        } );
-        
-        shiftLightProps.add( new Property( "shiftLightPosX", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setShiftLightPosX( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getShiftLightPosX() );
-            }
-        } );
-        
-        shiftLightProps.add( new Property( "shiftLightPosY", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setShiftLightPosY( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getShiftLightPosY() );
-            }
-        } );
-        
-        shiftLightProps.add( new Property( "shiftLightRPM", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setShiftLightRPM( (Integer)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getShiftLightRPM() );
-            }
-        } );
+        shiftLightProps.add( displayShiftLight );
+        shiftLightProps.add( shiftLightImageName );
+        shiftLightProps.add( shiftLightPosX );
+        shiftLightProps.add( shiftLightPosY );
+        shiftLightProps.add( shiftLightRPM );
         
         props.add( shiftLightProps );
         
         FlaggedList gearProps = new FlaggedList( "Gear", true );
         
-        gearProps.add( new Property( "gearPosX", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setGearPosX( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getGearPosX() );
-            }
-        } );
-        
-        gearProps.add( new Property( "gearPosY", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setGearPosY( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getGearPosY() );
-            }
-        } );
-        
+        gearProps.add( gearPosX );
+        gearProps.add( gearPosY );
         gearProps.add( gearFont );
-        
-        gearProps.add( new ColorProperty( "gearFontColor", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setGearFontColor( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( gearFontColorKey );
-            }
-        } );
+        gearProps.add( gearFontColor );
         
         props.add( gearProps );
         
         FlaggedList boostProps = new FlaggedList( "Engine Boost", true );
         
-        boostProps.add( new Property( "displayBoostBar", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayBoostBar( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayBoostBar() );
-            }
-        } );
+        boostProps.add( displayBoostBar );
+        boostProps.add( boostBarPosX );
         
-        boostProps.add( new Property( "boostBarPosX", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setBoostBarPosX( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getBoostBarPosX() );
-            }
-        } );
-        
-        boostProps.add( new Property( "boostBarPosY", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setBoostBarPosY( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getBoostBarPosY() );
-            }
-        } );
-        
-        boostProps.add( new Property( "boostBarWidth", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setBoostBarWidth( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getBoostBarWidth() );
-            }
-        } );
-        
-        boostProps.add( new Property( "boostBarHeight", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setBoostBarHeight( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getBoostBarHeight() );
-            }
-        } );
-        
-        boostProps.add( new Property( "displayBoostNumber", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayBoostNumber( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayBoostNumber() );
-            }
-        } );
-        
-        boostProps.add( new Property( "boostNumberPosX", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setBoostNumberPosX( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getBoostNumberPosX() );
-            }
-        } );
-        
-        boostProps.add( new Property( "boostNumberPosY", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setBoostNumberPosY( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getBoostNumberPosY() );
-            }
-        } );
-        
+        boostProps.add( boostBarPosY );
+        boostProps.add( boostBarWidth );
+        boostProps.add( boostBarHeight );
+        boostProps.add( displayBoostNumber );
+        boostProps.add( boostNumberPosX );
+        boostProps.add( boostNumberPosY );
         boostProps.add( boostNumberFont );
-        
-        boostProps.add( new ColorProperty( "boostNumberFontColor", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setBoostNumberFontColor( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( boostNumberFontColorKey );
-            }
-        } );
+        boostProps.add( boostNumberFontColor );
         
         props.add( boostProps );
         
-        props.add( new Property( "rpmPosY", PropertyEditorType.INTEGER )
-        {
-            public void setValue( Object value )
-            {
-                setRPMPosY( ( (Number)value ).intValue() );
-            }
-            
-            public Object getValue()
-            {
-                return ( getRPMPosY() );
-            }
-        } );
+        props.add( rpmPosY );
         
         propsList.add( props );
     }
@@ -1745,6 +710,6 @@ public class RevMeterWidget extends Widget
     {
         super( name, Size.PERCENT_OFFSET + 0.163125f, Size.PERCENT_OFFSET + 0.2175f );
         
-        setBackgroundColor( (String)null );
+        getBackgroundColorProperty().setColor( (String)null );
     }
 }

@@ -6,11 +6,13 @@ import java.net.URL;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.BorderProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.editor.properties.StringProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.input.InputAction;
@@ -28,8 +30,6 @@ import net.ctdp.rfdynhud.widgets._util.RelativePositioning;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 
-import org.openmali.vecmath2.util.ColorUtils;
-
 /**
  * This is the base for all Widgets to be drawn on the HUD.<br>
  * Any concrete extension must have a parameterless constructor.
@@ -46,22 +46,29 @@ public abstract class Widget implements Documented
     
     private boolean dirtyFlag = true;
     
-    private String name = "";
+    private final StringProperty name = new StringProperty( this, "name", "" );
     
     private final Position position;
     private final Size size;
     
-    private String backgroundColorKey = "StandardBackground";
-    private Color backgroundColor = null;
+    private final ColorProperty backgroundColor = new ColorProperty( this, "backgroundColor", "StandardBackground" );
     private final FontProperty font = new FontProperty( this, "font", "StandardFont" );
-    private String fontColorKey = "StandardFontColor";
-    private Color fontColor = null;
+    private final ColorProperty fontColor = new ColorProperty( this, "fontColor", "StandardFontColor" );
     
-    //private String borderName = "yellow_border.png";
-    private String borderName = "StandardBorder";
-    private BorderWrapper border = null;
+    //private final BorderProperty border = new BorderProperty( this, "border", "yellow_border.png" );
+    private final BorderProperty border = new BorderProperty( this, "border", "StandardBorder" );
     
-    private boolean visible = true;
+    private final BooleanProperty visible = new BooleanProperty( this, "initialVisibility", true )
+    {
+        @Override
+        protected void onValueChanged( boolean newValue )
+        {
+            if ( newValue )
+                Widget.this.needsCompleteRedraw = true;
+            else
+                Widget.this.needsCompleteClear = true;
+        }
+    };
     private boolean needsCompleteRedraw = true;
     private boolean needsCompleteClear = false;
     
@@ -204,7 +211,7 @@ public abstract class Widget implements Documented
      */
     public void setName( String name )
     {
-        this.name = name;
+        this.name.setStringValue( name );
         setDirtyFlag();
     }
     
@@ -215,7 +222,7 @@ public abstract class Widget implements Documented
      */
     public final String getName()
     {
-        return ( name );
+        return ( name.getStringValue() );
     }
     
     /**
@@ -306,40 +313,9 @@ public abstract class Widget implements Documented
         size.bake();
     }
     
-    /**
-     * Sets the {@link Widget}'s background color.
-     * 
-     * @param color as hex string
-     */
-    public void setBackgroundColor( String color )
+    protected final ColorProperty getBackgroundColorProperty()
     {
-        this.backgroundColorKey = color;
-        this.backgroundColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    /**
-     * Sets the {@link Widget}'s background color.
-     * 
-     * @param color
-     */
-    public final void setBackgroundColor( Color color )
-    {
-        setBackgroundColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    /**
-     * Sets the {@link Widget}'s background color.
-     * 
-     * @param red
-     * @param green
-     * @param blue
-     * @param alpha
-     */
-    public final void setBackgroundColor( int red, int green, int blue, int alpha )
-    {
-        setBackgroundColor( ColorUtils.colorToHex( red, green, blue, alpha ) );
+        return ( backgroundColor );
     }
     
     /**
@@ -347,66 +323,34 @@ public abstract class Widget implements Documented
      * 
      * @return the {@link Widget}'s background color.
      */
-    public final Color getBackgroundColor()
+    protected final Color getBackgroundColor()
     {
-        backgroundColor = ColorProperty.getColorFromColorKey( backgroundColorKey, backgroundColor, getConfiguration() );
-        
-        return ( backgroundColor );
+        return ( backgroundColor.getColor() );
     }
     
-    public final boolean hasBackgroundColor()
+    protected final boolean hasBackgroundColor()
     {
-        return ( backgroundColorKey != null );
+        return ( backgroundColor.getColorKey() != null );
     }
     
-    protected void setFont( String fontKey )
+    protected final FontProperty getFontProperty()
     {
-        font.setFont( fontKey );
+        return ( font );
     }
     
-    public final java.awt.Font getFont()
+    protected final java.awt.Font getFont()
     {
         return ( font.getFont() );
     }
     
-    public final boolean isFontAntialiased()
+    protected final boolean isFontAntiAliased()
     {
         return ( font.isAntiAliased() );
     }
     
-    /**
-     * Sets the {@link Widget}'s font color.
-     * 
-     * @param color the color as hex string
-     */
-    public void setFontColor( String color )
+    protected final ColorProperty getFontColorProperty()
     {
-        this.fontColorKey = color;
-        this.fontColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    /**
-     * Sets the {@link Widget}'s font color.
-     * 
-     * @param color
-     */
-    public final void setFontColor( Color color )
-    {
-        setFontColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    /**
-     * Sets the {@link Widget}'s font color.
-     * 
-     * @param red
-     * @param green
-     * @param blue
-     */
-    public final void setFontColor( int red, int green, int blue )
-    {
-        setFontColor( ColorUtils.colorToHex( red, green, blue ) );
+        return ( fontColor );
     }
     
     /**
@@ -414,24 +358,9 @@ public abstract class Widget implements Documented
      * 
      * @return the {@link Widget}'s font color.
      */
-    public final Color getFontColor()
+    protected final Color getFontColor()
     {
-        fontColor = ColorProperty.getColorFromColorKey( fontColorKey, fontColor, getConfiguration() );
-        
-        return ( fontColor );
-    }
-    
-    /**
-     * Sets the {@link Widget}'s border.
-     * 
-     * @param border the border filename or border alias
-     */
-    public void setBorder( String border )
-    {
-        this.borderName = border;
-        this.border = null;
-        
-        forceAndSetDirty();
+        return ( fontColor.getColor() );
     }
     
     /**
@@ -442,9 +371,7 @@ public abstract class Widget implements Documented
      */
     public final BorderWrapper getBorder()
     {
-        border = BorderProperty.getBorderFromBorderName( borderName, border, getConfiguration() );
-        
-        return ( border );
+        return ( border.getBorder() );
     }
     
     /**
@@ -483,21 +410,7 @@ public abstract class Widget implements Documented
      */
     public void setVisible( boolean visible )
     {
-        if ( visible == this.visible )
-            return;
-        
-        this.visible = visible;
-        
-        if ( visible )
-        {
-            this.needsCompleteRedraw = true;
-        }
-        else
-        {
-            this.needsCompleteClear = true;
-        }
-        
-        setDirtyFlag();
+        this.visible.setBooleanValue( visible );
     }
     
     /**
@@ -507,7 +420,7 @@ public abstract class Widget implements Documented
      */
     public final boolean isVisible()
     {
-        return ( visible );
+        return ( visible.getBooleanValue() );
     }
     
     /**
@@ -746,15 +659,15 @@ public abstract class Widget implements Documented
      * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
+     * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      * @param gameData the live game data
      * @param texCanvas the texture canvas to draw on. Use {@link Texture2DCanvas#getImage()} to retrieve the {@link TextureImage2D} for fast drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
-     * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      */
-    protected abstract void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw );
+    protected abstract void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
     
     /**
      * 
@@ -765,9 +678,8 @@ public abstract class Widget implements Documented
      * @param offsetY
      * @param width
      * @param height
-     * @param needsCompleteRedraw
      */
-    protected void drawBorder( boolean isEditorMode, TexturedBorder border, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawBorder( boolean isEditorMode, TexturedBorder border, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         if ( border != null )
         {
@@ -793,20 +705,16 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * This method must contain the actual drawing code for this Widget.
+     * This method invokes the parts of the actual drawing code for this Widget.
      * 
      * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
+     * @param completeRedrawForced
      * @param gameData the live game data
      * @param texCanvas the texture canvas to draw on. Use {@link Texture2DCanvas#getImage()} to retrieve the {@link TextureImage2D} for fast drawing.
-     * @param gameResX
-     * @param gameResY
-     * @param width the width on the texture
-     * @param height the height on the texture
-     * @param completeRedrawForced
      */
-    public final void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, boolean completeRedrawForced )
+    public final void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, Texture2DCanvas texCanvas )
     {
         int offsetX = position.getEffectiveX();
         int offsetY = position.getEffectiveY();
@@ -856,7 +764,7 @@ public abstract class Widget implements Documented
         
         if ( completeRedrawForced )
         {
-            drawBorder( isEditorMode, getBorder().getBorder(), texCanvas, offsetX, offsetY, width, height, completeRedrawForced );
+            drawBorder( isEditorMode, getBorder().getBorder(), texCanvas, offsetX, offsetY, width, height );
         }
         
         if ( completeRedrawForced )
@@ -868,7 +776,7 @@ public abstract class Widget implements Documented
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
-        drawWidget( isEditorMode, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2, completeRedrawForced );
+        drawWidget( isEditorMode, clock1, clock2, completeRedrawForced, gameData, texCanvas, offsetX2, offsetY2, width2, height2 );
     }
     
     
@@ -884,13 +792,18 @@ public abstract class Widget implements Documented
         writer.writeProperty( "y", Position.unparseValue( position.getY() ), false, "The y-coordinate for the position." );
         writer.writeProperty( "width", Size.unparseValue( size.getWidth() ), false, "The width. Use negative values to make the Widget be sized relative to screen size." );
         writer.writeProperty( "height", Size.unparseValue( size.getHeight() ), false, "The height. Use negative values to make the Widget be sized relative to screen size." );
-        writer.writeProperty( "initiallyVisibile", isVisible(), "The initial visibility." );
+        writer.writeProperty( border, "The widget's border." );
+        writer.writeProperty( visible, "The initial visibility." );
+        
         if ( hasBackgroundColor() )
-            writer.writeProperty( "backgroundColor", backgroundColorKey, "The Widget's background color in the format #RRGGBBAA (hex)." );
+        {
+            writer.writeProperty( backgroundColor, "The Widget's background color in the format #RRGGBBAA (hex)." );
+        }
+        
         if ( hasText() )
         {
-            writer.writeProperty( font.getPropertyName(), font.getFontKey(), "The used font." );
-            writer.writeProperty( "fontColor", fontColorKey, "The Widget's font color in the format #RRGGBB (hex)." );
+            writer.writeProperty( font, "The used font." );
+            writer.writeProperty( fontColor, "The Widget's font color in the format #RRGGBB (hex)." );
         }
     }
     
@@ -902,35 +815,14 @@ public abstract class Widget implements Documented
      */
     public void loadProperty( String key, String value )
     {
-        if ( key.equals( "name" ) )
-            this.name = value;
-        
-        else if ( key.equals( "positioning" ) )
-            this.position.set( RelativePositioning.valueOf( value ), position.getX(), position.getY() );
-        
-        else if ( key.equals( "x" ) )
-            this.position.setX( Position.parseValue( value ) );
-        
-        else if ( key.equals( "y" ) )
-            this.position.setY( Position.parseValue( value ) );
-        
-        else if ( key.equals( "width" ) )
-            this.size.setWidth( Size.parseValue( value ) );
-        
-        else if ( key.equals( "height" ) )
-            this.size.setHeight( Size.parseValue( value ) );
-        
-        else if ( key.equals( "initiallyVisibile" ) )
-            this.visible = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "backgroundColor" ) )
-            this.backgroundColorKey = value;
-        
-        else if ( font.loadProperty( key, value ) )
-            ;
-        
-        else if ( key.equals( "fontColor" ) )
-            this.fontColorKey = value;
+        if ( name.loadProperty( key, value ) );
+        else if ( position.loadProperty( key, value, "positioning", "x", "y" ) );
+        else if ( size.loadProperty( key, value, "width", "height" ) );
+        else if ( canHaveBorder() && border.loadProperty( key, value ) );
+        else if ( visible.loadProperty( key, value ) );
+        else if ( backgroundColor.loadProperty( key, value ) );
+        else if ( font.loadProperty( key, value ) );
+        else if ( fontColor.loadProperty( key, value ) );
     }
     
     /**
@@ -956,100 +848,28 @@ public abstract class Widget implements Documented
             }
         } );
         
-        props.add( new Property( "name", PropertyEditorType.STRING )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setName( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getName() );
-            }
-        } );
-        
+        props.add( name );
         props.add( position.createPositioningProperty( "positioning" ) );
-        
         props.add( position.createXProperty( "x" ) );
-        
         props.add( position.createYProperty( "y" ) );
-        
         props.add( size.createWidthProperty( "width" ) );
-        
         props.add( size.createHeightProperty( "height" ) );
-        
-        props.add( new Property( "initialVisibility", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setVisible( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( isVisible() );
-            }
-        } );
+        props.add( visible );
         
         if ( canHaveBorder() )
         {
-            props.add( new BorderProperty( "border", getConfiguration() )
-            {
-                @Override
-                public void setValue( Object value )
-                {
-                    setBorder( String.valueOf( value ) );
-                }
-                
-                @Override
-                public Object getValue()
-                {
-                    return ( borderName );
-                }
-            } );
+            props.add( border );
         }
         
         if ( hasBackgroundColor() )
         {
-            props.add( new ColorProperty( "backgroundColor", getConfiguration() )
-            {
-                @Override
-                public void setValue( Object value )
-                {
-                    setBackgroundColor( String.valueOf( value ) );
-                }
-                
-                @Override
-                public Object getValue()
-                {
-                    return ( backgroundColorKey );
-                }
-            } );
+            props.add( backgroundColor );
         }
         
         if ( hasText() )
         {
             props.add( font );
-            
-            props.add( new ColorProperty( "fontColor", getConfiguration() )
-            {
-                @Override
-                public void setValue( Object value )
-                {
-                    setFontColor( String.valueOf( value ) );
-                }
-                
-                @Override
-                public Object getValue()
-                {
-                    return ( fontColorKey );
-                }
-            } );
+            props.add( fontColor );
         }
         
         propsList.add( props );
@@ -1119,12 +939,12 @@ public abstract class Widget implements Documented
      */
     protected Widget( String name, RelativePositioning positioning, float x, float y, float width, float height )
     {
-        this.name = name;
+        this.name.setStringValue( name );
         this.size = new Size( width, height, this, true );
         this.position = new Position( positioning, x, y, size, this, true );
         
         if ( !canHaveBorder() )
-            setBorder( null );
+            border.setBorder( null );
     }
     
     /**

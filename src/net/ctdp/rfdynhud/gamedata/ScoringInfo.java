@@ -413,6 +413,23 @@ public class ScoringInfo
     {
         this.sessionStartTimestamp = System.nanoTime();
         
+        if ( vehicleScoringInfo != null )
+        {
+            for ( int i = 0; i < vehicleScoringInfo.length; i++ )
+            {
+                if ( vehicleScoringInfo[i] != null )
+                {
+                    vehicleScoringInfo[i].laptimes = null;
+                    vehicleScoringInfo[i].fastestLaptime = null;
+                }
+            }
+        }
+        
+        if ( laptimesRecorder != null )
+        {
+            laptimesRecorder.clear();
+        }
+        
         updateRaceLengthPercentage();
     }
     

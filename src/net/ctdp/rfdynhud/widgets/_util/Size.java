@@ -469,6 +469,25 @@ public class Size
         return ( unparseValue( getHeight() ) );
     }
     
+    public boolean loadProperty( String key, String value, String widthKey, String heightKey )
+    {
+        if ( key.equals( widthKey ) )
+        {
+            setWidth( Size.parseValue( value ) );
+            
+            return ( true );
+        }
+        
+        if ( key.equals( heightKey ) )
+        {
+            setHeight( Size.parseValue( value ) );
+            
+            return ( true );
+        }
+        
+        return ( false );
+    }
+    
     public PosSizeProperty createWidthProperty( String name )
     {
         boolean ro = isWidgetSize ? widget.hasFixedSize() : false;

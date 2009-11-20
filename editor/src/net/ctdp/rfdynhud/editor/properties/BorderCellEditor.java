@@ -125,7 +125,7 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
                 {
                     BorderSelector bs = new BorderSelector( new File( TextureLoader.IMAGES_FOLDER, "borders" ) );
                     JFrame frame = (JFrame)button.getRootPane().getParent();
-                    String selBorder = bs.showDialog( frame, prop.getWidgetsConfiguration(), (String)prop.getValue() );
+                    String selBorder = bs.showDialog( frame, prop.getWidget().getConfiguration(), (String)prop.getValue() );
                     
                     if ( selBorder != null )
                     {

@@ -2,45 +2,119 @@ package net.ctdp.rfdynhud.editor.properties;
 
 import java.awt.Color;
 
+import net.ctdp.rfdynhud.widgets.widget.Widget;
+
 import org.openmali.vecmath2.util.ColorUtils;
 
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-
-public abstract class ColorProperty extends Property
+public class ColorProperty extends Property
 {
     public static final Color FALLBACK_COLOR = Color.MAGENTA;
     
-    private final WidgetsConfiguration widgetsConfig;
+    private final Widget widget;
     
-    public final WidgetsConfiguration getWidgetsConfiguration()
+    private String colorKey;
+    private Color color = null;
+    
+    public final Widget getWidget()
     {
-        return ( widgetsConfig );
+        return ( widget );
     }
     
-    public ColorProperty( String key, boolean readonly, WidgetsConfiguration widgetsConfig )
+    protected void onValueChanged( String oldValue, String newValue )
     {
-        super( key, readonly, PropertyEditorType.COLOR, null, null );
+    }
+    
+    public void setColor( String colorKey )
+    {
+        if ( ( ( colorKey == null ) && ( this.colorKey == null ) ) || ( ( colorKey != null ) && colorKey.equals( this.colorKey ) ) )
+            return;
         
-        this.widgetsConfig = widgetsConfig;
+        String oldValue = this.colorKey;
+        this.colorKey = colorKey;
+        this.color = null;
+        
+        widget.forceAndSetDirty();
+        
+        onValueChanged( oldValue, colorKey );
     }
     
-    public ColorProperty( String key, WidgetsConfiguration widgetsConfig )
+    public final void setColor( Color color )
     {
-        this( key, false, widgetsConfig );
+        setColor( ColorUtils.colorToHex( color ) );
     }
     
-    public static final Color getColorFromColorKey( String colorKey, Color color, WidgetsConfiguration widgetsConfig )
+    public final void setColor( int red, int green, int blue )
+    {
+        setColor( ColorUtils.colorToHex( red, green, blue ) );
+    }
+    
+    public final String getColorKey()
+    {
+        return ( colorKey );
+    }
+    
+    public final Color getColor()
     {
         if ( color == null )
         {
-            color = widgetsConfig.getNamedColor( colorKey );
-            if ( color == null )
-            {
-                if ( ( color = ColorUtils.hexToColor( colorKey, false ) ) == null )
-                    color = FALLBACK_COLOR;
-            }
+            color = widget.getConfiguration().getNamedColor( colorKey );
+            if ( ( color == null ) && ( ( color = ColorUtils.hexToColor( colorKey, false ) ) == null ) )
+                color = FALLBACK_COLOR;
         }
         
         return ( color );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setValue( Object value )
+    {
+        setColor( String.valueOf( value ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object getValue()
+    {
+        return ( colorKey );
+    }
+    
+    public final boolean loadProperty( String key, String value )
+    {
+        if ( key.equals( getPropertyName() ) )
+        {
+            setColor( value );
+            
+            return ( true );
+        }
+        
+        return ( false );
+    }
+    
+    public ColorProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    {
+        super( propertyName, nameForDisplay, readonly, PropertyEditorType.COLOR, null, null );
+        
+        this.widget = widget;
+        this.colorKey = defaultValue;
+    }
+    
+    public ColorProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue )
+    {
+        this( widget, propertyName, nameForDisplay, defaultValue, false );
+    }
+    
+    public ColorProperty( Widget widget, String propertyName, String defaultValue, boolean readonly )
+    {
+        this( widget, propertyName, propertyName, defaultValue, readonly );
+    }
+    
+    public ColorProperty( Widget widget, String propertyName, String defaultValue )
+    {
+        this( widget, propertyName, defaultValue, false );
     }
 }

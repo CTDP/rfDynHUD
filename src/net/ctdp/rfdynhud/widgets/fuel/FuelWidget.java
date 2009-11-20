@@ -1,14 +1,13 @@
 package net.ctdp.rfdynhud.widgets.fuel;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
-import net.ctdp.rfdynhud.editor.properties.Property;
-import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
 import net.ctdp.rfdynhud.gamedata.FuelUsageRecorder;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -28,8 +27,6 @@ import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
-import org.openmali.vecmath2.util.ColorUtils;
-
 /**
  * The {@link FuelWidget} displays fuel information like current fuel load, fuel usage per lap,
  * and computed fuel for scheduled pitstops.
@@ -47,14 +44,13 @@ public class FuelWidget extends Widget
     
     private DrawnString fuelHeaderString = null;
     
-    private int fuelBarLeftOffset = 4;
+    private final IntegerProperty fuelBarLeftOffset = new IntegerProperty( this, "fuelBarLeftOffset", 4 );
     private final Size fuelBarWidth;
     
-    private String fuelFontColorKey = "#2828FF";
-    private Color fuelFontColor = null;
+    private final ColorProperty fuelFontColor = new ColorProperty( this, "fuelFontColor", "#2828FF" );
     
-    private boolean roundUpRemainingLaps = false;
-    private int fuelSafetyPlanning = 2;
+    private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( this, "roundUpRemainingLaps", false );
+    private final IntegerProperty fuelSafetyPlanning = new IntegerProperty( this, "fuelSafetyPlanning", 2);
     
     private DrawnString fuelLoadString1 = null;
     private DrawnString fuelLoadString2 = null;
@@ -124,85 +120,6 @@ public class FuelWidget extends Widget
         super.bake();
         
         fuelBarWidth.bake();
-    }
-    
-    public final Font getFont2()
-    {
-        return ( font2.getFont() );
-    }
-    
-    public final boolean isFont2AntiAliased()
-    {
-        return ( font2.isAntiAliased() );
-    }
-    
-    public final Font getFuelFont()
-    {
-        return ( fuelFont.getFont() );
-    }
-    
-    public final boolean isFuelFontAntiAliased()
-    {
-        return ( fuelFont.isAntiAliased() );
-    }
-    
-    /**
-     * Sets the {@link Widget}'s font color.
-     * 
-     * @param color the color as hex string
-     */
-    public void setFuelFontColor( String color )
-    {
-        this.fuelFontColorKey = color;
-        this.fuelFontColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    /**
-     * Sets the {@link Widget}'s font color.
-     * 
-     * @param color
-     */
-    public final void setFuelFontColor( Color color )
-    {
-        setFuelFontColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    /**
-     * Sets the {@link Widget}'s font color.
-     * 
-     * @param red
-     * @param green
-     * @param blue
-     */
-    public final void setFuelFontColor( int red, int green, int blue )
-    {
-        setFuelFontColor( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    /**
-     * Gets the {@link Widget}'s font color.
-     * 
-     * @return the {@link Widget}'s font color.
-     */
-    public final Color getFuelFontColor()
-    {
-        fuelFontColor = ColorProperty.getColorFromColorKey( fuelFontColorKey, fuelFontColor, getConfiguration() );
-        
-        return ( fuelFontColor );
-    }
-    
-    public void setRoundUpRemainingLaps( boolean round )
-    {
-        this.roundUpRemainingLaps = round;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getRoundUpRemainingLaps()
-    {
-        return ( roundUpRemainingLaps );
     }
     
     /**
@@ -301,13 +218,13 @@ public class FuelWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
-        final boolean fontAntiAliased = isFontAntialiased();
-        final java.awt.Font font2 = getFont2();
-        final boolean font2AntiAliased = isFont2AntiAliased();
+        final boolean fontAntiAliased = isFontAntiAliased();
+        final java.awt.Font font2 = this.font2.getFont();
+        final boolean font2AntiAliased = this.font2.isAntiAliased();
         final java.awt.Color fontColor = getFontColor();
-        final java.awt.Font fuelFont = getFuelFont();
-        final boolean fuelFontAntiAliased = isFuelFontAntiAliased();
-        final java.awt.Color fuelFontColor = getFuelFontColor();
+        final java.awt.Font fuelFont = this.fuelFont.getFont();
+        final boolean fuelFontAntiAliased = this.fuelFont.isAntiAliased();
+        final java.awt.Color fuelFontColor = this.fuelFontColor.getColor();
         
         int left = 2;
         int top = -2;
@@ -315,13 +232,13 @@ public class FuelWidget extends Widget
         fuelHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fuel: (", null, ")" );
         
         int fuelBarWidth = this.fuelBarWidth.getEffectiveWidth();
-        int fuelBarCenter = left + fuelBarLeftOffset + ( fuelBarWidth / 2 );
+        int fuelBarCenter = left + fuelBarLeftOffset.getIntegerValue() + ( fuelBarWidth / 2 );
         
         fuelLoadString1 = new DrawnString( fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, null, "L" );
         fuelLoadString2 = new DrawnString( null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, null, "kg" );
         fuelLoadString3 = new DrawnString( null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null, null );
         
-        int rightLeft = left + fuelBarLeftOffset + fuelBarWidth + 2;
+        int rightLeft = left + fuelBarLeftOffset.getIntegerValue() + fuelBarWidth + 2;
         
         fuelUsageHeaderString = new DrawnString( null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Usage:", null, null );
         fuelUsageLastLapHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Last lap", null, null );
@@ -357,7 +274,7 @@ public class FuelWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final TextureImage2D image = texCanvas.getImage();
         final java.awt.Color backgroundColor = getBackgroundColor();
@@ -387,7 +304,7 @@ public class FuelWidget extends Widget
             
             int fuelY = fuelHeaderString.getAbsY() + fuelHeaderString.getMaxHeight( true ) + 0;
             int fuelHeight = height - fuelY - 4;
-            drawFuel( fuel, tankSize, image, offsetX + fuelBarLeftOffset, offsetY + fuelY, fuelHeight );
+            drawFuel( fuel, tankSize, image, offsetX + fuelBarLeftOffset.getIntegerValue(), offsetY + fuelY, fuelHeight );
             
             String string = NumberUtil.formatFloat( fuel, 1, true );
             fuelLoadString1.draw( offsetX, offsetY + fuelY, string, (Color)null, image );
@@ -396,7 +313,7 @@ public class FuelWidget extends Widget
             
             if ( !isEditorMode && ( avgFuelUsage > 0f ) )
             {
-                if ( getRoundUpRemainingLaps() )
+                if ( roundUpRemainingLaps.getBooleanValue() )
                     string = NumberUtil.formatFloat( ( fuel / avgFuelUsage ) + ( vsi.getStintLength() - (int)vsi.getStintLength() ), 1, true ) + "Laps";
                 else
                     string = NumberUtil.formatFloat( fuel / avgFuelUsage, 1, true ) + "Laps";
@@ -498,7 +415,7 @@ public class FuelWidget extends Widget
                     String string = String.valueOf( nextPitstopLap ) + postfix1;
                     nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, image );
                     
-                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning ) + "L (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + postfix2 + ")";
+                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntegerValue() ) + "L (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + postfix2 + ")";
                     nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, image );
                 }
                 else
@@ -524,10 +441,10 @@ public class FuelWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( font2.getPropertyName(), font2.getFontKey(), "The used (smaller) font." );
-        writer.writeProperty( fuelFont.getPropertyName(), fuelFont.getFontKey(), "The used font for fuel load." );
-        writer.writeProperty( "fuelFontColor", fuelFontColorKey, "The color to use for fuel load in the format #RRGGBB (hex)." );
-        writer.writeProperty( "roundUpRemainingLaps", getRoundUpRemainingLaps(), "Round up remaining fuel laps to include the current lap?" );
+        writer.writeProperty( font2, "The used (smaller) font." );
+        writer.writeProperty( fuelFont, "The used font for fuel load." );
+        writer.writeProperty( fuelFontColor, "The color to use for fuel load in the format #RRGGBB (hex)." );
+        writer.writeProperty( roundUpRemainingLaps, "Round up remaining fuel laps to include the current lap?" );
     }
     
     /**
@@ -538,17 +455,10 @@ public class FuelWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( font2.loadProperty( key, value ) )
-            ;
-        
-        else if ( fuelFont.loadProperty( key, value ) )
-            ;
-        
-        else if ( key.equals( "fuelFontColor" ) )
-            this.fuelFontColorKey = value;
-        
-        else if ( key.equals( "roundUpRemainingLaps" ) )
-            this.roundUpRemainingLaps = Boolean.parseBoolean( value );
+        if ( font2.loadProperty( key, value ) );
+        else if ( fuelFont.loadProperty( key, value ) );
+        else if ( fuelFontColor.loadProperty( key, value ) );
+        else if ( roundUpRemainingLaps.loadProperty( key, value ) );
     }
     
     /**
@@ -566,36 +476,8 @@ public class FuelWidget extends Widget
         FlaggedList props = new FlaggedList( "Specific", true );
         
         props.add( fuelFont );
-        
-        props.add( new ColorProperty( "fuelFontColor", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setFuelFontColor( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( fuelFontColorKey );
-            }
-        } );
-        
-        props.add( new Property( "roundUpRemainingLaps", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRoundUpRemainingLaps( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getRoundUpRemainingLaps() );
-            }
-        } );
+        props.add( fuelFontColor );
+        props.add( roundUpRemainingLaps );
         
         propsList.add( props );
     }

@@ -18,13 +18,42 @@ public class FontProperty extends Property
         return ( widget );
     }
     
+    protected void onValueChanged( String oldValue, String newValue )
+    {
+    }
+    
     public void setFont( String fontKey )
     {
-        this.fontKey = fontKey;
-        this.font = null;
-        this.antiAliased = null;
+        if ( ( fontKey == null ) && ( this.fontKey == null ) )
+            return;
         
-        widget.forceAndSetDirty();
+        if ( widget.getConfiguration() == null )
+        {
+            this.fontKey = fontKey;
+            this.font = null;
+            this.antiAliased = null;
+        }
+        else
+        {
+            String oldValue = getWidget().getConfiguration().getNamedFontString( this.fontKey );
+            if ( oldValue == null )
+                oldValue = this.fontKey;
+            
+            this.fontKey = fontKey;
+            this.font = null;
+            this.antiAliased = null;
+            
+            String newValue = getWidget().getConfiguration().getNamedFontString( this.fontKey );
+            if ( newValue == null )
+                newValue = this.fontKey;
+            
+            if ( ( newValue == null ) || !newValue.equals( oldValue ) )
+            {
+                widget.forceAndSetDirty();
+                
+                onValueChanged( oldValue, fontKey );
+            }
+        }
     }
     
     public final void setFont( Font font, boolean virtual, boolean antiAliased )
@@ -70,7 +99,6 @@ public class FontProperty extends Property
     public void setValue( Object value )
     {
         setFont( String.valueOf( value ) );
-        
     }
     
     /**

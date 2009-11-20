@@ -3,8 +3,8 @@ package net.ctdp.rfdynhud.widgets.timing;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
-import net.ctdp.rfdynhud.editor.properties.Property;
-import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
+import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -27,10 +27,10 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class TimingWidget extends Widget
 {
-    private boolean displayAbsFastest = true;
-    private boolean cumulativeSectors = false;
-    private boolean forceCurrentCumulSectors = true;
-    private int lastLapDisplayDelay = 10000; // ten seconds
+    private final BooleanProperty displayAbsFastest = new BooleanProperty( this, "displayAbsFastest", true );
+    private final BooleanProperty cumulativeSectors = new BooleanProperty( this, "cumulativeSectors", false );
+    private final BooleanProperty forceCurrentCumulSectors = new BooleanProperty( this, "forceCurrentCumulSectors", true );
+    private final IntegerProperty lastLapDisplayDelay = new IntegerProperty( this, "lastLapDisplayDelay", "lastLapDisplayDelay", 10000, -100, Integer.MAX_VALUE, false ); // ten seconds
     
     private DrawnString absFastestLapHeaderString = null;
     private DrawnString absFastestLapDriverString = null;
@@ -78,52 +78,6 @@ public class TimingWidget extends Widget
     private Laptime delayedOwnFastestLap = null;
     
     private boolean delayedAbsFastestIsOwn = false;
-    
-    public void setDisplayAbsFastest( boolean display )
-    {
-        this.displayAbsFastest = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayAbsFastest()
-    {
-        return ( displayAbsFastest );
-    }
-    
-    public void setLastLapDisplayDelay( int delay )
-    {
-        this.lastLapDisplayDelay = Math.max( -100, delay );
-    }
-    
-    public final int getLastLapDisplayDelay()
-    {
-        return ( lastLapDisplayDelay );
-    }
-    
-    public void setDisplayCumulativeSectors( boolean display )
-    {
-        this.cumulativeSectors = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayCumulativeSectors()
-    {
-        return ( cumulativeSectors );
-    }
-    
-    public void setForceCurrentCumulativeSectors( boolean display )
-    {
-        this.forceCurrentCumulSectors = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getForceCurrentCumulativeSectors()
-    {
-        return ( forceCurrentCumulSectors );
-    }
     
     /**
      * {@inheritDoc}
@@ -179,10 +133,10 @@ public class TimingWidget extends Widget
         
         if ( vsi.getStintLength() < 1.9f )
             lastLapDisplayTime = -1f;
-        else if ( getLastLapDisplayDelay() < 0 )
-            lastLapDisplayTime = vsi.getLapStartTime() + ( vsi.getLaptime( vsi.getLapsCompleted() ).getSector1() * -getLastLapDisplayDelay() / 100f );
+        else if ( lastLapDisplayDelay.getIntegerValue() < 0 )
+            lastLapDisplayTime = vsi.getLapStartTime() + ( vsi.getLaptime( vsi.getLapsCompleted() ).getSector1() * -lastLapDisplayDelay.getIntegerValue() / 100f );
         else
-            lastLapDisplayTime = vsi.getLapStartTime() + ( getLastLapDisplayDelay() / 1000f );
+            lastLapDisplayTime = vsi.getLapStartTime() + ( lastLapDisplayDelay.getIntegerValue() / 1000f );
     }
     
     /**
@@ -209,7 +163,7 @@ public class TimingWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
-        final boolean fontAntiAliased = isFontAntialiased();
+        final boolean fontAntiAliased = isFontAntiAliased();
         final java.awt.Color fontColor = getFontColor();
         
         final int left1 = 2;
@@ -219,13 +173,13 @@ public class TimingWidget extends Widget
         
         DrawnString yRel = null;
         
-        if ( getDisplayAbsFastest() )
+        if ( displayAbsFastest.getBooleanValue() )
         {
             absFastestLapHeaderString = new DrawnString( left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
             absFastestLapDriverString = new DrawnString( null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Driver: ", null, null );
             absSector1String = new DrawnString( null, absFastestLapDriverString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
             absSector2String = new DrawnString( null, absSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
-            if ( !getDisplayCumulativeSectors() )
+            if ( !cumulativeSectors.getBooleanValue() )
             {
                 absSector3String = new DrawnString( null, absSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
                 yRel = absSector3String;
@@ -253,7 +207,7 @@ public class TimingWidget extends Widget
         ownFastestLapHeaderString = new DrawnString( null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
         ownSector1String = new DrawnString( null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
         ownSector2String = new DrawnString( null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
-        if ( !getDisplayCumulativeSectors() )
+        if ( !cumulativeSectors.getBooleanValue() )
         {
             ownSector3String = new DrawnString( null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
             yRel = ownSector3String;
@@ -268,7 +222,7 @@ public class TimingWidget extends Widget
         currLapHeaderString = new DrawnString( null, ownFastestLapString, left1, sectionGap, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
         currSector1String = new DrawnString( null, currLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
         currSector2String = new DrawnString( null, currSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
-        if ( !getDisplayCumulativeSectors() && !getForceCurrentCumulativeSectors() )
+        if ( !cumulativeSectors.getBooleanValue() && !forceCurrentCumulSectors.getBooleanValue() )
         {
             currSector3String = new DrawnString( null, currSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
             yRel = currSector3String;
@@ -285,7 +239,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final TextureImage2D image = texCanvas.getImage();
         final java.awt.Color backgroundColor = getBackgroundColor();
@@ -304,7 +258,7 @@ public class TimingWidget extends Widget
                 afVSI = scoringInfo.getVehicleScoringInfo( 0 );
         }
         
-        if ( getDisplayAbsFastest() )
+        if ( displayAbsFastest.getBooleanValue() )
         {
             // absolute fastest lap
             
@@ -333,9 +287,9 @@ public class TimingWidget extends Widget
                 
                 if ( absFLValid )
                 {
-                    float sec1 = ( afLaptime != null ) ? afLaptime.getSector1() : -1f; //afVSI.getBestSector1();
-                    float sec2 = ( afLaptime != null ) ? afLaptime.getSector2( getDisplayCumulativeSectors() ) : -1f; //afVSI.getBestSector2( getDisplayCumulativeSectors() );
-                    float sec3 = ( afLaptime != null ) ? ( getDisplayCumulativeSectors() ? sec2 + afLaptime.getSector3() : afLaptime.getSector3() ) : -1f; //getDisplayCumulativeSectors() ? sec2 + afVSI.getBestSector3() : afVSI.getBestSector3();
+                    float sec1 = ( afLaptime != null ) ? afLaptime.getSector1() : -1f;
+                    float sec2 = ( afLaptime != null ) ? afLaptime.getSector2( cumulativeSectors.getBooleanValue() ) : -1f;
+                    float sec3 = ( afLaptime != null ) ? ( cumulativeSectors.getBooleanValue() ? sec2 + afLaptime.getSector3() : afLaptime.getSector3() ) : -1f;
                     
                     if ( isEditorMode )
                     {
@@ -362,7 +316,7 @@ public class TimingWidget extends Widget
                     else
                         s[1][1] = "-:--.---";
                     
-                    if ( !getDisplayCumulativeSectors() )
+                    if ( !cumulativeSectors.getBooleanValue() )
                     {
                         s[2][0] = null;
                         if ( sec3 > 0f )
@@ -381,14 +335,14 @@ public class TimingWidget extends Widget
                     
                     absSector1String.getMaxColWidths( s[0], padding, image, colWidths );
                     absSector2String.getMaxColWidths( s[1], padding, image, colWidths );
-                    if ( !getDisplayCumulativeSectors() )
+                    if ( !cumulativeSectors.getBooleanValue() )
                         absSector3String.getMaxColWidths( s[2], padding, image, colWidths );
                     absFastestLapString.getMaxColWidths( s[3], padding, image, colWidths );
                     colWidths[0] -= padding;
                     
                     absSector1String.draw( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
                     absSector2String.draw( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
-                    if ( !getDisplayCumulativeSectors() )
+                    if ( !cumulativeSectors.getBooleanValue() )
                         absSector3String.draw( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
                     absFastestLapString.draw( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
                 }
@@ -396,7 +350,7 @@ public class TimingWidget extends Widget
                 {
                     absSector1String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
                     absSector2String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
-                    if ( !getDisplayCumulativeSectors() )
+                    if ( !cumulativeSectors.getBooleanValue() )
                         absSector3String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
                     absFastestLapString.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
                 }
@@ -425,7 +379,7 @@ public class TimingWidget extends Widget
                 
                 if ( ownFLValid )
                 {
-                    boolean displayCumul = getDisplayCumulativeSectors();
+                    boolean displayCumul = cumulativeSectors.getBooleanValue();
                     
                     float afSec1 = ( afLaptime != null ) ? afLaptime.getSector1() : -1f; //afVSI.getBestSector1();
                     float afSec2 = ( afLaptime != null ) ? afLaptime.getSector2( displayCumul ) : -1f; //afVSI.getBestSector2( displayCumul );
@@ -448,7 +402,7 @@ public class TimingWidget extends Widget
                         sec3 = 12.345f;
                     }
                     
-                    final boolean dispGapToAbs = ( getDisplayAbsFastest() && vsi != afVSI );
+                    final boolean dispGapToAbs = ( displayAbsFastest.getBooleanValue() && vsi != afVSI );
                     int cols = dispGapToAbs ? 3 : 2;
                     String[][] s = new String[4][cols];
                     int[] colWidths = new int[cols];
@@ -532,7 +486,7 @@ public class TimingWidget extends Widget
                 {
                     ownSector1String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
                     ownSector2String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
-                    if ( !getDisplayCumulativeSectors() )
+                    if ( !cumulativeSectors.getBooleanValue() )
                         ownSector3String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
                     ownFastestLapString.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
                 }
@@ -562,7 +516,7 @@ public class TimingWidget extends Widget
                 
                 final boolean absFastestIsOwn = isDelaying ? delayedAbsFastestIsOwn : ( vsi == afVSI );
                 final short sector = vsi.getSector();
-                final boolean displayCumul = getDisplayCumulativeSectors() || getForceCurrentCumulativeSectors();
+                final boolean displayCumul = cumulativeSectors.getBooleanValue() || forceCurrentCumulSectors.getBooleanValue();
                 
                 float afSec1 = isDelaying ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getSector1() : -1f ) : ( afLaptime != null ) ? afLaptime.getSector1(): -1f; //afVSI.getBestSector1();
                 float afSec2 = isDelaying ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getSector2( displayCumul ) : -1f ) : ( afLaptime != null ) ? afLaptime.getSector2( displayCumul ): -1f; //afVSI.getBestSector2( displayCumul );
@@ -604,7 +558,7 @@ public class TimingWidget extends Widget
                 boolean afValid = afLap > 0f;
                 boolean ofValid = ofLap > 0f;
                 
-                final boolean dispAbsFastest = getDisplayAbsFastest();
+                final boolean dispAbsFastest = displayAbsFastest.getBooleanValue();
                 int cols = dispAbsFastest ? 4 : 3;
                 String[][] s = new String[4][cols];
                 int[] colWidths = new int[cols];
@@ -831,10 +785,10 @@ public class TimingWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "displayAbsFastest", getDisplayAbsFastest(), "Display the absolute fastest lap part of the Widget?" );
-        writer.writeProperty( "cumulativeSectors", getDisplayCumulativeSectors(), "Display the second sector as a sum?" );
-        writer.writeProperty( "forceCurrentCumulSectors", getForceCurrentCumulativeSectors(), "Display the second sector as a sum even if the others not?" );
-        writer.writeProperty( "lastLapDisplayDelay", getLastLapDisplayDelay(), "The time for which the last driven lap will keepbeing displayed (in milliseconds)." );
+        writer.writeProperty( displayAbsFastest, "Display the absolute fastest lap part of the Widget?" );
+        writer.writeProperty( cumulativeSectors, "Display the second sector as a sum?" );
+        writer.writeProperty( forceCurrentCumulSectors, "Display the second sector as a sum even if the others not?" );
+        writer.writeProperty( lastLapDisplayDelay, "The time for which the last driven lap will keepbeing displayed (in milliseconds)." );
     }
     
     /**
@@ -845,17 +799,10 @@ public class TimingWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( key.equals( "displayAbsFastest" ) )
-            this.displayAbsFastest = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "cumulativeSectors" ) )
-            this.cumulativeSectors = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "forceCurrentCumulSectors" ) )
-            this.forceCurrentCumulSectors = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "lastLapDisplayDelay" ) )
-            this.lastLapDisplayDelay = Integer.parseInt( value );
+        if ( displayAbsFastest.loadProperty( key, value ) );
+        else if ( cumulativeSectors.loadProperty( key, value ) );
+        else if ( forceCurrentCumulSectors.loadProperty( key, value ) );
+        else if ( lastLapDisplayDelay.loadProperty( key, value ) );
     }
     
     /**
@@ -868,66 +815,10 @@ public class TimingWidget extends Widget
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
-        
-        props.add( new Property( "displayAbsFastest", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayAbsFastest( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayAbsFastest() );
-            }
-        } );
-        
-        props.add( new Property( "cumulativeSectors", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayCumulativeSectors( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayCumulativeSectors() );
-            }
-        } );
-        
-        props.add( new Property( "forceCurrentCumulSectors", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setForceCurrentCumulativeSectors( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getForceCurrentCumulativeSectors() );
-            }
-        } );
-        
-        props.add( new Property( "lastLapDisplayDelay", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setLastLapDisplayDelay( ( (Number)value ).intValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getLastLapDisplayDelay() );
-            }
-        } );
+        props.add( displayAbsFastest );
+        props.add( cumulativeSectors );
+        props.add( forceCurrentCumulSectors );
+        props.add( lastLapDisplayDelay );
         
         propsList.add( props );
     }

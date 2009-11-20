@@ -13,8 +13,10 @@ import java.io.File;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
+import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -30,8 +32,6 @@ import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
-import org.openmali.vecmath2.util.ColorUtils;
-
 /**
  * The {@link MapWidget} renders a map overview of the current track.
  * 
@@ -45,27 +45,18 @@ public class MapWidget extends Widget
     private int baseItemRadius = 7;
     private int itemRadius = baseItemRadius;
     
-    private boolean antialiasPositions = true;
+    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", "#FFFFFFC0" );
+    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", "#FF0000C0" );
+    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", "#00FF00C0" );
+    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", "#0000FFC0" );
+    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", "#FFFF00C0" );
     
-    private String markColorNormalKey = "#FFFFFFC0";
-    private Color markColorNormal = null;
-    private String markColorLeaderKey = "#FF0000C0";
-    private Color markColorLeader = null;
-    private String markColorMeKey = "#00FF00C0";
-    private Color markColorMe = null;
-    private String markColorNextInFrontKey = "#0000FFC0";
-    private Color markColorNextInFront = null;
-    private String markColorNextBehindKey = "#FFFF00C0";
-    private Color markColorNextBehind = null;
+    private final IntegerProperty maxDisplayedVehicles = new IntegerProperty( this, "maxDisplayedVehicles", "maxDisplayedVehicles", 22, 1, 50, false );
     
-    private int maxDisplayedVehicles = 22;
+    private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
     
-    private boolean displayPositionNumbers = true;
-    
-    private final FontProperty posNumberFont = new FontProperty( this, "posNumberFont", "Monospaced-PLAIN-9v" );
-    
-    private String posNumberFontColorKey = "#000000";
-    private Color posNumberFontColor = null;
+    private final FontProperty posNumberFont = new FontProperty( this, "posNumberFont", "Monospaced-PLAIN-9va" );
+    private final ColorProperty posNumberFontColor = new ColorProperty( this, "posNumberFontColor", "#000000" );
     
     private static final int ANTI_ALIAS_RADIUS_OFFSET = 1;
     
@@ -86,190 +77,6 @@ public class MapWidget extends Widget
         return ( baseItemRadius );
     }
     
-    public void setMarkColorNormal( String color )
-    {
-        this.markColorNormalKey = color;
-        this.markColorNormal = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setMarkColorNormal( Color color )
-    {
-        setMarkColorNormal( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setMarkColorNormal( int red, int green, int blue )
-    {
-        setMarkColorNormal( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getMarkColorNormal()
-    {
-        markColorNormal = ColorProperty.getColorFromColorKey( markColorNormalKey, markColorNormal, getConfiguration() );
-        
-        return ( markColorNormal );
-    }
-    
-    public void setMarkColorLeader( String color )
-    {
-        this.markColorLeaderKey = color;
-        this.markColorLeader = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setMarkColorLeader( Color color )
-    {
-        setMarkColorLeader( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setMarkColorLeader( int red, int green, int blue )
-    {
-        setMarkColorLeader( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getMarkColorLeader()
-    {
-        markColorLeader = ColorProperty.getColorFromColorKey( markColorLeaderKey, markColorLeader, getConfiguration() );
-        
-        return ( markColorLeader );
-    }
-    
-    public void setMarkColorMe( String color )
-    {
-        this.markColorMeKey = color;
-        this.markColorMe = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setMarkColorMe( Color color )
-    {
-        setMarkColorMe( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setMarkColorMe( int red, int green, int blue )
-    {
-        setMarkColorMe( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getMarkColorMe()
-    {
-        markColorMe = ColorProperty.getColorFromColorKey( markColorMeKey, markColorMe, getConfiguration() );
-        
-        return ( markColorMe );
-    }
-    
-    public void setMarkColorNextInFront( String color )
-    {
-        this.markColorNextInFrontKey = color;
-        this.markColorNextInFront = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setMarkColorNextInFront( Color color )
-    {
-        setMarkColorNextInFront( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setMarkColorNextInFront( int red, int green, int blue )
-    {
-        setMarkColorNextInFront( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getMarkColorNextInFront()
-    {
-        markColorNextInFront = ColorProperty.getColorFromColorKey( markColorNextInFrontKey, markColorNextInFront, getConfiguration() );
-        
-        return ( markColorNextInFront );
-    }
-    
-    public void setMarkColorNextBehind( String color )
-    {
-        this.markColorNextBehindKey = color;
-        this.markColorNextBehind = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setMarkColorNextBehind( Color color )
-    {
-        setMarkColorNextBehind( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setMarkColorNextBehind( int red, int green, int blue )
-    {
-        setMarkColorNextBehind( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getMarkColorNextBehind()
-    {
-        markColorNextBehind = ColorProperty.getColorFromColorKey( markColorNextBehindKey, markColorNextBehind, getConfiguration() );
-        
-        return ( markColorNextBehind );
-    }
-    
-    public void setMaxDisplayedVehicles( int number )
-    {
-        this.maxDisplayedVehicles = Math.max( 1, Math.min( number, 50 ) );
-        
-        forceAndSetDirty();
-    }
-    
-    public final int getMaxDisplayedVehicles()
-    {
-        return ( maxDisplayedVehicles );
-    }
-    
-    public void setDisplayPositionNumbers( boolean display )
-    {
-        this.displayPositionNumbers = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayPositionNumbers()
-    {
-        return ( displayPositionNumbers );
-    }
-    
-    public final java.awt.Font getPosNumberFont()
-    {
-        return ( posNumberFont.getFont() );
-    }
-    
-    public final boolean isPosNumberFontAntiAliased()
-    {
-        return ( posNumberFont.isAntiAliased() );
-    }
-    
-    public void setPosNumberFontColor( String color )
-    {
-        this.posNumberFontColorKey = color;
-        this.posNumberFontColor = null;
-        
-        forceAndSetDirty();
-    }
-    
-    public final void setPosNumberFontColor( Color color )
-    {
-        setPosNumberFontColor( ColorUtils.colorToHex( color ) );
-    }
-    
-    public final void setPosNumberFontColor( int red, int green, int blue )
-    {
-        setPosNumberFontColor( ColorUtils.colorToHex( red, green, blue ) );
-    }
-    
-    public final Color getPosNumberFontColor()
-    {
-        posNumberFontColor = ColorProperty.getColorFromColorKey( posNumberFontColorKey, posNumberFontColor, getConfiguration() );
-        
-        return ( posNumberFontColor );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -281,23 +88,20 @@ public class MapWidget extends Widget
     
     private void initSubTextures( boolean isEditorMode )
     {
+        final int maxDspVehicles = this.maxDisplayedVehicles.getIntegerValue();
+        
         itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResY() / 960f );
         
-        if ( ( itemTextures != null ) && ( itemTextures.length == getMaxDisplayedVehicles() ) && ( itemTextures[0].getWidth() == itemRadius + itemRadius ) && ( itemTextures[0].getHeight() == itemRadius + itemRadius ) )
+        if ( ( itemTextures != null ) && ( itemTextures.length == maxDspVehicles ) && ( itemTextures[0].getWidth() == itemRadius + itemRadius ) && ( itemTextures[0].getHeight() == itemRadius + itemRadius ) )
             return;
         
-        itemTextures = new TransformableTexture[ getMaxDisplayedVehicles() ];
-        itemStates = new int[ getMaxDisplayedVehicles() ];
+        itemTextures = new TransformableTexture[ maxDspVehicles ];
+        itemStates = new int[ maxDspVehicles ];
         
-        for ( int i = 0; i < getMaxDisplayedVehicles(); i++ )
+        for ( int i = 0; i < maxDspVehicles; i++ )
         {
             itemTextures[i] = new TransformableTexture( itemRadius + itemRadius, itemRadius + itemRadius, isEditorMode );
             itemTextures[i].setVisible( false );
-            
-            if ( antialiasPositions )
-                itemTextures[i].getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-            else
-                itemTextures[i].getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF );
             
             itemStates[i] = -1;
         }
@@ -369,7 +173,7 @@ public class MapWidget extends Widget
             Texture2DCanvas tc = texture.getTextureCanvas();
             tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             
-            int off2 = ( antialiasPositions ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
+            int off2 = ( posNumberFont.isAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
             int dia = itemRadius + itemRadius + off2 + off2;
             
             scale = track.getScale( width - dia, height - dia );
@@ -452,47 +256,23 @@ public class MapWidget extends Widget
             texCanvas.getImage().clear( texture, offsetX, offsetY, width, height, true, null );
     }
     
-    /*
-    private void clearPosition( Point p, TextureImage2D image, int offsetX, int offsetY, int width, int height )
-    {
-        int off2X = ( antialiasPositions ? ANTI_ALIAS_RADIUS_OFFSET : 0 ) + itemRadius;// + ( ( width - itemRadius - itemRadius - track.getXExtend( scale ) ) / 2 );
-        int off2Y = ( antialiasPositions ? ANTI_ALIAS_RADIUS_OFFSET : 0 ) + itemRadius;// + ( ( width - itemRadius - itemRadius - track.getZExtend( scale ) ) / 2 );
-        
-        int x0 = p.x - itemRadius - off2X;
-        int y0 = p.y - itemRadius - off2Y;
-        int x1 = x0 + itemRadius + itemRadius + off2X + off2X - 1;
-        int y1 = y0 + itemRadius + itemRadius + off2Y + off2Y - 1;
-        
-        x0 = Math.max( -off2X, x0 );
-        y0 = Math.max( -off2Y, y0 );
-        x1 = Math.min( x1, width + off2X - 1 );
-        y1 = Math.min( y1, height + off2Y - 1 );
-        
-        int w = x1 - x0 + 1;
-        int h = y1 - y0 + 1;
-        
-        image.clear( texture, off2X + x0, off2Y + y0, w, h, offsetX + off2X + x0, offsetY + off2Y + y0, true, null );
-        //image.clear( Color.RED, offsetX + off2X + x0, offsetY + off2Y + y0, w, h, true, null );
-    }
-    */
-    
     @Override
-    public void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    public void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         if ( ( track != null ) && ( texture != null ) )
         {
-            int off2 = ( antialiasPositions ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
+            int off2 = ( posNumberFont.isAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
             
             short ownPlace = scoringInfo.getOwnPlace();
             
-            final Font font = getPosNumberFont();
-            final boolean posNumberFontAntiAliased = isPosNumberFontAntiAliased();
+            final Font font = posNumberFont.getFont();
+            final boolean posNumberFontAntiAliased = posNumberFont.isAntiAliased();
             FontMetrics metrics = texCanvas.getFontMetrics( font );
             
             boolean normal = false;
-            int n = Math.min( scoringInfo.getNumVehicles(), getMaxDisplayedVehicles() );
+            int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles.getIntegerValue() );
             for ( int i = 0; i < n; i++ )
             {
                 VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
@@ -509,31 +289,31 @@ public class MapWidget extends Widget
                         if ( vsi.getPlace() == 1 )
                         {
                             itemState |= 1 << 16;
-                            tt.getTextureCanvas().setColor( getMarkColorLeader() );
+                            tt.getTextureCanvas().setColor( markColorLeader.getColor() );
                             normal = false;
                         }
                         else if ( vsi.isPlayer() )
                         {
                             itemState |= 2 << 16;
-                            tt.getTextureCanvas().setColor( getMarkColorMe() );
+                            tt.getTextureCanvas().setColor( markColorMe.getColor() );
                             normal = false;
                         }
                         else if ( vsi.getPlace() == ownPlace + 1 )
                         {
                             itemState |= 3 << 16;
-                            tt.getTextureCanvas().setColor( getMarkColorNextInFront() );
+                            tt.getTextureCanvas().setColor( markColorNextInFront.getColor() );
                             normal = false;
                         }
                         else if ( vsi.getPlace() == ownPlace - 1 )
                         {
                             itemState |= 4 << 16;
-                            tt.getTextureCanvas().setColor( getMarkColorNextBehind() );
+                            tt.getTextureCanvas().setColor( markColorNextBehind.getColor() );
                             normal = false;
                         }
                         else if ( !normal )
                         {
                             itemState |= 5 << 16;
-                            tt.getTextureCanvas().setColor( getMarkColorNormal() );
+                            tt.getTextureCanvas().setColor( markColorNormal.getColor() );
                             normal = true;
                         }
                         
@@ -547,14 +327,14 @@ public class MapWidget extends Widget
                             
                             tt.getTextureCanvas().fillArc( 0, 0, itemRadius + itemRadius, itemRadius + itemRadius, 0, 360 );
                             
-                            if ( getDisplayPositionNumbers() )
+                            if ( displayPositionNumbers.getBooleanValue() )
                             {
                                 String posStr = String.valueOf( vsi.getPlace() );
                                 Rectangle2D bounds = metrics.getStringBounds( posStr, tt.getTextureCanvas() );
                                 float fw = (float)bounds.getWidth();
                                 float fh = (float)( metrics.getAscent() - metrics.getDescent() );
                                 
-                                tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, getPosNumberFontColor(), false, null );
+                                tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, posNumberFontColor.getColor(), false, null );
                             }
                         }
                         
@@ -566,7 +346,7 @@ public class MapWidget extends Widget
                 }
             }
             
-            for ( int i = n; i < getMaxDisplayedVehicles(); i++ )
+            for ( int i = n; i < maxDisplayedVehicles.getIntegerValue(); i++ )
                 itemTextures[i].setVisible( false );
         }
     }
@@ -581,15 +361,15 @@ public class MapWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( "itemRadius", getItemRadius(), "The abstract radius for any displayed driver item." );
-        writer.writeProperty( "markColorNormal", markColorNormalKey, "The color used for all, but special cars in #RRGGBBAA (hex)." );
-        writer.writeProperty( "markColorLeader", markColorLeaderKey, "The color used for the leader's car in #RRGGBBAA (hex)." );
-        writer.writeProperty( "markColorMe", markColorMeKey, "The color used for your own car in #RRGGBBAA (hex)." );
-        writer.writeProperty( "markColorNextInFront", markColorNextInFrontKey, "The color used for the car in front of you in #RRGGBBAA (hex)." );
-        writer.writeProperty( "markColorNextBehind", markColorNextBehindKey, "The color used for the car behind you in #RRGGBBAA (hex)." );
-        writer.writeProperty( "maxDisplayedVehicles", getMaxDisplayedVehicles(), "The maximum number of displayed vehicles." );
-        writer.writeProperty( "displayPosNumbers", getDisplayPositionNumbers(), "Display numbers on the position markers?" );
-        writer.writeProperty( posNumberFont.getPropertyName(), posNumberFont.getFontKey(), "The font used for position numbers." );
-        writer.writeProperty( "posNumberFontColor", posNumberFontColorKey, "The font color used for position numbers in the format #RRGGBB (hex)." );
+        writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorNextInFront, "The color used for the car in front of you in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
+        writer.writeProperty( maxDisplayedVehicles, "The maximum number of displayed vehicles." );
+        writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
+        writer.writeProperty( posNumberFont, "The font used for position numbers." );
+        writer.writeProperty( posNumberFontColor, "The font color used for position numbers in the format #RRGGBB (hex)." );
     }
     
     /**
@@ -603,32 +383,15 @@ public class MapWidget extends Widget
         if ( key.equals( "itemRadius" ) )
             this.baseItemRadius = Integer.parseInt( value );
         
-        else if ( key.equals( "markColorNormal" ) )
-            this.markColorNormalKey = value;
-        
-        else if ( key.equals( "markColorLeader" ) )
-            this.markColorLeaderKey = value;
-        
-        else if ( key.equals( "markColorMe" ) )
-            this.markColorMeKey = value;
-        
-        else if ( key.equals( "markColorNextInFront" ) )
-            this.markColorNextInFrontKey = value;
-        
-        else if ( key.equals( "markColorNextBehind" ) )
-            this.markColorNextBehindKey = value;
-        
-        else if ( key.equals( "maxDisplayedVehicles" ) )
-            this.maxDisplayedVehicles = Integer.parseInt( value );
-        
-        else if ( key.equals( "displayPosNumbers" ) )
-            this.displayPositionNumbers = Boolean.parseBoolean( value );
-        
-        else if ( posNumberFont.loadProperty( key, value ) )
-            ;
-        
-        else if ( key.equals( "posNumberFontColor" ) )
-            this.posNumberFontColorKey = value;
+        else if ( markColorNormal.loadProperty( key, value ) );
+        else if ( markColorLeader.loadProperty( key, value ) );
+        else if ( markColorMe.loadProperty( key, value ) );
+        else if ( markColorNextInFront.loadProperty( key, value ) );
+        else if ( markColorNextBehind.loadProperty( key, value ) );
+        else if ( maxDisplayedVehicles.loadProperty( key, value ) );
+        else if ( displayPositionNumbers.loadProperty( key, value ) );
+        else if ( posNumberFont.loadProperty( key, value ) );
+        else if ( posNumberFontColor.loadProperty( key, value ) );
     }
     
     /**
@@ -656,127 +419,17 @@ public class MapWidget extends Widget
             }
         } );
         
-        props.add( new ColorProperty( "markColorNormal", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setMarkColorNormal( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( markColorNormalKey );
-            }
-        } );
+        props.add( markColorNormal );
+        props.add( markColorLeader );
+        props.add( markColorMe );
+        props.add( markColorNextInFront );
+        props.add( markColorNextBehind );
         
-        props.add( new ColorProperty( "markColorLeader", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setMarkColorLeader( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( markColorLeaderKey );
-            }
-        } );
+        props.add( maxDisplayedVehicles );
         
-        props.add( new ColorProperty( "markColorMe", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setMarkColorMe( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( markColorMeKey );
-            }
-        } );
-        
-        props.add( new ColorProperty( "markColorNextInFront", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setMarkColorNextInFront( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( markColorNextInFrontKey );
-            }
-        } );
-        
-        props.add( new ColorProperty( "markColorNextBehind", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setMarkColorNextBehind( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( markColorNextBehindKey );
-            }
-        } );
-        
-        props.add( new Property( "maxDisplayedVehicles", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setMaxDisplayedVehicles( (Integer)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getMaxDisplayedVehicles() );
-            }
-        } );
-        
-        props.add( new Property( "displayPosNumbers", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayPositionNumbers( (Boolean)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayPositionNumbers() );
-            }
-        } );
-        
+        props.add( displayPositionNumbers );
         props.add( posNumberFont );
-        
-        props.add( new ColorProperty( "posNumberFontColor", getConfiguration() )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setPosNumberFontColor( String.valueOf( value ) );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( posNumberFontColorKey );
-            }
-        } );
+        props.add( posNumberFontColor );
         
         propsList.add( props );
     }
@@ -799,6 +452,6 @@ public class MapWidget extends Widget
     {
         super( name, Size.PERCENT_OFFSET + 0.145f, Size.PERCENT_OFFSET + 0.103f );
         
-        setBackgroundColor( (String)null );
+        getBackgroundColorProperty().setColor( (String)null );
     }
 }

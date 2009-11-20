@@ -1,10 +1,10 @@
 package net.ctdp.rfdynhud.widgets.temperatures;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
@@ -36,10 +36,10 @@ public class TemperaturesWidget extends Widget
 {
     private final FontProperty font2 = new FontProperty( this, "font2", "SmallerFont" );
     
-    private boolean displayEngine = true;
-    private boolean displayWaterTemp = true;
-    private boolean displayTires = true;
-    private boolean displayBrakes = true;
+    private final BooleanProperty displayEngine = new BooleanProperty( this, "displayEngine", true );
+    private final BooleanProperty displayWaterTemp = new BooleanProperty( this, "displayWaterTemp", true );
+    private final BooleanProperty displayTires = new BooleanProperty( this, "displayTires", true );
+    private final BooleanProperty displayBrakes = new BooleanProperty( this, "displayBrakes", true );
     
     private final Size engineHeight;
     
@@ -108,114 +108,6 @@ public class TemperaturesWidget extends Widget
         brakeSize.bake();
     }
     
-    public final Font getFont2()
-    {
-        return ( font2.getFont() );
-    }
-    
-    public final boolean isFont2AntiAliased()
-    {
-        return ( font2.isAntiAliased() );
-    }
-    
-    public void setDisplayEngine( boolean display )
-    {
-        this.displayEngine = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayEngine()
-    {
-        return ( displayEngine );
-    }
-    
-    public void setDisplayWaterTemp( boolean display )
-    {
-        this.displayWaterTemp = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayWaterTemp()
-    {
-        return ( displayWaterTemp );
-    }
-    
-    public void setDisplayTires( boolean display )
-    {
-        this.displayTires = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayTires()
-    {
-        return ( displayTires );
-    }
-    
-    public void setDisplayBrakes( boolean display )
-    {
-        this.displayBrakes = display;
-        
-        forceAndSetDirty();
-    }
-    
-    public final boolean getDisplayBrakes()
-    {
-        return ( displayBrakes );
-    }
-    
-    public void setEngineHeight( float height )
-    {
-        this.engineHeight.setHeight( height );
-    }
-    
-    public final float getEngineHeight()
-    {
-        return ( engineHeight.getHeight() );
-    }
-    
-    public void setTireWidth( float width )
-    {
-        this.tireSize.setWidth( width );
-    }
-    
-    public final float getTireWidth()
-    {
-        return ( tireSize.getWidth() );
-    }
-    
-    public void setTireHeight( float height )
-    {
-        this.tireSize.setHeight( height );
-    }
-    
-    public final float getTireHeight()
-    {
-        return ( tireSize.getHeight() );
-    }
-    
-    public void setBrakeWidth( float width )
-    {
-        this.brakeSize.setWidth( width );
-    }
-    
-    public final float getBrakeWidth()
-    {
-        return ( brakeSize.getWidth() );
-    }
-    
-    public void setBrakeHeight( float height )
-    {
-        this.brakeSize.setHeight( height );
-    }
-    
-    public final float getBrakeHeight()
-    {
-        return ( brakeSize.getHeight() );
-    }
-    
     public void setBrakeTempsPeekDelay( int delay )
     {
         this.brakeTempsPeekDelay = delay * 1000000L;
@@ -272,9 +164,9 @@ public class TemperaturesWidget extends Widget
     protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
-        final boolean fontAntiAliased = isFontAntialiased();
-        final java.awt.Font font2 = getFont2();
-        final boolean font2AntiAliased = isFont2AntiAliased();
+        final boolean fontAntiAliased = isFontAntiAliased();
+        final java.awt.Font font2 = this.font2.getFont();
+        final boolean font2AntiAliased = this.font2.isAntiAliased();
         final java.awt.Color fontColor = getFontColor();
         
         final int tireWidth = tireSize.getEffectiveWidth();
@@ -287,10 +179,10 @@ public class TemperaturesWidget extends Widget
         int top = -2;
         DrawnString relY = null;
         
-        if ( getDisplayEngine() )
+        if ( displayEngine.getBooleanValue() )
         {
             engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Engine: ", null, null );
-            if ( getDisplayWaterTemp() )
+            if ( displayWaterTemp.getBooleanValue() )
             {
                 engineWaterTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(W:", null, "°C)" );
                 engineOilTempString = new DrawnString( null, engineWaterTempString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, font2AntiAliased, fontColor, null, null, "°C" );
@@ -305,9 +197,9 @@ public class TemperaturesWidget extends Widget
             top = engineHeight.getEffectiveHeight() + 10;
         }
         
-        int imgWidth = getDisplayTires() && getDisplayBrakes() ? Math.max( tireWidth, brakeWidth ) : ( getDisplayTires() ? tireWidth : brakeWidth );
+        int imgWidth = displayTires.getBooleanValue() && displayBrakes.getBooleanValue() ? Math.max( tireWidth, brakeWidth ) : ( displayTires.getBooleanValue() ? tireWidth : brakeWidth );
         
-        if ( getDisplayTires() )
+        if ( displayTires.getBooleanValue() )
         {
             tiresHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tires: ", null, null );
             tireTempFLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
@@ -323,7 +215,7 @@ public class TemperaturesWidget extends Widget
             top = tireHeight * 2 + 15;
         }
         
-        if ( getDisplayBrakes() )
+        if ( displayBrakes.getBooleanValue() )
         {
             brakesHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Brakes:" );
             brakeTempFLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
@@ -601,7 +493,7 @@ public class TemperaturesWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, boolean needsCompleteRedraw )
+    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final TextureImage2D image = texCanvas.getImage();
         final Color backgroundColor = getBackgroundColor();
@@ -612,18 +504,18 @@ public class TemperaturesWidget extends Widget
         
         if ( needsCompleteRedraw )
         {
-            if ( getDisplayEngine() )
+            if ( displayEngine.getBooleanValue() )
                 engineHeaderString.draw( offsetX, offsetY, "(" + NumberUtil.formatFloat( gameData.getPhysics().getEngine().getOptimumOilTemperature(), 1, true ) + "°C)", backgroundColor, image );
             TireCompound tireCompound = setup.getGeneral().getFrontTireCompound();
-            if ( getDisplayTires() )
+            if ( displayTires.getBooleanValue() )
                 tiresHeaderString.draw( offsetX, offsetY, tireCompound.getName() + " (" + NumberUtil.formatFloat( tireCompound.getWheel( Wheel.FRONT_LEFT ).getOptimumTemperature(), 1, true ) + "°C)", backgroundColor, image );
-            if ( getDisplayBrakes() )
+            if ( displayBrakes.getBooleanValue() )
                 brakesHeaderString.draw( offsetX, offsetY, "Brakes:", backgroundColor, image );
         }
         
-        if ( getDisplayEngine() )
+        if ( displayEngine.getBooleanValue() )
         {
-            if ( getDisplayWaterTemp() )
+            if ( displayWaterTemp.getBooleanValue() )
             {
                 int waterTemp = Math.round( telemData.getEngineWaterTemperature() * 10f );
                 if ( needsCompleteRedraw || ( clock1 && ( waterTemp != oldWaterTemp ) ) )
@@ -644,7 +536,7 @@ public class TemperaturesWidget extends Widget
                 engineOilTempString.draw( offsetX, offsetY, string, backgroundColor, image );
                 
                 int engineWidth;
-                if ( getDisplayWaterTemp() )
+                if ( displayWaterTemp.getBooleanValue() )
                     engineWidth = Math.max( 70, Math.max( engineWaterTempString.getLastWidth(), engineOilTempString.getLastWidth() ) );
                 else
                     engineWidth = Math.max( 70, engineOilTempString.getLastWidth() );
@@ -656,7 +548,7 @@ public class TemperaturesWidget extends Widget
             }
         }
         
-        if ( getDisplayTires() )
+        if ( displayTires.getBooleanValue() )
         {
             final int tireWidth = tireSize.getEffectiveWidth();
             
@@ -730,7 +622,7 @@ public class TemperaturesWidget extends Widget
             }
         }
         
-        if ( getDisplayBrakes() )
+        if ( displayBrakes.getBooleanValue() )
         {
             final int brakeWidth = brakeSize.getEffectiveWidth();
             
@@ -800,14 +692,14 @@ public class TemperaturesWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( font2.getPropertyName(), font2.getFontKey(), "The used (smaller) font." );
-        writer.writeProperty( "displayEngine", getDisplayEngine(), "Display the engine part of the Widget?" );
-        writer.writeProperty( "displayWaterTemp", getDisplayWaterTemp(), "Display water temperature?" );
+        writer.writeProperty( font2, "The used (smaller) font." );
+        writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
+        writer.writeProperty( displayWaterTemp, "Display water temperature?" );
         writer.writeProperty( "engineHeight", Size.unparseValue( engineHeight.getHeight() ), "The height of the engine bar." );
-        writer.writeProperty( "displayTires", getDisplayTires(), "Display the tire part of the Widget?" );
+        writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
         writer.writeProperty( "tireWidth", Size.unparseValue( tireSize.getWidth() ), "The width of a tire image." );
         writer.writeProperty( "tireHeight", Size.unparseValue( tireSize.getHeight() ), "The height of a tire image." );
-        writer.writeProperty( "displayBrakes", getDisplayBrakes(), "Display the brakes of the Widget?" );
+        writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
         writer.writeProperty( "brakeWidth", Size.unparseValue( brakeSize.getWidth() ), "The width of a brake image." );
         writer.writeProperty( "brakeHeight", Size.unparseValue( brakeSize.getHeight() ), "The height of a brake image." );
         writer.writeProperty( "brakeTempsPeekDelay", getBrakeTempsPeekDelay(), "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
@@ -821,36 +713,14 @@ public class TemperaturesWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( font2.loadProperty( key, value ) )
-            ;
-        
-        else if ( key.equals( "displayEngine" ) )
-            this.displayEngine = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "displayWaterTemp" ) )
-            this.displayWaterTemp = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "engineHeight" ) )
-            this.engineHeight.setHeight( Size.parseValue( value ) );
-        
-        else if ( key.equals( "displayTires" ) )
-            this.displayTires = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "tireWidth" ) )
-            this.tireSize.setWidth( Size.parseValue( value ) );
-        
-        else if ( key.equals( "tireHeight" ) )
-            this.tireSize.setHeight( Size.parseValue( value ) );
-        
-        else if ( key.equals( "displayBrakes" ) )
-            this.displayBrakes = Boolean.parseBoolean( value );
-        
-        else if ( key.equals( "brakeWidth" ) )
-            this.brakeSize.setWidth( Size.parseValue( value ) );
-        
-        else if ( key.equals( "brakeHeight" ) )
-            this.brakeSize.setHeight( Size.parseValue( value ) );
-        
+        if ( font2.loadProperty( key, value ) );
+        else if ( displayEngine.loadProperty( key, value ) );
+        else if ( displayWaterTemp.loadProperty( key, value ) );
+        else if ( key.equals( "engineHeight" ) );
+        else if ( displayTires.loadProperty( key, value ) );
+        else if ( tireSize.loadProperty( key, value, "tireWidth", "tireHeight" ) );
+        else if ( displayBrakes.loadProperty( key, value ) );
+        else if ( brakeSize.loadProperty( key, value, "brakeWidth", "brakeHeight" ) );
         else if ( key.equals( "brakeTempsPeekDelay" ) )
             this.brakeTempsPeekDelay = Integer.parseInt( value ) * 1000000L;
     }
@@ -869,74 +739,14 @@ public class TemperaturesWidget extends Widget
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
-        props.add( new Property( "displayEngine", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayEngine( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayEngine() );
-            }
-        } );
-        
-        props.add( new Property( "displayWaterTemp", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayWaterTemp( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayWaterTemp() );
-            }
-        } );
-        
+        props.add( displayEngine );
+        props.add( displayWaterTemp );
         props.add( engineHeight.createHeightProperty( "engineHeight" ) );
-        
-        props.add( new Property( "displayTires", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayTires( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayTires() );
-            }
-        } );
-        
+        props.add( displayTires );
         props.add( tireSize.createWidthProperty( "tireWidth" ) );
-        
         props.add( tireSize.createHeightProperty( "tireHeight" ) );
-        
-        props.add( new Property( "displayBrakes", PropertyEditorType.BOOLEAN )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setDisplayBrakes( ( (Boolean)value ).booleanValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getDisplayBrakes() );
-            }
-        } );
-        
+        props.add( displayBrakes );
         props.add( brakeSize.createWidthProperty( "brakeWidth" ) );
-        
         props.add( brakeSize.createHeightProperty( "brakeHeight" ) );
         
         props.add( new Property( "brakeTempsPeekDelay", PropertyEditorType.INTEGER )
