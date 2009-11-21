@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "direct_input_connection", "direct_input_connection\direct_input_connection.vcproj", "{602D5257-EFB3-4650-A56D-2EE0D2ADF09D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{602D5257-EFB3-4650-A56D-2EE0D2ADF09D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{602D5257-EFB3-4650-A56D-2EE0D2ADF09D}.Debug|Win32.Build.0 = Debug|Win32
+		{602D5257-EFB3-4650-A56D-2EE0D2ADF09D}.Release|Win32.ActiveCfg = Release|Win32
+		{602D5257-EFB3-4650-A56D-2EE0D2ADF09D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

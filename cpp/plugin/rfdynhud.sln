@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay", "overlay\overlay.vcproj", "{ECD1E5EA-A782-47F8-B751-F2652FC1EF49}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "telemetry", "telemetry\telemetry.vcproj", "{FEC653BA-8074-4134-A390-26A6C32153DE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ECD1E5EA-A782-47F8-B751-F2652FC1EF49}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ECD1E5EA-A782-47F8-B751-F2652FC1EF49}.Debug|Win32.Build.0 = Debug|Win32
+		{ECD1E5EA-A782-47F8-B751-F2652FC1EF49}.Release|Win32.ActiveCfg = Release|Win32
+		{ECD1E5EA-A782-47F8-B751-F2652FC1EF49}.Release|Win32.Build.0 = Release|Win32
+		{FEC653BA-8074-4134-A390-26A6C32153DE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FEC653BA-8074-4134-A390-26A6C32153DE}.Debug|Win32.Build.0 = Debug|Win32
+		{FEC653BA-8074-4134-A390-26A6C32153DE}.Release|Win32.ActiveCfg = Release|Win32
+		{FEC653BA-8074-4134-A390-26A6C32153DE}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
