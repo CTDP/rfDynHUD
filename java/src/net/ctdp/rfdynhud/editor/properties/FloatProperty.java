@@ -62,7 +62,7 @@ public class FloatProperty extends Property
     {
         if ( key.equals( getPropertyName() ) )
         {
-            setFloatValue( Float.parseFloat( value ) );
+            setValue( Float.parseFloat( value ) );
             
             return ( true );
         }

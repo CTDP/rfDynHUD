@@ -87,7 +87,7 @@ public class ColorProperty extends Property
     {
         if ( key.equals( getPropertyName() ) )
         {
-            setColor( value );
+            setValue( value );
             
             return ( true );
         }

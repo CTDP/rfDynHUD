@@ -62,7 +62,7 @@ public class IntegerProperty extends Property
     {
         if ( key.equals( getPropertyName() ) )
         {
-            setIntegerValue( Integer.parseInt( value ) );
+            setValue( Integer.parseInt( value ) );
             
             return ( true );
         }

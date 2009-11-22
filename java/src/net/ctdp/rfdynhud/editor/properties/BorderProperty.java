@@ -84,7 +84,7 @@ public class BorderProperty extends Property
     {
         if ( key.equals( getPropertyName() ) )
         {
-            setBorder( value );
+            setValue( value );
             
             return ( true );
         }

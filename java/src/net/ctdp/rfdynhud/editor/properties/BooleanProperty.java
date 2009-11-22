@@ -56,7 +56,7 @@ public class BooleanProperty extends Property
     {
         if ( key.equals( getPropertyName() ) )
         {
-            setBooleanValue( Boolean.parseBoolean( value ) );
+            setValue( Boolean.parseBoolean( value ) );
             
             return ( true );
         }

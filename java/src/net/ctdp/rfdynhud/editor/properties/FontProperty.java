@@ -114,7 +114,7 @@ public class FontProperty extends Property
     {
         if ( key.equals( getPropertyName() ) )
         {
-            setFont( value );
+            setValue( value );
             
             return ( true );
         }

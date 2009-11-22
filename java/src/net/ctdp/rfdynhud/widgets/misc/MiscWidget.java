@@ -301,10 +301,7 @@ public class MiscWidget extends Widget
                     String string;
                     if ( ( scoringInfo.getSessionType() == SessionType.RACE ) && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )
                     {
-                        if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                            string = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + (int)Math.ceil( lapsRemaining );
-                        else
-                            string = lapsCompleted + " / " + maxLaps + " / " + (int)Math.ceil( lapsRemaining );
+                        string = "0 / " + maxLaps + " / " + maxLaps;
                     }
                     else
                     {
