@@ -162,39 +162,44 @@ public class RFDynHUD
         }
     }
     
-    public RFDynHUD( int gameResX, int gameResY )
+    private RFDynHUD( int gameResX, int gameResY ) throws Throwable
     {
         //Logger.setStdStreams();
         
+        ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
+        //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
+        //ByteOrderInitializer.setByteOrder( 3, 0, 1, 2 );
+        //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
+        
+        Logger.log( "Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "..." );
+        
+        this.drawingManager = new WidgetsDrawingManager( TransformableTexture.createMainTexture( gameResX, gameResY ) );
+        __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, drawingManager );
+        
+        this.eventsManager = new RFactorEventsManager( drawingManager, this );
+        
+        this.gameData = new LiveGameData( eventsManager );
+        this.gameData_CPP_Adapter = new LiveGameData_CPP_Adapter( gameData );
+        
+        eventsManager.setGameData( gameData );
+        
+        this.inputDeviceManager = new InputDeviceManager();
+        this.inputMappingsManager = new InputMappingsManager();
+        
+        Logger.log( "Successfully created RFDynHUD instance." );
+    }
+    
+    public static final RFDynHUD createInstance( int gameResX, int gameResY )
+    {
         try
         {
-            ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
-            //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
-            //ByteOrderInitializer.setByteOrder( 3, 0, 1, 2 );
-            //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
-            
-            Logger.log( "Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "..." );
-            
-            this.drawingManager = new WidgetsDrawingManager( TransformableTexture.createMainTexture( gameResX, gameResY ) );
-            __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, drawingManager );
-            
-            this.eventsManager = new RFactorEventsManager( drawingManager, this );
-            
-            this.gameData = new LiveGameData( eventsManager );
-            this.gameData_CPP_Adapter = new LiveGameData_CPP_Adapter( gameData );
-            
-            eventsManager.setGameData( gameData );
-            
-            this.inputDeviceManager = new InputDeviceManager();
-            this.inputMappingsManager = new InputMappingsManager();
-            
-            Logger.log( "Successfully created RFDynHUD instance." );
+            return ( new RFDynHUD( gameResX, gameResY ) );
         }
         catch ( Throwable t )
         {
             Logger.log( t );
             
-            throw new RuntimeException( t );
+            return ( null );
         }
     }
     
