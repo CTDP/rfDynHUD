@@ -812,7 +812,8 @@ bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, cons
         return ( false );
     }
     
-    jmethodID mid = env->GetMethodID( rfdynhudClass, "<init>", "(II)V" );
+    //jmethodID mid = env->GetMethodID( rfdynhudClass, "<init>", "(II)V" );
+    jmethodID mid = env->GetStaticMethodID( rfdynhudClass, "createInstance", "(II)Lnet/ctdp/rfdynhud/RFDynHUD;" );
     
     if ( mid == 0 )
     {
@@ -820,7 +821,8 @@ bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, cons
         return ( false );
     }
     
-    rfdynhudObject = env->NewObject( rfdynhudClass, mid, resX, resY );
+    //rfdynhudObject = env->NewObject( rfdynhudClass, mid, resX, resY );
+    rfdynhudObject = env->CallStaticObjectMethod( rfdynhudClass, mid, resX, resY );
     
     if ( rfdynhudObject == NULL )
     {
