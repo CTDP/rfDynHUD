@@ -189,10 +189,21 @@ public class RFDynHUD
         Logger.log( "Successfully created RFDynHUD instance." );
     }
     
+    private static void logSysProp( String prop )
+    {
+        Logger.log( prop + " = \"" + System.getProperty( prop ) + "\"" );
+    }
+    
     public static final RFDynHUD createInstance( int gameResX, int gameResY )
     {
         try
         {
+            logSysProp( "java.vm.vendor" );
+            logSysProp( "java.vm.name" );
+            logSysProp( "java.vm.version" );
+            logSysProp( "java.runtime.version" );
+            logSysProp( "java.awt.graphicsenv" );
+            
             return ( new RFDynHUD( gameResX, gameResY ) );
         }
         catch ( Throwable t )
@@ -200,14 +211,6 @@ public class RFDynHUD
             Logger.log( t );
             
             return ( null );
-        }
-    }
-    
-    public static void main( String[] args )
-    {
-        for ( Object o : System.getProperties().keySet() )
-        {
-            System.out.println( o + " = " + System.getProperties().get( o ) );
         }
     }
 }
