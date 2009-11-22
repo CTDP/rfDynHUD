@@ -1,6 +1,7 @@
 #include "extended_ISI_API.h"
 
 #include <Windows.h>
+#include "window_handle.h"
 #include "main.h"
 #include "handshake.hpp"
 #include "window_handle.h"
@@ -25,6 +26,13 @@ unsigned short resX, resY;
 bool window_activated = true;
 
 static PixelBufferCallback* pixBuffCallback = new PixelBufferCallback();
+
+HWND m_windowHandle = 0;
+
+HWND getWindowHandle()
+{
+    return ( m_windowHandle );
+}
 
 unsigned char* PixelBufferCallback::getPixelBuffer( const unsigned char textureIndex, void** userObject )
 {
@@ -135,6 +143,8 @@ bool _initializeD3D()
 
 void D3DManager::initialize( void* d3dDev, const unsigned short _resX, const unsigned short _resY, const unsigned char colorDepth, const bool windowed, const unsigned short fullscreenRefreshHz, const HWND deviceWindowHandle, OverlayTextureManager* _textureManager )
 {
+    m_windowHandle = deviceWindowHandle;
+    
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_ERROR ) )
         return;
     

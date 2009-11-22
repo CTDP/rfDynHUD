@@ -230,10 +230,6 @@
 				RelativePath="..\common\Source\util.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\Source\window_handle.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

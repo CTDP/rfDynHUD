@@ -142,7 +142,8 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
         while ( FindNextFile( hFile, &data ) );
     }
     
-    JavaVMOption options[7];
+    const unsigned int nOptions = 10;
+    JavaVMOption options[nOptions];
     
     options[0].optionString = cropBuffer2( fileBuffer );
     options[1].optionString = cropBuffer2( addPreFix( "-Dworkdir=", setBuffer( PLUGIN_PATH, fileBuffer ) ) );
@@ -151,6 +152,9 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     options[4].optionString = "-XX:MaxGCPauseMillis=5";
     options[5].optionString = "-XX:+UseAdaptiveSizePolicy";
     options[6].optionString = "-Xincgc";
+    options[7].optionString = "-Dsun.java2d.opengl=true";
+    options[8].optionString = "-Dsun.java2d.d3d=false";
+    options[9].optionString = "-Dsun.java2d.noddraw=true";
     
     free( fileBuffer );
     
@@ -158,7 +162,7 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     
     vm_args.version = JNI_VERSION_1_6;
     vm_args.options = options;
-    vm_args.nOptions = 7;
+    vm_args.nOptions = nOptions;
     vm_args.ignoreUnrecognized = TRUE;
     
     CreateJavaVMPROC CreateJavaVM = (CreateJavaVMPROC)GetProcAddress( jvmdll, "JNI_CreateJavaVM" );
