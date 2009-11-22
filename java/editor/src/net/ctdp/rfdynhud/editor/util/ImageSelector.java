@@ -10,6 +10,8 @@ import java.awt.Graphics;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -181,17 +183,13 @@ public class ImageSelector
         }
     }
     
-    private String showDialog( Window owner )
+    private String showDialog( Window owner, boolean noImageAllowed )
     {
-        Vector<String> files = new Vector<String>();
+        final Vector<String> files = new Vector<String>();
         readFilenames( folder, null, files );
         Collections.sort( files );
         
-        JList list = new JList( files );
-        int selIndex = ( selectedFile == null ) ? -1 : Collections.binarySearch( files, selectedFile );
-        if ( selIndex >= 0 )
-            list.setSelectedIndex( selIndex );
-        
+        final JList list = new JList( files );
         list.setFixedCellHeight( 50 );
         list.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         list.setCellRenderer( new ListItem() );
@@ -221,7 +219,23 @@ public class ImageSelector
         
         contentPane.add( new JScrollPane( list ), BorderLayout.CENTER );
         
-        JPanel footer = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 5 ) );
+        JPanel footer = new JPanel( new BorderLayout() );
+        if ( noImageAllowed )
+        {
+            JPanel footer2 = new JPanel( new FlowLayout( FlowLayout.LEFT, 5, 5 ) );
+            JButton no = new JButton( "No Image" );
+            no.addActionListener( new ActionListener()
+            {
+                public void actionPerformed( ActionEvent e )
+                {
+                    selectedFile = "";
+                    dialog.setVisible( false );
+                }
+            } );
+            footer2.add( no );
+            footer.add( footer2, BorderLayout.WEST );
+        }
+        JPanel footer3 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 5 ) );
         JButton ok = new JButton( "OK" );
         ok.addActionListener( new ActionListener()
         {
@@ -230,7 +244,7 @@ public class ImageSelector
                 dialog.setVisible( false );
             }
         } );
-        footer.add( ok );
+        footer3.add( ok );
         JButton cancel = new JButton( "Cancel" );
         cancel.addActionListener( new ActionListener()
         {
@@ -240,23 +254,36 @@ public class ImageSelector
                 dialog.setVisible( false );
             }
         } );
-        footer.add( cancel );
+        footer3.add( cancel );
+        footer.add( footer3, BorderLayout.EAST );
         
         contentPane.add( footer, BorderLayout.SOUTH );
         
         dialog.setSize( 300, 500 );
         dialog.setLocationRelativeTo( owner );
         dialog.setModal( true );
+        dialog.addWindowListener( new WindowAdapter()
+        {
+            public void windowOpened( WindowEvent e )
+            {
+                int selIndex = ( selectedFile == null ) ? -1 : Collections.binarySearch( files, selectedFile );
+                if ( selIndex >= 0 )
+                {
+                    list.setSelectedIndex( selIndex );
+                    list.scrollRectToVisible( list.getCellBounds( selIndex, selIndex ) );
+                }
+            }
+        } );
         dialog.setVisible( true );
         
         return ( selectedFile );
     }
     
-    public String showDialog( Window owner, String selectedFile )
+    public String showDialog( Window owner, String selectedFile, boolean noImageAllowed )
     {
         setSelectedFile( selectedFile );
         
-        return ( showDialog( owner ) );
+        return ( showDialog( owner, noImageAllowed ) );
     }
     
     public ImageSelector( File folder )

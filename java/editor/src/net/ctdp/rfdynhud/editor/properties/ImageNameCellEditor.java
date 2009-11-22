@@ -31,7 +31,7 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
     private JTable table = null;
     private int row = -1;
     private int column = -1;
-    private Property prop = null;
+    private ImageProperty prop = null;
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
@@ -41,8 +41,7 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
         
         super.prepareComponent( panel, table, value, isSelected, hasFocus, row, column );
         
-        //this.prop = ( (PropertiesEditor)table.getModel() ).getProperty( row );
-        this.prop = (Property)( (HierarchicalTableModel)table.getModel() ).getRowAt( row );
+        this.prop = (ImageProperty)( (HierarchicalTableModel)table.getModel() ).getRowAt( row );
         
         if ( prop.getButtonText() == null )
         {
@@ -117,7 +116,7 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
                 {
                     //model.setSelectedItem( prop.getValue() );
                     ImageSelector is = new ImageSelector( TextureLoader.IMAGES_FOLDER );
-                    String selFile = is.showDialog( (JFrame)button.getRootPane().getParent(), (String)prop.getValue() );
+                    String selFile = is.showDialog( (JFrame)button.getRootPane().getParent(), (String)prop.getValue(), prop.getNoImageAllowed() );
                     
                     if ( selFile != null )
                     {

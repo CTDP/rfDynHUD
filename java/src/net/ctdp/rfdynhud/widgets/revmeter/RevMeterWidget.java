@@ -117,8 +117,8 @@ public class RevMeterWidget extends Widget
     private final IntegerProperty shiftLightPosY = new IntegerProperty( this, "shiftLightPosY", "posY", 42 );
     private final IntegerProperty shiftLightRPM = new IntegerProperty( this, "shiftLightRPM", "activationRPM", -500 );
     
-    private final IntegerProperty gearPosX = new IntegerProperty( this, "gearPosX", "posX", 325 );
-    private final IntegerProperty gearPosY = new IntegerProperty( this, "gearPosY", "posY", 450 );
+    private final IntegerProperty gearPosX = new IntegerProperty( this, "gearPosX", "posX", 354 );
+    private final IntegerProperty gearPosY = new IntegerProperty( this, "gearPosY", "posY", 512 );
     
     private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", "GearFont" );
     private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#C0BC3D" );
@@ -138,8 +138,8 @@ public class RevMeterWidget extends Widget
     private final IntegerProperty boostBarWidth = new IntegerProperty( this, "boostBarWidth", "barWidth", 438 );
     private final IntegerProperty boostBarHeight = new IntegerProperty( this, "boostBarHeight", "barHeight", 35 );
     private final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
-    private final IntegerProperty boostNumberPosX = new IntegerProperty( this, "boostNumberPosX", "numberPosX", 377 );
-    private final IntegerProperty boostNumberPosY = new IntegerProperty( this, "boostNumberPosY", "numberPosY", 510 );
+    private final IntegerProperty boostNumberPosX = new IntegerProperty( this, "boostNumberPosX", "numberPosX", 392 );
+    private final IntegerProperty boostNumberPosY = new IntegerProperty( this, "boostNumberPosY", "numberPosY", 544 );
     private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", "StandardFont" );
     private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
@@ -296,9 +296,27 @@ public class RevMeterWidget extends Widget
         //needleTexture.setRotation( 0f );
         //needleTexture.setScale( 1f, 1f );
         
-        gearString = new DrawnString( Math.round( gearPosX.getIntegerValue() * backgroundScaleX ), Math.round( gearPosY.getIntegerValue() * backgroundScaleY ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor(), null );
+        FontMetrics metrics = texCanvas.getFontMetrics( gearFont.getFont() );
+        Rectangle2D bounds = metrics.getStringBounds( "X", texCanvas );
+        double fw = bounds.getWidth();
+        double fh = metrics.getAscent() - metrics.getDescent();
+        int fx = Math.round( gearPosX.getIntegerValue() * backgroundScaleX );
+        int fy = Math.round( gearPosY.getIntegerValue() * backgroundScaleY );
+        fx -= (int)( fw / 2.0 );
+        fy -= (int)( metrics.getDescent() + fh / 2.0 );
         
-        boostString = new DrawnString( Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX ), Math.round( boostNumberPosY.getIntegerValue() * backgroundScaleY ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor(), null );
+        gearString = new DrawnString( fx, fy, Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor(), null );
+        
+        metrics = texCanvas.getFontMetrics( boostNumberFont.getFont() );
+        bounds = metrics.getStringBounds( "5", texCanvas );
+        fw = bounds.getWidth();
+        fh = metrics.getAscent() - metrics.getDescent();
+        fx = Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX );
+        fy = Math.round( boostNumberPosY.getIntegerValue() * backgroundScaleY );
+        fx -= (int)( fw / 2.0 );
+        fy -= (int)( metrics.getDescent() + fh / 2.0 );
+        
+        boostString = new DrawnString( fx, fy, Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor(), null );
         
         rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor(), null );
     }
