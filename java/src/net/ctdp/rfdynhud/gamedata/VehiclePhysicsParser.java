@@ -1107,6 +1107,12 @@ public class VehiclePhysicsParser
         private final VehiclePhysics physics;
         
         @Override
+        protected boolean acceptMissingTrailingQuote()
+        {
+            return ( true );
+        }
+        
+        @Override
         protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
         {
             if ( group == null )
@@ -1181,13 +1187,95 @@ public class VehiclePhysicsParser
         }
     }
     
-    public static void parsePhysicsFiles( File cchFile, File rFactorFolder, String vehicleFilename, VehiclePhysics physics ) throws Throwable
+    private static int getTrackConfiguration( File trackConfigBaseFile, String trackName )
+    {
+        trackName = trackName.toLowerCase();
+        
+        BufferedReader br = null;
+        try
+        {
+            br = new BufferedReader( new FileReader( trackConfigBaseFile ) );
+            
+            boolean trackSectionFound = false;
+            
+            String line = null;
+            while ( ( line = br.readLine() ) != null )
+            {
+                line = line.trim();
+                
+                if ( trackSectionFound )
+                {
+                    if ( line.toLowerCase().startsWith( "track configuration" ) )
+                    {
+                        int idx = line.indexOf( '=', 19 );
+                        if ( idx >= 0 )
+                        {
+                            return ( Integer.parseInt( line.substring( idx + 1 ).trim() ) );
+                        }
+                    }
+                }
+                
+                trackSectionFound = ( line.toLowerCase().startsWith( "\"" + trackName + "\":" ) );
+            }
+            
+            return ( -1 );
+        }
+        catch ( IOException e )
+        {
+            return ( -1 );
+        }
+        finally
+        {
+            if ( br != null )
+            {
+                try { br.close(); } catch ( IOException e ) {}
+            }
+        }
+    }
+    
+    private static Object[][] ensureTrackConfiguration( Object[][] upgradesList, File vehicleFolder, String trackName )
+    {
+        for ( Object[] oo : upgradesList )
+        {
+            if ( "TRACK CONFIGURATION".equals( oo[0] ) )
+            {
+                return ( upgradesList );
+            }
+        }
+        
+        int trackConfig = -1;
+        for ( File f : vehicleFolder.listFiles() )
+        {
+            if ( f.getName().toLowerCase().startsWith( "trackconfigs" ) && f.getName().toLowerCase().endsWith( ".ini" ) )
+            {
+                trackConfig = getTrackConfiguration( f, trackName );
+                
+                if ( trackConfig != -1 )
+                    break;
+            }
+        }
+        
+        if ( trackConfig == -1 )
+            return ( upgradesList );
+        
+        Object[][] upgradesList2 = new Object[ upgradesList.length + 1 ][];
+        System.arraycopy( upgradesList, 0, upgradesList2, 0, upgradesList.length );
+        
+        upgradesList2[upgradesList2.length - 1] = new Object[] { "TRACK CONFIGURATION", trackConfig };
+        
+        return ( upgradesList2 );
+    }
+    
+    public static void parsePhysicsFiles( File cchFile, File rFactorFolder, String vehicleFilename, String trackName, VehiclePhysics physics ) throws Throwable
     {
         File vehicleFile = new File( rFactorFolder, vehicleFilename );
         
         CCHParser cchParser = new CCHParser( vehicleFilename );
         cchParser.parse( cchFile );
         
-        new VEHParser( vehicleFile.getParentFile(), cchParser.getUpgradesList(), physics ).parse( vehicleFile );
+        Object[][] upgradesList = cchParser.getUpgradesList();
+        upgradesList = ensureTrackConfiguration( upgradesList, vehicleFile.getParentFile(), trackName );
+        
+        new VEHParser( vehicleFile.getParentFile(), upgradesList, physics ).parse( vehicleFile );
     }
 }

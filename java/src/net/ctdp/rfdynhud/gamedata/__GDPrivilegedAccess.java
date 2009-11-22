@@ -12,9 +12,9 @@ public class __GDPrivilegedAccess
         physics.loadEditorDefaults();
     }
     
-    public static final void loadFromPhysicsFiles( VehiclePhysics physics )
+    public static final void loadFromPhysicsFiles( LiveGameData gameData )
     {
-        physics.loadFromPhysicsFiles();
+        gameData.getPhysics().loadFromPhysicsFiles( gameData );
     }
     
     public static final LaptimesRecorder getLaptimesRecorder( ScoringInfo scoringInfo )

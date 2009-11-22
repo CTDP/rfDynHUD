@@ -1349,7 +1349,7 @@ public class VehiclePhysics
 		}
     }
     
-    void loadFromPhysicsFiles()
+    void loadFromPhysicsFiles( LiveGameData gameData )
     {
         File profileFolder = RFactorTools.getProfileFolder();
         File cchFile = RFactorTools.getCCHFile( profileFolder );
@@ -1359,7 +1359,7 @@ public class VehiclePhysics
     	{
     	    long t0 = System.currentTimeMillis();
     	    
-			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorTools.RFACTOR_FOLDER, playerVEHFile, this );
+			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorTools.RFACTOR_FOLDER, playerVEHFile, gameData.getScoringInfo().getTrackName(), this );
 			
 			Logger.log( "Successfully parsed physics files. (Took " + ( System.currentTimeMillis() - t0 ) + "ms.)" );
 			

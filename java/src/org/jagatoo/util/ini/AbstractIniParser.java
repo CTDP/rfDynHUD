@@ -93,6 +93,16 @@ public abstract class AbstractIniParser
     protected abstract boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException;
     
     /**
+     * Override this method and return true to accept a missing trailing (double-)quote as a correct line.
+     * 
+     * @return true to accept lines like that.
+     */
+    protected boolean acceptMissingTrailingQuote()
+    {
+        return ( false );
+    }
+    
+    /**
      * This method is called when an illigal line was detected.
      * 
      * @param lineNr
@@ -209,7 +219,7 @@ public abstract class AbstractIniParser
         
         boolean proceedParse = true;
         
-        if ( value.startsWith( "\"" ) )
+        if ( value.charAt( 0 ) == '"' )
         {
             char lastChar = '\0';
             for ( int i = 1; i < value.length(); i++ )
@@ -239,7 +249,36 @@ public abstract class AbstractIniParser
             }
             
             if ( lastChar != '"' )
-                proceedParse = handleParsingException( lineNr, currentGroup, line, new ParsingException( "Illegal line #" + lineNr + ": " + line ) );
+            {
+                if ( acceptMissingTrailingQuote() )
+                {
+                    try
+                    {
+                        proceedParse = onSettingParsed( lineNr, currentGroup, key, value.substring( 1 ), null );
+                    }
+                    catch ( Throwable t )
+                    {
+                        proceedParse = handleParsingException( lineNr, currentGroup, line, t );
+                    }
+                }
+                else
+                {
+                    Boolean b = null;
+                    try
+                    {
+                        b = verifyIllegalLine( lineNr, currentGroup, line );
+                    }
+                    catch ( Throwable t )
+                    {
+                        proceedParse = handleParsingException( lineNr, currentGroup, line, t );
+                    }
+                    
+                    if ( b != null )
+                        proceedParse = b.booleanValue();
+                    else
+                        proceedParse = handleParsingException( lineNr, currentGroup, line, new ParsingException( "Illegal line #" + lineNr + ": " + line ) );
+                }
+            }
         }
         else
         {

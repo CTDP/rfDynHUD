@@ -90,7 +90,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 if ( isEditorMode )
                     __GDPrivilegedAccess.loadEditorDefaults( gameData.getPhysics() );
                 else
-                    __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getPhysics() );
+                    __GDPrivilegedAccess.loadFromPhysicsFiles( gameData );
                 
                 physicsLoadedOnce = true;
             }
@@ -174,7 +174,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
             }
             else
             {
-                __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getPhysics() );
+                __GDPrivilegedAccess.loadFromPhysicsFiles( gameData );
                 VehicleSetup.loadSetup( gameData );
                 __GDPrivilegedAccess.setEngineBoostMapping( gameData.getSetup().getEngine().getBoostMapping(), gameData.getTelemetryData() );
             }
