@@ -1,17 +1,25 @@
 package net.ctdp.rfdynhud.editor.properties;
 
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class FontProperty extends Property
 {
+    private static final BufferedImage METRICS_PROVIDER_IMAGE = new BufferedImage( 16, 16, BufferedImage.TYPE_INT_BGR );
+    private static final Graphics2D METRICS_PROVIDER = METRICS_PROVIDER_IMAGE.createGraphics();
+    
     private final Widget widget;
     
     private String fontKey;
     private Font font = null;
     private Boolean antiAliased = null;
+    
+    private FontMetrics metrics = null;
     
     public final Widget getWidget()
     {
@@ -32,6 +40,7 @@ public class FontProperty extends Property
             this.fontKey = fontKey;
             this.font = null;
             this.antiAliased = null;
+            this.metrics = null;
         }
         else
         {
@@ -42,6 +51,7 @@ public class FontProperty extends Property
             this.fontKey = fontKey;
             this.font = null;
             this.antiAliased = null;
+            this.metrics = null;
             
             String newValue = getWidget().getConfiguration().getNamedFontString( this.fontKey );
             if ( newValue == null )
@@ -90,6 +100,16 @@ public class FontProperty extends Property
         }
         
         return ( antiAliased );
+    }
+    
+    public final FontMetrics getMetrics()
+    {
+        if ( metrics == null )
+        {
+            metrics = METRICS_PROVIDER.getFontMetrics( getFont() );
+        }
+        
+        return ( metrics );
     }
     
     /**

@@ -284,8 +284,6 @@ public class WearWidget extends Widget
         final float variance = engine.getLifetimeVariance( raceLengthMultiplier );
         final boolean hasVariance = ( Math.abs( engine.getLifetimeVariance( 1.0 ) ) >= 0.02f );
         
-        lifetime = Math.max( -variance * 2f, lifetime );
-        
         if ( hasVariance )
         {
             if ( lifetime >= 0.0f )
@@ -464,6 +462,7 @@ public class WearWidget extends Widget
         if ( displayEngine.getBooleanValue() )
         {
             float lifetime = isEditorMode ? 1000f : gameData.getTelemetryData().getEngineLifetime();
+            lifetime = Math.max( -physics.getEngine().getLifetimeVariance( gameData.getScoringInfo().getRaceLengthPercentage() ) * 2f, lifetime );
             engineLifetime.update( lifetime / physics.getEngine().getMinLifetime( gameData.getScoringInfo().getRaceLengthPercentage() ) );
             
             if ( needsCompleteRedraw || engineLifetime.hasChanged() )

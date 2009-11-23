@@ -4,9 +4,12 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -123,6 +126,7 @@ public class RevMeterWidget extends Widget
     private final ColorProperty revMarkersHighColor = new ColorProperty( this, "revMarkersHighColor", "highColor", "#FF0000" );
     private final FontProperty revMarkersFont = new FontProperty( this, "revMarkersFont", "font", "Monospaced-BOLD-9va" );
     private final ColorProperty revMarkersFontColor = new ColorProperty( this, "revMarkersFontColor", "fontColor", "#FFFFFF" );
+    private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
     private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
     private final BooleanProperty displayShiftLight = new BooleanProperty( this, "displayShiftLight", true );
@@ -561,7 +565,7 @@ public class RevMeterWidget extends Widget
         
         boostString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor(), null );
         
-        metrics = texCanvas.getFontMetrics( velocityFont.getFont() );
+        metrics = velocityFont.getMetrics();
         bounds = metrics.getStringBounds( "000", texCanvas );
         fw = bounds.getWidth();
         fh = metrics.getAscent() - metrics.getDescent();
@@ -585,7 +589,7 @@ public class RevMeterWidget extends Widget
             fy = velocityBackgroundTexture.getHeight() / 2;
         }
         
-        velocityString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor(), null );
+        velocityString = new DrawnString( fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor(), null );
         
         rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor(), null );
     }
@@ -600,7 +604,7 @@ public class RevMeterWidget extends Widget
     
     private void drawMarks( LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
-        if ( !displayRevMarkers.getBooleanValue() )
+        if ( !displayRevMarkers.getBooleanValue() && !fillHighBackground.getBooleanValue() )
             return;
         
         LocalStore store = (LocalStore)getLocalStore();
@@ -625,65 +629,120 @@ public class RevMeterWidget extends Widget
         
         texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
         
-        Stroke oldStroke = texCanvas.getStroke();
-        
-        Stroke thousand = new BasicStroke( 2 );
-        Stroke twoHundred = new BasicStroke( 1 );
+        Stroke thousand = null;
+        Stroke twoHundred = null;
         
         AffineTransform at0 = new AffineTransform( texCanvas.getTransform() );
-        AffineTransform at1 = new AffineTransform( at0 );
-        AffineTransform at2 = new AffineTransform();
+        AffineTransform at1 = null;
+        AffineTransform at2 = null;
+        
+        Stroke oldStroke = texCanvas.getStroke();
+        
+        if ( displayRevMarkers.getBooleanValue() )
+        {
+            thousand = new BasicStroke( 2 );
+            twoHundred = new BasicStroke( 1 );
+            
+            at1 = new AffineTransform( at0 );
+            at2 = new AffineTransform();
+        }
         
         float innerRadius = revMarkersInnerRadius.getIntegerValue() * backgroundScaleX;
         float outerRadius = ( revMarkersInnerRadius.getIntegerValue() + revMarkersLength.getIntegerValue() - 1 ) * backgroundScaleX;
         float outerRadius2 = innerRadius + ( outerRadius - innerRadius ) * 0.75f;
         
-        Font numberFont = revMarkersFont.getFont();
-        texCanvas.setFont( numberFont );
-        FontMetrics metrics = texCanvas.getFontMetrics( numberFont );
-        
-        final int smallStep = revMarkersSmallStep.getIntegerValue();
-        for ( int rpm = 0; rpm <= maxRPM; rpm += smallStep )
+        if ( fillHighBackground.getBooleanValue() )
         {
-            float angle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( rpm / maxRPM ) );
+            Shape oldClip = texCanvas.getClip();
             
-            at2.setToRotation( angle, centerX, centerY );
-            texCanvas.setTransform( at2 );
+            int nPoints = 360;
+            int[] xPoints = new int[ nPoints ];
+            int[] yPoints = new int[ nPoints ];
             
-            if ( rpm <= lowRPM )
-                texCanvas.setColor( revMarkersColor.getColor() );
-            else if ( rpm <= mediumRPM )
-                texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersColor.getColor(), revMarkersMediumColor.getColor(), ( rpm - lowRPM ) / ( mediumRPM - lowRPM ) ) : revMarkersMediumColor.getColor() );
-            else
-                texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxRPM - mediumRPM ) ) : revMarkersHighColor.getColor() );
+            final float TWO_PI = (float)( Math.PI * 2f );
             
-            if ( ( rpm % revMarkersBigStep.getIntegerValue() ) == 0 )
+            for ( int i = 0; i < nPoints; i++ )
             {
-                texCanvas.setStroke( thousand );
-                texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius ) );
-                //texCanvas.drawLine( Math.round( centerX ), Math.round( ( centerY - innerRadius ) * backgroundScaleY / backgroundScaleX ), Math.round( centerX ), Math.round( ( centerY - outerRadius ) * backgroundScaleY / backgroundScaleX ) );
-                
-                if ( displayRevMarkerNumbers.getBooleanValue() )
-                {
-                    String s = String.valueOf( rpm / 1000 );
-                    Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
-                    float fw = (float)bounds.getWidth();
-                    float fh = (float)( metrics.getAscent() - metrics.getDescent() );
-                    float off = (float)Math.sqrt( fw * fw + fh * fh ) / 2f;
-                    
-                    at1.setToTranslation( 0f, -off );
-                    at2.concatenate( at1 );
-                    at1.setToRotation( -angle, Math.round( centerX ), Math.round( centerY - outerRadius ) - fh / 2f );
-                    at2.concatenate( at1 );
-                    texCanvas.setTransform( at2 );
-                    
-                    texCanvas.drawString( s, Math.round( centerX ) - fw / 2f, Math.round( centerY - outerRadius ) );
-                }
+                float angle = i * ( TWO_PI / ( nPoints + 1 ) );
+                xPoints[i] = Math.round( centerX + (float)Math.cos( angle ) * innerRadius );
+                yPoints[i] = Math.round( centerY + -(float)Math.sin( angle ) * innerRadius );
             }
-            else
+            
+            Polygon p = new Polygon( xPoints, yPoints, nPoints );
+            Area area = new Area( oldClip );
+            area.subtract( new Area( p ) );
+            
+            texCanvas.setClip( area );
+            
+            float lowAngle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( lowRPM / maxRPM ) );
+            //float mediumAngle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( mediumRPM / maxRPM ) );
+            float maxAngle = -needleRotationForMaxRPM.getFloatValue();
+            float oneDegree = (float)( Math.PI / 180.0 );
+            
+            for ( float angle = lowAngle; angle < maxAngle - oneDegree; angle += oneDegree )
             {
-                texCanvas.setStroke( twoHundred );
-                texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius2 ) );
+                int rpm = Math.round( ( -angle - needleRotationForZeroRPM.getFloatValue() ) * maxRPM / ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) );
+                
+                if ( rpm <= mediumRPM )
+                    texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersColor.getColor(), revMarkersMediumColor.getColor(), ( rpm - lowRPM ) / ( mediumRPM - lowRPM ) ) : revMarkersMediumColor.getColor() );
+                else
+                    texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxRPM - mediumRPM ) ) : revMarkersHighColor.getColor() );
+                
+                texCanvas.fillArc( Math.round( centerX - outerRadius2 ), Math.round( centerY - outerRadius2 ), Math.round( outerRadius2 + outerRadius2 ), Math.round( outerRadius2 + outerRadius2 ), Math.round( 90f - angle * 180f / (float)Math.PI ), ( angle < maxAngle - oneDegree - oneDegree ) ? -2 : -1 );
+            }
+            
+            texCanvas.setClip( oldClip );
+        }
+        
+        if ( displayRevMarkers.getBooleanValue() )
+        {
+            Font numberFont = revMarkersFont.getFont();
+            texCanvas.setFont( numberFont );
+            FontMetrics metrics = texCanvas.getFontMetrics( numberFont );
+            
+            final int smallStep = revMarkersSmallStep.getIntegerValue();
+            for ( int rpm = 0; rpm <= maxRPM; rpm += smallStep )
+            {
+                float angle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( rpm / maxRPM ) );
+                
+                at2.setToRotation( angle, centerX, centerY );
+                texCanvas.setTransform( at2 );
+                
+                if ( fillHighBackground.getBooleanValue() || ( rpm <= lowRPM ) )
+                    texCanvas.setColor( revMarkersColor.getColor() );
+                else if ( rpm <= mediumRPM )
+                    texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersColor.getColor(), revMarkersMediumColor.getColor(), ( rpm - lowRPM ) / ( mediumRPM - lowRPM ) ) : revMarkersMediumColor.getColor() );
+                else
+                    texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxRPM - mediumRPM ) ) : revMarkersHighColor.getColor() );
+                
+                if ( ( rpm % revMarkersBigStep.getIntegerValue() ) == 0 )
+                {
+                    texCanvas.setStroke( thousand );
+                    texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius ) );
+                    //texCanvas.drawLine( Math.round( centerX ), Math.round( ( centerY - innerRadius ) * backgroundScaleY / backgroundScaleX ), Math.round( centerX ), Math.round( ( centerY - outerRadius ) * backgroundScaleY / backgroundScaleX ) );
+                    
+                    if ( displayRevMarkerNumbers.getBooleanValue() )
+                    {
+                        String s = String.valueOf( rpm / 1000 );
+                        Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
+                        float fw = (float)bounds.getWidth();
+                        float fh = (float)( metrics.getAscent() - metrics.getDescent() );
+                        float off = (float)Math.sqrt( fw * fw + fh * fh ) / 2f;
+                        
+                        at1.setToTranslation( 0f, -off );
+                        at2.concatenate( at1 );
+                        at1.setToRotation( -angle, Math.round( centerX ), Math.round( centerY - outerRadius ) - fh / 2f );
+                        at2.concatenate( at1 );
+                        texCanvas.setTransform( at2 );
+                        
+                        texCanvas.drawString( s, Math.round( centerX ) - fw / 2f, Math.round( centerY - outerRadius ) );
+                    }
+                }
+                else
+                {
+                    texCanvas.setStroke( twoHundred );
+                    texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius2 ) );
+                }
             }
         }
         
@@ -781,10 +840,17 @@ public class RevMeterWidget extends Widget
             {
                 velocity.setUnchanged();
                 
+                String string = velocity.getValueAsString();
+                
+                FontMetrics metrics = velocityFont.getMetrics();
+                Rectangle2D bounds = metrics.getStringBounds( string, texCanvas );
+                double fw = bounds.getWidth();
+                
+                
                 if ( velocityBackgroundTexture == null )
-                    velocityString.draw( offsetX, offsetY, velocity.getValueAsString(), backgroundTexture, image );
+                    velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, backgroundTexture, image );
                 else
-                    velocityString.draw( 0, 0, velocity.getValueAsString(), velocityBackgroundTexture_bak, velocityBackgroundTexture.getTexture() );
+                    velocityString.draw( (int)( -fw / 2.0 ), 0, string, velocityBackgroundTexture_bak, velocityBackgroundTexture.getTexture() );
             }
         }
         
@@ -888,6 +954,8 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( revMarkersColor, "The color used to draw the rev markers." );
         writer.writeProperty( revMarkersMediumColor, "The color used to draw the rev markers for medium boost." );
         writer.writeProperty( revMarkersHighColor, "The color used to draw the rev markers for high revs." );
+        writer.writeProperty( fillHighBackground, "Fill the rev markers' background with medium and high color instead of coloring the markers." );
+        writer.writeProperty( interpolateMarkerColors, "Interpolate medium and high colors." );
         writer.writeProperty( revMarkersFont, "The font used to draw the rev marker numbers." );
         writer.writeProperty( revMarkersFontColor, "The font color used to draw the rev marker numbers." );
         writer.writeProperty( displayShiftLight, "Display a shift light?" );
@@ -948,6 +1016,8 @@ public class RevMeterWidget extends Widget
         else if ( revMarkersColor.loadProperty( key, value ) );
         else if ( revMarkersMediumColor.loadProperty( key, value ) );
         else if ( revMarkersHighColor.loadProperty( key, value ) );
+        else if ( fillHighBackground.loadProperty( key, value ) );
+        else if ( interpolateMarkerColors.loadProperty( key, value ) );
         else if ( revMarkersFont.loadProperty( key, value ) );
         else if ( revMarkersFontColor.loadProperty( key, value ) );
         else if ( gearBackgroundImageName.loadProperty( key, value ) );
@@ -1009,6 +1079,8 @@ public class RevMeterWidget extends Widget
         revMarkersProps.add( revMarkersColor );
         revMarkersProps.add( revMarkersMediumColor );
         revMarkersProps.add( revMarkersHighColor );
+        revMarkersProps.add( fillHighBackground );
+        revMarkersProps.add( interpolateMarkerColors );
         revMarkersProps.add( revMarkersFont );
         revMarkersProps.add( revMarkersFontColor );
         
