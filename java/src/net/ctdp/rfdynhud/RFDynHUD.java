@@ -166,14 +166,18 @@ public class RFDynHUD
     {
         //Logger.setStdStreams();
         
+        Logger.log( "Creating RFDynHUD instance..." );
+        
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
         //ByteOrderInitializer.setByteOrder( 3, 0, 1, 2 );
         //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
         
-        Logger.log( "Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "..." );
+        Logger.log( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "...", false );
         
         this.drawingManager = new WidgetsDrawingManager( TransformableTexture.createMainTexture( gameResX, gameResY ) );
+        Logger.log( " done." );
+        
         __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, drawingManager );
         
         this.eventsManager = new RFactorEventsManager( drawingManager, this );
@@ -189,21 +193,10 @@ public class RFDynHUD
         Logger.log( "Successfully created RFDynHUD instance." );
     }
     
-    private static void logSysProp( String prop )
-    {
-        Logger.log( prop + " = \"" + System.getProperty( prop ) + "\"" );
-    }
-    
     public static final RFDynHUD createInstance( int gameResX, int gameResY )
     {
         try
         {
-            logSysProp( "java.vm.vendor" );
-            logSysProp( "java.vm.name" );
-            logSysProp( "java.vm.version" );
-            logSysProp( "java.runtime.version" );
-            logSysProp( "java.awt.graphicsenv" );
-            
             return ( new RFDynHUD( gameResX, gameResY ) );
         }
         catch ( Throwable t )

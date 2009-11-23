@@ -59,7 +59,7 @@ public class Logger
         }
     }
     
-    public static void log( Object message )
+    public static void log( Object message, boolean newLine )
     {
         if ( message instanceof Throwable )
         {
@@ -69,7 +69,10 @@ public class Logger
         
         if ( !LOG_FOLDER.exists() )
         {
-            System.out.println( message );
+            if ( newLine )
+                System.out.println( message );
+            else
+                System.out.print( message );
             return;
         }
         
@@ -80,19 +83,27 @@ public class Logger
                 BufferedWriter bw = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( LOG_FILE, true ) ) );
                 
                 bw.write( String.valueOf( message ) );
-                bw.newLine();
+                if ( newLine )
+                    bw.newLine();
                 
                 bw.close();
             }
             else
             {
-                System.out.println( message );
+                if ( newLine )
+                    System.out.println( message );
+                else
+                    System.out.print( message );
             }
         }
         catch ( IOException e )
         {
-            
         }
+    }
+    
+    public static void log( Object message )
+    {
+        log( message, true );
     }
     
     public static void setStdStreams()

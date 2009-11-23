@@ -45,10 +45,15 @@ public class RevMeterWidget extends Widget
     private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "revmeter.png" );
     private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "needle.png" );
     private final ImageProperty shiftLightImageName = new ImageProperty( this, "shiftLightImageName", "imageName", "shiftlight_on.png" );
+    private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundimageName", "", false, true );
     
     private TextureImage2D backgroundTexture = null;
     private TransformableTexture needleTexture = null;
     private TransformableTexture shiftLightTexture = null;
+    private TransformableTexture gearBackgroundTexture = null;
+    private TextureImage2D gearBackgroundTexture_bak = null;
+    
+    private int gearBackgroundTexPosX, gearBackgroundTexPosY;
     
     private float backgroundScaleX, backgroundScaleY;
     
@@ -157,15 +162,22 @@ public class RevMeterWidget extends Widget
         this.revMarkersSmallStep.setIntegerValue( revMarkersBigStep.getIntegerValue() / Math.round( (float)revMarkersBigStep.getIntegerValue() / (float)revMarkersSmallStep.getIntegerValue() ) );
     }
     
-    private void loadNeedleTexture( boolean isEditorMode )
+    private int loadNeedleTexture( boolean isEditorMode )
     {
         if ( ( needleTexture == null ) || isEditorMode )
         {
             try
             {
                 BufferedImage bi = backgroundImageName.getBufferedImage();
-                float scale = getSize().getEffectiveWidth() / (float)bi.getWidth();
+                float scale = ( bi == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi.getWidth();
                 bi = needleImageName.getBufferedImage();
+                
+                if ( bi == null )
+                {
+                    needleTexture = null;
+                    return ( 0 );
+                }
+                
                 int needleWidth = (int)( bi.getWidth() * scale );
                 int needleHeight = (int)( bi.getHeight() * scale );
                 if ( ( needleTexture == null ) || ( needleTexture.getWidth() != needleWidth ) || ( needleTexture.getHeight() != needleHeight ) )
@@ -179,19 +191,30 @@ public class RevMeterWidget extends Widget
             catch ( Throwable t )
             {
                 Logger.log( t );
+                
+                return ( 0 );
             }
         }
+        
+        return ( 1 );
     }
     
-    private void loadShiftLightTexture( boolean isEditorMode )
+    private int loadShiftLightTexture( boolean isEditorMode )
     {
         if ( ( shiftLightTexture == null ) || isEditorMode )
         {
             try
             {
                 BufferedImage bi0 = backgroundImageName.getBufferedImage();
-                float scale = getSize().getEffectiveWidth() / (float)bi0.getWidth();
+                float scale = ( bi0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi0.getWidth();
                 BufferedImage bi = shiftLightImageName.getBufferedImage();
+                
+                if ( bi == null )
+                {
+                    shiftLightTexture = null;
+                    return ( 0 );
+                }
+                
                 int slWidth = (int)( bi.getWidth() * scale );
                 int slHeight = (int)( bi.getHeight() * scale );
                 if ( ( shiftLightTexture == null ) || ( shiftLightTexture.getWidth() != slWidth ) || ( shiftLightTexture.getHeight() != slHeight * 2 ) )
@@ -206,23 +229,83 @@ public class RevMeterWidget extends Widget
             catch ( Throwable t )
             {
                 Logger.log( t );
+                
+                return ( 0 );
             }
         }
+        
+        return ( 1 );
+    }
+    
+    private int loadGearBackgroundTexture( boolean isEditorMode )
+    {
+        if ( ( gearBackgroundTexture == null ) || isEditorMode )
+        {
+            try
+            {
+                BufferedImage bi0 = backgroundImageName.getBufferedImage();
+                float scale = ( bi0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi0.getWidth();
+                BufferedImage bi = gearBackgroundImageName.getBufferedImage();
+                
+                if ( bi == null )
+                {
+                    gearBackgroundTexture = null;
+                    gearBackgroundTexture_bak = null;
+                    return ( 0 );
+                }
+                
+                int gbWidth = (int)( bi.getWidth() * scale );
+                int gbHeight = (int)( bi.getHeight() * scale );
+                if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != gbWidth ) || ( gearBackgroundTexture.getHeight() != gbHeight ) )
+                {
+                    gearBackgroundTexture = new TransformableTexture( gbWidth, gbHeight, 0, 0, 0, 0, 0f, 1f, 1f );
+                    gearBackgroundTexture.getTexture().clear( false, null );
+                    gearBackgroundTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+                    gearBackgroundTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), 0, 0, bi.getWidth(), bi.getHeight() );
+                    
+                    gearBackgroundTexture_bak = TextureImage2D.createOfflineTexture( gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), gearBackgroundTexture.getTexture().hasAlphaChannel() );
+                    gearBackgroundTexture_bak.clear( gearBackgroundTexture.getTexture(), true, null );
+                }
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+                
+                return ( 0 );
+            }
+        }
+        
+        return ( 1 );
     }
     
     @Override
     public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetWidth, int widgetHeight )
     {
-        loadNeedleTexture( isEditorMode );
+        int n = 0;
+        
+        n += loadNeedleTexture( isEditorMode );
         
         if ( displayShiftLight.getBooleanValue() )
-        {
-            loadShiftLightTexture( isEditorMode );
-            
-            return ( new TransformableTexture[] { needleTexture, shiftLightTexture } );
-        }
+            n += loadShiftLightTexture( isEditorMode );
+        else
+            shiftLightTexture = null;
         
-        return ( new TransformableTexture[] { needleTexture } );
+        if ( !gearBackgroundImageName.getStringValue().equals( "" ) )
+            n += loadGearBackgroundTexture( isEditorMode );
+        else
+            gearBackgroundTexture = null;
+        
+        TransformableTexture[] result = new TransformableTexture[ n ];
+        
+        int i = 0;
+        if ( needleTexture != null )
+            result[i++] = needleTexture;
+        if ( shiftLightTexture != null )
+            result[i++] = shiftLightTexture;
+        if ( gearBackgroundTexture != null )
+            result[i++] = gearBackgroundTexture;
+        
+        return ( result );
     }
     
     /**
@@ -300,15 +383,31 @@ public class RevMeterWidget extends Widget
         Rectangle2D bounds = metrics.getStringBounds( "X", texCanvas );
         double fw = bounds.getWidth();
         double fh = metrics.getAscent() - metrics.getDescent();
-        int fx = Math.round( gearPosX.getIntegerValue() * backgroundScaleX );
-        int fy = Math.round( gearPosY.getIntegerValue() * backgroundScaleY );
-        fx -= (int)( fw / 2.0 );
-        fy -= (int)( metrics.getDescent() + fh / 2.0 );
+        int fx, fy;
         
-        gearString = new DrawnString( fx, fy, Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor(), null );
+        if ( !gearBackgroundImageName.getStringValue().equals( "" ) )
+            loadGearBackgroundTexture( isEditorMode );
+        else
+            gearBackgroundTexture = null;
+        
+        if ( gearBackgroundTexture == null )
+        {
+            fx = Math.round( gearPosX.getIntegerValue() * backgroundScaleX );
+            fy = Math.round( gearPosY.getIntegerValue() * backgroundScaleY );
+        }
+        else
+        {
+            gearBackgroundTexPosX = Math.round( gearPosX.getIntegerValue() * backgroundScaleX - gearBackgroundTexture.getWidth() / 2.0f );
+            gearBackgroundTexPosY = Math.round( gearPosY.getIntegerValue() * backgroundScaleY - gearBackgroundTexture.getHeight() / 2.0f );
+            
+            fx = gearBackgroundTexture.getWidth() / 2;
+            fy = gearBackgroundTexture.getHeight() / 2;
+        }
+        
+        gearString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor(), null );
         
         metrics = texCanvas.getFontMetrics( boostNumberFont.getFont() );
-        bounds = metrics.getStringBounds( "5", texCanvas );
+        bounds = metrics.getStringBounds( "0", texCanvas );
         fw = bounds.getWidth();
         fh = metrics.getAscent() - metrics.getDescent();
         fx = Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX );
@@ -478,7 +577,11 @@ public class RevMeterWidget extends Widget
         if ( needsCompleteRedraw || gear.hasChanged() )
         {
             String string = gear.getValue() == -1 ? "R" : gear.getValue() == 0 ? "N" : String.valueOf( gear );
-            gearString.draw( offsetX, offsetY, string, backgroundTexture, image );
+            
+            if ( gearBackgroundTexture == null )
+                gearString.draw( offsetX, offsetY, string, backgroundTexture, image );
+            else
+                gearString.draw( 0, 0, string, gearBackgroundTexture_bak, gearBackgroundTexture.getTexture() );
         }
         
         boost.update( telemData.getEngineBoostMapping() );
@@ -513,7 +616,7 @@ public class RevMeterWidget extends Widget
             rpmString.draw( offsetX, offsetY, string, backgroundTexture, image );
         }
         
-        if ( displayShiftLight.getBooleanValue() )
+        if ( shiftLightTexture != null )
         {
             float maxRPM_boost = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM, boost.getValue() );
             if ( rpm >= maxRPM_boost + shiftLightRPM.getIntegerValue() )
@@ -528,20 +631,34 @@ public class RevMeterWidget extends Widget
             }
         }
         
-        float rot0 = needleRotationForZeroRPM.getFloatValue();
-        float rot = -( rpm / maxRPM ) * ( needleRotationForZeroRPM.getFloatValue() - needleRotationForMaxRPM.getFloatValue() );
-        
-        needleTexture.setRotation( -rot0 - rot );
+        if ( needleTexture != null )
+        {
+            float rot0 = needleRotationForZeroRPM.getFloatValue();
+            float rot = -( rpm / maxRPM ) * ( needleRotationForZeroRPM.getFloatValue() - needleRotationForMaxRPM.getFloatValue() );
+            
+            needleTexture.setRotation( -rot0 - rot );
+        }
         
         if ( isEditorMode )
         {
-            needleTexture.drawInEditor( texCanvas, offsetX, offsetY );
+            if ( needleTexture != null )
+            {
+                needleTexture.drawInEditor( texCanvas, offsetX, offsetY );
+            }
             
-            if ( displayShiftLight.getBooleanValue() )
+            if ( shiftLightTexture != null )
             {
                 texCanvas.getImage().clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetX + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
                 shiftLightTexture.drawInEditor( texCanvas, offsetX, offsetY );
             }
+        }
+        
+        if ( gearBackgroundTexture != null )
+        {
+            if ( isEditorMode )
+                gearBackgroundTexture.drawInEditor( texCanvas, offsetX + gearBackgroundTexPosX, offsetY + gearBackgroundTexPosY );
+            else
+                gearBackgroundTexture.setTranslation( gearBackgroundTexPosX, gearBackgroundTexPosY );
         }
     }
     
@@ -575,6 +692,7 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( shiftLightPosX, "The x-offset in pixels to the gear label." );
         writer.writeProperty( shiftLightPosY, "The y-offset in pixels to the gear label." );
         writer.writeProperty( shiftLightRPM, "The RPM (rounds per minute) to subtract from the maximum for the level to display shoft light on" );
+        writer.writeProperty( gearBackgroundImageName, "The name of the image to render behind the gear number." );
         writer.writeProperty( gearPosX, "The x-offset in pixels to the gear label." );
         writer.writeProperty( gearPosY, "The y-offset in pixels to the gear label." );
         writer.writeProperty( gearFont, "The font used to draw the gear." );
@@ -622,6 +740,7 @@ public class RevMeterWidget extends Widget
         else if ( revMarkersHighColor.loadProperty( key, value ) );
         else if ( revMarkersFont.loadProperty( key, value ) );
         else if ( revMarkersFontColor.loadProperty( key, value ) );
+        else if ( gearBackgroundImageName.loadProperty( key, value ) );
         else if ( gearPosX.loadProperty( key, value ) );
         else if ( gearPosY.loadProperty( key, value ) );
         else if ( gearFont.loadProperty( key, value ) );
@@ -690,6 +809,7 @@ public class RevMeterWidget extends Widget
         
         FlaggedList gearProps = new FlaggedList( "Gear", true );
         
+        gearProps.add( gearBackgroundImageName );
         gearProps.add( gearPosX );
         gearProps.add( gearPosY );
         gearProps.add( gearFont );

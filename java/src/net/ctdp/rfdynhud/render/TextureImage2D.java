@@ -169,7 +169,7 @@ public class TextureImage2D
      */
     public final boolean hasAlphaChannel()
     {
-        return ( pixelBytes == 32 );
+        return ( pixelBytes == 4 );
     }
     
     /**

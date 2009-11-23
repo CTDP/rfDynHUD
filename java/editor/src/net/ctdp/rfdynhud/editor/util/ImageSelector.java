@@ -74,6 +74,12 @@ public class ImageSelector
     
     public void setSelectedFile( String name )
     {
+        if ( name.equals( "" ) )
+        {
+            this.selectedFile = "";
+            return;
+        }
+        
         File file = new File( folder, name.replace( '/', File.separatorChar ) );
         if ( !file.exists() )
         {

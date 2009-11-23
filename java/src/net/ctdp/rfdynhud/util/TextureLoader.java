@@ -104,13 +104,21 @@ public class TextureLoader
         if ( image != null )
             return ( image );
         
+        File f = new File( IMAGES_FOLDER, name );
+        
+        if ( !f.exists() )
+        {
+            Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
+            return ( null );
+        }
+        
         try
         {
-            image = ImageIO.read( new File( IMAGES_FOLDER, name ) );
+            image = ImageIO.read( f );
         }
         catch ( IOException e )
         {
-            Logger.log( "[ERROR] Unable to read input file \"" + new File( IMAGES_FOLDER, name ).getAbsolutePath() + "\"." );
+            Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
             return ( null );
         }
         
