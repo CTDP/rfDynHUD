@@ -47,6 +47,7 @@ public class RevMeterWidget extends Widget
     private final ImageProperty shiftLightImageName = new ImageProperty( this, "shiftLightImageName", "imageName", "shiftlight_on.png" );
     private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
     private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numberBGImageName", "", false, true );
+    private final ImageProperty velocityBackgroundImageName = new ImageProperty( this, "velocityBackgroundImageName", "velocityBGImageName", "", false, true );
     
     private TextureImage2D backgroundTexture = null;
     private TransformableTexture needleTexture = null;
@@ -55,9 +56,12 @@ public class RevMeterWidget extends Widget
     private TextureImage2D gearBackgroundTexture_bak = null;
     private TransformableTexture boostNumberBackgroundTexture = null;
     private TextureImage2D boostNumberBackgroundTexture_bak = null;
+    private TransformableTexture velocityBackgroundTexture = null;
+    private TextureImage2D velocityBackgroundTexture_bak = null;
     
     private int gearBackgroundTexPosX, gearBackgroundTexPosY;
     private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
+    private int velocityBackgroundTexPosX, velocityBackgroundTexPosY;
     
     private float backgroundScaleX, backgroundScaleY;
     
@@ -130,16 +134,9 @@ public class RevMeterWidget extends Widget
     private final IntegerProperty gearPosY = new IntegerProperty( this, "gearPosY", "posY", 512 );
     
     private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", "GearFont" );
-    private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#C0BC3D" );
+    private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
     
     private final IntegerProperty rpmPosY = new IntegerProperty( this, "rpmPosY", 603 );
-    
-    private DrawnString rpmString = null;
-    private DrawnString gearString = null;
-    private DrawnString boostString = null;
-    
-    private final IntValue gear = new IntValue();
-    private final IntValue boost = new IntValue();
     
     private final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
     private final IntegerProperty boostBarPosX = new IntegerProperty( this, "boostBarPosX", "barPosX", 135 );
@@ -151,6 +148,23 @@ public class RevMeterWidget extends Widget
     private final IntegerProperty boostNumberPosY = new IntegerProperty( this, "boostNumberPosY", "numberPosY", 544 );
     private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", "StandardFont" );
     private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
+    
+    private final BooleanProperty displayVelocity = new BooleanProperty( this, "displayVelocity", false );
+    
+    private final IntegerProperty velocityPosX = new IntegerProperty( this, "velocityPosX", "posX", 100 );
+    private final IntegerProperty velocityPosY = new IntegerProperty( this, "velocityPosY", "posY", 100 );
+    
+    private final FontProperty velocityFont = new FontProperty( this, "velocityFont", "font", "StandardFont" );
+    private final ColorProperty velocityFontColor = new ColorProperty( this, "velocityFontColor", "fontColor", "#1A261C" );
+    
+    private DrawnString rpmString = null;
+    private DrawnString gearString = null;
+    private DrawnString boostString = null;
+    private DrawnString velocityString = null;
+    
+    private final IntValue gear = new IntValue();
+    private final IntValue boost = new IntValue();
+    private final IntValue velocity = new IntValue();
     
     /**
      * {@inheritDoc}
@@ -330,6 +344,54 @@ public class RevMeterWidget extends Widget
         return ( 1 );
     }
     
+    private int loadVelocityBackgroundTexture( boolean isEditorMode )
+    {
+        if ( !displayVelocity.getBooleanValue() )
+        {
+            velocityBackgroundTexture = null;
+            velocityBackgroundTexture_bak = null;
+            return ( 0 );
+        }
+        
+        if ( ( velocityBackgroundTexture == null ) || isEditorMode )
+        {
+            try
+            {
+                BufferedImage bi0 = backgroundImageName.getBufferedImage();
+                float scale = ( bi0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi0.getWidth();
+                BufferedImage bi = velocityBackgroundImageName.getBufferedImage();
+                
+                if ( bi == null )
+                {
+                    velocityBackgroundTexture = null;
+                    velocityBackgroundTexture_bak = null;
+                    return ( 0 );
+                }
+                
+                int vbWidth = (int)( bi.getWidth() * scale );
+                int vbHeight = (int)( bi.getHeight() * scale );
+                if ( ( velocityBackgroundTexture == null ) || ( velocityBackgroundTexture.getWidth() != vbWidth ) || ( velocityBackgroundTexture.getHeight() != vbHeight ) )
+                {
+                    velocityBackgroundTexture = new TransformableTexture( vbWidth, vbHeight, 0, 0, 0, 0, 0f, 1f, 1f );
+                    velocityBackgroundTexture.getTexture().clear( false, null );
+                    velocityBackgroundTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+                    velocityBackgroundTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, velocityBackgroundTexture.getWidth(), velocityBackgroundTexture.getHeight(), 0, 0, bi.getWidth(), bi.getHeight() );
+                    
+                    velocityBackgroundTexture_bak = TextureImage2D.createOfflineTexture( velocityBackgroundTexture.getWidth(), velocityBackgroundTexture.getHeight(), velocityBackgroundTexture.getTexture().hasAlphaChannel() );
+                    velocityBackgroundTexture_bak.clear( velocityBackgroundTexture.getTexture(), true, null );
+                }
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+                
+                return ( 0 );
+            }
+        }
+        
+        return ( 1 );
+    }
+    
     @Override
     public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetWidth, int widgetHeight )
     {
@@ -352,6 +414,11 @@ public class RevMeterWidget extends Widget
         else
             boostNumberBackgroundTexture = null;
         
+        if ( !velocityBackgroundImageName.getStringValue().equals( "" ) )
+            n += loadVelocityBackgroundTexture( isEditorMode );
+        else
+            velocityBackgroundTexture = null;
+        
         TransformableTexture[] result = new TransformableTexture[ n ];
         
         int i = 0;
@@ -363,6 +430,8 @@ public class RevMeterWidget extends Widget
             result[i++] = gearBackgroundTexture;
         if ( boostNumberBackgroundTexture != null )
             result[i++] = boostNumberBackgroundTexture;
+        if ( velocityBackgroundTexture != null )
+            result[i++] = velocityBackgroundTexture;
         
         return ( result );
     }
@@ -376,6 +445,7 @@ public class RevMeterWidget extends Widget
         super.onRealtimeEntered( isEditorMode, gameData );
         
         gear.reset();
+        velocity.reset();
     }
     
     /**
@@ -490,6 +560,32 @@ public class RevMeterWidget extends Widget
         }
         
         boostString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor(), null );
+        
+        metrics = texCanvas.getFontMetrics( velocityFont.getFont() );
+        bounds = metrics.getStringBounds( "000", texCanvas );
+        fw = bounds.getWidth();
+        fh = metrics.getAscent() - metrics.getDescent();
+        
+        if ( !velocityBackgroundImageName.getStringValue().equals( "" ) )
+            loadVelocityBackgroundTexture( isEditorMode );
+        else
+            velocityBackgroundTexture = null;
+        
+        if ( velocityBackgroundTexture == null )
+        {
+            fx = Math.round( velocityPosX.getIntegerValue() * backgroundScaleX );
+            fy = Math.round( velocityPosY.getIntegerValue() * backgroundScaleY );
+        }
+        else
+        {
+            velocityBackgroundTexPosX = Math.round( velocityPosX.getIntegerValue() * backgroundScaleX - velocityBackgroundTexture.getWidth() / 2.0f );
+            velocityBackgroundTexPosY = Math.round( velocityPosY.getIntegerValue() * backgroundScaleY - velocityBackgroundTexture.getHeight() / 2.0f );
+            
+            fx = velocityBackgroundTexture.getWidth() / 2;
+            fy = velocityBackgroundTexture.getHeight() / 2;
+        }
+        
+        velocityString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor(), null );
         
         rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor(), null );
     }
@@ -678,6 +774,20 @@ public class RevMeterWidget extends Widget
             }
         }
         
+        if ( displayVelocity.getBooleanValue() )
+        {
+            velocity.update( Math.round( telemData.getScalarVelocityKPH() ) );
+            if ( needsCompleteRedraw || ( clock1 && velocity.hasChanged( false ) ) )
+            {
+                velocity.setUnchanged();
+                
+                if ( velocityBackgroundTexture == null )
+                    velocityString.draw( offsetX, offsetY, velocity.getValueAsString(), backgroundTexture, image );
+                else
+                    velocityString.draw( 0, 0, velocity.getValueAsString(), velocityBackgroundTexture_bak, velocityBackgroundTexture.getTexture() );
+            }
+        }
+        
         LocalStore store = (LocalStore)getLocalStore();
         
         float rpm = isEditorMode ? editorRPM.getIntegerValue() : telemData.getEngineRPM();
@@ -745,6 +855,14 @@ public class RevMeterWidget extends Widget
             else
                 boostNumberBackgroundTexture.setTranslation( boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY );
         }
+        
+        if ( velocityBackgroundTexture != null )
+        {
+            if ( isEditorMode )
+                velocityBackgroundTexture.drawInEditor( texCanvas, offsetX + velocityBackgroundTexPosX, offsetY + velocityBackgroundTexPosY );
+            else
+                velocityBackgroundTexture.setTranslation( velocityBackgroundTexPosX, velocityBackgroundTexPosY );
+        }
     }
     
     /**
@@ -793,6 +911,12 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( boostNumberPosY, "The y-position of the boost number." );
         writer.writeProperty( boostNumberFont, "The font used to draw the boost number." );
         writer.writeProperty( boostNumberFontColor, "The font color used to draw the boost bar." );
+        writer.writeProperty( displayVelocity, "Display velocity on this Widget?" );
+        writer.writeProperty( velocityBackgroundImageName, "The name of the image to render behind the velocity number." );
+        writer.writeProperty( velocityPosX, "The x-offset in pixels to the velocity label." );
+        writer.writeProperty( velocityPosY, "The y-offset in pixels to the velocity label." );
+        writer.writeProperty( velocityFont, "The font used to draw the velocity." );
+        writer.writeProperty( velocityFontColor, "The font color used to draw the velocity." );
         writer.writeProperty( rpmPosY, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
     }
     
@@ -831,7 +955,6 @@ public class RevMeterWidget extends Widget
         else if ( gearPosY.loadProperty( key, value ) );
         else if ( gearFont.loadProperty( key, value ) );
         else if ( gearFontColor.loadProperty( key, value ) );
-        else if ( rpmPosY.loadProperty( key, value ) );
         else if ( displayBoostBar.loadProperty( key, value ) );
         else if ( boostBarPosX.loadProperty( key, value ) );
         else if ( boostBarPosY.loadProperty( key, value ) );
@@ -843,6 +966,13 @@ public class RevMeterWidget extends Widget
         else if ( boostNumberPosY.loadProperty( key, value ) );
         else if ( boostNumberFont.loadProperty( key, value ) );
         else if ( boostNumberFontColor.loadProperty( key, value ) );
+        else if ( displayVelocity.loadProperty( key, value ) );
+        else if ( velocityBackgroundImageName.loadProperty( key, value ) );
+        else if ( velocityPosX.loadProperty( key, value ) );
+        else if ( velocityPosY.loadProperty( key, value ) );
+        else if ( velocityFont.loadProperty( key, value ) );
+        else if ( velocityFontColor.loadProperty( key, value ) );
+        else if ( rpmPosY.loadProperty( key, value ) );
     }
     
     /**
@@ -920,6 +1050,17 @@ public class RevMeterWidget extends Widget
         boostProps.add( boostNumberFontColor );
         
         props.add( boostProps );
+        
+        FlaggedList velocityProps = new FlaggedList( "Velocity", true );
+        
+        velocityProps.add( displayVelocity );
+        velocityProps.add( velocityBackgroundImageName );
+        velocityProps.add( velocityPosX );
+        velocityProps.add( velocityPosY );
+        velocityProps.add( velocityFont );
+        velocityProps.add( velocityFontColor );
+        
+        props.add( velocityProps );
         
         props.add( rpmPosY );
         
