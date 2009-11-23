@@ -78,6 +78,20 @@ jboolean isCopy = false;
 
 typedef jint ( APIENTRY * CreateJavaVMPROC ) ( JavaVM** pvm, void** penv, void* args );
 
+void loggSystemProperty( JNIEnv* env, jclass System, jmethodID getProperty, const char* prop )
+{
+    jstring jProp = env->NewStringUTF( prop );
+    jstring jstr = (jstring)env->CallStaticObjectMethod( System, getProperty, jProp );
+    jboolean blnIsCopy;
+    const char* cstr = env->GetStringUTFChars( jstr, &blnIsCopy );
+    logg( "    ", false );
+    logg( prop, false );
+    logg( " = \"", false );
+    logg( cstr, false );
+    logg( "\"", true );
+    env->ReleaseStringUTFChars( jstr, cstr );
+}
+
 bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
 {
     char* fileBuffer = (char*)malloc( 2048 );
@@ -96,23 +110,31 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     logg( fileBuffer );
     
     getFullPath( JAVA_HOME, "bin\\msvcr71.dll", fileBuffer );
-    logg( "    Loading msvcr71.dll..." );
+    logg( "    Loading msvcr71.dll...", false );
     HMODULE msvcdll = LoadLibrary( fileBuffer );
     
     if ( msvcdll == NULL )
     {
-        logg( "ERROR: Failed to load msvcr71.dll." );
+        logg( " ERROR: Failed to load msvcr71.dll." );
         return ( false );
+    }
+    else
+    {
+        logg( " done." );
     }
     
     getFullPath( JAVA_HOME, "bin\\client\\jvm.dll", fileBuffer );
-    logg( "    Loading jvm.dll..." );
+    logg( "    Loading jvm.dll...", false );
     HMODULE jvmdll = LoadLibrary( fileBuffer );
     
     if ( jvmdll == NULL )
     {
-        logg( "ERROR: Failed to load jvm.dll." );
+        logg( " ERROR: Failed to load jvm.dll." );
         return ( false );
+    }
+    else
+    {
+        logg( " done." );
     }
     
     logg( "Successfully loaded Java dlls." );
@@ -180,6 +202,14 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
         logg( "ERROR: Failed to create Java virtual machine." );
         return ( false );
     }
+    
+    jclass System = (*env)->FindClass( "java/lang/System" );
+    jmethodID getProperty = (*env)->GetStaticMethodID( System, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;" );
+    loggSystemProperty( *env, System, getProperty, "java.vm.vendor" );
+    loggSystemProperty( *env, System, getProperty, "java.vm.name" );
+    loggSystemProperty( *env, System, getProperty, "java.vm.version" );
+    loggSystemProperty( *env, System, getProperty, "java.runtime.version" );
+    loggSystemProperty( *env, System, getProperty, "java.awt.graphicsenv" );
     
     logg( "Successfully invoked Java VM." );
     
