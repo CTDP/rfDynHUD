@@ -846,11 +846,16 @@ public class RevMeterWidget extends Widget
                 Rectangle2D bounds = metrics.getStringBounds( string, texCanvas );
                 double fw = bounds.getWidth();
                 
-                
                 if ( velocityBackgroundTexture == null )
-                    velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, backgroundTexture, image );
+                {
+                    image.clear( backgroundTexture, velocityString.getAbsX() - (int)( fw * 1.5 ), velocityString.getAbsY(), (int)( fw * 3 ), (int)bounds.getHeight(), offsetX + velocityString.getAbsX() - (int)( fw * 1.5 ), offsetY + velocityString.getAbsY(), (int)( fw * 3 ), (int)bounds.getHeight(), true, null );
+                    velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, (TextureImage2D)null, image );
+                }
                 else
-                    velocityString.draw( (int)( -fw / 2.0 ), 0, string, velocityBackgroundTexture_bak, velocityBackgroundTexture.getTexture() );
+                {
+                    velocityBackgroundTexture.getTexture().clear( velocityBackgroundTexture_bak, velocityString.getAbsX() - (int)( fw * 1.5 ), velocityString.getAbsY(), (int)( fw * 3 ), (int)bounds.getHeight(), velocityString.getAbsX() - (int)( fw * 1.5 ), velocityString.getAbsY(), (int)( fw * 3 ), (int)bounds.getHeight(), true, null );
+                    velocityString.draw( (int)( -fw / 2.0 ), 0, string, (TextureImage2D)null, velocityBackgroundTexture.getTexture() );
+                }
             }
         }
         
