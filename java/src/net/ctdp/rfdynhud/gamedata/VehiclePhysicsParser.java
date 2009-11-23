@@ -1235,11 +1235,14 @@ public class VehiclePhysicsParser
     
     private static Object[][] ensureTrackConfiguration( Object[][] upgradesList, File vehicleFolder, String trackName )
     {
-        for ( Object[] oo : upgradesList )
+        if ( upgradesList != null )
         {
-            if ( "TRACK CONFIGURATION".equals( oo[0] ) )
+            for ( Object[] oo : upgradesList )
             {
-                return ( upgradesList );
+                if ( "TRACK CONFIGURATION".equals( oo[0] ) )
+                {
+                    return ( upgradesList );
+                }
             }
         }
         

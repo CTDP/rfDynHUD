@@ -45,15 +45,19 @@ public class RevMeterWidget extends Widget
     private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "revmeter.png" );
     private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "needle.png" );
     private final ImageProperty shiftLightImageName = new ImageProperty( this, "shiftLightImageName", "imageName", "shiftlight_on.png" );
-    private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundimageName", "", false, true );
+    private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
+    private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numberBGImageName", "", false, true );
     
     private TextureImage2D backgroundTexture = null;
     private TransformableTexture needleTexture = null;
     private TransformableTexture shiftLightTexture = null;
     private TransformableTexture gearBackgroundTexture = null;
     private TextureImage2D gearBackgroundTexture_bak = null;
+    private TransformableTexture boostNumberBackgroundTexture = null;
+    private TextureImage2D boostNumberBackgroundTexture_bak = null;
     
     private int gearBackgroundTexPosX, gearBackgroundTexPosY;
+    private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
     
     private float backgroundScaleX, backgroundScaleY;
     
@@ -278,6 +282,54 @@ public class RevMeterWidget extends Widget
         return ( 1 );
     }
     
+    private int loadBoostNumberBackgroundTexture( boolean isEditorMode )
+    {
+        if ( !displayBoostNumber.getBooleanValue() )
+        {
+            boostNumberBackgroundTexture = null;
+            boostNumberBackgroundTexture_bak = null;
+            return ( 0 );
+        }
+        
+        if ( ( boostNumberBackgroundTexture == null ) || isEditorMode )
+        {
+            try
+            {
+                BufferedImage bi0 = backgroundImageName.getBufferedImage();
+                float scale = ( bi0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi0.getWidth();
+                BufferedImage bi = boostNumberBackgroundImageName.getBufferedImage();
+                
+                if ( bi == null )
+                {
+                    boostNumberBackgroundTexture = null;
+                    boostNumberBackgroundTexture_bak = null;
+                    return ( 0 );
+                }
+                
+                int bnbWidth = (int)( bi.getWidth() * scale );
+                int bnbHeight = (int)( bi.getHeight() * scale );
+                if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != bnbWidth ) || ( boostNumberBackgroundTexture.getHeight() != bnbHeight ) )
+                {
+                    boostNumberBackgroundTexture = new TransformableTexture( bnbWidth, bnbHeight, 0, 0, 0, 0, 0f, 1f, 1f );
+                    boostNumberBackgroundTexture.getTexture().clear( false, null );
+                    boostNumberBackgroundTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+                    boostNumberBackgroundTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), 0, 0, bi.getWidth(), bi.getHeight() );
+                    
+                    boostNumberBackgroundTexture_bak = TextureImage2D.createOfflineTexture( boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), boostNumberBackgroundTexture.getTexture().hasAlphaChannel() );
+                    boostNumberBackgroundTexture_bak.clear( boostNumberBackgroundTexture.getTexture(), true, null );
+                }
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+                
+                return ( 0 );
+            }
+        }
+        
+        return ( 1 );
+    }
+    
     @Override
     public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetWidth, int widgetHeight )
     {
@@ -295,6 +347,11 @@ public class RevMeterWidget extends Widget
         else
             gearBackgroundTexture = null;
         
+        if ( !boostNumberBackgroundImageName.getStringValue().equals( "" ) )
+            n += loadBoostNumberBackgroundTexture( isEditorMode );
+        else
+            boostNumberBackgroundTexture = null;
+        
         TransformableTexture[] result = new TransformableTexture[ n ];
         
         int i = 0;
@@ -304,6 +361,8 @@ public class RevMeterWidget extends Widget
             result[i++] = shiftLightTexture;
         if ( gearBackgroundTexture != null )
             result[i++] = gearBackgroundTexture;
+        if ( boostNumberBackgroundTexture != null )
+            result[i++] = boostNumberBackgroundTexture;
         
         return ( result );
     }
@@ -410,12 +469,27 @@ public class RevMeterWidget extends Widget
         bounds = metrics.getStringBounds( "0", texCanvas );
         fw = bounds.getWidth();
         fh = metrics.getAscent() - metrics.getDescent();
-        fx = Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX );
-        fy = Math.round( boostNumberPosY.getIntegerValue() * backgroundScaleY );
-        fx -= (int)( fw / 2.0 );
-        fy -= (int)( metrics.getDescent() + fh / 2.0 );
         
-        boostString = new DrawnString( fx, fy, Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor(), null );
+        if ( !boostNumberBackgroundImageName.getStringValue().equals( "" ) )
+            loadBoostNumberBackgroundTexture( isEditorMode );
+        else
+            boostNumberBackgroundTexture = null;
+        
+        if ( boostNumberBackgroundTexture == null )
+        {
+            fx = Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX );
+            fy = Math.round( boostNumberPosY.getIntegerValue() * backgroundScaleY );
+        }
+        else
+        {
+            boostNumberBackgroundTexPosX = Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX - boostNumberBackgroundTexture.getWidth() / 2.0f );
+            boostNumberBackgroundTexPosY = Math.round( boostNumberPosY.getIntegerValue() * backgroundScaleY - boostNumberBackgroundTexture.getHeight() / 2.0f );
+            
+            fx = boostNumberBackgroundTexture.getWidth() / 2;
+            fy = boostNumberBackgroundTexture.getHeight() / 2;
+        }
+        
+        boostString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor(), null );
         
         rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor(), null );
     }
@@ -589,7 +663,10 @@ public class RevMeterWidget extends Widget
         {
             if ( displayBoostNumber.getBooleanValue() )
             {
-                boostString.draw( offsetX, offsetY, boost.getValueAsString(), backgroundTexture, image );
+                if ( boostNumberBackgroundTexture == null )
+                    boostString.draw( offsetX, offsetY, boost.getValueAsString(), backgroundTexture, image );
+                else
+                    boostString.draw( 0, 0, boost.getValueAsString(), boostNumberBackgroundTexture_bak, boostNumberBackgroundTexture.getTexture() );
             }
             
             if ( displayBoostBar.getBooleanValue() )
@@ -660,6 +737,14 @@ public class RevMeterWidget extends Widget
             else
                 gearBackgroundTexture.setTranslation( gearBackgroundTexPosX, gearBackgroundTexPosY );
         }
+        
+        if ( boostNumberBackgroundTexture != null )
+        {
+            if ( isEditorMode )
+                boostNumberBackgroundTexture.drawInEditor( texCanvas, offsetX + boostNumberBackgroundTexPosX, offsetY + boostNumberBackgroundTexPosY );
+            else
+                boostNumberBackgroundTexture.setTranslation( boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY );
+        }
     }
     
     /**
@@ -703,6 +788,7 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( boostBarWidth, "The width of the boost bar." );
         writer.writeProperty( boostBarHeight, "The height of the boost bar." );
         writer.writeProperty( displayBoostNumber, "Display a number for engine boost mapping?" );
+        writer.writeProperty( boostNumberBackgroundImageName, "The name of the image to render behind the boost number." );
         writer.writeProperty( boostNumberPosX, "The x-position of the boost number." );
         writer.writeProperty( boostNumberPosY, "The y-position of the boost number." );
         writer.writeProperty( boostNumberFont, "The font used to draw the boost number." );
@@ -752,6 +838,7 @@ public class RevMeterWidget extends Widget
         else if ( boostBarWidth.loadProperty( key, value ) );
         else if ( boostBarHeight.loadProperty( key, value ) );
         else if ( displayBoostNumber.loadProperty( key, value ) );
+        else if ( boostNumberBackgroundImageName.loadProperty( key, value ) );
         else if ( boostNumberPosX.loadProperty( key, value ) );
         else if ( boostNumberPosY.loadProperty( key, value ) );
         else if ( boostNumberFont.loadProperty( key, value ) );
@@ -826,6 +913,7 @@ public class RevMeterWidget extends Widget
         boostProps.add( boostBarWidth );
         boostProps.add( boostBarHeight );
         boostProps.add( displayBoostNumber );
+        boostProps.add( boostNumberBackgroundImageName );
         boostProps.add( boostNumberPosX );
         boostProps.add( boostNumberPosY );
         boostProps.add( boostNumberFont );
