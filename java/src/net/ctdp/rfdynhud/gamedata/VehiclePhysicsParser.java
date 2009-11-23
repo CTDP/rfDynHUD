@@ -1141,37 +1141,40 @@ public class VehiclePhysicsParser
                 }
                 else if ( key.equals( "Upgrades" ) )
                 {
-                    if ( !value.toLowerCase().endsWith( ".ini" ) )
-                        value = value + ".ini";
-                    
-                    File upgradesFile = locateFile( path, value );
-                    if ( upgradesFile != null )
+                    if ( upgradesList != null )
                     {
-                        try
+                        if ( !value.toLowerCase().endsWith( ".ini" ) )
+                            value = value + ".ini";
+                        
+                        File upgradesFile = locateFile( path, value );
+                        if ( upgradesFile != null )
                         {
-                            VehiclePhysics.UpgradeIdentifier[] uis = new VehiclePhysics.UpgradeIdentifier[ upgradesList.length ];
-                            for ( int i = 0; i < upgradesList.length; i++ )
+                            try
                             {
-                                Object[] upgrade = upgradesList[i];
-                                UpgradesParser up = new UpgradesParser( upgradesFile.getParentFile(), (String)upgrade[0], (Integer)upgrade[1], physics );
-                                up.parse( upgradesFile );
+                                VehiclePhysics.UpgradeIdentifier[] uis = new VehiclePhysics.UpgradeIdentifier[ upgradesList.length ];
+                                for ( int i = 0; i < upgradesList.length; i++ )
+                                {
+                                    Object[] upgrade = upgradesList[i];
+                                    UpgradesParser up = new UpgradesParser( upgradesFile.getParentFile(), (String)upgrade[0], (Integer)upgrade[1], physics );
+                                    up.parse( upgradesFile );
+                                    
+                                    if ( up.identifier == null )
+                                        uis[i] = new VehiclePhysics.UpgradeIdentifier( (String)upgrade[0], "Upgrade Level not found: " + upgrade[1], "UNKNOWN" );
+                                    else
+                                        uis[i] = up.identifier;
+                                }
                                 
-                                if ( up.identifier == null )
-                                    uis[i] = new VehiclePhysics.UpgradeIdentifier( (String)upgrade[0], "Upgrade Level not found: " + upgrade[1], "UNKNOWN" );
-                                else
-                                    uis[i] = up.identifier;
+                                physics.installedUpgrades = uis;
                             }
-                            
-                            physics.installedUpgrades = uis;
+                            catch ( Throwable t )
+                            {
+                                throw new ParsingException( t );
+                            }
                         }
-                        catch ( Throwable t )
+                        else
                         {
-                            throw new ParsingException( t );
+                            Logger.log( "Warning: Unable to find Upgrades file \"" + value + "\"." );
                         }
-                    }
-                    else
-                    {
-                        Logger.log( "Warning: Unable to find Upgrades file \"" + value + "\"." );
                     }
                 }
             }
