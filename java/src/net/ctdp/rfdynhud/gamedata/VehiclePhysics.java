@@ -1089,7 +1089,7 @@ public class VehiclePhysics
     {
         if ( index >= tireCompounds.length )
         {
-            Logger.log( "Unknown tire compound index " + index + ". Using closest one." );
+            Logger.log( "WARNING: Unknown tire compound index " + index + ". Using closest one." );
             index = tireCompounds.length - 1;
         }
         
