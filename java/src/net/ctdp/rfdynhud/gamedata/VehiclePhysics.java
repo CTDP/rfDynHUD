@@ -1087,6 +1087,12 @@ public class VehiclePhysics
      */
     public final TireCompound getTireCompound( int index )
     {
+        if ( index >= tireCompounds.length )
+        {
+            Logger.log( "Unknown tire compound index " + index + ". Using closest one." );
+            index = tireCompounds.length - 1;
+        }
+        
         return ( tireCompounds[index] );
     }
     
