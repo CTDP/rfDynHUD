@@ -131,6 +131,7 @@ public class ScoringInfo
     private short ownPlace = -1;
     
     private VehicleScoringInfo fastestLapVSI = null;
+    private VehicleScoringInfo secondFastestLapVSI = null;
     private VehicleScoringInfo fastestSector1VSI = null;
     private VehicleScoringInfo fastestSector2VSI = null;
     private VehicleScoringInfo fastestSector3VSI = null;
@@ -142,6 +143,7 @@ public class ScoringInfo
         ownPlace = -1;
         
         fastestLapVSI = null;
+        secondFastestLapVSI = null;
         fastestSector1VSI = null;
         fastestSector2VSI = null;
         fastestSector3VSI = null;
@@ -923,7 +925,7 @@ public class ScoringInfo
             }
         }
         
-        return ( fastestLapVSI );
+        return ( fastestSector1VSI );
     }
     
     /**
@@ -949,7 +951,7 @@ public class ScoringInfo
             }
         }
         
-        return ( fastestLapVSI );
+        return ( fastestSector2VSI );
     }
     
     /**
@@ -975,7 +977,7 @@ public class ScoringInfo
             }
         }
         
-        return ( fastestLapVSI );
+        return ( fastestSector3VSI );
     }
     
     /**
@@ -1008,6 +1010,22 @@ public class ScoringInfo
     {
         if ( fastestLapVSI == null )
         {
+            secondFastestLapVSI = null;
+            
+            if ( !getSessionType().isRace() )
+            {
+                // VehicleScoringInfos are sorted by place, which is the same as by laptime in non-race sessions.
+                
+                fastestLapVSI = vehicleScoringInfo[0];
+                
+                if ( ( vehicleScoringInfo.length > 1 ) && ( vehicleScoringInfo[1].getBestLapTime() > 0f ) )
+                {
+                    secondFastestLapVSI = vehicleScoringInfo[1];
+                }
+                
+                return ( fastestLapVSI );
+            }
+            
             int i0;
             for ( i0 = 0; i0 < vehicleScoringInfo.length; i0++ )
             {
@@ -1019,6 +1037,9 @@ public class ScoringInfo
             if ( i0 == vehicleScoringInfo.length )
             {
                 fastestLapVSI = vehicleScoringInfo[0];
+                
+                if ( vehicleScoringInfo.length > 1 )
+                    secondFastestLapVSI = vehicleScoringInfo[1];
             }
             else
             {
@@ -1030,14 +1051,50 @@ public class ScoringInfo
                     float fl_ = vehicleScoringInfo[i].getBestLapTime();
                     if ( ( fl_ > 0f ) && ( fl_ < fl ) )
                     {
+                        secondFastestLapVSI = fastestLapVSI;
                         fastestLapVSI = vehicleScoringInfo[i];
                         fl = fl_;
+                    }
+                }
+                
+                if ( ( secondFastestLapVSI == null ) && ( vehicleScoringInfo.length > i0 ) )
+                {
+                    float fl2 = 0f;
+                    
+                    for ( int i = i0 + 1; i < vehicleScoringInfo.length; i++ )
+                    {
+                        float fl_ = vehicleScoringInfo[i].getBestLapTime();
+                        if ( fl_ > 0f )
+                        {
+                            if ( secondFastestLapVSI == null )
+                            {
+                                secondFastestLapVSI = vehicleScoringInfo[i];
+                                fl2 = secondFastestLapVSI.getBestLapTime();
+                            }
+                            else if ( fl_ < fl2 )
+                            {
+                                secondFastestLapVSI = vehicleScoringInfo[i];
+                                fl2 = fl_;
+                            }
+                        }
                     }
                 }
             }
         }
         
         return ( fastestLapVSI );
+    }
+    
+    /**
+     * Gets the VehicleScoringInfo for the second fastest lap (or <code>null</code>).
+     * 
+     * @return the VehicleScoringInfo for the second fastest lap (or <code>null</code>).
+     */
+    public final VehicleScoringInfo getSecondFastestLapVSI()
+    {
+        getFastestLapVSI();
+        
+        return ( secondFastestLapVSI );
     }
     
     public final Laptime getFastestLaptime()
