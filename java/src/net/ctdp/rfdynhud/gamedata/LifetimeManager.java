@@ -141,7 +141,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         
         lastOilTemperature = telemData.getEngineOilTemperature();
         lastEngineRevs = telemData.getEngineRPM();
-        lastEngineBoost = telemData.getEngineBoostMapping();
+        lastEngineBoost = telemData.getEffectiveEngineBoostMapping();
         lastVelocity = telemData.getScalarVelocity();
         
         lastBrakeBias = gameData.getSetup().getControls().getRearBrakeBalance();

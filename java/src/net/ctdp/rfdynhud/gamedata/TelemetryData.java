@@ -97,6 +97,7 @@ public class TelemetryData
     private final RFactorEventsManager eventsManager;
     
     private int engineBoostMapping = 5;
+    private boolean tempBoostFlag = false;
     
     float engineLifetime = 0.0f;
     float brakeDiscThicknessFL = 0.0f;
@@ -204,6 +205,7 @@ public class TelemetryData
     void setEngineBoostMapping( int boost )
     {
         this.engineBoostMapping = boost;
+        this.tempBoostFlag = false;
     }
     
     void incEngineBoostMapping( Engine engine )
@@ -224,8 +226,30 @@ public class TelemetryData
             eventsManager.onEngineBoostMappingChanged( oldValue, engineBoostMapping );
     }
     
+    void setTempBoostFlag( boolean tempBoostFlag )
+    {
+        boolean oldValue = this.tempBoostFlag;
+        this.tempBoostFlag = tempBoostFlag;
+        
+        if ( tempBoostFlag != oldValue )
+            eventsManager.onTemporaryEngineBoostStateChanged( tempBoostFlag );
+    }
+    
+    public final boolean getTemporaryBoostFlag()
+    {
+        return ( tempBoostFlag );
+    }
+    
     public final int getEngineBoostMapping()
     {
+        return ( engineBoostMapping );
+    }
+    
+    public final int getEffectiveEngineBoostMapping()
+    {
+        if ( tempBoostFlag )
+            return ( (int)gameData.getPhysics().getEngine().getBoostRange().getMaxValue() );
+        
         return ( engineBoostMapping );
     }
     

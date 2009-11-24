@@ -77,6 +77,11 @@ public class __GDPrivilegedAccess
         telemData.decEngineBoostMapping( engine );
     }
     
+    public static final void setTempBoostFlag( TelemetryData telemData, boolean tempBoostFlag )
+    {
+        telemData.setTempBoostFlag( tempBoostFlag );
+    }
+    
     public static final void setTelemVect3( float x, float y, float z, TelemVect3 vect )
     {
         vect.x = x;

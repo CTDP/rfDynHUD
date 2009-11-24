@@ -381,7 +381,7 @@ public class InputMappingsManager
                     else if ( action == KnownInputActions.TempBoost )
                     {
                         if ( gameData.getScoringInfo().isInRealtimeMode() )
-                            eventsManager.onTemporaryEngineBoostStateChanged( state );
+                            __GDPrivilegedAccess.setTempBoostFlag( gameData.getTelemetryData(), state );
                     }
                     else if ( isPluginEnabled && action.isWidgetAction() )
                     {

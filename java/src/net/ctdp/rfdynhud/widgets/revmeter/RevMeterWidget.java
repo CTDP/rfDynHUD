@@ -813,7 +813,7 @@ public class RevMeterWidget extends Widget
                 gearString.draw( 0, 0, string, gearBackgroundTexture_bak, gearBackgroundTexture.getTexture() );
         }
         
-        boost.update( telemData.getEngineBoostMapping() );
+        boost.update( telemData.getEffectiveEngineBoostMapping() );
         if ( needsCompleteRedraw || boost.hasChanged() )
         {
             if ( displayBoostNumber.getBooleanValue() )
