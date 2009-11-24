@@ -7,9 +7,7 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
-import net.ctdp.rfdynhud.render.ByteOrderManager;
-import net.ctdp.rfdynhud.render.TextureImage2D;
-import sun.awt.image.ByteInterleavedRaster;
+import net.ctdp.rfdynhud.render.ImageTemplate;
 
 /**
  * ImageIO image loading is pretty slow. This is a simple but fast texture loading implementation.
@@ -20,6 +18,9 @@ public class TextureLoader
 {
     public static final File IMAGES_FOLDER = new File( RFactorTools.CONFIG_PATH + File.separator + "data" + File.separator + "images" );
     
+    private static final HashMap<String, ImageTemplate> cache = new HashMap<String, ImageTemplate>();
+    
+    /*
     private static final HashMap<String, TextureImage2D> cache = new HashMap<String, TextureImage2D>();
     private static final HashMap<String, BufferedImage> biCache = new HashMap<String, BufferedImage>();
     
@@ -132,6 +133,54 @@ public class TextureLoader
     {
         return ( getImage( name, true ) );
     }
+    */
+    
+    public static ImageTemplate getImage( String name, boolean useCache )
+    {
+        if ( File.separatorChar != '/' )
+            name = name.replace( '/', File.separatorChar );
+        if ( File.separatorChar != '\\' )
+            name = name.replace( '\\', File.separatorChar );
+        
+        ImageTemplate template = useCache ? cache.get( name ) : null;
+        
+        //System.out.println( ( ( template != null ) ? "found in cache" : "not found in cache" ) );
+        
+        if ( template != null )
+            return ( template );
+        
+        File f = new File( IMAGES_FOLDER, name );
+        
+        if ( !f.exists() )
+        {
+            Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
+            return ( null );
+        }
+        
+        BufferedImage image = null;
+        
+        try
+        {
+            image = ImageIO.read( f );
+        }
+        catch ( IOException e )
+        {
+            Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
+            return ( null );
+        }
+        
+        template = new ImageTemplate( image );
+        
+        if ( useCache )
+            cache.put( name, template );
+        
+        return ( template );
+    }
+    
+    public static ImageTemplate getImage( String name )
+    {
+        return ( getImage( name, true ) );
+    }
     
     public static void removeImageFromCache( String name )
     {
@@ -140,6 +189,7 @@ public class TextureLoader
         if ( File.separatorChar != '\\' )
             name = name.replace( '\\', File.separatorChar );
         
-        biCache.remove( name );
+        cache.remove( name );
+        //biCache.remove( name );
     }
 }

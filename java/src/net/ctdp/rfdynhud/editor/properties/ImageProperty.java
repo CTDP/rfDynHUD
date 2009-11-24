@@ -1,7 +1,6 @@
 package net.ctdp.rfdynhud.editor.properties;
 
-import java.awt.image.BufferedImage;
-
+import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.util.TextureLoader;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -24,7 +23,7 @@ public class ImageProperty extends StringProperty
         return ( getStringValue() );
     }
     
-    public final BufferedImage getBufferedImage()
+    public final ImageTemplate getImage()
     {
         return ( TextureLoader.getImage( getImageName() ) );
     }

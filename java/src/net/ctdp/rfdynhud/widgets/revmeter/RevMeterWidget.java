@@ -11,7 +11,6 @@ import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
@@ -26,6 +25,7 @@ import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.PhysicsSetting;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
@@ -190,24 +190,21 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi = backgroundImageName.getBufferedImage();
-                float scale = ( bi == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi.getWidth();
-                bi = needleImageName.getBufferedImage();
+                ImageTemplate it = backgroundImageName.getImage();
+                float scale = ( it == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it.getBaseWidth();
+                it = needleImageName.getImage();
                 
-                if ( bi == null )
+                if ( it == null )
                 {
                     needleTexture = null;
                     return ( 0 );
                 }
                 
-                int needleWidth = (int)( bi.getWidth() * scale );
-                int needleHeight = (int)( bi.getHeight() * scale );
-                if ( ( needleTexture == null ) || ( needleTexture.getWidth() != needleWidth ) || ( needleTexture.getHeight() != needleHeight ) )
+                int w = Math.round( it.getBaseWidth() * scale );
+                int h = Math.round( it.getBaseHeight() * scale );
+                if ( ( needleTexture == null ) || ( needleTexture.getWidth() != w ) || ( needleTexture.getHeight() != h ) )
                 {
-                    needleTexture = new TransformableTexture( needleWidth, needleHeight, 0, 0, 0, 0, 0f, 1f, 1f );
-                    needleTexture.getTexture().clear( false, null );
-                    needleTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-                    needleTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, needleTexture.getWidth(), needleTexture.getHeight(), 0, 0, bi.getWidth(), bi.getHeight() );
+                    needleTexture = it.getScaledTransformableTexture( w, h );
                 }
             }
             catch ( Throwable t )
@@ -227,25 +224,24 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi0 = backgroundImageName.getBufferedImage();
-                float scale = ( bi0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi0.getWidth();
-                BufferedImage bi = shiftLightImageName.getBufferedImage();
+                ImageTemplate it0 = backgroundImageName.getImage();
+                float scale = ( it0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
+                ImageTemplate it = shiftLightImageName.getImage();
                 
-                if ( bi == null )
+                if ( it == null )
                 {
                     shiftLightTexture = null;
                     return ( 0 );
                 }
                 
-                int slWidth = (int)( bi.getWidth() * scale );
-                int slHeight = (int)( bi.getHeight() * scale );
-                if ( ( shiftLightTexture == null ) || ( shiftLightTexture.getWidth() != slWidth ) || ( shiftLightTexture.getHeight() != slHeight * 2 ) )
+                int w = Math.round( it.getBaseWidth() * scale );
+                int h = Math.round( it.getBaseHeight() * scale );
+                if ( ( shiftLightTexture == null ) || ( shiftLightTexture.getWidth() != w ) || ( shiftLightTexture.getHeight() != h * 2 ) )
                 {
-                    shiftLightTexture = new TransformableTexture( slWidth, slHeight * 2, 0, 0, 0, 0, 0f, 1f, 1f );
+                    shiftLightTexture = new TransformableTexture( w, h * 2, 0, 0, 0, 0, 0f, 1f, 1f );
                     shiftLightTexture.getTexture().clear( false, null );
-                    shiftLightTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-                    shiftLightTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, slWidth, slHeight, 0, 0, bi.getWidth(), bi.getHeight() );
-                    shiftLightTexture.getTexture().getTextureCanvas().drawImage( bi0, 0, slHeight, slWidth, shiftLightTexture.getHeight(), shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), shiftLightPosX.getIntegerValue() + bi.getWidth(), shiftLightPosY.getIntegerValue() + bi.getHeight() );
+                    it.drawScaled( 0, 0, w, h, shiftLightTexture.getTexture(), false );
+                    it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), shiftLightPosX.getIntegerValue() + it.getBaseWidth(), shiftLightPosY.getIntegerValue() + it.getBaseHeight(), 0, h, w, shiftLightTexture.getHeight(), shiftLightTexture.getTexture(), false );
                 }
             }
             catch ( Throwable t )
@@ -265,25 +261,22 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi0 = backgroundImageName.getBufferedImage();
-                float scale = ( bi0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi0.getWidth();
-                BufferedImage bi = gearBackgroundImageName.getBufferedImage();
+                ImageTemplate it0 = backgroundImageName.getImage();
+                float scale = ( it0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
+                ImageTemplate it = gearBackgroundImageName.getImage();
                 
-                if ( bi == null )
+                if ( it == null )
                 {
                     gearBackgroundTexture = null;
                     gearBackgroundTexture_bak = null;
                     return ( 0 );
                 }
                 
-                int gbWidth = (int)( bi.getWidth() * scale );
-                int gbHeight = (int)( bi.getHeight() * scale );
-                if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != gbWidth ) || ( gearBackgroundTexture.getHeight() != gbHeight ) )
+                int w = Math.round( it.getBaseWidth() * scale );
+                int h = Math.round( it.getBaseHeight() * scale );
+                if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != w ) || ( gearBackgroundTexture.getHeight() != h ) )
                 {
-                    gearBackgroundTexture = new TransformableTexture( gbWidth, gbHeight, 0, 0, 0, 0, 0f, 1f, 1f );
-                    gearBackgroundTexture.getTexture().clear( false, null );
-                    gearBackgroundTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-                    gearBackgroundTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), 0, 0, bi.getWidth(), bi.getHeight() );
+                    gearBackgroundTexture = it.getScaledTransformableTexture( w, h );
                     
                     gearBackgroundTexture_bak = TextureImage2D.createOfflineTexture( gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), gearBackgroundTexture.getTexture().hasAlphaChannel() );
                     gearBackgroundTexture_bak.clear( gearBackgroundTexture.getTexture(), true, null );
@@ -313,25 +306,22 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi0 = backgroundImageName.getBufferedImage();
-                float scale = ( bi0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi0.getWidth();
-                BufferedImage bi = boostNumberBackgroundImageName.getBufferedImage();
+                ImageTemplate it0 = backgroundImageName.getImage();
+                float scale = ( it0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
+                ImageTemplate it = boostNumberBackgroundImageName.getImage();
                 
-                if ( bi == null )
+                if ( it == null )
                 {
                     boostNumberBackgroundTexture = null;
                     boostNumberBackgroundTexture_bak = null;
                     return ( 0 );
                 }
                 
-                int bnbWidth = (int)( bi.getWidth() * scale );
-                int bnbHeight = (int)( bi.getHeight() * scale );
-                if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != bnbWidth ) || ( boostNumberBackgroundTexture.getHeight() != bnbHeight ) )
+                int w = Math.round( it.getBaseWidth() * scale );
+                int h = Math.round( it.getBaseHeight() * scale );
+                if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != w ) || ( boostNumberBackgroundTexture.getHeight() != h ) )
                 {
-                    boostNumberBackgroundTexture = new TransformableTexture( bnbWidth, bnbHeight, 0, 0, 0, 0, 0f, 1f, 1f );
-                    boostNumberBackgroundTexture.getTexture().clear( false, null );
-                    boostNumberBackgroundTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-                    boostNumberBackgroundTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), 0, 0, bi.getWidth(), bi.getHeight() );
+                    boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h );
                     
                     boostNumberBackgroundTexture_bak = TextureImage2D.createOfflineTexture( boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), boostNumberBackgroundTexture.getTexture().hasAlphaChannel() );
                     boostNumberBackgroundTexture_bak.clear( boostNumberBackgroundTexture.getTexture(), true, null );
@@ -361,25 +351,22 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi0 = backgroundImageName.getBufferedImage();
-                float scale = ( bi0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)bi0.getWidth();
-                BufferedImage bi = velocityBackgroundImageName.getBufferedImage();
+                ImageTemplate it0 = backgroundImageName.getImage();
+                float scale = ( it0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
+                ImageTemplate it = velocityBackgroundImageName.getImage();
                 
-                if ( bi == null )
+                if ( it == null )
                 {
                     velocityBackgroundTexture = null;
                     velocityBackgroundTexture_bak = null;
                     return ( 0 );
                 }
                 
-                int vbWidth = (int)( bi.getWidth() * scale );
-                int vbHeight = (int)( bi.getHeight() * scale );
-                if ( ( velocityBackgroundTexture == null ) || ( velocityBackgroundTexture.getWidth() != vbWidth ) || ( velocityBackgroundTexture.getHeight() != vbHeight ) )
+                int w = Math.round( it.getBaseWidth() * scale );
+                int h = Math.round( it.getBaseHeight() * scale );
+                if ( ( velocityBackgroundTexture == null ) || ( velocityBackgroundTexture.getWidth() != w ) || ( velocityBackgroundTexture.getHeight() != h ) )
                 {
-                    velocityBackgroundTexture = new TransformableTexture( vbWidth, vbHeight, 0, 0, 0, 0, 0f, 1f, 1f );
-                    velocityBackgroundTexture.getTexture().clear( false, null );
-                    velocityBackgroundTexture.getTexture().getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-                    velocityBackgroundTexture.getTexture().getTextureCanvas().drawImage( bi, 0, 0, velocityBackgroundTexture.getWidth(), velocityBackgroundTexture.getHeight(), 0, 0, bi.getWidth(), bi.getHeight() );
+                    velocityBackgroundTexture = it.getScaledTransformableTexture( w, h );
                     
                     velocityBackgroundTexture_bak = TextureImage2D.createOfflineTexture( velocityBackgroundTexture.getWidth(), velocityBackgroundTexture.getHeight(), velocityBackgroundTexture.getTexture().hasAlphaChannel() );
                     velocityBackgroundTexture_bak.clear( velocityBackgroundTexture.getTexture(), true, null );
@@ -484,11 +471,7 @@ public class RevMeterWidget extends Widget
         {
             try
             {
-                BufferedImage bi = backgroundImageName.getBufferedImage();
-                backgroundTexture = TextureImage2D.createOfflineTexture( width, height, true );
-                backgroundTexture.clear( false, null );
-                backgroundTexture.getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-                backgroundTexture.getTextureCanvas().drawImage( bi, 0, 0, width, height, 0, 0, bi.getWidth(), bi.getHeight() );
+                backgroundTexture = backgroundImageName.getImage().getScaledTextureImage( width, height );
             }
             catch ( Throwable t )
             {
@@ -498,9 +481,9 @@ public class RevMeterWidget extends Widget
         
         loadNeedleTexture( isEditorMode );
         
-        BufferedImage bi = backgroundImageName.getBufferedImage();
-        backgroundScaleX = (float)width / (float)bi.getWidth();
-        backgroundScaleY = (float)height / (float)bi.getHeight();
+        ImageTemplate it = backgroundImageName.getImage();
+        backgroundScaleX = (float)width / (float)it.getBaseWidth();
+        backgroundScaleY = (float)height / (float)it.getBaseHeight();
         
         if ( displayShiftLight.getBooleanValue() )
         {
@@ -808,9 +791,9 @@ public class RevMeterWidget extends Widget
             String string = gear.getValue() == -1 ? "R" : gear.getValue() == 0 ? "N" : String.valueOf( gear );
             
             if ( gearBackgroundTexture == null )
-                gearString.draw( offsetX, offsetY, string, backgroundTexture, image );
+                gearString.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
             else
-                gearString.draw( 0, 0, string, gearBackgroundTexture_bak, gearBackgroundTexture.getTexture() );
+                gearString.draw( 0, 0, string, gearBackgroundTexture_bak, 0, 0, gearBackgroundTexture.getTexture() );
         }
         
         boost.update( telemData.getEffectiveEngineBoostMapping() );
@@ -819,9 +802,9 @@ public class RevMeterWidget extends Widget
             if ( displayBoostNumber.getBooleanValue() )
             {
                 if ( boostNumberBackgroundTexture == null )
-                    boostString.draw( offsetX, offsetY, boost.getValueAsString(), backgroundTexture, image );
+                    boostString.draw( offsetX, offsetY, boost.getValueAsString(), backgroundTexture, offsetX, offsetY, image );
                 else
-                    boostString.draw( 0, 0, boost.getValueAsString(), boostNumberBackgroundTexture_bak, boostNumberBackgroundTexture.getTexture() );
+                    boostString.draw( 0, 0, boost.getValueAsString(), boostNumberBackgroundTexture_bak, 0, 0, boostNumberBackgroundTexture.getTexture() );
             }
             
             if ( displayBoostBar.getBooleanValue() )
@@ -847,15 +830,9 @@ public class RevMeterWidget extends Widget
                 double fw = bounds.getWidth();
                 
                 if ( velocityBackgroundTexture == null )
-                {
-                    image.clear( backgroundTexture, velocityString.getAbsX() - (int)( fw * 1.5 ), velocityString.getAbsY(), (int)( fw * 3 ), (int)bounds.getHeight(), offsetX + velocityString.getAbsX() - (int)( fw * 1.5 ), offsetY + velocityString.getAbsY(), (int)( fw * 3 ), (int)bounds.getHeight(), true, null );
-                    velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, (TextureImage2D)null, image );
-                }
+                    velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, backgroundTexture, offsetX, offsetY, image );
                 else
-                {
-                    velocityBackgroundTexture.getTexture().clear( velocityBackgroundTexture_bak, velocityString.getAbsX() - (int)( fw * 1.5 ), velocityString.getAbsY(), (int)( fw * 3 ), (int)bounds.getHeight(), velocityString.getAbsX() - (int)( fw * 1.5 ), velocityString.getAbsY(), (int)( fw * 3 ), (int)bounds.getHeight(), true, null );
-                    velocityString.draw( (int)( -fw / 2.0 ), 0, string, (TextureImage2D)null, velocityBackgroundTexture.getTexture() );
-                }
+                    velocityString.draw( (int)( -fw / 2.0 ), 0, string, velocityBackgroundTexture_bak, 0, 0, velocityBackgroundTexture.getTexture() );
             }
         }
         
@@ -871,7 +848,7 @@ public class RevMeterWidget extends Widget
         if ( needsCompleteRedraw || clock1 )
         {
             String string = NumberUtil.formatFloat( rpm, 0, false ) + " / " + NumberUtil.formatFloat( maxRPM, 0, false );
-            rpmString.draw( offsetX, offsetY, string, backgroundTexture, image );
+            rpmString.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
         }
         
         if ( shiftLightTexture != null )

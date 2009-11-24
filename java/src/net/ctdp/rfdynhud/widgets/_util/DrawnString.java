@@ -358,39 +358,7 @@ public class DrawnString
         return ( getMaxHeight( includingDescent ) );
     }
     
-    /*
-    private void clear( int offsetX, int offsetY, java.awt.Color clearColor, TextureImage2D texture, Rect2i dirtyRect )
-    {
-        int x = this.getAbsX();
-        if ( getAlignment() == Alignment.RIGHT )
-            x -= maxWidth;
-        else if ( getAlignment() == Alignment.CENTER )
-            x -= maxWidth / 2;
-        
-        int y = this.getAbsY() + clearYOffset;
-        
-        texture.getTextureCanvas().pushClip( offsetX + x, offsetY + y, maxWidth, getMaxHeight( false ), true );
-        texture.clear( clearColor, offsetX + x, offsetY + y, maxWidth, getMaxHeight( false ), false, dirtyRect );
-        texture.getTextureCanvas().popClip();
-    }
-    
-    private void clear( int offsetX, int offsetY, TextureImage2D clearBackground, TextureImage2D texture, Rect2i dirtyRect )
-    {
-        int x = this.getAbsX();
-        if ( getAlignment() == Alignment.RIGHT )
-            x -= maxWidth;
-        else if ( getAlignment() == Alignment.CENTER )
-            x -= maxWidth / 2;
-        
-        int y = this.getAbsY() + clearYOffset;
-        
-        texture.getTextureCanvas().pushClip( offsetX + x, offsetY + y, maxWidth, maxHeight, true );
-        texture.clear( clearBackground, x, y, maxWidth, maxHeight, offsetX + x, offsetY + y, maxWidth, maxHeight, false, dirtyRect );
-        texture.getTextureCanvas().popClip();
-    }
-    */
-    
-    private void clear( int offsetX, int offsetY, java.awt.Color clearColor, TextureImage2D clearBackground, TextureImage2D texture, Rect2i dirtyRect )
+    private void clear( java.awt.Color clearColor, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, TextureImage2D texture, Rect2i dirtyRect )
     {
         if ( ( clearRect.getWidth() <= 0 ) || ( clearRect.getHeight() <= 0 ) )
             return;
@@ -407,11 +375,11 @@ public class DrawnString
         if ( clearColor != null )
             texture.clear( clearColor, x, y, width, height, true, dirtyRect );
         if ( clearBackground != null )
-            texture.clear( clearBackground, x - offsetX, y - offsetY, width, height, x, y, width, height, true, dirtyRect );
+            texture.clear( clearBackground, x - clearOffsetX, y - clearOffsetY, width, height, x, y, width, height, true, dirtyRect );
         texture.getTextureCanvas().popClip();
     }
     
-    private int draw( int offsetX, int offsetY, String str, java.awt.Color clearColor, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
+    private int draw( int offsetX, int offsetY, String str, java.awt.Color clearColor, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, java.awt.Color fontColor, TextureImage2D texture )
     {
         if ( fontColor == null )
             fontColor = getFontColor();
@@ -419,7 +387,7 @@ public class DrawnString
         String totalString;
         Rectangle2D bounds = null;
         
-        clear( offsetX, offsetY, clearColor, clearBackground, texture, null );
+        clear( clearColor, clearBackground, clearOffsetX, clearOffsetY, texture, null );
         
         if ( ( prefix != null ) && ( postfix != null ) )
             totalString = prefix + str + postfix;
@@ -464,7 +432,7 @@ public class DrawnString
      */
     public int draw( int offsetX, int offsetY, String str, java.awt.Color clearColor, java.awt.Color fontColor, TextureImage2D texture )
     {
-        return ( draw( offsetX, offsetY, str, clearColor, null, fontColor, texture ) );
+        return ( draw( offsetX, offsetY, str, clearColor, null, 0, 0, fontColor, texture ) );
     }
     
     /**
@@ -488,14 +456,16 @@ public class DrawnString
      * @param offsetY
      * @param str the string to draw
      * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param clearOffsetX the x-offset of the clear texture on the background
+     * @param clearOffsetY the y-offset of the clear texture on the background
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
      * 
      * @return the drawn string's width in pixels.
      */
-    public int draw( int offsetX, int offsetY, String str, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
+    public int draw( int offsetX, int offsetY, String str, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, java.awt.Color fontColor, TextureImage2D texture )
     {
-        return ( draw( offsetX, offsetY, str, null, clearBackground, fontColor, texture ) );
+        return ( draw( offsetX, offsetY, str, null, clearBackground, clearOffsetX, clearOffsetY, fontColor, texture ) );
     }
     
     /**
@@ -505,18 +475,20 @@ public class DrawnString
      * @param offsetY
      * @param str the string to draw
      * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param clearOffsetX the x-offset of the clear texture on the background
+     * @param clearOffsetY the y-offset of the clear texture on the background
      * @param texture the texture to draw on
      */
-    public void draw( int offsetX, int offsetY, String str, TextureImage2D clearBackground, TextureImage2D texture )
+    public void draw( int offsetX, int offsetY, String str, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, TextureImage2D texture )
     {
-        draw( offsetX, offsetY, str, clearBackground, null, texture );
+        draw( offsetX, offsetY, str, clearBackground, clearOffsetX, clearOffsetY, null, texture );
     }
     
-    private int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, TextureImage2D clearBackground, java.awt.Color[] fontColors, TextureImage2D texture )
+    private int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, java.awt.Color[] fontColors, TextureImage2D texture )
     {
         Rect2i dirtyRect = Rect2i.fromPool();
         
-        clear( offsetX, offsetY, clearColor, clearBackground, texture, null );
+        clear( clearColor, clearBackground, clearOffsetX, clearOffsetY, texture, null );
         
         Rectangle2D bounds = null;
         maxWidth = 0;
@@ -601,7 +573,7 @@ public class DrawnString
      */
     public int drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, java.awt.Color clearColor, java.awt.Color fontColor, TextureImage2D texture )
     {
-        return ( drawColumns( offsetX, offsetY, strs, null, 0, colWidths, clearColor, null, new java.awt.Color[] { fontColor }, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, null, 0, colWidths, clearColor, null, 0, 0, new java.awt.Color[] { fontColor }, texture ) );
     }
     
     /**
@@ -627,14 +599,16 @@ public class DrawnString
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param clearOffsetX the x-offset of the clear texture on the background
+     * @param clearOffsetY the y-offset of the clear texture on the background
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
      * 
      * @return the drawn string's width in pixels.
      */
-    public int drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
+    public int drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, java.awt.Color fontColor, TextureImage2D texture )
     {
-        return ( drawColumns( offsetX, offsetY, strs, null, 0, colWidths, null, clearBackground, new java.awt.Color[] { fontColor }, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, null, 0, colWidths, null, clearBackground, clearOffsetX, clearOffsetY, new java.awt.Color[] { fontColor }, texture ) );
     }
     
     /**
@@ -645,11 +619,13 @@ public class DrawnString
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param clearOffsetX the x-offset of the clear texture on the background
+     * @param clearOffsetY the y-offset of the clear texture on the background
      * @param texture the texture to draw on
      */
-    public void drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D clearBackground, TextureImage2D texture )
+    public void drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, TextureImage2D texture )
     {
-        drawColumns( offsetX, offsetY, strs, null, 0, colWidths, clearBackground, (java.awt.Color[])null, texture );
+        drawColumns( offsetX, offsetY, strs, null, 0, colWidths, clearBackground, clearOffsetX, clearOffsetY, (java.awt.Color[])null, texture );
     }
     
     /**
@@ -669,7 +645,7 @@ public class DrawnString
      */
     public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, java.awt.Color[] fontColors, TextureImage2D texture )
     {
-        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, null, fontColors, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, null, 0, 0, fontColors, texture ) );
     }
     
     /**
@@ -689,7 +665,7 @@ public class DrawnString
      */
     public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, java.awt.Color fontColor, TextureImage2D texture )
     {
-        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, null, new java.awt.Color[] { fontColor }, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, null, 0, 0, new java.awt.Color[] { fontColor }, texture ) );
     }
     
     /**
@@ -719,14 +695,16 @@ public class DrawnString
      * @param padding the padding to honor when aligning right
      * @param colWidths the column widths to use
      * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param clearOffsetX the x-offset of the clear texture on the background
+     * @param clearOffsetY the y-offset of the clear texture on the background
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
      * 
      * @return the drawn string's width in pixels.
      */
-    public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, java.awt.Color[] fontColors, TextureImage2D texture )
+    public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, java.awt.Color[] fontColors, TextureImage2D texture )
     {
-        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, null, clearBackground, fontColors, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, null, clearBackground, clearOffsetX, clearOffsetY, fontColors, texture ) );
     }
     
     /**
@@ -739,14 +717,16 @@ public class DrawnString
      * @param padding the padding to honor when aligning right
      * @param colWidths the column widths to use
      * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param clearOffsetX the x-offset of the clear texture on the background
+     * @param clearOffsetY the y-offset of the clear texture on the background
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
      * 
      * @return the drawn string's width in pixels.
      */
-    public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
+    public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, java.awt.Color fontColor, TextureImage2D texture )
     {
-        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, null, clearBackground, new java.awt.Color[] { fontColor }, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, null, clearBackground, clearOffsetX, clearOffsetY, new java.awt.Color[] { fontColor }, texture ) );
     }
     
     /**
@@ -759,11 +739,13 @@ public class DrawnString
      * @param padding the padding to honor when aligning right
      * @param colWidths the column widths to use
      * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param clearOffsetX the x-offset of the clear texture on the background
+     * @param clearOffsetY the y-offset of the clear texture on the background
      * @param texture the texture to draw on
      */
-    public void drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, TextureImage2D texture )
+    public void drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, TextureImage2D texture )
     {
-        drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearBackground, (java.awt.Color[])null, texture );
+        drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearBackground, clearOffsetX, clearOffsetY, (java.awt.Color[])null, texture );
     }
     
     /**

@@ -29,7 +29,7 @@ public class BorderCache
         if ( border != null )
             return ( border );
         
-        TextureImage2D texture = TextureLoader.getTexture( "borders" + File.separator + textureName, false );
+        TextureImage2D texture = TextureLoader.getImage( "borders" + File.separator + textureName, false ).getTextureImage();
         
         if ( texture == null )
             return ( null );

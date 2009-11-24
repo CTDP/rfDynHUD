@@ -1,13 +1,12 @@
 package net.ctdp.rfdynhud.widgets.image;
 
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.ImageProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.Logger;
@@ -61,13 +60,10 @@ public class ImageWidget extends Widget
         {
             try
             {
-                BufferedImage bi = image.getBufferedImage();
-                if ( ( texture == null ) || ( bi.getWidth() != width ) || ( bi.getHeight() != height ) )
+                ImageTemplate it = image.getImage();
+                if ( ( texture == null ) || ( it.getBaseWidth() != width ) || ( it.getBaseHeight() != height ) )
                 {
-                    texture = TextureImage2D.createOfflineTexture( width, height, true );
-                    texture.clear( false, null );
-                    texture.getTextureCanvas().setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-                    texture.getTextureCanvas().drawImage( bi, 0, 0, width, height, 0, 0, bi.getWidth(), bi.getHeight() );
+                    texture = it.getScaledTextureImage( width, height );
                 }
             }
             catch ( Throwable t )
