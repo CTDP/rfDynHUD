@@ -45,8 +45,8 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class RevMeterWidget extends Widget
 {
-    private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "revmeter.png" );
-    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "needle.png" );
+    private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "tacho_orange_2.png" );
+    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "needle4.png" );
     private final ImageProperty shiftLightImageName = new ImageProperty( this, "shiftLightImageName", "imageName", "shiftlight_on.png" );
     private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
     private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numberBGImageName", "", false, true );
