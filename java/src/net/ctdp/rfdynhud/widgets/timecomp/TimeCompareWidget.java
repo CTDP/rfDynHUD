@@ -175,9 +175,15 @@ public class TimeCompareWidget extends Widget
         timeStrings[numDisplayedLaps] = new DrawnString( null, relY, 0, 5, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
         
         if ( displaySectors.getBooleanValue() )
-            timeStrings[0].getMinColWidths( new String[] { "00", " --.---", " --.---", " --.---", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
+        {
+            headerString.getMaxColWidths( new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, padding, texCanvas.getImage(), colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", " --.---", " --.---", " --.---", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
+        }
         else
-            timeStrings[0].getMinColWidths( new String[] { "00", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
+        {
+            headerString.getMaxColWidths( new String[] { "#", "Lap" }, padding, texCanvas.getImage(), colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
+        }
         
         int currentLap = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getCurrentLap();
         if ( currentLap > 0 )

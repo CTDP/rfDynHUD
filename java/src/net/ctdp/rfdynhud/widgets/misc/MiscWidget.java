@@ -74,7 +74,14 @@ public class MiscWidget extends Widget
     private float oldRelTopspeed = -1f;
     private float relTopspeed = -1f;
     private long lastRelTopspeedTime = -1L;
+    private float topspeed;
+    private int velocity;
     private int oldVelocity = -1;
+    
+    private int[] colWidths2 = new int[ 2 ];
+    private int[] colWidths3 = new int[ 3 ];
+    private int totalColWidths = 0;
+    private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
     
     public void setRelTopspeedResetDelay( int delay )
     {
@@ -160,8 +167,8 @@ public class MiscWidget extends Widget
         if ( displayScoring.getBooleanValue() )
         {
             scoringString1 = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, null );
-            scoringString2 = new DrawnString( null, scoringString1, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fastest Lap: ", null, null );
-            scoringString3 = new DrawnString( null, scoringString2, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "             ", null, null );
+            scoringString2 = new DrawnString( null, scoringString1, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, null );
+            scoringString3 = new DrawnString( null, scoringString2, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, null );
         }
         else
         {
@@ -212,9 +219,9 @@ public class MiscWidget extends Widget
         
         if ( displayVelocity.getBooleanValue() )
         {
-            absTopspeedString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Abs. Topspeed: ", null, " km/h" );
-            relTopspeedString = new DrawnString( null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Rel. Topspeed: ", null, " km/h" );
-            velocityString = new DrawnString( null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Velocity: ", null, "   km/h" );
+            absTopspeedString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, null );
+            relTopspeedString = new DrawnString( null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, null );
+            velocityString = new DrawnString( null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, null );
         }
         else
         {
@@ -222,6 +229,37 @@ public class MiscWidget extends Widget
             relTopspeedString = null;
             velocityString = null;
         }
+    }
+    
+    private void updateScoringColWidths( TextureImage2D image )
+    {
+        colWidths2[0] = 0;
+        colWidths2[1] = 0;
+        int padding = 4;
+        
+        totalColWidths = scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, padding, image, colWidths2 );
+        if ( fastestLap.isValid() )
+        {
+            totalColWidths = scoringString2.getMaxColWidths( new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, colWidths2 );
+            totalColWidths = scoringString3.getMaxColWidths( new String[] { "", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, colWidths2 );
+        }
+        else
+        {
+            totalColWidths = scoringString2.getMaxColWidths( new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, colWidths2 );
+            totalColWidths = scoringString3.getMaxColWidths( new String[] { "", "--:--.---" }, padding, image, colWidths2 );
+        }
+    }
+    
+    private void updateVelocityColWidths( TextureImage2D image )
+    {
+        colWidths3[0] = 0;
+        colWidths3[1] = 0;
+        colWidths3[2] = 0;
+        int padding = 4;
+        
+        totalColWidths = absTopspeedString.getMaxColWidths( new String[] { "Abs. Topspeed:", NumberUtil.formatFloat( Math.max( oldAbsTopspeed, topspeed ), 1, true ), "km/h" }, padding, image, colWidths3 );
+        totalColWidths = relTopspeedString.getMaxColWidths( new String[] { "Rel. Topspeed:", NumberUtil.formatFloat( relTopspeed, 1, true ), "km/h" }, padding, image, colWidths3 );
+        totalColWidths = velocityString.getMaxColWidths( new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, padding, image, colWidths3 );
     }
     
     /**
@@ -243,17 +281,25 @@ public class MiscWidget extends Widget
             String fastestLapper = fastestLapVSI.getDriverName();
             fastestLap.update( fastestLapVSI.getBestLapTime() );
             
+            boolean colWidthsUpdated = false;
+            
             boolean lv = ( leaderVSI.getBestLapTime() > 0f );
             if ( needsCompleteRedraw || leader.hasChanged() || ( lv != leaderValid ) )
             {
                 leaderValid = lv;
                 
+                if ( !colWidthsUpdated )
+                {
+                    updateScoringColWidths( image );
+                    colWidthsUpdated = true;
+                }
+                
                 if ( scoringInfo.getSessionType().isRace() )
                 {
                     if ( leaderValid )
-                        scoringString1.draw( offsetX, offsetY, "Leader:      " + leader.getValue(), backgroundColor, image );
+                        scoringString1.draw( offsetX, offsetY, new String[] { "Leader:", leader.getValue() }, colWidths2, backgroundColor, image );
                     else
-                        scoringString1.draw( offsetX, offsetY, "Leader:      N/A", backgroundColor, image );
+                        scoringString1.draw( offsetX, offsetY, new String[] { "Leader:", "N/A" }, colWidths2, backgroundColor, image );
                 }
                 else
                 {
@@ -263,14 +309,20 @@ public class MiscWidget extends Widget
             
             if ( needsCompleteRedraw || fastestLap.hasValidityChanged() || fastestLap.hasChanged() )
             {
+                if ( !colWidthsUpdated )
+                {
+                    updateScoringColWidths( image );
+                    colWidthsUpdated = true;
+                }
+                
                 if ( fastestLap.isValid() )
                 {
-                    scoringString2.draw( offsetX, offsetY, TimingUtil.getTimeAsString( fastestLap.getValue(), true ), backgroundColor, image );
-                    scoringString3.draw( offsetX, offsetY, "(" + fastestLapper + ")", backgroundColor, image );
+                    scoringString2.draw( offsetX, offsetY, new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, colWidths2, backgroundColor, image );
+                    scoringString3.draw( offsetX, offsetY, new String[] { "", "(" + fastestLapper + ")" }, colWidths2, backgroundColor, image );
                 }
                 else
                 {
-                    scoringString2.draw( offsetX, offsetY, "--:--.---", backgroundColor, image );
+                    scoringString2.draw( offsetX, offsetY, new String[] { "Fastest Lap:", "--:--.---" }, colWidths2, backgroundColor, image );
                     scoringString3.draw( offsetX, offsetY, "", backgroundColor, image );
                 }
             }
@@ -369,41 +421,58 @@ public class MiscWidget extends Widget
         
         if ( displayVelocity.getBooleanValue() )
         {
-            float velocity = gameData.getTelemetryData().getScalarVelocityKPH();
-            float topspeed = TopspeedRecorder.MASTER_TOPSPEED_RECORDER.getTopSpeed();
+            float floatVelocity = gameData.getTelemetryData().getScalarVelocityKPH();
+            velocity = Math.round( floatVelocity );
+            topspeed = TopspeedRecorder.MASTER_TOPSPEED_RECORDER.getTopSpeed();
             
-            if ( needsCompleteRedraw || ( clock2 && ( topspeed > oldAbsTopspeed ) ) )
+            if ( floatVelocity > relTopspeed )
             {
-                oldAbsTopspeed = topspeed;
-                String string = NumberUtil.formatFloat( topspeed, 1, true );
-                absTopspeedString.draw( offsetX, offsetY, string, backgroundColor, image );
-            }
-            
-            if ( velocity > relTopspeed )
-            {
-                relTopspeed = velocity;
+                relTopspeed = floatVelocity;
                 lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
-            else if ( ( lastRelTopspeedTime + relTopspeedResetDelay < scoringInfo.getSessionNanos() ) && ( velocity < relTopspeed - 50f ) )
+            else if ( ( lastRelTopspeedTime + relTopspeedResetDelay < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
             {
-                relTopspeed = velocity;
+                relTopspeed = floatVelocity;
                 oldRelTopspeed = -1f;
                 lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
             
-            if ( needsCompleteRedraw || ( clock2 && ( relTopspeed > oldRelTopspeed ) ) )
+            boolean colWidthsUpdated = false;
+            
+            if ( needsCompleteRedraw || ( clock2 && ( topspeed > oldAbsTopspeed ) ) )
             {
-                oldRelTopspeed = relTopspeed;
-                String string = NumberUtil.formatFloat( oldRelTopspeed, 1, true );
-                relTopspeedString.draw( offsetX, offsetY, string, backgroundColor, image );
+                if ( !colWidthsUpdated )
+                {
+                    updateVelocityColWidths( image );
+                    colWidthsUpdated = true;
+                }
+                
+                oldAbsTopspeed = topspeed;
+                absTopspeedString.draw( offsetX - totalColWidths, offsetY, new String[] { "Abs. Topspeed:", NumberUtil.formatFloat( topspeed, 1, true ), "km/h" }, velocityAlignment, 4, colWidths3, backgroundColor, image );
             }
             
-            int intVel = Math.round( velocity );
-            if ( needsCompleteRedraw || ( clock2 && ( intVel != oldVelocity ) ) )
+            if ( needsCompleteRedraw || ( clock2 && ( relTopspeed > oldRelTopspeed ) ) )
             {
-                oldVelocity = intVel;
-                String string = String.valueOf( intVel );
-                velocityString.draw( offsetX, offsetY, string, backgroundColor, image );
+                if ( !colWidthsUpdated )
+                {
+                    updateVelocityColWidths( image );
+                    colWidthsUpdated = true;
+                }
+                
+                oldRelTopspeed = relTopspeed;
+                relTopspeedString.draw( offsetX - totalColWidths, offsetY, new String[] { "Rel. Topspeed:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, 4, colWidths3, backgroundColor, image );
+            }
+            
+            if ( needsCompleteRedraw || ( clock2 && ( velocity != oldVelocity ) ) )
+            {
+                if ( !colWidthsUpdated )
+                {
+                    updateVelocityColWidths( image );
+                    colWidthsUpdated = true;
+                }
+                
+                oldVelocity = velocity;
+                velocityString.draw( offsetX - totalColWidths, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, 4, colWidths3, backgroundColor, image );
             }
         }
     }
