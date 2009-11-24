@@ -826,16 +826,19 @@ public class VehiclePhysicsParser
         {
             if ( upgradeListStarted )
             {
-                String[] params = value.split( "," );
-                
-                Object[] upgrade = new Object[ 1 + params.length ];
-                
-                upgrade[0] = key;
-                
-                for ( int i = 0; i < params.length; i++ )
-                    upgrade[1 + i] = Integer.valueOf( params[i] );
-                
-                upgradesList.add( upgrade );
+                if ( !key.equalsIgnoreCase( "Track Configuration" ) )
+                {
+                    String[] params = value.split( "," );
+                    
+                    Object[] upgrade = new Object[ 1 + params.length ];
+                    
+                    upgrade[0] = key;
+                    
+                    for ( int i = 0; i < params.length; i++ )
+                        upgrade[1 + i] = Integer.valueOf( params[i] );
+                    
+                    upgradesList.add( upgrade );
+                }
             }
             else if ( group == null )
             {
