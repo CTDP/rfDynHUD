@@ -151,7 +151,7 @@ public class TimeCompareWidget extends Widget
         
         LocalStore store = (LocalStore)getLocalStore();
         
-        headerString = new DrawnString( 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
+        headerString = new DrawnString( 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
         int rowHeight = headerString.getMaxHeight( texCanvas.getImage(), false );
@@ -168,11 +168,11 @@ public class TimeCompareWidget extends Widget
         DrawnString relY = headerString;
         for ( int j = 0; j < numDisplayedLaps; j++ )
         {
-            timeStrings[j] = new DrawnString( null, relY, 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
+            timeStrings[j] = new DrawnString( null, relY, 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             relY = timeStrings[j];
         }
         
-        timeStrings[numDisplayedLaps] = new DrawnString( null, relY, 0, 5, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
+        timeStrings[numDisplayedLaps] = new DrawnString( null, relY, 0, 5, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
         if ( displaySectors.getBooleanValue() )
         {
@@ -206,9 +206,9 @@ public class TimeCompareWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displaySectors.getBooleanValue() )
-                headerString.draw( offsetX, offsetY, new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
+                headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
             else
-                headerString.draw( offsetX, offsetY, new String[] { "#", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
+                headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
         }
         
         if ( needsCompleteRedraw || lap.hasChanged() )
@@ -234,7 +234,7 @@ public class TimeCompareWidget extends Widget
                     last = i;
                 }
                 
-                timeStrings[i].draw( offsetX, offsetY, s, aligns, padding, colWidths, backgroundColor, image );
+                timeStrings[i].drawColumns( offsetX, offsetY, s, aligns, padding, colWidths, backgroundColor, image );
             }
             
             String[] s;
@@ -255,7 +255,7 @@ public class TimeCompareWidget extends Widget
                     s = new String[] { "g", TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
             }
             
-            timeStrings[numDisplayedLaps].draw( offsetX, offsetY, s, aligns, padding, colWidths, backgroundColor, image );
+            timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, aligns, padding, colWidths, backgroundColor, image );
         }
     }
     

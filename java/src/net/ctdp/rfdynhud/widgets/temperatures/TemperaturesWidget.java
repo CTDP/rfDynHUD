@@ -181,16 +181,16 @@ public class TemperaturesWidget extends Widget
         
         if ( displayEngine.getBooleanValue() )
         {
-            engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Engine: ", null, null );
+            engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Engine: ", null );
             if ( displayWaterTemp.getBooleanValue() )
             {
-                engineWaterTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(W:", null, "°C)" );
-                engineOilTempString = new DrawnString( null, engineWaterTempString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, font2AntiAliased, fontColor, null, null, "°C" );
+                engineWaterTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(W:", "°C)" );
+                engineOilTempString = new DrawnString( null, engineWaterTempString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, font2AntiAliased, fontColor, null, "°C" );
             }
             else
             {
                 engineWaterTempString = null;
-                engineOilTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+                engineOilTempString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
             }
             
             relY = engineHeaderString;
@@ -201,15 +201,15 @@ public class TemperaturesWidget extends Widget
         
         if ( displayTires.getBooleanValue() )
         {
-            tiresHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tires: ", null, null );
-            tireTempFLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
-            tireTempFRString = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
-            tireTempRLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
-            tireTempRRString = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
-            tireTempFLString2 = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", null, "°C)" );
-            tireTempFRString2 = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", null, "°C)" );
-            tireTempRLString2 = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", null, "°C)" );
-            tireTempRRString2 = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", null, "°C)" );
+            tiresHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tires: ", null );
+            tireTempFLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
+            tireTempFRString = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "°C" );
+            tireTempRLString = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
+            tireTempRRString = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "°C" );
+            tireTempFLString2 = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "°C)" );
+            tireTempFRString2 = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "°C)" );
+            tireTempRLString2 = new DrawnString( null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "°C)" );
+            tireTempRRString2 = new DrawnString( null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "°C)" );
             
             relY = tiresHeaderString;
             top = tireHeight * 2 + 15;
@@ -217,11 +217,11 @@ public class TemperaturesWidget extends Widget
         
         if ( displayBrakes.getBooleanValue() )
         {
-            brakesHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Brakes:" );
-            brakeTempFLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
-            brakeTempFRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
-            brakeTempRLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
-            brakeTempRRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "°C" );
+            brakesHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            brakeTempFLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
+            brakeTempFRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "°C" );
+            brakeTempRLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
+            brakeTempRRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "°C" );
         }
     }
     

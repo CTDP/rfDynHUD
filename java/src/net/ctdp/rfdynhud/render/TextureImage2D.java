@@ -2129,6 +2129,9 @@ public class TextureImage2D
             this.data = null;
         }
         
+        //this.bufferedImage = new BufferedImage( this.width, this.height, BufferedImage.TYPE_4BYTE_ABGR );
+        //this.data = ( (DataBufferByte)bufferedImage.getRaster().getDataBuffer() ).getData();
+        
         this.isOffline = isOffline;
     }
     

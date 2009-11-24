@@ -692,7 +692,7 @@ public class StandingsWidget extends Widget
         if ( !useAutoWidth.getBooleanValue() )
             return ( super.getMaxWidth( texCanvas ) );
         
-        DrawnString ds = new DrawnString( 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), null );
+        DrawnString ds = new DrawnString( 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         String[] strs = { "99.", showThreeLetterCodes.getBooleanValue() ? "AAAA" : "Giancarlo Fisichella___", "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
         
@@ -757,9 +757,9 @@ public class StandingsWidget extends Widget
         for ( int i = 0; i < n; i++ )
         {
             if ( i == 0 )
-                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), null );
+                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
             else
-                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), null );
+                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         }
     }
     
@@ -810,7 +810,7 @@ public class StandingsWidget extends Widget
                     break;
             }
             
-            positionStrings[i].draw( offsetX, offsetY, ss, aligns, 10, colWidths, getBackgroundColor(), fc, image );
+            positionStrings[i].drawColumns( offsetX, offsetY, ss, aligns, 10, colWidths, getBackgroundColor(), fc, image );
             
             oldPosStirngs[i] = ss;
         }

@@ -78,9 +78,8 @@ public class MiscWidget extends Widget
     private int velocity;
     private int oldVelocity = -1;
     
-    private int[] colWidths2 = new int[ 2 ];
-    private int[] colWidths3 = new int[ 3 ];
-    private int totalColWidths = 0;
+    private int[] scoringColWidths = new int[ 2 ];
+    private int[] velocityColWidths = new int[ 3 ];
     private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
     
     public void setRelTopspeedResetDelay( int delay )
@@ -166,9 +165,9 @@ public class MiscWidget extends Widget
         
         if ( displayScoring.getBooleanValue() )
         {
-            scoringString1 = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, null );
-            scoringString2 = new DrawnString( null, scoringString1, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, null );
-            scoringString3 = new DrawnString( null, scoringString2, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, null );
+            scoringString1 = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            scoringString2 = new DrawnString( null, scoringString1, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            scoringString3 = new DrawnString( null, scoringString2, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         }
         else
         {
@@ -182,32 +181,32 @@ public class MiscWidget extends Widget
             if ( ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() ) || ( !displayScoring.getBooleanValue() && !displayVelocity.getBooleanValue() ) )
             {
                 if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
+                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Lap: ", null );
                 else
-                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
+                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Laps: ", null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null, null );
-                sessionTimeString = new DrawnString( lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null, null );
+                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
+                sessionTimeString = new DrawnString( lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
             }
             else if ( !displayScoring.getBooleanValue() )
             {
                 if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
+                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Lap: ", null );
                 else
-                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
+                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Laps: ", null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null, null );
-                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null, null );
+                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
+                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
             }
             else if ( !displayVelocity.getBooleanValue() )
             {
                 if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Lap: ", null, null );
+                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Lap: ", null );
                 else
-                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Laps: ", null, null );
+                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Laps: ", null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null, null );
-                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null, null );
+                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
+                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
             }
         }
         else
@@ -219,9 +218,18 @@ public class MiscWidget extends Widget
         
         if ( displayVelocity.getBooleanValue() )
         {
-            absTopspeedString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, null );
-            relTopspeedString = new DrawnString( null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, null );
-            velocityString = new DrawnString( null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, null );
+            absTopspeedString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+            relTopspeedString = new DrawnString( null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+            velocityString = new DrawnString( null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+            
+            velocityColWidths[0] = 0;
+            velocityColWidths[1] = 0;
+            velocityColWidths[2] = 0;
+            int padding = 4;
+            
+            absTopspeedString.getMaxColWidths( new String[] { "Abs. Topspeed:", "000.0", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
+            relTopspeedString.getMaxColWidths( new String[] { "Rel. Topspeed:", "000.0", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
+            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
         }
         else
         {
@@ -233,33 +241,21 @@ public class MiscWidget extends Widget
     
     private void updateScoringColWidths( TextureImage2D image )
     {
-        colWidths2[0] = 0;
-        colWidths2[1] = 0;
+        scoringColWidths[0] = 0;
+        scoringColWidths[1] = 0;
         int padding = 4;
         
-        totalColWidths = scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, padding, image, colWidths2 );
+        scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, padding, image, scoringColWidths );
         if ( fastestLap.isValid() )
         {
-            totalColWidths = scoringString2.getMaxColWidths( new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, colWidths2 );
-            totalColWidths = scoringString3.getMaxColWidths( new String[] { "", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, colWidths2 );
+            scoringString2.getMaxColWidths( new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { "", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, scoringColWidths );
         }
         else
         {
-            totalColWidths = scoringString2.getMaxColWidths( new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, colWidths2 );
-            totalColWidths = scoringString3.getMaxColWidths( new String[] { "", "--:--.---" }, padding, image, colWidths2 );
+            scoringString2.getMaxColWidths( new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { "", "--:--.---" }, padding, image, scoringColWidths );
         }
-    }
-    
-    private void updateVelocityColWidths( TextureImage2D image )
-    {
-        colWidths3[0] = 0;
-        colWidths3[1] = 0;
-        colWidths3[2] = 0;
-        int padding = 4;
-        
-        totalColWidths = absTopspeedString.getMaxColWidths( new String[] { "Abs. Topspeed:", NumberUtil.formatFloat( Math.max( oldAbsTopspeed, topspeed ), 1, true ), "km/h" }, padding, image, colWidths3 );
-        totalColWidths = relTopspeedString.getMaxColWidths( new String[] { "Rel. Topspeed:", NumberUtil.formatFloat( relTopspeed, 1, true ), "km/h" }, padding, image, colWidths3 );
-        totalColWidths = velocityString.getMaxColWidths( new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, padding, image, colWidths3 );
     }
     
     /**
@@ -297,9 +293,9 @@ public class MiscWidget extends Widget
                 if ( scoringInfo.getSessionType().isRace() )
                 {
                     if ( leaderValid )
-                        scoringString1.draw( offsetX, offsetY, new String[] { "Leader:", leader.getValue() }, colWidths2, backgroundColor, image );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", leader.getValue() }, scoringColWidths, backgroundColor, image );
                     else
-                        scoringString1.draw( offsetX, offsetY, new String[] { "Leader:", "N/A" }, colWidths2, backgroundColor, image );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", "N/A" }, scoringColWidths, backgroundColor, image );
                 }
                 else
                 {
@@ -317,12 +313,12 @@ public class MiscWidget extends Widget
                 
                 if ( fastestLap.isValid() )
                 {
-                    scoringString2.draw( offsetX, offsetY, new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, colWidths2, backgroundColor, image );
-                    scoringString3.draw( offsetX, offsetY, new String[] { "", "(" + fastestLapper + ")" }, colWidths2, backgroundColor, image );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, scoringColWidths, backgroundColor, image );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "", "(" + fastestLapper + ")" }, scoringColWidths, backgroundColor, image );
                 }
                 else
                 {
-                    scoringString2.draw( offsetX, offsetY, new String[] { "Fastest Lap:", "--:--.---" }, colWidths2, backgroundColor, image );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Fastest Lap:", "--:--.---" }, scoringColWidths, backgroundColor, image );
                     scoringString3.draw( offsetX, offsetY, "", backgroundColor, image );
                 }
             }
@@ -403,19 +399,11 @@ public class MiscWidget extends Widget
                 gamePhase.setUnchanged();
                 
                 if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
-                {
                     sessionTimeString.draw( offsetX, offsetY, "--:--:--", backgroundColor, image );
-                }
                 else if ( scoringInfo.getSessionType().isTestDay() || ( totalTime < 0f ) || ( totalTime > 3000000f ) )
-                {
-                    String string = TimingUtil.getTimeAsString( sessionTime.getValue(), true, false );
-                    sessionTimeString.draw( offsetX, offsetY, string, backgroundColor, image );
-                }
+                    sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), backgroundColor, image );
                 else
-                {
-                    String string = TimingUtil.getTimeAsString( sessionTime.getValue() - totalTime, true, false );
-                    sessionTimeString.draw( offsetX, offsetY, string, backgroundColor, image );
-                }
+                    sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue() - totalTime, true, false ), backgroundColor, image );
             }
         }
         
@@ -437,42 +425,22 @@ public class MiscWidget extends Widget
                 lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
             
-            boolean colWidthsUpdated = false;
-            
             if ( needsCompleteRedraw || ( clock2 && ( topspeed > oldAbsTopspeed ) ) )
             {
-                if ( !colWidthsUpdated )
-                {
-                    updateVelocityColWidths( image );
-                    colWidthsUpdated = true;
-                }
-                
                 oldAbsTopspeed = topspeed;
-                absTopspeedString.draw( offsetX - totalColWidths, offsetY, new String[] { "Abs. Topspeed:", NumberUtil.formatFloat( topspeed, 1, true ), "km/h" }, velocityAlignment, 4, colWidths3, backgroundColor, image );
+                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Abs. Topspeed:", NumberUtil.formatFloat( topspeed, 1, true ), "km/h" }, velocityAlignment, 4, velocityColWidths, backgroundColor, image );
             }
             
             if ( needsCompleteRedraw || ( clock2 && ( relTopspeed > oldRelTopspeed ) ) )
             {
-                if ( !colWidthsUpdated )
-                {
-                    updateVelocityColWidths( image );
-                    colWidthsUpdated = true;
-                }
-                
                 oldRelTopspeed = relTopspeed;
-                relTopspeedString.draw( offsetX - totalColWidths, offsetY, new String[] { "Rel. Topspeed:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, 4, colWidths3, backgroundColor, image );
+                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Rel. Topspeed:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, 4, velocityColWidths, backgroundColor, image );
             }
             
             if ( needsCompleteRedraw || ( clock2 && ( velocity != oldVelocity ) ) )
             {
-                if ( !colWidthsUpdated )
-                {
-                    updateVelocityColWidths( image );
-                    colWidthsUpdated = true;
-                }
-                
                 oldVelocity = velocity;
-                velocityString.draw( offsetX - totalColWidths, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, 4, colWidths3, backgroundColor, image );
+                velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, 4, velocityColWidths, backgroundColor, image );
             }
         }
     }

@@ -40,9 +40,8 @@ public class DrawnString
     private int maxWidth = -1;
     private int maxHeight = -1;
     private int fontDescent = 0;
-    private int clearYOffset = -1;
     
-    private final String maxWidthString;
+    private final Rect2i clearRect = new Rect2i( -1, -1, 0, 0 );
     
     private final String prefix;
     private final String postfix;
@@ -359,6 +358,7 @@ public class DrawnString
         return ( getMaxHeight( includingDescent ) );
     }
     
+    /*
     private void clear( int offsetX, int offsetY, java.awt.Color clearColor, TextureImage2D texture, Rect2i dirtyRect )
     {
         int x = this.getAbsX();
@@ -388,81 +388,52 @@ public class DrawnString
         texture.clear( clearBackground, x, y, maxWidth, maxHeight, offsetX + x, offsetY + y, maxWidth, maxHeight, false, dirtyRect );
         texture.getTextureCanvas().popClip();
     }
+    */
+    
+    private void clear( int offsetX, int offsetY, java.awt.Color clearColor, TextureImage2D clearBackground, TextureImage2D texture, Rect2i dirtyRect )
+    {
+        if ( ( clearRect.getWidth() <= 0 ) || ( clearRect.getHeight() <= 0 ) )
+            return;
+        
+        if ( ( clearColor == null ) && ( clearBackground == null ) )
+            return;
+        
+        int x = clearRect.getLeft();
+        int y = clearRect.getTop();
+        int width = clearRect.getWidth();
+        int height = clearRect.getHeight() - fontDescent;
+        
+        texture.getTextureCanvas().pushClip( x, y, width, height, true );
+        if ( clearColor != null )
+            texture.clear( clearColor, x, y, width, height, true, dirtyRect );
+        if ( clearBackground != null )
+            texture.clear( clearBackground, x - offsetX, y - offsetY, width, height, x, y, width, height, true, dirtyRect );
+        texture.getTextureCanvas().popClip();
+    }
     
     private int draw( int offsetX, int offsetY, String str, java.awt.Color clearColor, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
     {
         if ( fontColor == null )
             fontColor = getFontColor();
         
-        Rect2i dirtyRect0 = Rect2i.fromPool();
-        Rect2i dirtyRect1 = Rect2i.fromPool();
-        
         String totalString;
+        Rectangle2D bounds = null;
         
-        if ( maxWidthString == null )
-        {
-            if ( maxWidth > 0 )
-            {
-                if ( clearColor != null )
-                    clear( offsetX, offsetY, clearColor, texture, dirtyRect0 );
-                else if ( clearBackground != null )
-                    clear( offsetX, offsetY, clearBackground, texture, dirtyRect0 );
-            }
-            
-            if ( ( prefix != null ) && ( postfix != null ) )
-                totalString = prefix + str + postfix;
-            else if ( prefix != null )
-                totalString = prefix + str;
-            else if ( postfix != null )
-                totalString = str + postfix;
-            else
-                totalString = str;
-            
-            Rectangle2D clearBounds = texture.getStringBounds( totalString, font, fontAntiAliased );
-            maxWidth = (int)clearBounds.getWidth();
-            //maxHeight = (int)clearBounds.getHeight();
-            calcMaxHeight( font, fontAntiAliased, texture );
-            clearYOffset = isYAtBaseline() ? (int)clearBounds.getY() : 0;
-        }
+        clear( offsetX, offsetY, clearColor, clearBackground, texture, null );
+        
+        if ( ( prefix != null ) && ( postfix != null ) )
+            totalString = prefix + str + postfix;
+        else if ( prefix != null )
+            totalString = prefix + str;
+        else if ( postfix != null )
+            totalString = str + postfix;
         else
-        {
-            if ( maxWidth < 0 )
-            {
-                if ( ( prefix != null ) && ( postfix != null ) )
-                    totalString = prefix + maxWidthString + postfix;
-                else if ( prefix != null )
-                    totalString = prefix + maxWidthString;
-                else if ( postfix != null )
-                    totalString = maxWidthString + postfix;
-                else
-                    totalString = maxWidthString;
-                
-                Rectangle2D clearBounds = texture.getStringBounds( totalString, font, fontAntiAliased );
-                maxWidth = (int)clearBounds.getWidth();
-                //maxHeight = (int)clearBounds.getHeight();
-                calcMaxHeight( font, fontAntiAliased, texture );
-                clearYOffset = isYAtBaseline() ? (int)clearBounds.getY() : 0;
-            }
-            
-            if ( maxWidth > 0 )
-            {
-                if ( clearColor != null )
-                    clear( offsetX, offsetY, clearColor, texture, dirtyRect0 );
-                else if ( clearBackground != null )
-                    clear( offsetX, offsetY, clearBackground, texture, dirtyRect0 );
-            }
-            
-            if ( ( prefix != null ) && ( postfix != null ) )
-                totalString = prefix + str + postfix;
-            else if ( prefix != null )
-                totalString = prefix + str;
-            else if ( postfix != null )
-                totalString = str + postfix;
-            else
-                totalString = str;
-        }
+            totalString = str;
         
-        Rectangle2D bounds = texture.getStringBounds( totalString, font, fontAntiAliased );
+        bounds = texture.getStringBounds( totalString, font, fontAntiAliased );
+        maxWidth = (int)bounds.getWidth();
+        //maxHeight = (int)bounds.getHeight();
+        calcMaxHeight( font, fontAntiAliased, texture );
         
         int x = this.getAbsX();
         if ( getAlignment() == Alignment.RIGHT )
@@ -472,15 +443,9 @@ public class DrawnString
         
         int y = this.getAbsY() - ( isYAtBaseline() ? 0 : (int)bounds.getY() );
         
-        texture.drawString( totalString, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, dirtyRect1 );
+        texture.drawString( totalString, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, clearRect );
         
-        if ( ( clearColor != null ) || ( clearBackground != null ) )
-            dirtyRect1.combine( dirtyRect0 );
-        
-        texture.markDirty( dirtyRect1 );
-        
-        Rect2i.toPool( dirtyRect1 );
-        Rect2i.toPool( dirtyRect0 );
+        texture.markDirty( clearRect );
         
         return ( (int)Math.round( bounds.getWidth() ) );
     }
@@ -547,21 +512,11 @@ public class DrawnString
         draw( offsetX, offsetY, str, clearBackground, null, texture );
     }
     
-    private int draw( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
+    private int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, TextureImage2D clearBackground, java.awt.Color[] fontColors, TextureImage2D texture )
     {
-        if ( fontColor == null )
-            fontColor = getFontColor();
+        Rect2i dirtyRect = Rect2i.fromPool();
         
-        Rect2i dirtyRect0 = Rect2i.fromPool();
-        Rect2i dirtyRect1 = Rect2i.fromPool();
-        
-        if ( maxWidth > 0 )
-        {
-            if ( clearColor != null )
-                clear( offsetX, offsetY, clearColor, texture, dirtyRect0 );
-            else if ( clearBackground != null )
-                clear( offsetX, offsetY, clearBackground, texture, dirtyRect0 );
-        }
+        clear( offsetX, offsetY, clearColor, clearBackground, texture, null );
         
         Rectangle2D bounds = null;
         maxWidth = 0;
@@ -573,6 +528,10 @@ public class DrawnString
         
         int yOff = 0;
         String str;
+        
+        int totalWidth = 0;
+        for ( int i = 0; i < colWidths.length; i++ )
+            totalWidth += colWidths[i];
         
         for ( int i = 0; i < strs.length; i++ )
         {
@@ -598,7 +557,8 @@ public class DrawnString
             
             bounds = texture.getStringBounds( str, font, fontAntiAliased );
             
-            int x = ax + maxWidth;
+            int x = ( ( getAlignment() == Alignment.RIGHT ) ? -totalWidth : ( getAlignment() == Alignment.CENTER ) ? -totalWidth / 2 : 0 ); 
+            x += ax + maxWidth;
             if ( align == Alignment.RIGHT )
                 x +=  cw - (int)bounds.getWidth() - padding;
             else if ( align == Alignment.CENTER )
@@ -606,24 +566,22 @@ public class DrawnString
             
             int y = ay - ( isYAtBaseline() ? 0 : (int)bounds.getY() );
             
-            texture.drawString( str, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, dirtyRect1 );
+            java.awt.Color fontColor = ( fontColors == null ) ? this.fontColor : ( ( i >= fontColors.length ) ? this.fontColor : ( ( fontColors[i] == null ) ? this.fontColor : fontColors[i] ) );
+            texture.drawString( str, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, dirtyRect );
             
-            if ( ( i == 0 ) && ( clearColor == null ) && ( clearBackground == null ) )
-                dirtyRect0.set( dirtyRect1 );
+            if ( i == 0 )
+                clearRect.set( dirtyRect );
             else
-                dirtyRect0.combine( dirtyRect1 );
+                clearRect.combine( dirtyRect );
             
             maxWidth += cw;
             //maxHeight = Math.max( maxHeight, (int)Math.round( bounds.getHeight() ) );
             yOff = Math.min( yOff, (int)Math.round( bounds.getY() ) );
         }
         
-        clearYOffset = isYAtBaseline() ? yOff : 0;
+        texture.markDirty( clearRect );
         
-        texture.markDirty( dirtyRect0 );
-        
-        Rect2i.toPool( dirtyRect1 );
-        Rect2i.toPool( dirtyRect0 );
+        Rect2i.toPool( dirtyRect );
         
         return ( maxWidth - colWidths[colWidths.length - 1] + (int)bounds.getWidth() );
     }
@@ -641,9 +599,9 @@ public class DrawnString
      * 
      * @return the drawn string's width in pixels.
      */
-    public int draw( int offsetX, int offsetY, String[] strs, int[] colWidths, java.awt.Color clearColor, java.awt.Color fontColor, TextureImage2D texture )
+    public int drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, java.awt.Color clearColor, java.awt.Color fontColor, TextureImage2D texture )
     {
-        return ( draw( offsetX, offsetY, strs, null, 0, colWidths, clearColor, null, fontColor, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, null, 0, colWidths, clearColor, null, new java.awt.Color[] { fontColor }, texture ) );
     }
     
     /**
@@ -656,9 +614,9 @@ public class DrawnString
      * @param clearColor the color to use for clearing (null to skip clearing)
      * @param texture the texture to draw on
      */
-    public void draw( int offsetX, int offsetY, String[] strs, int[] colWidths, java.awt.Color clearColor, TextureImage2D texture )
+    public void drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, java.awt.Color clearColor, TextureImage2D texture )
     {
-        draw( offsetX, offsetY, strs, null, 0, colWidths, clearColor, null, texture );
+        drawColumns( offsetX, offsetY, strs, null, 0, colWidths, clearColor, (java.awt.Color[])null, texture );
     }
     
     /**
@@ -674,9 +632,9 @@ public class DrawnString
      * 
      * @return the drawn string's width in pixels.
      */
-    public int draw( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
+    public int drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
     {
-        return ( draw( offsetX, offsetY, strs, null, 0, colWidths, null, clearBackground, fontColor, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, null, 0, colWidths, null, clearBackground, new java.awt.Color[] { fontColor }, texture ) );
     }
     
     /**
@@ -689,9 +647,9 @@ public class DrawnString
      * @param clearBackground the image to use for clearing (null to skip clearing)
      * @param texture the texture to draw on
      */
-    public void draw( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D clearBackground, TextureImage2D texture )
+    public void drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D clearBackground, TextureImage2D texture )
     {
-        draw( offsetX, offsetY, strs, null, 0, colWidths, clearBackground, null, texture );
+        drawColumns( offsetX, offsetY, strs, null, 0, colWidths, clearBackground, (java.awt.Color[])null, texture );
     }
     
     /**
@@ -709,9 +667,29 @@ public class DrawnString
      * 
      * @return the drawn string's width in pixels.
      */
-    public int draw( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, java.awt.Color fontColor, TextureImage2D texture )
+    public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, java.awt.Color[] fontColors, TextureImage2D texture )
     {
-        return ( draw( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, null, fontColor, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, null, fontColors, texture ) );
+    }
+    
+    /**
+     * Draws the specified Strings as configured in this class instance.
+     * 
+     * @param offsetX
+     * @param offsetY
+     * @param strs the strings to draw
+     * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
+     * @param padding the padding to honor when aligning right
+     * @param colWidths the column widths to use
+     * @param clearColor the color to use for clearing (null to skip clearing)
+     * @param fontColor (null for predefined)
+     * @param texture the texture to draw on
+     * 
+     * @return the drawn string's width in pixels.
+     */
+    public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, java.awt.Color fontColor, TextureImage2D texture )
+    {
+        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, null, new java.awt.Color[] { fontColor }, texture ) );
     }
     
     /**
@@ -726,9 +704,9 @@ public class DrawnString
      * @param clearColor the color to use for clearing (null to skip clearing)
      * @param texture the texture to draw on
      */
-    public void draw( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, TextureImage2D texture )
+    public void drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, TextureImage2D texture )
     {
-        draw( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, null, texture );
+        drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearColor, (java.awt.Color[])null, texture );
     }
     
     /**
@@ -746,9 +724,29 @@ public class DrawnString
      * 
      * @return the drawn string's width in pixels.
      */
-    public int draw( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
+    public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, java.awt.Color[] fontColors, TextureImage2D texture )
     {
-        return ( draw( offsetX, offsetY, strs, aligns, padding, colWidths, null, clearBackground, fontColor, texture ) );
+        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, null, clearBackground, fontColors, texture ) );
+    }
+    
+    /**
+     * Draws the specified Strings as configured in this class instance.
+     * 
+     * @param offsetX
+     * @param offsetY
+     * @param strs the strings to draw
+     * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
+     * @param padding the padding to honor when aligning right
+     * @param colWidths the column widths to use
+     * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param fontColor (null for predefined)
+     * @param texture the texture to draw on
+     * 
+     * @return the drawn string's width in pixels.
+     */
+    public int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, java.awt.Color fontColor, TextureImage2D texture )
+    {
+        return ( drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, null, clearBackground, new java.awt.Color[] { fontColor }, texture ) );
     }
     
     /**
@@ -763,9 +761,9 @@ public class DrawnString
      * @param clearBackground the image to use for clearing (null to skip clearing)
      * @param texture the texture to draw on
      */
-    public void draw( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, TextureImage2D texture )
+    public void drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D clearBackground, TextureImage2D texture )
     {
-        draw( offsetX, offsetY, strs, aligns, padding, colWidths, clearBackground, null, texture );
+        drawColumns( offsetX, offsetY, strs, aligns, padding, colWidths, clearBackground, (java.awt.Color[])null, texture );
     }
     
     /**
@@ -781,10 +779,9 @@ public class DrawnString
      * @param fontAntiAliased
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
-     * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
+    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
         this.xRelativeTo = xRelativeTo;
         this.yRelativeTo = yRelativeTo;
@@ -799,7 +796,6 @@ public class DrawnString
         this.fontAntiAliased = fontAntiAliased;
         this.fontColor = fontColor;
         
-        this.maxWidthString = maxWidthString;
         this.prefix = prefix;
         this.postfix = postfix;
     }
@@ -815,12 +811,11 @@ public class DrawnString
      * @param fontAntiAliased
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
-     * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
+    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
-        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, prefix, maxWidthString, postfix );
+        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, prefix, postfix );
     }
     
     /**
@@ -835,11 +830,10 @@ public class DrawnString
      * @param font the used font
      * @param fontAntiAliased
      * @param fontColor the used font color
-     * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String maxWidthString )
+    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
-        this( xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, null, maxWidthString, null );
+        this( xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, null, null );
     }
     
     /**
@@ -852,11 +846,10 @@ public class DrawnString
      * @param font the used font
      * @param fontAntiAliased
      * @param fontColor the used font color
-     * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String maxWidthString )
+    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
-        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, maxWidthString );
+        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor );
     }
     
     /**
@@ -870,12 +863,11 @@ public class DrawnString
      * @param fontAntiAliased
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
-     * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
+    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
-        this( null, null, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, maxWidthString, postfix );
+        this( null, null, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
     }
     
     /**
@@ -887,12 +879,11 @@ public class DrawnString
      * @param fontAntiAliased
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
-     * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String maxWidthString, String postfix )
+    public DrawnString( int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
-        this( x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, prefix, maxWidthString, postfix );
+        this( x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, prefix, postfix );
     }
     
     /**
@@ -905,11 +896,10 @@ public class DrawnString
      * @param font the used font
      * @param fontAntiAliased
      * @param fontColor the used font color
-     * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      */
-    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String maxWidthString )
+    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
-        this( x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, null, maxWidthString, null );
+        this( x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, null, null );
     }
     
     /**
@@ -920,10 +910,9 @@ public class DrawnString
      * @param font the used font
      * @param fontAntiAliased
      * @param fontColor the used font color
-     * @param maxWidthString the String, that defines the rectangle, that is cleared before the string is drawn (plus pre- and postfix). If this is null, the last drawn String defines that rectangle. This String is ignored, if column text is drawn.
      */
-    public DrawnString( int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String maxWidthString )
+    public DrawnString( int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
-        this( x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, maxWidthString );
+        this( x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor );
     }
 }

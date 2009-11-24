@@ -537,7 +537,7 @@ public class RevMeterWidget extends Widget
             fy = gearBackgroundTexture.getHeight() / 2;
         }
         
-        gearString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor(), null );
+        gearString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor() );
         
         metrics = texCanvas.getFontMetrics( boostNumberFont.getFont() );
         bounds = metrics.getStringBounds( "0", texCanvas );
@@ -563,7 +563,7 @@ public class RevMeterWidget extends Widget
             fy = boostNumberBackgroundTexture.getHeight() / 2;
         }
         
-        boostString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor(), null );
+        boostString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor() );
         
         metrics = velocityFont.getMetrics();
         bounds = metrics.getStringBounds( "000", texCanvas );
@@ -589,9 +589,9 @@ public class RevMeterWidget extends Widget
             fy = velocityBackgroundTexture.getHeight() / 2;
         }
         
-        velocityString = new DrawnString( fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor(), null );
+        velocityString = new DrawnString( fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor() );
         
-        rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor(), null );
+        rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
     }
     
     private Color interpolateColor( Color c0, Color c1, float alpha )

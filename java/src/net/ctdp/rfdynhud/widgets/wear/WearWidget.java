@@ -189,11 +189,11 @@ public class WearWidget extends Widget
         
         if ( displayEngine.getBooleanValue() )
         {
-            engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Engine: ", null, null );
+            engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Engine: ", null );
             if ( getDisplayWearPercent_engine() )
             {
-                engineWearString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                engineVarianceString = new DrawnString( null, engineWearString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", null, "%)" );
+                engineWearString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                engineVarianceString = new DrawnString( null, engineWearString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
             }
             else
             {
@@ -209,17 +209,17 @@ public class WearWidget extends Widget
         
         if ( displayTires.getBooleanValue() )
         {
-            tiresHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tire wear/grip", null, null );
+            tiresHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tire wear/grip", null );
             if ( getDisplayWearPercent_tires() )
             {
-                tireWearFLString = new DrawnString( null, tiresHeaderString, center - 7 - tireWidth, 3, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                tireWearFRString = new DrawnString( null, tiresHeaderString, center + 7 + tireWidth, 3, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                tireWearRLString = new DrawnString( null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                tireWearRRString = new DrawnString( null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                tireGripFLString = new DrawnString( null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", null, "%)" );
-                tireGripFRString = new DrawnString( null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", null, "%)" );
-                tireGripRLString = new DrawnString( null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", null, "%)" );
-                tireGripRRString = new DrawnString( null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", null, "%)" );
+                tireWearFLString = new DrawnString( null, tiresHeaderString, center - 7 - tireWidth, 3, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                tireWearFRString = new DrawnString( null, tiresHeaderString, center + 7 + tireWidth, 3, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
+                tireWearRLString = new DrawnString( null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                tireWearRRString = new DrawnString( null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
+                tireGripFLString = new DrawnString( null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
+                tireGripFRString = new DrawnString( null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
+                tireGripRLString = new DrawnString( null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
+                tireGripRRString = new DrawnString( null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
             }
             else
             {
@@ -239,17 +239,17 @@ public class WearWidget extends Widget
         
         if ( displayBrakes.getBooleanValue() )
         {
-            brakesHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Brakes:" );
+            brakesHeaderString = new DrawnString( null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             if ( getDisplayWearPercent_brakes() )
             {
-                brakeWearFLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                brakeWearFRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                brakeWearRLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                brakeWearRRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, null, "%" );
-                brakeWearVarianceFLString = new DrawnString( null, brakeWearFLString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", null, "%)" );
-                brakeWearVarianceFRString = new DrawnString( null, brakeWearFRString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "(", null, "%)" );
-                brakeWearVarianceRLString = new DrawnString( null, brakeWearRLString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", null, "%)" );
-                brakeWearVarianceRRString = new DrawnString( null, brakeWearRRString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "(", null, "%)" );
+                brakeWearFLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                brakeWearFRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
+                brakeWearRLString = new DrawnString( null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                brakeWearRRString = new DrawnString( null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
+                brakeWearVarianceFLString = new DrawnString( null, brakeWearFLString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
+                brakeWearVarianceFRString = new DrawnString( null, brakeWearFRString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
+                brakeWearVarianceRLString = new DrawnString( null, brakeWearRLString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
+                brakeWearVarianceRRString = new DrawnString( null, brakeWearRRString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
             }
             else
             {

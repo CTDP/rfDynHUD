@@ -175,13 +175,13 @@ public class TimingWidget extends Widget
         
         if ( displayAbsFastest.getBooleanValue() )
         {
-            absFastestLapHeaderString = new DrawnString( left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
-            absFastestLapDriverString = new DrawnString( null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Driver: ", null, null );
-            absSector1String = new DrawnString( null, absFastestLapDriverString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
-            absSector2String = new DrawnString( null, absSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
+            absFastestLapHeaderString = new DrawnString( left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            absFastestLapDriverString = new DrawnString( null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Driver: ", null );
+            absSector1String = new DrawnString( null, absFastestLapDriverString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null );
+            absSector2String = new DrawnString( null, absSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null );
             if ( !cumulativeSectors.getBooleanValue() )
             {
-                absSector3String = new DrawnString( null, absSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
+                absSector3String = new DrawnString( null, absSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null );
                 yRel = absSector3String;
             }
             else
@@ -189,7 +189,7 @@ public class TimingWidget extends Widget
                 absSector3String = null;
                 yRel = absSector2String;
             }
-            absFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null, null );
+            absFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null );
             yRel = absFastestLapString;
             top = sectionGap;
         }
@@ -204,12 +204,12 @@ public class TimingWidget extends Widget
             yRel = null;
         }
         
-        ownFastestLapHeaderString = new DrawnString( null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
-        ownSector1String = new DrawnString( null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
-        ownSector2String = new DrawnString( null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
+        ownFastestLapHeaderString = new DrawnString( null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        ownSector1String = new DrawnString( null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null );
+        ownSector2String = new DrawnString( null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null );
         if ( !cumulativeSectors.getBooleanValue() )
         {
-            ownSector3String = new DrawnString( null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
+            ownSector3String = new DrawnString( null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null );
             yRel = ownSector3String;
         }
         else
@@ -217,14 +217,14 @@ public class TimingWidget extends Widget
             ownSector3String = null;
             yRel = ownSector2String;
         }
-        ownFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null, null );
+        ownFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null );
         
-        currLapHeaderString = new DrawnString( null, ownFastestLapString, left1, sectionGap, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null );
-        currSector1String = new DrawnString( null, currLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null, null );
-        currSector2String = new DrawnString( null, currSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null, null );
+        currLapHeaderString = new DrawnString( null, ownFastestLapString, left1, sectionGap, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        currSector1String = new DrawnString( null, currLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec1: ", null );
+        currSector2String = new DrawnString( null, currSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec2: ", null );
         if ( !cumulativeSectors.getBooleanValue() && !forceCurrentCumulSectors.getBooleanValue() )
         {
-            currSector3String = new DrawnString( null, currSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null, null );
+            currSector3String = new DrawnString( null, currSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Sec3: ", null );
             yRel = currSector3String;
         }
         else
@@ -232,7 +232,7 @@ public class TimingWidget extends Widget
             currSector3String = null;
             yRel = currSector2String;
         }
-        currLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null, null );
+        currLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, " Lap: ", null );
     }
     
     /**
@@ -340,11 +340,11 @@ public class TimingWidget extends Widget
                     absFastestLapString.getMaxColWidths( s[3], padding, image, colWidths );
                     colWidths[0] -= padding;
                     
-                    absSector1String.draw( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
-                    absSector2String.draw( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
+                    absSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
+                    absSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        absSector3String.draw( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
-                    absFastestLapString.draw( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
+                        absSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
+                    absFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
                 }
                 else
                 {
@@ -476,11 +476,11 @@ public class TimingWidget extends Widget
                     ownFastestLapString.getMaxColWidths( s[3], padding, image, colWidths );
                     colWidths[0] -= padding;
                     
-                    ownSector1String.draw( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
-                    ownSector2String.draw( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
+                    ownSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
+                    ownSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
                     if ( !displayCumul )
-                        ownSector3String.draw( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
-                    ownFastestLapString.draw( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
+                        ownSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
+                    ownFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
                 }
                 else
                 {
@@ -767,11 +767,11 @@ public class TimingWidget extends Widget
                 currLapString.getMaxColWidths( s[3], padding, image, colWidths );
                 colWidths[0] -= padding;
                 
-                currSector1String.draw( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
-                currSector2String.draw( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
+                currSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
+                currSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
                 if ( !displayCumul )
-                    currSector3String.draw( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
-                currLapString.draw( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
+                    currSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
+                currLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
             }
         }
     }
