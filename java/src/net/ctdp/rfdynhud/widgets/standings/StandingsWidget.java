@@ -6,6 +6,7 @@ import java.util.Arrays;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
+import net.ctdp.rfdynhud.editor.properties.EnumProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.gamedata.FinishStatus;
@@ -39,6 +40,14 @@ public class StandingsWidget extends Widget
         ;
     }
     
+    private static enum NameDisplayType
+    {
+        FULL_NAME,
+        SHORT_FORM,
+        THREE_LETTER_CODE,
+        ;
+    }
+    
     private static final InputAction INPUT_ACTION_CYCLE_VIEW = new InputAction( "CycleStandingsViewAction" );
     
     private final ColorProperty fontColor_me = new ColorProperty( this, "fontColor_me", "#7A7727" );
@@ -52,7 +61,7 @@ public class StandingsWidget extends Widget
     private final BooleanProperty allowAbsTimesView = new BooleanProperty( this, "allowAbsTimesView", true );
     
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "allowRelToLeaderView", true );
-    private final BooleanProperty showThreeLetterCodes = new BooleanProperty( this, "showThreeLetterCodes", false );
+    private final EnumProperty<NameDisplayType> nameDisplayType = new EnumProperty<NameDisplayType>( this, "nameDisplayType", NameDisplayType.FULL_NAME );
     private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
     
     private DrawnString[] positionStrings = null;
@@ -285,6 +294,22 @@ public class StandingsWidget extends Widget
         }
     }
     
+    private final String getDisplayedDriverName( String driverName )
+    {
+        switch ( nameDisplayType.getEnumValue() )
+        {
+            case FULL_NAME:
+                return ( driverName );
+            case SHORT_FORM:
+                return ( ThreeLetterCodeManager.getShortForm( driverName ) );
+            case THREE_LETTER_CODE:
+                return ( ThreeLetterCodeManager.getThreeLetterCode( driverName ) );
+        }
+        
+        // Unreachable code!
+        return ( null );
+    }
+    
     private void computeRelativeTimesRace( ScoringInfo scoringInfo, int numVehicles, int ownPlace )
     {
         relTimes = ensureCapacity( relTimes, numVehicles, false );
@@ -314,10 +339,7 @@ public class StandingsWidget extends Widget
         
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        if ( showThreeLetterCodes.getBooleanValue() )
-            ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
-        else
-            ss[1] = vsi.getDriverName();
+        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
         
         FinishStatus finishStatus = vsi.getFinishStatus();
         if ( finishStatus == FinishStatus.NONE )
@@ -369,10 +391,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        if ( showThreeLetterCodes.getBooleanValue() )
-            ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
-        else
-            ss[1] = vsi.getDriverName();
+        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
         
         FinishStatus finishStatus = vsi.getFinishStatus();
         if ( finishStatus == FinishStatus.NONE )
@@ -515,10 +534,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        if ( showThreeLetterCodes.getBooleanValue() )
-            ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
-        else
-            ss[1] = vsi.getDriverName();
+        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
         
         float t = vsi.getBestLapTime();
         
@@ -549,10 +565,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
-        if ( showThreeLetterCodes.getBooleanValue() )
-            ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
-        else
-            ss[1] = vsi.getDriverName();
+        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
         
         float t = vsi.getBestLapTime();
         
@@ -583,10 +596,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
-        if ( showThreeLetterCodes.getBooleanValue() )
-            ss[1] = ThreeLetterCodeManager.getThreeLetterCode( vsi.getDriverName() );
-        else
-            ss[1] = vsi.getDriverName();
+        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
         
         float t = vsi.getBestLapTime();
         
@@ -687,14 +697,14 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public int getMaxWidth( Texture2DCanvas texCanvas )
+    public int getMaxWidth( LiveGameData gameData, Texture2DCanvas texCanvas )
     {
         if ( !useAutoWidth.getBooleanValue() )
-            return ( super.getMaxWidth( texCanvas ) );
+            return ( super.getMaxWidth( gameData, texCanvas ) );
         
         DrawnString ds = new DrawnString( 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
-        String[] strs = { "99.", showThreeLetterCodes.getBooleanValue() ? "AAAA" : "Giancarlo Fisichella___", "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
+        String[] strs = { "99.", ( nameDisplayType.getEnumValue() == NameDisplayType.THREE_LETTER_CODE ) ? "AAAA" : ( ( nameDisplayType.getEnumValue() == NameDisplayType.SHORT_FORM ) ? "G. Fisichella___" : "Giancarlo Fisichella___" ), "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
         
         ds.getMinColWidths( strs, 10, texCanvas.getImage(), colWidths );
         
@@ -864,7 +874,7 @@ public class StandingsWidget extends Widget
         writer.writeProperty( useAutoWidth, "Automatically compute and display the width?" );
         writer.writeProperty( "initialView", getView(), "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
-        writer.writeProperty( showThreeLetterCodes, "Whether to display a three-letter-code for each driver, or not." );
+        writer.writeProperty( nameDisplayType, "How to display driver names." );
         writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
     }
     
@@ -892,7 +902,7 @@ public class StandingsWidget extends Widget
             }
         }
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
-        else if ( showThreeLetterCodes.loadProperty( key, value ) );
+        else if ( nameDisplayType.loadProperty( key, value ) );
         else if ( abbreviate.loadProperty( key, value ) );
     }
     
@@ -929,7 +939,7 @@ public class StandingsWidget extends Widget
         } );
         
         props.add( forceLeaderDisplayed );
-        props.add( showThreeLetterCodes );
+        props.add( nameDisplayType );
         props.add( abbreviate );
         
         propsList.add(  props );

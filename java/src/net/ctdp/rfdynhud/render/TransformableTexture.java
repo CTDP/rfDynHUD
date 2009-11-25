@@ -4,6 +4,7 @@ import java.awt.geom.AffineTransform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.openmali.types.twodee.Rect2i;
@@ -124,7 +125,7 @@ public class TransformableTexture
         return ( texture.getTextureCanvas() );
     }
     
-    public void generateSubRectangles( WidgetsDrawingManager widgetsManager )
+    public void generateSubRectangles( LiveGameData gameData, WidgetsDrawingManager widgetsManager )
     {
         final Texture2DCanvas texCanvas = widgetsManager.getMainTexture().getTextureCanvas();
         
@@ -133,7 +134,7 @@ public class TransformableTexture
         for ( int i = 0; i < n; i++ )
         {
             Widget w = widgetsManager.getWidget( i );
-            usedRectangles[i] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( texCanvas ), w.getMaxHeight( texCanvas ) );
+            usedRectangles[i] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, texCanvas ), w.getMaxHeight( gameData, texCanvas ) );
         }
         
         this.dirty = true;

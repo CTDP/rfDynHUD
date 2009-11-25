@@ -75,7 +75,7 @@ public class Size
     private final float getMinWidth()
     {
         if ( isWidgetSize )
-            return ( widget.getMinWidth() );
+            return ( widget.getMinWidth( null ) );
         
         return ( 10f );
     }
@@ -83,7 +83,7 @@ public class Size
     private final float getMinHeight()
     {
         if ( isWidgetSize )
-            return ( widget.getMinHeight() );
+            return ( widget.getMinHeight( null ) );
         
         return ( 10f );
     }

@@ -17,6 +17,7 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.EnumValue;
 import net.ctdp.rfdynhud.widgets._util.FloatValue;
@@ -44,7 +45,7 @@ public class MiscWidget extends Widget
     }
     
     private final EnumProperty<LapDisplayType> lapDisplayType = new EnumProperty<LapDisplayType>( this, "lapDisplayType", LapDisplayType.CURRENT_LAP );
-    private long relTopspeedResetDelay = 5000000000L; // five seconds
+    private long relTopspeedResetDelay = 10000000000L; // ten seconds
     
     private final BooleanProperty displayScoring = new BooleanProperty( this, "displayScoring", true );
     private final BooleanProperty displayTiming = new BooleanProperty( this, "displayTiming", true );
@@ -65,6 +66,7 @@ public class MiscWidget extends Widget
     private int oldStintLength = -1;
     private final StringValue leader = new StringValue();
     private boolean leaderValid = false;
+    private final IntValue place = new IntValue( ValidityTest.GREATER_THAN, 0 );
     private final FloatValue fastestLap = new FloatValue( ValidityTest.GREATER_THAN, 0f );
     private final FloatValue sessionTime = new FloatValue( -1f, 0.1f );
     private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
@@ -80,7 +82,9 @@ public class MiscWidget extends Widget
     
     private int[] scoringColWidths = new int[ 2 ];
     private int[] velocityColWidths = new int[ 3 ];
+    private final Alignment[] scoringAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT };
     private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
+    private static final int padding = 4;
     
     public void setRelTopspeedResetDelay( int delay )
     {
@@ -116,6 +120,7 @@ public class MiscWidget extends Widget
         leader.reset();
         leaderValid = false;
         
+        place.reset();
         fastestLap.reset();
         
         sessionTime.reset();
@@ -225,10 +230,9 @@ public class MiscWidget extends Widget
             velocityColWidths[0] = 0;
             velocityColWidths[1] = 0;
             velocityColWidths[2] = 0;
-            int padding = 4;
             
-            absTopspeedString.getMaxColWidths( new String[] { "Abs. Topspeed:", "000.0", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
-            relTopspeedString.getMaxColWidths( new String[] { "Rel. Topspeed:", "000.0", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
+            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
+            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
             velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
         }
         else
@@ -239,23 +243,23 @@ public class MiscWidget extends Widget
         }
     }
     
-    private void updateScoringColWidths( TextureImage2D image )
+    private void updateScoringColWidths( ScoringInfo scoringInfo, TextureImage2D image )
     {
+        String fastestLapper = scoringInfo.getFastestLapVSI().getDriverName();
+        
         scoringColWidths[0] = 0;
         scoringColWidths[1] = 0;
-        int padding = 4;
         
         scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, padding, image, scoringColWidths );
-        if ( fastestLap.isValid() )
-        {
-            scoringString2.getMaxColWidths( new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, scoringColWidths );
-            scoringString3.getMaxColWidths( new String[] { "", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, scoringColWidths );
-        }
+        if ( place.isValid() )
+            scoringString2.getMaxColWidths( new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, padding, image, scoringColWidths );
         else
-        {
-            scoringString2.getMaxColWidths( new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, padding, image, scoringColWidths );
-            scoringString3.getMaxColWidths( new String[] { "", "--:--.---" }, padding, image, scoringColWidths );
-        }
+            scoringString2.getMaxColWidths( new String[] { "Place:", "N/A" }, padding, image, scoringColWidths );
+        
+        if ( fastestLap.isValid() )
+            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, padding, image, scoringColWidths );
+        else
+            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", "--:--.---" }, padding, image, scoringColWidths );
     }
     
     /**
@@ -273,6 +277,7 @@ public class MiscWidget extends Widget
         {
             VehicleScoringInfo leaderVSI = scoringInfo.getVehicleScoringInfo( 0 );
             leader.update( leaderVSI.getDriverName() );
+            place.update( scoringInfo.getOwnPlace() );
             VehicleScoringInfo fastestLapVSI = scoringInfo.getFastestLapVSI();
             String fastestLapper = fastestLapVSI.getDriverName();
             fastestLap.update( fastestLapVSI.getBestLapTime() );
@@ -286,16 +291,16 @@ public class MiscWidget extends Widget
                 
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( image );
+                    updateScoringColWidths( scoringInfo, image );
                     colWidthsUpdated = true;
                 }
                 
                 if ( scoringInfo.getSessionType().isRace() )
                 {
                     if ( leaderValid )
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", leader.getValue() }, scoringColWidths, backgroundColor, image );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", ThreeLetterCodeManager.getShortForm( leader.getValue() ) }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
                     else
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", "N/A" }, scoringColWidths, backgroundColor, image );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
                 }
                 else
                 {
@@ -303,24 +308,32 @@ public class MiscWidget extends Widget
                 }
             }
             
+            if ( needsCompleteRedraw || place.hasValidityChanged() || place.hasChanged() )
+            {
+                if ( !colWidthsUpdated )
+                {
+                    updateScoringColWidths( scoringInfo, image );
+                    colWidthsUpdated = true;
+                }
+                
+                if ( place.isValid() )
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
+                else
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Place:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
+            }
+            
             if ( needsCompleteRedraw || fastestLap.hasValidityChanged() || fastestLap.hasChanged() )
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( image );
+                    updateScoringColWidths( scoringInfo, image );
                     colWidthsUpdated = true;
                 }
                 
                 if ( fastestLap.isValid() )
-                {
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Fastest Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) }, scoringColWidths, backgroundColor, image );
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "", "(" + fastestLapper + ")" }, scoringColWidths, backgroundColor, image );
-                }
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), false, false, true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
                 else
-                {
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Fastest Lap:", "--:--.---" }, scoringColWidths, backgroundColor, image );
-                    scoringString3.draw( offsetX, offsetY, "", backgroundColor, image );
-                }
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", "--:--.---" }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
             }
         }
         
@@ -428,19 +441,19 @@ public class MiscWidget extends Widget
             if ( needsCompleteRedraw || ( clock2 && ( topspeed > oldAbsTopspeed ) ) )
             {
                 oldAbsTopspeed = topspeed;
-                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Abs. Topspeed:", NumberUtil.formatFloat( topspeed, 1, true ), "km/h" }, velocityAlignment, 4, velocityColWidths, backgroundColor, image );
+                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( topspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
             }
             
             if ( needsCompleteRedraw || ( clock2 && ( relTopspeed > oldRelTopspeed ) ) )
             {
                 oldRelTopspeed = relTopspeed;
-                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Rel. Topspeed:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, 4, velocityColWidths, backgroundColor, image );
+                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed2:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
             }
             
             if ( needsCompleteRedraw || ( clock2 && ( velocity != oldVelocity ) ) )
             {
                 oldVelocity = velocity;
-                velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, 4, velocityColWidths, backgroundColor, image );
+                velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
             }
         }
     }
@@ -456,8 +469,8 @@ public class MiscWidget extends Widget
         
         writer.writeProperty( displayScoring, "Display the scoring part of the Widget?" );
         writer.writeProperty( displayTiming, "Display the timing part of the Widget?" );
-        writer.writeProperty( displayVelocity, "Display the velocity and top speed part of the Widget?" );
         writer.writeProperty( lapDisplayType, "The way the laps are displayed. Valid values: CURRENT_LAP, LAPS_DONE." );
+        writer.writeProperty( displayVelocity, "Display the velocity and top speed part of the Widget?" );
         writer.writeProperty( "relTopspeedResetDelay", getRelTopspeedResetDelay(), "The delay after which the relative topspeed is resetted (in milliseconds)." );
     }
     
@@ -471,8 +484,8 @@ public class MiscWidget extends Widget
         
         if ( displayScoring.loadProperty( key, value ) );
         else if ( displayTiming.loadProperty( key, value ) );
-        else if ( displayVelocity.loadProperty( key, value ) );
         else if ( lapDisplayType.loadProperty( key, value ) );
+        else if ( displayVelocity.loadProperty( key, value ) );
         else if ( key.equals( "relTopspeedResetDelay" ) )
             this.relTopspeedResetDelay = Integer.parseInt( value ) * 1000000L;
     }
@@ -489,8 +502,8 @@ public class MiscWidget extends Widget
         
         props.add( displayScoring );
         props.add( displayTiming );
-        props.add( displayVelocity );
         props.add( lapDisplayType );
+        props.add( displayVelocity );
         
         props.add( new Property( "relTopspeedResetDelay", PropertyEditorType.INTEGER )
         {

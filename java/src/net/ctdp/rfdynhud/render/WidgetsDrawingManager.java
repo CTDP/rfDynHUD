@@ -98,9 +98,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         texture.clear( true, null );
     }
     
-    public int collectTextures( boolean isEditorMode, WidgetsDrawingManager widgetsManager )
+    public int collectTextures( boolean isEditorMode, LiveGameData gameData, WidgetsDrawingManager widgetsManager )
     {
-        textures[0].generateSubRectangles( widgetsManager );
+        textures[0].generateSubRectangles( gameData, widgetsManager );
         
         widgetTextures = new TransformableTexture[ getNumWidgets() ][];
         

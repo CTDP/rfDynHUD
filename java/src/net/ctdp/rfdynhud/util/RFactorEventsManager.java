@@ -161,6 +161,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         try
         {
+            ThreeLetterCodeManager.updateThreeLetterCodes();
+            
             __GDPrivilegedAccess.onRealtimeEntered( gameData );
             
             gameData.getTelemetryData().getPosition( garageStartLocation );
@@ -191,7 +193,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 {
                     widgetsManager.clearCompleteTexture();
                     TextureDirtyRectsManager.forceCompleteRedraw();
-                    widgetsManager.collectTextures( isEditorMode, widgetsManager );
+                    widgetsManager.collectTextures( isEditorMode, gameData, widgetsManager );
                 }
             }
             
@@ -228,7 +230,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 //widgetsManager.clearCompleteTexture();
                 //TextureDirtyRectsManager.forceCompleteRedraw();
                 
-                widgetsManager.collectTextures( isEditorMode, widgetsManager );
+                widgetsManager.collectTextures( isEditorMode, gameData, widgetsManager );
                 
                 if ( rfDynHUD != null )
                 {

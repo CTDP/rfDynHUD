@@ -258,9 +258,11 @@ public abstract class Widget implements Documented
     /**
      * Gets the minimum width for this {@link Widget} in pixels.
      * 
+     * @param gameData
+     * 
      * @return the minimum width for this {@link Widget} in pixels.
      */
-    public int getMinWidth()
+    public int getMinWidth( LiveGameData gameData )
     {
         return ( 25 );
     }
@@ -268,9 +270,11 @@ public abstract class Widget implements Documented
     /**
      * Gets the minimum height for this {@link Widget} in pixels.
      * 
+     * @param gameData
+     * 
      * @return the minimum height for this {@link Widget} in pixels.
      */
-    public int getMinHeight()
+    public int getMinHeight( LiveGameData gameData )
     {
         return ( 25 );
     }
@@ -280,11 +284,12 @@ public abstract class Widget implements Documented
      * By default this method returns the result of getEffectiveWidth(gameResX).
      * Override this method, if it will change its size during game play.
      * 
+     * @param gameData
      * @param texCanvas
      * 
      * @return the maximum width covered by this {@link Widget}.
      */
-    public int getMaxWidth( Texture2DCanvas texCanvas )
+    public int getMaxWidth( LiveGameData gameData, Texture2DCanvas texCanvas )
     {
         return ( size.getEffectiveWidth() );
     }
@@ -294,11 +299,12 @@ public abstract class Widget implements Documented
      * By default this method returns the result of getEffectiveHeight(gameResX).
      * Override this method, if it will change its size during game play.
      * 
+     * @param gameData
      * @param texCanvas
      * 
      * @return the maximum height covered by this {@link Widget}.
      */
-    public int getMaxHeight( Texture2DCanvas texCanvas )
+    public int getMaxHeight( LiveGameData gameData, Texture2DCanvas texCanvas )
     {
         return ( size.getEffectiveHeight() );
     }
