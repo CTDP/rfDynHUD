@@ -120,31 +120,36 @@ public class FontUtils
     private static Object _parseFont( String str, int gameResY, boolean extractVirtualFlag, boolean extractAntialiasFlag )
     {
         if ( ( str == null ) || ( str.length() < 5 ) )
-            return ( null );
+            //return ( null );
+            throw new IllegalArgumentException( "Illegal font string " + str );
         
         int p0 = 0;
         int p1 = str.indexOf( '-' );
         if ( ( p1 == -1 ) || ( p1 == p0 ) )
-            return ( null );
+            //return ( null );
+            throw new IllegalArgumentException( "Illegal font string " + str );
         
         String name = str.substring( p0, p1 );
         
         p0 = p1 + 1;
         
         if ( str.length() <= p0 )
-            return ( null );
+            //return ( null );
+            throw new IllegalArgumentException( "Illegal font string " + str );
         
         p1 = str.indexOf( '-', p0 );
         
         if ( ( p1 == -1 ) || ( p1 == p0 ) )
-            return ( null );
+            //return ( null );
+            throw new IllegalArgumentException( "Illegal font string " + str );
         
         String style = str.substring( p0, p1 );
         
         p0 = p1 + 1;
         
         if ( str.length() <= p0 )
-            return ( null );
+            //return ( null );
+            throw new IllegalArgumentException( "Illegal font string " + str );
         
         String size = str.substring( p0 );
         
