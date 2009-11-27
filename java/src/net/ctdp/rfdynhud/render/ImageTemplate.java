@@ -7,6 +7,9 @@ import sun.awt.image.ByteInterleavedRaster;
 
 public class ImageTemplate
 {
+    long lastModified = -1L;
+    long fileSize = -1L;
+    
     private final BufferedImage bufferedImage;
     
     public final int getBaseWidth()

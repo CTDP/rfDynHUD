@@ -8,6 +8,7 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import net.ctdp.rfdynhud.render.ImageTemplate;
+import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 
 /**
  * ImageIO image loading is pretty slow. This is a simple but fast texture loading implementation.
@@ -135,6 +136,17 @@ public class TextureLoader
     }
     */
     
+    private static final boolean checkImage( File file, ImageTemplate it )
+    {
+        if ( file.lastModified() != __RenderPrivilegedAccess.getLastModified( it ) )
+            return ( false );
+        
+        if ( file.length() != __RenderPrivilegedAccess.getFileSize( it ) )
+            return ( false );
+        
+        return ( true );
+    }
+    
     public static ImageTemplate getImage( String name, boolean useCache )
     {
         if ( File.separatorChar != '/' )
@@ -142,20 +154,21 @@ public class TextureLoader
         if ( File.separatorChar != '\\' )
             name = name.replace( '\\', File.separatorChar );
         
-        ImageTemplate template = useCache ? cache.get( name ) : null;
-        
-        //System.out.println( ( ( template != null ) ? "found in cache" : "not found in cache" ) );
-        
-        if ( template != null )
-            return ( template );
-        
         File f = new File( IMAGES_FOLDER, name );
         
         if ( !f.exists() )
         {
+            cache.remove( name );
             Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
             return ( null );
         }
+        
+        ImageTemplate template = useCache ? cache.get( name ) : null;
+        
+        //System.out.println( ( ( template != null ) ? "found in cache" : "not found in cache" ) );
+        
+        if ( ( template != null ) && checkImage( f, template ) )
+            return ( template );
         
         BufferedImage image = null;
         
@@ -173,6 +186,9 @@ public class TextureLoader
         
         if ( useCache )
             cache.put( name, template );
+        
+        __RenderPrivilegedAccess.setLastModified( f.lastModified(), template );
+        __RenderPrivilegedAccess.setFileSize( f.length(), template );
         
         return ( template );
     }
