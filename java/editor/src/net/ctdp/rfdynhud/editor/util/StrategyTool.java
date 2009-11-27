@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -18,12 +20,18 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import net.ctdp.rfdynhud.util.RFactorTools;
+import net.ctdp.rfdynhud.util.ResourceManager;
+
 public class StrategyTool
 {
     private final JDialog frame;
     
+    private JComboBox cbxNumQualiLaps;
     private JComboBox cbxNumReconnaissanceLaps;
     private JCheckBox chkFormationLap;
+    private JTextField txtRaceLength100;
+    private JComboBox cbxRaceLengthMulti;
     private JTextField txtRaceLength;
     private JTextField txtAverageFuelUsage;
     private JComboBox cbxNumPitstops;
@@ -42,6 +50,7 @@ public class StrategyTool
     {
         try
         {
+            int numQualiLaps = (Integer)cbxNumQualiLaps.getSelectedItem();
             int reconLaps = (Integer)cbxNumReconnaissanceLaps.getSelectedItem();
             boolean formationLap = chkFormationLap.isSelected();
             int raceLength = Integer.parseInt( txtRaceLength.getText() );
@@ -53,7 +62,7 @@ public class StrategyTool
             int fourthStop = Integer.parseInt( txtFourthStop.getText() );
             float additionalFuel = Float.parseFloat( txtAdditionalFuelSafety.getText() );
             
-            float startingFuel = reconLaps * avgFuelUsage + ( formationLap ? avgFuelUsage : 0f );
+            float startingFuel = numQualiLaps * avgFuelUsage + reconLaps * avgFuelUsage + ( formationLap ? avgFuelUsage : 0f );
             if ( numPitstops == 0 )
                 startingFuel += raceLength * avgFuelUsage;
             else
@@ -139,6 +148,20 @@ public class StrategyTool
         }
     }
     
+    private void updateRaceLength()
+    {
+        try
+        {
+            float multi = (Integer)cbxRaceLengthMulti.getSelectedItem() / 100f;
+            
+            txtRaceLength.setText( String.valueOf( Math.round( Integer.parseInt( txtRaceLength100.getText() ) * multi ) ) ); 
+        }
+        catch ( Throwable t )
+        {
+            JOptionPane.showMessageDialog( frame, t.getClass().getSimpleName() + ": " + t.getMessage(), "Error computing strategy", JOptionPane.ERROR_MESSAGE );
+        }
+    }
+    
     private StrategyTool( JFrame owner )
     {
         this.frame = new JDialog( owner, "Strategy Calculator" );
@@ -148,27 +171,97 @@ public class StrategyTool
         JPanel pane = (JPanel)frame.getContentPane();
         pane.setLayout( new BorderLayout() );
         
-        JPanel table = new JPanel( new GridLayout( 15, 2 ) );
+        JPanel table = new JPanel( new GridLayout( 18, 2 ) );
         table.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
+        
+        JLabel lblNumQualiLaps = new JLabel( "Num quali laps:" );
+        table.add( lblNumQualiLaps );
+        
+        cbxNumQualiLaps = new JComboBox( new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } );
+        cbxNumQualiLaps.setSelectedIndex( 2 );
+        table.add( cbxNumQualiLaps );
         
         JLabel lblReconnaissanceLaps = new JLabel( "Reconnaissance laps:" );
         table.add( lblReconnaissanceLaps );
         
         cbxNumReconnaissanceLaps = new JComboBox( new Integer[] { 0, 1, 2, 3, 4 } );
-        cbxNumReconnaissanceLaps.setSelectedIndex( 0 );
+        Integer numReconLaps = RFactorTools.getNumReconLaps( RFactorTools.getProfileFolder() );
+        if ( numReconLaps == null )
+            cbxNumReconnaissanceLaps.setSelectedIndex( 0 );
+        else
+            cbxNumReconnaissanceLaps.setSelectedIndex( numReconLaps.intValue() );
         table.add( cbxNumReconnaissanceLaps );
         
         JLabel lblFormationLap = new JLabel( "Formation lap:" );
         table.add( lblFormationLap );
         
-        chkFormationLap = new JCheckBox( "", true );
+        Boolean formationLap = RFactorTools.getFormationLap();
+        if ( formationLap != Boolean.TRUE )
+            chkFormationLap = new JCheckBox( "", false );
+        else
+            chkFormationLap = new JCheckBox( "", true );
         table.add( chkFormationLap );
+        
+        JLabel lblRaceLength100 = new JLabel( "Race length (laps at 100%):" );
+        table.add( lblRaceLength100 );
+        
+        if ( !ResourceManager.isJarMode() )
+        {
+            txtRaceLength100 = new JTextField( "70" );
+        }
+        else
+        {
+            int trackRaceLaps = RFactorTools.getTrackRaceLaps( RFactorTools.getLastUsedTrackFile().getParentFile() );
+            
+            if ( trackRaceLaps < 0 )
+                txtRaceLength100 = new JTextField( "70" );
+            else
+                txtRaceLength100 = new JTextField( String.valueOf( trackRaceLaps ) );
+        }
+        table.add( txtRaceLength100 );
+        
+        JLabel lblRaceLengthMulti = new JLabel( "Race length (%):" );
+        table.add( lblRaceLengthMulti );
+        
+        Integer[] multis = new Integer[ 200 ];
+        for ( int i = 1; i <= 200; i++ )
+        {
+            multis[i - 1] = i;
+        }
+        
+        cbxRaceLengthMulti = new JComboBox( multis );
+        
+        if ( !ResourceManager.isJarMode() )
+        {
+            cbxRaceLengthMulti.setSelectedIndex( 99 );
+        }
+        else
+        {
+            Float raceLengthMulti = RFactorTools.getRaceLengthMultiplier();
+            if ( raceLengthMulti == null )
+                cbxRaceLengthMulti.setSelectedIndex( 99 );
+            else
+                cbxRaceLengthMulti.setSelectedIndex( Math.round( raceLengthMulti.floatValue() * 100f ) - 1 );
+        }
+        table.add( cbxRaceLengthMulti );
+        
+        cbxRaceLengthMulti.addItemListener( new ItemListener()
+        {
+            public void itemStateChanged( ItemEvent e )
+            {
+                if ( e.getStateChange() == ItemEvent.SELECTED )
+                    updateRaceLength();
+            }
+        } );
         
         JLabel lblRaceLength = new JLabel( "Race length (laps):" );
         table.add( lblRaceLength );
         
-        txtRaceLength = new JTextField( "46" );
+        txtRaceLength = new JTextField( "0" );
+        txtRaceLength.setEditable( false );
         table.add( txtRaceLength );
+        
+        updateRaceLength();
         
         JLabel lblAverageFuelUsage = new JLabel( "Average fuel usage:" );
         table.add( lblAverageFuelUsage );

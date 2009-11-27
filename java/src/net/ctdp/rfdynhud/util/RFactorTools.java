@@ -55,6 +55,8 @@ public class RFactorTools
     private static String lastUsedTrackFile = null;
     private static int trackRaceLaps = -1;
     private static Float multiRaceLength = null;
+    private static Integer numReconLaps = null;
+    private static Integer formationLapFlag = null;
     
     public static File getProfileFile( File profileFolder )
     {
@@ -130,6 +132,8 @@ public class RFactorTools
         vehName = null;
         lastUsedTrackFile = null;
         multiRaceLength = null;
+        numReconLaps = null;
+        formationLapFlag = null;
         
         try
         {
@@ -169,6 +173,17 @@ public class RFactorTools
                             multiRaceLength = Float.valueOf( value );
                         }
                     }
+                    else if ( group.equalsIgnoreCase( "Race Conditions" ) )
+                    {
+                        if ( key.equalsIgnoreCase( "MULTI Reconnaissance" ) )
+                        {
+                            numReconLaps = Integer.valueOf( value );
+                        }
+                        else if ( key.equalsIgnoreCase( "MULTI Formation Lap" ) )
+                        {
+                            formationLapFlag = Integer.valueOf( value );
+                        }
+                    }
                     
                     return ( true );
                 }
@@ -195,21 +210,74 @@ public class RFactorTools
         return ( vehName );
     }
     
-    public static File getLastUsedTrackFile( File profileFolder )
+    public static File getLastUsedTrackFile()
     {
-        updateProfileInformation( null, profileFolder );
-        
         if ( lastUsedTrackFile == null )
             return ( null );
         
         return ( new File( RFACTOR_FOLDER, lastUsedTrackFile ) );
     }
     
+    public static File getLastUsedTrackFile( File profileFolder )
+    {
+        updateProfileInformation( null, profileFolder );
+        
+        return ( getLastUsedTrackFile() );
+    }
+    
+    public static Float getRaceLengthMultiplier()
+    {
+        return ( multiRaceLength );
+    }
+    
     public static Float getRaceLengthMultiplier( File profileFolder )
     {
         updateProfileInformation( null, profileFolder );
         
-        return ( multiRaceLength );
+        return ( getRaceLengthMultiplier() );
+    }
+    
+    public static Integer getNumReconLaps()
+    {
+        return ( numReconLaps );
+    }
+    
+    public static Integer getNumReconLaps( File profileFolder )
+    {
+        updateProfileInformation( null, profileFolder );
+        
+        return ( getNumReconLaps() );
+    }
+    
+    public static final Boolean getFormationLap()
+    {
+        if ( formationLapFlag == null )
+            return ( null );
+        
+        // 0=standing start, 1=formation lap & standing start, 2=lap behind safety car & rolling start, 3=use track default, 4=fast rolling start
+        switch ( formationLapFlag.intValue() )
+        {
+            case 0:
+                return ( false );
+            case 1:
+                return ( true );
+            case 2:
+                return ( true );
+            case 3:
+                return ( null );
+            case 4:
+                return ( true );
+        }
+        
+        // Unreachable code!
+        return ( null );
+    }
+    
+    public static final Boolean getFormationLap( File profileFolder )
+    {
+        updateProfileInformation( null, profileFolder );
+        
+        return ( getFormationLap() );
     }
     
     public static File getCCHFile( File profileFolder )
@@ -351,6 +419,63 @@ public class RFactorTools
      */
     public static int getTrackRaceLaps()
     {
+        return ( trackRaceLaps );
+    }
+    
+    private static void readGDB( File gdb )
+    {
+        BufferedReader br = null;
+        
+        try
+        {
+            trackRaceLaps = -1;
+            
+            br = new BufferedReader( new FileReader( gdb ) );
+            
+            String line = null;
+            while ( ( line = br.readLine() ) != null )
+            {
+                line = line.trim();
+                if ( line.startsWith( "RaceLaps" ) )
+                {
+                    int idx = line.indexOf( '=', 8 );
+                    if ( idx >= 0 )
+                    {
+                        try
+                        {
+                            trackRaceLaps = Integer.parseInt( line.substring( idx + 1 ).trim() );
+                        }
+                        catch ( Throwable t )
+                        {
+                        }
+                    }
+                    
+                    return;
+                }
+            }
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+        finally
+        {
+            if ( br != null )
+                try { br.close(); } catch ( Throwable t ) { Logger.log( t ); }
+        }
+    }
+    
+    public static int getTrackRaceLaps( File trackFolder )
+    {
+        for ( File f : trackFolder.listFiles() )
+        {
+            if ( f.getName().toLowerCase().endsWith( ".gdb" ) )
+            {
+                readGDB( f );
+                break;
+            }
+        }
+        
         return ( trackRaceLaps );
     }
     
