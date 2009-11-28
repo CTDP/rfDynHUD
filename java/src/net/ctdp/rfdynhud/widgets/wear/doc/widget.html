@@ -1,9 +1,26 @@
 <p>
-The <strong>WearWidget</strong> renders tire wear information.
+The <strong>WearWidget</strong> renders wear/health information.
 </p>
 
 <p>
+<strong><u>Engine</u></strong><br />
+The engine lifetime (wear/health) is displayed both as a bar and as a percentage value.
+The green part of the bar is the safe lifetime range. The engine will (or should) never die within that range.
+When the green part has gone, the percentage value will show 0.0%.
+If the engine has a lifetime variance (random range), it is displayed as a red part of the bar
+and the size of that range is denoted as a negative percentage number in parentheses below the actual lifetime
+percentages. When the engine is within the variance range the red part of the bar will shrink,
+a red line will mark the former end of the red part and the actual lifetime percentages will become negative.
+</p>
+
+<p>
+<strong><u>Tires</u></strong><br />
 The upper value is the absolute wear. The lower value (in parentheses)
 is the grip in percent and the bar shows the normalized grip.
 The red line in the bar shows the wear again.
+</p>
+
+<p>
+<strong><u>Brakes</u></strong><br />
+The brake bars show a green and red part again. This has the same meaning as for the engine.
 </p>

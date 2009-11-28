@@ -189,7 +189,7 @@ public class WearWidget extends Widget
         
         if ( displayEngine.getBooleanValue() )
         {
-            engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Engine: ", null );
+            engineHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             if ( getDisplayWearPercent_engine() )
             {
                 engineWearString = new DrawnString( null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
@@ -447,7 +447,7 @@ public class WearWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displayEngine.getBooleanValue() )
-                engineHeaderString.draw( offsetX, offsetY, "(" + NumberUtil.formatFloat( physics.getEngine().getOptimumOilTemperature(), 1, true ) + "°C)", backgroundColor, image );
+                engineHeaderString.draw( offsetX, offsetY, "Engine:", backgroundColor, image );
             if ( displayTires.getBooleanValue() )
             {
                 if ( displayCompoundName.getBooleanValue() )
