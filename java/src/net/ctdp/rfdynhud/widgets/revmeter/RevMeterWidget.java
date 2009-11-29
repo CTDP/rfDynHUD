@@ -437,6 +437,9 @@ public class RevMeterWidget extends Widget
         
         gear.reset();
         velocity.reset();
+        
+        LocalStore store = (LocalStore)getLocalStore();
+        store.storedBaseMaxRPM = 1f;
     }
     
     /**
@@ -842,7 +845,7 @@ public class RevMeterWidget extends Widget
         //if ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleControl() == VehicleControl.LOCAL_PLAYER )
         float maxRPM = telemData.getEngineMaxRPM();
         if ( maxRPM > 100f )
-            store.storedBaseMaxRPM = maxRPM;
+            store.storedBaseMaxRPM = Math.max( maxRPM, store.storedBaseMaxRPM );
         maxRPM = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM );
         
         if ( needsCompleteRedraw || clock1 )
