@@ -438,19 +438,19 @@ public class MiscWidget extends Widget
                 lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
             
-            if ( needsCompleteRedraw || ( clock2 && ( topspeed > oldAbsTopspeed ) ) )
+            if ( needsCompleteRedraw || ( clock1 && ( topspeed > oldAbsTopspeed ) ) )
             {
                 oldAbsTopspeed = topspeed;
                 absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( topspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
             }
             
-            if ( needsCompleteRedraw || ( clock2 && ( relTopspeed > oldRelTopspeed ) ) )
+            if ( needsCompleteRedraw || ( clock1 && ( relTopspeed > oldRelTopspeed ) ) )
             {
                 oldRelTopspeed = relTopspeed;
                 relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed2:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
             }
             
-            if ( needsCompleteRedraw || ( clock2 && ( velocity != oldVelocity ) ) )
+            if ( needsCompleteRedraw || ( clock1 && ( velocity != oldVelocity ) ) )
             {
                 oldVelocity = velocity;
                 velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
