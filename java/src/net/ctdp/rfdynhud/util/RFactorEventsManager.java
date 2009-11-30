@@ -34,6 +34,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
     private boolean isInGarage = true;
     private boolean isInPits = true;
     private final TelemVect3 garageStartLocation = new TelemVect3();
+    private final TelemVect3 garageStartOrientationX = new TelemVect3();
+    private final TelemVect3 garageStartOrientationY = new TelemVect3();
+    private final TelemVect3 garageStartOrientationZ = new TelemVect3();
     
     private boolean physicsLoadedOnce = false;
     
@@ -166,6 +169,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
             __GDPrivilegedAccess.onRealtimeEntered( gameData );
             
             gameData.getTelemetryData().getPosition( garageStartLocation );
+            gameData.getTelemetryData().getOrientationX( garageStartOrientationX );
+            gameData.getTelemetryData().getOrientationY( garageStartOrientationY );
+            gameData.getTelemetryData().getOrientationZ( garageStartOrientationZ );
             this.isInPits = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
             this.isInGarage = isInPits;
             
@@ -250,14 +256,56 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     private final TelemVect3 position = new TelemVect3();
     
+    /*
+    private final boolean checkIsInGarage()
+    {
+        if ( !isInRealtimeMode() )
+            return ( true );
+        
+        if ( !gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits() )
+            return ( false );
+        
+        gameData.getTelemetryData().getPosition( position );
+        
+        if ( garageStartLocation.getDistanceXZToSquared( position ) < 4f ) // distance < 2 m
+            return ( true );
+        
+        return ( false );
+    }
+    */
+    
+    private final boolean checkIsInGarage()
+    {
+        if ( !isInRealtimeMode() )
+            return ( true );
+        
+        if ( !gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits() )
+            return ( false );
+        
+        gameData.getTelemetryData().getPosition( position );
+        
+        float relWorldX = position.getX() - garageStartLocation.getX();
+        float relWorldY = position.getY() - garageStartLocation.getY();
+        float relWorldZ = position.getZ() - garageStartLocation.getZ();
+        float currLocalX = ( garageStartOrientationX.getX() * relWorldX ) + ( garageStartOrientationY.getX() * relWorldY ) + ( garageStartOrientationZ.getX() * relWorldZ );
+        //float currLocalY = ( garageStartOrientationX.getY() * relWorldX ) + ( garageStartOrientationY.getY() * relWorldY ) + ( garageStartOrientationZ.getY() * relWorldZ );
+        float currLocalZ = ( garageStartOrientationX.getZ() * relWorldX ) + ( garageStartOrientationY.getZ() * relWorldY ) + ( garageStartOrientationZ.getZ() * relWorldZ );
+        
+        if ( ( currLocalX < -5f ) || ( currLocalX > +5f ) )
+            return ( false );
+        
+        if ( ( currLocalZ < -1.75f ) || ( currLocalZ > +10f ) )
+            return ( false );
+        
+        return ( true );
+    }
+    
     public void checkPosition()
     {
         if ( !isInGarage ) // For now we don't support reentering the garage with a special configuration, because of the inaccurate check.
             return;
         
-        gameData.getTelemetryData().getPosition( position );
-        
-        boolean isInGarage = !isInRealtimeMode() || ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits() && ( garageStartLocation.getDistanceXZToSquared( position ) < 4f ) ); // distance < 2 m
+        boolean isInGarage = checkIsInGarage();
         
         if ( this.isInGarage && !isInGarage )
         {
