@@ -98,6 +98,8 @@ public class RFDynHUDEditor implements Documented
     private int gameResX;
     private int gameResY;
     
+    private String screenshotSet = "default";
+    
     private final JFrame window;
     private final EditorPanel editorPanel;
     
@@ -146,6 +148,11 @@ public class RFDynHUDEditor implements Documented
     public final int getGameResY()
     {
         return ( gameResY );
+    }
+    
+    public final String getScreenshotSet()
+    {
+        return ( screenshotSet );
     }
     
     public final JFrame getMainWindow()
@@ -239,13 +246,26 @@ public class RFDynHUDEditor implements Documented
             @Override
             public void setValue( Object value )
             {
-                //setName( String.valueOf( value ) );
             }
             
             @Override
             public Object getValue()
             {
                 return ( gameResX + "x" + gameResY );
+            }
+        } );
+        
+        props.add( new Property( "screenshotSet", true, PropertyEditorType.STRING )
+        {
+            @Override
+            public void setValue( Object value )
+            {
+            }
+            
+            @Override
+            public Object getValue()
+            {
+                return ( screenshotSet );
             }
         } );
         
@@ -347,6 +367,7 @@ public class RFDynHUDEditor implements Documented
             writer.writeSetting( "windowLocation", getMainWindow().getX() + "x" + getMainWindow().getY() );
             writer.writeSetting( "windowSize", getMainWindow().getWidth() + "x" + getMainWindow().getHeight() );
             writer.writeSetting( "windowState", extendedState );
+            writer.writeSetting( "screenshotSet", screenshotSet );
             
             if ( ( currentConfigFile != null ) && currentConfigFile.exists() )
             {
@@ -451,6 +472,10 @@ public class RFDynHUDEditor implements Documented
                             configFile = new File( RFactorTools.CONFIG_PATH, value );
                         if ( configFile.exists() )
                             openConfig( configFile );
+                    }
+                    else if ( key.equals( "screenshotSet" ) )
+                    {
+                        screenshotSet = value;
                     }
                     
                     return ( true );
@@ -644,12 +669,12 @@ public class RFDynHUDEditor implements Documented
         System.exit( 0 );
     }
     
-    private static BufferedImage loadBackgroundImage( int width, int height )
+    private BufferedImage loadBackgroundImage( int width, int height )
     {
         try
         {
             //return ( ImageIO.read( RFDynHUDEditor.class.getClassLoader().getResource( "data/background_" + width + "x" + height + ".jpg" ) ) );
-            return ( ImageIO.read( new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + "background_" + width + "x" + height + ".jpg" ) ) );
+            return ( ImageIO.read( new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + screenshotSet + File.separator + "background_" + width + "x" + height + ".jpg" ) ) );
         }
         catch ( IOException e )
         {
@@ -684,6 +709,12 @@ public class RFDynHUDEditor implements Documented
         
         getMainWindow().validate();
         getEditorPanel().repaint();
+    }
+    
+    public void switchScreenshotSet( String screenshotSet )
+    {
+        this.screenshotSet = screenshotSet;
+        switchToGameResolution( gameResX, gameResY );
     }
     
     private JMenu createFileMenu()
@@ -862,7 +893,7 @@ public class RFDynHUDEditor implements Documented
     private boolean checkResolution( String resString )
     {
         //URL url = RFDynHUDEditor.class.getClassLoader().getResource( "data/background_" + resString + ".jpg" );
-        File file = new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + "background_" + resString + ".jpg" );
+        File file = new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + screenshotSet + File.separator + "background_" + resString + ".jpg" );
         return ( file.exists() );
     }
     
@@ -871,10 +902,40 @@ public class RFDynHUDEditor implements Documented
         return ( checkResolution( resX + "x" + resY ) );
     }
     
+    private JMenu createScreenshotSetsMenu()
+    {
+        JMenu sssMenu = new JMenu( "Screenshot Set" );
+        
+        File root = new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" );
+        for ( File f : root.listFiles() )
+        {
+            if ( f.isDirectory() && !f.getName().toLowerCase().equals( ".svn" ) )
+            {
+                final JMenuItem mi = new JMenuItem( f.getName() );
+                mi.addActionListener( new ActionListener()
+                {
+                    public void actionPerformed( ActionEvent e )
+                    {
+                        switchScreenshotSet( mi.getText() );
+                    }
+                } );
+                
+                sssMenu.add( mi );
+            }
+        }
+        
+        return ( sssMenu );
+    }
+    
     private JMenu createResolutionsMenu()
     {
         JMenu resMenu = new JMenu( "Resolutions" );
         resMenu.setDisplayedMnemonicIndex( 0 );
+        
+        JMenu sssMenu = createScreenshotSetsMenu();
+        resMenu.setDisplayedMnemonicIndex( 0 );
+        resMenu.add( sssMenu );
+        resMenu.add( new JSeparator() );
         
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         HashSet<DM> set = new HashSet<DM>();
