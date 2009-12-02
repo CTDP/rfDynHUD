@@ -2061,7 +2061,8 @@ public class TextureImage2D
             bounds = fontMetrics.getStringBounds( s, textGraphics );
         
         int w = (int)bounds.getWidth();
-        int h = (int)( bounds.getHeight() + fontMetrics.getDescent() );
+        //int h = (int)( bounds.getHeight() + fontMetrics.getDescent() );
+        int h = (int)bounds.getHeight();
         
         if ( ( textImage.getWidth() < w ) || ( textImage.getHeight() < h ) )
         {

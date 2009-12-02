@@ -369,7 +369,8 @@ public class DrawnString
         int x = clearRect.getLeft();
         int y = clearRect.getTop();
         int width = clearRect.getWidth();
-        int height = clearRect.getHeight() - fontDescent;
+        //int height = clearRect.getHeight() - fontDescent;
+        int height = clearRect.getHeight();
         
         texture.getTextureCanvas().pushClip( x, y, width, height, true );
         if ( clearColor != null )
