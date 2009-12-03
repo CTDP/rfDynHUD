@@ -305,6 +305,13 @@ public class ScoringInfo
     final void updateSessionTime()
     {
         extrapolationNanos = System.nanoTime() - lastUpdateTimestamp;
+        
+        if ( extrapolationNanos > 600000000000L )
+        {
+            // The game seems to be paused.
+            extrapolationNanos = 0L;
+        }
+        
         extrapolationTime = extrapolationNanos / 1000000000.0f;
         
         sessionNanos = sessionBaseNanos + extrapolationNanos;
