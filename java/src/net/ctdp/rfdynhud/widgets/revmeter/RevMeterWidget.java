@@ -47,7 +47,24 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class RevMeterWidget extends Widget
 {
-    private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "tacho_orange_2.png" );
+    private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "tacho_orange_2.png" )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            backgroundTexture = null;
+            needleTexture = null;
+            shiftLightTexture = null;
+            gearBackgroundTexture = null;
+            gearBackgroundTexture_bak = null;
+            boostNumberBackgroundTexture = null;
+            boostNumberBackgroundTexture_bak = null;
+            velocityBackgroundTexture = null;
+            velocityBackgroundTexture_bak = null;
+            
+            forceAndSetDirty();
+        }
+    };
     private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "needle4.png" );
     private final ImageProperty shiftLightImageName = new ImageProperty( this, "shiftLightImageName", "imageName", "shiftlight_on.png" );
     private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
