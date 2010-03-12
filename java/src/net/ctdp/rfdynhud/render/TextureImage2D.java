@@ -75,17 +75,16 @@ public class TextureImage2D
     private ByteBuffer dataBuffer = null;
     private byte[] data = null;
     
+    private byte[] pixelRow1 = null;
+    private byte[] pixelRow2 = null;
+    
     private final int pixelBytes;
     private final int pixelSize;
     
-    private byte[] pixelRow1 = null;
-    private byte[] pixelRow2 = null;
     private final ArrayList<Rect2i> updateList = new ArrayList<Rect2i>();
     
     private final Rect2i userClipRect = new Rect2i( 0, 0, 128, 128 );
     private final Rect2i clipRect = new Rect2i( 0, 0, 128, 128 );
-    
-    private BufferedImage bufferedImage = null;
     
     private boolean yUp = false;
     
@@ -94,6 +93,8 @@ public class TextureImage2D
     
     private int usedWidth;
     private int usedHeight;
+    
+    private BufferedImage bufferedImage = null;
     
     private Texture2DCanvas textureCanvas = null;
     private boolean hasTextureCanvas = false;
@@ -669,7 +670,7 @@ public class TextureImage2D
             if ( dataBuffer == null )
             {
                 DataBufferByte dbb = new DataBufferByte( data, getWidth() * getHeight() * getPixelBytes() );
-                bufferedImage = new BufferedImage( new ComponentColorModel( ColorSpace.getInstance( ColorSpace.CS_sRGB ), new int[] { 8, 8, 8, 8 }, true, false, Transparency.TRANSLUCENT, 0 ), Raster.createInterleavedRaster( dbb, width, height, getWidth() * getPixelBytes(), getPixelBytes(), pixelOffsets, new java.awt.Point( 0, 0 ) ), false, null );
+                bufferedImage = new BufferedImage( new ComponentColorModel( ColorSpace.getInstance( ColorSpace.CS_sRGB ), new int[] { 8, 8, 8, 8 }, ( getPixelBytes() == 4 ), false, Transparency.TRANSLUCENT, 0 ), Raster.createInterleavedRaster( dbb, width, height, getWidth() * getPixelBytes(), getPixelBytes(), pixelOffsets, new java.awt.Point( 0, 0 ) ), false, null );
             }
             else
             {
@@ -1923,7 +1924,7 @@ public class TextureImage2D
     }
     
     /**
-     * Clears the whole (used part of the) texture with aa black-transparent color.
+     * Clears the whole (used part of the) texture with a black-transparent color.
      * 
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance

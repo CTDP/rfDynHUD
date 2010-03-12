@@ -67,15 +67,15 @@ public class ImageTemplate
         }
         else
         {
+            if ( clearBefore )
+                texture.clear( dx, dy, dw, dh, false, null );
+            
             Texture2DCanvas texCanvas = texture.getTextureCanvas();
             
             Object oldInterpolation = texCanvas.getRenderingHint( RenderingHints.KEY_INTERPOLATION );
             texCanvas.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
             
-            if ( clearBefore )
-                texture.clear( dx, dy, dw, dh, false, null );
-            
-            texCanvas.drawImage( bufferedImage, dx, dy, dw, dh, sx, sy, sw, sh );
+            texCanvas.drawImage( bufferedImage, dx, dy, dx + dw, dy + dh, sx, sy, sx + sw, sy + sh );
             
             if ( oldInterpolation == null )
                 texCanvas.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR );

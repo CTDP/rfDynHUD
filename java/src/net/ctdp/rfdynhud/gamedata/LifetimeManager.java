@@ -1,8 +1,13 @@
 package net.ctdp.rfdynhud.gamedata;
 
+import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Brakes.WheelBrake;
+
 class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
 {
     public static final LifetimeManager INSTANCE = new LifetimeManager();
+    
+    private static final double FLT_BIG = 1000000000.0;
+    private static final float PI = (float)Math.PI;
     
     private int lastEnteredRealtimeID = -1;
     private long lastTimestamp = -2L;
@@ -29,6 +34,49 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     private double brakeDiscThicknessFR = 0.0;
     private double brakeDiscThicknessRL = 0.0;
     private double brakeDiscThicknessRR = 0.0;
+    
+    private final double computeTorque( WheelBrake brake, float brakeTemp )
+    {
+        float brakeFadeTemp = brake.getBrakeFadeRange(); // straight from the HDV (or Float.MAX_VALUE/2, if not found)
+        float brakeFadeColdTemp = brake.getBrakeFadeColdTemperature(); // optimum lower bound minus BrakeFadeRange
+        float brakeFadeHotTemp = brake.getBrakeFadeHotTemperature(); // optimum upper bound plus BrakeFadeRange
+        
+        if ( brakeFadeTemp < FLT_BIG )
+            brakeFadeColdTemp += TelemetryData.ZERO_KELVIN;
+        
+        if ( brakeFadeTemp < FLT_BIG )
+            brakeFadeHotTemp += TelemetryData.ZERO_KELVIN;
+        
+        double torque = brake.getTorque();
+        
+        if ( brakeTemp < brake.getOptimumTemperaturesLowerBound() )
+        {
+            if ( brakeTemp < brakeFadeColdTemp )
+            {
+                torque *= 0.5;
+            }
+            else
+            {
+                final float coldRange = brakeFadeColdTemp - brake.getOptimumTemperaturesLowerBound();
+                final float brakeFadeColdMult = ( coldRange < 0.0f ) ? ( PI / coldRange ) : 0.0f;
+                
+                torque = torque * ( 0.75 + ( 0.25 * Math.cos( ( brakeTemp - brake.getOptimumTemperaturesLowerBound() ) * brakeFadeColdMult ) ) );
+            }
+        }
+        else if ( brakeTemp > brakeFadeHotTemp )
+        {
+            torque *= 0.5;
+        }
+        else if ( brakeTemp > brake.getOptimumTemperaturesUpperBound() )
+        {
+            final float hotRange = brakeFadeHotTemp - brake.getOptimumTemperaturesUpperBound();
+            final float brakeFadeHotMult = ( hotRange < 0.0f ) ? ( PI / hotRange ) : 0.0f;
+            
+            torque = torque * ( 0.75 + ( 0.25 * Math.cos( ( brakeTemp - brake.getOptimumTemperaturesUpperBound() ) * brakeFadeHotMult ) ) );
+        }
+        
+        return ( torque );
+    }
     
     /**
      * {@inheritDoc}
@@ -84,44 +132,56 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
                     float lowerOptTemp = brakes.getBrake( wheel ).getOptimumTemperaturesLowerBound();
                     float upperOptTemp = brakes.getBrake( wheel ).getOptimumTemperaturesUpperBound();
                     float wearRate = brakes.getBrake( wheel ).getWearRate();
+                    /*
                     float torque = brakes.getBrake( wheel ).getTorque();
                     if ( lastBrakeTemperatureFL < lowerOptTemp )
                         torque /= Math.pow( 2.0, ( lowerOptTemp - lastBrakeTemperatureFL ) / ( lowerOptTemp - brakes.getBrake( wheel ).getColdTemperature() ) );
                     else if ( lastBrakeTemperatureFL > upperOptTemp )
                         torque /= Math.pow( 2.0, ( lastBrakeTemperatureFL - upperOptTemp ) / ( brakes.getBrake( wheel ).getOverheatingTemperature() - upperOptTemp ) );
+                    */
+                    double torque = computeTorque( brakes.getBrake( wheel ), lastBrakeTemperatureFL );
                     double brakeWearFL = torque * ( 1.0f - lastBrakeBias ) * avgBrakeApplication * brakePressure * -lastWheelRotationFL * ( wearRate * Math.pow( lastBrakeTemperatureFL, 3.0 ) ) / Math.pow( ( ( lowerOptTemp + upperOptTemp - ( TelemetryData.ZERO_KELVIN * 2.0f ) ) / 2.0 ), 3.0 );
                     
                     wheel = Wheel.FRONT_RIGHT;
                     lowerOptTemp = brakes.getBrake( wheel ).getOptimumTemperaturesLowerBound();
                     upperOptTemp = brakes.getBrake( wheel ).getOptimumTemperaturesUpperBound();
                     wearRate = brakes.getBrake( wheel ).getWearRate();
+                    /*
                     torque = brakes.getBrake( wheel ).getTorque();
                     if ( lastBrakeTemperatureFR < lowerOptTemp )
                         torque /= Math.pow( 2.0, ( lowerOptTemp - lastBrakeTemperatureFR ) / ( lowerOptTemp - brakes.getBrake( wheel ).getColdTemperature() ) );
                     else if ( lastBrakeTemperatureFR > upperOptTemp )
                         torque /= Math.pow( 2.0, ( lastBrakeTemperatureFR - upperOptTemp ) / ( brakes.getBrake( wheel ).getOverheatingTemperature() - upperOptTemp ) );
+                    */
+                    torque = computeTorque( brakes.getBrake( wheel ), lastBrakeTemperatureFR );
                     double brakeWearFR = torque * ( 1.0f - lastBrakeBias ) * avgBrakeApplication * brakePressure * -lastWheelRotationFR * ( wearRate * Math.pow( lastBrakeTemperatureFR, 3.0 ) ) / Math.pow( ( ( lowerOptTemp + upperOptTemp - ( TelemetryData.ZERO_KELVIN * 2.0f ) ) / 2.0 ), 3.0 );
                     
                     wheel = Wheel.REAR_LEFT;
                     lowerOptTemp = brakes.getBrake( wheel ).getOptimumTemperaturesLowerBound();
                     upperOptTemp = brakes.getBrake( wheel ).getOptimumTemperaturesUpperBound();
                     wearRate = brakes.getBrake( wheel ).getWearRate();
+                    /*
                     torque = brakes.getBrake( wheel ).getTorque();
                     if ( lastBrakeTemperatureRL < lowerOptTemp )
                         torque /= Math.pow( 2.0, ( lowerOptTemp - lastBrakeTemperatureRL ) / ( lowerOptTemp - brakes.getBrake( wheel ).getColdTemperature() ) );
                     else if ( lastBrakeTemperatureRL > upperOptTemp )
                         torque /= Math.pow( 2.0, ( lastBrakeTemperatureRL - upperOptTemp ) / ( brakes.getBrake( wheel ).getOverheatingTemperature() - upperOptTemp ) );
+                    */
+                    torque = computeTorque( brakes.getBrake( wheel ), lastBrakeTemperatureRL );
                     double brakeWearRL = torque * lastBrakeBias * avgBrakeApplication * brakePressure * -lastWheelRotationRL * ( wearRate * Math.pow( lastBrakeTemperatureRL, 3.0 ) ) / Math.pow( ( ( lowerOptTemp + upperOptTemp - ( TelemetryData.ZERO_KELVIN * 2.0f ) ) / 2.0 ), 3.0 );
                     
                     wheel = Wheel.REAR_RIGHT;
                     lowerOptTemp = brakes.getBrake( wheel ).getOptimumTemperaturesLowerBound();
                     upperOptTemp = brakes.getBrake( wheel ).getOptimumTemperaturesUpperBound();
                     wearRate = brakes.getBrake( wheel ).getWearRate();
+                    /*
                     torque = brakes.getBrake( wheel ).getTorque();
                     if ( lastBrakeTemperatureRR < lowerOptTemp )
                         torque /= Math.pow( 2.0, ( lowerOptTemp - lastBrakeTemperatureRR ) / ( lowerOptTemp - brakes.getBrake( wheel ).getColdTemperature() ) );
                     else if ( lastBrakeTemperatureRR > upperOptTemp )
                         torque /= Math.pow( 2.0, ( lastBrakeTemperatureFL - upperOptTemp ) / ( brakes.getBrake( wheel ).getOverheatingTemperature() - upperOptTemp ) );
+                    */
+                    torque = computeTorque( brakes.getBrake( wheel ), lastBrakeTemperatureRR );
                     double brakeWearRR = torque * lastBrakeBias * avgBrakeApplication * brakePressure * -lastWheelRotationRR * ( wearRate * Math.pow( lastBrakeTemperatureRR, 3.0 ) ) / Math.pow( ( ( lowerOptTemp + upperOptTemp - ( TelemetryData.ZERO_KELVIN * 2.0f ) ) / 2.0 ), 3.0 );
                     
                     brakeDiscThicknessFL -= deltaTime * brakeWearFL / gameData.getScoringInfo().getRaceLengthPercentage();

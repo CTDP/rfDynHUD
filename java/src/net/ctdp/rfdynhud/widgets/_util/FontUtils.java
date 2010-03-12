@@ -2,6 +2,8 @@ package net.ctdp.rfdynhud.widgets._util;
 
 import java.awt.Font;
 
+import net.ctdp.rfdynhud.util.Logger;
+
 public class FontUtils
 {
     public static final Font FALLBACK_FONT = Font.decode( "Impact-PLAIN-18" );
@@ -117,39 +119,47 @@ public class FontUtils
         return ( new Font( name, style, size ) );
     }
     
-    private static Object _parseFont( String str, int gameResY, boolean extractVirtualFlag, boolean extractAntialiasFlag )
+    private static Object getFallback( IllegalArgumentException exception, boolean extractVirtualFlag, boolean extractAntialiasFlag, boolean throwException )
+    {
+        if ( throwException )
+            throw exception;
+        
+        Logger.log( exception );
+        
+        if ( extractVirtualFlag || extractAntialiasFlag )
+            return ( Boolean.FALSE );
+        
+        return ( FALLBACK_FONT );
+    }
+    
+    private static Object _parseFont( String str, int gameResY, boolean extractVirtualFlag, boolean extractAntialiasFlag, boolean throwException )
     {
         if ( ( str == null ) || ( str.length() < 5 ) )
-            //return ( null );
-            throw new IllegalArgumentException( "Illegal font string " + str );
+            return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException ) );
         
         int p0 = 0;
         int p1 = str.indexOf( '-' );
         if ( ( p1 == -1 ) || ( p1 == p0 ) )
-            //return ( null );
-            throw new IllegalArgumentException( "Illegal font string " + str );
+            return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException ) );
         
         String name = str.substring( p0, p1 );
         
         p0 = p1 + 1;
         
         if ( str.length() <= p0 )
-            //return ( null );
-            throw new IllegalArgumentException( "Illegal font string " + str );
+            return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException ) );
         
         p1 = str.indexOf( '-', p0 );
         
         if ( ( p1 == -1 ) || ( p1 == p0 ) )
-            //return ( null );
-            throw new IllegalArgumentException( "Illegal font string " + str );
+            return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException ) );
         
         String style = str.substring( p0, p1 );
         
         p0 = p1 + 1;
         
         if ( str.length() <= p0 )
-            //return ( null );
-            throw new IllegalArgumentException( "Illegal font string " + str );
+            return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException ) );
         
         String size = str.substring( p0 );
         
@@ -180,23 +190,23 @@ public class FontUtils
         return ( getFont( name, parseStyle( style ), pointSize, virtual ? gameResY : -1 ) );
     }
     
-    public static Font parseFont( String str, int gameResY )
+    public static Font parseFont( String str, int gameResY, boolean throwException )
     {
-        return ( (Font)_parseFont( str, gameResY, false, false ) );
+        return ( (Font)_parseFont( str, gameResY, false, false, throwException ) );
     }
     
-    public static Font parseVirtualFont( String str )
+    public static Font parseVirtualFont( String str, boolean throwException )
     {
-        return ( (Font)_parseFont( str, -1, false, false ) );
+        return ( (Font)_parseFont( str, -1, false, false, throwException ) );
     }
     
-    public static boolean parseVirtualFlag( String str )
+    public static boolean parseVirtualFlag( String str, boolean throwException )
     {
-        return ( (Boolean)_parseFont( str, -1, true, false ) );
+        return ( (Boolean)_parseFont( str, -1, true, false, throwException ) );
     }
     
-    public static boolean parseAntiAliasFlag( String str )
+    public static boolean parseAntiAliasFlag( String str, boolean throwException )
     {
-        return ( (Boolean)_parseFont( str, -1, false, true ) );
+        return ( (Boolean)_parseFont( str, -1, false, true, throwException ) );
     }
 }

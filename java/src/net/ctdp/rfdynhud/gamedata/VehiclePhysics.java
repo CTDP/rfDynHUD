@@ -194,12 +194,14 @@ public class VehiclePhysics
         
         public final float getMinLifetime( double raceLengthMultiplier )
         {
-            return ( (float)( ( lifetimeAverage - lifetimeVariance ) * raceLengthMultiplier ) );
+            return ( (float)( ( lifetimeAverage - lifetimeVariance - lifetimeVariance ) * raceLengthMultiplier ) );
+            //return ( (float)( ( lifetimeAverage + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
         public final float getMaxLifetime( double raceLengthMultiplier )
         {
-            return ( (float)( ( lifetimeAverage + lifetimeVariance ) * raceLengthMultiplier ) );
+            return ( (float)( ( lifetimeAverage + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
+            //return ( (float)( ( lifetimeAverage + lifetimeVariance + lifetimeVariance + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
         public final float getBaseLifetimeOilTemperature()
@@ -377,12 +379,15 @@ public class VehiclePhysics
         
         public class WheelBrake
         {
+            public static final float DEFAULT_BRAKE_FADE_RANGE = Float.MAX_VALUE / 2f;
+            
             private float optimumTemperaturesLowerBound;
             private float optimumTemperaturesUpperBound;
             private float coldTemperature;
             private float overheatingTemperature;
             private float wearincreasePerDegreeOverOptimum;
             private float weardecreasePerDegreeBelowOptimum;
+            float brakeFadeRange = DEFAULT_BRAKE_FADE_RANGE;
             
             private final PhysicsSetting discRange = new PhysicsSetting();
             float wearRate;
@@ -448,6 +453,21 @@ public class VehiclePhysics
                 this.overheatingTemperature = overheatingTemperature;
             }
             
+            public final float getBrakeFadeRange()
+            {
+                return ( brakeFadeRange );
+            }
+            
+            public final float getBrakeFadeColdTemperature()
+            {
+                return ( optimumTemperaturesLowerBound - brakeFadeRange );
+            }
+            
+            public final float getBrakeFadeHotTemperature()
+            {
+                return ( optimumTemperaturesUpperBound + brakeFadeRange );
+            }
+            
             /**
              * Gets the disc thickness range in meters.
              * 
@@ -495,7 +515,8 @@ public class VehiclePhysics
              */
             public final float getMinDiscFailure()
             {
-                return ( discFailureAverage - discFailureVariance );
+                //return ( discFailureAverage - discFailureVariance - discFailureVariance );
+                return ( discFailureAverage );
             }
             
             /**
@@ -505,7 +526,7 @@ public class VehiclePhysics
              */
             public final float getMaxDiscFailure()
             {
-                return ( discFailureAverage + discFailureVariance );
+                return ( discFailureAverage + discFailureVariance + discFailureVariance );
             }
             
             /**
@@ -1290,6 +1311,11 @@ public class VehiclePhysics
 	        brakes.brakeRearLeft.setTemperatures( 200f, 450f, 750f, 1050f );
 	        brakes.brakeRearRight.setTemperatures( 200f, 450f, 750f, 1050f );
             
+	        brakes.brakeFrontLeft.brakeFadeRange = Brakes.WheelBrake.DEFAULT_BRAKE_FADE_RANGE;
+            brakes.brakeFrontRight.brakeFadeRange = Brakes.WheelBrake.DEFAULT_BRAKE_FADE_RANGE;
+            brakes.brakeRearLeft.brakeFadeRange = Brakes.WheelBrake.DEFAULT_BRAKE_FADE_RANGE;
+            brakes.brakeRearRight.brakeFadeRange = Brakes.WheelBrake.DEFAULT_BRAKE_FADE_RANGE;
+	        
 	        brakes.brakeFrontLeft.discRange.set( 0.023f, 0.001f, 6 );
             brakes.brakeFrontLeft.wearRate = 5.770e-011f;
             brakes.brakeFrontLeft.discFailureAverage = 1.45e-02f;

@@ -462,8 +462,8 @@ public class WearWidget extends Widget
         if ( displayEngine.getBooleanValue() )
         {
             float lifetime = isEditorMode ? 1000f : gameData.getTelemetryData().getEngineLifetime();
-            lifetime = Math.max( -physics.getEngine().getLifetimeVariance( gameData.getScoringInfo().getRaceLengthPercentage() ) * 2f, lifetime );
             engineLifetime.update( lifetime / physics.getEngine().getMinLifetime( gameData.getScoringInfo().getRaceLengthPercentage() ) );
+            lifetime = Math.max( -physics.getEngine().getLifetimeVariance( gameData.getScoringInfo().getRaceLengthPercentage() ) * 2f, lifetime );
             
             if ( needsCompleteRedraw || engineLifetime.hasChanged() )
             {

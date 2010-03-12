@@ -13,6 +13,8 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
+import org.openmali.types.twodee.Rect2i;
+
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
@@ -130,8 +132,22 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
     private final BooleanProperty displayShiftLight = new BooleanProperty( this, "displayShiftLight", true );
-    private final IntegerProperty shiftLightPosX = new IntegerProperty( this, "shiftLightPosX", "posX", 625 );
-    private final IntegerProperty shiftLightPosY = new IntegerProperty( this, "shiftLightPosY", "posY", 42 );
+    private final IntegerProperty shiftLightPosX = new IntegerProperty( this, "shiftLightPosX", "posX", 625 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            shiftLightTexture = null;
+        }
+    };
+    private final IntegerProperty shiftLightPosY = new IntegerProperty( this, "shiftLightPosY", "posY", 42 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            shiftLightTexture = null;
+        }
+    };
     private final IntegerProperty shiftLightRPM = new IntegerProperty( this, "shiftLightRPM", "activationRPM", -500 );
     
     private final IntegerProperty gearPosX = new IntegerProperty( this, "gearPosX", "posX", 354 );
@@ -139,8 +155,6 @@ public class RevMeterWidget extends Widget
     
     private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", "GearFont" );
     private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
-    
-    private final IntegerProperty rpmPosY = new IntegerProperty( this, "rpmPosY", 603 );
     
     private final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
     private final IntegerProperty boostBarPosX = new IntegerProperty( this, "boostBarPosX", "barPosX", 135 );
@@ -160,6 +174,10 @@ public class RevMeterWidget extends Widget
     
     private final FontProperty velocityFont = new FontProperty( this, "velocityFont", "font", "StandardFont" );
     private final ColorProperty velocityFontColor = new ColorProperty( this, "velocityFontColor", "fontColor", "#1A261C" );
+    
+    private final BooleanProperty displayRPMString = new BooleanProperty( this, "displayRPMString", true );
+    private final IntegerProperty rpmPosY = new IntegerProperty( this, "rpmPosY", 603 );
+    private final BooleanProperty displayMaxRPM = new BooleanProperty( this, "displayMaxRPM", true );
     
     private DrawnString rpmString = null;
     private DrawnString gearString = null;
@@ -240,8 +258,11 @@ public class RevMeterWidget extends Widget
                 {
                     shiftLightTexture = new TransformableTexture( w, h * 2, 0, 0, 0, 0, 0f, 1f, 1f );
                     shiftLightTexture.getTexture().clear( false, null );
+                    it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), it.getBaseWidth(), it.getBaseHeight(), 0, 0, w, h, shiftLightTexture.getTexture(), false );
+                    it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), it.getBaseWidth(), it.getBaseHeight(), 0, h, w, h, shiftLightTexture.getTexture(), false );
                     it.drawScaled( 0, 0, w, h, shiftLightTexture.getTexture(), false );
-                    it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), shiftLightPosX.getIntegerValue() + it.getBaseWidth(), shiftLightPosY.getIntegerValue() + it.getBaseHeight(), 0, h, w, shiftLightTexture.getHeight(), shiftLightTexture.getTexture(), false );
+                    
+                    //it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), shiftLightPosX.getIntegerValue() + it.getBaseWidth(), shiftLightPosY.getIntegerValue() + it.getBaseHeight(), 0, h, w, shiftLightTexture.getHeight(), shiftLightTexture.getTexture(), false );
                 }
             }
             catch ( Throwable t )
@@ -577,7 +598,10 @@ public class RevMeterWidget extends Widget
         
         velocityString = new DrawnString( fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor() );
         
-        rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        if ( displayRPMString.getBooleanValue() )
+            rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        else
+            rpmString = null;
     }
     
     private Color interpolateColor( Color c0, Color c1, float alpha )
@@ -746,7 +770,7 @@ public class RevMeterWidget extends Widget
         {
             loadShiftLightTexture( isEditorMode );
             
-            texCanvas.getImage().clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
+            //texCanvas.getImage().clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
         }
         
         drawMarks( gameData, texCanvas, offsetX, offsetY, width, height );
@@ -848,9 +872,13 @@ public class RevMeterWidget extends Widget
             store.storedBaseMaxRPM = Math.max( maxRPM, store.storedBaseMaxRPM );
         maxRPM = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM );
         
-        if ( needsCompleteRedraw || clock1 )
+        if ( displayRPMString.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
         {
-            String string = NumberUtil.formatFloat( rpm, 0, false ) + " / " + NumberUtil.formatFloat( maxRPM, 0, false );
+            String string;
+            if ( displayMaxRPM.getBooleanValue() )
+                string = NumberUtil.formatFloat( rpm, 0, false ) + " / " + NumberUtil.formatFloat( maxRPM, 0, false );
+            else
+                string = NumberUtil.formatFloat( rpm, 0, false );
             rpmString.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
         }
         
@@ -886,7 +914,11 @@ public class RevMeterWidget extends Widget
             
             if ( shiftLightTexture != null )
             {
-                texCanvas.getImage().clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetX + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
+                Rect2i clip = new Rect2i();
+                shiftLightTexture.getClipRect( clip );
+                if ( ( clip.getWidth() <= 0 ) || ( clip.getHeight() <= 0 ) )
+                    clip.set( 0, 0, shiftLightTexture.getWidth(), shiftLightTexture.getHeight() );
+                texCanvas.getImage().clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), clip.getWidth(), clip.getHeight(), true, null );
                 shiftLightTexture.drawInEditor( texCanvas, offsetX, offsetY );
             }
         }
@@ -970,6 +1002,8 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( velocityPosY, "The y-offset in pixels to the velocity label." );
         writer.writeProperty( velocityFont, "The font used to draw the velocity." );
         writer.writeProperty( velocityFontColor, "The font color used to draw the velocity." );
+        writer.writeProperty( displayRPMString, "whether to display the digital RPM/Revs string or not" );
+        writer.writeProperty( displayMaxRPM, "whether to display the maximum revs or to hide them" );
         writer.writeProperty( rpmPosY, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
     }
     
@@ -1027,6 +1061,8 @@ public class RevMeterWidget extends Widget
         else if ( velocityPosY.loadProperty( key, value ) );
         else if ( velocityFont.loadProperty( key, value ) );
         else if ( velocityFontColor.loadProperty( key, value ) );
+        else if ( displayRPMString.loadProperty( key, value ) );
+        else if ( displayMaxRPM.loadProperty( key, value ) );
         else if ( rpmPosY.loadProperty( key, value ) );
     }
     
@@ -1119,7 +1155,13 @@ public class RevMeterWidget extends Widget
         
         props.add( velocityProps );
         
-        props.add( rpmPosY );
+        FlaggedList digiRPMProps = new FlaggedList( "DigitalRevs", true );
+        
+        digiRPMProps.add( displayRPMString );
+        digiRPMProps.add( displayMaxRPM );
+        digiRPMProps.add( rpmPosY );
+        
+        props.add( digiRPMProps );
         
         propsList.add( props );
     }

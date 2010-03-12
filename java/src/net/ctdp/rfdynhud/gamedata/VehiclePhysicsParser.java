@@ -699,6 +699,8 @@ public class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torque, Float.parseFloat( value ), op );
                 else if ( key.equals( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.FRONT_LEFT ), op );
+                else if ( key.equals( "BrakeFadeRange" ) )
+                    physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
             else if ( group.equals( "FRONTRIGHT" ) )
             {
@@ -718,6 +720,8 @@ public class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torque, Float.parseFloat( value ), op );
                 else if ( key.equals( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.FRONT_RIGHT ), op );
+                else if ( key.equals( "BrakeFadeRange" ) )
+                    physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
             else if ( group.equals( "REARLEFT" ) )
             {
@@ -737,6 +741,8 @@ public class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torque, Float.parseFloat( value ), op );
                 else if ( key.equals( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.REAR_LEFT ), op );
+                else if ( key.equals( "BrakeFadeRange" ) )
+                    physics.getBrakes().getBrake( Wheel.REAR_LEFT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
             else if ( group.equals( "REARRIGHT" ) )
             {
@@ -756,6 +762,8 @@ public class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torque, Float.parseFloat( value ), op );
                 else if ( key.equals( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.REAR_RIGHT ), op );
+                else if ( key.equals( "BrakeFadeRange" ) )
+                    physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
             else if ( group.equals( "CONTROLS" ) )
             {
@@ -1267,8 +1275,16 @@ public class VehiclePhysicsParser
         if ( trackConfig == -1 )
             return ( upgradesList );
         
-        Object[][] upgradesList2 = new Object[ upgradesList.length + 1 ][];
-        System.arraycopy( upgradesList, 0, upgradesList2, 0, upgradesList.length );
+        Object[][] upgradesList2 = null;
+        if ( upgradesList == null )
+        {
+            upgradesList2 = new Object[ 1 ][];
+        }
+        else
+        {
+            upgradesList2 = new Object[ upgradesList.length + 1 ][];
+            System.arraycopy( upgradesList, 0, upgradesList2, 0, upgradesList.length );
+        }
         
         upgradesList2[upgradesList2.length - 1] = new Object[] { "TRACK CONFIGURATION", trackConfig };
         

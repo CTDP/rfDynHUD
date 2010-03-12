@@ -82,7 +82,9 @@ public class FontProperty extends Property
         {
             font = widget.getConfiguration().getNamedFont( fontKey );
             if ( font == null )
-                font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResY() );
+            {
+                font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResY(), false );
+            }
         }
         
         return ( font );
@@ -96,7 +98,7 @@ public class FontProperty extends Property
             if ( fk == null )
                 fk = fontKey;
             
-            antiAliased = FontUtils.parseAntiAliasFlag( fk );
+            antiAliased = FontUtils.parseAntiAliasFlag( fk, false );
         }
         
         return ( antiAliased );

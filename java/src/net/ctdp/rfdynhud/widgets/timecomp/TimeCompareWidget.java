@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class TimeCompareWidget extends Widget
 {
+    private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
     private final BooleanProperty displaySectors = new BooleanProperty( this, "displaySectors", true );
     
     private DrawnString headerString = null;
@@ -65,6 +66,11 @@ public class TimeCompareWidget extends Widget
     public void onRealtimeEntered( boolean isEditorMode, LiveGameData gameData )
     {
         super.onRealtimeEntered( isEditorMode, gameData );
+    }
+    
+    protected String getGapRowCaption()
+    {
+        return ( "g" );
     }
     
     private void updateLaps( int lap, LiveGameData gameData )
@@ -176,13 +182,16 @@ public class TimeCompareWidget extends Widget
         
         if ( displaySectors.getBooleanValue() )
         {
-            headerString.getMaxColWidths( new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, padding, texCanvas.getImage(), colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", " --.---", " --.---", " --.---", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
+            if ( abbreviate.getBooleanValue() )
+                headerString.getMaxColWidths( new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, padding, texCanvas.getImage(), colWidths );
+            else
+                headerString.getMaxColWidths( new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, padding, texCanvas.getImage(), colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, padding, texCanvas.getImage(), colWidths );
         }
         else
         {
             headerString.getMaxColWidths( new String[] { "#", "Lap" }, padding, texCanvas.getImage(), colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", " -:--.---" }, padding, texCanvas.getImage(), colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, padding, texCanvas.getImage(), colWidths );
         }
         
         int currentLap = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getCurrentLap();
@@ -206,9 +215,16 @@ public class TimeCompareWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displaySectors.getBooleanValue() )
-                headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
+            {
+                if ( abbreviate.getBooleanValue() )
+                    headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
+                else
+                    headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
+            }
             else
+            {
                 headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Lap" }, aligns, padding, colWidths, backgroundColor, image );
+            }
         }
         
         if ( needsCompleteRedraw || lap.hasChanged() )
@@ -241,18 +257,18 @@ public class TimeCompareWidget extends Widget
             if ( last < 0 )
             {
                 if ( displaySectors.getBooleanValue() )
-                    s = new String[] { "g", "--.---", "--.---", "--.---", "-:--.---" };
+                    s = new String[] { getGapRowCaption(), "--.---", "--.---", "--.---", "-:--.---" };
                 else
-                    s = new String[] { "g", "-:--.---" };
+                    s = new String[] { getGapRowCaption(), "-:--.---" };
             }
             else
             {
                 Laptime lt = store.displayedLaps[last];
                 
                 if ( displaySectors.getBooleanValue() )
-                    s = new String[] { "g", TimingUtil.getTimeAsGapString( lt.getSector1() - store.avgS1 ), TimingUtil.getTimeAsGapString( lt.getSector2() - store.avgS2 ), TimingUtil.getTimeAsGapString( lt.getSector3() - store.avgS3 ), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
+                    s = new String[] { getGapRowCaption(), TimingUtil.getTimeAsGapString( lt.getSector1() - store.avgS1 ), TimingUtil.getTimeAsGapString( lt.getSector2() - store.avgS2 ), TimingUtil.getTimeAsGapString( lt.getSector3() - store.avgS3 ), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
                 else
-                    s = new String[] { "g", TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
+                    s = new String[] { getGapRowCaption(), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
             }
             
             timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, aligns, padding, colWidths, backgroundColor, image );
@@ -268,6 +284,7 @@ public class TimeCompareWidget extends Widget
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( abbreviate, "Whether to abbreviate \"Sector\" to \"Sec\", or not." );
         writer.writeProperty( displaySectors, "Display sector times?" );
     }
     
@@ -279,7 +296,8 @@ public class TimeCompareWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( displaySectors.loadProperty( key, value ) );
+        if ( abbreviate.loadProperty( key, value ) );
+        else if ( displaySectors.loadProperty( key, value ) );
     }
     
     /**
@@ -292,6 +310,7 @@ public class TimeCompareWidget extends Widget
         
         FlaggedList props = new FlaggedList( "Specific", true );
         
+        props.add( abbreviate );
         props.add( displaySectors );
         
         propsList.add( props );

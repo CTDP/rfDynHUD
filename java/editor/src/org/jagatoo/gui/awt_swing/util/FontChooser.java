@@ -99,9 +99,9 @@ public class FontChooser extends JPanel
     
     protected void applySelectedFont( String fontString, int gameResY )
     {
-        Font font = FontUtils.parseVirtualFont( fontString );
-        boolean virtual = FontUtils.parseVirtualFlag( fontString );
-        boolean antiAliased = FontUtils.parseAntiAliasFlag( fontString );
+        Font font = FontUtils.parseVirtualFont( fontString, false );
+        boolean virtual = FontUtils.parseVirtualFlag( fontString, false );
+        boolean antiAliased = FontUtils.parseAntiAliasFlag( fontString, false );
         
         fontNamesList.setSelectedIndex( -1 );
         for ( int i = 0; i < fontNamesList.getModel().getSize(); i++ )
@@ -130,7 +130,7 @@ public class FontChooser extends JPanel
         virtualBox.setSelected( virtual );
         antiAliasedBox.setSelected( antiAliased );
         
-        sampleLabel.setFont( FontUtils.parseFont( fontString, gameResY ) );
+        sampleLabel.setFont( FontUtils.parseFont( fontString, gameResY, false ) );
     }
     
     private String composeSelectedFont()
@@ -141,7 +141,7 @@ public class FontChooser extends JPanel
     protected void setSelectedFont( String fontString, int gameResY )
     {
         if ( fontString != null )
-            sampleLabel.setFont( FontUtils.parseFont( fontString, gameResY ) );
+            sampleLabel.setFont( FontUtils.parseFont( fontString, gameResY, false ) );
         
         this.selectedFont = fontString;
     }
@@ -700,15 +700,15 @@ public class FontChooser extends JPanel
         if ( isName )
         {
             String fontString = widgetsConfig.getNamedFontString( startFont );
-            font = FontUtils.parseVirtualFont( fontString );
+            font = FontUtils.parseVirtualFont( fontString, false );
             virtual = widgetsConfig.getNamedFontVirtual( startFont );
-            antiAliased = FontUtils.parseAntiAliasFlag( fontString );
+            antiAliased = FontUtils.parseAntiAliasFlag( fontString, false );
         }
         else
         {
-            font = FontUtils.parseVirtualFont( startFont );
-            virtual = FontUtils.parseVirtualFlag( startFont );
-            antiAliased = FontUtils.parseAntiAliasFlag( startFont );
+            font = FontUtils.parseVirtualFont( startFont, false );
+            virtual = FontUtils.parseVirtualFlag( startFont, false );
+            antiAliased = FontUtils.parseAntiAliasFlag( startFont, false );
         }
         
         wrapper.add( createNamedFontSelector( isName ? startFont : null, widgetsConfig ), BorderLayout.NORTH );

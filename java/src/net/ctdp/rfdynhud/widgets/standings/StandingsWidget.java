@@ -550,10 +550,13 @@ public class StandingsWidget extends Widget
             ss[2] = null;
         }
         
-        if ( vsi.getLapsCompleted() == 1 )
-            ss[3] = vsi.getLapsCompleted() + " Lap";
+        int lapsCompleted = vsi.getLapsCompleted();
+        if ( abbreviate.getBooleanValue() )
+            ss[3] = lapsCompleted + "L";
+        else if ( lapsCompleted == 1 )
+            ss[3] = lapsCompleted + " Lap";
         else
-            ss[3] = vsi.getLapsCompleted() + " Laps";
+            ss[3] = lapsCompleted + " Laps";
         
         return ( ss );
     }
@@ -581,10 +584,13 @@ public class StandingsWidget extends Widget
             ss[2] = null;
         }
         
-        if ( vsi.getLapsCompleted() == 1 )
-            ss[3] = vsi.getLapsCompleted() + " Lap";
+        int lapsCompleted = vsi.getLapsCompleted();
+        if ( abbreviate.getBooleanValue() )
+            ss[3] = lapsCompleted + "L";
+        else if ( lapsCompleted == 1 )
+            ss[3] = lapsCompleted + " Lap";
         else
-            ss[3] = vsi.getLapsCompleted() + " Laps";
+            ss[3] = lapsCompleted + " Laps";
         
         return ( ss );
     }

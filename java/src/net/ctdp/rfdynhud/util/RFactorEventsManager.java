@@ -2,8 +2,10 @@ package net.ctdp.rfdynhud.util;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
@@ -164,6 +166,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         try
         {
+            final ScoringInfo scoringInfo = gameData.getScoringInfo();
+            final VehicleScoringInfo pvsi = scoringInfo.getPlayersVehicleScoringInfo();
+            
             ThreeLetterCodeManager.updateThreeLetterCodes();
             
             __GDPrivilegedAccess.onRealtimeEntered( gameData );
@@ -172,7 +177,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
             gameData.getTelemetryData().getOrientationX( garageStartOrientationX );
             gameData.getTelemetryData().getOrientationY( garageStartOrientationY );
             gameData.getTelemetryData().getOrientationZ( garageStartOrientationZ );
-            this.isInPits = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
+            this.isInPits = pvsi.isInPits();
             this.isInGarage = isInPits;
             
             if ( isEditorMode )
@@ -192,9 +197,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
             if ( ResourceManager.isJarMode() && !isEditorMode )
             {
                 modName = RFactorTools.getModName( null );
-                String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
-                SessionType sessionType = gameData.getScoringInfo().getSessionType();
-                Logger.log( "Entered cockpit. (Mod: " + modName + ", Car: " + vehicleClass + ", Session: " + sessionType.name() + ", Track: " + gameData.getScoringInfo().getTrackName() + ")" );
+                String vehicleClass = pvsi.getVehicleClass();
+                SessionType sessionType = scoringInfo.getSessionType();
+                Logger.log( "Entered cockpit. (Mod: " + modName + ", Car: " + vehicleClass + ", Session: " + sessionType.name() + ", Track: " + scoringInfo.getTrackName() + ")" );
                 if ( ConfigurationLoader.reloadConfiguration( isInGarage, modName, vehicleClass, sessionType, widgetsManager, gameData, null ) )
                 {
                     widgetsManager.clearCompleteTexture();
