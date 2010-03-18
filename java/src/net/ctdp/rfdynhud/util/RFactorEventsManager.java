@@ -199,7 +199,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 modName = RFactorTools.getModName( null );
                 String vehicleClass = pvsi.getVehicleClass();
                 SessionType sessionType = scoringInfo.getSessionType();
-                Logger.log( "Entered cockpit. (Mod: " + modName + ", Car: " + vehicleClass + ", Session: " + sessionType.name() + ", Track: " + scoringInfo.getTrackName() + ")" );
+                Logger.log( "Entered cockpit. (Mod: \"" + modName + "\", Car: \"" + vehicleClass + "\", Session: \"" + sessionType.name() + "\", Track: \"" + scoringInfo.getTrackName() + "\")" );
                 if ( ConfigurationLoader.reloadConfiguration( isInGarage, modName, vehicleClass, sessionType, widgetsManager, gameData, null ) )
                 {
                     widgetsManager.clearCompleteTexture();

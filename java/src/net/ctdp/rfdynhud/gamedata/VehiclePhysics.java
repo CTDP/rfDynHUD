@@ -192,16 +192,34 @@ public class VehiclePhysics
             return ( (float)( lifetimeVariance * raceLengthMultiplier ) );
         }
         
+        public final boolean hasLifetimeVariance()
+        {
+            return ( ( lifetimeVariance < -0.02f ) || ( lifetimeVariance > +0.02f ) );
+        }
+        
         public final float getMinLifetime( double raceLengthMultiplier )
         {
             return ( (float)( ( lifetimeAverage - lifetimeVariance - lifetimeVariance ) * raceLengthMultiplier ) );
-            //return ( (float)( ( lifetimeAverage + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
+        }
+        
+        public final float getRedLifetime( double raceLengthMultiplier )
+        {
+            return ( (float)( ( lifetimeAverage + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
         public final float getMaxLifetime( double raceLengthMultiplier )
         {
             return ( (float)( ( lifetimeAverage + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
-            //return ( (float)( ( lifetimeAverage + lifetimeVariance + lifetimeVariance + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
+        }
+        
+        public final float getLifetimeVarianceRange( double raceLengthMultiplier )
+        {
+            return ( (float)( ( lifetimeVariance + lifetimeVariance + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
+        }
+        
+        public final float getLifetimeVarianceHalfRange( double raceLengthMultiplier )
+        {
+            return ( (float)( ( lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
         public final float getBaseLifetimeOilTemperature()
@@ -508,6 +526,11 @@ public class VehiclePhysics
                 return ( discFailureVariance );
             }
             
+            public final boolean hasDiscFailureVariance()
+            {
+                return ( ( discFailureVariance < -0.0000001f ) || ( discFailureVariance > +0.0000001f ) );
+            }
+            
             /**
              * Gets the disc thickness at which it fails.
              * 
@@ -515,8 +538,18 @@ public class VehiclePhysics
              */
             public final float getMinDiscFailure()
             {
-                //return ( discFailureAverage - discFailureVariance - discFailureVariance );
-                return ( discFailureAverage );
+                return ( discFailureAverage - discFailureVariance - discFailureVariance );
+                //return ( discFailureAverage );
+            }
+            
+            /**
+             * Gets the disc thickness at which it fails.
+             * 
+             * @return the disc thickness at which it fails.
+             */
+            public final float getRedDiscFailure()
+            {
+                return ( discFailureAverage + discFailureVariance );
             }
             
             /**
@@ -527,6 +560,16 @@ public class VehiclePhysics
             public final float getMaxDiscFailure()
             {
                 return ( discFailureAverage + discFailureVariance + discFailureVariance );
+            }
+            
+            public final float getDiscFailureVarianceRange()
+            {
+                return ( discFailureVariance + discFailureVariance + discFailureVariance + discFailureVariance );
+            }
+            
+            public final float getDiscFailureVarianceHalfRange()
+            {
+                return ( discFailureVariance + discFailureVariance );
             }
             
             /**
