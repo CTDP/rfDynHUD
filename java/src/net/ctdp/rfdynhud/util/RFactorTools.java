@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
+import java.io.IOException;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -39,9 +40,75 @@ public class RFactorTools
         return ( "" );
     }
     
+    private static File getRFConfigINIPath( File rFactorFolder, final String setting, String def )
+    {
+        File config = new File( rFactorFolder, "config.ini" );
+        File fallback0 = new File( rFactorFolder, def ).getAbsoluteFile();
+        File fallback;
+        try
+        {
+            fallback = fallback0.getCanonicalFile();
+        }
+        catch ( IOException e )
+        {
+            fallback = fallback0;
+        }
+        
+        if ( !config.exists() )
+        {
+            return ( fallback );
+        }
+        
+        final String[] result = { null };
+        
+        try
+        {
+            new AbstractIniParser()
+            {
+                @Override
+                protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
+                {
+                    if ( "COMPONENTS".equalsIgnoreCase( group ) && setting.equalsIgnoreCase( key ) )
+                    {
+                        result[0] = value;
+                        
+                        return ( false );
+                    }
+                    
+                    return ( true );
+                }
+            }.parse( config );
+        }
+        catch ( ParsingException e1 )
+        {
+            return ( fallback );
+        }
+        catch ( IOException e1 )
+        {
+            return ( fallback );
+        }
+        
+        if ( result[0] == null )
+            return ( fallback );
+        
+        File f = new File( result[0] );
+        if ( f.isAbsolute() )
+            return ( f );
+        
+        f = new File( rFactorFolder, result[0] );
+        try
+        {
+            return ( f.getCanonicalFile() );
+        }
+        catch ( IOException e )
+        {
+            return ( f.getAbsoluteFile() );
+        }
+    }
+    
     public static final String RFACTOR_PATH = extractRFactorPath();
     public static final File RFACTOR_FOLDER = new File( RFACTOR_PATH );
-    public static final String PLUGIN_PATH = RFACTOR_PATH + File.separator + "Plugins" + File.separator + "rfDynHUD";
+    public static final String PLUGIN_PATH = getRFConfigINIPath( RFACTOR_FOLDER, "PluginsDir", "Plugins" + File.separator + "rfDynHUD" ).getAbsolutePath();
     public static final String CONFIG_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "config" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data" + File.separator + "config";
     public static final File IMAGES_FOLDER = new File( CONFIG_PATH + File.separator + "data" + File.separator + "images" );
     public static final String EDITOR_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "editor" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data";
@@ -210,10 +277,20 @@ public class RFactorTools
         return ( vehName );
     }
     
+    public static String getPlainLastUsedTrackFile()
+    {
+        return ( lastUsedTrackFile );
+    }
+    
     public static File getLastUsedTrackFile()
     {
         if ( lastUsedTrackFile == null )
             return ( null );
+        
+        File f = new File( lastUsedTrackFile );
+        
+        if ( f.isAbsolute() )
+            return ( f );
         
         return ( new File( RFACTOR_FOLDER, lastUsedTrackFile ) );
     }

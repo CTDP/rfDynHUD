@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
+import net.ctdp.rfdynhud.editor.properties.EnumProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
@@ -31,6 +32,15 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class WearWidget extends Widget
 {
+    private static enum HundredPercentBase
+    {
+        SAFE_RANGE,
+        GOOD_RANGE,
+        BAD_RANGE,
+        MAX_RANGE,
+        ;
+    }
+    
     private final FontProperty font2 = new FontProperty( this, "font2", "SmallerFont" );
     
     private final Size engineHeight;
@@ -41,6 +51,8 @@ public class WearWidget extends Widget
     private final BooleanProperty displayEngine = new BooleanProperty( this, "displayEngine", true );
     private final BooleanProperty displayTires = new BooleanProperty( this, "displayTires", true );
     private final BooleanProperty displayBrakes = new BooleanProperty( this, "displayBrakes", true );
+    
+    private final EnumProperty<HundredPercentBase> hundredPercentBase = new EnumProperty<HundredPercentBase>( this, "hundredPercentBase", HundredPercentBase.SAFE_RANGE );
     
     private final BooleanProperty displayWearPercent = new BooleanProperty( this, "displayWearPercent", true );
     private final BooleanProperty displayCompoundName = new BooleanProperty( this, "displayCompoundName", true );
@@ -525,8 +537,27 @@ public class WearWidget extends Widget
         {
             final double raceLengthPercentage = gameData.getScoringInfo().getRaceLengthPercentage();
             float lifetime = isEditorMode ? 1000f : gameData.getTelemetryData().getEngineLifetime();
-            final int safeLifetimeTotal = physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage );
-            engineLifetime.update( lifetime / safeLifetimeTotal );
+            final int hundredPercentBase;
+            switch ( this.hundredPercentBase.getEnumValue() )
+            {
+                case SAFE_RANGE:
+                default:
+                    hundredPercentBase = physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage );
+                    engineLifetime.update( lifetime / hundredPercentBase );
+                    break;
+                case GOOD_RANGE:
+                    hundredPercentBase = physics.getEngine().getGoodLifetimeTotal( raceLengthPercentage );
+                    engineLifetime.update( ( lifetime + hundredPercentBase - physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage ) ) / hundredPercentBase );
+                    break;
+                case BAD_RANGE:
+                    hundredPercentBase = physics.getEngine().getBadLifetimeTotal( raceLengthPercentage );
+                    engineLifetime.update( ( lifetime + hundredPercentBase - physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage ) ) / hundredPercentBase );
+                    break;
+                case MAX_RANGE:
+                    hundredPercentBase = physics.getEngine().getMaxLifetimeTotal( raceLengthPercentage );
+                    engineLifetime.update( ( lifetime + hundredPercentBase - physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage ) ) / hundredPercentBase );
+                    break;
+            }
             lifetime = Math.max( -physics.getEngine().getLifetimeVarianceHalfRange( raceLengthPercentage ), lifetime );
             
             if ( needsCompleteRedraw || engineLifetime.hasChanged() )
@@ -535,7 +566,23 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_engine() )
                 {
                     engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( engineLifetime.getValue() * 100f, 1, true ), backgroundColor, image );
-                    float variancePercent = physics.getEngine().getLifetimeVariance( raceLengthPercentage ) * 200f / safeLifetimeTotal;
+                    final float variancePercent;
+                    switch ( this.hundredPercentBase.getEnumValue() )
+                    {
+                        case SAFE_RANGE:
+                        default:
+                            variancePercent = ( physics.getEngine().getMaxLifetimeTotal( raceLengthPercentage ) - physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase;
+                            break;
+                        case GOOD_RANGE:
+                            variancePercent = ( physics.getEngine().getMaxLifetimeTotal( raceLengthPercentage ) - physics.getEngine().getGoodLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase;
+                            break;
+                        case BAD_RANGE:
+                            variancePercent = ( physics.getEngine().getMaxLifetimeTotal( raceLengthPercentage ) - physics.getEngine().getBadLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase;
+                            break;
+                        case MAX_RANGE:
+                            variancePercent = 0.0f;
+                            break;
+                    }
                     if ( variancePercent > 0.001f )
                         engineVarianceString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, image );
                     
@@ -778,6 +825,7 @@ public class WearWidget extends Widget
         writer.writeProperty( font2, "The used (smaller) font." );
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
         writer.writeProperty( "engineHeight", Size.unparseValue( engineHeight.getHeight() ), "The height of the engine bar." );
+        writer.writeProperty( hundredPercentBase, "The value range to be used as 100% base." );
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
         writer.writeProperty( displayWearPercent, "Display wear in percentage numbers?" );
         writer.writeProperty( displayCompoundName, "Display the tire compound name in the header?" );
@@ -800,6 +848,7 @@ public class WearWidget extends Widget
         else if ( displayEngine.loadProperty( key, value ) );
         else if ( key.equals( "engineHeight" ) )
             this.engineHeight.setHeight( Size.parseValue( value ) );
+        else if ( hundredPercentBase.loadProperty( key, value ) );
         else if ( displayTires.loadProperty( key, value ) );
         else if ( displayWearPercent.loadProperty( key, value ) );
         else if ( displayCompoundName.loadProperty( key, value ) );
@@ -824,6 +873,7 @@ public class WearWidget extends Widget
         
         props.add( displayEngine );
         props.add( engineHeight.createHeightProperty( "engineHeight" ) );
+        props.add( hundredPercentBase );
         
         props.add( displayTires );
         props.add( displayWearPercent );

@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.Track;
 import net.ctdp.rfdynhud.widgets._util.Size;
@@ -145,9 +146,18 @@ public class MapWidget extends Widget
             {
                 File sceneFolder = RFactorTools.getLastUsedTrackFile( null );
                 if ( sceneFolder == null )
+                {
                     track = null;
+                    
+                    if ( RFactorTools.getPlainLastUsedTrackFile() == null )
+                        Logger.log( "Warning: Unable to read last used track file from PLR file." );
+                    else
+                        Logger.log( "Warning: Couldn't read track data from file \"" + RFactorTools.getPlainLastUsedTrackFile() + "\"." );
+                }
                 else
+                {
                     track = gameData.getTrack( sceneFolder.getParentFile() );
+                }
             }
             else
             {
@@ -161,15 +171,30 @@ public class MapWidget extends Widget
         
         initSubTextures( isEditorMode );
         
-        if ( ( track != null ) && ( track.getNumWaypoints( false ) > 0 ) )
+        if ( ( texture == null ) || ( texture.getUsedWidth() != width ) || ( texture.getUsedHeight() != height ) )
         {
-            if ( ( texture == null ) || ( texture.getUsedWidth() != width ) || ( texture.getUsedHeight() != height ) )
-            {
-                texture = TextureImage2D.createOfflineTexture( width, height, true );
-            }
+            texture = TextureImage2D.createOfflineTexture( width, height, true );
+        }
+        
+        texture.clear( true, null );
+        
+        if ( track == null )
+        {
+            Texture2DCanvas tc = texture.getTextureCanvas();
+            tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             
-            texture.clear( true, null );
+            tc.setColor( Color.BLACK );
             
+            tc.drawArc( 3, 3, texture.getWidth() - 6, texture.getHeight() - 6, 0, 360 );
+            
+            tc.setColor( Color.RED );
+            tc.setFont( new Font( "Monospaced", Font.PLAIN, 12 ) );
+            Rectangle2D bounds = tc.getFontMetrics().getStringBounds( "Ag", tc );
+            tc.drawString( "Couldn't read track data.", 3, (int)bounds.getHeight() );
+            tc.drawString( "Please see the log for more info.", 3, (int)bounds.getHeight() * 2  );
+        }
+        else if ( track.getNumWaypoints( false ) > 0 )
+        {
             Texture2DCanvas tc = texture.getTextureCanvas();
             tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             

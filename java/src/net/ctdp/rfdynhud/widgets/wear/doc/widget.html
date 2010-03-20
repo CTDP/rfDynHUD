@@ -5,11 +5,30 @@ The <strong>WearWidget</strong> renders wear/health information.
 <p>
 <strong><u>Engine</u></strong><br />
 The engine lifetime (wear/health) is displayed both as a bar and as a percentage value.
-The normal green (right most) part of the bar is the safe lifetime range. The engine will (or should) never fail within that range.
-When the normal green part has gone, the percentage value will show 0.0%.
-If the engine has a lifetime variance (random range), it is displayed as a light green part of the bar (engine should only fail here in rare cases)
-yellow part (engine will fail within that range in most cases) and a red part (engine will fail here in rare cases only).
-While the bar is within the variance parts the percentage value will become negative.
+<ul>
+    <li>
+        The normal green (right most) part of the bar is the safe lifetime range. The engine will (or should) never fail within that range.
+        When the normal green part has gone, the percentage value will show 0.0% (please see the &quot;hundredPercentBase&quot; property).
+    </li>
+    <li>
+        If the engine has a lifetime variance (random range), it is displayed as the non-normal-green part of the bar.<br />
+        This is:
+        <ul>
+            <li>
+                A light green part: The engine should only fail here in rare cases. Normally it lasts beyond this range.
+            </li>
+            <li>
+                A yellow part: The engine will fail somewhere within that range in most cases.
+            </li>
+            <li>
+                And a red part: The engine will fail here in rare cases only.
+            </li>
+        </ul>
+        While the bar is within the variance parts the percentage value will become negative.
+    </li>
+</ul>
+Make sure to properly map engine boost buttons in the InputbindingsManager. Otherwise engine health will not be calculated correctly
+when changing the boost level in cockpit.
 </p>
 
 <p>
