@@ -22,6 +22,7 @@ import net.ctdp.rfdynhud.editor.properties.FloatProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
 import net.ctdp.rfdynhud.editor.properties.ImageProperty;
 import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
+import net.ctdp.rfdynhud.editor.properties.StringProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
@@ -192,11 +193,26 @@ public class RevMeterWidget extends Widget
     private final FontProperty velocityFont = new FontProperty( this, "velocityFont", "font", "StandardFont" );
     private final ColorProperty velocityFontColor = new ColorProperty( this, "velocityFontColor", "fontColor", "#1A261C" );
     
-    private final BooleanProperty displayRPMString = new BooleanProperty( this, "displayRPMString", true );
-    private final IntegerProperty rpmPosY = new IntegerProperty( this, "rpmPosY", 603 );
-    private final BooleanProperty displayMaxRPM = new BooleanProperty( this, "displayMaxRPM", true );
+    private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
+    private final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
+    private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
+    private final IntegerProperty rpmPosX1 = new IntegerProperty( this, "rpmPosX1", "rpmPosX", 170 );
+    private final IntegerProperty rpmPosY1 = new IntegerProperty( this, "rpmPosY1", "rpmPosY", 603 );
+    private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", "StandardFont" );
+    private final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", "#C0BC3D" );
+    private final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
     
-    private DrawnString rpmString = null;
+    private final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
+    private final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
+    private final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
+    private final IntegerProperty rpmPosX2 = new IntegerProperty( this, "rpmPosX2", "rpmPosX", 170 );
+    private final IntegerProperty rpmPosY2 = new IntegerProperty( this, "rpmPosY2", "rpmPosY", 603 );
+    private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", "StandardFont" );
+    private final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", "#C0BC3D" );
+    private final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
+    
+    private DrawnString rpmString1 = null;
+    private DrawnString rpmString2 = null;
     private DrawnString gearString = null;
     private DrawnString boostString = null;
     private DrawnString velocityString = null;
@@ -615,10 +631,15 @@ public class RevMeterWidget extends Widget
         
         velocityString = new DrawnString( fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor() );
         
-        if ( displayRPMString.getBooleanValue() )
-            rpmString = new DrawnString( width / 2, Math.round( rpmPosY.getIntegerValue() * backgroundScaleY ), Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        if ( displayRPMString1.getBooleanValue() )
+            rpmString1 = new DrawnString( width - Math.round( rpmPosX1.getIntegerValue() * backgroundScaleX ), Math.round( rpmPosY1.getIntegerValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
         else
-            rpmString = null;
+            rpmString1 = null;
+        
+        if ( displayRPMString2.getBooleanValue() )
+            rpmString2 = new DrawnString( width - Math.round( rpmPosX2.getIntegerValue() * backgroundScaleX ), Math.round( rpmPosY2.getIntegerValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
+        else
+            rpmString2 = null;
     }
     
     private Color interpolateColor( Color c0, Color c1, float alpha )
@@ -889,14 +910,28 @@ public class RevMeterWidget extends Widget
             store.storedBaseMaxRPM = Math.max( maxRPM, store.storedBaseMaxRPM );
         maxRPM = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM );
         
-        if ( displayRPMString.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
+        if ( displayRPMString1.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
         {
-            String string;
-            if ( displayMaxRPM.getBooleanValue() )
-                string = NumberUtil.formatFloat( rpm, 0, false ) + " / " + NumberUtil.formatFloat( maxRPM, 0, false );
-            else
+            String string = "";
+            if ( displayCurrRPM1.getBooleanValue() )
                 string = NumberUtil.formatFloat( rpm, 0, false );
-            rpmString.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
+            if ( displayCurrRPM1.getBooleanValue() && displayMaxRPM1.getBooleanValue() )
+                string += rpmJoinString1.getStringValue();
+            if ( displayMaxRPM1.getBooleanValue() )
+                string += NumberUtil.formatFloat( maxRPM, 0, false );
+            rpmString1.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
+        }
+        
+        if ( displayRPMString2.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
+        {
+            String string = "";
+            if ( displayCurrRPM2.getBooleanValue() )
+                string = NumberUtil.formatFloat( rpm, 0, false );
+            if ( displayCurrRPM2.getBooleanValue() && displayMaxRPM2.getBooleanValue() )
+                string += rpmJoinString2.getStringValue();
+            if ( displayMaxRPM2.getBooleanValue() )
+                string += NumberUtil.formatFloat( maxRPM, 0, false );
+            rpmString2.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
         }
         
         if ( shiftLightTexture != null )
@@ -1019,9 +1054,22 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( velocityPosY, "The y-offset in pixels to the velocity label." );
         writer.writeProperty( velocityFont, "The font used to draw the velocity." );
         writer.writeProperty( velocityFontColor, "The font color used to draw the velocity." );
-        writer.writeProperty( displayRPMString, "whether to display the digital RPM/Revs string or not" );
-        writer.writeProperty( displayMaxRPM, "whether to display the maximum revs or to hide them" );
-        writer.writeProperty( rpmPosY, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
+        writer.writeProperty( displayRPMString1, "whether to display the digital RPM/Revs string or not" );
+        writer.writeProperty( displayCurrRPM1, "whether to display the current revs or to hide them" );
+        writer.writeProperty( displayMaxRPM1, "whether to display the maximum revs or to hide them" );
+        writer.writeProperty( rpmPosX1, "The offset in (background image space) pixels from the right of the Widget, where the text is to be placed." );
+        writer.writeProperty( rpmPosY1, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
+        writer.writeProperty( rpmFont1, "The font used to draw the RPM." );
+        writer.writeProperty( rpmFontColor1, "The font color used to draw the RPM." );
+        writer.writeProperty( rpmJoinString1, "The String to use to join the current and max RPM." );
+        writer.writeProperty( displayRPMString2, "whether to display the digital RPM/Revs string or not" );
+        writer.writeProperty( displayCurrRPM2, "whether to display the current revs or to hide them" );
+        writer.writeProperty( displayMaxRPM2, "whether to display the maximum revs or to hide them" );
+        writer.writeProperty( rpmPosX2, "The offset in (background image space) pixels from the right of the Widget, where the text is to be placed." );
+        writer.writeProperty( rpmPosY2, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
+        writer.writeProperty( rpmFont2, "The font used to draw the RPM." );
+        writer.writeProperty( rpmFontColor2, "The font color used to draw the RPM." );
+        writer.writeProperty( rpmJoinString2, "The String to use to join the current and max RPM." );
     }
     
     /**
@@ -1078,9 +1126,22 @@ public class RevMeterWidget extends Widget
         else if ( velocityPosY.loadProperty( key, value ) );
         else if ( velocityFont.loadProperty( key, value ) );
         else if ( velocityFontColor.loadProperty( key, value ) );
-        else if ( displayRPMString.loadProperty( key, value ) );
-        else if ( displayMaxRPM.loadProperty( key, value ) );
-        else if ( rpmPosY.loadProperty( key, value ) );
+        else if ( displayRPMString1.loadProperty( key, value ) );
+        else if ( displayCurrRPM1.loadProperty( key, value ) );
+        else if ( displayMaxRPM1.loadProperty( key, value ) );
+        else if ( rpmPosX1.loadProperty( key, value ) );
+        else if ( rpmPosY1.loadProperty( key, value ) );
+        else if ( rpmFont1.loadProperty( key, value ) );
+        else if ( rpmFontColor1.loadProperty( key, value ) );
+        else if ( rpmJoinString1.loadProperty( key, value ) );
+        else if ( displayRPMString2.loadProperty( key, value ) );
+        else if ( displayCurrRPM2.loadProperty( key, value ) );
+        else if ( displayMaxRPM2.loadProperty( key, value ) );
+        else if ( rpmPosX2.loadProperty( key, value ) );
+        else if ( rpmPosY2.loadProperty( key, value ) );
+        else if ( rpmFont2.loadProperty( key, value ) );
+        else if ( rpmFontColor2.loadProperty( key, value ) );
+        else if ( rpmJoinString2.loadProperty( key, value ) );
     }
     
     /**
@@ -1172,13 +1233,31 @@ public class RevMeterWidget extends Widget
         
         props.add( velocityProps );
         
-        FlaggedList digiRPMProps = new FlaggedList( "DigitalRevs", true );
+        FlaggedList digiRPMProps1 = new FlaggedList( "DigitalRevs1", true );
         
-        digiRPMProps.add( displayRPMString );
-        digiRPMProps.add( displayMaxRPM );
-        digiRPMProps.add( rpmPosY );
+        digiRPMProps1.add( displayRPMString1 );
+        digiRPMProps1.add( displayCurrRPM1 );
+        digiRPMProps1.add( displayMaxRPM1 );
+        digiRPMProps1.add( rpmPosX1 );
+        digiRPMProps1.add( rpmPosY1 );
+        digiRPMProps1.add( rpmFont1 );
+        digiRPMProps1.add( rpmFontColor1 );
+        digiRPMProps1.add( rpmJoinString1 );
         
-        props.add( digiRPMProps );
+        props.add( digiRPMProps1 );
+        
+        FlaggedList digiRPMProps2 = new FlaggedList( "DigitalRevs2", true );
+        
+        digiRPMProps2.add( displayRPMString2 );
+        digiRPMProps2.add( displayCurrRPM2 );
+        digiRPMProps2.add( displayMaxRPM2 );
+        digiRPMProps2.add( rpmPosX2 );
+        digiRPMProps2.add( rpmPosY2 );
+        digiRPMProps2.add( rpmFont2 );
+        digiRPMProps2.add( rpmFontColor2 );
+        digiRPMProps2.add( rpmJoinString2 );
+        
+        props.add( digiRPMProps2 );
         
         propsList.add( props );
     }
