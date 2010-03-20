@@ -158,8 +158,8 @@ public class VehiclePhysics
     public static class Engine
     {
         String name = "N/A";
-        float lifetimeAverage;
-        float lifetimeVariance;
+        int lifetimeAverage;
+        int lifetimeVariance;
         float baseLifetimeOilTemperature;
         float halfLifetimeOilTempOffset;
         float optimumOilTemperature;
@@ -182,44 +182,125 @@ public class VehiclePhysics
             return ( name );
         }
         
-        public final float getLifetimeAverage( double raceLengthMultiplier )
+        public final int getLifetimeAverage( double raceLengthMultiplier )
         {
-            return ( (float)( lifetimeAverage * raceLengthMultiplier ) );
+            return ( (int)Math.round( lifetimeAverage * raceLengthMultiplier ) );
         }
         
-        public final float getLifetimeVariance( double raceLengthMultiplier )
+        public final int getLifetimeVariance( double raceLengthMultiplier )
         {
-            return ( (float)( lifetimeVariance * raceLengthMultiplier ) );
+            return ( (int)Math.round( lifetimeVariance * raceLengthMultiplier ) );
         }
         
         public final boolean hasLifetimeVariance()
         {
-            return ( ( lifetimeVariance < -0.02f ) || ( lifetimeVariance > +0.02f ) );
+            return ( lifetimeVariance != 0 );
         }
         
-        public final float getMinLifetime( double raceLengthMultiplier )
+        /**
+         * Gets the total lifetime in seconds, that the engine will last for sure.
+         * 
+         * @param raceLengthMultiplier
+         * 
+         * @return the total lifetime, that the engine will last for sure.
+         */
+        public final int getSafeLifetimeTotal( double raceLengthMultiplier )
         {
-            return ( (float)( ( lifetimeAverage - lifetimeVariance - lifetimeVariance ) * raceLengthMultiplier ) );
+            return ( (int)Math.round( ( lifetimeAverage - lifetimeVariance - lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
-        public final float getRedLifetime( double raceLengthMultiplier )
+        /**
+         * Gets the total lifetime in seconds, that the engine will most probably hold.
+         * 
+         * @param raceLengthMultiplier
+         * 
+         * @return the total lifetime in seconds, that the engine will most probably hold.
+         */
+        public final int getGoodLifetimeTotal( double raceLengthMultiplier )
         {
-            return ( (float)( ( lifetimeAverage + lifetimeVariance ) * raceLengthMultiplier ) );
+            return ( (int)Math.round( ( lifetimeAverage - lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
-        public final float getMaxLifetime( double raceLengthMultiplier )
+        /**
+         * Gets the total lifetime seconds of the barrier, where the engine is in really bad shape.
+         * 
+         * @param raceLengthMultiplier
+         * 
+         * @return the total lifetime seconds of the barrier, where the engine is in really bad shape.
+         */
+        public final int getBadLifetimeTotal( double raceLengthMultiplier )
         {
-            return ( (float)( ( lifetimeAverage + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
+            return ( (int)Math.round( ( lifetimeAverage + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
-        public final float getLifetimeVarianceRange( double raceLengthMultiplier )
+        /**
+         * Gets the maximum number of lifetime seconds, that the engine can possibly last.
+         * 
+         * @param raceLengthMultiplier
+         * 
+         * @return the maximum number of lifetime seconds, that the engine can possibly last.
+         */
+        public final int getMaxLifetimeTotal( double raceLengthMultiplier )
         {
-            return ( (float)( ( lifetimeVariance + lifetimeVariance + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
+            return ( (int)Math.round( ( lifetimeAverage + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
-        public final float getLifetimeVarianceHalfRange( double raceLengthMultiplier )
+        /**
+         * Gets the lower bound of lifetime values for the "safe" range (zero).
+         * 
+         * @param raceLengthMultiplier
+         * 
+         * @return the lower bound of lifetime values for the "safe" range (zero).
+         */
+        public final int getLowerSafeLifetimeValue( double raceLengthMultiplier )
         {
-            return ( (float)( ( lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
+            return ( 0 );
+        }
+        
+        /**
+         * Gets the lower bound of lifetime values for the "good" range.
+         * 
+         * @param raceLengthMultiplier
+         * 
+         * @return the lower bound of lifetime values for the "good" range.
+         */
+        public final int getLowerGoodLifetimeValue( double raceLengthMultiplier )
+        {
+            return ( (int)Math.round( ( - lifetimeVariance ) * raceLengthMultiplier ) );
+        }
+        
+        /**
+         * Gets the lower bound of lifetime values for the "bad" range.
+         * 
+         * @param raceLengthMultiplier
+         * 
+         * @return the lower bound of lifetime values for the "bad" range.
+         */
+        public final int getLowerBadLifetimeValue( double raceLengthMultiplier )
+        {
+            return ( (int)Math.round( ( - lifetimeVariance - lifetimeVariance - lifetimeVariance ) * raceLengthMultiplier ) );
+        }
+        
+        /**
+         * Gets the smalles lifetime value, that your engine can possibly have.
+         * 
+         * @param raceLengthMultiplier
+         * 
+         * @return the smalles lifetime value, that your engine can possibly have.
+         */
+        public final int getMinLifetimeValue( double raceLengthMultiplier )
+        {
+            return ( (int)Math.round( ( - lifetimeVariance - lifetimeVariance - lifetimeVariance - lifetimeVariance ) * raceLengthMultiplier ) );
+        }
+        
+        public final int getLifetimeVarianceRange( double raceLengthMultiplier )
+        {
+            return ( (int)Math.round( ( lifetimeVariance + lifetimeVariance + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
+        }
+        
+        public final int getLifetimeVarianceHalfRange( double raceLengthMultiplier )
+        {
+            return ( (int)Math.round( ( lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
         public final float getBaseLifetimeOilTemperature()
@@ -542,12 +623,12 @@ public class VehiclePhysics
                 //return ( discFailureAverage );
             }
             
-            /**
-             * Gets the disc thickness at which it fails.
-             * 
-             * @return the disc thickness at which it fails.
-             */
-            public final float getRedDiscFailure()
+            public final float getGoodDiscFailure()
+            {
+                return ( discFailureAverage );
+            }
+            
+            public final float getBadDiscFailure()
             {
                 return ( discFailureAverage + discFailureVariance );
             }
@@ -1342,8 +1423,8 @@ public class VehiclePhysics
             engine.wearIncreasePerBoostSetting = -0.001f;
             engine.wearIncreasePerVelocity = 3.00e-5f;
 	        engine.optimumOilTemperature = 109.0f;
-            engine.lifetimeAverage = 6890;
-            engine.lifetimeVariance = 1600;
+            engine.lifetimeAverage = 5000;// 6890;
+            engine.lifetimeVariance = 1000;//1600;
 	        engine.baseLifetimeOilTemperature = 126.2f; //114.7f;
             engine.halfLifetimeOilTempOffset = 4.15f;
             engine.baseLifetimeRPM = 16680.0f;

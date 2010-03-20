@@ -50,7 +50,6 @@ public class VehiclePhysicsParser
             return ( f1 );
     }
     
-    @SuppressWarnings( "unused" )
     private static final int parseInt( int f0, int f1, String op )
     {
         if ( op == null )
@@ -574,11 +573,11 @@ public class VehiclePhysicsParser
             }
             else if ( key.equals( "LifetimeAvg" ) )
             {
-                engine.lifetimeAverage = parseFloat( engine.lifetimeAverage, Float.parseFloat( value ), op );
+                engine.lifetimeAverage = parseInt( engine.lifetimeAverage, Integer.parseInt( value ), op );
             }
             else if ( key.equals( "LifetimeVar" ) )
             {
-                engine.lifetimeVariance = parseFloat( engine.lifetimeVariance, Float.parseFloat( value ), op );
+                engine.lifetimeVariance = parseInt( engine.lifetimeVariance, Integer.parseInt( value ), op );
             }
             else if ( key.equals( "EngineBoostRange" ) )
             {

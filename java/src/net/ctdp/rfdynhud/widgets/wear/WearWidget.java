@@ -100,6 +100,7 @@ public class WearWidget extends Widget
     }
     
     private static final Color YELLOW2 = new Color( 234, 190, 37 );
+    private static final Color GREEN2 = new Color( 152, 234, 13 );
     
     private int[] oldTireWear = { -1, -1, -1, -1 };
     
@@ -276,68 +277,104 @@ public class WearWidget extends Widget
         result[ByteOrderManager.BLUE] = (byte)( (float)( color0[ByteOrderManager.BLUE] & 0xFF ) * beta + (float)( color1[ByteOrderManager.BLUE] & 0xFF ) * alpha );
     }
     
-    private void drawEngine( float wear, float lifetime, double raceLengthMultiplier, VehiclePhysics.Engine engine, TextureImage2D image, int x, int y, int width )
+    private void drawEngine( float lifetime, double raceLengthMultiplier, VehiclePhysics.Engine engine, TextureImage2D image, int x, int y, int width )
     {
         final int w = width;
         final int h = engineHeight.getEffectiveHeight();
         
-        final float minLifetime = engine.getMinLifetime( raceLengthMultiplier );
-        final float redLifetime = engine.getRedLifetime( raceLengthMultiplier );
-        final float maxLifetime = engine.getMaxLifetime( raceLengthMultiplier );
-        final float variance = engine.getLifetimeVarianceRange( raceLengthMultiplier );
+        final int lowerSafeLifetime = engine.getLowerSafeLifetimeValue( raceLengthMultiplier );
+        final int lowerGoodLifetime = engine.getLowerGoodLifetimeValue( raceLengthMultiplier );
+        final int lowerBadLifetime = engine.getLowerBadLifetimeValue( raceLengthMultiplier );
+        final int minLifetime = engine.getMinLifetimeValue( raceLengthMultiplier );
+        final int safeLifetimeTotal = engine.getSafeLifetimeTotal( raceLengthMultiplier );
+        final int goodLifetimeTotal = engine.getGoodLifetimeTotal( raceLengthMultiplier );
+        final int badLifetimeTotal = engine.getBadLifetimeTotal( raceLengthMultiplier );
+        final int maxLifetimeTotal = engine.getMaxLifetimeTotal( raceLengthMultiplier );
         final boolean hasVariance = engine.hasLifetimeVariance();
         
         if ( hasVariance )
         {
-            if ( lifetime >= 0.0f )
+            int x0 = x;
+            int x1 = -1;
+            int x2 = -1;
+            int x3 = -1;
+            
+            if ( lifetime >= lowerBadLifetime )
             {
-                float redRange = ( maxLifetime - redLifetime );
-                int w2 = (int)( redRange * w / maxLifetime );
-                image.clear( Color.RED, x, y, w2, h, false, null );
-                
-                int w3 = (int)( ( variance - redRange ) * w / maxLifetime );
-                image.clear( YELLOW2, x + w2, y, w3, h, false, null );
-                
-                int w4 = (int)( lifetime * w / maxLifetime );
-                image.clear( Color.GREEN, x + w2 + w3, y, w4, h, false, null );
-                
-                int w5 = w - w4 - w3 - w2;
-                if ( w5 > 0 )
-                    image.clear( Color.BLACK, x + w2 + w3 + w4, y, w5, h, false, null );
-            }
-            else if ( lifetime >= minLifetime - redLifetime )
-            {
-                float redRange = ( maxLifetime - redLifetime );
-                int w2 = (int)( redRange * w / maxLifetime );
-                image.clear( Color.RED, x, y, w2, h, false, null );
-                
-                int x3 = (int)( variance * w / maxLifetime );
-                
-                int w3 = (int)( ( redLifetime - minLifetime + lifetime ) * w / maxLifetime );
-                image.clear( YELLOW2, x + w2, y, w3, h, false, null );
-                
-                int w4 = w - w3 - w2;
-                image.clear( Color.BLACK, x + w2 + w3, y, w4, h, false, null );
-                
-                image.getTextureCanvas().setColor( YELLOW2 );
-                image.getTextureCanvas().drawLine( x + x3, y, x + x3, y + h - 1 );
+                int w2 = ( lowerBadLifetime - minLifetime ) * w / maxLifetimeTotal;
+                image.clear( Color.RED, x0, y, w2, h, false, null );
+                x0 += w2;
             }
             else
             {
-                int w2 = (int)( ( lifetime + variance ) * w / maxLifetime );
-                image.clear( Color.RED, x, y, w2, h, false, null );
+                int w2 = (int)( ( lifetime - minLifetime ) * w / maxLifetimeTotal );
+                image.clear( Color.RED, x0, y, w2, h, false, null );
+                x0 += w2;
+                x1 = x + ( maxLifetimeTotal - badLifetimeTotal ) * w / maxLifetimeTotal;
+            }
+            
+            if ( lifetime >= lowerGoodLifetime )
+            {
+                int w2 = ( lowerGoodLifetime - lowerBadLifetime ) * w / maxLifetimeTotal;
+                image.clear( YELLOW2, x0, y, w2, h, false, null );
+                x0 += w2;
+            }
+            else
+            {
+                if ( lifetime >= lowerBadLifetime )
+                {
+                    int w2 = (int)( ( lifetime - lowerBadLifetime ) * w / maxLifetimeTotal );
+                    image.clear( YELLOW2, x0, y, w2, h, false, null );
+                    x0 += w2;
+                }
                 
-                int x2 = (int)( ( maxLifetime - redLifetime ) * w / maxLifetime );
-                int x3 = (int)( variance * w / maxLifetime );
+                x2 = x + ( maxLifetimeTotal - goodLifetimeTotal ) * w / maxLifetimeTotal;
+            }
+            
+            if ( lifetime >= lowerSafeLifetime )
+            {
+                int w2 = ( lowerSafeLifetime - lowerGoodLifetime ) * w / maxLifetimeTotal;
+                image.clear( GREEN2, x0, y, w2, h, false, null );
+                x0 += w2;
                 
-                int w3 = w - w2;
-                image.clear( Color.BLACK, x + w2, y, w3, h, false, null );
+                int w3 = (int)( ( lifetime - lowerSafeLifetime ) * w / maxLifetimeTotal );
+                image.clear( Color.GREEN, x0, y, w3, h, false, null );
+                x0 += w3;
+            }
+            else
+            {
+                if ( lifetime >= lowerGoodLifetime )
+                {
+                    int w2 = (int)( ( lifetime - lowerGoodLifetime ) * w / maxLifetimeTotal );
+                    image.clear( GREEN2, x0, y, w2, h, false, null );
+                    x0 += w2;
+                }
                 
+                x3 = x + ( maxLifetimeTotal - safeLifetimeTotal ) * w / maxLifetimeTotal;
+            }
+            
+            int w_ = w - x0 + x;
+            if ( w_ > 0 )
+            {
+                image.clear( Color.BLACK, x0, y, w_, h, false, null );
+            }
+            
+            if ( x1 > 0 )
+            {
                 image.getTextureCanvas().setColor( Color.RED );
-                image.getTextureCanvas().drawLine( x + x2, y, x + x2, y + h - 1 );
-                
+                image.getTextureCanvas().drawLine( x1, y, x1, y + h - 1 );
+            }
+            
+            if ( x2 > 0 )
+            {
                 image.getTextureCanvas().setColor( YELLOW2 );
-                image.getTextureCanvas().drawLine( x + x3, y, x + x3, y + h - 1 );
+                image.getTextureCanvas().drawLine( x2, y, x2, y + h - 1 );
+            }
+            
+            if ( x3 > 0 )
+            {
+                image.getTextureCanvas().setColor( GREEN2 );
+                image.getTextureCanvas().drawLine( x3, y, x3, y + h - 1 );
             }
         }
         else
@@ -488,7 +525,8 @@ public class WearWidget extends Widget
         {
             final double raceLengthPercentage = gameData.getScoringInfo().getRaceLengthPercentage();
             float lifetime = isEditorMode ? 1000f : gameData.getTelemetryData().getEngineLifetime();
-            engineLifetime.update( lifetime / physics.getEngine().getMinLifetime( raceLengthPercentage ) );
+            final int safeLifetimeTotal = physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage );
+            engineLifetime.update( lifetime / safeLifetimeTotal );
             lifetime = Math.max( -physics.getEngine().getLifetimeVarianceHalfRange( raceLengthPercentage ), lifetime );
             
             if ( needsCompleteRedraw || engineLifetime.hasChanged() )
@@ -497,7 +535,7 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_engine() )
                 {
                     engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( engineLifetime.getValue() * 100f, 1, true ), backgroundColor, image );
-                    float variancePercent = physics.getEngine().getLifetimeVariance( raceLengthPercentage ) * 200f / physics.getEngine().getMinLifetime( raceLengthPercentage );
+                    float variancePercent = physics.getEngine().getLifetimeVariance( raceLengthPercentage ) * 200f / safeLifetimeTotal;
                     if ( variancePercent > 0.001f )
                         engineVarianceString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, image );
                     
@@ -509,7 +547,7 @@ public class WearWidget extends Widget
                     engineWidth = width - ( engineHeaderString.getAbsX() * 2 );
                 }
                 
-                drawEngine( engineLifetime.getValue(), lifetime, raceLengthPercentage, physics.getEngine(), image, offsetX + engineHeaderString.getAbsX(), offsetY + engineHeaderString.getAbsY() + engineHeaderString.getMaxHeight( false ) + 3, engineWidth );
+                drawEngine( lifetime, raceLengthPercentage, physics.getEngine(), image, offsetX + engineHeaderString.getAbsX(), offsetY + engineHeaderString.getAbsY() + engineHeaderString.getMaxHeight( false ) + 3, engineWidth );
             }
         }
         

@@ -92,7 +92,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         if ( gameData.getScoringInfo().getRealtimeEntredID() > lastEnteredRealtimeID )
         {
             lastEnteredRealtimeID = gameData.getScoringInfo().getRealtimeEntredID();
-            engineLifetime = engine.getMinLifetime( gameData.getScoringInfo().getRaceLengthPercentage() );
+            engineLifetime = engine.getSafeLifetimeTotal( gameData.getScoringInfo().getRaceLengthPercentage() );
             
             brakeDiscThicknessFL = gameData.getSetup().getWheelAndTire( Wheel.FRONT_LEFT ).getBrakeDiscThickness();
             brakeDiscThicknessFR = gameData.getSetup().getWheelAndTire( Wheel.FRONT_RIGHT ).getBrakeDiscThickness();
