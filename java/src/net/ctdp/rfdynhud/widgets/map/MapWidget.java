@@ -149,10 +149,10 @@ public class MapWidget extends Widget
                 {
                     track = null;
                     
-                    if ( RFactorTools.getPlainLastUsedTrackFile() == null )
-                        Logger.log( "Warning: Unable to read last used track file from PLR file." );
-                    else
+                    if ( RFactorTools.isLastUsedTrackFileValid() )
                         Logger.log( "Warning: Couldn't read track data from file \"" + RFactorTools.getPlainLastUsedTrackFile() + "\"." );
+                    else
+                        Logger.log( "Warning: Unable to read last used track file from PLR file." );
                 }
                 else
                 {

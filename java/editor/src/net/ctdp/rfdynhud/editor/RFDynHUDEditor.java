@@ -56,6 +56,7 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
+import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.StringUtil;
@@ -1230,6 +1231,7 @@ public class RFDynHUDEditor implements Documented
         catch ( Throwable t )
         {
             t.printStackTrace();
+            Logger.log( t );
             
             String message = t.getMessage();
             if ( ( message == null ) || ( message.length() == 0 ) )

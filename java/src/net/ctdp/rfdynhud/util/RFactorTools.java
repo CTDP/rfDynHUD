@@ -11,18 +11,26 @@ import org.jagatoo.util.ini.AbstractIniParser;
 
 public class RFactorTools
 {
+    private static final FileFilter DIRECTORY_FILE_FILTER = new FileFilter()
+    {
+        public boolean accept( File pathname )
+        {
+            return ( pathname.isDirectory() );
+        }
+    };
+    
     private static final File stripDotDots( String pathname )
     {
         try
         {
-            return ( new File( pathname ).getCanonicalFile() );
+            return ( new File( pathname ).getCanonicalFile().getAbsoluteFile() );
         }
         catch ( Throwable t )
         {
             t.printStackTrace();
         }
         
-        return ( new File( "." ) );
+        return ( new File( "." ).getAbsoluteFile() );
     }
     
     public static String extractRFactorPath()
@@ -108,7 +116,7 @@ public class RFactorTools
     
     public static final String RFACTOR_PATH = extractRFactorPath();
     public static final File RFACTOR_FOLDER = new File( RFACTOR_PATH );
-    public static final String PLUGIN_PATH = getRFConfigINIPath( RFACTOR_FOLDER, "PluginsDir", "Plugins" + File.separator + "rfDynHUD" ).getAbsolutePath();
+    public static final String PLUGIN_PATH = new File( getRFConfigINIPath( RFACTOR_FOLDER, "PluginsDir", "Plugins" ), "rfDynHUD" ).getAbsolutePath();
     public static final String CONFIG_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "config" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data" + File.separator + "config";
     public static final File IMAGES_FOLDER = new File( CONFIG_PATH + File.separator + "data" + File.separator + "images" );
     public static final String EDITOR_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "editor" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data";
@@ -135,13 +143,18 @@ public class RFactorTools
         return ( plr );
     }
     
+    public static File getUserDataFolder()
+    {
+        return ( getRFConfigINIPath( RFACTOR_FOLDER, "SaveDir", "UserData" ) );
+    }
+    
     public static File getProfileFolder( File userDataFolder )
     {
         if ( !RFACTOR_FOLDER.exists() )
             return ( null );
         
         if ( userDataFolder == null )
-            userDataFolder = new File( RFACTOR_PATH, "UserData" );
+            userDataFolder = getUserDataFolder();
         
         File[] profileCandidates = userDataFolder.listFiles( DIRECTORY_FILE_FILTER );
         
@@ -168,14 +181,6 @@ public class RFactorTools
     {
         return ( getProfileFolder( null ) );
     }
-    
-    private static final FileFilter DIRECTORY_FILE_FILTER = new FileFilter()
-    {
-        public boolean accept( File pathname )
-        {
-            return ( pathname.isDirectory() );
-        }
-    };
     
     private static void updateProfileInformation( File userDataFolder, File profileFolder )
     {
@@ -275,6 +280,11 @@ public class RFactorTools
         updateProfileInformation( null, profileFolder );
         
         return ( vehName );
+    }
+    
+    public static boolean isLastUsedTrackFileValid()
+    {
+        return ( lastUsedTrackFile != null );
     }
     
     public static String getPlainLastUsedTrackFile()
@@ -463,7 +473,7 @@ public class RFactorTools
      */
     public static File findTrackFolder( String trackname )
     {
-        File locationsFolder = new File( new File( RFACTOR_PATH, "GameData" ), "Locations" );
+        File locationsFolder = getRFConfigINIPath( RFACTOR_FOLDER, "TracksDir", "GameData\\Locations\\" );
         
         if ( ( locationsFolder == null ) || !locationsFolder.exists() )
             return ( null );
