@@ -46,6 +46,23 @@ import org.jagatoo.util.errorhandling.ParsingException;
  */
 public abstract class AbstractIniParser
 {
+    public static final String DEFAULT_OPERATOR = "=";
+    
+    /**
+     * This method is invoked, when an empty line has been found.
+     * 
+     * @param lineNr
+     * @param group
+     * 
+     * @return true, to indicate, that parsing should be proceeded, false to stop parsing.
+     * 
+     * @throws ParsingException
+     */
+    protected boolean onEmptyLineParsed( int lineNr, String group ) throws ParsingException
+    {
+        return ( true );
+    }
+    
     /**
      * This method is invoked, when a standalone comment line has been found.
      * 
@@ -154,24 +171,56 @@ public abstract class AbstractIniParser
      * @param lineNr
      * @param currentGroup
      * @param line
+     * @param operator
+     * @param iniLine
+     * @param handler
      * 
      * @throws IOException
      * @throws ParsingException
      */
-    protected boolean parseLine( int lineNr, String currentGroup, String line ) throws IOException, ParsingException
+    public static boolean parseLine( int lineNr, String currentGroup, String line, String operator, IniLine iniLine, AbstractIniParser handler ) throws IOException, ParsingException
     {
-        if ( line.length() == 0 )
-            return ( true );
+        if ( iniLine != null )
+        {
+            iniLine.reset();
+            iniLine.setLine( lineNr, currentGroup, line );
+            line = iniLine.getLine();
+        }
+        else
+        {
+            line = line.trim();
+        }
+        
+        if ( ( ( iniLine != null ) && ( iniLine.isEmpty() ) ) || ( line.length() == 0 ) )
+        {
+            if ( handler == null )
+                return ( true );
+            
+            return ( handler.onEmptyLineParsed( iniLine.getLineNr(), iniLine.getCurrentGroup() ) );
+        }
         
         if ( line.startsWith( "#" ) )
         {
             try
             {
-                return ( onCommentParsed( lineNr, currentGroup, line.substring( 1 ).trim() ) );
+                String comment = line.substring( 1 ).trim();
+                if ( iniLine != null )
+                    iniLine.setComment( comment );
+                
+                if ( handler == null )
+                    return ( true );
+                
+                return ( handler.onCommentParsed( lineNr, currentGroup, comment ) );
             }
             catch ( Throwable t )
             {
-                return ( handleParsingException( lineNr, currentGroup, line, t ) );
+                if ( iniLine != null )
+                    iniLine.setComment( null );
+                
+                if ( handler == null )
+                    return ( false );
+                
+                return ( handler.handleParsingException( lineNr, currentGroup, line, t ) );
             }
         }
         
@@ -183,39 +232,85 @@ public abstract class AbstractIniParser
             
             try
             {
-                return ( onCommentParsed( lineNr, currentGroup, line.substring( skipChars ).trim() ) );
+                String comment = line.substring( skipChars ).trim();
+                if ( iniLine != null )
+                    iniLine.setComment( comment );
+                
+                if ( handler == null )
+                    return ( true );
+                
+                return ( handler.onCommentParsed( lineNr, currentGroup, comment ) );
             }
             catch ( Throwable t )
             {
-                handleParsingException( lineNr, currentGroup, line, t );
+                if ( iniLine != null )
+                    iniLine.setComment( null );
+                
+                if ( handler != null )
+                    handler.handleParsingException( lineNr, currentGroup, line, t );
+                else if ( t instanceof ParsingException )
+                    throw (ParsingException)t;
+                else if ( t instanceof RuntimeException )
+                    throw (RuntimeException)t;
+                else if ( t instanceof Error )
+                    throw (Error)t;
+                else
+                    throw new ParsingException( t );
             }
         }
         
         if ( line.startsWith( "[" ) )
-            return ( handleParsingException( lineNr, currentGroup, line, new ParsingException( "This method cannot parse groups." ) ) );
+        {
+            if ( handler == null )
+                throw new ParsingException( "This method cannot parse groups." );
+            
+            return ( handler.handleParsingException( lineNr, currentGroup, line, new ParsingException( "This method cannot parse groups." ) ) );
+        }
         
-        int idx = line.indexOf( "=" );
+        int idx = line.indexOf( operator );
         if ( idx < 0 )
         {
             boolean proceedParse = false;
             
             try
             {
-                proceedParse = verifyIllegalLine( lineNr, currentGroup, line );
+                if ( iniLine != null )
+                    iniLine.setValid( false );
+                
+                if ( handler == null )
+                    proceedParse = false;
+                else
+                    proceedParse = handler.verifyIllegalLine( lineNr, currentGroup, line );
             }
             catch ( Throwable t )
             {
-                return ( handleParsingException( lineNr, currentGroup, line, t ) );
+                boolean result;
+                if ( handler == null )
+                    result = false;
+                else
+                    result = handler.handleParsingException( lineNr, currentGroup, line, t );
+                
+                if ( iniLine != null )
+                    iniLine.setValid( result );
+                
+                return ( result );
             }
             
             if ( !proceedParse )
-                return ( handleParsingException( lineNr, currentGroup, line, new ParsingException( "Illegal line #" + lineNr + ": " + line ) ) );
+            {
+                if ( handler == null )
+                    return ( false );
+                
+                return ( handler.handleParsingException( lineNr, currentGroup, line, new ParsingException( "Illegal line #" + lineNr + ": " + line ) ) );
+            }
             
             return ( true );
         }
         
         String key = line.substring( 0, idx ).trim();
-        String value = line.substring( idx + 1 ).trim();
+        if ( iniLine != null )
+            iniLine.setKey( key );
+        String value = line.substring( idx + operator.length() ).trim();
         
         boolean proceedParse = true;
         
@@ -231,14 +326,41 @@ public abstract class AbstractIniParser
                     idx = value.indexOf( "//", i + 1 );
                     try
                     {
+                        String value2 = value.substring( 1, i );
+                        if ( iniLine != null )
+                            iniLine.setValue( value2 );
+                        
                         if ( idx >= 0 )
-                            proceedParse = onSettingParsed( lineNr, currentGroup, key, value.substring( 1, i ), value.substring( idx + 2, value.length() ).trim() );
+                        {
+                            String comment = value.substring( idx + 2, value.length() ).trim();
+                            if ( iniLine != null )
+                                iniLine.setComment( comment );
+                            
+                            if ( handler == null )
+                                proceedParse = true;
+                            else
+                                proceedParse = handler.onSettingParsed( lineNr, currentGroup, key, value2, comment );
+                        }
                         else
-                            proceedParse = onSettingParsed( lineNr, currentGroup, key, value.substring( 1, i ), null );
+                        {
+                            if ( handler == null )
+                                proceedParse = true;
+                            else
+                                proceedParse = handler.onSettingParsed( lineNr, currentGroup, key, value2, null );
+                        }
+                        
+                        if ( iniLine != null )
+                            iniLine.setValid( true );
                     }
                     catch ( Throwable t )
                     {
-                        proceedParse = handleParsingException( lineNr, currentGroup, line, t );
+                        if ( iniLine != null )
+                            iniLine.setValid( false );
+                        
+                        if ( handler == null )
+                            proceedParse = false;
+                        else
+                            proceedParse = handler.handleParsingException( lineNr, currentGroup, line, t );
                     }
                     
                     lastChar = ch;
@@ -250,15 +372,25 @@ public abstract class AbstractIniParser
             
             if ( lastChar != '"' )
             {
-                if ( acceptMissingTrailingQuote() )
+                if ( ( handler != null ) && handler.acceptMissingTrailingQuote() )
                 {
                     try
                     {
-                        proceedParse = onSettingParsed( lineNr, currentGroup, key, value.substring( 1 ), null );
+                        String value2 = value.substring( 1 );
+                        
+                        if ( iniLine != null )
+                        {
+                            iniLine.setValid( true );
+                            iniLine.setValue( value2 );
+                        }
+                        
+                        proceedParse = handler.onSettingParsed( lineNr, currentGroup, key, value2, null );
                     }
                     catch ( Throwable t )
                     {
-                        proceedParse = handleParsingException( lineNr, currentGroup, line, t );
+                        if ( iniLine != null )
+                            iniLine.setValid( false );
+                        proceedParse = handler.handleParsingException( lineNr, currentGroup, line, t );
                     }
                 }
                 else
@@ -266,17 +398,37 @@ public abstract class AbstractIniParser
                     Boolean b = null;
                     try
                     {
-                        b = verifyIllegalLine( lineNr, currentGroup, line );
+                        if ( iniLine != null )
+                            iniLine.setValid( false );
+                        if ( handler == null )
+                            b = false;
+                        else
+                            b = handler.verifyIllegalLine( lineNr, currentGroup, line );
                     }
                     catch ( Throwable t )
                     {
-                        proceedParse = handleParsingException( lineNr, currentGroup, line, t );
+                        if ( iniLine != null )
+                            iniLine.setValid( false );
+                        if ( handler == null )
+                            proceedParse = false;
+                        else
+                            proceedParse = handler.handleParsingException( lineNr, currentGroup, line, t );
                     }
                     
                     if ( b != null )
+                    {
+                        if ( iniLine != null )
+                            iniLine.setValid( b );
+                        
                         proceedParse = b.booleanValue();
+                    }
                     else
-                        proceedParse = handleParsingException( lineNr, currentGroup, line, new ParsingException( "Illegal line #" + lineNr + ": " + line ) );
+                    {
+                        if ( handler == null )
+                            proceedParse = false;
+                        else
+                            proceedParse = handler.handleParsingException( lineNr, currentGroup, line, new ParsingException( "Illegal line #" + lineNr + ": " + line ) );
+                    }
                 }
             }
         }
@@ -285,18 +437,63 @@ public abstract class AbstractIniParser
             idx = value.indexOf( "//" );
             try
             {
+                if ( iniLine != null )
+                    iniLine.setValid( true );
+                
                 if ( idx >= 0 )
-                    proceedParse = onSettingParsed( lineNr, currentGroup, key, value.substring( 0, idx ).trim(), value.substring( idx + 2, value.length() ).trim() );
+                {
+                    String value2 = value.substring( 0, idx ).trim();
+                    String comment = value.substring( idx + 2, value.length() ).trim();
+                    if ( iniLine != null )
+                    {
+                        iniLine.setValue( value2 );
+                        iniLine.setComment( comment );
+                    }
+                    
+                    if ( handler == null )
+                        proceedParse = true;
+                    else
+                        proceedParse = handler.onSettingParsed( lineNr, currentGroup, key, value2, comment );
+                }
                 else
-                    proceedParse = onSettingParsed( lineNr, currentGroup, key, value, null );
+                {
+                    if ( iniLine != null )
+                        iniLine.setValue( value );
+                    
+                    if ( handler == null )
+                        proceedParse = true;
+                    else
+                        proceedParse = handler.onSettingParsed( lineNr, currentGroup, key, value, null );
+                }
             }
             catch ( Throwable t )
             {
-                proceedParse = handleParsingException( lineNr, currentGroup, line, t );
+                if ( iniLine != null )
+                    iniLine.setValid( false );
+                if ( handler == null )
+                    proceedParse = false;
+                else
+                    proceedParse = handler.handleParsingException( lineNr, currentGroup, line, t );
             }
         }
         
         return ( proceedParse );
+    }
+    
+    /**
+     * Parses the given line.<br>
+     * This method implements the actual parsing code for a single line.
+     * 
+     * @param lineNr
+     * @param currentGroup
+     * @param line
+     * 
+     * @throws IOException
+     * @throws ParsingException
+     */
+    protected boolean parseLine( int lineNr, String currentGroup, String line ) throws IOException, ParsingException
+    {
+        return ( parseLine( lineNr, currentGroup, line, DEFAULT_OPERATOR, null, this ) );
     }
     
     /**
@@ -310,38 +507,33 @@ public abstract class AbstractIniParser
      */
     protected void parseImpl( BufferedReader reader ) throws IOException, ParsingException
     {
-        String currentGroup = null;
+        IniLine iniLine = new IniLine();
         
-        String line = null;
+        String line2 = null;
         int lineNr = 0;
         boolean proceedParse = true;
-        while ( proceedParse && ( ( line = reader.readLine() ) != null ) )
+        while ( proceedParse && ( ( line2 = reader.readLine() ) != null ) )
         {
-            line = line.trim();
-            lineNr++;
+            iniLine.setLine( ++lineNr, iniLine.getCurrentGroup(), line2 );
             
-            if ( line.length() == 0 )
-                continue;
-            
-            if ( line.startsWith( "[" ) )
+            if ( iniLine.isEmpty() )
             {
-                if ( line.endsWith( "]" ) )
-                {
-                    currentGroup = line.substring( 1, line.length() - 1 ).trim();
-                    proceedParse = onGroupParsed( lineNr, currentGroup );
-                    continue;
-                }
-                
-                int idx = line.indexOf( "]" );
-                if ( idx < 0 )
-                    throw new ParsingException( "Illegal line #" + lineNr + ": " + line );
-                
-                currentGroup = line.substring( 1, idx ).trim();
-                proceedParse = onGroupParsed( lineNr, currentGroup );
+                proceedParse = onEmptyLineParsed( lineNr, iniLine.getCurrentGroup() );
                 continue;
             }
             
-            proceedParse = parseLine( lineNr, currentGroup, line );
+            Boolean result = iniLine.tryToParseGroup();
+            if ( result == Boolean.TRUE )
+            {
+                proceedParse = onGroupParsed( iniLine.getLineNr(), iniLine.getCurrentGroup() );
+                continue;
+            }
+            else if ( result == Boolean.FALSE )
+            {
+                throw new ParsingException( "Illegal line #" + iniLine.getLineNr() + ": " + iniLine.getLine() );
+            }
+            
+            proceedParse = parseLine( lineNr, iniLine.getCurrentGroup(), iniLine.getLine(), DEFAULT_OPERATOR, iniLine, this ); // TODO: pass iniLine
         }
         
         reader.close();

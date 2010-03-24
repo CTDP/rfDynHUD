@@ -12,6 +12,7 @@ import net.ctdp.rfdynhud.util.Logger;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
+import org.jagatoo.util.ini.IniLine;
 
 public class VehiclePhysicsParser
 {
@@ -1002,6 +1003,7 @@ public class VehiclePhysicsParser
             }
             else if ( currentHDVGroup != null )
             {
+                @SuppressWarnings( "unused" )
                 int opPos = -1;
                 String op = null;
                 if ( ( opPos = line.indexOf( "+=" ) ) >= 0 )
@@ -1017,10 +1019,24 @@ public class VehiclePhysicsParser
                 
                 if ( op != null )
                 {
-                    String key = line.substring( 0, opPos ).trim();
-                    String value = line.substring( opPos + op.length() ).trim();
+                    //String key = line.substring( 0, opPos ).trim();
+                    //String value = line.substring( opPos + op.length() ).trim();
                     
-                    parseHDVValue( currentHDVGroup, key, op, value );
+                    IniLine iniLine = new IniLine();
+                    try
+                    {
+                        AbstractIniParser.parseLine( -1, currentHDVGroup, line, op, iniLine, null );
+                    }
+                    catch ( ParsingException e )
+                    {
+                        Logger.log( e );
+                    }
+                    catch ( IOException e )
+                    {
+                        Logger.log( e );
+                    }
+                    
+                    parseHDVValue( currentHDVGroup, iniLine.getKey(), op, iniLine.getValue() );
                 }
             }
         }
@@ -1055,7 +1071,9 @@ public class VehiclePhysicsParser
             }
             else if ( line.startsWith( "HDV=" ) )
             {
-                parseHDVLine( line.substring( 4 ).trim() );
+                String line2 = line.substring( 4 ).trim();
+                if ( !line2.startsWith( "//" ) )
+                    parseHDVLine( line2 );
             }
             
             return ( 0 );
