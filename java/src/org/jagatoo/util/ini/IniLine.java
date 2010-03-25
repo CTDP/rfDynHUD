@@ -43,29 +43,6 @@ public class IniLine
         return ( ( line == null ) || ( line.length() == 0 ) );
     }
     
-    Boolean tryToParseGroup()
-    {
-        if ( line.startsWith( "[" ) )
-        {
-            if ( line.endsWith( "]" ) )
-            {
-                currentGroup = line.substring( 1, line.length() - 1 ).trim();
-                return ( Boolean.TRUE );
-            }
-            
-            int idx = line.indexOf( "]" );
-            if ( idx >= 0 )
-            {
-                currentGroup = line.substring( 1, idx ).trim();
-                return ( Boolean.TRUE );
-            }
-            
-            return ( Boolean.FALSE );
-        }
-        
-        return ( null );
-    }
-    
     String setCurrentGroup( String group )
     {
         this.currentGroup = group;

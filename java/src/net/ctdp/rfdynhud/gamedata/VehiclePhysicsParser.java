@@ -1159,6 +1159,7 @@ public class VehiclePhysicsParser
                         }
                         catch ( Throwable t )
                         {
+                            Logger.log( t );
                             throw new ParsingException( t );
                         }
                     }

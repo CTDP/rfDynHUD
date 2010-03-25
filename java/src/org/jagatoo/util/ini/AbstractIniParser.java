@@ -165,6 +165,51 @@ public abstract class AbstractIniParser
     }
     
     /**
+     * Parses the given line (must be trimmed). If it is a group header, the group name is returned, null otherwise.
+     * 
+     * @param lineNr
+     * @param line
+     * 
+     * @return the group name, if the given line is a group name, null otherwise.
+     * 
+     * @throws ParsingException
+     */
+    public static String tryToParseGroup( int lineNr, String line ) throws ParsingException
+    {
+        if ( line.startsWith( "[" ) )
+        {
+            int idx = -1;
+            if ( line.endsWith( "]" ) )
+            {
+                return ( line.substring( 1, line.length() - 1 ).trim() );
+            }
+            else if ( ( idx = line.indexOf( ']', 1 ) ) >= 0 )
+            {
+                return ( line.substring( 1, idx ).trim() );
+            }
+            
+            if ( lineNr <= 0 )
+                throw new ParsingException( "Illegal line: " + line );
+            
+            throw new ParsingException( "Illegal line #" + lineNr + ": " + line );
+        }
+        
+        return ( null );
+    }
+    
+    /**
+     * Parses the given line (must be trimmed). If it is a group header, the group name is returned, null otherwise.
+     * 
+     * @return the group name, if the given line is a group name, null otherwise.
+     * 
+     * @throws ParsingException
+     */
+    public static String tryToParseGroup( String line ) throws ParsingException
+    {
+        return ( tryToParseGroup( -1, line ) );
+    }
+    
+    /**
      * Parses the given line.<br>
      * This method implements the actual parsing code for a single line.
      * 
@@ -314,7 +359,7 @@ public abstract class AbstractIniParser
         
         boolean proceedParse = true;
         
-        if ( value.charAt( 0 ) == '"' )
+        if ( ( value.length() > 0 ) && ( value.charAt( 0 ) == '"' ) )
         {
             char lastChar = '\0';
             for ( int i = 1; i < value.length(); i++ )
@@ -522,18 +567,16 @@ public abstract class AbstractIniParser
                 continue;
             }
             
-            Boolean result = iniLine.tryToParseGroup();
-            if ( result == Boolean.TRUE )
+            String groupName = tryToParseGroup( lineNr, iniLine.getLine() );
+            if ( groupName == null )
             {
+                proceedParse = parseLine( lineNr, iniLine.getCurrentGroup(), iniLine.getLine(), DEFAULT_OPERATOR, iniLine, this );
+            }
+            else
+            {
+                iniLine.setCurrentGroup( groupName );
                 proceedParse = onGroupParsed( iniLine.getLineNr(), iniLine.getCurrentGroup() );
-                continue;
             }
-            else if ( result == Boolean.FALSE )
-            {
-                throw new ParsingException( "Illegal line #" + iniLine.getLineNr() + ": " + iniLine.getLine() );
-            }
-            
-            proceedParse = parseLine( lineNr, iniLine.getCurrentGroup(), iniLine.getLine(), DEFAULT_OPERATOR, iniLine, this ); // TODO: pass iniLine
         }
         
         reader.close();
