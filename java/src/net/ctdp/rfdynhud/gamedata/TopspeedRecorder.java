@@ -6,6 +6,8 @@ public class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListen
     
     private float value = 0f;
     
+    private long firstValidTime = Long.MAX_VALUE;
+    
     /**
      * Gets the recorded top speed as km/h (kph).
      * 
@@ -19,6 +21,17 @@ public class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListen
     public void reset()
     {
         value = 0f;
+        firstValidTime = Long.MAX_VALUE;
+    }
+    
+    public void onSessionStarted( LiveGameData gameData )
+    {
+        reset();
+    }
+    
+    public void onRealtimeEntered( LiveGameData gameData )
+    {
+        firstValidTime = gameData.getScoringInfo().getSessionNanos() + 1L * 1000000000L;
     }
     
     /**
@@ -27,9 +40,14 @@ public class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListen
     @Override
     public void onTelemetryDataUpdated( LiveGameData gameData )
     {
-        float velocity = gameData.getTelemetryData().getScalarVelocityKPH();
-        
-        if ( velocity > value )
-            value = velocity;
+        if ( gameData.getScoringInfo().getSessionNanos() >= firstValidTime )
+        {
+            float velocity = gameData.getTelemetryData().getScalarVelocityKPH();
+            
+            if ( velocity > value )
+                value = velocity;
+        }
     }
+    
+    public void onRealtimeExited( LiveGameData gameData ) {}
 }

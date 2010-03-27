@@ -351,6 +351,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         try
         {
+            __GDPrivilegedAccess.onRealtimeExited( gameData );
+            
             widgetsManager.fireOnRealtimeExited( isEditorMode, gameData );
         }
         catch ( Throwable t )

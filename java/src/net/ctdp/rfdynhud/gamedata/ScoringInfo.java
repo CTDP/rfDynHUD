@@ -71,7 +71,10 @@ public class ScoringInfo
     
     public static interface ScoringInfoUpdateListener
     {
+        public void onSessionStarted( LiveGameData gameData );
+        public void onRealtimeEntered( LiveGameData gameData );
         public void onScoringInfoUpdated( LiveGameData gameData );
+        public void onRealtimeExited( LiveGameData gameData );
     }
     
     private ScoringInfoUpdateListener[] updateListeners = null;
@@ -362,18 +365,6 @@ public class ScoringInfo
         sessionBaseNanos = Math.round( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) * 1000000000.0 );
         updateSessionTime();
         
-        if ( laptimesRecorder != null )
-        {
-            try
-            {
-                laptimesRecorder.update( this );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-        
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
@@ -434,9 +425,19 @@ public class ScoringInfo
             }
         }
         
-        if ( laptimesRecorder != null )
+        if ( updateListeners != null )
         {
-            laptimesRecorder.clear();
+            for ( int i = 0; i < updateListeners.length; i++ )
+            {
+                try
+                {
+                    updateListeners[i].onSessionStarted( gameData );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
+            }
         }
         
         updateRaceLengthPercentage();
@@ -458,6 +459,39 @@ public class ScoringInfo
         this.realtimeEnteredID++;
         
         updateRaceLengthPercentage();
+        
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+            {
+                try
+                {
+                    updateListeners[i].onRealtimeEntered( gameData );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
+            }
+        }
+    }
+    
+    final void onRealtimeExited()
+    {
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+            {
+                try
+                {
+                    updateListeners[i].onRealtimeExited( gameData );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
+            }
+        }
     }
     
     /**
@@ -1115,6 +1149,7 @@ public class ScoringInfo
         this.gameData = gameData;
         this.eventsManager = eventsManager;
         
+        registerListener( laptimesRecorder );
         registerListener( FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER );
     }
 }

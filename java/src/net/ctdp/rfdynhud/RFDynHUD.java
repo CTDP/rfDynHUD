@@ -2,6 +2,8 @@ package net.ctdp.rfdynhud;
 
 import java.nio.ByteBuffer;
 
+import org.jagatoo.util.versioning.Version;
+
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
@@ -21,6 +23,8 @@ import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
  */
 public class RFDynHUD
 {
+    public static final Version VERSION = new Version( 1, 0, 0, "BETA1", 65 );
+    
     public static final int FLAG_CONFIGURATION_RELOADED = 0;
     
     private final WidgetsDrawingManager drawingManager;
@@ -166,7 +170,7 @@ public class RFDynHUD
     {
         //Logger.setStdStreams();
         
-        Logger.log( "Creating RFDynHUD instance..." );
+        Logger.log( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
         
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );

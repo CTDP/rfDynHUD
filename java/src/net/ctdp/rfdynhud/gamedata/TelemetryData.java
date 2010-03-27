@@ -107,7 +107,10 @@ public class TelemetryData
     
     public static interface TelemetryDataUpdateListener
     {
+        public void onSessionStarted( LiveGameData gameData );
+        public void onRealtimeEntered( LiveGameData gameData );
         public void onTelemetryDataUpdated( LiveGameData gameData );
+        public void onRealtimeExited( LiveGameData gameData );
     }
     
     private TelemetryDataUpdateListener[] updateListeners = null;
@@ -179,6 +182,33 @@ public class TelemetryData
     public final long getUpdateID()
     {
         return ( updateID );
+    }
+    
+    void onSessionStarted()
+    {
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+                updateListeners[i].onSessionStarted( gameData );
+        }
+    }
+    
+    void onRealtimeEntered()
+    {
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+                updateListeners[i].onRealtimeEntered( gameData );
+        }
+    }
+    
+    void onRealtimeExited()
+    {
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+                updateListeners[i].onRealtimeExited( gameData );
+        }
     }
     
     void loadFromStream( InputStream in ) throws IOException

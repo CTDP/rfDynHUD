@@ -3,7 +3,7 @@ package net.ctdp.rfdynhud.gamedata;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class LaptimesRecorder
+public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
     private final HashMap<String, Integer> lapsCompletedMap = new HashMap<String, Integer>();
     private final HashMap<String, ArrayList<Laptime>> laptimesMap = new HashMap<String, ArrayList<Laptime>>();
@@ -11,13 +11,20 @@ public class LaptimesRecorder
     
     //private Laptime absFastestLaptime = null;
     
-    public void clear()
+    public void reset()
     {
         lapsCompletedMap.clear();
         laptimesMap.clear();
         fastestLaptimesMap.clear();
         //absFastestLaptime = null;
     }
+    
+    public void onSessionStarted( LiveGameData gameData )
+    {
+        reset();
+    }
+    
+    public void onRealtimeEntered( LiveGameData gameData ) {}
     
     private ArrayList<Laptime> addLaptime( String driverName, int lapsCompleted, Laptime laptime )
     {
@@ -36,8 +43,10 @@ public class LaptimesRecorder
         return ( laps );
     }
     
-    public void update( ScoringInfo scoringInfo )
+    public void onScoringInfoUpdated( LiveGameData gameData )
     {
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        
         for ( int i = 0; i < scoringInfo.getNumVehicles(); i++ )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
@@ -160,4 +169,6 @@ public class LaptimesRecorder
         
         //scoringInfo.absFastestLaptime = this.absFastestLaptime;
     }
+    
+    public void onRealtimeExited( LiveGameData gameData ) {}
 }

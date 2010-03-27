@@ -78,6 +78,10 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         return ( torque );
     }
     
+    public void onSessionStarted( LiveGameData gameData ) {}
+    
+    public void onRealtimeEntered( LiveGameData gameData ) {}
+    
     /**
      * {@inheritDoc}
      */
@@ -217,6 +221,8 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         
         lastTimestamp = timestamp;
     }
+    
+    public void onRealtimeExited( LiveGameData gameData ) {}
     
     LifetimeManager()
     {

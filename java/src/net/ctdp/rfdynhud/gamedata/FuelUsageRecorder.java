@@ -4,7 +4,6 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
     public static final FuelUsageRecorder MASTER_FUEL_USAGE_RECORDER = new FuelUsageRecorder();
     
-    private int oldSessionID = -1;
     private boolean wasInRealTime = false;
     
     private float lastLap = -1f;
@@ -33,12 +32,24 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     
     public void reset()
     {
+        wasInRealTime = false;
+        
         lastLap = -1f;
         average = -1f;
         
         oldLapsCompleted = -1;
         lapStartFuel = -1f;
+        
+        fuelRelevantLaps = 0;
+        relevantFuel = 0f;
     }
+    
+    public void onSessionStarted( LiveGameData gameData )
+    {
+        reset();
+    }
+    
+    public void onRealtimeEntered( LiveGameData gameData ) {}
     
     /**
      * {@inheritDoc}
@@ -47,17 +58,6 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     public void onScoringInfoUpdated( LiveGameData gameData )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
-        
-        if ( scoringInfo.getSessionID() != oldSessionID )
-        {
-            // new session
-            oldSessionID = scoringInfo.getSessionID();
-            
-            fuelRelevantLaps = 0;
-            relevantFuel = 0f;
-            average = -1f;
-            lastLap = -1f;
-        }
         
         if ( scoringInfo.isInRealtimeMode() != wasInRealTime )
         {
@@ -98,4 +98,6 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
             oldLapsCompleted = lapsCompleted;
         }
     }
+    
+    public void onRealtimeExited( LiveGameData gameData ) {}
 }

@@ -75,16 +75,23 @@ public class MiscWidget extends Widget
     private float oldAbsTopspeed = -1f;
     private float oldRelTopspeed = -1f;
     private float relTopspeed = -1f;
-    private long lastRelTopspeedTime = -1L;
-    private float topspeed;
-    private int velocity;
     private int oldVelocity = -1;
+    private boolean updateAbs = false;
     
     private int[] scoringColWidths = new int[ 2 ];
     private int[] velocityColWidths = new int[ 3 ];
     private final Alignment[] scoringAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT };
     private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
     private static final int padding = 4;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object createLocalStore()
+    {
+        return ( new LocalStore() );
+    }
     
     public void setRelTopspeedResetDelay( int delay )
     {
@@ -105,6 +112,8 @@ public class MiscWidget extends Widget
         super.onSessionStarted( isEditorMode, sessionType, gameData );
         
         oldAbsTopspeed = -1f;
+        
+        ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = 0f;
     }
     
     /**
@@ -130,8 +139,10 @@ public class MiscWidget extends Widget
         
         oldRelTopspeed = -1f;
         relTopspeed = -1f;
-        lastRelTopspeedTime = -1L;
+        ( (LocalStore)getLocalStore() ).lastRelTopspeedTime = -1L;
         oldVelocity = -1;
+        
+        updateAbs = false;
         
         //forceReinitialization();
     }
@@ -423,25 +434,31 @@ public class MiscWidget extends Widget
         if ( displayVelocity.getBooleanValue() )
         {
             float floatVelocity = gameData.getTelemetryData().getScalarVelocityKPH();
-            velocity = Math.round( floatVelocity );
-            topspeed = TopspeedRecorder.MASTER_TOPSPEED_RECORDER.getTopSpeed();
+            int velocity = Math.round( floatVelocity );
             
-            if ( floatVelocity > relTopspeed )
+            if ( floatVelocity >= relTopspeed )
             {
                 relTopspeed = floatVelocity;
-                lastRelTopspeedTime = scoringInfo.getSessionNanos();
+                ( (LocalStore)getLocalStore() ).lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
-            else if ( ( lastRelTopspeedTime + relTopspeedResetDelay < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
+            else if ( ( ( (LocalStore)getLocalStore() ).lastRelTopspeedTime + relTopspeedResetDelay < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
             {
                 relTopspeed = floatVelocity;
                 oldRelTopspeed = -1f;
-                lastRelTopspeedTime = scoringInfo.getSessionNanos();
+                //lastRelTopspeedTime = scoringInfo.getSessionNanos();
+                
+                updateAbs = true;
             }
             
-            if ( needsCompleteRedraw || ( clock1 && ( topspeed > oldAbsTopspeed ) ) )
+            float topspeed = TopspeedRecorder.MASTER_TOPSPEED_RECORDER.getTopSpeed();
+            if ( needsCompleteRedraw || ( clock1 && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
             {
+                if ( !needsCompleteRedraw )
+                    ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = topspeed;
+                
+                updateAbs = false;
                 oldAbsTopspeed = topspeed;
-                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( topspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
+                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( relTopspeed > oldRelTopspeed ) ) )

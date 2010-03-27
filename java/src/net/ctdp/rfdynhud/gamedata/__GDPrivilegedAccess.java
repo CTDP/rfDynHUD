@@ -49,12 +49,20 @@ public class __GDPrivilegedAccess
     
     public static final void onSessionStarted( LiveGameData gameData )
     {
+        gameData.getTelemetryData().onSessionStarted();
         gameData.getScoringInfo().onSessionStarted();
     }
     
     public static final void onRealtimeEntered( LiveGameData gameData )
     {
+        gameData.getTelemetryData().onRealtimeEntered();
         gameData.getScoringInfo().onRealtimeEntered();
+    }
+    
+    public static final void onRealtimeExited( LiveGameData gameData )
+    {
+        gameData.getTelemetryData().onRealtimeExited();
+        gameData.getScoringInfo().onRealtimeExited();
     }
     
     public static final void updateSessionTime( ScoringInfo scoringInfo )

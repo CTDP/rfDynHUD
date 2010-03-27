@@ -141,13 +141,13 @@ public class FuelWidget extends Widget
     {
         super.onRealtimeEntered( isEditorMode, gameData );
         
-        nextPitstopLapCorrection = 0;
-        nextPitstopFuelLapsCorrection = 0;
-        oldNextPitstopLapCorrection = ( ( nextPitstopLapCorrection + Short.MAX_VALUE / 2 ) << 16 ) | ( nextPitstopFuelLapsCorrection + Short.MAX_VALUE / 2 );
-        pitstopFuel.reset();
+        this.nextPitstopLapCorrection = 0;
+        this.nextPitstopFuelLapsCorrection = 0;
+        this.oldNextPitstopLapCorrection = ( ( nextPitstopLapCorrection + Short.MAX_VALUE / 2 ) << 16 ) | ( nextPitstopFuelLapsCorrection + Short.MAX_VALUE / 2 );
+        this.pitstopFuel.reset();
         
-        stintLength.reset();
-        oldFuel = -1;
+        this.stintLength.reset();
+        this.oldFuel = -1;
     }
     
     /**
@@ -160,11 +160,11 @@ public class FuelWidget extends Widget
         
         if ( stintLength.getValue() < 1 )
         {
-            nextPitstopLapCorrection = 0;
-            nextPitstopFuelLapsCorrection = 0;
+            this.nextPitstopLapCorrection = 0;
+            this.nextPitstopFuelLapsCorrection = 0;
         }
         
-        stintLength.reset();
+        this.stintLength.reset();
     }
     
     /**
