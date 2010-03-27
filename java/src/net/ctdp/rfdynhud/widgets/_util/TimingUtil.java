@@ -38,6 +38,11 @@ public class TimingUtil
      */
     public static String getTimeAsString( float seconds, boolean forceAllFields, boolean padHighest, boolean showMillis )
     {
+        if ( showMillis )
+            seconds = Math.round( seconds * 1000f ) / 1000f;
+        else
+            seconds = Math.round( seconds );
+        
         String str = "";
         
         if ( seconds < 0 )
