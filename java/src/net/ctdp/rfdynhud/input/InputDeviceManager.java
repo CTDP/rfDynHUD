@@ -1,5 +1,11 @@
 package net.ctdp.rfdynhud.input;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
 import net.ctdp.rfdynhud.util.Logger;
 
@@ -54,9 +60,78 @@ public class InputDeviceManager
         return ( -1 );
     }
     
+    private static HashMap<String, Integer> englishToIndex = new HashMap<String, Integer>();
+    private static HashMap<Integer, String> indexToEnglish = new HashMap<Integer, String>();
+    static
+    {
+        try
+        {
+            InputStream is = InputDeviceManager.class.getClassLoader().getResourceAsStream( InputDeviceManager.class.getPackage().getName().replace( '.', '/' ) + "/dinput.h" );
+            BufferedReader br = new BufferedReader( new InputStreamReader( is ) );
+            
+            String line;
+            while ( ( line = br.readLine() ) != null )
+            {
+                line = line.trim();
+                
+                if ( line.length() == 0 )
+                    continue;
+                
+                if ( line.startsWith( "#define" ) )
+                {
+                    line = line.substring( 7 ).trim();
+                    
+                    int p1 = line.indexOf( ' ' );
+                    String name = line.substring( 0, p1 );
+                    if ( name.startsWith( "DIK_" ) )
+                        name = name.substring( 4 );
+                    line = line.substring( p1 ).trim();
+                    p1 = line.indexOf( ' ' );
+                    String indexStr = ( p1 < 0 ) ? line : line.substring( 0, p1 );
+                    int index = indexStr.startsWith( "0x" ) ? Integer.parseInt( indexStr.substring( 2 ), 16 ) : Integer.parseInt( indexStr, 16 );
+                    
+                    if ( index >= 0 )
+                    {
+                        englishToIndex.put( name, index );
+                        indexToEnglish.put( index, name );
+                    }
+                }
+            }
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    public final String getEnglishKeyName( int i )
+    {
+        return ( indexToEnglish.get( i ) );
+    }
+    
+    public final int getKeyIndexByEnglishName( String name )
+    {
+        Integer index = englishToIndex.get( name );
+        
+        if ( index == null )
+            return ( -1 );
+        
+        return ( index.intValue() );
+    }
+    
     public final int getNumJoysticks()
     {
         return ( numJoysticks );
+    }
+    
+    public final String getJoystickNameForIni( int i )
+    {
+        return ( "Joystick" + ( i + 1 ) );
+    }
+    
+    public final String getJoystickButtonNameForIni( int i )
+    {
+        return ( "Button" + ( i + 1 ) );
     }
     
     public final String getJoystickName( int i )
@@ -72,6 +147,12 @@ public class InputDeviceManager
     
     public final int getJoystickIndex( String name )
     {
+        for ( int i = 1; i <= numJoysticks; i++ )
+        {
+            if ( name.equals( "Joystick" + i ) )
+                return ( i - 1 );
+        }
+        
         if ( joystickNames == null )
             return ( -1 );
         
@@ -96,6 +177,12 @@ public class InputDeviceManager
     
     public final int getJoystickButtonIndex( int joystickIndex, String name )
     {
+        for ( int i = 1; i <= numButtons[joystickIndex]; i++ )
+        {
+            if ( name.equalsIgnoreCase( "Button" + i ) )
+                return ( i - 1 );
+        }
+        
         for ( int i = 0; i < numButtons[joystickIndex]; i++ )
         {
             if ( buttonNames[joystickIndex][i].equalsIgnoreCase( name ) )

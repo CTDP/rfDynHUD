@@ -47,7 +47,7 @@ public class InputBindingsGUI implements PollingListener
                 case JOptionPane.CANCEL_OPTION:
                     return;
                 case JOptionPane.YES_OPTION:
-                    inputBindingsTableModel.saveBindings();
+                    inputBindingsTableModel.saveBindings( directInputConnection.getInputDeviceManager() );
                     dirtyFlag = false;
                     break;
             }
@@ -96,8 +96,11 @@ public class InputBindingsGUI implements PollingListener
         {
             public void actionPerformed( ActionEvent e )
             {
-                inputBindingsTableModel.saveBindings();
-                dirtyFlag = false;
+                if ( dirtyFlag )
+                {
+                    inputBindingsTableModel.saveBindings( directInputConnection.getInputDeviceManager() );
+                    dirtyFlag = false;
+                }
             }
         } );
         file.add( save );
@@ -136,7 +139,7 @@ public class InputBindingsGUI implements PollingListener
         
         createMenu( frame );
         
-        this.directInputConnection = new DirectInputConnection();
+        this.directInputConnection = new DirectInputConnection( editor.getMainWindow().getTitle() );
         
         /*
         JButton b = new JButton( "Poll input" );
@@ -151,7 +154,7 @@ public class InputBindingsGUI implements PollingListener
         frame.getContentPane().add( b );
         */
         
-        this.inputBindingsTableModel = new InputBindingsTableModel( editor, editor.getEditorPanel().getWidgetsDrawingManager() );
+        this.inputBindingsTableModel = new InputBindingsTableModel( editor, editor.getEditorPanel().getWidgetsDrawingManager(), directInputConnection.getInputDeviceManager() );
         final JTable table = new JTable( inputBindingsTableModel, new InputBindingsColumnModel(), new DefaultListSelectionModel() );
         table.setRowHeight( 20 );
         
@@ -198,6 +201,8 @@ public class InputBindingsGUI implements PollingListener
         };
         
         Toolkit.getDefaultToolkit().addAWTEventListener( listener, AWTEvent.KEY_EVENT_MASK );
+        
+        frame.setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
         
         frame.addWindowListener( new WindowAdapter()
         {

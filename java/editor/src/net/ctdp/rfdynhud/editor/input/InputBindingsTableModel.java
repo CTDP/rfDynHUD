@@ -8,6 +8,7 @@ import javax.swing.table.DefaultTableModel;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.util.RFactorTools;
@@ -177,7 +178,7 @@ public class InputBindingsTableModel extends DefaultTableModel
         }
     }
     
-    private void loadBindings()
+    private void loadBindings( final InputDeviceManager devManager )
     {
         File configFile = new File( RFactorTools.CONFIG_PATH + File.separator + "input_bindings.ini" );
         
@@ -197,15 +198,30 @@ public class InputBindingsTableModel extends DefaultTableModel
                     key = key.trim();
                     value = value.trim();
                     
-                    /*
-                    String[] keyParts = key.split( "::", 2 );
-                    String device;
-                    if ( keyParts.length == 1 )
-                        device = "Keyboard";
-                    else
-                        device = keyParts[0];
-                    String component = keyParts[1];
-                    */
+                    String[] keyParts = key.split( "::" );
+                    if ( keyParts[0].equals( "Keyboard" ) )
+                    {
+                        int index = devManager.getKeyIndexByEnglishName( keyParts[1] );
+                        if ( index >= 0 )
+                        {
+                            keyParts[1] = devManager.getKeyName( index );
+                        }
+                    }
+                    else if ( keyParts[0].equals( "Mouse" ) )
+                    {
+                    }
+                    else // Joystick
+                    {
+                        int jindex = devManager.getJoystickIndex( keyParts[0] );
+                        if ( jindex >= 0 )
+                        {
+                            keyParts[0] = devManager.getJoystickName( jindex );
+                            int bindex = devManager.getJoystickButtonIndex( jindex, keyParts[1] );
+                            if ( bindex >= 0 )
+                                keyParts[1] = devManager.getJoystickButtonName( jindex, bindex );
+                        }
+                    }
+                    key = keyParts[0] + "::" + keyParts[1];
                     
                     String[] valueParts = value.split( "::", 2 );
                     String widgetName = valueParts[0];
@@ -229,7 +245,7 @@ public class InputBindingsTableModel extends DefaultTableModel
         }
     }
     
-    public void saveBindings()
+    public void saveBindings( final InputDeviceManager devManager )
     {
         try
         {
@@ -265,6 +281,27 @@ public class InputBindingsTableModel extends DefaultTableModel
                     continue;
                 
                 device_comp = device_comp.trim();
+                String[] parts = device_comp.split( "::" );
+                if ( parts[0].equals( "Keyboard" ) )
+                {
+                    int index = devManager.getKeyIndex( parts[1] );
+                    parts[1] = devManager.getEnglishKeyName( index );
+                }
+                else if ( parts[0].equals( "Mouse" ) )
+                {
+                }
+                else // Joystick
+                {
+                    int index = devManager.getJoystickIndex( parts[0] );
+                    if ( index >= 0 )
+                    {
+                        parts[0] = devManager.getJoystickNameForIni( index );
+                        index = devManager.getJoystickButtonIndex( index, parts[1] );
+                        if ( index >= 0 )
+                            parts[1] = devManager.getJoystickButtonNameForIni( index );
+                    }
+                }
+                device_comp = parts[0] + "::" + parts[1];
                 
                 
                 if ( action.isWidgetAction() )
@@ -281,11 +318,11 @@ public class InputBindingsTableModel extends DefaultTableModel
         }
     }
     
-    public InputBindingsTableModel( RFDynHUDEditor editor, WidgetsConfiguration widgetsConfig )
+    public InputBindingsTableModel( RFDynHUDEditor editor, WidgetsConfiguration widgetsConfig, InputDeviceManager devManager )
     {
         this.editor = editor;
         this.widgetsConfig = widgetsConfig;
         
-        loadBindings();
+        loadBindings( devManager );
     }
 }

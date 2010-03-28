@@ -99,13 +99,17 @@ public class InputMappingsManager
                     
                     if ( device.equalsIgnoreCase( "Keyboard" ) )
                     {
-                        int ki = devManager.getKeyIndex( component );
+                        int ki = devManager.getKeyIndexByEnglishName( component );
+                        if ( ki < 0 )
+                            ki = devManager.getKeyIndex( component );
                         
                         if ( ki < 0 )
                         {
                             Logger.log( "    WARNING: The Keyboard doesn't have a key called \"" + component + "\". Skipping mapping in line #" + lineNr + "." );
                             return ( true );
                         }
+                        
+                        component = devManager.getKeyName( ki );
                     }
                     else if ( device.equalsIgnoreCase( "Mouse" ) )
                     {
@@ -121,6 +125,8 @@ public class InputMappingsManager
                             return ( true );
                         }
                         
+                        device = devManager.getJoystickName( ji );
+                        
                         int bi = devManager.getJoystickButtonIndex( ji, component );
                         
                         if ( bi < 0 )
@@ -128,6 +134,8 @@ public class InputMappingsManager
                             Logger.log( "    WARNING: Joystick \"" + device + "\" doesn't have a button called \"" + component + "\". Skipping mapping in line #" + lineNr + "." );
                             return ( true );
                         }
+                        
+                        component = devManager.getJoystickButtonName( ji, bi );
                     }
                     
                     String[] valueParts = value.split( "::", 2 );
