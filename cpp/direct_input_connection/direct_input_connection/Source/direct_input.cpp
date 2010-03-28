@@ -172,6 +172,21 @@ unsigned char getMaxKeyNameLength()
     return ( maxKeyNameLength );
 }
 
+unsigned short getAllKeyNames( char* buffer )
+{
+    for ( int i = 0; i < numKeys; i++ )
+    {
+        if ( keyNames[i] == NULL )
+            *buffer = '\0';
+        else
+            memcpy( buffer, keyNames[i], strlen( keyNames[i] ) + 1 );
+        
+        buffer += maxKeyNameLength + 1;
+    }
+    
+    return ( numKeys );
+}
+
 unsigned short getKeyName( const unsigned short index, char* buffer )
 {
     memcpy( buffer, "Keyboard::", 10 );
@@ -207,9 +222,25 @@ unsigned char getNumJoysticks()
     return ( numJoysticks );
 }
 
+void getJoystickNames( char* names )
+{
+    for ( unsigned char i = 0; i < numJoysticks; i++ )
+    {
+        memcpy( names + i * MAX_JOYSTICK_NAME_LENGTH, joystickNames[i], strlen( joystickNames[i] ) + 1 );
+    }
+}
+
 unsigned char getNumButtons( const unsigned char joystickIndex )
 {
     return ( numButtons[joystickIndex] );
+}
+
+void getJoystickButtonNames( const unsigned char joystickIndex, char* names )
+{
+    for ( unsigned char i = 0; i < numButtons[joystickIndex]; i++ )
+    {
+        memcpy( names + i * MAX_JOYSTICK_BUTTON_NAME_LENGTH, buttonNames[joystickIndex][i], strlen( buttonNames[joystickIndex][i] ) + 1 );
+    }
 }
 
 unsigned short getJoystickButtonName( const unsigned char joystickIndex, unsigned char buttonIndex, char* buffer )

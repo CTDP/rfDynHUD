@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 DWORD PROCESS_ID = -1;
-char* searchedWindowTitle = NULL;
+const char* searchedWindowTitle = NULL;
 char* winTextBuffer = NULL;
 
 bool windowHandleSearched = false;
@@ -47,7 +47,7 @@ BOOL CALLBACK EnumWindowsProc( HWND hWnd, LPARAM lParam )
     return ( TRUE );
 }
 
-HWND getWindowHandle( char* windowTitle )
+HWND getWindowHandle( const char* windowTitle )
 {
     PROCESS_ID = GetCurrentProcessId();
     searchedWindowTitle = windowTitle;

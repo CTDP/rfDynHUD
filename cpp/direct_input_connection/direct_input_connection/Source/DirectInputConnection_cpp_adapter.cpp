@@ -11,18 +11,81 @@
 
 bool pollingInterrupted = false;
 
-/*
-short getFirstTrueState( bool* states, unsigned short n )
+void initInputDeviceManager( JNIEnv* env, jobject directInputConnection )
 {
-    for ( unsigned short i = 0; i < n; i++ )
+    unsigned short numKeys = getNumKeys();
+    unsigned char maxKeyNameLength = getMaxKeyNameLength();
+    
+    unsigned int bufferSize = 2 + 1 + numKeys * ( maxKeyNameLength + 1 );
+    
+    unsigned char numJoysticks = getNumJoysticks();
+    unsigned char* numButtons = (unsigned char*)malloc( numJoysticks );
+    bufferSize += 1 + numJoysticks * MAX_JOYSTICK_NAME_LENGTH;
+    for ( unsigned char i = 0; i < numJoysticks; i++ )
     {
-        if ( *states++ )
-            return ( (short)i );
+        numButtons[i] = getNumButtons( i );
+        bufferSize += 1 + numButtons[i] * MAX_JOYSTICK_BUTTON_NAME_LENGTH;
     }
     
-    return ( -1 );
+    jbyteArray arr = env->NewByteArray( bufferSize );
+    jboolean isCopy;
+    char* buffer = (char*)env->GetPrimitiveArrayCritical( arr, &isCopy );
+    
+    unsigned int bufferOffset = 0;
+    *( (unsigned short*)( buffer + bufferOffset ) ) = numKeys;
+    bufferOffset += 2;
+    *( (unsigned char*)( buffer + bufferOffset ) ) = maxKeyNameLength;
+    bufferOffset += 1;
+    getAllKeyNames( buffer + bufferOffset );
+    bufferOffset += numKeys * ( maxKeyNameLength + 1 );
+    
+    *( (unsigned char*)( buffer + bufferOffset ) ) = numJoysticks;
+    bufferOffset += 1;
+    
+    getJoystickNames( (char*)( buffer + bufferOffset ) );
+    bufferOffset += numJoysticks * MAX_JOYSTICK_NAME_LENGTH;
+    
+    for ( unsigned char i = 0; i < numJoysticks; i++ )
+    {
+        *( (unsigned char*)( buffer + bufferOffset ) ) = numButtons[i];
+        bufferOffset += 1;
+        
+        getJoystickButtonNames( i, (char*)( buffer + bufferOffset ) );
+        bufferOffset += numButtons[i] * MAX_JOYSTICK_BUTTON_NAME_LENGTH;
+    }
+    
+    env->ReleasePrimitiveArrayCritical( arr, buffer, 0 );
+    
+    
+    jclass DirectInputConnection = env->FindClass( "net/ctdp/rfdynhud/editor/input/DirectInputConnection" );
+    
+    jmethodID mid = env->GetMethodID( DirectInputConnection, "initInput", "([B)V" );
+    
+    env->CallVoidMethod( directInputConnection, mid, arr );
 }
-*/
+
+int cpp_initInputDeviceManager( JNIEnv* env, jobject directInputConnection, jbyteArray jBuffer, jint titleLength, jint bufferLength )
+{
+    char* windowTitle = (char*)malloc( 1024 );
+    jboolean isCopy;
+    char* buffer = (char*)env->GetPrimitiveArrayCritical( jBuffer, &isCopy );
+    memcpy( windowTitle, buffer, (unsigned int)titleLength );
+    env->ReleasePrimitiveArrayCritical( jBuffer, buffer, 0 );
+    
+    HWND windowHandle = getWindowHandle( windowTitle );
+    if ( windowHandle == 0 )
+        return ( 0 );
+    
+    initDirectInput( windowHandle );
+    
+    initInputDeviceManager( env, directInputConnection );
+    
+    disposeDirectInput();
+    
+    free( windowTitle );
+    
+    return ( 1 );
+}
 
 int initDirectInputAndStartPolling( char* buffer )
 {
@@ -89,6 +152,8 @@ int cpp_initDirectInputAndStartPolling( JNIEnv* env, jobject directInputConnecti
         
         notifyOnInputEventReceived( env, directInputConnection, jBuffer, result );
     }
+    
+    free( windowTitle );
     
     return ( result );
 }

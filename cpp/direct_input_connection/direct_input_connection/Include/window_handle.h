@@ -3,6 +3,6 @@
 
 #include <Windows.h>
 
-HWND getWindowHandle( char* windowTitle );
+HWND getWindowHandle( const char* windowTitle );
 
 #endif // _WINDOW_HANDLE_H

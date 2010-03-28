@@ -3,6 +3,11 @@
 #include <jni.h>
 #include "DirectInputConnection_cpp_adapter.h"
 
+JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_editor_input_DirectInputConnection_nativeInitInputDeviceManager( JNIEnv* env, jobject directInputConnection, jbyteArray jBuffer, jint titleLength, jint bufferLength )
+{
+    cpp_initInputDeviceManager( env, directInputConnection, jBuffer, titleLength, bufferLength );
+}
+
 JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_editor_input_DirectInputConnection_initDirectInputAndStartPolling( JNIEnv* env, jobject directInputConnection, jbyteArray jBuffer, jint titleLength, jint bufferLength )
 {
     cpp_initDirectInputAndStartPolling( env, directInputConnection, jBuffer, titleLength, bufferLength );

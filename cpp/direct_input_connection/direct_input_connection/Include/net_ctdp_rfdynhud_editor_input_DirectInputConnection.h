@@ -11,6 +11,14 @@ extern "C" {
 
 /*
  * Class:     net_ctdp_rfdynhud_editor_input_DirectInputConnection
+ * Method:    nativeInitInputDeviceManager
+ * Signature: ([BII)V
+ */
+JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_editor_input_DirectInputConnection_nativeInitInputDeviceManager
+  (JNIEnv *, jobject, jbyteArray, jint, jint);
+
+/*
+ * Class:     net_ctdp_rfdynhud_editor_input_DirectInputConnection
  * Method:    initDirectInputAndStartPolling
  * Signature: ([BII)V
  */
@@ -19,10 +27,10 @@ JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_editor_input_DirectInputConnection
 
 /*
  * Class:     net_ctdp_rfdynhud_editor_input_DirectInputConnection
- * Method:    interruptPolling
+ * Method:    nativeInterruptPolling
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_editor_input_DirectInputConnection_native_nativeInterruptPolling
+JNIEXPORT void JNICALL Java_net_ctdp_rfdynhud_editor_input_DirectInputConnection_nativeInterruptPolling
   (JNIEnv *, jobject);
 
 #ifdef __cplusplus

@@ -7,8 +7,7 @@
 extern "C" {
 #endif
 
-
-
+int cpp_initInputDeviceManager( JNIEnv* env, jobject directInputConnection, jbyteArray jBuffer, jint titleLength, jint bufferLength );
 int cpp_initDirectInputAndStartPolling( JNIEnv* env, jobject directInputConnection, jbyteArray jBuffer, jint titleLength, jint bufferLength );
 void cpp_interruptPolling();
 
