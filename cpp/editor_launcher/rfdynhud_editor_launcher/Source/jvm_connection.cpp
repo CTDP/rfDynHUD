@@ -4,10 +4,17 @@
 #include <jni.h>
 #include "filesystem.h"
 
+static const char* LOG_FILENAME = getLogFilename();
+
+void deleteLogFile()
+{
+    _unlink( LOG_FILENAME );
+}
+
 void logg( const char* message )
 {
     FILE* f;
-    fopen_s( &f, "rfdynhud_editor.log", "a" );
+    fopen_s( &f, LOG_FILENAME, "a" );
     fprintf( f, "%s\n", message );
     fclose( f );
 }

@@ -70,6 +70,19 @@ char* getPluginPath()
     return ( result );
 }
 
+char* getLogFilename()
+{
+    char* buffer = (char*)malloc( MAX_PATH );
+    unsigned int len = getPluginPath_( buffer );
+    
+    memcpy( buffer + len, "\\log\\rfdynhud_editor.log", 25 );
+    
+    char* result = cropBuffer( buffer, len + 25 );
+    free( buffer );
+    
+    return ( result );
+}
+
 unsigned int getConfigPath_( char* buffer )
 {
     unsigned int len = GetModuleFileName( NULL, buffer, MAX_PATH );
