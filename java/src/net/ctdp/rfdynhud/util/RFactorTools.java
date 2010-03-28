@@ -117,6 +117,7 @@ public class RFactorTools
     public static final String RFACTOR_PATH = extractRFactorPath();
     public static final File RFACTOR_FOLDER = new File( RFACTOR_PATH );
     public static final String PLUGIN_PATH = new File( getRFConfigINIPath( RFACTOR_FOLDER, "PluginsDir", "Plugins" ), "rfDynHUD" ).getAbsolutePath();
+    public static final File PLUGIN_FOLDER = new File( PLUGIN_PATH );
     public static final String CONFIG_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "config" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data" + File.separator + "config";
     public static final File IMAGES_FOLDER = new File( CONFIG_PATH + File.separator + "data" + File.separator + "images" );
     public static final String EDITOR_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "editor" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data";

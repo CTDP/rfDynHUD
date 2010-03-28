@@ -10,12 +10,11 @@ import java.io.PrintWriter;
 
 public class Logger
 {
-    private static File LOG_FOLDER = new File( RFactorTools.extractRFactorPath() + File.separator + "Plugins" + File.separator + "rfDynHud" + File.separator + "log" );
+    private static final File LOG_FOLDER = new File( RFactorTools.PLUGIN_FOLDER, "log" );
     private static File LOG_FILE = new File( LOG_FOLDER, "rfdynhud.log" );
     
     static void setEditorMode()
     {
-        LOG_FOLDER = new File( RFactorTools.extractRFactorPath() + File.separator + "Plugins" + File.separator + "rfDynHud" + File.separator + "editor" );
         LOG_FILE = new File( LOG_FOLDER, "rfdynhud_editor.log" );
     }
     
