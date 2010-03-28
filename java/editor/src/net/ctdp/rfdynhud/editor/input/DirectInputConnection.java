@@ -27,8 +27,12 @@ public class DirectInputConnection
         {
             try
             {
+                Logger.log( "Loading library direct_input_connection.dll..." );
+                
                 System.loadLibrary( "direct_input_connection" );
                 libLoaded = true;
+                
+                Logger.log( "Library loaded." );
             }
             catch ( Throwable t )
             {
@@ -57,7 +61,9 @@ public class DirectInputConnection
         
         if ( loadLib() )
         {
+            Logger.log( "Initializing input device and component names..." );
             nativeInitInputDeviceManager( buffer, windowTitle.length(), buffer.length );
+            Logger.log( "Done initializing input device and component names." );
         }
     }
     
@@ -70,7 +76,9 @@ public class DirectInputConnection
     {
         try
         {
+            Logger.log( "Executing request from native library to initialize device and component names..." );
             inputDeviceManager.decodeData( deviceData );
+            Logger.log( "Native request executed." );
         }
         catch ( Throwable t )
         {
