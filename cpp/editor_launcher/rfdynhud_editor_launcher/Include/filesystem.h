@@ -6,6 +6,7 @@ char* cropBuffer2( const char* src );
 
 char* getRFactorPath();
 char* getPluginPath();
+char* getLogFolder();
 char* getLogFilename();
 char* getConfigPath();
 

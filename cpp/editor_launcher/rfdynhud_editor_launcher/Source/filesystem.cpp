@@ -70,6 +70,19 @@ char* getPluginPath()
     return ( result );
 }
 
+char* getLogFolder()
+{
+    char* buffer = (char*)malloc( MAX_PATH );
+    unsigned int len = getPluginPath_( buffer );
+    
+    memcpy( buffer + len, "\\log", 5 );
+    
+    char* result = cropBuffer( buffer, len + 5 );
+    free( buffer );
+    
+    return ( result );
+}
+
 char* getLogFilename()
 {
     char* buffer = (char*)malloc( MAX_PATH );

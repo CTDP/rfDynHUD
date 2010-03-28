@@ -4,10 +4,13 @@
 #include <jni.h>
 #include "filesystem.h"
 
+static const char* LOG_FOLDER = getLogFolder();
 static const char* LOG_FILENAME = getLogFilename();
 
 void deleteLogFile()
 {
+    CreateDirectoryA( LOG_FOLDER, NULL );
+    
     _unlink( LOG_FILENAME );
 }
 
