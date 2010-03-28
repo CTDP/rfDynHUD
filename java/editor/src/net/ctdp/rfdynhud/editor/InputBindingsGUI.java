@@ -25,6 +25,7 @@ import net.ctdp.rfdynhud.editor.input.DirectInputConnection;
 import net.ctdp.rfdynhud.editor.input.InputBindingsColumnModel;
 import net.ctdp.rfdynhud.editor.input.InputBindingsTableModel;
 import net.ctdp.rfdynhud.editor.input.DirectInputConnection.PollingListener;
+import net.ctdp.rfdynhud.util.Logger;
 
 public class InputBindingsGUI implements PollingListener
 {
@@ -52,6 +53,8 @@ public class InputBindingsGUI implements PollingListener
                     break;
             }
         }
+        
+        Logger.log( "Closing InputBindingsManager" );
         
         directInputConnection.interruptPolling();
         frame.dispose();
@@ -216,6 +219,8 @@ public class InputBindingsGUI implements PollingListener
     
     public static void showInputBindingsGUI( RFDynHUDEditor editor )
     {
+        Logger.log( "Opening InputBindingsManager" );
+        
         if ( gui == null )
         {
             gui = new InputBindingsGUI( editor );

@@ -103,6 +103,8 @@ public class EditorPanel extends JPanel
         if ( selectedWidget == null )
             return;
         
+        Logger.log( "Removing selected Widget of type \"" + selectedWidget.getClass().getName() + "\" and name \"" + selectedWidget.getName() + "\"..." );
+        
         selectedWidget.clearRegion( true, overlay );
         drawingManager.removeWidget( selectedWidget );
         setSelectedWidget( null );

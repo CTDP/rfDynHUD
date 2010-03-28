@@ -392,13 +392,7 @@ public class RFDynHUDEditor implements Documented
         {
             if ( writer != null )
             {
-                try
-                {
-                    writer.close();
-                }
-                catch ( Throwable t )
-                {
-                }
+                try { writer.close(); } catch ( Throwable t ) {}
             }
         }
     }
@@ -560,6 +554,8 @@ public class RFDynHUDEditor implements Documented
         }
         catch ( Throwable t )
         {
+            Logger.log( t );
+            
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
     }
@@ -576,7 +572,7 @@ public class RFDynHUDEditor implements Documented
         
         try
         {
-            ConfigurationSaver.saveConfiguration( getEditorPanel().getWidgetsDrawingManager(), currentConfigFile );
+            ConfigurationSaver.saveConfiguration( getEditorPanel().getWidgetsDrawingManager(), gameResX + "x" + gameResY, currentConfigFile );
             
             resetDirtyFlag();
             
@@ -714,6 +710,8 @@ public class RFDynHUDEditor implements Documented
     
     public void switchScreenshotSet( String screenshotSet )
     {
+        Logger.log( "Switching to Screenshot Set \"" + screenshotSet + "\"..." );
+        
         this.screenshotSet = screenshotSet;
         switchToGameResolution( gameResX, gameResY );
     }
@@ -783,6 +781,8 @@ public class RFDynHUDEditor implements Documented
             {
                 try
                 {
+                    Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
+                    
                     //Widget widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
                     Widget widget = (Widget)widgetClazz.getConstructor( String.class ).newInstance( getEditorPanel().getWidgetsDrawingManager().findFreeName( widgetClazz.getSimpleName() ) );
                     getEditorPanel().getWidgetsDrawingManager().addWidget( widget );
@@ -981,6 +981,8 @@ public class RFDynHUDEditor implements Documented
                 {
                     public void actionPerformed( ActionEvent e )
                     {
+                        Logger.log( "Switching to resolution " + dm2.w + "x" + dm2.h + "..." );
+                        
                         switchToGameResolution( dm2.w, dm2.h );
                     }
                 } );

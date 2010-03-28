@@ -3,6 +3,7 @@ package net.ctdp.rfdynhud.editor.util;
 import java.io.File;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
@@ -12,11 +13,16 @@ import org.jagatoo.util.ini.IniWriter;
 
 public class ConfigurationSaver
 {
-    public static void saveConfiguration( WidgetsConfiguration widgetsConfig, File out ) throws IOException
+    public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, File out ) throws IOException
     {
         final IniWriter writer = new IniWriter( out );
         writer.setMinEqualSignPosition( 25 );
         writer.setMinCommentPosition( 45 );
+        
+        writer.writeGroup( "Meta" );
+        writer.writeSetting( "rfDynHUD_Version", RFDynHUD.VERSION.toString() );
+        if ( designResultion != null )
+            writer.writeSetting( "Design_Resolution", designResultion );
         
         writer.writeGroup( "NamedColors" );
         for ( String name : widgetsConfig.getColorNames() )
