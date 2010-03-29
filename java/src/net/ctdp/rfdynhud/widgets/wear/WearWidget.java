@@ -558,7 +558,7 @@ public class WearWidget extends Widget
                     engineLifetime.update( ( lifetime + hundredPercentBase - physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage ) ) / hundredPercentBase );
                     break;
             }
-            lifetime = Math.max( -physics.getEngine().getLifetimeVarianceHalfRange( raceLengthPercentage ), lifetime );
+            lifetime = Math.max( -physics.getEngine().getLifetimeVarianceRange( raceLengthPercentage ), lifetime );
             
             if ( needsCompleteRedraw || engineLifetime.hasChanged() )
             {
