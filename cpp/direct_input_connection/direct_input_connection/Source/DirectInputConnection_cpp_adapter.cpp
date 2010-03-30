@@ -135,7 +135,7 @@ int cpp_initDirectInputAndStartPolling( JNIEnv* env, jobject directInputConnecti
     char* windowTitle = (char*)malloc( 1024 );
     jboolean isCopy;
     char* buffer = (char*)env->GetPrimitiveArrayCritical( jBuffer, &isCopy );
-    memcpy( windowTitle, buffer, (unsigned int)titleLength );
+    memcpy( windowTitle, buffer, (unsigned int)titleLength + 1 );
     env->ReleasePrimitiveArrayCritical( jBuffer, buffer, 0 );
     
     //std::cout << windowTitle << "\n"; std::cout.flush();
@@ -147,7 +147,7 @@ int cpp_initDirectInputAndStartPolling( JNIEnv* env, jobject directInputConnecti
     if ( result > 0 )
     {
         buffer = (char*)env->GetPrimitiveArrayCritical( jBuffer, &isCopy );
-        memcpy( buffer, windowTitle, result );
+        memcpy( buffer, windowTitle, result + 1 );
         env->ReleasePrimitiveArrayCritical( jBuffer, buffer, 0 );
         
         notifyOnInputEventReceived( env, directInputConnection, jBuffer, result );
