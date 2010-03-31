@@ -40,6 +40,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.html.HTMLDocument;
 
+import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.editor.help.AboutPage;
+import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
@@ -92,7 +95,7 @@ public class RFDynHUDEditor implements Documented
         }
     }
     
-    private static final String BASE_WINDOW_TITLE = "RFactor dynamic HUD Editor";
+    private static final String BASE_WINDOW_TITLE = "RFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
     
     private LiveGameData gameData;
     
@@ -100,6 +103,8 @@ public class RFDynHUDEditor implements Documented
     private int gameResY;
     
     private String screenshotSet = "default";
+    
+    private boolean alwaysShowHelpOnStartup = true;
     
     private final JFrame window;
     private final EditorPanel editorPanel;
@@ -369,6 +374,7 @@ public class RFDynHUDEditor implements Documented
             writer.writeSetting( "windowSize", getMainWindow().getWidth() + "x" + getMainWindow().getHeight() );
             writer.writeSetting( "windowState", extendedState );
             writer.writeSetting( "screenshotSet", screenshotSet );
+            writer.writeSetting( "alwaysShowHelpOnStartup", alwaysShowHelpOnStartup );
             
             if ( ( currentConfigFile != null ) && currentConfigFile.exists() )
             {
@@ -472,6 +478,10 @@ public class RFDynHUDEditor implements Documented
                     {
                         screenshotSet = value;
                     }
+                    else if ( key.equals( "alwaysShowHelpOnStartup" ) )
+                    {
+                        alwaysShowHelpOnStartup = Boolean.parseBoolean( value );
+                    }
                     
                     return ( true );
                 }
@@ -479,7 +489,7 @@ public class RFDynHUDEditor implements Documented
         }
         catch ( Throwable t )
         {
-            t.printStackTrace();
+            Logger.log( t );
         }
         
         return ( true );
@@ -718,8 +728,8 @@ public class RFDynHUDEditor implements Documented
     
     private JMenu createFileMenu()
     {
-        JMenu file = new JMenu( "File" );
-        file.setDisplayedMnemonicIndex( 0 );
+        JMenu menu = new JMenu( "File" );
+        menu.setDisplayedMnemonicIndex( 0 );
         
         JMenuItem open = new JMenuItem( "Open...", 0 );
         open.addActionListener( new ActionListener()
@@ -729,9 +739,9 @@ public class RFDynHUDEditor implements Documented
                 openConfig();
             }
         } );
-        file.add( open );
+        menu.add( open );
         
-        file.add( new JSeparator() );
+        menu.add( new JSeparator() );
         
         JMenuItem save = new JMenuItem( "Save", 0 );
         save.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_S, InputEvent.CTRL_MASK ) );
@@ -742,7 +752,7 @@ public class RFDynHUDEditor implements Documented
                 saveConfig();
             }
         } );
-        file.add( save );
+        menu.add( save );
         
         JMenuItem saveAs = new JMenuItem( "Save As...", 5 );
         saveAs.addActionListener( new ActionListener()
@@ -752,9 +762,9 @@ public class RFDynHUDEditor implements Documented
                 saveConfigAs();
             }
         } );
-        file.add( saveAs );
+        menu.add( saveAs );
         
-        file.add( new JSeparator() );
+        menu.add( new JSeparator() );
         
         JMenuItem close = new JMenuItem( "Close", 0 );
         close.addActionListener( new ActionListener()
@@ -764,9 +774,9 @@ public class RFDynHUDEditor implements Documented
                 onCloseRequested();
             }
         } );
-        file.add( close );
+        menu.add( close );
         
-        return ( file );
+        return ( menu );
     }
     
     private JMenuItem createWidgetMenuItem( final Class<?> clazz )
@@ -801,18 +811,18 @@ public class RFDynHUDEditor implements Documented
     
     private JMenu createWidgetsMenu()
     {
-        JMenu widgetsMenu = new JMenu( "Widgets" );
-        widgetsMenu.setDisplayedMnemonicIndex( 0 );
+        JMenu menu = new JMenu( "Widgets" );
+        menu.setDisplayedMnemonicIndex( 0 );
         
         List<String> packages = PackageSearcher.findPackages( "*widgets*" );
         List<Class<?>> classes = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ), packages.toArray( new String[ packages.size() ] ) );
         
         for ( Class<?> clazz : classes )
         {
-            widgetsMenu.add( createWidgetMenuItem( clazz ) );
+            menu.add( createWidgetMenuItem( clazz ) );
         }
         
-        widgetsMenu.add( new JSeparator() );
+        menu.add( new JSeparator() );
         
         JMenuItem removeItem = new JMenuItem( "Remove selected Widget" );
         removeItem.addActionListener( new ActionListener()
@@ -824,9 +834,9 @@ public class RFDynHUDEditor implements Documented
             }
         } );
         
-        widgetsMenu.add( removeItem );
+        menu.add( removeItem );
         
-        return ( widgetsMenu );
+        return ( menu );
     }
     
     private static class DM implements Comparable<DM>
@@ -905,7 +915,7 @@ public class RFDynHUDEditor implements Documented
     
     private JMenu createScreenshotSetsMenu()
     {
-        JMenu sssMenu = new JMenu( "Screenshot Set" );
+        JMenu menu = new JMenu( "Screenshot Set" );
         
         File root = new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" );
         for ( File f : root.listFiles() )
@@ -921,11 +931,11 @@ public class RFDynHUDEditor implements Documented
                     }
                 } );
                 
-                sssMenu.add( mi );
+                menu.add( mi );
             }
         }
         
-        return ( sssMenu );
+        return ( menu );
     }
     
     private JMenu createResolutionsMenu()
@@ -996,8 +1006,8 @@ public class RFDynHUDEditor implements Documented
     
     private JMenu createInputMenu()
     {
-        JMenu widgetsMenu = new JMenu( "Input" );
-        widgetsMenu.setDisplayedMnemonicIndex( 0 );
+        JMenu menu = new JMenu( "Input" );
+        menu.setDisplayedMnemonicIndex( 0 );
         
         JMenuItem manangerItem = new JMenuItem( "Open InputBindingsManager..." );
         manangerItem.addActionListener( new ActionListener()
@@ -1008,15 +1018,15 @@ public class RFDynHUDEditor implements Documented
             }
         } );
         
-        widgetsMenu.add( manangerItem );
+        menu.add( manangerItem );
         
-        return ( widgetsMenu );
+        return ( menu );
     }
     
     private JMenu createToolsMenu()
     {
-        JMenu widgetsMenu = new JMenu( "Tools" );
-        widgetsMenu.setDisplayedMnemonicIndex( 0 );
+        JMenu menu = new JMenu( "Tools" );
+        menu.setDisplayedMnemonicIndex( 0 );
         
         JMenuItem manangerItem = new JMenuItem( "Open Strategy Calculator..." );
         manangerItem.addActionListener( new ActionListener()
@@ -1027,9 +1037,41 @@ public class RFDynHUDEditor implements Documented
             }
         } );
         
-        widgetsMenu.add( manangerItem );
+        menu.add( manangerItem );
         
-        return ( widgetsMenu );
+        return ( menu );
+    }
+    
+    private JMenu createHelpMenu()
+    {
+        JMenu menu = new JMenu( "Help" );
+        menu.setDisplayedMnemonicIndex( 0 );
+        
+        JMenuItem help = new JMenuItem( "Help" );
+        help.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( RFDynHUDEditor.this.window, alwaysShowHelpOnStartup ).getAlwaysShowOnStartup();
+            }
+        } );
+        
+        menu.add( help );
+        
+        menu.addSeparator();
+        
+        JMenuItem about = new JMenuItem( "About" );
+        about.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                AboutPage.showAboutPage( RFDynHUDEditor.this.window );
+            }
+        } );
+        
+        menu.add( about );
+        
+        return ( menu );
     }
     
     private void createMenu()
@@ -1041,6 +1083,7 @@ public class RFDynHUDEditor implements Documented
         menuBar.add( createResolutionsMenu() );
         menuBar.add( createInputMenu() );
         menuBar.add( createToolsMenu() );
+        menuBar.add( createHelpMenu() );
         
         window.setJMenuBar( menuBar );
     }
@@ -1190,7 +1233,7 @@ public class RFDynHUDEditor implements Documented
         {
             //Logger.setStdStreams();
             
-            RFDynHUDEditor editor = new RFDynHUDEditor();
+            final RFDynHUDEditor editor = new RFDynHUDEditor();
             
             GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
             DisplayMode dm = graphDev.getDisplayMode();
@@ -1220,6 +1263,24 @@ public class RFDynHUDEditor implements Documented
             
             editor.eventsManager.onSessionStarted( true );
             editor.eventsManager.onRealtimeEntered( true );
+            
+            editor.getMainWindow().addWindowListener( new WindowAdapter()
+            {
+                private boolean shot = false;
+                
+                public void windowOpened( WindowEvent e )
+                {
+                    if ( shot )
+                        return;
+                    
+                    if ( editor.alwaysShowHelpOnStartup )
+                    {
+                        editor.alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( editor.window, true ).getAlwaysShowOnStartup();
+                    }
+                    
+                    shot = true;
+                }
+            } );
             
             editor.getMainWindow().setVisible( true );
             

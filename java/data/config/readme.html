@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+    
+    <title>rfDynHUD ReadMe</title>
+    
+    <style type="text/css">
+        p, li
+        {
+            font: Verdana 12pt normal;
+        }
+    </style>
+    
+</head>
+
+<body>
+
+<p style="margin-top: 0;">
+The &quot;config&quot; folder contains rfDynHUD configuration files.
+</p>
+
+<p>
+The plugin supports individual configurations for each mod, car and session and even specific ones for being in the garage.
+If no specific configurations are found, the default configuration will be used. This default configuration is expected in
+the &quot;config&quot; folder under the name &quot;overlay.ini&quot;. Use the editor to create a valid configuration of your
+preference.
+</p>
+
+<p>
+Mod-specific configurations are searched for in subfolders named like the mod. So if you want to create a specific config for the
+&quot;F1CTDP06&quot; mod, you have to save the config file in a subfolder of the config folder called &quot;F1CTDP06&quot;
+and config file is to be named &quot;overlay.ini&quot;.
+</p>
+
+<p>
+If you want to use an individual configuration for a car, which's class is called &quot;CarClass&quot; of the Mod &quot;MyMod&quot;,
+the config file must be stored as &quot;MyMod\overlay_CarClass.ini&quot;.
+</p>
+
+<p>
+To use session-type specific configurations, you have to insert the session type identifier into the name as the last part.<br />
+Valid identifiers are:
+<ul>
+    <li>TEST_DAY</li>
+    <li>PRACTICE1</li>
+    <li>PRACTICE2</li>
+    <li>PRACTICE3</li>
+    <li>PRACTICE4</li>
+    <li>PRACTICE</li>
+    <li>QUALIFYING</li>
+    <li>WARMUP</li>
+    <li>RACE</li>
+</ul>
+PRACTICE is a wildcard for PREACTICE1, PRACTICE2, etc.
+</p>
+
+<p>
+Please refer to the log file to know the names of the mod and car, if you don't already know them.
+</p>
+
+<p>
+The search order, if the mod is &quot;F1CTDP06&quot; and the car is &quot;F1 2006&quot; and the session type is &quot;PRACTICE3&quot;,
+is the following:
+<ol>
+    <li>F1CTDP06\overlay_garage_F1 2006_PRACTICE3.ini</li>
+    <li>F1CTDP06\overlay_garage_F1 2006_PRACTICE.ini</li>
+    <li>F1CTDP06\overlay_garage_PRACTICE3.ini</li>
+    <li>F1CTDP06\overlay_garage_PRACTICE.ini</li>
+    <li>overlay_garage_PRACTICE3.ini</li>
+    <li>overlay_garage_PRACTICE.ini</li>
+    <li>F1CTDP06\overlay_garage_F1 2006.ini</li>
+    <li>F1CTDP06\overlay_garage.ini</li>
+    <li>overlay_garage.ini</li>
+    <li>F1CTDP06\overlay_F1 2006_PRACTICE3.ini</li>
+    <li>F1CTDP06\overlay_F1 2006_PRACTICE.ini</li>
+    <li>F1CTDP06\overlay_PRACTICE3.ini</li>
+    <li>F1CTDP06\overlay_PRACTICE.ini</li>
+    <li>overlay_PRACTICE3.ini</li>
+    <li>overlay_PRACTICE.ini</li>
+    <li>F1CTDP06\overlay_F1 2006.ini</li>
+    <li>F1CTDP06\overlay.ini</li>
+    <li>overlay.ini</li>
+</ol>
+
+The &quot;_garage&quot; block is skipped, when leaving the garage.
+</p>
+
+<p>
+If none of them could be found, the built-in factory default configuration is used. 
+</p>
+
+<p>
+Unfortunately we had to use a unique vehicle class for all cars for the &quot;CTDP F1 2006&quot; mod. So this mod doesn't support
+special configurations for any car.
+</p>
+
+<p>
+The &quot;config&quot; folder also contains the three letter codes configuration file used by the StandingsWidget and others.
+This file keeps mappings for known driver names to short forms (not necessarily 3 letters), that can be displayed instead
+to save some room on the screen. The file is accessed as &quot;three_letter_codes.ini&quot; and has entries of the form:
+<pre>
+Rubens Barrichello=BAR
+Michael Schumacher=Mich
+</pre>
+</p>
+
+<p>
+Another file, searched for in this folder, is the &quot;input_bindings.ini&quot;.
+It keeps mappings of key-strokes or button-presses to input actions on named Widgets.
+Use the InputBindingsManager from within the editor to generate and maintain that file.
+</p>
+
+</body>
+
+</html>
