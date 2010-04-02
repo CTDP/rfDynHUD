@@ -28,7 +28,14 @@ public class AboutPage extends JDialog
     private Component createInfoPanel()
     {
         StringBuilder sb = new StringBuilder( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" );
-        sb.append( "<html>\n<head><title>About rfDynHUD Editor</title></head>\n<body>\n" );
+        sb.append( "<html>\n");
+        sb.append( "<head>\n");
+        sb.append( "<title>About rfDynHUD Editor</title>\n");
+        sb.append( "<style type=\"text/css\">\n");
+        sb.append( "p, li { font-family: Arial; font-size: 12pt; }\n");
+        sb.append( "</style>\n");
+        sb.append( "</head>\n");
+        sb.append( "<body>\n" );
         sb.append( "<html>\n<body>\n" );
         
         sb.append( "<p style=\"margin-top: 0;\">" );
@@ -36,7 +43,8 @@ public class AboutPage extends JDialog
         sb.append( "</p>" );
         
         sb.append( "<p>" );
-        sb.append( "Copyright by CTDP, Author: Marvin Fr&ouml;hlich" );
+        sb.append( "Copyright &copy; by CTDP, Author: Marvin Fr&ouml;hlich<br />" );
+        sb.append( "Special Thanks to Marcel Offermans" );
         sb.append( "</p>" );
         
         sb.append( "<p>" );
@@ -58,7 +66,7 @@ public class AboutPage extends JDialog
     
     public AboutPage( JFrame parent )
     {
-        super( parent, "About rfDynHUD Editor", true );
+        super( parent, "About rfDynHUD (Editor)", true );
         
         JPanel cp = (JPanel)this.getContentPane();
         

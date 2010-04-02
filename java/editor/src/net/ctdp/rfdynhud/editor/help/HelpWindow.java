@@ -59,7 +59,7 @@ public class HelpWindow extends JDialog
     
     public HelpWindow( JFrame parent, boolean alwaysShowOnStartup )
     {
-        super( parent, "rfDynHUD Editor Help", true );
+        super( parent, "rfDynHUD (Editor) Help", true );
         
         JPanel cp = (JPanel)this.getContentPane();
         

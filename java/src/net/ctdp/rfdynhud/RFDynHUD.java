@@ -23,7 +23,7 @@ import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 0, 0, "BETA2", 65 );
+    public static final Version VERSION = new Version( 1, 0, 0, "BETA7", 66 );
     
     public static final int FLAG_CONFIGURATION_RELOADED = 0;
     

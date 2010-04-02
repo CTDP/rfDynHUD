@@ -1,6 +1,10 @@
-package net.ctdp.rfdynhud.editor;
+package net.ctdp.rfdynhud.editor.input;
 
 import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
@@ -12,6 +16,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.DefaultListSelectionModel;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -19,29 +25,29 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.border.BevelBorder;
 
-import net.ctdp.rfdynhud.editor.input.DirectInputConnection;
-import net.ctdp.rfdynhud.editor.input.InputBindingsColumnModel;
-import net.ctdp.rfdynhud.editor.input.InputBindingsTableModel;
-import net.ctdp.rfdynhud.editor.input.DirectInputConnection.PollingListener;
+import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.StringUtil;
 
-public class InputBindingsGUI implements PollingListener
+public class InputBindingsGUI implements DirectInputConnection.PollingListener
 {
     private static InputBindingsGUI gui = null;
     
     private final DirectInputConnection directInputConnection;
-    private final JFrame frame;
+    private final JDialog frame;
     private int pollingRow = -1;
     private final InputBindingsTableModel inputBindingsTableModel;
     private AWTEventListener listener;
     
-    private boolean dirtyFlag = false;
+    private JScrollPane helpSP;
     
     private void close()
     {
-        if ( dirtyFlag )
+        if ( inputBindingsTableModel.getDirtyFlag() )
         {
             switch ( JOptionPane.showConfirmDialog( frame, "Do you want to save changes?", "Input bindings", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE ) )
             {
@@ -49,7 +55,6 @@ public class InputBindingsGUI implements PollingListener
                     return;
                 case JOptionPane.YES_OPTION:
                     inputBindingsTableModel.saveBindings( directInputConnection.getInputDeviceManager() );
-                    dirtyFlag = false;
                     break;
             }
         }
@@ -72,7 +77,6 @@ public class InputBindingsGUI implements PollingListener
         inputBindingsTableModel.fireTableCellUpdated( pollingRow, 2 );
         inputBindingsTableModel.setInputPollingRow( -1, pollingRow );
         pollingRow = -1;
-        dirtyFlag = true;
     }
     
     private JMenu createFileMenu()
@@ -99,10 +103,9 @@ public class InputBindingsGUI implements PollingListener
         {
             public void actionPerformed( ActionEvent e )
             {
-                if ( dirtyFlag )
+                if ( inputBindingsTableModel.getDirtyFlag() )
                 {
                     inputBindingsTableModel.saveBindings( directInputConnection.getInputDeviceManager() );
-                    dirtyFlag = false;
                 }
             }
         } );
@@ -123,7 +126,7 @@ public class InputBindingsGUI implements PollingListener
         return ( file );
     }
     
-    private void createMenu( JFrame frame )
+    private void createMenu( JDialog frame )
     {
         JMenuBar menuBar = new JMenuBar();
         
@@ -132,17 +135,47 @@ public class InputBindingsGUI implements PollingListener
         frame.setJMenuBar( menuBar );
     }
     
+    private Component createHelpPanel()
+    {
+        String s = "Unable to load readme";
+        try
+        {
+            s = StringUtil.loadString( InputBindingsGUI.class.getClassLoader().getResource( InputBindingsGUI.class.getPackage().getName().replace( '.', '/' ) + "/documentation.html" ) );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+        
+        JEditorPane p = new JEditorPane( "text/html", s );
+        p.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
+        p.setEditable( false );
+        
+        helpSP = new JScrollPane( p );
+        
+        helpSP.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
+        
+        return ( helpSP );
+    }
+    
     private InputBindingsGUI( RFDynHUDEditor editor )
     {
-        this.frame = new JFrame( "rfDynHUD InputBindingsManager" );
+        this.frame = new JDialog( editor.getMainWindow(), "rfDynHUD InputBindingsManager" );
         
-        frame.setSize( 600, 480 );
+        frame.setSize( 900, 480 );
         
         frame.setLocationRelativeTo( editor.getMainWindow() );
         
         createMenu( frame );
         
         this.directInputConnection = new DirectInputConnection( editor.getMainWindow().getTitle() );
+        
+        Container contentPane = frame.getContentPane();
+        contentPane.setLayout( new BorderLayout( 5, 5 ) );
+        
+        JSplitPane split = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
+        split.setDividerLocation( frame.getSize().width - 300 );
+        split.setResizeWeight( 1 );
         
         /*
         JButton b = new JButton( "Poll input" );
@@ -168,7 +201,7 @@ public class InputBindingsGUI implements PollingListener
             {
                 if ( e.getClickCount() == 2 )
                 {
-                    if ( ( table.getSelectedColumn() == 2 ) && ( table.getSelectedRow() < table.getRowCount() - 1 ) )
+                    if ( ( table.getSelectedColumn() == 2 ) && table.isCellEditable( table.getSelectedRow(), 2 ) && ( table.getSelectedRow() < table.getRowCount() - 1 ) )
                     {
                         if ( !directInputConnection.isPolling() )
                         {
@@ -181,7 +214,11 @@ public class InputBindingsGUI implements PollingListener
             }
         } );
         
-        frame.getContentPane().add( new JScrollPane( table ) );
+        split.add( new JScrollPane( table ) );
+        
+        split.add( createHelpPanel() );
+        
+        contentPane.add( split, BorderLayout.CENTER );
         
         this.listener = new AWTEventListener()
         {
@@ -225,6 +262,22 @@ public class InputBindingsGUI implements PollingListener
         {
             gui = new InputBindingsGUI( editor );
         }
+        
+        gui.frame.addWindowListener( new WindowAdapter()
+        {
+            private boolean shot = false;
+            
+            public void windowOpened( WindowEvent e )
+            {
+                if ( shot )
+                    return;
+                
+                //gui.frame.pack();
+                gui.helpSP.getVerticalScrollBar().setValue( 0 );
+                
+                shot = true;
+            }
+        } );
         
         gui.frame.setVisible( true );
     }

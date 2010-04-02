@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+    
+    <title>rfDynHUD InputBindingsManager help</title>
+    
+    <style type="text/css">
+        p, li
+        {
+            font-family: Arial;
+            font-size: 15pt;
+        }
+    </style>
+    
+</head>
+
+<body>
+
+<p style="margin-top: 0;">
+<strong>General</strong><br />
+The <i>InputBindingsManager</i> serves to define key and button mappings to <i>InputAction</i>s.
+</p>
+
+<p>
+An InputAction is either global and applicable to all Widget types or even the whole plugin or it is
+specific to a certain Widget type. It should be fairly simple to see, which actions belong to a certain
+Widget type and which are global ones. Widget specific actions won't allow for typing a Widget name in the
+first column and will display an uneditable &quot;GLOBAL&quot; in that cell. Always read the Widgets'
+documentations to know better about this.
+</p>
+
+<p>
+A non-global <i>InputAction</i> is triggered on a Widget in the currently active configuration. For example
+if you map a button on your steering wheel to the <i>ToggleWidgetVisibility</i> action, it is triggered on the
+Widget identified by the name denoted under the &quot;Widget Name&quot; column. If the current configuration
+contains a Widget with that name, this Widget's visibility is toggled when the button is pressed. If the
+current configuration doesn't know a widget by that name, nothing happens.
+</p>
+
+<p>
+<strong>Reusability across configurations</strong><br />
+If there is a mapping to an <i>InputAction</i> on a Widget called &quot;MyWidget&quot;, this mapping affects
+all Widgets by that name in all configurations. So all these mappings are not private to the currently loaded
+configuration, but apply to any configuration, that is loaded in-game.
+</p>
+
+<p>
+<strong>Creating a new mapping</strong><br />
+To create a new mapping you just have to either type a Widget's name in the left-most cell of the last row,
+or select an action in that row.
+</p>
+
+<p>
+<strong>Mapping a key or button</strong><br />
+To do this simply doubleclick the third cell in the row to be modified. The cell's contents will change to
+&quot;[Press a key or button]&quot;. Do, what you're told and you're through.
+</p>
+
+<p>
+<strong>Removing a mapping</strong><br />
+Either set the Widget name to an empty string or set the <i>InputAction</i> to &quot;[No Action]&quot;
+and the mapping will not be saved and will have disappeared when you next enter the <i>InputBindingsManager</i>.
+</p>
+
+<p>
+<strong>Double mappings</strong><br />
+It is possible to map one key or button to more than one <i>InputAction</i>. This is important for two reasons.<br />
+1. You might want to trigger more than one action at a time by that key or button.<br />
+2. You may want to do one thing in one configuration and something else in another configuration.
+</p>
+
+</body>
+
+</html>

@@ -1,6 +1,8 @@
 package net.ctdp.rfdynhud.editor.input;
 
 import java.awt.Component;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
@@ -17,6 +19,7 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
     
     private static InputAction[] knownActions = KnownInputActions.getAll();
     
+    private JTable lastTable = null;
     private JComboBox combo = null;
     
     private void initCombo()
@@ -25,6 +28,8 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
             return;
         
         combo = new JComboBox();
+        
+        combo.addItem( "[No Action]" );
         
         for ( InputAction action : knownActions )
         {
@@ -36,44 +41,44 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
     {
         initCombo();
         
-        InputAction action = (InputAction)value;
+        combo.setSelectedIndex( 0 );
         
-        combo.setSelectedIndex( -1 );
-        
-        if ( action != null )
+        if ( value instanceof InputAction )
         {
+            InputAction action = (InputAction)value;
+            
             for ( int i = 0; i < knownActions.length; i++ )
             {
                 if ( action == knownActions[i] )
                 {
-                    combo.setSelectedIndex( i );
+                    combo.setSelectedIndex( i + 1 );
                     break;
                 }
             }
         }
+        
+        this.lastTable = table;
         
         return ( combo );
     }
     
-    public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
+    public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, final int row, final int column )
     {
-        initCombo();
+        final JComboBox combo = (JComboBox)getTableCellRendererComponent( table, value, isSelected, false, row, column );
         
-        InputAction action = (InputAction)value;
-        
-        combo.setSelectedIndex( -1 );
-        
-        if ( action != null )
+        combo.addItemListener( new ItemListener()
         {
-            for ( int i = 0; i < knownActions.length; i++ )
+            @Override
+            public void itemStateChanged( ItemEvent e )
             {
-                if ( action == knownActions[i] )
+                if ( e.getStateChange() == ItemEvent.SELECTED )
                 {
-                    combo.setSelectedIndex( i );
-                    break;
+                    lastTable.getModel().setValueAt( e.getItem(), row, column );
+                    stopCellEditing();
+                    combo.removeItemListener( this );
                 }
             }
-        }
+        } );
         
         return ( combo );
     }

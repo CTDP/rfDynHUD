@@ -19,6 +19,8 @@ public class DeviceComponentEditor extends AbstractCellEditor implements TableCe
         
         JLabel label = new JLabel( str );
         
+        label.setEnabled( table.getModel().isCellEditable( row, column ) );
+        
         return ( label );
     }
     
