@@ -365,6 +365,16 @@ public class Position
         bakedY = tmpY;
     }
     
+    public final boolean isXPercentageValue()
+    {
+        return ( ( x < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( x > PERCENT_OFFSET_CHECK_POSITIVE ) );
+    }
+    
+    public final boolean isYPercentageValue()
+    {
+        return ( ( y < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( y > PERCENT_OFFSET_CHECK_POSITIVE ) );
+    }
+    
     public Position flipXPercentagePx()
     {
         if ( Math.abs( x ) < PERCENT_OFFSET_CHECK_POSITIVE )

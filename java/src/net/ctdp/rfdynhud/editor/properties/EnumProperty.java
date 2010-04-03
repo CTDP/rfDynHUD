@@ -25,7 +25,8 @@ public class EnumProperty<E extends Enum<E>> extends Property
         E oldValue = this.value;
         this.value = value;
         
-        widget.forceAndSetDirty();
+        if ( widget != null )
+            widget.forceAndSetDirty();
         
         onValueChanged( oldValue, value );
     }

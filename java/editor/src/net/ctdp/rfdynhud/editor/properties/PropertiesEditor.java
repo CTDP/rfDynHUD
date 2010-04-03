@@ -1,39 +1,37 @@
 package net.ctdp.rfdynhud.editor.properties;
 
-import java.awt.Component;
+import java.util.ArrayList;
 
-import javax.swing.JScrollPane;
-import javax.swing.table.DefaultTableModel;
-
-
-import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
-import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableColumnModel;
-import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 
 /**
  * 
  * @author Marvin Froehlich
  */
-public class PropertiesEditor extends DefaultTableModel
+public class PropertiesEditor
 {
     private static final long serialVersionUID = -1723298567515621091L;
     
-    private final RFDynHUDEditor editor;
-    
-    private final EditorTable table;
-    private final JScrollPane scrollPane;
-    
     private FlaggedList properties;
     
-    public final Component getGUI()
+    private final ArrayList<PropertyChangeListener> changeListeners = new ArrayList<PropertyChangeListener>();
+    
+    public void addChangeListener( PropertyChangeListener l )
     {
-        return ( scrollPane );
+        changeListeners.add( l );
     }
     
-    public final EditorTable getTable()
+    public void removeChangeListener( PropertyChangeListener l )
     {
-        return ( table );
+        changeListeners.remove( l );
+    }
+    
+    void invokeChangeListeners( Property property, Object oldValue, Object newValue, int row, int column )
+    {
+        for ( int i = 0; i < changeListeners.size(); i++ )
+        {
+            changeListeners.get( i ).onPropertyChanged( property, oldValue, newValue, row, column );
+        }
     }
     
     public void clear()
@@ -56,6 +54,7 @@ public class PropertiesEditor extends DefaultTableModel
         properties.add( props );
     }
     
+    /*
     public Property getProperty( int row )
     {
         Object obj = properties.get( row );
@@ -65,90 +64,12 @@ public class PropertiesEditor extends DefaultTableModel
         
         return ( null );
     }
+    */
     
-    public int getRowCount()
-    {
-        if ( properties == null )
-            return ( 0 );
-        
-        return ( properties.size() );
-    }
-    
-    public int getColumnCount()
-    {
-        return ( 2 );
-    }
-    
-    @Override
-    public String getColumnName( int column )
-    {
-        return ( null );
-    }
-    
-    private static final boolean needsAreaClear( Property p )
-    {
-        if ( p.getPropertyName().equals( "x" ) )
-            return ( true );
-        
-        if ( p.getPropertyName().equals( "y" ) )
-            return ( true );
-        
-        if ( p.getPropertyName().equals( "width" ) )
-            return ( true );
-        
-        if ( p.getPropertyName().equals( "height" ) )
-            return ( true );
-        
-        if ( p.getPropertyName().equals( "initialVisibility" ) )
-            return ( true );
-        
-        return ( false );
-    }
-    
-    @Override
-    public void setValueAt( Object value, int row, int column )
-    {
-        if ( column == 2 )
-        {
-            Property prop = getProperty( row );
-            if ( prop != null )
-            {
-                if ( needsAreaClear( prop ) )
-                    editor.getEditorPanel().clearSelectedWidget();
-                
-                prop.setValue( value );
-                
-                editor.getEditorPanel().repaint();
-            }
-        }
-    }
-    
-    @Override
-    public Object getValueAt( int row, int column )
-    {
-        if ( column == 0 )
-            return ( getProperty( row ).getNameForDisplay() );
-        
-        return ( getProperty( row ).getValue() );
-    }
-    
-    public void apply()
-    {
-        ( (HierarchicalTableModel)table.getModel() ).apply( null, (HierarchicalTableColumnModel)table.getColumnModel() );
-    }
-    
-    public PropertiesEditor( RFDynHUDEditor editor )
+    public PropertiesEditor()
     {
         super();
         
-        this.editor = editor;
-        
         this.properties = new FlaggedList( "properties::" );
-        
-        this.table = new EditorTable( editor, properties );
-        table.setRowHeight( 20 );
-        this.scrollPane = new JScrollPane( table );
-        scrollPane.getViewport().setBackground( java.awt.Color.WHITE );
-        scrollPane.getVerticalScrollBar().setUnitIncrement( 10 );
     }
 }

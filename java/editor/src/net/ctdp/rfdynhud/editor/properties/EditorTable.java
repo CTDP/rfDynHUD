@@ -1,15 +1,21 @@
 package net.ctdp.rfdynhud.editor.properties;
 
+import java.util.ArrayList;
+
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
+import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableColumnModel;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueAccessor;
+import net.ctdp.rfdynhud.util.Tools;
 
 
 /**
@@ -21,6 +27,9 @@ public class EditorTable extends HierarchicalTable
     private static final long serialVersionUID = 3238244155847132182L;
     
     private final RFDynHUDEditor editor;
+    private final PropertiesEditor propsEditor;
+    
+    private final ArrayList<PropertySelectionListener> selectionListeners = new ArrayList<PropertySelectionListener>();
     
     public final RFDynHUDEditor getRFDynHUDEditor()
     {
@@ -41,6 +50,16 @@ public class EditorTable extends HierarchicalTable
     private final ImageNameCellEditor imageEditor = new ImageNameCellEditor();
     private final BorderCellEditor borderEditor = new BorderCellEditor();
     */
+    
+    public void addPropertySelectionListener( PropertySelectionListener l )
+    {
+        selectionListeners.add( l );
+    }
+    
+    public void removePropertySelectionListener( PropertySelectionListener l )
+    {
+        selectionListeners.remove( l );
+    }
     
     @Override
     public TableCellRenderer getDataCellRenderer( int row, int column )
@@ -148,33 +167,9 @@ public class EditorTable extends HierarchicalTable
         return ( super.getCellEditor( row, column ) );
     }
     
-    /*
-    public EditorTable( TableModel model )
+    public void apply()
     {
-        super( model );
-        
-        this.setTableHeader( null );
-    }
-    */
-    
-    private static final boolean needsAreaClear( Property p )
-    {
-        if ( p.getPropertyName().equals( "x" ) )
-            return ( true );
-        
-        if ( p.getPropertyName().equals( "y" ) )
-            return ( true );
-        
-        if ( p.getPropertyName().equals( "width" ) )
-            return ( true );
-        
-        if ( p.getPropertyName().equals( "height" ) )
-            return ( true );
-        
-        if ( p.getPropertyName().equals( "initialVisibility" ) )
-            return ( true );
-        
-        return ( false );
+        ( (HierarchicalTableModel)this.getModel() ).apply( null, (HierarchicalTableColumnModel)this.getColumnModel() );
     }
     
     private static ValueAccessor acc = new ValueAccessor()
@@ -182,17 +177,28 @@ public class EditorTable extends HierarchicalTable
         @Override
         public void setValue( JTable table, TableModel model, Object prop, int index, Object newValue )
         {
+            Property property = (Property)prop;
+            
             Object oldValue = getValue( table, model, prop, index );
-            if ( ( oldValue == newValue ) || oldValue.equals( newValue ) )
+            if ( Tools.objectsEqual( oldValue, newValue ) )
                 return;
             
-            if ( EditorTable.needsAreaClear( (Property)prop ) )
-                ( (EditorTable)table ).editor.getEditorPanel().clearSelectedWidget();
+            final RFDynHUDEditor editor = ( (EditorTable)table ).editor;
             
-            ( (Property)prop ).setValue( newValue );
+            if ( editor != null )
+            {
+                if ( WidgetPropertyChangeListener.needsAreaClear( property ) )
+                    editor.getEditorPanel().clearSelectedWidget();
+            }
             
-            ( (EditorTable)table ).editor.getEditorPanel().repaint();
-            ( (EditorTable)table ).editor.setDirtyFlag();
+            property.setValue( newValue );
+            ( (EditorTable)table ).propsEditor.invokeChangeListeners( property, oldValue, newValue, table.getSelectedRow(), table.getSelectedColumn() );
+            
+            if ( editor != null )
+            {
+                editor.getEditorPanel().repaint();
+                editor.setDirtyFlag();
+            }
         }
         
         @Override
@@ -205,12 +211,48 @@ public class EditorTable extends HierarchicalTable
         }
     };
     
-    public EditorTable( RFDynHUDEditor editor, FlaggedList data )
+    public JScrollPane createScrollPane()
     {
-        super( data, acc, 2 );
+        JScrollPane scrollPane = new JScrollPane( this );
+        scrollPane.getViewport().setBackground( java.awt.Color.WHITE );
+        scrollPane.getVerticalScrollBar().setUnitIncrement( 10 );
+        
+        return ( scrollPane );
+    }
+    
+    public EditorTable( RFDynHUDEditor editor, PropertiesEditor propsEditor )
+    {
+        super( propsEditor.getPropertiesList(), acc, 2 );
         
         this.editor = editor;
+        this.propsEditor = propsEditor;
         
         this.setTableHeader( null );
+        this.setRowHeight( 20 );
+        
+        getSelectionModel().addListSelectionListener( new ListSelectionListener()
+        {
+            public void valueChanged( ListSelectionEvent e )
+            {
+                if ( !e.getValueIsAdjusting() && ( selectionListeners != null ) )
+                {
+                    final EditorTable editorTable = EditorTable.this;
+                    
+                    HierarchicalTableModel m = (HierarchicalTableModel)editorTable.getModel();
+                    
+                    final Property property;
+                    if ( m.isDataRow( editorTable.getSelectedRow() ) )
+                        property = (Property)m.getRowAt( editorTable.getSelectedRow() );
+                    else
+                        property = null;
+                    
+                    for ( int i = 0; i < selectionListeners.size(); i++ )
+                    {
+                        selectionListeners.get( i ).onPropertySelected( property, editorTable.getSelectedRow() );
+                    }
+                }
+            }
+        } );
+
     }
 }

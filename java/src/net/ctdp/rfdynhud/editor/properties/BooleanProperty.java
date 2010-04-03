@@ -24,7 +24,8 @@ public class BooleanProperty extends Property
         
         this.value = value;
         
-        widget.forceAndSetDirty();
+        if ( widget != null )
+            widget.forceAndSetDirty();
         
         onValueChanged( value );
     }

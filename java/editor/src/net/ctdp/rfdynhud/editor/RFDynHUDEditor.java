@@ -35,8 +35,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.html.HTMLDocument;
 
@@ -44,11 +42,15 @@ import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.help.AboutPage;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
-import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
+import net.ctdp.rfdynhud.editor.options.OptionsWindow;
+import net.ctdp.rfdynhud.editor.options.ScaleType;
+import net.ctdp.rfdynhud.editor.properties.EditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.editor.properties.PropertySelectionListener;
+import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -66,6 +68,7 @@ import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.classes.ClassSearcher;
@@ -79,7 +82,7 @@ import org.jagatoo.util.ini.IniWriter;
  * 
  * @author Marvin Froehlich
  */
-public class RFDynHUDEditor implements Documented
+public class RFDynHUDEditor implements Documented, PropertySelectionListener
 {
     public class EditorWindow extends JFrame
     {
@@ -96,7 +99,7 @@ public class RFDynHUDEditor implements Documented
         }
     }
     
-    private static final String BASE_WINDOW_TITLE = "RFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
+    private static final String BASE_WINDOW_TITLE = "rFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
     
     private LiveGameData gameData;
     
@@ -111,14 +114,25 @@ public class RFDynHUDEditor implements Documented
     private final EditorPanel editorPanel;
     
     private final PropertiesEditor propsEditor;
+    private final EditorTable editorTable;
     private final JEditorPane docPanel;
+    
+    private final EditorPresets presets = new EditorPresets();
     
     private static final String doc_header = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
     private static final String doc_footer = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
     
+    private boolean optionsWindowVisible = false;
+    private final OptionsWindow optionsWindow;
+    
     private boolean dirtyFlag = false;
     
     private File currentConfigFile = null;
+    
+    public final EditorPresets getEditorPresets()
+    {
+        return ( presets );
+    }
     
     private void updateWindowTitle()
     {
@@ -198,7 +212,7 @@ public class RFDynHUDEditor implements Documented
         return ( "" );
     }
     
-    public void onPropertySelected( Property property )
+    public void onPropertySelected( Property property, int row )
     {
         if ( property == null )
         {
@@ -325,10 +339,10 @@ public class RFDynHUDEditor implements Documented
             widget.getProperties( propsList );
         }
         
-        onPropertySelected( null );
+        onPropertySelected( null, -1 );
         restoreExpandFlags( propsList, "", expandedRows );
         
-        propsEditor.apply();
+        editorTable.apply();
     }
     
     //private long nextRedrawTime = -1L;
@@ -344,7 +358,7 @@ public class RFDynHUDEditor implements Documented
         setDirtyFlag();
         
         if ( isSelected )
-            propsEditor.apply();
+            editorTable.apply();
     }
     
     private static File getSettingsDir()
@@ -361,6 +375,23 @@ public class RFDynHUDEditor implements Documented
         return ( new File( RFactorTools.EDITOR_PATH ) );
     }
     
+    private void writeLastConfig( IniWriter writer ) throws Throwable
+    {
+        if ( ( currentConfigFile != null ) && currentConfigFile.exists() )
+        {
+            String currentConfigFilename = currentConfigFile.getAbsolutePath();
+            if ( currentConfigFilename.startsWith( RFactorTools.CONFIG_PATH ) )
+            {
+                if ( currentConfigFilename.charAt( RFactorTools.CONFIG_PATH.length() ) == File.separatorChar )
+                    currentConfigFilename = currentConfigFilename.substring( RFactorTools.CONFIG_PATH.length() + 1 );
+                else
+                    currentConfigFilename = currentConfigFilename.substring( RFactorTools.CONFIG_PATH.length() );
+            }
+            
+            writer.writeSetting( "lastConfig", currentConfigFilename );
+        }
+    }
+    
     private void saveUserSettings( int extendedState )
     {
         File userSettingsFile = new File( getSettingsDir(), "editor_settings.ini" );
@@ -370,26 +401,48 @@ public class RFDynHUDEditor implements Documented
         {
             writer = new IniWriter( userSettingsFile );
             
+            writer.writeGroup( "General" );
             writer.writeSetting( "resolution", gameResX + "x" + gameResY );
+            writer.writeSetting( "defaultScaleType", optionsWindow.getDefaultScaleType() );
+            writer.writeSetting( "screenshotSet", screenshotSet );
+            writeLastConfig( writer );
+            writer.writeSetting( "alwaysShowHelpOnStartup", alwaysShowHelpOnStartup );
+            writer.writeGroup( "MainWindow" );
             writer.writeSetting( "windowLocation", getMainWindow().getX() + "x" + getMainWindow().getY() );
             writer.writeSetting( "windowSize", getMainWindow().getWidth() + "x" + getMainWindow().getHeight() );
             writer.writeSetting( "windowState", extendedState );
-            writer.writeSetting( "screenshotSet", screenshotSet );
-            writer.writeSetting( "alwaysShowHelpOnStartup", alwaysShowHelpOnStartup );
+            writer.writeGroup( "OptionsWindow" );
+            writer.writeSetting( "windowLocation", optionsWindow.getX() + "x" + optionsWindow.getY() );
+            writer.writeSetting( "windowSize", optionsWindow.getWidth() + "x" + optionsWindow.getHeight() );
+            writer.writeSetting( "windowVisible", optionsWindowVisible );
+            writer.writeSetting( "autoApply", optionsWindow.getAutoApply() );
+            writer.writeGroup( "EditorPresets" );
             
-            if ( ( currentConfigFile != null ) && currentConfigFile.exists() )
+            final IniWriter writer2 = writer;
+            final WidgetsConfigurationWriter confWriter = new WidgetsConfigurationWriter()
             {
-                String currentConfigFilename = currentConfigFile.getAbsolutePath();
-                if ( currentConfigFilename.startsWith( RFactorTools.CONFIG_PATH ) )
+                public void writeProperty( String key, Object value, String comment ) throws IOException
                 {
-                    if ( currentConfigFilename.charAt( RFactorTools.CONFIG_PATH.length() ) == File.separatorChar )
-                        currentConfigFilename = currentConfigFilename.substring( RFactorTools.CONFIG_PATH.length() + 1 );
-                    else
-                        currentConfigFilename = currentConfigFilename.substring( RFactorTools.CONFIG_PATH.length() );
+                    writer2.writeSetting( key, value, comment );
                 }
                 
-                writer.writeSetting( "lastConfig", currentConfigFilename );
-            }
+                public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException
+                {
+                    writer2.writeSetting( key, value, quoteValue, comment );
+                }
+                
+                public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
+                {
+                    writer2.writeSetting( property.getPropertyName(), property.getValue(), quoteValue, comment );
+                }
+                
+                public void writeProperty( Property property, String comment ) throws IOException
+                {
+                    writer2.writeSetting( property.getPropertyName(), property.getValue(), comment );
+                }
+            };
+            
+            EDPrivilegedAccess.saveProperties( presets, confWriter );
         }
         catch ( Throwable t )
         {
@@ -417,14 +470,86 @@ public class RFDynHUDEditor implements Documented
             {
                 protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                 {
-                    if ( key.equals( "resolution" ) )
+                    if ( group == null )
                     {
-                        if ( checkResolution( value ) )
+                        
+                    }
+                    else if ( group.equals( "General" ) )
+                    {
+                        if ( key.equals( "resolution" ) )
+                        {
+                            if ( checkResolution( value ) )
+                            {
+                                try
+                                {
+                                    String[] ss = value.split( "x" );
+                                    switchToGameResolution( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                                }
+                                catch ( Throwable t )
+                                {
+                                    t.printStackTrace();
+                                }
+                            }
+                        }
+                        else if ( key.equals( "defaultScaleType" ) )
+                        {
+                            try
+                            {
+                                optionsWindow.setDefaultScaleType( ScaleType.valueOf( value ) );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
+                        }
+                        else if ( key.equals( "screenshotSet" ) )
+                        {
+                            screenshotSet = value;
+                        }
+                        else if ( key.equals( "lastConfig" ) )
+                        {
+                            File configFile = new File( value );
+                            if ( !configFile.isAbsolute() )
+                                configFile = new File( RFactorTools.CONFIG_PATH, value );
+                            if ( configFile.exists() )
+                                openConfig( configFile );
+                        }
+                        else if ( key.equals( "alwaysShowHelpOnStartup" ) )
+                        {
+                            alwaysShowHelpOnStartup = Boolean.parseBoolean( value );
+                        }
+                    }
+                    else if ( group.equals( "MainWindow" ) )
+                    {
+                        if ( key.equals( "windowLocation" ) )
                         {
                             try
                             {
                                 String[] ss = value.split( "x" );
-                                switchToGameResolution( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                                getMainWindow().setLocation( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
+                        }
+                        else if ( key.equals( "windowSize" ) )
+                        {
+                            try
+                            {
+                                String[] ss = value.split( "x" );
+                                getMainWindow().setSize( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
+                        }
+                        else if ( key.equals( "windowState" ) )
+                        {
+                            try
+                            {
+                                getMainWindow().setExtendedState( Integer.parseInt( value ) );
                             }
                             catch ( Throwable t )
                             {
@@ -432,56 +557,60 @@ public class RFDynHUDEditor implements Documented
                             }
                         }
                     }
-                    else if ( key.equals( "windowLocation" ) )
+                    else if ( group.equals( "OptionsWindow" ) )
                     {
-                        try
+                        if ( key.equals( "windowLocation" ) )
                         {
-                            String[] ss = value.split( "x" );
-                            getMainWindow().setLocation( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                            try
+                            {
+                                //optionsWindow.setLocationRelativeTo( null );
+                                String[] ss = value.split( "x" );
+                                optionsWindow.setLocation( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
                         }
-                        catch ( Throwable t )
+                        else if ( key.equals( "windowSize" ) )
                         {
-                            t.printStackTrace();
+                            try
+                            {
+                                String[] ss = value.split( "x" );
+                                optionsWindow.setSize( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                                optionsWindow.setDontSetWindowSize();
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
+                        }
+                        else if ( key.equals( "windowVisible" ) )
+                        {
+                            try
+                            {
+                                optionsWindowVisible = Boolean.parseBoolean( value );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
+                        }
+                        else if ( key.equals( "autoApply" ) )
+                        {
+                            try
+                            {
+                                optionsWindow.setAutoApply( Boolean.parseBoolean( value ) );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
                         }
                     }
-                    else if ( key.equals( "windowSize" ) )
+                    else if ( group.equals( "EditorPresets" ) )
                     {
-                        try
-                        {
-                            String[] ss = value.split( "x" );
-                            getMainWindow().setSize( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
-                        }
-                        catch ( Throwable t )
-                        {
-                            t.printStackTrace();
-                        }
-                    }
-                    else if ( key.equals( "windowState" ) )
-                    {
-                        try
-                        {
-                            getMainWindow().setExtendedState( Integer.parseInt( value ) );
-                        }
-                        catch ( Throwable t )
-                        {
-                            t.printStackTrace();
-                        }
-                    }
-                    else if ( key.equals( "lastConfig" ) )
-                    {
-                        File configFile = new File( value );
-                        if ( !configFile.isAbsolute() )
-                            configFile = new File( RFactorTools.CONFIG_PATH, value );
-                        if ( configFile.exists() )
-                            openConfig( configFile );
-                    }
-                    else if ( key.equals( "screenshotSet" ) )
-                    {
-                        screenshotSet = value;
-                    }
-                    else if ( key.equals( "alwaysShowHelpOnStartup" ) )
-                    {
-                        alwaysShowHelpOnStartup = Boolean.parseBoolean( value );
+                        EDPrivilegedAccess.loadProperty( presets, key, value );
                     }
                     
                     return ( true );
@@ -647,33 +776,29 @@ public class RFDynHUDEditor implements Documented
     
     private void onCloseRequested()
     {
-        if ( !getDirtyFlag() )
+        if ( getDirtyFlag() )
         {
-            getMainWindow().setVisible( false );
-            int extendedState = getMainWindow().getExtendedState();
-            getMainWindow().setExtendedState( JFrame.NORMAL );
-            saveUserSettings( extendedState );
+            int result = JOptionPane.showConfirmDialog( window, "Do you want to save the changes before exit?", window.getTitle(), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
             
-            //System.exit( 0 );
-            getMainWindow().dispose();
-            return;
+            if ( result == JOptionPane.CANCEL_OPTION )
+                return;
+            
+            if ( result == JOptionPane.YES_OPTION )
+            {
+                saveConfig();
+            }
         }
         
-        int result = JOptionPane.showConfirmDialog( window, "Do you want to save the changes before exit?", window.getTitle(), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
-        
-        if ( result == JOptionPane.CANCEL_OPTION )
-            return;
-        
-        if ( result == JOptionPane.YES_OPTION )
-        {
-            saveConfig();
-        }
+        optionsWindowVisible = optionsWindow.isVisible();
+        optionsWindow.setVisible( false );
         
         getMainWindow().setVisible( false );
         int extendedState = getMainWindow().getExtendedState();
         getMainWindow().setExtendedState( JFrame.NORMAL );
         saveUserSettings( extendedState );
         
+        optionsWindow.dispose();
+        getMainWindow().dispose();
         System.exit( 0 );
     }
     
@@ -797,8 +922,14 @@ public class RFDynHUDEditor implements Documented
                     //Widget widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
                     Widget widget = (Widget)widgetClazz.getConstructor( String.class ).newInstance( getEditorPanel().getWidgetsDrawingManager().findFreeName( widgetClazz.getSimpleName() ) );
                     getEditorPanel().getWidgetsDrawingManager().addWidget( widget );
+                    if ( optionsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
+                        widget.setAllPosAndSizeToPercents();
+                    else if ( optionsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
+                        widget.setAllPosAndSizeToPixels();
                     onWidgetSelected( widget );
                     getEditorPanel().repaint();
+                    
+                    setDirtyFlag();
                 }
                 catch ( Throwable t )
                 {
@@ -826,6 +957,7 @@ public class RFDynHUDEditor implements Documented
         menu.add( new JSeparator() );
         
         JMenuItem removeItem = new JMenuItem( "Remove selected Widget" );
+        //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
         removeItem.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
@@ -1037,8 +1169,19 @@ public class RFDynHUDEditor implements Documented
                 StrategyTool.showStrategyTool( RFDynHUDEditor.this.window );
             }
         } );
-        
         menu.add( manangerItem );
+        
+        menu.addSeparator();
+        
+        JMenuItem optionsItem = new JMenuItem( "Options..." );
+        optionsItem.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                optionsWindow.setVisible( true );
+            }
+        } );
+        menu.add( optionsItem );
         
         return ( menu );
     }
@@ -1177,30 +1320,19 @@ public class RFDynHUDEditor implements Documented
         split.setResizeWeight( 1 );
         split.add( scrollPane );
         
-        this.propsEditor = new PropertiesEditor( this );
+        this.propsEditor = new PropertiesEditor();
+        this.propsEditor.addChangeListener( new WidgetPropertyChangeListener( this ) );
         
         JSplitPane split2 = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
         split2.setResizeWeight( 0 );
         split2.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
         split2.setMinimumSize( new Dimension( 300, 10 ) );
         
-        split2.add( propsEditor.getGUI() );
+        editorTable = new EditorTable( this, propsEditor );
         
-        propsEditor.getTable().getSelectionModel().addListSelectionListener( new ListSelectionListener()
-        {
-            public void valueChanged( ListSelectionEvent e )
-            {
-                if ( !e.getValueIsAdjusting() )
-                {
-                    HierarchicalTableModel m = (HierarchicalTableModel)propsEditor.getTable().getModel();
-                    
-                    if ( m.isDataRow( propsEditor.getTable().getSelectedRow() ) )
-                        onPropertySelected( (Property)m.getRowAt( propsEditor.getTable().getSelectedRow() ) );
-                    else
-                        onPropertySelected( null );
-                }
-            }
-        } );
+        split2.add( editorTable.createScrollPane() );
+        
+        editorTable.addPropertySelectionListener( this );
         
         split.resetToPreferredSizes();
         
@@ -1218,6 +1350,8 @@ public class RFDynHUDEditor implements Documented
         
         split.add( split2 );
         contentPane.add( split );
+        
+        this.optionsWindow = new OptionsWindow( this );
         
         window.addWindowListener( new WindowAdapter()
         {
@@ -1284,6 +1418,9 @@ public class RFDynHUDEditor implements Documented
             } );
             
             editor.getMainWindow().setVisible( true );
+            
+            if ( editor.optionsWindowVisible )
+                editor.optionsWindow.setVisible( true );
             
             while ( editor.getMainWindow().isVisible() )
             {

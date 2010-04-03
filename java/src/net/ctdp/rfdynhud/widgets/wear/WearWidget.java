@@ -3,6 +3,7 @@ package net.ctdp.rfdynhud.widgets.wear;
 import java.awt.Color;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.EnumProperty;
@@ -129,6 +130,52 @@ public class WearWidget extends Widget
         brakeSize.bake();
     }
     
+    public void setAllPosAndSizeToPercents()
+    {
+        super.setAllPosAndSizeToPercents();
+        
+        if ( !engineHeight.isWidthPercentageValue() )
+            engineHeight.flipWidthPercentagePx();
+        
+        if ( !engineHeight.isHeightPercentageValue() )
+            engineHeight.flipHeightPercentagePx();
+        
+        if ( !tireSize.isWidthPercentageValue() )
+            tireSize.flipWidthPercentagePx();
+        
+        if ( !tireSize.isHeightPercentageValue() )
+            tireSize.flipHeightPercentagePx();
+        
+        if ( !brakeSize.isWidthPercentageValue() )
+            brakeSize.flipWidthPercentagePx();
+        
+        if ( !brakeSize.isHeightPercentageValue() )
+            brakeSize.flipHeightPercentagePx();
+    }
+    
+    public void setAllPosAndSizeToPixels()
+    {
+        super.setAllPosAndSizeToPixels();
+        
+        if ( engineHeight.isWidthPercentageValue() )
+            engineHeight.flipWidthPercentagePx();
+        
+        if ( engineHeight.isHeightPercentageValue() )
+            engineHeight.flipHeightPercentagePx();
+        
+        if ( tireSize.isWidthPercentageValue() )
+            tireSize.flipWidthPercentagePx();
+        
+        if ( tireSize.isHeightPercentageValue() )
+            tireSize.flipHeightPercentagePx();
+        
+        if ( brakeSize.isWidthPercentageValue() )
+            brakeSize.flipWidthPercentagePx();
+        
+        if ( brakeSize.isHeightPercentageValue() )
+            brakeSize.flipHeightPercentagePx();
+    }
+    
     public final boolean getDisplayWearPercent()
     {
         return ( displayWearPercent.getBooleanValue() );
@@ -175,7 +222,7 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -184,7 +231,7 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -507,7 +554,7 @@ public class WearWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final TextureImage2D image = texCanvas.getImage();
         final Color backgroundColor = getBackgroundColor();
@@ -517,6 +564,8 @@ public class WearWidget extends Widget
         final VehicleSetup setup = gameData.getSetup();
         
         //final int center = width / 2;
+        
+        final boolean isEditorMode = ( editorPresets != null );
         
         if ( needsCompleteRedraw )
         {
@@ -536,7 +585,7 @@ public class WearWidget extends Widget
         if ( displayEngine.getBooleanValue() )
         {
             final double raceLengthPercentage = gameData.getScoringInfo().getRaceLengthPercentage();
-            float lifetime = isEditorMode ? 1000f : gameData.getTelemetryData().getEngineLifetime();
+            float lifetime = isEditorMode ? editorPresets.getEngineLifetime() : gameData.getTelemetryData().getEngineLifetime();
             final int hundredPercentBase;
             switch ( this.hundredPercentBase.getEnumValue() )
             {
@@ -713,7 +762,7 @@ public class WearWidget extends Widget
             
             Wheel wheel = Wheel.FRONT_LEFT;
             VehiclePhysics.Brakes.WheelBrake brake = physics.getBrakes().getBrake( wheel );
-            float brakeDiscThickness = isEditorMode ? 0.021f : telemData.getBrakeDiscThickness( wheel );
+            float brakeDiscThickness = isEditorMode ? editorPresets.getBrakeDiscThicknessFL() : telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearFL.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
             if ( needsCompleteRedraw || ( clock1 && brakeDiscWearFL.hasChanged( false ) ) )
@@ -738,7 +787,7 @@ public class WearWidget extends Widget
             
             wheel = Wheel.FRONT_RIGHT;
             brake = physics.getBrakes().getBrake( wheel );
-            brakeDiscThickness = isEditorMode ? 0.0145f : telemData.getBrakeDiscThickness( wheel );
+            brakeDiscThickness = isEditorMode ? editorPresets.getBrakeDiscThicknessFR() : telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearFR.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
             if ( needsCompleteRedraw || ( clock1 && brakeDiscWearFR.hasChanged( false ) ) )
@@ -763,7 +812,7 @@ public class WearWidget extends Widget
             
             wheel = Wheel.REAR_LEFT;
             brake = physics.getBrakes().getBrake( wheel );
-            brakeDiscThickness = isEditorMode ? 0.018f : telemData.getBrakeDiscThickness( wheel );
+            brakeDiscThickness = isEditorMode ? editorPresets.getBrakeDiscThicknessRL() : telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearRL.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
             if ( needsCompleteRedraw || ( clock1 && brakeDiscWearRL.hasChanged( false ) ) )
@@ -788,7 +837,7 @@ public class WearWidget extends Widget
             
             wheel = Wheel.REAR_RIGHT;
             brake = physics.getBrakes().getBrake( wheel );
-            brakeDiscThickness = isEditorMode ? 0.022f : telemData.getBrakeDiscThickness( wheel );
+            brakeDiscThickness = isEditorMode ? editorPresets.getBrakeDiscThicknessRR() : telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearRR.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
             if ( needsCompleteRedraw || ( clock1 && brakeDiscWearRR.hasChanged( false ) ) )

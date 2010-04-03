@@ -12,6 +12,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
@@ -128,7 +129,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -137,8 +138,10 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
+        final boolean isEditorMode = ( editorPresets != null );
+        
         if ( track == null )
         {
             Track track;
@@ -282,8 +285,10 @@ public class MapWidget extends Widget
     }
     
     @Override
-    public void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
+        final boolean isEditorMode = ( editorPresets != null );
+        
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         if ( ( track != null ) && ( texture != null ) )

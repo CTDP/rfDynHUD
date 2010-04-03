@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.widgets.image;
 
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.ImageProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -45,7 +46,7 @@ public class ImageWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -54,9 +55,9 @@ public class ImageWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
-        if ( isEditorMode || ( texture == null ) )
+        if ( ( editorPresets != null ) || ( texture == null ) )
         {
             try
             {
@@ -80,7 +81,7 @@ public class ImageWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
     }
     

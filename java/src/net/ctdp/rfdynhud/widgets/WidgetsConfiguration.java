@@ -180,6 +180,17 @@ public abstract class WidgetsConfiguration
         return ( widgetsMap.get( name ) );
     }
     
+    /**
+     * Sets the dirty flags on all {@link Widget}s.
+     */
+    public void setAllDirtyFlags()
+    {
+        for ( int i = 0; i < getNumWidgets(); i++ )
+        {
+            getWidget( i ).setDirtyFlag();
+        }
+    }
+    
     void setJustLoaded( LiveGameData gameData )
     {
         this.needsCheckFixAndBake = true;

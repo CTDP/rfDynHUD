@@ -151,7 +151,7 @@ public class RFDynHUD
             
             drawingManager.refreshSubTextureBuffer();
             
-            drawingManager.drawWidgets( false, gameData, TextureDirtyRectsManager.isCompleteRedrawForced(), drawingManager.getTexture( 0 ).getTexture() );
+            drawingManager.drawWidgets( gameData, null, TextureDirtyRectsManager.isCompleteRedrawForced(), drawingManager.getTexture( 0 ).getTexture() );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             
             int n = drawingManager.getNumTextures();

@@ -184,7 +184,7 @@ public class EditorPanel extends JPanel
                 }
             }
             
-            drawingManager.drawWidgets( true, gameData, true, overlay );
+            drawingManager.drawWidgets( gameData, editor.getEditorPresets(), true, overlay );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             TextureDirtyRectsManager.getDirtyRects( frameIndex, overlay, dirtyRectsBuffer, true );
             

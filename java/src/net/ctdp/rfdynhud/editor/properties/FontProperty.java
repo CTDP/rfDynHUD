@@ -5,6 +5,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -13,6 +14,7 @@ public class FontProperty extends Property
     private static final BufferedImage METRICS_PROVIDER_IMAGE = new BufferedImage( 16, 16, BufferedImage.TYPE_INT_BGR );
     private static final Graphics2D METRICS_PROVIDER = METRICS_PROVIDER_IMAGE.createGraphics();
     
+    private final WidgetsConfiguration widgetsConf;
     private final Widget widget;
     
     private String fontKey;
@@ -35,7 +37,9 @@ public class FontProperty extends Property
         if ( ( fontKey == null ) && ( this.fontKey == null ) )
             return;
         
-        if ( widget.getConfiguration() == null )
+        final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
+        
+        if ( widgetsConf == null )
         {
             this.fontKey = fontKey;
             this.font = null;
@@ -44,7 +48,7 @@ public class FontProperty extends Property
         }
         else
         {
-            String oldValue = getWidget().getConfiguration().getNamedFontString( this.fontKey );
+            String oldValue = widgetsConf.getNamedFontString( this.fontKey );
             if ( oldValue == null )
                 oldValue = this.fontKey;
             
@@ -53,13 +57,14 @@ public class FontProperty extends Property
             this.antiAliased = null;
             this.metrics = null;
             
-            String newValue = getWidget().getConfiguration().getNamedFontString( this.fontKey );
+            String newValue = widgetsConf.getNamedFontString( this.fontKey );
             if ( newValue == null )
                 newValue = this.fontKey;
             
             if ( ( newValue == null ) || !newValue.equals( oldValue ) )
             {
-                widget.forceAndSetDirty();
+                if ( widget != null )
+                    widget.forceAndSetDirty();
                 
                 onValueChanged( oldValue, fontKey );
             }
@@ -144,12 +149,38 @@ public class FontProperty extends Property
         return ( false );
     }
     
-    public FontProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    private FontProperty( WidgetsConfiguration widgetsConf, Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
         super( propertyName, nameForDisplay, readonly, PropertyEditorType.FONT, null, null );
         
+        this.widgetsConf = widgetsConf;
         this.widget = widget;
         this.fontKey = defaultValue;
+    }
+    
+    public FontProperty( WidgetsConfiguration widgetsConf, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    {
+        this( widgetsConf, null, propertyName, nameForDisplay, defaultValue, readonly );
+    }
+    
+    public FontProperty( WidgetsConfiguration widgetsConf, String propertyName, String nameForDisplay, String defaultValue )
+    {
+        this( widgetsConf, propertyName, nameForDisplay, defaultValue, false );
+    }
+    
+    public FontProperty( WidgetsConfiguration widgetsConf, String propertyName, String defaultValue, boolean readonly )
+    {
+        this( widgetsConf, propertyName, propertyName, defaultValue, readonly );
+    }
+    
+    public FontProperty( WidgetsConfiguration widgetsConf, String propertyName, String defaultValue )
+    {
+        this( widgetsConf, propertyName, defaultValue, false );
+    }
+    
+    public FontProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    {
+        this( null, widget, propertyName, nameForDisplay, defaultValue, readonly );
     }
     
     public FontProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue )

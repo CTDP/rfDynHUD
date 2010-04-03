@@ -1,6 +1,5 @@
 package net.ctdp.rfdynhud.editor.properties;
 
-
 public abstract class PosSizeProperty extends Property
 {
     private static final String FLIP_TEXT = "flip";

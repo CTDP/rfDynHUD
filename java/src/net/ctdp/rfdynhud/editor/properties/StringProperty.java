@@ -25,7 +25,8 @@ public class StringProperty extends Property
         String oldValue = this.value;
         this.value = value;
         
-        widget.forceAndSetDirty();
+        if ( widget != null )
+            widget.forceAndSetDirty();
         
         onValueChanged( oldValue, value );
     }

@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.editor.properties;
 
 import java.awt.Color;
 
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.openmali.vecmath2.util.ColorUtils;
@@ -10,6 +11,7 @@ public class ColorProperty extends Property
 {
     public static final Color FALLBACK_COLOR = Color.MAGENTA;
     
+    private final WidgetsConfiguration widgetsConf;
     private final Widget widget;
     
     private String colorKey;
@@ -33,7 +35,8 @@ public class ColorProperty extends Property
         this.colorKey = colorKey;
         this.color = null;
         
-        widget.forceAndSetDirty();
+        if ( widget != null )
+            widget.forceAndSetDirty();
         
         onValueChanged( oldValue, colorKey );
     }
@@ -57,7 +60,9 @@ public class ColorProperty extends Property
     {
         if ( color == null )
         {
-            color = widget.getConfiguration().getNamedColor( colorKey );
+            final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
+            
+            color = widgetsConf.getNamedColor( colorKey );
             if ( ( color == null ) && ( ( color = ColorUtils.hexToColor( colorKey, false ) ) == null ) )
                 color = FALLBACK_COLOR;
         }
@@ -95,12 +100,38 @@ public class ColorProperty extends Property
         return ( false );
     }
     
-    public ColorProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    private ColorProperty( WidgetsConfiguration widgetsConf, Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
         super( propertyName, nameForDisplay, readonly, PropertyEditorType.COLOR, null, null );
         
+        this.widgetsConf = widgetsConf;
         this.widget = widget;
         this.colorKey = defaultValue;
+    }
+    
+    public ColorProperty( WidgetsConfiguration widgetsConf, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    {
+        this( widgetsConf, null, propertyName, nameForDisplay, defaultValue, readonly );
+    }
+    
+    public ColorProperty( WidgetsConfiguration widgetsConf, String propertyName, String nameForDisplay, String defaultValue )
+    {
+        this( widgetsConf, propertyName, nameForDisplay, defaultValue, false );
+    }
+    
+    public ColorProperty( WidgetsConfiguration widgetsConf, String propertyName, String defaultValue, boolean readonly )
+    {
+        this( widgetsConf, propertyName, propertyName, defaultValue, readonly );
+    }
+    
+    public ColorProperty( WidgetsConfiguration widgetsConf, String propertyName, String defaultValue )
+    {
+        this( widgetsConf, propertyName, defaultValue, false );
+    }
+    
+    public ColorProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    {
+        this( null, widget, propertyName, nameForDisplay, defaultValue, readonly );
     }
     
     public ColorProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue )

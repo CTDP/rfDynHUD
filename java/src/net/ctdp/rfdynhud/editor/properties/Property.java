@@ -1,6 +1,5 @@
 package net.ctdp.rfdynhud.editor.properties;
 
-
 /**
  * The {@link Property} serves as a general data container and adapter.
  * You can use it to put data into a GUI component and live update it.

@@ -380,6 +380,16 @@ public class Size
         return ( this );
     }
     
+    public final boolean isWidthPercentageValue()
+    {
+        return ( ( width < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( width > PERCENT_OFFSET_CHECK_POSITIVE ) );
+    }
+    
+    public final boolean isHeightPercentageValue()
+    {
+        return ( ( height < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( height > PERCENT_OFFSET_CHECK_POSITIVE ) );
+    }
+    
     public Size flipWidthSign()
     {
         int gameResX = widget.getConfiguration().getGameResX();

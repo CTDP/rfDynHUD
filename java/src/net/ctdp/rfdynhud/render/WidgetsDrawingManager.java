@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.render;
 
 import java.nio.ByteBuffer;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
@@ -354,13 +355,15 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * Draws all visible {@link Widget}s in the list.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param gameData
+     * @param editorPresets
      * @param completeRedrawForced
      * @param texture
      */
-    public void drawWidgets( boolean isEditorMode, LiveGameData gameData, boolean completeRedrawForced, TextureImage2D texture )
+    public void drawWidgets( LiveGameData gameData, EditorPresets editorPresets, boolean completeRedrawForced, TextureImage2D texture )
     {
+        final boolean isEditorMode = ( editorPresets != null );
+        
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
         
@@ -432,7 +435,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 {
                     if ( widget.isVisible() || isEditorMode )
                     {
-                        widget.drawWidget( isEditorMode, clock1, clock2, completeRedrawForced, gameData, texCanvas );
+                        widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texCanvas );
                     }
                     else if ( widget.needsCompleteClear() )
                     {

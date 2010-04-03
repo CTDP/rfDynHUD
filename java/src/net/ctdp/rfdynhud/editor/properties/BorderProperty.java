@@ -7,6 +7,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class BorderProperty extends Property
 {
+    private final WidgetsConfiguration widgetsConf;
     private final Widget widget;
     
     private String borderName;
@@ -30,7 +31,8 @@ public class BorderProperty extends Property
         this.borderName = borderName;
         this.border = null;
         
-        widget.forceAndSetDirty();
+        if ( widget != null )
+            widget.forceAndSetDirty();
         
         onValueChanged( oldValue, borderName );
     }
@@ -50,7 +52,9 @@ public class BorderProperty extends Property
             }
             else
             {
-                String borderName_ = widget.getConfiguration().getBorderName( borderName );
+                final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
+                
+                String borderName_ = widgetsConf.getBorderName( borderName );
                 
                 if ( borderName_ == null )
                     border = new BorderWrapper( BorderCache.getTexturedBorder( borderName ) );
@@ -92,12 +96,38 @@ public class BorderProperty extends Property
         return ( false );
     }
     
-    public BorderProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    private BorderProperty( WidgetsConfiguration widgetsConf, Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
         super( propertyName, nameForDisplay, readonly, PropertyEditorType.BORDER, null, null );
         
+        this.widgetsConf = widgetsConf;
         this.widget = widget;
         this.borderName = defaultValue;
+    }
+    
+    public BorderProperty( WidgetsConfiguration widgetsConf, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    {
+        this( widgetsConf, null, propertyName, nameForDisplay, defaultValue, readonly );
+    }
+    
+    public BorderProperty( WidgetsConfiguration widgetsConf, String propertyName, String nameForDisplay, String defaultValue )
+    {
+        this( widgetsConf, propertyName, nameForDisplay, defaultValue, false );
+    }
+    
+    public BorderProperty( WidgetsConfiguration widgetsConf, String propertyName, String defaultValue, boolean readonly )
+    {
+        this( widgetsConf, propertyName, propertyName, defaultValue, readonly );
+    }
+    
+    public BorderProperty( WidgetsConfiguration widgetsConf, String propertyName, String defaultValue )
+    {
+        this( widgetsConf, propertyName, defaultValue, false );
+    }
+    
+    public BorderProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    {
+        this( null, widget, propertyName, nameForDisplay, defaultValue, readonly );
     }
     
     public BorderProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue )

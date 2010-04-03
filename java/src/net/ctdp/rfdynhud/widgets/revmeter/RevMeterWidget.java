@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.openmali.types.twodee.Rect2i;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
@@ -118,8 +119,6 @@ public class RevMeterWidget extends Widget
             return ( super.getFloatValue() * 180f / (float)Math.PI );
         }
     };
-    
-    private final IntegerProperty editorRPM = new IntegerProperty( this, "editorRPM", 3750 );
     
     private final BooleanProperty displayRevMarkers = new BooleanProperty( this, "displayRevMarkers", true );
     private final BooleanProperty displayRevMarkerNumbers = new BooleanProperty( this, "displayRevMarkerNumbers", true );
@@ -508,7 +507,7 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -517,9 +516,10 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         boolean reloadBackground = ( backgroundTexture == null );
+        final boolean isEditorMode = ( editorPresets != null );
         
         if ( isEditorMode && ( backgroundTexture != null ) && ( ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) ) )
             reloadBackground = true;
@@ -845,8 +845,10 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
+        final boolean isEditorMode = ( editorPresets != null );
+        
         TextureImage2D image = texCanvas.getImage();
         TelemetryData telemData = gameData.getTelemetryData();
         
@@ -903,7 +905,7 @@ public class RevMeterWidget extends Widget
         
         LocalStore store = (LocalStore)getLocalStore();
         
-        float rpm = isEditorMode ? editorRPM.getIntegerValue() : telemData.getEngineRPM();
+        float rpm = isEditorMode ? editorPresets.getEngineRPM() : telemData.getEngineRPM();
         //if ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleControl() == VehicleControl.LOCAL_PLAYER )
         float maxRPM = telemData.getEngineMaxRPM();
         if ( maxRPM > 100f )
@@ -1013,7 +1015,6 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( needleAxisBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
         writer.writeProperty( needleRotationForZeroRPM, "The rotation for the needle image, that is has for zero RPM (in degrees)." );
         writer.writeProperty( needleRotationForMaxRPM, "The rotation for the needle image, that is has for maximum RPM (in degrees)." );
-        writer.writeProperty( editorRPM, "The RPM (rounds per minute) displayed in the editor (not in rFactor)" );
         writer.writeProperty( displayRevMarkers, "Display rev markers?" );
         writer.writeProperty( displayRevMarkerNumbers, "Display rev marker numbers?" );
         writer.writeProperty( revMarkersInnerRadius, "The inner radius of the rev markers (in background image space)" );
@@ -1085,7 +1086,6 @@ public class RevMeterWidget extends Widget
         else if ( needleAxisBottomOffset.loadProperty( key, value ) );
         else if ( needleRotationForZeroRPM.loadProperty( key, value ) );
         else if ( needleRotationForMaxRPM.loadProperty( key, value ) );
-        else if ( editorRPM.loadProperty( key, value ) );
         else if ( displayShiftLight.loadProperty( key, value ) );
         else if ( shiftLightImageName.loadProperty( key, value ) );
         else if ( shiftLightPosX.loadProperty( key, value ) );
@@ -1164,8 +1164,6 @@ public class RevMeterWidget extends Widget
         needleProps.add( needleRotationForMaxRPM );
         
         props.add( needleProps );
-        
-        props.add( editorRPM );
         
         FlaggedList revMarkersProps = new FlaggedList( "Rev Markers", true );
         

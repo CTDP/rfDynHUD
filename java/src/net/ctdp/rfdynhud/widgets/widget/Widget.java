@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.BorderProperty;
@@ -319,6 +320,36 @@ public abstract class Widget implements Documented
         size.bake();
     }
     
+    public void setAllPosAndSizeToPercents()
+    {
+        if ( !position.isXPercentageValue() )
+            position.flipXPercentagePx();
+        
+        if ( !position.isYPercentageValue() )
+            position.flipYPercentagePx();
+        
+        if ( !size.isWidthPercentageValue() )
+            size.flipWidthPercentagePx();
+        
+        if ( !size.isHeightPercentageValue() )
+            size.flipHeightPercentagePx();
+    }
+    
+    public void setAllPosAndSizeToPixels()
+    {
+        if ( position.isXPercentageValue() )
+            position.flipXPercentagePx();
+        
+        if ( position.isYPercentageValue() )
+            position.flipYPercentagePx();
+        
+        if ( size.isWidthPercentageValue() )
+            size.flipWidthPercentagePx();
+        
+        if ( size.isHeightPercentageValue() )
+            size.flipHeightPercentagePx();
+    }
+    
     protected final ColorProperty getBackgroundColorProperty()
     {
         return ( backgroundColor );
@@ -630,10 +661,10 @@ public abstract class Widget implements Documented
     /**
      * Checks, if the Widget needs any changes fore it is drawn.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param gameData the live game data
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      * @param texCanvas the texture canvas to draw on. Use {@link Texture2DCanvas#getImage()} to retrieve the {@link TextureImage2D} for fast drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
@@ -642,38 +673,38 @@ public abstract class Widget implements Documented
      * 
      * @return true, if size has changed.
      */
-    protected abstract boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
+    protected abstract boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method is called once to initialized {@link DrawnString}s used on this Widget.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param gameData the live game data
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      * @param texCanvas the texture canvas to draw on. Use {@link Texture2DCanvas#getImage()} to retrieve the {@link TextureImage2D} for fast drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
+    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method must contain the actual drawing code for this Widget.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      * @param gameData the live game data
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      * @param texCanvas the texture canvas to draw on. Use {@link Texture2DCanvas#getImage()} to retrieve the {@link TextureImage2D} for fast drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
+    protected abstract void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height );
     
     /**
      * 
@@ -713,14 +744,14 @@ public abstract class Widget implements Documented
     /**
      * This method invokes the parts of the actual drawing code for this Widget.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param completeRedrawForced
      * @param gameData the live game data
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      * @param texCanvas the texture canvas to draw on. Use {@link Texture2DCanvas#getImage()} to retrieve the {@link TextureImage2D} for fast drawing.
      */
-    public final void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, Texture2DCanvas texCanvas )
+    public final void drawWidget( boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas )
     {
         int offsetX = position.getEffectiveX();
         int offsetY = position.getEffectiveY();
@@ -744,12 +775,12 @@ public abstract class Widget implements Documented
         
         if ( !initialized )
         {
-            initialize( isEditorMode, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2 );
+            initialize( clock1, clock2, gameData, editorPresets, texCanvas, offsetX2, offsetY2, width2, height2 );
             
             initialized = true;
         }
         
-        if ( checkForChanges( isEditorMode, clock1, clock2, gameData, texCanvas, offsetX2, offsetY2, width2, height2 ) )
+        if ( checkForChanges( clock1, clock2, gameData, editorPresets, texCanvas, offsetX2, offsetY2, width2, height2 ) )
         {
             completeRedrawForced = true;
             
@@ -770,19 +801,19 @@ public abstract class Widget implements Documented
         
         if ( completeRedrawForced )
         {
-            drawBorder( isEditorMode, getBorder().getBorder(), texCanvas, offsetX, offsetY, width, height );
+            drawBorder( ( editorPresets != null ), getBorder().getBorder(), texCanvas, offsetX, offsetY, width, height );
         }
         
         if ( completeRedrawForced )
         {
             texCanvas.getImage().markDirty( offsetX, offsetY, width, height );
             
-            clearBackground( isEditorMode, gameData, texCanvas, offsetX2, offsetY2, width2, height2 );
+            clearBackground( ( editorPresets != null ), gameData, texCanvas, offsetX2, offsetY2, width2, height2 );
         }
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
-        drawWidget( isEditorMode, clock1, clock2, completeRedrawForced, gameData, texCanvas, offsetX2, offsetY2, width2, height2 );
+        drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texCanvas, offsetX2, offsetY2, width2, height2 );
     }
     
     

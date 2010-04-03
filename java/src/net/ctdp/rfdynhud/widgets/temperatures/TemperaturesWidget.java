@@ -3,6 +3,7 @@ package net.ctdp.rfdynhud.widgets.temperatures;
 import java.awt.Color;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
@@ -108,6 +109,52 @@ public class TemperaturesWidget extends Widget
         brakeSize.bake();
     }
     
+    public void setAllPosAndSizeToPercents()
+    {
+        super.setAllPosAndSizeToPercents();
+        
+        if ( !engineHeight.isWidthPercentageValue() )
+            engineHeight.flipWidthPercentagePx();
+        
+        if ( !engineHeight.isHeightPercentageValue() )
+            engineHeight.flipHeightPercentagePx();
+        
+        if ( !tireSize.isWidthPercentageValue() )
+            tireSize.flipWidthPercentagePx();
+        
+        if ( !tireSize.isHeightPercentageValue() )
+            tireSize.flipHeightPercentagePx();
+        
+        if ( !brakeSize.isWidthPercentageValue() )
+            brakeSize.flipWidthPercentagePx();
+        
+        if ( !brakeSize.isHeightPercentageValue() )
+            brakeSize.flipHeightPercentagePx();
+    }
+    
+    public void setAllPosAndSizeToPixels()
+    {
+        super.setAllPosAndSizeToPixels();
+        
+        if ( engineHeight.isWidthPercentageValue() )
+            engineHeight.flipWidthPercentagePx();
+        
+        if ( engineHeight.isHeightPercentageValue() )
+            engineHeight.flipHeightPercentagePx();
+        
+        if ( tireSize.isWidthPercentageValue() )
+            tireSize.flipWidthPercentagePx();
+        
+        if ( tireSize.isHeightPercentageValue() )
+            tireSize.flipHeightPercentagePx();
+        
+        if ( brakeSize.isWidthPercentageValue() )
+            brakeSize.flipWidthPercentagePx();
+        
+        if ( brakeSize.isHeightPercentageValue() )
+            brakeSize.flipHeightPercentagePx();
+    }
+    
     public void setBrakeTempsPeekDelay( int delay )
     {
         this.brakeTempsPeekDelay = delay * 1000000L;
@@ -152,7 +199,7 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -161,7 +208,7 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean isEditorMode, boolean clock1, boolean clock2, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize(boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -493,7 +540,7 @@ public class TemperaturesWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean isEditorMode, boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final TextureImage2D image = texCanvas.getImage();
         final Color backgroundColor = getBackgroundColor();

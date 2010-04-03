@@ -16,9 +16,14 @@
     
 </head>
 
-<body>
+<body style="margin: 5px;">
 
 <p style="margin-top: 0;">
+This is the help readme for rfDynHUD and the rfDynHUD Editor.
+</p>
+
+<p>
+<strong>Configuration files - overlay.ini</strong><br />
 The &quot;config&quot; folder contains rfDynHUD configuration files.
 </p>
 
@@ -98,6 +103,7 @@ special configurations for any car.
 </p>
 
 <p>
+<strong>Configuration files - three letter codes</strong><br />
 The &quot;config&quot; folder also contains the three letter codes configuration file used by the StandingsWidget and others.
 This file keeps mappings for known driver names to short forms (not necessarily 3 letters), that can be displayed instead
 to save some room on the screen. The file is accessed as &quot;three_letter_codes.ini&quot; and has entries of the form:
@@ -108,9 +114,46 @@ Michael Schumacher=Mich
 </p>
 
 <p>
+<strong>Configuration files - input bindings</strong><br />
 Another file, searched for in this folder, is the &quot;input_bindings.ini&quot;.
 It keeps mappings of key-strokes or button-presses to input actions on named Widgets.
 Use the InputBindingsManager from within the editor to generate and maintain that file.
+</p>
+
+<p>
+<strong>Editor - Different backgrounds</strong><br />
+You can change the editor background images, so that they look like you use to see your rFactor. Do this by creating one screenshot
+for each of the resolutions, that you see under the "Resolutions" menu (menu bar). If you're lazy, just create a screenshot for the
+resultion, that you want to use in the editor. But we encourage you to create a complete set of screenshots and send them to us, so
+that we can provide them as additional downloads.<br />
+After you created those screenshots copy them to a new folder under the editor\backgrounds folder in the plugin folder. There you'll
+find a folder called "default", which contains the default screenshot-set. Restart the editor and drop down the Resolutions menu from
+the menu bar. The first entry "Screenshot Set" opens a sub menu, where you can select your newly created custom screenshot set.
+</p>
+
+<p>
+<strong>Editor - Basic workflow</strong><br />
+<p style="margin-top: 0;">
+Add a new Widget by selecting an entry from the Widgets menu.
+</p>
+<p>
+Remove a widget by selecting it with the mouse and then either pressing the DELETE key or choosing the "Remove selected Widget" entry
+from the Widgets menu (last item).<br />
+</p>
+<p>
+Position or scale a Widget by either dragging it resp. its borders with the mouse or by changing the appropriate properties in the
+properties editor on the right side of the editor.<br />
+Positions and sizes can either be given in absolute pixels or percentages. Only use pixels, if you're creating a private configuration
+and never plan to switch your game resolution.<br />
+If you want to share your new configuration, you must use percentages for both position and size. Otherwise your configuration will
+look different on different screens and resolutions.<br />
+You can change the default, that is used when a new Widget is created in the options window.
+</p>
+<p>
+All other properties are only configurable through the properties editor. Select a Widget with the mouse and then modify the
+properties as you like. Every single property is documented. So if you want to know more about a specific property, select it in the
+properties editor and the description will be displayed in the panel below.
+</p>
 </p>
 
 </body>
