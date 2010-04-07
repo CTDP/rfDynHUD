@@ -251,6 +251,42 @@ public class ConfigurationLoader
         return ( loadConfiguration( new File( filename ), widgetsConfig, gameData, clearListener ) );
     }
     
+    /**
+     * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
+     * 
+     * @param file
+     * @param widgetsConfig
+     * 
+     * @return the file, from which the configuration has been loaded.
+     * 
+     * @throws IOException
+     */
+    public static File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    {
+        currentlyLoadedConfigFile = null;
+        lastModified = -1L;
+        
+        if ( load( file, widgetsConfig, gameData, clearListener ) )
+            return ( currentlyLoadedConfigFile );
+        
+        return ( null );
+    }
+    
+    /**
+     * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
+     * 
+     * @param filename
+     * @param widgetsConfig
+     * 
+     * @return the file, from which the configuration has been loaded.
+     * 
+     * @throws IOException
+     */
+    public static File forceLoadConfiguration( String filename, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    {
+        return ( forceLoadConfiguration( new File( filename ), widgetsConfig, gameData, clearListener ) );
+    }
+    
     public static void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
     {
         Logger.log( "Loading factory default configuration." );

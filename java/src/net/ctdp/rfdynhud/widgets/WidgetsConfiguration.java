@@ -23,7 +23,7 @@ import org.openmali.vecmath2.util.ColorUtils;
  * 
  * @author Marvin Froehlich
  */
-public abstract class WidgetsConfiguration
+public class WidgetsConfiguration
 {
     public static interface ConfigurationClearListener
     {
@@ -755,7 +755,7 @@ public abstract class WidgetsConfiguration
     /**
      * Creates a new {@link WidgetsConfiguration}.
      */
-    protected WidgetsConfiguration()
+    public WidgetsConfiguration()
     {
     }
 }

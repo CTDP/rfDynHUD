@@ -67,6 +67,7 @@ import net.ctdp.rfdynhud.util.RFactorEventsManager;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -128,6 +129,10 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private boolean dirtyFlag = false;
     
     private File currentConfigFile = null;
+    private File currentTemplateFile = null;
+    
+    private WidgetsConfiguration templateConfig = null;
+    private long lastTemplateConfigModified = -1L;
     
     public final EditorPresets getEditorPresets()
     {
@@ -287,6 +292,23 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             public Object getValue()
             {
                 return ( screenshotSet );
+            }
+        } );
+        
+        props.add( new Property( "templateConfig", true, PropertyEditorType.STRING )
+        {
+            @Override
+            public void setValue( Object value )
+            {
+            }
+            
+            @Override
+            public Object getValue()
+            {
+                if ( currentTemplateFile == null )
+                    return ( "none" );
+                
+                return ( currentTemplateFile.getAbsolutePath().substring( RFactorTools.CONFIG_PATH.length() + 1 ) );
             }
         } );
         
@@ -625,10 +647,38 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( true );
     }
     
+    private File loadTemplateConfig( File configFile ) throws IOException
+    {
+        File path = configFile.getParentFile();
+        File templateConfigFile = new File( path, "templates.ini" );
+        while ( !templateConfigFile.exists() && !path.equals( RFactorTools.CONFIG_FOLDER ) )
+        {
+            path = path.getParentFile();
+            templateConfigFile = new File( path, "templates.ini" );
+        }
+        
+        if ( !templateConfigFile.exists() )
+            return ( null );
+        
+        if ( !templateConfigFile.equals( this.currentTemplateFile ) || ( templateConfigFile.lastModified() > lastTemplateConfigModified ) )
+        {
+            this.templateConfig = new WidgetsConfiguration();
+            
+            ConfigurationLoader.forceLoadConfiguration( templateConfigFile, templateConfig, gameData, null );
+            
+            this.currentTemplateFile = templateConfigFile;
+            this.lastTemplateConfigModified = templateConfigFile.lastModified();
+        }
+        
+        return ( templateConfigFile );
+    }
+    
     public void openConfig( File configFile )
     {
         try
         {
+            currentTemplateFile = loadTemplateConfig( configFile );
+            
             WidgetsDrawingManager widgetsManager = getEditorPanel().getWidgetsDrawingManager();
             int n = widgetsManager.getNumWidgets();
             for ( int i = 0; i < n; i++ )
@@ -636,7 +686,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 widgetsManager.getWidget( i ).clearRegion( true, getOverlayTexture() );
             }
             
-            ConfigurationLoader.loadConfiguration( configFile, widgetsManager, gameData, null );
+            ConfigurationLoader.forceLoadConfiguration( configFile, widgetsManager, gameData, null );
             
             currentConfigFile = configFile;
             
@@ -802,6 +852,83 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         System.exit( 0 );
     }
     
+    private void copyPropertiesFromTemplate( FlaggedList flTemplate, FlaggedList flTarget )
+    {
+        // We assume, that the order will be the same in both lists.
+        
+        for ( int i = 0; i < flTemplate.size(); i++ )
+        {
+            if ( flTemplate.get( i ) instanceof FlaggedList )
+            {
+                copyPropertiesFromTemplate( (FlaggedList)flTemplate.get( i ), (FlaggedList)flTarget.get( i ) );
+            }
+            else if ( flTemplate.get( i ) instanceof Property )
+            {
+                Property p0 = (Property)flTemplate.get( i );
+                Property p1 = (Property)flTarget.get( i );
+                
+                if ( !p0.getPropertyName().equals( "x" ) && !p0.getPropertyName().equals( "y" ) && !p0.getPropertyName().equals( "positioning" ) )
+                    p1.setValue( p0.getValue() );
+            }
+        }
+    }
+    
+    private void copyPropertiesFromTemplate( Widget widget )
+    {
+        if ( templateConfig == null )
+            return;
+        
+        Widget template = null;
+        for ( int i = 0; i < templateConfig.getNumWidgets(); i++ )
+        {
+            if ( templateConfig.getWidget( i ).getClass() == widget.getClass() )
+            {
+                template = templateConfig.getWidget( i );
+                break;
+            }
+        }
+        
+        if ( template == null )
+            return;
+        
+        FlaggedList flTemplate = new FlaggedList( "" );
+        FlaggedList flTarget = new FlaggedList( "" );
+        
+        template.getProperties( flTemplate );
+        widget.getProperties( flTarget );
+        
+        copyPropertiesFromTemplate( flTemplate, flTarget );
+    }
+    
+    private Widget addNewWidget( Class<?> widgetClazz )
+    {
+        Widget widget = null;
+        
+        try
+        {
+            Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
+            
+            //widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
+            widget = (Widget)widgetClazz.getConstructor( String.class ).newInstance( getEditorPanel().getWidgetsDrawingManager().findFreeName( widgetClazz.getSimpleName() ) );
+            copyPropertiesFromTemplate( widget );
+            getEditorPanel().getWidgetsDrawingManager().addWidget( widget );
+            if ( optionsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
+                widget.setAllPosAndSizeToPercents();
+            else if ( optionsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
+                widget.setAllPosAndSizeToPixels();
+            onWidgetSelected( widget );
+            getEditorPanel().repaint();
+            
+            setDirtyFlag();
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+        
+        return ( widget );
+    }
+    
     private BufferedImage loadBackgroundImage( int width, int height )
     {
         try
@@ -915,26 +1042,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             
             public void actionPerformed( ActionEvent e )
             {
-                try
-                {
-                    Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
-                    
-                    //Widget widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
-                    Widget widget = (Widget)widgetClazz.getConstructor( String.class ).newInstance( getEditorPanel().getWidgetsDrawingManager().findFreeName( widgetClazz.getSimpleName() ) );
-                    getEditorPanel().getWidgetsDrawingManager().addWidget( widget );
-                    if ( optionsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
-                        widget.setAllPosAndSizeToPercents();
-                    else if ( optionsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
-                        widget.setAllPosAndSizeToPixels();
-                    onWidgetSelected( widget );
-                    getEditorPanel().repaint();
-                    
-                    setDirtyFlag();
-                }
-                catch ( Throwable t )
-                {
-                    t.printStackTrace();
-                }
+                addNewWidget( widgetClazz );
             }
         } );
         
