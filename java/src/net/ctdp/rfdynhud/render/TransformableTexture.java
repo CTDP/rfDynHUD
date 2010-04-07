@@ -125,7 +125,7 @@ public class TransformableTexture
         return ( texture.getTextureCanvas() );
     }
     
-    public void generateSubRectangles( LiveGameData gameData, WidgetsDrawingManager widgetsManager )
+    protected void generateSubRectangles( LiveGameData gameData, WidgetsDrawingManager widgetsManager )
     {
         final Texture2DCanvas texCanvas = widgetsManager.getMainTexture().getTextureCanvas();
         
@@ -140,13 +140,13 @@ public class TransformableTexture
         this.dirty = true;
     }
     
-    public void setRectangleVisible( int index, boolean visible )
+    protected void setRectangleVisible( int index, boolean visible )
     {
         if ( usedRectangles[index].setVisible( visible ) )
             this.dirty = true;
     }
     
-    public final boolean isRectangleVisible( int index )
+    protected final boolean isRectangleVisible( int index )
     {
         return ( usedRectangles[index].isVisible() );
     }
@@ -302,7 +302,7 @@ public class TransformableTexture
         return ( texture.getData() );
     }
     
-    public int fillBuffer( boolean widgetVisibility, int offsetX, int offsetY, int index, int rectangleIndex, ByteBuffer buffer )
+    protected int fillBuffer( boolean widgetVisibility, int offsetX, int offsetY, int index, int rectangleIndex, ByteBuffer buffer )
     {
         buffer.put( OFFSET_VISIBLE + index * 1, ( widgetVisibility && visible ) ? (byte)1 : (byte)0 );
         
@@ -348,7 +348,7 @@ public class TransformableTexture
      * @param buffer
      */
     /*
-    public void updateRectangleVisibleFlags( WidgetsDrawingManager widgetsManager, ByteBuffer buffer )
+    protected void updateRectangleVisibleFlags( WidgetsDrawingManager widgetsManager, ByteBuffer buffer )
     {
         buffer.position( OFFSET_RECT_VISIBLE_FLAGS );
         
@@ -370,7 +370,7 @@ public class TransformableTexture
      * @param buffer
      */
     /*
-    public void updateRectangleVisibleFlag( int rectangleIndex, boolean visible, ByteBuffer buffer )
+    protected void updateRectangleVisibleFlag( int rectangleIndex, boolean visible, ByteBuffer buffer )
     {
         buffer.position( OFFSET_RECT_VISIBLE_FLAGS + rectangleIndex );
         buffer.put( visible ? (byte)1 : (byte)0 );
