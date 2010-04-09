@@ -1507,6 +1507,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             editor.eventsManager.onSessionStarted( true );
             editor.eventsManager.onRealtimeEntered( true );
             
+            //editor.getEditorPanel().getWidgetsDrawingManager().collectTextures( true, editor.gameData );
+            
             editor.getMainWindow().addWindowListener( new WindowAdapter()
             {
                 private boolean shot = false;

@@ -146,8 +146,6 @@ public class Size
      */
     public Size set( float width, float height )
     {
-        unbake();
-        
         if ( widget.getConfiguration() != null )
         {
             if ( width > PERCENT_OFFSET_CHECK_POSITIVE )
@@ -169,12 +167,18 @@ public class Size
                 height = -Math.max( -height, -getMinHeight() );
         }
         
-        this.width = width;
-        this.height = height;
+        unbake();
         
-        applyLimits();
-        
-        widget.forceAndSetDirty();
+        if ( ( width != this.width ) || ( height != this.height ) )
+        {
+            this.width = width;
+            this.height = height;
+            
+            applyLimits();
+            
+            widget.forceAndSetDirty();
+        }
+        //widget.setDirtyFlag();
         
         return ( this );
     }

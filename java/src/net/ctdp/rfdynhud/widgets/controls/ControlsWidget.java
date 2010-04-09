@@ -110,7 +110,7 @@ public class ControlsWidget extends Widget
     }
     
     @Override
-    public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         int numBars = initSubTextures( widgetInnerWidth, widgetInnerHeight );
         
@@ -192,16 +192,6 @@ public class ControlsWidget extends Widget
             texBrake.setClipRect( 0, h - brake, texBrake.getWidth(), brake, true );
         if ( displayThrottle.getBooleanValue() )
             texThrottle.setClipRect( 0, h - throttle, texThrottle.getWidth(), throttle, true );
-        
-        if ( isEditorMode )
-        {
-            if ( displayClutch.getBooleanValue() )
-                texClutch.drawInEditor( texCanvas, offsetX, offsetY );
-            if ( displayBrake.getBooleanValue() )
-                texBrake.drawInEditor( texCanvas, offsetX, offsetY );
-            if ( displayThrottle.getBooleanValue() )
-                texThrottle.drawInEditor( texCanvas, offsetX, offsetY );
-        }
     }
     
     

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 
+import org.openmali.types.twodee.Rect2i;
+
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
@@ -74,6 +76,8 @@ public abstract class Widget implements Documented
     private boolean needsCompleteClear = false;
     
     private boolean initialized = false;
+    
+    private TransformableTexture[] subTextures = null;
     
     final void setConfiguration( WidgetsConfiguration config )
     {
@@ -179,9 +183,33 @@ public abstract class Widget implements Documented
      * 
      * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
      */
-    public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         return ( null );
+    }
+    
+    /**
+     * Gets the {@link TransformableTexture}s, that this {@link Widget} keeps.
+     * 
+     * @param isEditorMode
+     * @param widgetWidth
+     * @param widgetHeight
+     * 
+     * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
+     */
+    public final TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    {
+        if ( !initialized )
+        {
+            subTextures = getSubTexturesImpl( isEditorMode, widgetInnerWidth, widgetInnerHeight );
+        }
+        
+        return ( subTextures );
+    }
+    
+    final boolean isInitialized()
+    {
+        return ( initialized );
     }
     
     public void setDirtyFlag()
@@ -201,6 +229,7 @@ public abstract class Widget implements Documented
     
     public void forceReinitialization()
     {
+        //Thread.dumpStack();
         this.initialized = false;
         setDirtyFlag();
     }
@@ -753,6 +782,8 @@ public abstract class Widget implements Documented
      */
     public final void drawWidget( boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas )
     {
+        boolean wasInitialized = initialized;
+        
         int offsetX = position.getEffectiveX();
         int offsetY = position.getEffectiveY();
         int width = size.getEffectiveWidth();
@@ -814,6 +845,23 @@ public abstract class Widget implements Documented
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
         drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texCanvas, offsetX2, offsetY2, width2, height2 );
+        
+        if ( editorPresets != null )
+        {
+            initialized = wasInitialized;
+            TransformableTexture[] subTextures = getSubTextures( true, width2, height2 );
+            initialized = true;
+            
+            if ( subTextures != null )
+            {
+                texCanvas.setClip( (Rect2i)null );
+                
+                for ( int i = 0; i < subTextures.length; i++ )
+                {
+                    subTextures[i].drawInEditor( texCanvas, offsetX2, offsetY2 );
+                }
+            }
+        }
     }
     
     

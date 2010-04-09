@@ -110,7 +110,7 @@ public class MapWidget extends Widget
     }
     
     @Override
-    public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         initSubTextures( isEditorMode );
         
@@ -287,8 +287,6 @@ public class MapWidget extends Widget
     @Override
     public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         if ( ( track != null ) && ( texture != null ) )
@@ -366,11 +364,6 @@ public class MapWidget extends Widget
                                 
                                 tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, posNumberFontColor.getColor(), false, null );
                             }
-                        }
-                        
-                        if ( isEditorMode )
-                        {
-                            tt.drawInEditor( texCanvas, offsetX, offsetY );
                         }
                     }
                 }

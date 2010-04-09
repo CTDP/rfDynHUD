@@ -94,10 +94,6 @@ public class Position
      */
     public Position set( RelativePositioning positioning, float x, float y )
     {
-        unbake();
-        
-        this.positioning = positioning;
-        
         if ( widget.getConfiguration() != null )
         {
             if ( positioning.isHCenter() )
@@ -139,10 +135,20 @@ public class Position
             }
         }
         
-        this.x = x;
-        this.y = y;
+        unbake();
         
-        widget.forceAndSetDirty();
+        if ( ( positioning != this.positioning ) || ( x != this.x ) || ( y != this.y ) )
+        {
+            this.positioning = positioning;
+            
+            this.x = x;
+            this.y = y;
+            
+            //widget.forceAndSetDirty();
+            widget.forceCompleteRedraw();
+            widget.setDirtyFlag();
+        }
+        widget.setDirtyFlag();
         
         return ( this );
     }

@@ -141,7 +141,7 @@ public class EditorPanel extends JPanel
     @Override
     public void paintComponent( Graphics g )
     {
-        super.paintComponent( g );
+        //super.paintComponent( g );
         
         //System.out.println( "paintComponent()" );
         
@@ -188,8 +188,8 @@ public class EditorPanel extends JPanel
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             TextureDirtyRectsManager.getDirtyRects( frameIndex, overlay, dirtyRectsBuffer, true );
             
-            short numDirtyRecty = dirtyRectsBuffer.getShort();
-            for ( short i = 0; i < numDirtyRecty; i++ )
+            short numDirtyRects = dirtyRectsBuffer.getShort();
+            for ( short i = 0; i < numDirtyRects; i++ )
             {
                 int drX = dirtyRectsBuffer.getShort();
                 int drY = dirtyRectsBuffer.getShort();

@@ -204,7 +204,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 {
                     widgetsManager.clearCompleteTexture();
                     TextureDirtyRectsManager.forceCompleteRedraw();
-                    widgetsManager.collectTextures( isEditorMode, gameData, widgetsManager );
+                    widgetsManager.collectTextures( isEditorMode, gameData );
                 }
             }
             
@@ -241,7 +241,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 //widgetsManager.clearCompleteTexture();
                 //TextureDirtyRectsManager.forceCompleteRedraw();
                 
-                widgetsManager.collectTextures( isEditorMode, gameData, widgetsManager );
+                widgetsManager.collectTextures( isEditorMode, gameData );
                 
                 if ( rfDynHUD != null )
                 {

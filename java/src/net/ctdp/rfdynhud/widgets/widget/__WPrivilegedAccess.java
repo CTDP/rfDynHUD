@@ -13,4 +13,9 @@ public class __WPrivilegedAccess
     {
         widget.setLocalStore( localStore );
     }
+    
+    public static final boolean isInitialized( Widget widget )
+    {
+        return ( widget.isInitialized() );
+    }
 }

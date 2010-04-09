@@ -13,8 +13,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-import org.openmali.types.twodee.Rect2i;
-
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
@@ -437,7 +435,7 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
-    public TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetWidth, int widgetHeight )
+    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetWidth, int widgetHeight )
     {
         int n = 0;
         
@@ -959,47 +957,14 @@ public class RevMeterWidget extends Widget
             needleTexture.setRotation( -rot0 - rot );
         }
         
-        if ( isEditorMode )
-        {
-            if ( needleTexture != null )
-            {
-                needleTexture.drawInEditor( texCanvas, offsetX, offsetY );
-            }
-            
-            if ( shiftLightTexture != null )
-            {
-                Rect2i clip = new Rect2i();
-                shiftLightTexture.getClipRect( clip );
-                if ( ( clip.getWidth() <= 0 ) || ( clip.getHeight() <= 0 ) )
-                    clip.set( 0, 0, shiftLightTexture.getWidth(), shiftLightTexture.getHeight() );
-                texCanvas.getImage().clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), clip.getWidth(), clip.getHeight(), true, null );
-                shiftLightTexture.drawInEditor( texCanvas, offsetX, offsetY );
-            }
-        }
-        
         if ( gearBackgroundTexture != null )
-        {
-            if ( isEditorMode )
-                gearBackgroundTexture.drawInEditor( texCanvas, offsetX + gearBackgroundTexPosX, offsetY + gearBackgroundTexPosY );
-            else
-                gearBackgroundTexture.setTranslation( gearBackgroundTexPosX, gearBackgroundTexPosY );
-        }
+            gearBackgroundTexture.setTranslation( gearBackgroundTexPosX, gearBackgroundTexPosY );
         
         if ( boostNumberBackgroundTexture != null )
-        {
-            if ( isEditorMode )
-                boostNumberBackgroundTexture.drawInEditor( texCanvas, offsetX + boostNumberBackgroundTexPosX, offsetY + boostNumberBackgroundTexPosY );
-            else
-                boostNumberBackgroundTexture.setTranslation( boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY );
-        }
+            boostNumberBackgroundTexture.setTranslation( boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY );
         
         if ( velocityBackgroundTexture != null )
-        {
-            if ( isEditorMode )
-                velocityBackgroundTexture.drawInEditor( texCanvas, offsetX + velocityBackgroundTexPosX, offsetY + velocityBackgroundTexPosY );
-            else
-                velocityBackgroundTexture.setTranslation( velocityBackgroundTexPosX, velocityBackgroundTexPosY );
-        }
+            velocityBackgroundTexture.setTranslation( velocityBackgroundTexPosX, velocityBackgroundTexPosY );
     }
     
     /**
