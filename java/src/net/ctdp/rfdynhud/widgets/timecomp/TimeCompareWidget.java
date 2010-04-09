@@ -40,6 +40,12 @@ public class TimeCompareWidget extends Widget
     private int[] colWidths = null;
     private final Alignment[] aligns = { Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT };
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     /**
      * {@inheritDoc}
      */

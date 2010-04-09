@@ -86,6 +86,12 @@ public class TimingWidget extends Widget
     
     private boolean delayedAbsFastestIsOwn = false;
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     /**
      * {@inheritDoc}
      */

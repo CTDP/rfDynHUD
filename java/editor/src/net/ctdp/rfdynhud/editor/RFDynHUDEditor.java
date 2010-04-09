@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
@@ -16,7 +17,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -900,6 +905,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         copyPropertiesFromTemplate( flTemplate, flTarget );
     }
     
+    private static Widget createWidgetInstance( Class<?> widgetClass, WidgetsConfiguration widgetsConfig ) throws InvocationTargetException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, NoSuchMethodException
+    {
+        String name = ( widgetsConfig != null ) ? widgetsConfig.findFreeName( widgetClass.getSimpleName() ) : "";
+        
+        return ( (Widget)widgetClass.getConstructor( String.class ).newInstance( name ) );
+    }
+    
     private Widget addNewWidget( Class<?> widgetClazz )
     {
         Widget widget = null;
@@ -909,7 +921,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
             
             //widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
-            widget = (Widget)widgetClazz.getConstructor( String.class ).newInstance( getEditorPanel().getWidgetsDrawingManager().findFreeName( widgetClazz.getSimpleName() ) );
+            widget = createWidgetInstance( widgetClazz, getEditorPanel().getWidgetsDrawingManager() );
             copyPropertiesFromTemplate( widget );
             getEditorPanel().getWidgetsDrawingManager().addWidget( widget );
             if ( optionsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
@@ -1049,6 +1061,100 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( widgetMenuItem );
     }
     
+    /*
+    @SuppressWarnings( "unchecked" )
+    private void applyHierarchy( String[] path, int offset, HashMap<String, Object> map )
+    {
+        HashMap<String, Object> map2 = (HashMap<String, Object>)map.get( path[offset] );
+        if ( map2 == null )
+        {
+            map2 = new HashMap<String, Object>();
+            map.put( path[offset], map2 );
+        }
+        
+        if ( offset < path.length - 1 )
+        {
+            applyHierarchy( path, offset + 1, map2 );
+        }
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    private void collapseSingleEntries( HashMap<String, Object> map )
+    {
+        ArrayList<String> keys = new ArrayList<String>( map.keySet() );
+        
+        for ( String key : keys )
+        {
+            HashMap<String, Object> map2 = (HashMap<String, Object>)map.get( key );
+            
+            if ( map2 != null )
+            {
+                if ( map2.size() == 1 )
+                {
+                    String key2 = map2.keySet().iterator().next();
+                    String newKey = key + "/" + key2;
+                }
+                else if ( map2.size() > 1 )
+                {
+                    collapseSingleEntries( map2 );
+                }
+            }
+        }
+    }
+    
+    private HashMap<String, Object> buildHierarchy( List<Class<?>> classes, HashMap<Class<?>, Widget> instances )
+    {
+        HashMap<String, Object> hierarchy = new HashMap<String, Object>();
+        
+        for ( Class<?> clazz : classes )
+        {
+            try
+            {
+                Widget widget = createWidgetInstance( clazz, null );
+                instances.put( clazz, widget );
+                String pkg = widget.getWidgetPackage();
+                
+                String[] path = pkg.split( "/" );
+                
+                applyHierarchy( path, 0, hierarchy );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
+        }
+        
+        return ( hierarchy );
+    }
+    */
+    
+    private JMenu getMenu( JMenu parent, String[] pkg, int i )
+    {
+        for ( Component c : parent.getMenuComponents() )
+        {
+            if ( c instanceof JMenu )
+            {
+                JMenu m = (JMenu)c;
+                
+                if ( m.getText().equals( pkg[i] ) )
+                {
+                    if ( i < pkg.length - 1 )
+                        return ( getMenu( m, pkg, i + 1 ) );
+                    
+                    return ( m );
+                }
+            }
+        }
+        
+        JMenu m = new JMenu( pkg[i] );
+        parent.add( m );
+        
+        if ( i < pkg.length - 1 )
+            return ( getMenu( m, pkg, i + 1 ) );
+        
+        return ( m );
+    }
+    
     private JMenu createWidgetsMenu()
     {
         JMenu menu = new JMenu( "Widgets" );
@@ -1057,9 +1163,64 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         List<String> packages = PackageSearcher.findPackages( "*widgets*" );
         List<Class<?>> classes = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ), packages.toArray( new String[ packages.size() ] ) );
         
+        Collections.sort( classes, new Comparator< Class<?> >()
+        {
+            @Override
+            public int compare( Class<?> o1, Class<?> o2 )
+            {
+                return ( String.CASE_INSENSITIVE_ORDER.compare( o1.getSimpleName(), o2.getSimpleName() ) );
+            }
+        } );
+        
+        HashMap<Class<?>, Widget> instances = new HashMap<Class<?>, Widget>();
+        /*
+        HashMap<String, Object> hierarchy = buildHierarchy( classes, instances );
+        System.out.println( hierarchy );
         for ( Class<?> clazz : classes )
         {
-            menu.add( createWidgetMenuItem( clazz ) );
+            Widget widget = instances.get( clazz );
+            String pkg = widget.getWidgetPackage();
+            
+            String[] path = pkg.split( "/" );
+            
+            applyHierarchy( path, 0, hierarchy );
+        }
+        */
+        
+        ArrayList<String> widgetPackages = new ArrayList<String>();
+        for ( Class<?> clazz : classes )
+        {
+            try
+            {
+                Widget widget = createWidgetInstance( clazz, null );
+                instances.put( clazz, widget );
+                widgetPackages.add( widget.getWidgetPackage() );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
+        }
+        
+        Collections.sort( widgetPackages, String.CASE_INSENSITIVE_ORDER );
+        
+        for ( String widgetPackage : widgetPackages )
+        {
+            String[] pkg = widgetPackage.split( "/" );
+            
+            if ( ( pkg.length > 1 ) || !pkg[0].equals( "" ) )
+                getMenu( menu, pkg, 0 );
+        }
+        
+        for ( Class<?> clazz : classes )
+        {
+            Widget widget = instances.get( clazz );
+            String[] pkg = widget.getWidgetPackage().split( "/" );
+            
+            if ( ( pkg.length == 1 ) && pkg[0].equals( "" ) )
+                menu.add( createWidgetMenuItem( clazz ) );
+            else
+                getMenu( menu, pkg, 0 ).add( createWidgetMenuItem( clazz ) );
         }
         
         menu.add( new JSeparator() );

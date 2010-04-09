@@ -64,6 +64,12 @@ public class ControlsWidget extends Widget
     
     private final IntegerProperty gap = new IntegerProperty( this, "gap", 10 );
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     private int initSubTextures( int widgetInnerWidth, int widgetInnerHeight )
     {
         int numBars = 0;

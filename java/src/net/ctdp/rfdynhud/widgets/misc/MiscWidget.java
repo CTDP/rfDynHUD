@@ -85,6 +85,12 @@ public class MiscWidget extends Widget
     private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
     private static final int padding = 4;
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     /**
      * {@inheritDoc}
      */

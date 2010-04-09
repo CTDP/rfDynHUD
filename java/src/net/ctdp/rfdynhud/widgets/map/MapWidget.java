@@ -67,6 +67,12 @@ public class MapWidget extends Widget
     
     private final Point2D.Float position = new Point2D.Float();
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     public void setItemRadius( int radius )
     {
         this.baseItemRadius = radius;

@@ -117,6 +117,12 @@ public class WearWidget extends Widget
     
     private int[] oldTireWear = { -1, -1, -1, -1 };
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     /**
      * {@inheritDoc}
      */

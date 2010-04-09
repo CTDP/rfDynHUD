@@ -79,6 +79,14 @@ public abstract class Widget implements Documented
     
     private TransformableTexture[] subTextures = null;
     
+    /**
+     * Gets the package to group the Widget in the editor.
+     * This can be an empty String to be displayed in the root or a slash separated path.
+     * 
+     * @return the package to group the Widget in the editor.
+     */
+    public abstract String getWidgetPackage();
+    
     final void setConfiguration( WidgetsConfiguration config )
     {
         this.config = config;

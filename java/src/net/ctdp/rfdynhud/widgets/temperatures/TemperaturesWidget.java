@@ -96,6 +96,12 @@ public class TemperaturesWidget extends Widget
     private int[] oldBrakeTemps = { -1, -1, -1, -1 };
     private long lastBrakeTempTime = -1L;
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     /**
      * {@inheritDoc}
      */

@@ -83,6 +83,12 @@ public class StandingsWidget extends Widget
     
     private SessionType lastKnownSessionType = SessionType.PRACTICE1;
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     /**
      * {@inheritDoc}
      */

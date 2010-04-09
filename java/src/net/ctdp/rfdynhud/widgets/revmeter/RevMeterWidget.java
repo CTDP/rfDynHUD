@@ -218,6 +218,12 @@ public class RevMeterWidget extends Widget
     private final IntValue boost = new IntValue();
     private final IntValue velocity = new IntValue();
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     /**
      * {@inheritDoc}
      */

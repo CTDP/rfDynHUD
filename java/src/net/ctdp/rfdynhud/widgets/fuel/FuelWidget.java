@@ -103,6 +103,12 @@ public class FuelWidget extends Widget
     //private float lastFuelUsage = -1f;
     private int oldFuel = -1;
     
+    @Override
+    public String getWidgetPackage()
+    {
+        return ( "" );
+    }
+    
     /**
      * {@inheritDoc}
      */
