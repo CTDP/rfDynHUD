@@ -62,8 +62,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         int y = e.getY();
         
         selectedWidget = getWidgetUnderMouse( x, y );
+        //boolean widgetChanged = ( selectedWidget != editor.getEditorPanel().getSelectedWidget() );
         
-        editor.onWidgetSelected( selectedWidget );
+        //if ( widgetChanged )
+            editor.onWidgetSelected( selectedWidget );
         
         if ( selectedWidget != null )
         {

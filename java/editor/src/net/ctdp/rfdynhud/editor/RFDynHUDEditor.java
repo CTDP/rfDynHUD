@@ -222,49 +222,49 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( "" );
     }
     
+    private Property currentDocedProperty = null;
+    private Widget currentDocedWidget = null;
+    
     public void onPropertySelected( Property property, int row )
     {
         if ( property == null )
         {
+            if ( currentDocedWidget != editorPanel.getSelectedWidget() )
+            {
+                if ( editorPanel.getSelectedWidget() == null )
+                {
+                    docPanel.setText( doc_header + "" + doc_footer );
+                }
+                else
+                {
+                    String helpText = editorPanel.getSelectedWidget().getDocumentationSource( null );
+                    if ( helpText == null )
+                        docPanel.setText( doc_header + "" + doc_footer );
+                    else
+                        docPanel.setText( doc_header + helpText + doc_footer );
+                }
+                
+                docPanel.setCaretPosition( 0 );
+            }
+            
+            currentDocedProperty = null;
+            currentDocedWidget = editorPanel.getSelectedWidget();
+        }
+        else if ( property != currentDocedProperty )
+        {
             if ( editorPanel.getSelectedWidget() == null )
             {
-                docPanel.setText( doc_header + "" + doc_footer );
+                docPanel.setText( doc_header + getDocumentationSource( property ) + doc_footer );
             }
             else
             {
-                String helpText = editorPanel.getSelectedWidget().getDocumentationSource( null );
-                if ( helpText == null )
-                    docPanel.setText( doc_header + "" + doc_footer );
-                else
-                    docPanel.setText( doc_header + helpText + doc_footer );
-                
-                new Thread()
-                {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            Thread.sleep( 200L );
-                        }
-                        catch ( Throwable t )
-                        {
-                        }
-                        
-                        JScrollPane sp = (JScrollPane)docPanel.getParent().getParent();
-                        sp.getHorizontalScrollBar().setValue( 0 );
-                        sp.getVerticalScrollBar().setValue( 0 );
-                    }
-                }.start();
+                docPanel.setText( doc_header + editorPanel.getSelectedWidget().getDocumentationSource( property ) + doc_footer );
             }
-        }
-        else if ( editorPanel.getSelectedWidget() == null )
-        {
-            docPanel.setText( doc_header + getDocumentationSource( property ) + doc_footer );
-        }
-        else
-        {
-            docPanel.setText( doc_header + editorPanel.getSelectedWidget().getDocumentationSource( property ) + doc_footer );
+            
+            docPanel.setCaretPosition( 0 );
+            
+            currentDocedProperty = property;
+            currentDocedWidget = null;
         }
     }
     
@@ -359,7 +359,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         if ( widget == null )
         {
-            getProperties( propsList );
+            this.getProperties( propsList );
         }
         else
         {
@@ -1608,6 +1608,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         docPanel = new JEditorPane( "text/html", "" );
         ( (HTMLDocument)docPanel.getDocument() ).getStyleSheet().importStyleSheet( RFDynHUDEditor.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc.css" ) );
         docPanel.setEditable( false );
+        docPanel.setAutoscrolls( false );
         JScrollPane sp = new JScrollPane( docPanel );
         sp.setMinimumSize( new Dimension( 300, 10 ) );
         split2.add( sp );
