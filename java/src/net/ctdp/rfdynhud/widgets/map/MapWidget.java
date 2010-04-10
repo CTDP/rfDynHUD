@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
@@ -31,6 +30,7 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.Track;
 import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -427,13 +427,13 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
+        propsCont.addGroup( "Specific" );
         
-        props.add( new Property( "itemRadius", PropertyEditorType.INTEGER )
+        propsCont.addProperty( new Property( "itemRadius", PropertyEditorType.INTEGER )
         {
             @Override
             public void setValue( Object value )
@@ -448,19 +448,17 @@ public class MapWidget extends Widget
             }
         } );
         
-        props.add( markColorNormal );
-        props.add( markColorLeader );
-        props.add( markColorMe );
-        props.add( markColorNextInFront );
-        props.add( markColorNextBehind );
+        propsCont.addProperty( markColorNormal );
+        propsCont.addProperty( markColorLeader );
+        propsCont.addProperty( markColorMe );
+        propsCont.addProperty( markColorNextInFront );
+        propsCont.addProperty( markColorNextBehind );
         
-        props.add( maxDisplayedVehicles );
+        propsCont.addProperty( maxDisplayedVehicles );
         
-        props.add( displayPositionNumbers );
-        props.add( posNumberFont );
-        props.add( posNumberFontColor );
-        
-        propsList.add( props );
+        propsCont.addProperty( displayPositionNumbers );
+        propsCont.addProperty( posNumberFont );
+        propsCont.addProperty( posNumberFontColor );
     }
     
     /*

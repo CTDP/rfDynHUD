@@ -4,14 +4,16 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BorderProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
+import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
@@ -408,15 +410,11 @@ public class WidgetsConfiguration
         return ( color );
     }
     
-    private static void renameColorPropertyValues( FlaggedList parent, String oldName, String newName )
+    private static void renameColorPropertyValues( List<Property> list, String oldName, String newName )
     {
-        for ( Object prop : parent )
+        for ( Property prop : list )
         {
-            if ( prop instanceof FlaggedList )
-            {
-                renameColorPropertyValues( (FlaggedList)prop, oldName, newName );
-            }
-            else if ( prop instanceof ColorProperty )
+            if ( prop instanceof ColorProperty )
             {
                 ColorProperty colorProp = (ColorProperty)prop;
                 if ( ( colorProp.getValue() != null ) && colorProp.getValue().equals( oldName ) )
@@ -434,13 +432,13 @@ public class WidgetsConfiguration
         colorMap.remove( oldName );
         colorMap.put( newName, color );
         
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( Widget widget : widgets )
         {
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            renameColorPropertyValues( root, oldName, newName );
+            renameColorPropertyValues( propsCont.getList(), oldName, newName );
         }
     }
     
@@ -452,13 +450,13 @@ public class WidgetsConfiguration
         
         colorMap.remove( oldName );
         
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( Widget widget : widgets )
         {
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            renameColorPropertyValues( root, oldName, newValue );
+            renameColorPropertyValues( propsCont.getList(), oldName, newValue );
         }
     }
     
@@ -552,15 +550,11 @@ public class WidgetsConfiguration
         return ( font );
     }
     
-    private static void renameFontPropertyValues( FlaggedList parent, String oldName, String newName )
+    private static void renameFontPropertyValues( List<Property> list, String oldName, String newName )
     {
-        for ( Object prop : parent )
+        for ( Property prop : list )
         {
-            if ( prop instanceof FlaggedList )
-            {
-                renameFontPropertyValues( (FlaggedList)prop, oldName, newName );
-            }
-            else if ( prop instanceof FontProperty )
+            if ( prop instanceof FontProperty )
             {
                 FontProperty fontProp = (FontProperty)prop;
                 if ( ( fontProp.getValue() != null ) && fontProp.getValue().equals( oldName ) )
@@ -569,15 +563,11 @@ public class WidgetsConfiguration
         }
     }
     
-    private static void resetAllFontProperties( FlaggedList parent )
+    private static void resetAllFontProperties( List<Property> list )
     {
-        for ( Object prop : parent )
+        for ( Property prop : list )
         {
-            if ( prop instanceof FlaggedList )
-            {
-                resetAllFontProperties( (FlaggedList)prop );
-            }
-            else if ( prop instanceof FontProperty )
+            if ( prop instanceof FontProperty )
             {
                 FontProperty fontProp = (FontProperty)prop;
                 fontProp.setValue( fontProp.getValue() );
@@ -587,13 +577,13 @@ public class WidgetsConfiguration
     
     private void resetAllFontProperties()
     {
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( Widget widget : widgets )
         {
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            resetAllFontProperties( root );
+            resetAllFontProperties( propsCont.getList() );
         }
     }
     
@@ -608,13 +598,13 @@ public class WidgetsConfiguration
         fontStringMap.put( newName, fontStringMap.remove( oldName ) );
         fontVirtualMap.put( newName, fontVirtualMap.remove( oldName ) );
         
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( Widget widget : widgets )
         {
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            renameFontPropertyValues( root, oldName, newName );
+            renameFontPropertyValues( propsCont.getList(), oldName, newName );
             //break;
         }
     }
@@ -629,13 +619,13 @@ public class WidgetsConfiguration
         fontStringMap.remove( oldName );
         fontVirtualMap.remove( oldName );
         
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( Widget widget : widgets )
         {
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            renameFontPropertyValues( root, oldName, newValue );
+            renameFontPropertyValues( propsCont.getList(), oldName, newValue );
             //break;
         }
     }
@@ -696,15 +686,11 @@ public class WidgetsConfiguration
         return ( border );
     }
     
-    private static void renameBorderPropertyValues( FlaggedList parent, String oldName, String newName )
+    private static void renameBorderPropertyValues( List<Property> list, String oldName, String newName )
     {
-        for ( Object prop : parent )
+        for ( Property prop : list )
         {
-            if ( prop instanceof FlaggedList )
-            {
-                renameBorderPropertyValues( (FlaggedList)prop, oldName, newName );
-            }
-            else if ( prop instanceof BorderProperty )
+            if ( prop instanceof BorderProperty )
             {
                 BorderProperty borderProp = (BorderProperty)prop;
                 if ( ( borderProp.getValue() != null ) && borderProp.getValue().equals( oldName ) )
@@ -722,13 +708,13 @@ public class WidgetsConfiguration
         borderMap.remove( oldName );
         borderMap.put( newName, border );
         
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( Widget widget : widgets )
         {
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            renameBorderPropertyValues( root, oldName, newName );
+            renameBorderPropertyValues( propsCont.getList(), oldName, newName );
             //break;
         }
     }
@@ -741,13 +727,13 @@ public class WidgetsConfiguration
         
         borderMap.remove( oldName );
         
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( Widget widget : widgets )
         {
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            renameBorderPropertyValues( root, oldName, newValue );
+            renameBorderPropertyValues( propsCont.getList(), oldName, newValue );
             //break;
         }
     }

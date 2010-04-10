@@ -14,7 +14,6 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.FloatProperty;
@@ -36,6 +35,7 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -1126,116 +1126,98 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
+        propsCont.addGroup( "Specific" );
         
-        props.add( backgroundImageName );
+        propsCont.addProperty( backgroundImageName );
         
-        FlaggedList needleProps = new FlaggedList( "Needle", true );
+        propsCont.addGroup( "Needle" );
         
-        needleProps.add( needleImageName );
-        needleProps.add( needleAxisBottomOffset );
-        needleProps.add( needleRotationForZeroRPM );
-        needleProps.add( needleRotationForMaxRPM );
+        propsCont.addProperty( needleImageName );
+        propsCont.addProperty( needleAxisBottomOffset );
+        propsCont.addProperty( needleRotationForZeroRPM );
+        propsCont.addProperty( needleRotationForMaxRPM );
         
-        props.add( needleProps );
+        propsCont.addGroup( "Rev Markers" );
         
-        FlaggedList revMarkersProps = new FlaggedList( "Rev Markers", true );
+        propsCont.addProperty( displayRevMarkers );
+        propsCont.addProperty( displayRevMarkerNumbers );
+        propsCont.addProperty( revMarkersInnerRadius );
+        propsCont.addProperty( revMarkersLength );
+        propsCont.addProperty( revMarkersBigStep );
+        propsCont.addProperty( revMarkersSmallStep );
+        propsCont.addProperty( revMarkersColor );
+        propsCont.addProperty( revMarkersMediumColor );
+        propsCont.addProperty( revMarkersHighColor );
+        propsCont.addProperty( fillHighBackground );
+        propsCont.addProperty( interpolateMarkerColors );
+        propsCont.addProperty( revMarkersFont );
+        propsCont.addProperty( revMarkersFontColor );
         
-        revMarkersProps.add( displayRevMarkers );
-        revMarkersProps.add( displayRevMarkerNumbers );
-        revMarkersProps.add( revMarkersInnerRadius );
-        revMarkersProps.add( revMarkersLength );
-        revMarkersProps.add( revMarkersBigStep );
-        revMarkersProps.add( revMarkersSmallStep );
-        revMarkersProps.add( revMarkersColor );
-        revMarkersProps.add( revMarkersMediumColor );
-        revMarkersProps.add( revMarkersHighColor );
-        revMarkersProps.add( fillHighBackground );
-        revMarkersProps.add( interpolateMarkerColors );
-        revMarkersProps.add( revMarkersFont );
-        revMarkersProps.add( revMarkersFontColor );
+        propsCont.addGroup( "Shift Light" );
         
-        props.add( revMarkersProps );
+        propsCont.addProperty( displayShiftLight );
+        propsCont.addProperty( shiftLightImageName );
+        propsCont.addProperty( shiftLightPosX );
+        propsCont.addProperty( shiftLightPosY );
+        propsCont.addProperty( shiftLightRPM );
         
-        FlaggedList shiftLightProps = new FlaggedList( "Shift Light", true );
+        propsCont.addGroup( "Gear" );
         
-        shiftLightProps.add( displayShiftLight );
-        shiftLightProps.add( shiftLightImageName );
-        shiftLightProps.add( shiftLightPosX );
-        shiftLightProps.add( shiftLightPosY );
-        shiftLightProps.add( shiftLightRPM );
+        propsCont.addProperty( gearBackgroundImageName );
+        propsCont.addProperty( gearPosX );
+        propsCont.addProperty( gearPosY );
+        propsCont.addProperty( gearFont );
+        propsCont.addProperty( gearFontColor );
         
-        props.add( shiftLightProps );
+        propsCont.addGroup( "Engine Boost" );
         
-        FlaggedList gearProps = new FlaggedList( "Gear", true );
+        propsCont.addProperty( displayBoostBar );
+        propsCont.addProperty( boostBarPosX );
         
-        gearProps.add( gearBackgroundImageName );
-        gearProps.add( gearPosX );
-        gearProps.add( gearPosY );
-        gearProps.add( gearFont );
-        gearProps.add( gearFontColor );
+        propsCont.addProperty( boostBarPosY );
+        propsCont.addProperty( boostBarWidth );
+        propsCont.addProperty( boostBarHeight );
+        propsCont.addProperty( displayBoostNumber );
+        propsCont.addProperty( boostNumberBackgroundImageName );
+        propsCont.addProperty( boostNumberPosX );
+        propsCont.addProperty( boostNumberPosY );
+        propsCont.addProperty( boostNumberFont );
+        propsCont.addProperty( boostNumberFontColor );
         
-        props.add( gearProps );
+        propsCont.addGroup( "Velocity" );
         
-        FlaggedList boostProps = new FlaggedList( "Engine Boost", true );
+        propsCont.addProperty( displayVelocity );
+        propsCont.addProperty( velocityBackgroundImageName );
+        propsCont.addProperty( velocityPosX );
+        propsCont.addProperty( velocityPosY );
+        propsCont.addProperty( velocityFont );
+        propsCont.addProperty( velocityFontColor );
         
-        boostProps.add( displayBoostBar );
-        boostProps.add( boostBarPosX );
+        propsCont.addGroup( "DigitalRevs1" );
         
-        boostProps.add( boostBarPosY );
-        boostProps.add( boostBarWidth );
-        boostProps.add( boostBarHeight );
-        boostProps.add( displayBoostNumber );
-        boostProps.add( boostNumberBackgroundImageName );
-        boostProps.add( boostNumberPosX );
-        boostProps.add( boostNumberPosY );
-        boostProps.add( boostNumberFont );
-        boostProps.add( boostNumberFontColor );
+        propsCont.addProperty( displayRPMString1 );
+        propsCont.addProperty( displayCurrRPM1 );
+        propsCont.addProperty( displayMaxRPM1 );
+        propsCont.addProperty( rpmPosX1 );
+        propsCont.addProperty( rpmPosY1 );
+        propsCont.addProperty( rpmFont1 );
+        propsCont.addProperty( rpmFontColor1 );
+        propsCont.addProperty( rpmJoinString1 );
         
-        props.add( boostProps );
+        propsCont.addGroup( "DigitalRevs2" );
         
-        FlaggedList velocityProps = new FlaggedList( "Velocity", true );
-        
-        velocityProps.add( displayVelocity );
-        velocityProps.add( velocityBackgroundImageName );
-        velocityProps.add( velocityPosX );
-        velocityProps.add( velocityPosY );
-        velocityProps.add( velocityFont );
-        velocityProps.add( velocityFontColor );
-        
-        props.add( velocityProps );
-        
-        FlaggedList digiRPMProps1 = new FlaggedList( "DigitalRevs1", true );
-        
-        digiRPMProps1.add( displayRPMString1 );
-        digiRPMProps1.add( displayCurrRPM1 );
-        digiRPMProps1.add( displayMaxRPM1 );
-        digiRPMProps1.add( rpmPosX1 );
-        digiRPMProps1.add( rpmPosY1 );
-        digiRPMProps1.add( rpmFont1 );
-        digiRPMProps1.add( rpmFontColor1 );
-        digiRPMProps1.add( rpmJoinString1 );
-        
-        props.add( digiRPMProps1 );
-        
-        FlaggedList digiRPMProps2 = new FlaggedList( "DigitalRevs2", true );
-        
-        digiRPMProps2.add( displayRPMString2 );
-        digiRPMProps2.add( displayCurrRPM2 );
-        digiRPMProps2.add( displayMaxRPM2 );
-        digiRPMProps2.add( rpmPosX2 );
-        digiRPMProps2.add( rpmPosY2 );
-        digiRPMProps2.add( rpmFont2 );
-        digiRPMProps2.add( rpmFontColor2 );
-        digiRPMProps2.add( rpmJoinString2 );
-        
-        props.add( digiRPMProps2 );
-        
-        propsList.add( props );
+        propsCont.addProperty( displayRPMString2 );
+        propsCont.addProperty( displayCurrRPM2 );
+        propsCont.addProperty( displayMaxRPM2 );
+        propsCont.addProperty( rpmPosX2 );
+        propsCont.addProperty( rpmPosY2 );
+        propsCont.addProperty( rpmFont2 );
+        propsCont.addProperty( rpmFontColor2 );
+        propsCont.addProperty( rpmJoinString2 );
     }
     
     @Override

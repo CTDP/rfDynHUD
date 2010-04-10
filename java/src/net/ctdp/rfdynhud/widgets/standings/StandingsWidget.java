@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.EnumProperty;
@@ -22,6 +21,7 @@ import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.TimingUtil;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -925,17 +925,17 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
+        propsCont.addGroup( "Specific" );
         
-        props.add( fontColor_me );
-        props.add( fontColor_out );
-        props.add( fontColor_finished );
-        props.add( useAutoWidth );
-        props.add( new Property( "initialView", PropertyEditorType.ENUM )
+        propsCont.addProperty( fontColor_me );
+        propsCont.addProperty( fontColor_out );
+        propsCont.addProperty( fontColor_finished );
+        propsCont.addProperty( useAutoWidth );
+        propsCont.addProperty( new Property( "initialView", PropertyEditorType.ENUM )
         {
             @Override
             public void setValue( Object value )
@@ -953,11 +953,9 @@ public class StandingsWidget extends Widget
             }
         } );
         
-        props.add( forceLeaderDisplayed );
-        props.add( nameDisplayType );
-        props.add( abbreviate );
-        
-        propsList.add(  props );
+        propsCont.addProperty( forceLeaderDisplayed );
+        propsCont.addProperty( nameDisplayType );
+        propsCont.addProperty( abbreviate );
     }
     
     public StandingsWidget( String name )

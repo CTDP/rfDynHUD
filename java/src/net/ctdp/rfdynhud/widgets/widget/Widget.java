@@ -8,7 +8,6 @@ import java.util.HashMap;
 import org.openmali.types.twodee.Rect2i;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.BorderProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
@@ -31,6 +30,7 @@ import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.Position;
 import net.ctdp.rfdynhud.widgets._util.RelativePositioning;
 import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 
 /**
@@ -923,11 +923,11 @@ public abstract class Widget implements Documented
      * 
      * @param propsList
      */
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        FlaggedList props = new FlaggedList( "General", true );
+        propsCont.addGroup( "General" );
         
-        props.add( new Property( "type", true, PropertyEditorType.STRING )
+        propsCont.addProperty( new Property( "type", true, PropertyEditorType.STRING )
         {
             @Override
             public void setValue( Object value )
@@ -941,31 +941,29 @@ public abstract class Widget implements Documented
             }
         } );
         
-        props.add( name );
-        props.add( position.createPositioningProperty( "positioning" ) );
-        props.add( position.createXProperty( "x" ) );
-        props.add( position.createYProperty( "y" ) );
-        props.add( size.createWidthProperty( "width" ) );
-        props.add( size.createHeightProperty( "height" ) );
-        props.add( visible );
+        propsCont.addProperty( name );
+        propsCont.addProperty( position.createPositioningProperty( "positioning" ) );
+        propsCont.addProperty( position.createXProperty( "x" ) );
+        propsCont.addProperty( position.createYProperty( "y" ) );
+        propsCont.addProperty( size.createWidthProperty( "width" ) );
+        propsCont.addProperty( size.createHeightProperty( "height" ) );
+        propsCont.addProperty( visible );
         
         if ( canHaveBorder() )
         {
-            props.add( border );
+            propsCont.addProperty( border );
         }
         
         if ( hasBackgroundColor() )
         {
-            props.add( backgroundColor );
+            propsCont.addProperty( backgroundColor );
         }
         
         if ( hasText() )
         {
-            props.add( font );
-            props.add( fontColor );
+            propsCont.addProperty( font );
+            propsCont.addProperty( fontColor );
         }
-        
-        propsList.add( props );
     }
     
     private String getDocumentationSource( Class<?> clazz, Property property )

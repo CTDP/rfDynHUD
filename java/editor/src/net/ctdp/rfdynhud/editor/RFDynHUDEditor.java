@@ -50,6 +50,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
 import net.ctdp.rfdynhud.editor.options.OptionsWindow;
 import net.ctdp.rfdynhud.editor.options.ScaleType;
+import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.EditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.Property;
@@ -74,6 +75,8 @@ import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -268,11 +271,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
-    private void getProperties( FlaggedList propsList )
+    private void getProperties( WidgetPropertiesContainer propsCont )
     {
-        FlaggedList props = new FlaggedList( "General", true );
+        propsCont.addGroup( "General" );
         
-        props.add( new Property( "resolution", true, PropertyEditorType.STRING )
+        propsCont.addProperty( new Property( "resolution", true, PropertyEditorType.STRING )
         {
             @Override
             public void setValue( Object value )
@@ -286,7 +289,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
         } );
         
-        props.add( new Property( "screenshotSet", true, PropertyEditorType.STRING )
+        propsCont.addProperty( new Property( "screenshotSet", true, PropertyEditorType.STRING )
         {
             @Override
             public void setValue( Object value )
@@ -300,7 +303,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
         } );
         
-        props.add( new Property( "templateConfig", true, PropertyEditorType.STRING )
+        propsCont.addProperty( new Property( "templateConfig", true, PropertyEditorType.STRING )
         {
             @Override
             public void setValue( Object value )
@@ -316,8 +319,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 return ( currentTemplateFile.getAbsolutePath().substring( RFactorTools.CONFIG_PATH.length() + 1 ) );
             }
         } );
-        
-        propsList.add( props );
     }
     
     private static void readExpandFlags( FlaggedList list, String keyPrefix, HashMap<String, Boolean> map )
@@ -359,11 +360,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         if ( widget == null )
         {
-            this.getProperties( propsList );
+            this.getProperties( new DefaultWidgetPropertiesContainer( propsList ) );
         }
         else
         {
-            widget.getProperties( propsList );
+            widget.getProperties( new DefaultWidgetPropertiesContainer( propsList ) );
         }
         
         onPropertySelected( null, -1 );
@@ -857,20 +858,16 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         System.exit( 0 );
     }
     
-    private void copyPropertiesFromTemplate( FlaggedList flTemplate, FlaggedList flTarget )
+    private void copyPropertiesFromTemplate( List<Property> lstTemplate, List<Property> lstTarget )
     {
         // We assume, that the order will be the same in both lists.
         
-        for ( int i = 0; i < flTemplate.size(); i++ )
+        for ( int i = 0; i < lstTemplate.size(); i++ )
         {
-            if ( flTemplate.get( i ) instanceof FlaggedList )
+            if ( lstTemplate.get( i ) instanceof Property )
             {
-                copyPropertiesFromTemplate( (FlaggedList)flTemplate.get( i ), (FlaggedList)flTarget.get( i ) );
-            }
-            else if ( flTemplate.get( i ) instanceof Property )
-            {
-                Property p0 = (Property)flTemplate.get( i );
-                Property p1 = (Property)flTarget.get( i );
+                Property p0 = (Property)lstTemplate.get( i );
+                Property p1 = (Property)lstTarget.get( i );
                 
                 if ( !p0.getPropertyName().equals( "x" ) && !p0.getPropertyName().equals( "y" ) && !p0.getPropertyName().equals( "positioning" ) )
                     p1.setValue( p0.getValue() );
@@ -896,13 +893,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         if ( template == null )
             return;
         
-        FlaggedList flTemplate = new FlaggedList( "" );
-        FlaggedList flTarget = new FlaggedList( "" );
+        FlatWidgetPropertiesContainer pcTemplate = new FlatWidgetPropertiesContainer();
+        FlatWidgetPropertiesContainer pcTarget = new FlatWidgetPropertiesContainer();
         
-        template.getProperties( flTemplate );
-        widget.getProperties( flTarget );
+        template.getProperties( pcTemplate );
+        widget.getProperties( pcTarget );
         
-        copyPropertiesFromTemplate( flTemplate, flTarget );
+        copyPropertiesFromTemplate( pcTemplate.getList(), pcTarget.getList() );
     }
     
     private static Widget createWidgetInstance( Class<?> widgetClass, WidgetsConfiguration widgetsConfig ) throws InvocationTargetException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, NoSuchMethodException

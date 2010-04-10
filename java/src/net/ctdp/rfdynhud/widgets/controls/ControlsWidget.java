@@ -3,7 +3,6 @@ package net.ctdp.rfdynhud.widgets.controls;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
@@ -13,6 +12,7 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -239,21 +239,19 @@ public class ControlsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
+        propsCont.addGroup( "Specific" );
         
-        props.add( displayClutch );
-        props.add( clutchColor );
-        props.add( displayBrake );
-        props.add( brakeColor );
-        props.add( displayThrottle );
-        props.add( throttleColor );
-        props.add( gap );
-        
-        propsList.add( props );
+        propsCont.addProperty( displayClutch );
+        propsCont.addProperty( clutchColor );
+        propsCont.addProperty( displayBrake );
+        propsCont.addProperty( brakeColor );
+        propsCont.addProperty( displayThrottle );
+        propsCont.addProperty( throttleColor );
+        propsCont.addProperty( gap );
     }
     
     @Override

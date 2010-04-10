@@ -47,6 +47,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -66,9 +67,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
+import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -245,15 +247,11 @@ public class FontChooser extends JPanel
         isRefillingNameCombo = false;
     }
     
-    private static void resetFontPropertyValues( FlaggedList parent )
+    private static void resetFontPropertyValues( List<Property> list )
     {
-        for ( Object prop : parent )
+        for ( Property prop : list )
         {
-            if ( prop instanceof FlaggedList )
-            {
-                resetFontPropertyValues( (FlaggedList)prop );
-            }
-            else if ( prop instanceof FontProperty )
+            if ( prop instanceof FontProperty )
             {
                 FontProperty fontProp = (FontProperty)prop;
                 fontProp.setValue( fontProp.getValue() );
@@ -264,17 +262,17 @@ public class FontChooser extends JPanel
     private void setAllWidgetsDirty( WidgetsConfiguration widgetsConfig )
     {
         int n = widgetsConfig.getNumWidgets();
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
             
             widget.forceAndSetDirty();
             
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            resetFontPropertyValues( root );
+            resetFontPropertyValues( propsCont.getList() );
         }
     }
     

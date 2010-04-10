@@ -2,9 +2,9 @@ package net.ctdp.rfdynhud.editor;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.FloatProperty;
 import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 
 public class EditorPresets
@@ -46,14 +46,14 @@ public class EditorPresets
         return ( brakeDiscThicknessRR.getFloatValue() );
     }
     
-    void getProperties( FlaggedList props )
+    void getProperties( WidgetPropertiesContainer propsCont )
     {
-        props.add( engineRPM );
-        props.add( engineLifetime );
-        props.add( brakeDiscThicknessFL );
-        props.add( brakeDiscThicknessFR );
-        props.add( brakeDiscThicknessRL );
-        props.add( brakeDiscThicknessRR );
+        propsCont.addProperty( engineRPM );
+        propsCont.addProperty( engineLifetime );
+        propsCont.addProperty( brakeDiscThicknessFL );
+        propsCont.addProperty( brakeDiscThicknessFR );
+        propsCont.addProperty( brakeDiscThicknessRL );
+        propsCont.addProperty( brakeDiscThicknessRR );
     }
     
     void saveProperties( WidgetsConfigurationWriter writer ) throws IOException

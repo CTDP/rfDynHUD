@@ -21,6 +21,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.Box;
@@ -41,9 +42,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
+import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.openmali.vecmath2.util.ColorUtils;
@@ -259,15 +261,11 @@ public class ColorChooser extends JPanel
         isRefillingNameCombo = false;
     }
     
-    private static void resetColorPropertyValues( FlaggedList parent )
+    private static void resetColorPropertyValues( List<Property> list )
     {
-        for ( Object prop : parent )
+        for ( Property prop : list )
         {
-            if ( prop instanceof FlaggedList )
-            {
-                resetColorPropertyValues( (FlaggedList)prop );
-            }
-            else if ( prop instanceof ColorProperty )
+            if ( prop instanceof ColorProperty )
             {
                 ColorProperty colorProp = (ColorProperty)prop;
                 colorProp.setValue( colorProp.getValue() );
@@ -278,17 +276,17 @@ public class ColorChooser extends JPanel
     private void setAllWidgetsDirty( WidgetsConfiguration widgetsConfig )
     {
         int n = widgetsConfig.getNumWidgets();
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
             
             widget.forceAndSetDirty();
             
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            resetColorPropertyValues( root );
+            resetColorPropertyValues( propsCont.getList() );
         }
     }
     

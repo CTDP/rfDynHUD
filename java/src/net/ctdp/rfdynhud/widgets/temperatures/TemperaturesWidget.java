@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
@@ -24,6 +23,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -782,27 +782,25 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList superProps = (FlaggedList)propsList.get( propsList.size() - 1 );
+        propsCont.addProperty( font2 );
         
-        superProps.add( font2 );
+        propsCont.addGroup( "Specific" );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
+        propsCont.addProperty( displayEngine );
+        propsCont.addProperty( displayWaterTemp );
+        propsCont.addProperty( engineHeight.createHeightProperty( "engineHeight" ) );
+        propsCont.addProperty( displayTires );
+        propsCont.addProperty( tireSize.createWidthProperty( "tireWidth" ) );
+        propsCont.addProperty( tireSize.createHeightProperty( "tireHeight" ) );
+        propsCont.addProperty( displayBrakes );
+        propsCont.addProperty( brakeSize.createWidthProperty( "brakeWidth" ) );
+        propsCont.addProperty( brakeSize.createHeightProperty( "brakeHeight" ) );
         
-        props.add( displayEngine );
-        props.add( displayWaterTemp );
-        props.add( engineHeight.createHeightProperty( "engineHeight" ) );
-        props.add( displayTires );
-        props.add( tireSize.createWidthProperty( "tireWidth" ) );
-        props.add( tireSize.createHeightProperty( "tireHeight" ) );
-        props.add( displayBrakes );
-        props.add( brakeSize.createWidthProperty( "brakeWidth" ) );
-        props.add( brakeSize.createHeightProperty( "brakeHeight" ) );
-        
-        props.add( new Property( "brakeTempsPeekDelay", PropertyEditorType.INTEGER )
+        propsCont.addProperty( new Property( "brakeTempsPeekDelay", PropertyEditorType.INTEGER )
         {
             @Override
             public void setValue( Object value )
@@ -816,8 +814,6 @@ public class TemperaturesWidget extends Widget
                 return ( getBrakeTempsPeekDelay() );
             }
         } );
-        
-        propsList.add( props );
     }
     
     public TemperaturesWidget( String name )

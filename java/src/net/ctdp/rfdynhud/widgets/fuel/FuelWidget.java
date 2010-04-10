@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
@@ -24,6 +23,7 @@ import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.ValidityTest;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -496,21 +496,17 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList superProps = (FlaggedList)propsList.get( propsList.size() - 1 );
+        propsCont.addProperty( font2 );
         
-        superProps.add( font2 );
+        propsCont.addGroup( "Specific" );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
-        
-        props.add( fuelFont );
-        props.add( fuelFontColor );
-        props.add( roundUpRemainingLaps );
-        
-        propsList.add( props );
+        propsCont.addProperty( fuelFont );
+        propsCont.addProperty( fuelFontColor );
+        propsCont.addProperty( roundUpRemainingLaps );
     }
     
     public FuelWidget( String name )

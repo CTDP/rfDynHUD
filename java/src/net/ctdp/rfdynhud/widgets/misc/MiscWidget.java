@@ -3,7 +3,6 @@ package net.ctdp.rfdynhud.widgets.misc;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.EnumProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
@@ -27,6 +26,7 @@ import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.StringValue;
 import net.ctdp.rfdynhud.widgets._util.TimingUtil;
 import net.ctdp.rfdynhud.widgets._util.ValidityTest;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -518,18 +518,18 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
+        propsCont.addGroup( "Specific" );
         
-        props.add( displayScoring );
-        props.add( displayTiming );
-        props.add( lapDisplayType );
-        props.add( displayVelocity );
+        propsCont.addProperty( displayScoring );
+        propsCont.addProperty( displayTiming );
+        propsCont.addProperty( lapDisplayType );
+        propsCont.addProperty( displayVelocity );
         
-        props.add( new Property( "relTopspeedResetDelay", PropertyEditorType.INTEGER )
+        propsCont.addProperty( new Property( "relTopspeedResetDelay", PropertyEditorType.INTEGER )
         {
             @Override
             public void setValue( Object value )
@@ -543,8 +543,6 @@ public class MiscWidget extends Widget
                 return ( getRelTopspeedResetDelay() );
             }
         } );
-        
-        propsList.add( props );
     }
     
     public MiscWidget( String name )

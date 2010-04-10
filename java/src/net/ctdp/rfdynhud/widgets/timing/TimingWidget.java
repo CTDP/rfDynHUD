@@ -3,7 +3,6 @@ package net.ctdp.rfdynhud.widgets.timing;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
@@ -18,6 +17,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.TimingUtil;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -888,20 +888,18 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
+        propsCont.addGroup( "Specific" );
         
-        props.add( displayAbsFastest );
-        props.add( cumulativeSectors );
-        props.add( forceCurrentCumulSectors );
-        props.add( lastLapDisplayDelay );
-        props.add( slowerColor );
-        props.add( fasterColor );
-        
-        propsList.add( props );
+        propsCont.addProperty( displayAbsFastest );
+        propsCont.addProperty( cumulativeSectors );
+        propsCont.addProperty( forceCurrentCumulSectors );
+        propsCont.addProperty( lastLapDisplayDelay );
+        propsCont.addProperty( slowerColor );
+        propsCont.addProperty( fasterColor );
     }
     
     public TimingWidget( String name )

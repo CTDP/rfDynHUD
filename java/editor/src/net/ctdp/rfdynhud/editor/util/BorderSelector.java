@@ -42,10 +42,11 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BorderProperty;
+import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -200,15 +201,11 @@ public class BorderSelector extends DefaultTableModel
         }
     }
     
-    private static void resetBorderPropertyValues( FlaggedList parent )
+    private static void resetBorderPropertyValues( List<Property> list )
     {
-        for ( Object prop : parent )
+        for ( Property prop : list )
         {
-            if ( prop instanceof FlaggedList )
-            {
-                resetBorderPropertyValues( (FlaggedList)prop );
-            }
-            else if ( prop instanceof BorderProperty )
+            if ( prop instanceof BorderProperty )
             {
                 BorderProperty borderProp = (BorderProperty)prop;
                 borderProp.setValue( borderProp.getValue() );
@@ -219,17 +216,17 @@ public class BorderSelector extends DefaultTableModel
     private void setAllWidgetsDirty( WidgetsConfiguration widgetsConfig )
     {
         int n = widgetsConfig.getNumWidgets();
-        FlaggedList root = new FlaggedList( "root" );
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
             
             widget.forceAndSetDirty();
             
-            root.clear();
-            widget.getProperties( root );
+            propsCont.clear();
+            widget.getProperties( propsCont );
             
-            resetBorderPropertyValues( root );
+            resetBorderPropertyValues( propsCont.getList() );
         }
     }
     

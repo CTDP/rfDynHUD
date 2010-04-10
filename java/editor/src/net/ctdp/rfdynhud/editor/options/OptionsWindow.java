@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 import net.ctdp.rfdynhud.editor.EDPrivilegedAccess;
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.EditorTable;
 import net.ctdp.rfdynhud.editor.properties.EnumProperty;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
@@ -101,7 +102,7 @@ public class OptionsWindow extends JDialog implements PropertyChangeListener
         
         FlaggedList gameData = new FlaggedList( "Game Data", true );
         
-        EDPrivilegedAccess.getEditorPresetsProperties( editor.getEditorPresets(), gameData );
+        EDPrivilegedAccess.getEditorPresetsProperties( editor.getEditorPresets(), new DefaultWidgetPropertiesContainer( gameData ) );
         
         props.add( gameData );
     }

@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
 import net.ctdp.rfdynhud.editor.properties.EnumProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
@@ -22,6 +21,7 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.FloatValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -916,31 +916,27 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( FlaggedList propsList )
+    public void getProperties( WidgetPropertiesContainer propsCont )
     {
-        super.getProperties( propsList );
+        super.getProperties( propsCont );
         
-        FlaggedList superProps = (FlaggedList)propsList.get( propsList.size() - 1 );
+        propsCont.addProperty( font2 );
         
-        superProps.add( font2 );
+        propsCont.addGroup( "Specific" );
         
-        FlaggedList props = new FlaggedList( "Specific", true );
+        propsCont.addProperty( displayEngine );
+        propsCont.addProperty( engineHeight.createHeightProperty( "engineHeight" ) );
+        propsCont.addProperty( hundredPercentBase );
         
-        props.add( displayEngine );
-        props.add( engineHeight.createHeightProperty( "engineHeight" ) );
-        props.add( hundredPercentBase );
+        propsCont.addProperty( displayTires );
+        propsCont.addProperty( displayWearPercent );
+        propsCont.addProperty( displayCompoundName );
+        propsCont.addProperty( tireSize.createWidthProperty( "tireWidth" ) );
+        propsCont.addProperty( tireSize.createHeightProperty( "tireHeight" ) );
         
-        props.add( displayTires );
-        props.add( displayWearPercent );
-        props.add( displayCompoundName );
-        props.add( tireSize.createWidthProperty( "tireWidth" ) );
-        props.add( tireSize.createHeightProperty( "tireHeight" ) );
-        
-        props.add( displayBrakes );
-        props.add( brakeSize.createWidthProperty( "brakeWidth" ) );
-        props.add( brakeSize.createHeightProperty( "brakeHeight" ) );
-        
-        propsList.add( props );
+        propsCont.addProperty( displayBrakes );
+        propsCont.addProperty( brakeSize.createWidthProperty( "brakeWidth" ) );
+        propsCont.addProperty( brakeSize.createHeightProperty( "brakeHeight" ) );
     }
     
     public WearWidget( String name )
