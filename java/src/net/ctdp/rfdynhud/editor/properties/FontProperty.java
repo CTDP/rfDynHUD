@@ -128,7 +128,7 @@ public class FontProperty extends Property
     @Override
     public void setValue( Object value )
     {
-        setFont( String.valueOf( value ) );
+        setFont( ( value == null ) ? null : String.valueOf( value ) );
     }
     
     /**

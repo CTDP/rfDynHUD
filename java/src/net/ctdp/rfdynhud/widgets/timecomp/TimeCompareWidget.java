@@ -36,8 +36,9 @@ public class TimeCompareWidget extends Widget
     
     private int numDisplayedLaps = 0;
     
+    private static final Alignment[] colAligns = { Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT };
+    private static final int colPadding = 10;
     private int[] colWidths = null;
-    private final Alignment[] aligns = { Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT };
     
     @Override
     public String getWidgetPackage()
@@ -164,8 +165,6 @@ public class TimeCompareWidget extends Widget
         int numStrings = displaySectors.getBooleanValue() ? 5 : 2;
         this.colWidths = new int[ numStrings ];
         
-        int padding = 10;
-        
         this.timeStrings = new DrawnString[ numDisplayedLaps + 1 ];
         
         DrawnString relY = headerString;
@@ -180,15 +179,15 @@ public class TimeCompareWidget extends Widget
         if ( displaySectors.getBooleanValue() )
         {
             if ( abbreviate.getBooleanValue() )
-                headerString.getMaxColWidths( new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, padding, texture, colWidths );
+                headerString.getMaxColWidths( new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, colAligns, colPadding, texture, colWidths );
             else
-                headerString.getMaxColWidths( new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, padding, texture, colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, padding, texture, colWidths );
+                headerString.getMaxColWidths( new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, colAligns, colPadding, texture, colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, colAligns, colPadding, texture, colWidths );
         }
         else
         {
-            headerString.getMaxColWidths( new String[] { "#", "Lap" }, padding, texture, colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, padding, texture, colWidths );
+            headerString.getMaxColWidths( new String[] { "#", "Lap" }, colAligns, colPadding, texture, colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, colAligns, colPadding, texture, colWidths );
         }
         
         int currentLap = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getCurrentLap();
@@ -213,13 +212,13 @@ public class TimeCompareWidget extends Widget
             if ( displaySectors.getBooleanValue() )
             {
                 if ( abbreviate.getBooleanValue() )
-                    headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, aligns, padding, colWidths, backgroundColor, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, colAligns, padding, colWidths, backgroundColor, texture );
                 else
-                    headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, aligns, padding, colWidths, backgroundColor, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, colAligns, padding, colWidths, backgroundColor, texture );
             }
             else
             {
-                headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Lap" }, aligns, padding, colWidths, backgroundColor, texture );
+                headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Lap" }, colAligns, padding, colWidths, backgroundColor, texture );
             }
         }
         
@@ -246,7 +245,7 @@ public class TimeCompareWidget extends Widget
                     last = i;
                 }
                 
-                timeStrings[i].drawColumns( offsetX, offsetY, s, aligns, padding, colWidths, backgroundColor, texture );
+                timeStrings[i].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, backgroundColor, texture );
             }
             
             String[] s;
@@ -267,7 +266,7 @@ public class TimeCompareWidget extends Widget
                     s = new String[] { getGapRowCaption(), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
             }
             
-            timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, aligns, padding, colWidths, backgroundColor, texture );
+            timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, backgroundColor, texture );
         }
     }
     

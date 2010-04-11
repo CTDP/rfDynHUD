@@ -79,7 +79,7 @@ public class ColorProperty extends Property
     @Override
     public void setValue( Object value )
     {
-        setColor( String.valueOf( value ) );
+        setColor( ( value == null ) ? null : String.valueOf( value ) );
     }
     
     /**

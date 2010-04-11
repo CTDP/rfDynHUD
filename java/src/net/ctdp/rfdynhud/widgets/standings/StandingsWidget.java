@@ -70,7 +70,8 @@ public class StandingsWidget extends Widget
     
     private String[][] currPosStrings = null;
     private final int[] colWidths = { 0, 0, 0, 0 };
-    private final Alignment[] aligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT };
+    private final Alignment[] colAligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT };
+    private final int colPadding = 10;
     @SuppressWarnings( "unused" )
     private int playerPosStringIndex = -1;
     private int[] vsiIndices = null;
@@ -719,7 +720,7 @@ public class StandingsWidget extends Widget
         
         String[] strs = { "99.", ( nameDisplayType.getEnumValue() == NameDisplayType.THREE_LETTER_CODE ) ? "AAAA" : ( ( nameDisplayType.getEnumValue() == NameDisplayType.SHORT_FORM ) ? "G. Fisichella___" : "Giancarlo Fisichella___" ), "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
         
-        ds.getMinColWidths( strs, 10, texCanvas.getImage(), colWidths );
+        ds.getMinColWidths( strs, colAligns, colPadding, texCanvas.getImage(), colWidths );
         
         int total = 0;
         for ( int i = 0; i < colWidths.length; i++ )
@@ -750,7 +751,7 @@ public class StandingsWidget extends Widget
         int minWidth = 0;
         for ( int i = 0; i < numVehicles; i++ )
         {
-            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], 10, texture, colWidths );
+            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], colAligns, colPadding, texture, colWidths );
             if ( w > minWidth )
                 minWidth = w;
         }
@@ -835,7 +836,7 @@ public class StandingsWidget extends Widget
                     break;
             }
             
-            positionStrings[i].drawColumns( offsetX, offsetY, ss, aligns, 10, colWidths, getBackgroundColor(), fc, texture );
+            positionStrings[i].drawColumns( offsetX, offsetY, ss, colAligns, colPadding, colWidths, getBackgroundColor(), fc, texture );
             
             oldPosStirngs[i] = ss;
         }

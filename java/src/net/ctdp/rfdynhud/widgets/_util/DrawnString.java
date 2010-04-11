@@ -213,13 +213,14 @@ public class DrawnString
      * Gets the drawn strings' minimum column-widths and the total width in pixels.
      * 
      * @param strs the strings to draw
+     * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding padding per column
      * @param texture the texture to draw on
      * @param colWidths the array to write column widths to
      * 
      * @return the drawn strings' minimum total width in pixels.
      */
-    public int getMinColWidths( String[] strs, int padding, TextureImage2D texture, int[] colWidths )
+    public int getMinColWidths( String[] strs, Alignment[] aligns, int padding, TextureImage2D texture, int[] colWidths )
     {
         int total = 0;
         int w;
@@ -227,6 +228,8 @@ public class DrawnString
         
         for ( int i = 0; i < strs.length; i++ )
         {
+            Alignment align = aligns == null ? getAlignment() : ( aligns[i] == null ? getAlignment() : aligns[i] );
+            
             if ( ( i == 0 ) && ( prefix != null ) )
             {
                 if ( strs[i] == null )
@@ -249,7 +252,13 @@ public class DrawnString
                     str = strs[i];
             }
             
-            w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + padding;
+            int pad = padding;
+            if ( ( i == 0 ) && ( align == Alignment.LEFT ) )
+                pad = 0;
+            else if ( ( i == strs.length - 1 ) && ( align == Alignment.RIGHT ) )
+                pad = 0;
+            
+            w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
             
             total += w;
             if ( colWidths != null )
@@ -263,13 +272,14 @@ public class DrawnString
      * Gets the drawn strings' maximum column-widths and the total width in pixels.
      * 
      * @param strs the strings to draw
+     * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding padding per column
      * @param texture the texture to draw on
      * @param colWidths the array to write column widths to
      * 
      * @return the drawn strings' maximum total width in pixels.
      */
-    public int getMaxColWidths( String[] strs, int padding, TextureImage2D texture, int[] colWidths )
+    public int getMaxColWidths( String[] strs, Alignment[] aligns, int padding, TextureImage2D texture, int[] colWidths )
     {
         int total = 0;
         int w;
@@ -277,6 +287,8 @@ public class DrawnString
         
         for ( int i = 0; i < strs.length; i++ )
         {
+            Alignment align = aligns == null ? getAlignment() : ( aligns[i] == null ? getAlignment() : aligns[i] );
+            
             if ( ( i == 0 ) && ( prefix != null ) )
             {
                 if ( strs[i] == null )
@@ -299,7 +311,14 @@ public class DrawnString
                     str = strs[i];
             }
             
-            w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + padding;
+            int pad = padding;
+            if ( ( i == 0 ) && ( align == Alignment.LEFT ) )
+                pad = 0;
+            else if ( ( i == strs.length - 1 ) && ( align == Alignment.RIGHT ) )
+                pad = 0;
+            
+            w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
+            
             colWidths[i] = Math.max( colWidths[i], w );
             total += colWidths[i];
         }
@@ -535,9 +554,9 @@ public class DrawnString
             int x = ( ( getAlignment() == Alignment.RIGHT ) ? -totalWidth : ( getAlignment() == Alignment.CENTER ) ? -totalWidth / 2 : 0 ); 
             x += ax + maxWidth;
             if ( align == Alignment.RIGHT )
-                x +=  cw - (int)bounds.getWidth() - padding;
+                x +=  cw - (int)bounds.getWidth() - ( ( i < strs.length - 1 ) ? padding : 0 );
             else if ( align == Alignment.CENTER )
-                x += ( ( cw - padding ) / 2 ) - (int)( bounds.getWidth() / 2.0 );
+                x += ( ( cw - ( ( i > 0 ) ? padding : 0 ) ) / 2 ) - (int)( bounds.getWidth() / 2.0 );
             
             int y = ay - ( isYAtBaseline() ? 0 : (int)bounds.getY() );
             

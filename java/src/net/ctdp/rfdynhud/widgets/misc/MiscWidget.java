@@ -239,9 +239,9 @@ public class MiscWidget extends Widget
             velocityColWidths[1] = 0;
             velocityColWidths[2] = 0;
             
-            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", "km/h" }, padding, texture, velocityColWidths );
-            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", "km/h" }, padding, texture, velocityColWidths );
-            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, padding, texture, velocityColWidths );
+            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", "km/h" }, velocityAlignment, padding, texture, velocityColWidths );
+            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", "km/h" }, velocityAlignment, padding, texture, velocityColWidths );
+            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, velocityAlignment, padding, texture, velocityColWidths );
         }
         else
         {
@@ -258,16 +258,16 @@ public class MiscWidget extends Widget
         scoringColWidths[0] = 0;
         scoringColWidths[1] = 0;
         
-        scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, padding, texture, scoringColWidths );
+        scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, scoringAlignment, padding, texture, scoringColWidths );
         if ( place.isValid() )
-            scoringString2.getMaxColWidths( new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, padding, texture, scoringColWidths );
+            scoringString2.getMaxColWidths( new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, texture, scoringColWidths );
         else
-            scoringString2.getMaxColWidths( new String[] { "Place:", "N/A" }, padding, texture, scoringColWidths );
+            scoringString2.getMaxColWidths( new String[] { "Place:", "N/A" }, scoringAlignment, padding, texture, scoringColWidths );
         
         if ( fastestLap.isValid() )
-            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, padding, texture, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, scoringAlignment, padding, texture, scoringColWidths );
         else
-            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", "--:--.---" }, padding, texture, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", "--:--.---" }, scoringAlignment, padding, texture, scoringColWidths );
     }
     
     /**

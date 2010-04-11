@@ -85,6 +85,8 @@ public class TimingWidget extends Widget
     
     private boolean delayedAbsFastestIsOwn = false;
     
+    private static final int padding = 10;
+    
     @Override
     public String getWidgetPackage()
     {
@@ -319,8 +321,7 @@ public class TimingWidget extends Widget
                     int cols = 2;
                     String[][] s = new String[4][cols];
                     int[] colWidths = new int[cols];
-                    Alignment[] aligns = { Alignment.LEFT, Alignment.RIGHT };
-                    int padding = 10;
+                    final Alignment[] aligns = { Alignment.LEFT, Alignment.RIGHT };
                     
                     s[0][0] = null;
                     if ( sec1 > 0f )
@@ -351,12 +352,11 @@ public class TimingWidget extends Widget
                     s[3][0] = null;
                     s[3][1] = TimingUtil.getTimeAsString( lap, false, false, true );
                     
-                    absSector1String.getMaxColWidths( s[0], padding, texture, colWidths );
-                    absSector2String.getMaxColWidths( s[1], padding, texture, colWidths );
+                    absSector1String.getMaxColWidths( s[0], aligns, padding, texture, colWidths );
+                    absSector2String.getMaxColWidths( s[1], aligns, padding, texture, colWidths );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        absSector3String.getMaxColWidths( s[2], padding, texture, colWidths );
-                    absFastestLapString.getMaxColWidths( s[3], padding, texture, colWidths );
-                    colWidths[0] -= padding;
+                        absSector3String.getMaxColWidths( s[2], aligns, padding, texture, colWidths );
+                    absFastestLapString.getMaxColWidths( s[3], aligns, padding, texture, colWidths );
                     
                     absSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, texture );
                     absSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, texture );
@@ -424,8 +424,7 @@ public class TimingWidget extends Widget
                     int cols = dispGapToAbs ? 3 : 2;
                     String[][] s = new String[4][cols];
                     int[] colWidths = new int[cols];
-                    Alignment[] aligns = ( vsi != afVSI ) ? new Alignment[] { Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT } : new Alignment[] { Alignment.LEFT, Alignment.RIGHT };
-                    int padding = 10;
+                    final Alignment[] aligns = ( vsi != afVSI ) ? new Alignment[] { Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT } : new Alignment[] { Alignment.LEFT, Alignment.RIGHT };
                     
                     s[0][0] = null;
                     if ( sec1 > 0f )
@@ -487,12 +486,11 @@ public class TimingWidget extends Widget
                     if ( dispGapToAbs )
                         s[3][2] = "(" + ( lap - afLap >= 0f ? "+" : "" ) + TimingUtil.getTimeAsString( lap - afLap, false, false, true ) + ")";
                     
-                    ownSector1String.getMaxColWidths( s[0], padding, texture, colWidths );
-                    ownSector2String.getMaxColWidths( s[1], padding, texture, colWidths );
+                    ownSector1String.getMaxColWidths( s[0], aligns, padding, texture, colWidths );
+                    ownSector2String.getMaxColWidths( s[1], aligns, padding, texture, colWidths );
                     if ( !displayCumul )
-                        ownSector3String.getMaxColWidths( s[2], padding, texture, colWidths );
-                    ownFastestLapString.getMaxColWidths( s[3], padding, texture, colWidths );
-                    colWidths[0] -= padding;
+                        ownSector3String.getMaxColWidths( s[2], aligns, padding, texture, colWidths );
+                    ownFastestLapString.getMaxColWidths( s[3], aligns, padding, texture, colWidths );
                     
                     ownSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, texture );
                     ownSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, texture );
@@ -580,11 +578,10 @@ public class TimingWidget extends Widget
                 int cols = dispAbsFastest ? 4 : 3;
                 String[][] s = new String[4][cols];
                 int[] colWidths = new int[cols];
-                Alignment[] aligns = new Alignment[ cols ];
+                final Alignment[] aligns = new Alignment[ cols ];
                 aligns[0] = Alignment.LEFT;
                 for ( int i = 1; i < aligns.length; i++ )
                     aligns[i] = Alignment.RIGHT;
-                int padding = 10;
                 
                 if ( !isDelaying || isEditorMode )
                 {
@@ -810,12 +807,15 @@ public class TimingWidget extends Widget
                         s[3][3] = null;
                 }
                 
-                currSector1String.getMaxColWidths( s[0], padding, texture, colWidths );
-                currSector2String.getMaxColWidths( s[1], padding, texture, colWidths );
+                currSector1String.getMaxColWidths( s[0], aligns, padding, texture, colWidths );
+                currSector2String.getMaxColWidths( s[1], aligns, padding, texture, colWidths );
                 if ( !displayCumul )
-                    currSector3String.getMaxColWidths( s[2], padding, texture, colWidths );
-                currLapString.getMaxColWidths( s[3], padding, texture, colWidths );
-                colWidths[0] -= padding;
+                    currSector3String.getMaxColWidths( s[2], aligns, padding, texture, colWidths );
+                
+                String s31 = s[3][1];
+                s[3][1] = TimingUtil.getTimeAsString( 90.0f, false, false, true );
+                currLapString.getMaxColWidths( s[3], aligns, padding, texture, colWidths );
+                s[3][1] = s31;
                 
                 fontColors[2] = sfColor1a;
                 fontColors[3] = sfColor1b;
