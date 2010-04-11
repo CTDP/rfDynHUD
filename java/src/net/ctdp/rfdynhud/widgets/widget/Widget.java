@@ -696,7 +696,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Checks, if the Widget needs any changes fore it is drawn.
+     * Checks, if the Widget needs any changes before it is drawn. The original method is just an empty stub.
      * 
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
@@ -710,7 +710,10 @@ public abstract class Widget implements Documented
      * 
      * @return true, if size has changed.
      */
-    protected abstract boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height );
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    {
+        return ( false );
+    }
     
     /**
      * This method is called once to initialized {@link DrawnString}s used on this Widget.
