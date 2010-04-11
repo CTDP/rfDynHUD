@@ -1705,9 +1705,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             
             String message = t.getMessage();
             if ( ( message == null ) || ( message.length() == 0 ) )
-                message = t.getClass().getSimpleName() + ", " + t.getStackTrace()[0];
+                message = t.getClass().getSimpleName() + ", " + t.getStackTrace()[0] + "\n" + "Please see the editor log file for more info.";
             
-            JOptionPane.showMessageDialog( null, message, "Error starting the rfDynHUD Editor", JOptionPane.ERROR_MESSAGE );
+            JOptionPane.showMessageDialog( null, message, "Error running the rfDynHUD Editor", JOptionPane.ERROR_MESSAGE );
         }
     }
 }
