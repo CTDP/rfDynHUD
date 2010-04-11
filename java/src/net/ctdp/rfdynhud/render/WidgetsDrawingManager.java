@@ -364,8 +364,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     {
         final boolean isEditorMode = ( editorPresets != null );
         
-        Texture2DCanvas texCanvas = texture.getTextureCanvas();
-        texCanvas.setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
+        texture.getTextureCanvas().setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
         
         Widget widget;
         
@@ -435,11 +434,11 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 {
                     if ( widget.isVisible() || isEditorMode )
                     {
-                        widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texCanvas );
+                        widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture );
                     }
                     else if ( widget.needsCompleteClear() )
                     {
-                        widget.clearRegion( isEditorMode, texCanvas.getImage() );
+                        widget.clearRegion( isEditorMode, texture );
                     }
                 }
             }

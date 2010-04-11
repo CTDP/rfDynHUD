@@ -732,7 +732,7 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         
@@ -750,7 +750,7 @@ public class StandingsWidget extends Widget
         int minWidth = 0;
         for ( int i = 0; i < numVehicles; i++ )
         {
-            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], 10, texCanvas.getImage(), colWidths );
+            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], 10, image, colWidths );
             if ( w > minWidth )
                 minWidth = w;
         }
@@ -764,7 +764,7 @@ public class StandingsWidget extends Widget
         
         if ( ( isEditorMode && ( Math.abs( ( width + padding ) - minWidth ) > 1 ) ) || ( width + padding != minWidth ) )
         {
-            clearRegion( isEditorMode, texCanvas.getImage() );
+            clearRegion( isEditorMode, image );
             getSize().setEffectiveSize( getBorder().getWidgetWidth( minWidth ), getBorder().getWidgetHeight( height ) );
             
             return ( true );
@@ -792,12 +792,12 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         initPositionStrings( gameData );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
-        int rowHeight = positionStrings[0].getMaxHeight( texCanvas.getImage(), false );
+        int rowHeight = positionStrings[0].getMaxHeight( image, false );
         maxDisplayedDrivers = Math.max( 1, h / rowHeight );
         
         currPosStrings = null;
@@ -844,7 +844,7 @@ public class StandingsWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -863,8 +863,6 @@ public class StandingsWidget extends Widget
             oldNumVehicles = numVehicles;
             needsCompleteRedraw = true;
         }
-        
-        TextureImage2D image = texCanvas.getImage();
         
         oldPosStirngs = ensureCapacity( oldPosStirngs, numVehicles, true );
         

@@ -135,7 +135,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -144,7 +144,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         
@@ -282,16 +282,16 @@ public class MapWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         if ( texture == null )
-            texCanvas.getImage().clear( offsetX, offsetY, width, height, true, null );
+            image.clear( offsetX, offsetY, width, height, true, null );
         else
-            texCanvas.getImage().clear( texture, offsetX, offsetY, width, height, true, null );
+            image.clear( texture, offsetX, offsetY, width, height, true, null );
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -303,7 +303,7 @@ public class MapWidget extends Widget
             
             final Font font = posNumberFont.getFont();
             final boolean posNumberFontAntiAliased = posNumberFont.isAntiAliased();
-            FontMetrics metrics = texCanvas.getFontMetrics( font );
+            FontMetrics metrics = image.getTextureCanvas().getFontMetrics( font );
             
             boolean normal = false;
             int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles.getIntegerValue() );

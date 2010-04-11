@@ -9,7 +9,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
-import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
@@ -147,7 +146,7 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -156,7 +155,7 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -167,7 +166,7 @@ public class TimeCompareWidget extends Widget
         headerString = new DrawnString( 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
-        int rowHeight = headerString.getMaxHeight( texCanvas.getImage(), false );
+        int rowHeight = headerString.getMaxHeight( image, false );
         numDisplayedLaps = Math.max( 1, ( h - rowHeight - rowHeight - 5 ) / rowHeight );
         
         store.displayedLaps = new Laptime[ numDisplayedLaps ];
@@ -190,15 +189,15 @@ public class TimeCompareWidget extends Widget
         if ( displaySectors.getBooleanValue() )
         {
             if ( abbreviate.getBooleanValue() )
-                headerString.getMaxColWidths( new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, padding, texCanvas.getImage(), colWidths );
+                headerString.getMaxColWidths( new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, padding, image, colWidths );
             else
-                headerString.getMaxColWidths( new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, padding, texCanvas.getImage(), colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, padding, texCanvas.getImage(), colWidths );
+                headerString.getMaxColWidths( new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, padding, image, colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, padding, image, colWidths );
         }
         else
         {
-            headerString.getMaxColWidths( new String[] { "#", "Lap" }, padding, texCanvas.getImage(), colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, padding, texCanvas.getImage(), colWidths );
+            headerString.getMaxColWidths( new String[] { "#", "Lap" }, padding, image, colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, padding, image, colWidths );
         }
         
         int currentLap = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getCurrentLap();
@@ -210,9 +209,8 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
-        final TextureImage2D image = texCanvas.getImage();
         final java.awt.Color backgroundColor = getBackgroundColor();
         
         LocalStore store = (LocalStore)getLocalStore();

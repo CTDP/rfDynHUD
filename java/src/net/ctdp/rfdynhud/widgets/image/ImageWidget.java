@@ -7,7 +7,6 @@ import net.ctdp.rfdynhud.editor.properties.ImageProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.ImageTemplate;
-import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets._util.Size;
@@ -52,7 +51,7 @@ public class ImageWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -61,13 +60,13 @@ public class ImageWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         if ( ( editorPresets != null ) || ( texture == null ) )
         {
             try
             {
-                ImageTemplate it = image.getImage();
+                ImageTemplate it = this.image.getImage();
                 if ( ( texture == null ) || ( it.getBaseWidth() != width ) || ( it.getBaseHeight() != height ) )
                 {
                     texture = it.getScaledTextureImage( width, height );
@@ -81,13 +80,13 @@ public class ImageWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
-        texCanvas.getImage().clear( texture, offsetX, offsetY, width, height, true, null );
+        image.clear( texture, offsetX, offsetY, width, height, true, null );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
     }
     

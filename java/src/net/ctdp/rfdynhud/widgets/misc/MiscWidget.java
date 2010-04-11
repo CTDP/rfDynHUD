@@ -14,7 +14,6 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TopspeedRecorder;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
-import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
@@ -166,7 +165,7 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -175,7 +174,7 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -249,9 +248,9 @@ public class MiscWidget extends Widget
             velocityColWidths[1] = 0;
             velocityColWidths[2] = 0;
             
-            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
-            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
-            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, padding, texCanvas.getImage(), velocityColWidths );
+            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", "km/h" }, padding, image, velocityColWidths );
+            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", "km/h" }, padding, image, velocityColWidths );
+            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, padding, image, velocityColWidths );
         }
         else
         {
@@ -284,9 +283,8 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
     {
-        final TextureImage2D image = texCanvas.getImage();
         final java.awt.Color backgroundColor = getBackgroundColor();
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
