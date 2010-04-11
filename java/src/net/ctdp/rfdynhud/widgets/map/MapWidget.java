@@ -41,7 +41,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class MapWidget extends Widget
 {
-    private TextureImage2D texture = null;
+    private TextureImage2D texture2 = null;
     private Track track = null;
     private float scale = 1f;
     private int baseItemRadius = 7;
@@ -135,7 +135,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         
@@ -171,21 +171,21 @@ public class MapWidget extends Widget
         
         initSubTextures( isEditorMode );
         
-        if ( ( texture == null ) || ( texture.getUsedWidth() != width ) || ( texture.getUsedHeight() != height ) )
+        if ( ( texture2 == null ) || ( texture2.getUsedWidth() != width ) || ( texture2.getUsedHeight() != height ) )
         {
-            texture = TextureImage2D.createOfflineTexture( width, height, true );
+            texture2 = TextureImage2D.createOfflineTexture( width, height, true );
         }
         
-        texture.clear( true, null );
+        texture2.clear( true, null );
         
         if ( track == null )
         {
-            Texture2DCanvas tc = texture.getTextureCanvas();
+            Texture2DCanvas tc = texture2.getTextureCanvas();
             tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             
             tc.setColor( Color.BLACK );
             
-            tc.drawArc( 3, 3, texture.getWidth() - 6, texture.getHeight() - 6, 0, 360 );
+            tc.drawArc( 3, 3, texture2.getWidth() - 6, texture2.getHeight() - 6, 0, 360 );
             
             tc.setColor( Color.RED );
             tc.setFont( new Font( "Monospaced", Font.PLAIN, 12 ) );
@@ -195,7 +195,7 @@ public class MapWidget extends Widget
         }
         else if ( track.getNumWaypoints( false ) > 0 )
         {
-            Texture2DCanvas tc = texture.getTextureCanvas();
+            Texture2DCanvas tc = texture2.getTextureCanvas();
             tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             
             int off2 = ( posNumberFont.isAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
@@ -268,25 +268,25 @@ public class MapWidget extends Widget
         else
         {
             scale = 1f;
-            texture = null;
+            texture2 = null;
         }
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( texture == null )
-            image.clear( offsetX, offsetY, width, height, true, null );
+        if ( texture2 == null )
+            texture.clear( offsetX, offsetY, width, height, true, null );
         else
-            image.clear( texture, offsetX, offsetY, width, height, true, null );
+            texture.clear( texture2, offsetX, offsetY, width, height, true, null );
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        if ( ( track != null ) && ( texture != null ) )
+        if ( ( track != null ) && ( texture2 != null ) )
         {
             int off2 = ( posNumberFont.isAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
             
@@ -294,7 +294,7 @@ public class MapWidget extends Widget
             
             final Font font = posNumberFont.getFont();
             final boolean posNumberFontAntiAliased = posNumberFont.isAntiAliased();
-            FontMetrics metrics = image.getTextureCanvas().getFontMetrics( font );
+            FontMetrics metrics = texture.getTextureCanvas().getFontMetrics( font );
             
             boolean normal = false;
             int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles.getIntegerValue() );

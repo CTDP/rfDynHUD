@@ -732,7 +732,7 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         
@@ -750,7 +750,7 @@ public class StandingsWidget extends Widget
         int minWidth = 0;
         for ( int i = 0; i < numVehicles; i++ )
         {
-            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], 10, image, colWidths );
+            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], 10, texture, colWidths );
             if ( w > minWidth )
                 minWidth = w;
         }
@@ -764,7 +764,7 @@ public class StandingsWidget extends Widget
         
         if ( ( isEditorMode && ( Math.abs( ( width + padding ) - minWidth ) > 1 ) ) || ( width + padding != minWidth ) )
         {
-            clearRegion( isEditorMode, image );
+            clearRegion( isEditorMode, texture );
             getSize().setEffectiveSize( getBorder().getWidgetWidth( minWidth ), getBorder().getWidgetHeight( height ) );
             
             return ( true );
@@ -792,12 +792,12 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         initPositionStrings( gameData );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
-        int rowHeight = positionStrings[0].getMaxHeight( image, false );
+        int rowHeight = positionStrings[0].getMaxHeight( texture, false );
         maxDisplayedDrivers = Math.max( 1, h / rowHeight );
         
         currPosStrings = null;
@@ -807,9 +807,9 @@ public class StandingsWidget extends Widget
         oldPosStirngs = null;
     }
     
-    private void drawPosition( int i, VehicleScoringInfo vsi, boolean needsCompleteRedraw, TextureImage2D image, int offsetX, int offsetY, int width )
+    private void drawPosition( int i, VehicleScoringInfo vsi, boolean needsCompleteRedraw, TextureImage2D texture, int offsetX, int offsetY, int width )
     {
-        //image.getTextureCanvas().pushClip( offsetX + positionStrings[i].getAbsX(), clipRect.getTop(), width - positionStrings[i].getAbsX() - 13, clipRect.getHeight() );
+        //texture.getTextureCanvas().pushClip( offsetX + positionStrings[i].getAbsX(), clipRect.getTop(), width - positionStrings[i].getAbsX() - 13, clipRect.getHeight() );
         
         String[] ss = currPosStrings[i];
         
@@ -835,16 +835,16 @@ public class StandingsWidget extends Widget
                     break;
             }
             
-            positionStrings[i].drawColumns( offsetX, offsetY, ss, aligns, 10, colWidths, getBackgroundColor(), fc, image );
+            positionStrings[i].drawColumns( offsetX, offsetY, ss, aligns, 10, colWidths, getBackgroundColor(), fc, texture );
             
             oldPosStirngs[i] = ss;
         }
         
-        //image.getTextureCanvas().popClip();
+        //texture.getTextureCanvas().popClip();
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -868,7 +868,7 @@ public class StandingsWidget extends Widget
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            drawPosition( i, scoringInfo.getVehicleScoringInfo( vsiIndices[i] ), needsCompleteRedraw, image, offsetX, offsetY, width );
+            drawPosition( i, scoringInfo.getVehicleScoringInfo( vsiIndices[i] ), needsCompleteRedraw, texture, offsetX, offsetY, width );
         }
     }
     

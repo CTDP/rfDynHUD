@@ -58,6 +58,9 @@ public class ColorProperty extends Property
     
     public final Color getColor()
     {
+        if ( colorKey == null )
+            return ( null );
+        
         if ( color == null )
         {
             final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;

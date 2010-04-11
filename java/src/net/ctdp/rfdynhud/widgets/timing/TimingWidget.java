@@ -163,7 +163,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -247,7 +247,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         
@@ -290,10 +290,10 @@ public class TimingWidget extends Widget
                 oldLeader = testLeader;
                 
                 if ( absFastestIsSecond )
-                    absFastestLapHeaderString.draw( offsetX, offsetY, "Abs. second fastest Lap:", backgroundColor, image );
+                    absFastestLapHeaderString.draw( offsetX, offsetY, "Abs. second fastest Lap:", backgroundColor, texture );
                 else
-                    absFastestLapHeaderString.draw( offsetX, offsetY, "Abs. fastest Lap:", backgroundColor, image );
-                absFastestLapDriverString.draw( offsetX, offsetY, leader, backgroundColor, image );
+                    absFastestLapHeaderString.draw( offsetX, offsetY, "Abs. fastest Lap:", backgroundColor, texture );
+                absFastestLapDriverString.draw( offsetX, offsetY, leader, backgroundColor, texture );
             }
             
             int lap_ = Math.round( lap * 10000f );
@@ -351,26 +351,26 @@ public class TimingWidget extends Widget
                     s[3][0] = null;
                     s[3][1] = TimingUtil.getTimeAsString( lap, false, false, true );
                     
-                    absSector1String.getMaxColWidths( s[0], padding, image, colWidths );
-                    absSector2String.getMaxColWidths( s[1], padding, image, colWidths );
+                    absSector1String.getMaxColWidths( s[0], padding, texture, colWidths );
+                    absSector2String.getMaxColWidths( s[1], padding, texture, colWidths );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        absSector3String.getMaxColWidths( s[2], padding, image, colWidths );
-                    absFastestLapString.getMaxColWidths( s[3], padding, image, colWidths );
+                        absSector3String.getMaxColWidths( s[2], padding, texture, colWidths );
+                    absFastestLapString.getMaxColWidths( s[3], padding, texture, colWidths );
                     colWidths[0] -= padding;
                     
-                    absSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
-                    absSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
+                    absSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, texture );
+                    absSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, texture );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        absSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
-                    absFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
+                        absSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, texture );
+                    absFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, texture );
                 }
                 else
                 {
-                    absSector1String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
-                    absSector2String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
+                    absSector1String.draw( offsetX, offsetY, "-:--.---", backgroundColor, texture );
+                    absSector2String.draw( offsetX, offsetY, "-:--.---", backgroundColor, texture );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        absSector3String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
-                    absFastestLapString.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
+                        absSector3String.draw( offsetX, offsetY, "-:--.---", backgroundColor, texture );
+                    absFastestLapString.draw( offsetX, offsetY, "-:--.---", backgroundColor, texture );
                 }
             }
         }
@@ -384,7 +384,7 @@ public class TimingWidget extends Widget
             
             if ( needsCompleteRedraw )
             {
-                ownFastestLapHeaderString.draw( offsetX, offsetY, "Own fastest Lap:", backgroundColor, image );
+                ownFastestLapHeaderString.draw( offsetX, offsetY, "Own fastest Lap:", backgroundColor, texture );
             }
             
             int lap_ = Math.round( lap * 10000f );
@@ -487,26 +487,26 @@ public class TimingWidget extends Widget
                     if ( dispGapToAbs )
                         s[3][2] = "(" + ( lap - afLap >= 0f ? "+" : "" ) + TimingUtil.getTimeAsString( lap - afLap, false, false, true ) + ")";
                     
-                    ownSector1String.getMaxColWidths( s[0], padding, image, colWidths );
-                    ownSector2String.getMaxColWidths( s[1], padding, image, colWidths );
+                    ownSector1String.getMaxColWidths( s[0], padding, texture, colWidths );
+                    ownSector2String.getMaxColWidths( s[1], padding, texture, colWidths );
                     if ( !displayCumul )
-                        ownSector3String.getMaxColWidths( s[2], padding, image, colWidths );
-                    ownFastestLapString.getMaxColWidths( s[3], padding, image, colWidths );
+                        ownSector3String.getMaxColWidths( s[2], padding, texture, colWidths );
+                    ownFastestLapString.getMaxColWidths( s[3], padding, texture, colWidths );
                     colWidths[0] -= padding;
                     
-                    ownSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, image );
-                    ownSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, image );
+                    ownSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, texture );
+                    ownSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, texture );
                     if ( !displayCumul )
-                        ownSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, image );
-                    ownFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, image );
+                        ownSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, texture );
+                    ownFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, texture );
                 }
                 else
                 {
-                    ownSector1String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
-                    ownSector2String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
+                    ownSector1String.draw( offsetX, offsetY, "-:--.---", backgroundColor, texture );
+                    ownSector2String.draw( offsetX, offsetY, "-:--.---", backgroundColor, texture );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        ownSector3String.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
-                    ownFastestLapString.draw( offsetX, offsetY, "-:--.---", backgroundColor, image );
+                        ownSector3String.draw( offsetX, offsetY, "-:--.---", backgroundColor, texture );
+                    ownFastestLapString.draw( offsetX, offsetY, "-:--.---", backgroundColor, texture );
                 }
             }
         }
@@ -516,7 +516,7 @@ public class TimingWidget extends Widget
             
             if ( needsCompleteRedraw )
             {
-                currLapHeaderString.draw( offsetX, offsetY, "Current Lap:", backgroundColor, image );
+                currLapHeaderString.draw( offsetX, offsetY, "Current Lap:", backgroundColor, texture );
             }
             
             final VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
@@ -810,32 +810,32 @@ public class TimingWidget extends Widget
                         s[3][3] = null;
                 }
                 
-                currSector1String.getMaxColWidths( s[0], padding, image, colWidths );
-                currSector2String.getMaxColWidths( s[1], padding, image, colWidths );
+                currSector1String.getMaxColWidths( s[0], padding, texture, colWidths );
+                currSector2String.getMaxColWidths( s[1], padding, texture, colWidths );
                 if ( !displayCumul )
-                    currSector3String.getMaxColWidths( s[2], padding, image, colWidths );
-                currLapString.getMaxColWidths( s[3], padding, image, colWidths );
+                    currSector3String.getMaxColWidths( s[2], padding, texture, colWidths );
+                currLapString.getMaxColWidths( s[3], padding, texture, colWidths );
                 colWidths[0] -= padding;
                 
                 fontColors[2] = sfColor1a;
                 fontColors[3] = sfColor1b;
-                currSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, fontColors, image );
+                currSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, fontColors, texture );
                 
                 fontColors[2] = sfColor2a;
                 fontColors[3] = sfColor2b;
-                currSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, fontColors, image );
+                currSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, fontColors, texture );
                 
                 if ( !displayCumul )
                 {
                     fontColors[2] = sfColor3a;
                     fontColors[3] = sfColor3b;
-                    currSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, fontColors, image );
+                    currSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, fontColors, texture );
                 }
                 
                 
                 fontColors[2] = sfColorLa;
                 fontColors[3] = sfColorLb;
-                currLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, fontColors, image );
+                currLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, fontColors, texture );
             }
         }
     }

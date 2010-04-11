@@ -227,7 +227,7 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -332,7 +332,7 @@ public class WearWidget extends Widget
         result[ByteOrderManager.BLUE] = (byte)( (float)( color0[ByteOrderManager.BLUE] & 0xFF ) * beta + (float)( color1[ByteOrderManager.BLUE] & 0xFF ) * alpha );
     }
     
-    private void drawEngine( float lifetime, double raceLengthMultiplier, VehiclePhysics.Engine engine, TextureImage2D image, int x, int y, int width )
+    private void drawEngine( float lifetime, double raceLengthMultiplier, VehiclePhysics.Engine engine, TextureImage2D texture, int x, int y, int width )
     {
         final int w = width;
         final int h = engineHeight.getEffectiveHeight();
@@ -357,13 +357,13 @@ public class WearWidget extends Widget
             if ( lifetime >= lowerBadLifetime )
             {
                 int w2 = ( lowerBadLifetime - minLifetime ) * w / maxLifetimeTotal;
-                image.clear( Color.RED, x0, y, w2, h, false, null );
+                texture.clear( Color.RED, x0, y, w2, h, false, null );
                 x0 += w2;
             }
             else
             {
                 int w2 = (int)( ( lifetime - minLifetime ) * w / maxLifetimeTotal );
-                image.clear( Color.RED, x0, y, w2, h, false, null );
+                texture.clear( Color.RED, x0, y, w2, h, false, null );
                 x0 += w2;
                 x1 = x + ( maxLifetimeTotal - badLifetimeTotal ) * w / maxLifetimeTotal;
             }
@@ -371,7 +371,7 @@ public class WearWidget extends Widget
             if ( lifetime >= lowerGoodLifetime )
             {
                 int w2 = ( lowerGoodLifetime - lowerBadLifetime ) * w / maxLifetimeTotal;
-                image.clear( YELLOW2, x0, y, w2, h, false, null );
+                texture.clear( YELLOW2, x0, y, w2, h, false, null );
                 x0 += w2;
             }
             else
@@ -379,7 +379,7 @@ public class WearWidget extends Widget
                 if ( lifetime >= lowerBadLifetime )
                 {
                     int w2 = (int)( ( lifetime - lowerBadLifetime ) * w / maxLifetimeTotal );
-                    image.clear( YELLOW2, x0, y, w2, h, false, null );
+                    texture.clear( YELLOW2, x0, y, w2, h, false, null );
                     x0 += w2;
                 }
                 
@@ -389,11 +389,11 @@ public class WearWidget extends Widget
             if ( lifetime >= lowerSafeLifetime )
             {
                 int w2 = ( lowerSafeLifetime - lowerGoodLifetime ) * w / maxLifetimeTotal;
-                image.clear( GREEN2, x0, y, w2, h, false, null );
+                texture.clear( GREEN2, x0, y, w2, h, false, null );
                 x0 += w2;
                 
                 int w3 = (int)( ( lifetime - lowerSafeLifetime ) * w / maxLifetimeTotal );
-                image.clear( Color.GREEN, x0, y, w3, h, false, null );
+                texture.clear( Color.GREEN, x0, y, w3, h, false, null );
                 x0 += w3;
             }
             else
@@ -401,7 +401,7 @@ public class WearWidget extends Widget
                 if ( lifetime >= lowerGoodLifetime )
                 {
                     int w2 = (int)( ( lifetime - lowerGoodLifetime ) * w / maxLifetimeTotal );
-                    image.clear( GREEN2, x0, y, w2, h, false, null );
+                    texture.clear( GREEN2, x0, y, w2, h, false, null );
                     x0 += w2;
                 }
                 
@@ -411,41 +411,41 @@ public class WearWidget extends Widget
             int w_ = w - x0 + x;
             if ( w_ > 0 )
             {
-                image.clear( Color.BLACK, x0, y, w_, h, false, null );
+                texture.clear( Color.BLACK, x0, y, w_, h, false, null );
             }
             
             if ( x1 > 0 )
             {
-                image.getTextureCanvas().setColor( Color.RED );
-                image.getTextureCanvas().drawLine( x1, y, x1, y + h - 1 );
+                texture.getTextureCanvas().setColor( Color.RED );
+                texture.getTextureCanvas().drawLine( x1, y, x1, y + h - 1 );
             }
             
             if ( x2 > 0 )
             {
-                image.getTextureCanvas().setColor( YELLOW2 );
-                image.getTextureCanvas().drawLine( x2, y, x2, y + h - 1 );
+                texture.getTextureCanvas().setColor( YELLOW2 );
+                texture.getTextureCanvas().drawLine( x2, y, x2, y + h - 1 );
             }
             
             if ( x3 > 0 )
             {
-                image.getTextureCanvas().setColor( GREEN2 );
-                image.getTextureCanvas().drawLine( x3, y, x3, y + h - 1 );
+                texture.getTextureCanvas().setColor( GREEN2 );
+                texture.getTextureCanvas().drawLine( x3, y, x3, y + h - 1 );
             }
         }
         else
         {
             int w2 = (int)( lifetime * w / minLifetime );
-            image.clear( Color.GREEN, x, y, w2, h, false, null );
+            texture.clear( Color.GREEN, x, y, w2, h, false, null );
             
             int w3 = w - w2;
             if ( w3 > 0 )
-                image.clear( Color.BLACK, x + w2, y, w3, h, false, null );
+                texture.clear( Color.BLACK, x + w2, y, w3, h, false, null );
         }
         
-        image.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h );
     }
     
-    private void drawTire( float wear, float grip, CompoundWheel compoundWheel, TextureImage2D image, int x, int y )
+    private void drawTire( float wear, float grip, CompoundWheel compoundWheel, TextureImage2D texture, int x, int y )
     {
         int w = tireSize.getEffectiveWidth();
         int h = tireSize.getEffectiveHeight();
@@ -477,10 +477,10 @@ public class WearWidget extends Widget
         
         if ( normGrip > 0.0f )
         {
-            image.clear( Color.BLACK, x, y, w, h - barHeight, false, null );
+            texture.clear( Color.BLACK, x, y, w, h - barHeight, false, null );
         }
         
-        image.clear( awtColor, x, y + h - barHeight, w, barHeight, false, null );
+        texture.clear( awtColor, x, y + h - barHeight, w, barHeight, false, null );
         
         byte[] pixels = new byte[ w * 4 ];
         for ( int i = 0; i < w; i++ )
@@ -488,12 +488,12 @@ public class WearWidget extends Widget
             System.arraycopy( colorBad, 0, pixels, i * 4, 4 );
         }
         
-        image.clearPixelLine( pixels, x, y + h - (int)( h * wear ), w, false, null );
+        texture.clearPixelLine( pixels, x, y + h - (int)( h * wear ), w, false, null );
         
-        image.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h );
     }
     
-    private void drawBrake( float discThickness, Wheel wheel, VehiclePhysics.Brakes.WheelBrake brake, VehicleSetup setup, TextureImage2D image, int x, int y )
+    private void drawBrake( float discThickness, Wheel wheel, VehiclePhysics.Brakes.WheelBrake brake, VehicleSetup setup, TextureImage2D texture, int x, int y )
     {
         int w = brakeSize.getEffectiveWidth();
         int h = brakeSize.getEffectiveHeight();
@@ -512,45 +512,45 @@ public class WearWidget extends Widget
             if ( discThickness >= maxDiscFailure )
             {
                 int h2 = (int)( variance * h / maxRange );
-                image.clear( Color.RED, x, y + h - h2, w, h2, false, null );
+                texture.clear( Color.RED, x, y + h - h2, w, h2, false, null );
                 
                 int h3 = (int)( ( discThickness - maxDiscFailure ) * ( h - h2 ) / positiveRange );
-                image.clear( Color.GREEN, x, y + h - h2 - h3, w, h3, false, null );
+                texture.clear( Color.GREEN, x, y + h - h2 - h3, w, h3, false, null );
                 
                 int h4 = h - h3 - h2;
                 if ( h4 > 0 )
-                    image.clear( Color.BLACK, x, y, w, h4, false, null );
+                    texture.clear( Color.BLACK, x, y, w, h4, false, null );
             }
             else
             {
                 int h2 = (int)( ( discThickness - minDiscFailure ) * h / maxRange );
-                image.clear( Color.RED, x, y + h - h2, w, h2, false, null );
+                texture.clear( Color.RED, x, y + h - h2, w, h2, false, null );
                 
                 int y2 = h - (int)( variance * h / maxRange );
                 
                 int h3 = h - h2;
                 if ( h3 > 0 )
-                    image.clear( Color.BLACK, x, y, w, h3, false, null );
+                    texture.clear( Color.BLACK, x, y, w, h3, false, null );
                 
-                image.getTextureCanvas().setColor( Color.RED );
-                image.getTextureCanvas().drawLine( x, y + y2, x + w - 1, y + y2 );
+                texture.getTextureCanvas().setColor( Color.RED );
+                texture.getTextureCanvas().drawLine( x, y + y2, x + w - 1, y + y2 );
             }
         }
         else
         {
             int h2 = (int)( ( discThickness - minDiscFailure ) * h / maxRange );
-            image.clear( Color.GREEN, x, y + h - h2, w, h2, false, null );
+            texture.clear( Color.GREEN, x, y + h - h2, w, h2, false, null );
             
             int h3 = h - h2;
             if ( h3 > 0 )
-                image.clear( Color.BLACK, x, y, w, h3, false, null );
+                texture.clear( Color.BLACK, x, y, w, h3, false, null );
         }
         
-        image.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final Color backgroundColor = getBackgroundColor();
         
@@ -565,16 +565,16 @@ public class WearWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displayEngine.getBooleanValue() )
-                engineHeaderString.draw( offsetX, offsetY, "Engine:", backgroundColor, image );
+                engineHeaderString.draw( offsetX, offsetY, "Engine:", backgroundColor, texture );
             if ( displayTires.getBooleanValue() )
             {
                 if ( displayCompoundName.getBooleanValue() )
-                    tiresHeaderString.draw( offsetX, offsetY, ": " + setup.getGeneral().getFrontTireCompound().getName(), backgroundColor, image );
+                    tiresHeaderString.draw( offsetX, offsetY, ": " + setup.getGeneral().getFrontTireCompound().getName(), backgroundColor, texture );
                 else
-                    tiresHeaderString.draw( offsetX, offsetY, "", backgroundColor, image );
+                    tiresHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
             }
             if ( displayBrakes.getBooleanValue() )
-                brakesHeaderString.draw( offsetX, offsetY, "Brakes:", backgroundColor, image );
+                brakesHeaderString.draw( offsetX, offsetY, "Brakes:", backgroundColor, texture );
         }
         
         if ( displayEngine.getBooleanValue() )
@@ -609,7 +609,7 @@ public class WearWidget extends Widget
                 int engineWidth;
                 if ( getDisplayWearPercent_engine() )
                 {
-                    engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( engineLifetime.getValue() * 100f, 1, true ), backgroundColor, image );
+                    engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( engineLifetime.getValue() * 100f, 1, true ), backgroundColor, texture );
                     final float variancePercent;
                     switch ( this.hundredPercentBase.getEnumValue() )
                     {
@@ -628,7 +628,7 @@ public class WearWidget extends Widget
                             break;
                     }
                     if ( variancePercent > 0.001f )
-                        engineVarianceString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, image );
+                        engineVarianceString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
                     
                     engineWidth = Math.max( engineVarianceString.getLastWidth(), engineWearString.getLastWidth() );
                     engineWidth = engineWearString.getAbsX() - engineWidth - 5;
@@ -638,7 +638,7 @@ public class WearWidget extends Widget
                     engineWidth = width - ( engineHeaderString.getAbsX() * 2 );
                 }
                 
-                drawEngine( lifetime, raceLengthPercentage, physics.getEngine(), image, offsetX + engineHeaderString.getAbsX(), offsetY + engineHeaderString.getAbsY() + engineHeaderString.getMaxHeight( false ) + 3, engineWidth );
+                drawEngine( lifetime, raceLengthPercentage, physics.getEngine(), texture, offsetX + engineHeaderString.getAbsX(), offsetY + engineHeaderString.getAbsY() + engineHeaderString.getMaxHeight( false ) + 3, engineWidth );
             }
         }
         
@@ -661,15 +661,15 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_tires() )
                 {
                     String string = String.valueOf( tireWearFL );
-                    tireWearFLString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    tireWearFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     string = String.valueOf( grip );
-                    tireGripFLString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    tireGripFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
                     left = tireWearFLString.getAbsX() + 3;
                     top = tireWearFLString.getAbsY() + 2;
                 }
                 
-                drawTire( tireWearFLf, gripf, wheel, image, offsetX + left, offsetY + top );
+                drawTire( tireWearFLf, gripf, wheel, texture, offsetX + left, offsetY + top );
             }
             
             float tireWearFRf = telemData.getTireWear( Wheel.FRONT_RIGHT );
@@ -687,15 +687,15 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_tires() )
                 {
                     String string = String.valueOf( tireWearFR );
-                    tireWearFRString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    tireWearFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     string = String.valueOf( grip );
-                    tireGripFRString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    tireGripFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
                     left = tireWearFRString.getAbsX() - tireWidth - 3;
                     top = tireWearFRString.getAbsY() + 2;
                 }
                 
-                drawTire( tireWearFRf, gripf, wheel, image, offsetX + left, offsetY + top );
+                drawTire( tireWearFRf, gripf, wheel, texture, offsetX + left, offsetY + top );
             }
             
             float tireWearRLf = telemData.getTireWear( Wheel.REAR_LEFT );
@@ -713,15 +713,15 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_tires() )
                 {
                     String string = String.valueOf( tireWearRL );
-                    tireWearRLString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    tireWearRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     string = String.valueOf( grip );
-                    tireGripRLString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    tireGripRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
                     left = tireWearRLString.getAbsX() + 3;
                     top = tireWearRLString.getAbsY() + 2;
                 }
                 
-                drawTire( tireWearRLf, gripf, wheel, image, offsetX + left, offsetY + top );
+                drawTire( tireWearRLf, gripf, wheel, texture, offsetX + left, offsetY + top );
             }
             
             float tireWearRRf = telemData.getTireWear( Wheel.REAR_RIGHT );
@@ -739,15 +739,15 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_tires() )
                 {
                     String string = String.valueOf( tireWearRR );
-                    tireWearRRString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    tireWearRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     string = String.valueOf( grip );
-                    tireGripRRString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    tireGripRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
                     left = tireWearRRString.getAbsX() - tireWidth - 3;
                     top = tireWearRRString.getAbsY() + 2;
                 }
                 
-                drawTire( tireWearRRf, gripf, wheel, image, offsetX + left, offsetY + top );
+                drawTire( tireWearRRf, gripf, wheel, texture, offsetX + left, offsetY + top );
             }
         }
         
@@ -768,16 +768,16 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_brakes() )
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearFL.getValue() * 100f, 1, true );
-                    brakeWearFLString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    brakeWearFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                     if ( variancePercent > 0.000001f )
-                        brakeWearVarianceFLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, image );
+                        brakeWearVarianceFLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
                     
                     left = brakeWearFLString.getAbsX() + 3;
                     top = brakeWearFLString.getAbsY();
                 }
                 
-                drawBrake( brakeDiscThickness, wheel, brake, setup, image, offsetX + left, offsetY + top );
+                drawBrake( brakeDiscThickness, wheel, brake, setup, texture, offsetX + left, offsetY + top );
             }
             
             wheel = Wheel.FRONT_RIGHT;
@@ -793,16 +793,16 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_brakes() )
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearFR.getValue() * 100f, 1, true );
-                    brakeWearFRString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    brakeWearFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                     if ( variancePercent > 0.000001f )
-                        brakeWearVarianceFRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, image );
+                        brakeWearVarianceFRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
                     
                     left = brakeWearFRString.getAbsX() - brakeWidth - 3;
                     top = brakeWearFRString.getAbsY();
                 }
                 
-                drawBrake( brakeDiscThickness, wheel, brake, setup, image, offsetX + left, offsetY + top );
+                drawBrake( brakeDiscThickness, wheel, brake, setup, texture, offsetX + left, offsetY + top );
             }
             
             wheel = Wheel.REAR_LEFT;
@@ -818,16 +818,16 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_brakes() )
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearRL.getValue() * 100f, 1, true );
-                    brakeWearRLString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    brakeWearRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                     if ( variancePercent > 0.000001f )
-                        brakeWearVarianceRLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, image );
+                        brakeWearVarianceRLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
                     
                     left = brakeWearRLString.getAbsX() + 3;
                     top = brakeWearRLString.getAbsY();
                 }
                 
-                drawBrake( brakeDiscThickness, wheel, brake, setup, image, offsetX + left, offsetY + top );
+                drawBrake( brakeDiscThickness, wheel, brake, setup, texture, offsetX + left, offsetY + top );
             }
             
             wheel = Wheel.REAR_RIGHT;
@@ -843,16 +843,16 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_brakes() )
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearRR.getValue() * 100f, 1, true );
-                    brakeWearRRString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    brakeWearRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                     if ( variancePercent > 0.000001f )
-                        brakeWearVarianceRRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, image );
+                        brakeWearVarianceRRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
                     
                     left = brakeWearRRString.getAbsX() - brakeWidth - 3;
                     top = brakeWearRRString.getAbsY();
                 }
                 
-                drawBrake( brakeDiscThickness, wheel, brake, setup, image, offsetX + left, offsetY + top );
+                drawBrake( brakeDiscThickness, wheel, brake, setup, texture, offsetX + left, offsetY + top );
             }
         }
     }

@@ -21,15 +21,15 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class ImageWidget extends Widget
 {
-    private TextureImage2D texture = null;
-    private final ImageProperty image = new ImageProperty( this, "imageName", "ctdp-fat-1994.png" )
+    private TextureImage2D image = null;
+    private final ImageProperty imageProp = new ImageProperty( this, "imageName", "ctdp-fat-1994.png" )
     {
         @Override
         public void setValue( Object value )
         {
             super.setValue( value );
             
-            texture = null;
+            image = null;
         }
     };
     
@@ -51,16 +51,16 @@ public class ImageWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( ( editorPresets != null ) || ( texture == null ) )
+        if ( ( editorPresets != null ) || ( image == null ) )
         {
             try
             {
-                ImageTemplate it = this.image.getImage();
-                if ( ( texture == null ) || ( it.getBaseWidth() != width ) || ( it.getBaseHeight() != height ) )
+                ImageTemplate it = imageProp.getImage();
+                if ( ( image == null ) || ( it.getBaseWidth() != width ) || ( it.getBaseHeight() != height ) )
                 {
-                    texture = it.getScaledTextureImage( width, height );
+                    image = it.getScaledTextureImage( width, height );
                 }
             }
             catch ( Throwable t )
@@ -71,13 +71,13 @@ public class ImageWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        image.clear( texture, offsetX, offsetY, width, height, true, null );
+        texture.clear( image, offsetX, offsetY, width, height, true, null );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
     }
     
@@ -90,7 +90,7 @@ public class ImageWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( image, "The displayed image's name." );
+        writer.writeProperty( imageProp, "The displayed image's name." );
     }
     
     /**
@@ -101,7 +101,7 @@ public class ImageWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( image.loadProperty( key, value ) );
+        if ( imageProp.loadProperty( key, value ) );
     }
     
     /**
@@ -114,7 +114,7 @@ public class ImageWidget extends Widget
         
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( image );
+        propsCont.addProperty( imageProp );
     }
     
     @Override

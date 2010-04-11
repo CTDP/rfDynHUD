@@ -702,7 +702,7 @@ public abstract class Widget implements Documented
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
-     * @param image the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
      * @param width the width on the texture
@@ -710,7 +710,7 @@ public abstract class Widget implements Documented
      * 
      * @return true, if size has changed.
      */
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -722,13 +722,13 @@ public abstract class Widget implements Documented
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
-     * @param image the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height );
+    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method must contain the actual drawing code for this Widget.
@@ -738,29 +738,29 @@ public abstract class Widget implements Documented
      * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
-     * @param image the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height );
+    protected abstract void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * 
      * @param isEditorMode
      * @param border
-     * @param image the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX
      * @param offsetY
      * @param width
      * @param height
      */
-    protected void drawBorder( boolean isEditorMode, TexturedBorder border, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void drawBorder( boolean isEditorMode, TexturedBorder border, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( border != null )
         {
-            Texture2DCanvas texCanvas = image.getTextureCanvas();
+            Texture2DCanvas texCanvas = texture.getTextureCanvas();
             texCanvas.setClip( offsetX, offsetY, width, height );
             border.drawBorder( texCanvas, offsetX, offsetY, width, height );
         }
@@ -770,16 +770,16 @@ public abstract class Widget implements Documented
      * 
      * @param isEditorMode
      * @param gameData
-     * @param image the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX
      * @param offsetY
      * @param width
      * @param height
      */
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( hasBackgroundColor() )
-            image.clear( getBackgroundColor(), offsetX, offsetY, width, height, true, null );
+            texture.clear( getBackgroundColor(), offsetX, offsetY, width, height, true, null );
     }
     
     /**
@@ -790,9 +790,9 @@ public abstract class Widget implements Documented
      * @param completeRedrawForced
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
-     * @param image the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      */
-    public final void drawWidget( boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image )
+    public final void drawWidget( boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
     {
         boolean wasInitialized = initialized;
         
@@ -816,16 +816,16 @@ public abstract class Widget implements Documented
         int width2 = width - borderLW - borderRW;
         int height2 = height - borderTH - borderBH;
         
-        final Texture2DCanvas texCanvas = image.getTextureCanvas();
+        final Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
         if ( !initialized )
         {
-            initialize( clock1, clock2, gameData, editorPresets, image, offsetX2, offsetY2, width2, height2 );
+            initialize( clock1, clock2, gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );
             
             initialized = true;
         }
         
-        if ( checkForChanges( clock1, clock2, gameData, editorPresets, image, offsetX2, offsetY2, width2, height2 ) )
+        if ( checkForChanges( clock1, clock2, gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 ) )
         {
             completeRedrawForced = true;
             
@@ -846,19 +846,19 @@ public abstract class Widget implements Documented
         
         if ( completeRedrawForced )
         {
-            drawBorder( ( editorPresets != null ), getBorder().getBorder(), image, offsetX, offsetY, width, height );
+            drawBorder( ( editorPresets != null ), getBorder().getBorder(), texture, offsetX, offsetY, width, height );
         }
         
         if ( completeRedrawForced )
         {
-            image.markDirty( offsetX, offsetY, width, height );
+            texture.markDirty( offsetX, offsetY, width, height );
             
-            clearBackground( ( editorPresets != null ), gameData, image, offsetX2, offsetY2, width2, height2 );
+            clearBackground( ( editorPresets != null ), gameData, texture, offsetX2, offsetY2, width2, height2 );
         }
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
-        drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, image, offsetX2, offsetY2, width2, height2 );
+        drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );
         
         if ( editorPresets != null )
         {

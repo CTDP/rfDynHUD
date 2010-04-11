@@ -83,6 +83,9 @@ public class FontProperty extends Property
     
     public final Font getFont()
     {
+        if ( fontKey == null )
+            return ( null );
+        
         if ( font == null )
         {
             font = widget.getConfiguration().getNamedFont( fontKey );

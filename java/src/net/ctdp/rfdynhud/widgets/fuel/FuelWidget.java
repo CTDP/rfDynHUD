@@ -234,7 +234,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -271,7 +271,7 @@ public class FuelWidget extends Widget
         nextPitstopFuelString = new DrawnString( null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Fuel: ", null );
     }
     
-    private void drawFuel( float fuel, int tankSize, TextureImage2D image, int x, int y, int height )
+    private void drawFuel( float fuel, int tankSize, TextureImage2D texture, int x, int y, int height )
     {
         int w = fuelBarWidth.getEffectiveWidth();
         int h = height;
@@ -284,16 +284,16 @@ public class FuelWidget extends Widget
         
         if ( normFuel < 1.0f )
         {
-            image.clear( Color.BLACK, x, y, w, h - barHeight, false, null );
+            texture.clear( Color.BLACK, x, y, w, h - barHeight, false, null );
         }
         
-        image.clear( awtColor, x, y + h - barHeight, w, barHeight, false, null );
+        texture.clear( awtColor, x, y + h - barHeight, w, barHeight, false, null );
         
-        image.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         
@@ -307,10 +307,10 @@ public class FuelWidget extends Widget
         
         if ( needsCompleteRedraw )
         {
-            fuelHeaderString.draw( offsetX, offsetY, String.valueOf( tankSize ) + " Liters max", backgroundColor, image );
-            fuelUsageHeaderString.draw( offsetX, offsetY, "", backgroundColor, image );
-            fuelUsageLastLapHeaderString.draw( offsetX, offsetY, "", backgroundColor, image );
-            fuelUsageAvgHeaderString.draw( offsetX, offsetY, "", backgroundColor, image );
+            fuelHeaderString.draw( offsetX, offsetY, String.valueOf( tankSize ) + " Liters max", backgroundColor, texture );
+            fuelUsageHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
+            fuelUsageLastLapHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
+            fuelUsageAvgHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
             //nextPitstopHeaderString.draw( offsetX, offsetY, "", backgroundColor, image );
         }
         
@@ -324,12 +324,12 @@ public class FuelWidget extends Widget
             
             int fuelY = fuelHeaderString.getAbsY() + fuelHeaderString.getMaxHeight( true ) + 0;
             int fuelHeight = height - fuelY - 4;
-            drawFuel( fuel, tankSize, image, offsetX + fuelBarLeftOffset.getIntegerValue(), offsetY + fuelY, fuelHeight );
+            drawFuel( fuel, tankSize, texture, offsetX + fuelBarLeftOffset.getIntegerValue(), offsetY + fuelY, fuelHeight );
             
             String string = NumberUtil.formatFloat( fuel, 1, true );
-            fuelLoadString1.draw( offsetX, offsetY + fuelY, string, (Color)null, image );
+            fuelLoadString1.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
             string = NumberUtil.formatFloat( fuel * gameData.getPhysics().getWeightOfOneLiterOfFuel(), 1, true );
-            fuelLoadString2.draw( offsetX, offsetY + fuelY, string, (Color)null, image );
+            fuelLoadString2.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
             
             if ( !isEditorMode && ( avgFuelUsage > 0f ) )
             {
@@ -342,7 +342,7 @@ public class FuelWidget extends Widget
             {
                 string = "N/A";
             }
-            fuelLoadString3.draw( offsetX, offsetY + fuelY, string, (Color)null, image );
+            fuelLoadString3.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
         }
         
         stintLength.update( (int)vsi.getStintLength() );
@@ -354,8 +354,8 @@ public class FuelWidget extends Widget
             {
                 this.oldFuelRelevantLaps = fuelRelevantLaps;
                 
-                fuelUsageOneLapString.draw( offsetX, offsetY, "N/A", backgroundColor, image );
-                fuelUsageAvgString.draw( offsetX, offsetY, "N/A", backgroundColor, image );
+                fuelUsageOneLapString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
+                fuelUsageAvgString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
             }
         }
         else if ( needsCompleteRedraw || stintLength.hasChanged() )
@@ -367,15 +367,15 @@ public class FuelWidget extends Widget
                 string = NumberUtil.formatFloat( lastFuelUsage, 3, true ) + "L";
             else
                 string = "N/A";
-            fuelUsageOneLapString.draw( offsetX, offsetY, string, backgroundColor, image );
+            fuelUsageOneLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
             
             string = NumberUtil.formatFloat( avgFuelUsage, 3, true ) + "L";
-            fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, image );
+            fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, texture );
         }
         
         if ( needsCompleteRedraw )
         {
-            nextPitstopHeaderString.draw( offsetX, offsetY, "", backgroundColor, image );
+            nextPitstopHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
         }
         
         int nextPitstopLap = -1;
@@ -433,21 +433,21 @@ public class FuelWidget extends Widget
                 if ( pitstopFuel.isValid() )
                 {
                     String string = String.valueOf( nextPitstopLap ) + postfix1;
-                    nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
                     string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntegerValue() ) + "L (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + postfix2 + ")";
-                    nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 }
                 else
                 {
-                    nextPitstopLapString.draw( offsetX, offsetY, "-", backgroundColor, image );
-                    nextPitstopFuelString.draw( offsetX, offsetY, "-", backgroundColor, image );
+                    nextPitstopLapString.draw( offsetX, offsetY, "-", backgroundColor, texture );
+                    nextPitstopFuelString.draw( offsetX, offsetY, "-", backgroundColor, texture );
                 }
             }
             else
             {
-                nextPitstopLapString.draw( offsetX, offsetY, "N/A" + postfix1, backgroundColor, image );
-                nextPitstopFuelString.draw( offsetX, offsetY, "N/A (" + postfix2 + " Laps)", backgroundColor, image );
+                nextPitstopLapString.draw( offsetX, offsetY, "N/A" + postfix1, backgroundColor, texture );
+                nextPitstopFuelString.draw( offsetX, offsetY, "N/A (" + postfix2 + " Laps)", backgroundColor, texture );
             }
         }
     }

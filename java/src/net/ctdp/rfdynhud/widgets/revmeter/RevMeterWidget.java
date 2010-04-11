@@ -518,10 +518,10 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
-        final Texture2DCanvas texCanvas = image.getTextureCanvas();
+        final Texture2DCanvas texCanvas = texture.getTextureCanvas();
         boolean reloadBackground = ( backgroundTexture == null );
         
         if ( isEditorMode && ( backgroundTexture != null ) && ( ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) ) )
@@ -803,9 +803,9 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        image.clear( backgroundTexture, offsetX, offsetY, width, height, true, null );
+        texture.clear( backgroundTexture, offsetX, offsetY, width, height, true, null );
         
         if ( displayShiftLight.getBooleanValue() )
         {
@@ -814,7 +814,7 @@ public class RevMeterWidget extends Widget
             //image.clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
         }
         
-        drawMarks( gameData, image.getTextureCanvas(), offsetX, offsetY, width, height );
+        drawMarks( gameData, texture.getTextureCanvas(), offsetX, offsetY, width, height );
     }
     
     private void drawBoostBar( int boost, int maxBoost, boolean inverted, boolean tempBoost, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
@@ -848,7 +848,7 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         
@@ -860,7 +860,7 @@ public class RevMeterWidget extends Widget
             String string = gear.getValue() == -1 ? "R" : gear.getValue() == 0 ? "N" : String.valueOf( gear );
             
             if ( gearBackgroundTexture == null )
-                gearString.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
+                gearString.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, texture );
             else
                 gearString.draw( 0, 0, string, gearBackgroundTexture_bak, 0, 0, gearBackgroundTexture.getTexture() );
         }
@@ -871,7 +871,7 @@ public class RevMeterWidget extends Widget
             if ( displayBoostNumber.getBooleanValue() )
             {
                 if ( boostNumberBackgroundTexture == null )
-                    boostString.draw( offsetX, offsetY, boost.getValueAsString(), backgroundTexture, offsetX, offsetY, image );
+                    boostString.draw( offsetX, offsetY, boost.getValueAsString(), backgroundTexture, offsetX, offsetY, texture );
                 else
                     boostString.draw( 0, 0, boost.getValueAsString(), boostNumberBackgroundTexture_bak, 0, 0, boostNumberBackgroundTexture.getTexture() );
             }
@@ -881,7 +881,7 @@ public class RevMeterWidget extends Widget
                 int maxBoost = (int)gameData.getPhysics().getEngine().getBoostRange().getMaxValue();
                 boolean inverted = ( gameData.getPhysics().getEngine().getRPMIncreasePerBoostLevel() < 0f );
                 boolean tempBoost = false;
-                drawBoostBar( boost.getValue(), maxBoost, inverted, tempBoost, image.getTextureCanvas(), offsetX + Math.round( boostBarPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( boostBarPosY.getIntegerValue() * backgroundScaleY ), Math.round( boostBarWidth.getIntegerValue() * backgroundScaleX ), Math.round( boostBarHeight.getIntegerValue() * backgroundScaleY ) );
+                drawBoostBar( boost.getValue(), maxBoost, inverted, tempBoost, texture.getTextureCanvas(), offsetX + Math.round( boostBarPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( boostBarPosY.getIntegerValue() * backgroundScaleY ), Math.round( boostBarWidth.getIntegerValue() * backgroundScaleX ), Math.round( boostBarHeight.getIntegerValue() * backgroundScaleY ) );
             }
         }
         
@@ -895,11 +895,11 @@ public class RevMeterWidget extends Widget
                 String string = velocity.getValueAsString();
                 
                 FontMetrics metrics = velocityFont.getMetrics();
-                Rectangle2D bounds = metrics.getStringBounds( string, image.getTextureCanvas() );
+                Rectangle2D bounds = metrics.getStringBounds( string, texture.getTextureCanvas() );
                 double fw = bounds.getWidth();
                 
                 if ( velocityBackgroundTexture == null )
-                    velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, backgroundTexture, offsetX, offsetY, image );
+                    velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, backgroundTexture, offsetX, offsetY, texture );
                 else
                     velocityString.draw( (int)( -fw / 2.0 ), 0, string, velocityBackgroundTexture_bak, 0, 0, velocityBackgroundTexture.getTexture() );
             }
@@ -923,7 +923,7 @@ public class RevMeterWidget extends Widget
                 string += rpmJoinString1.getStringValue();
             if ( displayMaxRPM1.getBooleanValue() )
                 string += NumberUtil.formatFloat( maxRPM, 0, false );
-            rpmString1.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
+            rpmString1.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, texture );
         }
         
         if ( displayRPMString2.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
@@ -935,7 +935,7 @@ public class RevMeterWidget extends Widget
                 string += rpmJoinString2.getStringValue();
             if ( displayMaxRPM2.getBooleanValue() )
                 string += NumberUtil.formatFloat( maxRPM, 0, false );
-            rpmString2.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, image );
+            rpmString2.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, texture );
         }
         
         if ( shiftLightTexture != null )

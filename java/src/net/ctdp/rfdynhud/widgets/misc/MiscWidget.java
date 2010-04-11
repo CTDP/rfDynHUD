@@ -165,7 +165,7 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -239,9 +239,9 @@ public class MiscWidget extends Widget
             velocityColWidths[1] = 0;
             velocityColWidths[2] = 0;
             
-            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", "km/h" }, padding, image, velocityColWidths );
-            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", "km/h" }, padding, image, velocityColWidths );
-            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, padding, image, velocityColWidths );
+            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", "km/h" }, padding, texture, velocityColWidths );
+            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", "km/h" }, padding, texture, velocityColWidths );
+            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, padding, texture, velocityColWidths );
         }
         else
         {
@@ -251,30 +251,30 @@ public class MiscWidget extends Widget
         }
     }
     
-    private void updateScoringColWidths( ScoringInfo scoringInfo, TextureImage2D image )
+    private void updateScoringColWidths( ScoringInfo scoringInfo, TextureImage2D texture )
     {
         String fastestLapper = scoringInfo.getFastestLapVSI().getDriverName();
         
         scoringColWidths[0] = 0;
         scoringColWidths[1] = 0;
         
-        scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, padding, image, scoringColWidths );
+        scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, padding, texture, scoringColWidths );
         if ( place.isValid() )
-            scoringString2.getMaxColWidths( new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, padding, image, scoringColWidths );
+            scoringString2.getMaxColWidths( new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, padding, texture, scoringColWidths );
         else
-            scoringString2.getMaxColWidths( new String[] { "Place:", "N/A" }, padding, image, scoringColWidths );
+            scoringString2.getMaxColWidths( new String[] { "Place:", "N/A" }, padding, texture, scoringColWidths );
         
         if ( fastestLap.isValid() )
-            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, padding, image, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, padding, texture, scoringColWidths );
         else
-            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", "--:--.---" }, padding, image, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", "--:--.---" }, padding, texture, scoringColWidths );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D image, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Color backgroundColor = getBackgroundColor();
         
@@ -298,20 +298,20 @@ public class MiscWidget extends Widget
                 
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, image );
+                    updateScoringColWidths( scoringInfo, texture );
                     colWidthsUpdated = true;
                 }
                 
                 if ( scoringInfo.getSessionType().isRace() )
                 {
                     if ( leaderValid )
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", ThreeLetterCodeManager.getShortForm( leader.getValue() ) }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", ThreeLetterCodeManager.getShortForm( leader.getValue() ) }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                     else
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 }
                 else
                 {
-                    scoringString1.draw( offsetX, offsetY, "", backgroundColor, image );
+                    scoringString1.draw( offsetX, offsetY, "", backgroundColor, texture );
                 }
             }
             
@@ -319,28 +319,28 @@ public class MiscWidget extends Widget
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, image );
+                    updateScoringColWidths( scoringInfo, texture );
                     colWidthsUpdated = true;
                 }
                 
                 if ( place.isValid() )
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 else
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Place:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Place:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
             }
             
             if ( needsCompleteRedraw || fastestLap.hasValidityChanged() || fastestLap.hasChanged() )
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, image );
+                    updateScoringColWidths( scoringInfo, texture );
                     colWidthsUpdated = true;
                 }
                 
                 if ( fastestLap.isValid() )
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), false, false, true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), false, false, true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 else
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", "--:--.---" }, scoringAlignment, padding, scoringColWidths, backgroundColor, image );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", "--:--.---" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
             }
         }
         
@@ -378,7 +378,7 @@ public class MiscWidget extends Widget
                         else
                             string = lapsCompleted + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
                     }
-                    lapString.draw( offsetX, offsetY, string, backgroundColor, image );
+                    lapString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 }
             }
             else if ( needsCompleteRedraw || lapsCompleted.hasChanged() )
@@ -388,7 +388,7 @@ public class MiscWidget extends Widget
                     string = String.valueOf( lapsCompleted.getValue() + 1 );
                 else
                     string = String.valueOf( lapsCompleted );
-                lapString.draw( offsetX, offsetY, string, backgroundColor, image );
+                lapString.draw( offsetX, offsetY, string, backgroundColor, texture );
             }
             
             {
@@ -398,15 +398,15 @@ public class MiscWidget extends Widget
                     if ( vsi.isInPits() )
                     {
                         if ( oldStintLength < 0 )
-                            stintString.draw( offsetX, offsetY, "N/A", backgroundColor, image );
+                            stintString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
                         else
-                            stintString.draw( offsetX, offsetY, String.valueOf( Math.round( oldStintLength / 10f ) ), backgroundColor, image );
+                            stintString.draw( offsetX, offsetY, String.valueOf( Math.round( oldStintLength / 10f ) ), backgroundColor, texture );
                     }
                     else
                     {
                         oldStintLength = stintLength;
                         
-                        stintString.draw( offsetX, offsetY, String.valueOf( oldStintLength / 10f ), backgroundColor, image );
+                        stintString.draw( offsetX, offsetY, String.valueOf( oldStintLength / 10f ), backgroundColor, texture );
                     }
                 }
             }
@@ -419,11 +419,11 @@ public class MiscWidget extends Widget
                 gamePhase.setUnchanged();
                 
                 if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
-                    sessionTimeString.draw( offsetX, offsetY, "--:--:--", backgroundColor, image );
+                    sessionTimeString.draw( offsetX, offsetY, "--:--:--", backgroundColor, texture );
                 else if ( scoringInfo.getSessionType().isTestDay() || ( totalTime < 0f ) || ( totalTime > 3000000f ) )
-                    sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), backgroundColor, image );
+                    sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), backgroundColor, texture );
                 else
-                    sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue() - totalTime, true, false ), backgroundColor, image );
+                    sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue() - totalTime, true, false ), backgroundColor, texture );
             }
         }
         
@@ -454,19 +454,19 @@ public class MiscWidget extends Widget
                 
                 updateAbs = false;
                 oldAbsTopspeed = topspeed;
-                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
+                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( relTopspeed > oldRelTopspeed ) ) )
             {
                 oldRelTopspeed = relTopspeed;
-                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed2:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
+                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed2:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( velocity != oldVelocity ) ) )
             {
                 oldVelocity = velocity;
-                velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, image );
+                velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
         }
     }
