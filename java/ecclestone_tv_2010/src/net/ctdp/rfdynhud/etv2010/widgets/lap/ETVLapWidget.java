@@ -1,4 +1,4 @@
-package net.ctdp.rfdynhud.tvstyle2010.widgets.lap;
+package net.ctdp.rfdynhud.etv2010.widgets.lap;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -8,6 +8,7 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.EnumProperty;
+import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -17,7 +18,6 @@ import net.ctdp.rfdynhud.gamedata.YellowFlagState;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.tvstyle2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.EnumValue;
 import net.ctdp.rfdynhud.widgets._util.IntValue;

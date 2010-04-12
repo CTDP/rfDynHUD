@@ -1,4 +1,4 @@
-package net.ctdp.rfdynhud.tvstyle2010.widgets._util;
+package net.ctdp.rfdynhud.etv2010.widgets._util;
 
 import java.awt.Color;
 import java.awt.Font;
