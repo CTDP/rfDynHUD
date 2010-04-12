@@ -13,6 +13,14 @@ public class NumberUtil
 {
     private static final NumberFormat formatter = DecimalFormat.getNumberInstance( Locale.US );
     
+    public static final String pad2( int number )
+    {
+        if ( ( number > 9 ) || ( number < 0 ) )
+            return ( String.valueOf( number ) );
+        
+        return ( "0" + String.valueOf( number ) );
+    }
+    
     /**
      * Formats the given float to a String with the specified number of decimal places.
      * 

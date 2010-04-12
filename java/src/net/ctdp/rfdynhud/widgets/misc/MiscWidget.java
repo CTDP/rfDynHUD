@@ -22,6 +22,7 @@ import net.ctdp.rfdynhud.widgets._util.EnumValue;
 import net.ctdp.rfdynhud.widgets._util.FloatValue;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets._util.StringValue;
 import net.ctdp.rfdynhud.widgets._util.TimingUtil;
 import net.ctdp.rfdynhud.widgets._util.ValidityTest;
@@ -87,7 +88,7 @@ public class MiscWidget extends Widget
     @Override
     public String getWidgetPackage()
     {
-        return ( "" );
+        return ( StandardWidgetSet.WIDGET_PACKAGE );
     }
     
     /**

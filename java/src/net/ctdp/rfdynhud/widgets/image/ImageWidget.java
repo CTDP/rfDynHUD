@@ -10,6 +10,7 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -36,7 +37,7 @@ public class ImageWidget extends Widget
     @Override
     public String getWidgetPackage()
     {
-        return ( "" );
+        return ( StandardWidgetSet.WIDGET_PACKAGE );
     }
     
     /**

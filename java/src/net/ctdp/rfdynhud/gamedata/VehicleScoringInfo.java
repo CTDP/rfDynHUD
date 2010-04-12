@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
+
 /**
  * 
  * @author Marvin Froehlich
@@ -111,6 +113,22 @@ public class VehicleScoringInfo
             name = ByteUtil.readString( buffer, OFFSET_DRIVER_NAME, 32 );
         
         return ( name );
+    }
+    
+    /**
+     * driver name (three letter code)
+     */
+    public final String getDriverNameTLC()
+    {
+        return ( ThreeLetterCodeManager.getThreeLetterCode( getDriverName() ) );
+    }
+    
+    /**
+     * driver name (short form)
+     */
+    public final String getDriverNameShort()
+    {
+        return ( ThreeLetterCodeManager.getShortForm( getDriverName() ) );
     }
     
     /**

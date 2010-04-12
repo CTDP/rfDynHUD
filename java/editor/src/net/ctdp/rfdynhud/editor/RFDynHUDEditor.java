@@ -66,6 +66,7 @@ import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
+import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.Logger;
@@ -958,7 +959,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         BufferedImage backgroundImage = loadBackgroundImage( resX, resY );
         this.gameResX = backgroundImage.getWidth();
         this.gameResY = backgroundImage.getHeight();
-        TransformableTexture overlayTexture = TransformableTexture.createMainTexture( gameResX, gameResY );
+        TransformableTexture overlayTexture = __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY );
         
         editorPanel.setBackgroundImage( backgroundImage );
         editorPanel.setOverlayTexture( overlayTexture.getTexture() );
@@ -1535,7 +1536,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         BufferedImage backgroundImage = loadBackgroundImage( 1920, 1200 );
         this.gameResX = backgroundImage.getWidth();
         this.gameResY = backgroundImage.getHeight();
-        TransformableTexture overlayTexture = TransformableTexture.createMainTexture( gameResX, gameResY );
+        TransformableTexture overlayTexture = __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY );
         WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( overlayTexture );
         
         eventsManager = new RFactorEventsManager( drawingManager, null );

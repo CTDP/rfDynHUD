@@ -2,6 +2,11 @@ package net.ctdp.rfdynhud.render;
 
 public class __RenderPrivilegedAccess
 {
+    public static TransformableTexture createMainTexture( int width, int height )
+    {
+        return ( TransformableTexture.createMainTexture( width, height ) );
+    }
+    
     public static final void setLastModified( long lastModified, ImageTemplate it )
     {
         it.lastModified = lastModified;

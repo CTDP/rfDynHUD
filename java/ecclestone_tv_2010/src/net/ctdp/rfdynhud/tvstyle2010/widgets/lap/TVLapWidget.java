@@ -5,8 +5,6 @@ import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-import org.openmali.types.twodee.Rect2i;
-
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.EnumProperty;
@@ -19,6 +17,7 @@ import net.ctdp.rfdynhud.gamedata.YellowFlagState;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.tvstyle2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.EnumValue;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
@@ -29,14 +28,14 @@ import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
- * The {@link LapWidget} displays the current lap.
+ * The {@link TVLapWidget} displays the current lap.
  * 
  * @author Marvin Froehlich
  */
-public class LapWidget extends Widget
+public class TVLapWidget extends Widget
 {
-    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBackgroundColor", "#787878" );
-    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", "#FFFFFF" );
+    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBackgroundColor", ETVUtils.TV_STYLE_CAPTION_BACKGROUND_COLOR );
+    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.TV_STYLE_CAPTION_FONT_COLOR );
     
     private static enum LapDisplayType
     {
@@ -68,12 +67,10 @@ public class LapWidget extends Widget
     private final int[] colWidths = new int[ 3 ];
     private static final int colPadding = 10;
     
-    private static final int TRIANGLE_WIDTH = 15;
-    
     @Override
     public String getWidgetPackage()
     {
-        return ( "CTDP/TV-Style 2010" );
+        return ( ETVUtils.WIDGET_PACKAGE );
     }
     
     @Override
@@ -122,13 +119,10 @@ public class LapWidget extends Widget
         
         Rectangle2D capBounds = metrics.getStringBounds( CAPTION, texCanvas );
         
-        int capWidth = (int)Math.ceil( capBounds.getWidth() );
-        int capHeight = (int)Math.ceil( capBounds.getHeight() );
-        int vMiddle = ( height - capHeight ) / 2;
-        int lapAreaWidth = width - 3 * TRIANGLE_WIDTH - capWidth;
-        int dataAreaCenter = width - TRIANGLE_WIDTH - lapAreaWidth / 2;
+        int dataAreaCenter = ETVUtils.getLabeledDataDataCenter( width, capBounds );
+        int vMiddle = ETVUtils.getLabeledDataVMiddle( height, capBounds );
         
-        captionString = new DrawnString( TRIANGLE_WIDTH, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        captionString = new DrawnString( ETVUtils.TRIANGLE_WIDTH, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
         lapString = new DrawnString( dataAreaCenter, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         lapString.getMinColWidths( new String[] { "00", "/", "00" }, colAligns, colPadding, texture, colWidths );
@@ -137,72 +131,13 @@ public class LapWidget extends Widget
     @Override
     protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        //super.clearBackground( isEditorMode, gameData, texture, offsetX, offsetY, width, height );
-        texture.clear( offsetX, offsetY, width, height, true, null );
-        
-        Texture2DCanvas texCanvas = texture.getTextureCanvas();
-        texCanvas.setFont( getFont() );
-        FontMetrics metrics = texCanvas.getFontMetrics();
-        
-        Rectangle2D capBounds = metrics.getStringBounds( CAPTION, texCanvas );
-        
-        texCanvas.setColor( captionBackgroundColor.getColor() );
-        
-        final boolean aaTrian = true;
-        
-        texCanvas.setAntialiazingEnabled( aaTrian );
-        
-        int[] xPoints = new int[] { offsetX + 0, offsetX + TRIANGLE_WIDTH, offsetX + TRIANGLE_WIDTH, offsetX + 0 };
-        int[] yPoints = new int[] { offsetY + height, offsetY + height, offsetY + 0, offsetY + height };
-        
-        texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
-        //texCanvas.drawPolygon( xPoints, yPoints, xPoints.length );
-        
-        texCanvas.setAntialiazingEnabled( false );
-        
-        int capWidth = (int)Math.ceil( capBounds.getWidth() );
-        Rect2i rect = new Rect2i( offsetX + TRIANGLE_WIDTH, offsetY + 0, capWidth, offsetY + height );
-        
-        texCanvas.fillRect( rect );
-        //texCanvas.drawRect( rect );
-        
-        texCanvas.setAntialiazingEnabled( aaTrian );
-        
-        xPoints = new int[] { offsetX + TRIANGLE_WIDTH + capWidth, offsetX + TRIANGLE_WIDTH + capWidth + TRIANGLE_WIDTH, offsetX + TRIANGLE_WIDTH + capWidth, offsetX + TRIANGLE_WIDTH + capWidth };
-        yPoints = new int[] { offsetY + height, offsetY + 0, offsetY + 0, offsetY + height };
-        
-        texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
-        //texCanvas.drawPolygon( xPoints, yPoints, xPoints.length );
-        
-        
+        Color dataBgColor;
         if ( yellowFlagState.getValue() == YellowFlagState.NONE )
-            texCanvas.setColor( getBackgroundColor() );
+            dataBgColor = getBackgroundColor();
         else
-            texCanvas.setColor( Color.YELLOW );
+            dataBgColor = Color.YELLOW;
         
-        texCanvas.setAntialiazingEnabled( aaTrian );
-        
-        xPoints = new int[] { offsetX + TRIANGLE_WIDTH + capWidth, offsetX + TRIANGLE_WIDTH + TRIANGLE_WIDTH + capWidth, offsetX + TRIANGLE_WIDTH + TRIANGLE_WIDTH + capWidth, offsetX + TRIANGLE_WIDTH + capWidth };
-        yPoints = new int[] { offsetY + height, offsetY + height, offsetY + 0, offsetY + height };
-        
-        texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
-        //texCanvas.drawPolygon( xPoints, yPoints, xPoints.length );
-        
-        texCanvas.setAntialiazingEnabled( false );
-        
-        //int lapAreaWidth = width - 4 * TRIANGLE_WIDTH - capWidth;
-        rect = new Rect2i( offsetX + 2 * TRIANGLE_WIDTH + capWidth, offsetY + 0, width - 3 * TRIANGLE_WIDTH - capWidth, offsetY + height );
-        
-        texCanvas.fillRect( rect );
-        //texCanvas.drawRect( rect );
-        
-        texCanvas.setAntialiazingEnabled( aaTrian );
-        
-        xPoints = new int[] { offsetX + width - TRIANGLE_WIDTH, offsetX + width, offsetX + width - TRIANGLE_WIDTH, offsetX + width - TRIANGLE_WIDTH };
-        yPoints = new int[] { offsetY + height, offsetY + 0, offsetY + 0, offsetY + height };
-        
-        texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
-        //texCanvas.drawPolygon( xPoints, yPoints, xPoints.length );
+        ETVUtils.drawLabeledDataBackground( offsetX, offsetY, width, height, CAPTION, getFont(), captionBackgroundColor.getColor(), dataBgColor, texture, true );
     }
     
     @Override
@@ -300,12 +235,12 @@ public class LapWidget extends Widget
         return ( false );
     }
     
-    public LapWidget( String name )
+    public TVLapWidget( String name )
     {
         super( name, Size.PERCENT_OFFSET + 0.12f, Size.PERCENT_OFFSET + 0.0254f );
         
-        getBackgroundColorProperty().setValue( "#000000" );
-        getFontColorProperty().setValue( "#FFFFFF" );
-        getFontProperty().setValue( "TVStyleFont" );
+        getBackgroundColorProperty().setValue( ETVUtils.TV_STYLE_DATA_BACKGROUND_COLOR );
+        getFontColorProperty().setValue( ETVUtils.TV_STYLE_DATA_FONT_COLOR );
+        getFontProperty().setValue( ETVUtils.TV_STYLE_FONT );
     }
 }

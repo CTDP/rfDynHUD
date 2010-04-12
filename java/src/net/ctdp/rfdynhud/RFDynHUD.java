@@ -2,19 +2,19 @@ package net.ctdp.rfdynhud;
 
 import java.nio.ByteBuffer;
 
-import org.jagatoo.util.versioning.Version;
-
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
-import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
+import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
+
+import org.jagatoo.util.versioning.Version;
 
 /**
  * This is the entry point for the VM-invocation from rFactor.
@@ -179,7 +179,7 @@ public class RFDynHUD
         
         Logger.log( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "...", false );
         
-        this.drawingManager = new WidgetsDrawingManager( TransformableTexture.createMainTexture( gameResX, gameResY ) );
+        this.drawingManager = new WidgetsDrawingManager( __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY ) );
         Logger.log( " done." );
         
         __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, drawingManager );

@@ -452,7 +452,7 @@ public class TransformableTexture
      * @param height
      * @return a main render texture.
      */
-    public static TransformableTexture createMainTexture( int width, int height )
+    static TransformableTexture createMainTexture( int width, int height )
     {
         return ( new TransformableTexture( "", width, height ) );
     }
