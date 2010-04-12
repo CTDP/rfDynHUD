@@ -16,11 +16,11 @@ public class ETVUtils
     
     public static final int TRIANGLE_WIDTH = 15;
     
-    public static final String TV_STYLE_CAPTION_BACKGROUND_COLOR = "TVStyleCaptionBackgroundColor";
-    public static final String TV_STYLE_CAPTION_FONT_COLOR = "TVStyleCaptionFontColor";
-    public static final String TV_STYLE_DATA_BACKGROUND_COLOR = "TVStyleDataBackgroundColor";
-    public static final String TV_STYLE_DATA_FONT_COLOR = "TVStyleDataFontColor";
-    public static final String TV_STYLE_FONT = "TVStyleFont";
+    public static final String TV_STYLE_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
+    public static final String TV_STYLE_CAPTION_FONT_COLOR = "ETVCaptionFontColor";
+    public static final String TV_STYLE_DATA_BACKGROUND_COLOR = "ETVDataBackgroundColor";
+    public static final String TV_STYLE_DATA_FONT_COLOR = "ETVDataFontColor";
+    public static final String TV_STYLE_FONT = "ETVFont";
     
     public static final int getLabeledDataDataWidth( int width, Rectangle2D captionBounds )
     {

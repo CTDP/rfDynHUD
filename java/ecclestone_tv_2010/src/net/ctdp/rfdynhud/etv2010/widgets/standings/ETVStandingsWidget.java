@@ -193,7 +193,11 @@ public class ETVStandingsWidget extends Widget
                 
                 if ( needsCompleteRedraw || gaps[i].hasChanged() )
                 {
-                    String s = ( gaps[i].getValue() < 0f ) ? "+" + ( (int)-gaps[i].getValue() ) + "Lap(s)" : TimingUtil.getTimeAsGapString( gaps[i].getValue() );
+                    String s;
+                    if ( vsi.getBestLapTime() < 0.0f )
+                        s = "";
+                    else
+                        s = ( gaps[i].getValue() < 0f ) ? "+" + ( (int)-gaps[i].getValue() ) + "Lap(s)" : TimingUtil.getTimeAsGapString( gaps[i].getValue() );
                     
                     gapStrings[i].draw( 0, 0, s, getBackgroundColor(), getFontColor(), tt[i].getTexture() );
                 }

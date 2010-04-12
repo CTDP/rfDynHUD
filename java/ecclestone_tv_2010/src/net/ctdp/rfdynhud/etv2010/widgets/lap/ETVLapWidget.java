@@ -46,15 +46,6 @@ public class ETVLapWidget extends Widget
     
     private final EnumProperty<LapDisplayType> lapDisplayType = new EnumProperty<LapDisplayType>( this, "lapDisplayType", LapDisplayType.CURRENT_LAP );
     
-    private static enum LapDriver
-    {
-        LEADER,
-        ME,
-        ;
-    }
-    
-    private final EnumProperty<LapDriver> lapDriver = new EnumProperty<LapDriver>( this, "lapDriver", LapDriver.LEADER );
-    
     private DrawnString captionString = null;
     private DrawnString lapString = null;
     
@@ -145,7 +136,7 @@ public class ETVLapWidget extends Widget
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        VehicleScoringInfo vsi = ( lapDriver.getEnumValue() == LapDriver.ME ) ? scoringInfo.getPlayersVehicleScoringInfo() : scoringInfo.getVehicleScoringInfo( 0 );
+        VehicleScoringInfo vsi = scoringInfo.getSessionType().isRace() ? scoringInfo.getVehicleScoringInfo( 0 ) : scoringInfo.getPlayersVehicleScoringInfo();
         
         if ( needsCompleteRedraw )
         {
@@ -188,7 +179,6 @@ public class ETVLapWidget extends Widget
         writer.writeProperty( captionBackgroundColor, "The background color for the \"Lap\" caption." );
         writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
         writer.writeProperty( lapDisplayType, "The way the laps are displayed. Valid values: CURRENT_LAP, LAPS_DONE." );
-        writer.writeProperty( lapDriver, "The driver, who's laps are used for the lap display. Valid values: LEADER, ME." );
     }
     
     /**
@@ -202,7 +192,6 @@ public class ETVLapWidget extends Widget
         if ( captionBackgroundColor.loadProperty( key, value ) );
         else if ( captionColor.loadProperty( key, value ) );
         else if ( lapDisplayType.loadProperty( key, value ) );
-        else if ( lapDriver.loadProperty( key, value ) );
     }
     
     /**
@@ -218,7 +207,6 @@ public class ETVLapWidget extends Widget
         propsCont.addProperty( captionBackgroundColor );
         propsCont.addProperty( captionColor );
         propsCont.addProperty( lapDisplayType );
-        propsCont.addProperty( lapDriver );
     }
     
     /*
