@@ -27,11 +27,11 @@ import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
- * The {@link TVStandingsWidget} displays the list of drivers and gaps.
+ * The {@link ETVStandingsWidget} displays the list of drivers and gaps.
  * 
  * @author Marvin Froehlich
  */
-public class TVStandingsWidget extends Widget
+public class ETVStandingsWidget extends Widget
 {
     private static final int MAX_NUM_DRIVERS = 22;
     
@@ -264,7 +264,7 @@ public class TVStandingsWidget extends Widget
         return ( false );
     }
     
-    public TVStandingsWidget( String name )
+    public ETVStandingsWidget( String name )
     {
         super( name, Size.PERCENT_OFFSET + 0.14f, Size.PERCENT_OFFSET + 0.0254f );
         

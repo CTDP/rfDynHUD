@@ -28,11 +28,11 @@ import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
- * The {@link TVLapWidget} displays the current lap.
+ * The {@link ETVLapWidget} displays the current lap.
  * 
  * @author Marvin Froehlich
  */
-public class TVLapWidget extends Widget
+public class ETVLapWidget extends Widget
 {
     private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBackgroundColor", ETVUtils.TV_STYLE_CAPTION_BACKGROUND_COLOR );
     private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.TV_STYLE_CAPTION_FONT_COLOR );
@@ -235,7 +235,7 @@ public class TVLapWidget extends Widget
         return ( false );
     }
     
-    public TVLapWidget( String name )
+    public ETVLapWidget( String name )
     {
         super( name, Size.PERCENT_OFFSET + 0.12f, Size.PERCENT_OFFSET + 0.0254f );
         
