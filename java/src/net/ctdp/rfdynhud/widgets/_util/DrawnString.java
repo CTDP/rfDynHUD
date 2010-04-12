@@ -392,11 +392,17 @@ public class DrawnString
         int height = clearRect.getHeight();
         
         texture.getTextureCanvas().pushClip( x, y, width, height, true );
-        if ( clearColor != null )
-            texture.clear( clearColor, x, y, width, height, true, dirtyRect );
-        if ( clearBackground != null )
-            texture.clear( clearBackground, x - clearOffsetX, y - clearOffsetY, width, height, x, y, width, height, true, dirtyRect );
-        texture.getTextureCanvas().popClip();
+        try
+        {
+            if ( clearColor != null )
+                texture.clear( clearColor, x, y, width, height, true, dirtyRect );
+            if ( clearBackground != null )
+                texture.clear( clearBackground, x - clearOffsetX, y - clearOffsetY, width, height, x, y, width, height, true, dirtyRect );
+        }
+        finally
+        {
+            texture.getTextureCanvas().popClip();
+        }
     }
     
     private int draw( int offsetX, int offsetY, String str, java.awt.Color clearColor, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, java.awt.Color fontColor, TextureImage2D texture )

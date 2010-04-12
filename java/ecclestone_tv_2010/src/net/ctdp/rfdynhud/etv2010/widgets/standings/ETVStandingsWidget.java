@@ -1,6 +1,5 @@
 package net.ctdp.rfdynhud.etv2010.widgets.standings;
 
-import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.FloatValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
@@ -33,8 +31,6 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class ETVStandingsWidget extends Widget
 {
-    private static final int MAX_NUM_DRIVERS = 22;
-    
     private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBackgroundColor", ETVUtils.TV_STYLE_CAPTION_BACKGROUND_COLOR );
     private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBackgroundColor1st", "#FF0000" );
     private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.TV_STYLE_CAPTION_FONT_COLOR );
@@ -43,10 +39,47 @@ public class ETVStandingsWidget extends Widget
     private DrawnString[] nameStrings = null;
     private DrawnString[] gapStrings = null;
     
-    private TransformableTexture[] textures = null;
-    
     private StringValue[] driverNames = null;
     private FloatValue[] gaps = null;
+    
+    //private int itemHeight = 0;
+    private static final int ITEM_GAP = 3;
+    private int numItems = 0;
+    
+    private int oldNumItems = 0;
+    
+    private Boolean[] itemsVisible = null;
+    
+    private final Size itemHeight = new Size( 0, Size.PERCENT_OFFSET + 0.025f, this, true );
+    
+    private TextureImage2D itemClearImage = null;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void bake()
+    {
+        super.bake();
+        
+        itemHeight.bake();
+    }
+    
+    public void setAllPosAndSizeToPercents()
+    {
+        super.setAllPosAndSizeToPercents();
+        
+        if ( !itemHeight.isHeightPercentageValue() )
+            itemHeight.flipHeightPercentagePx();
+    }
+    
+    public void setAllPosAndSizeToPixels()
+    {
+        super.setAllPosAndSizeToPixels();
+        
+        if ( itemHeight.isHeightPercentageValue() )
+            itemHeight.flipHeightPercentagePx();
+    }
     
     @Override
     public String getWidgetPackage()
@@ -73,26 +106,6 @@ public class ETVStandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
-    {
-        if ( ( textures != null ) && ( textures[0].getWidth() == widgetInnerWidth ) && ( textures[0].getHeight() == widgetInnerHeight ) )
-            return ( textures );
-        
-        textures = new TransformableTexture[ MAX_NUM_DRIVERS ];
-        
-        for ( int i = 0; i < MAX_NUM_DRIVERS; i++ )
-        {
-            textures[i] = new TransformableTexture( widgetInnerWidth, widgetInnerHeight );
-            textures[i].setVisible( false );
-        }
-        
-        return ( textures );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
     {
     }
@@ -103,6 +116,17 @@ public class ETVStandingsWidget extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        int itemHeight = this.itemHeight.getEffectiveHeight();
+        numItems = ( height + ITEM_GAP ) / ( itemHeight + ITEM_GAP );
+        
+        if ( ( itemClearImage == null ) || ( itemClearImage.getWidth() != width ) || ( itemClearImage.getHeight() != itemHeight * 2 ) )
+        {
+            itemClearImage = TextureImage2D.createOfflineTexture( width, itemHeight * 2, true );
+            
+            ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), getBackgroundColor(), itemClearImage, true );
+            ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), getBackgroundColor(), itemClearImage, true );
+        }
+        
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setFont( getFont() );
         FontMetrics metrics = texCanvas.getFontMetrics();
@@ -112,27 +136,27 @@ public class ETVStandingsWidget extends Widget
         int capWidth = (int)Math.ceil( numBounds.getWidth() );
         int dataAreaLeft = ETVUtils.getLabeledDataDataLeft( width, numBounds );
         int dataAreaRight = ETVUtils.getLabeledDataDataRight( width );
-        int vMiddle = ETVUtils.getLabeledDataVMiddle( height, numBounds );
+        int vMiddle = ETVUtils.getLabeledDataVMiddle( itemHeight, numBounds );
         
-        TransformableTexture[] tt = getSubTextures( ( editorPresets != null ), width, height );
+        captionStrings = new DrawnString[ numItems ];
+        nameStrings = new DrawnString[ numItems ];
+        gapStrings = new DrawnString[ numItems ];
         
-        captionStrings = new DrawnString[ tt.length ];
-        nameStrings = new DrawnString[ tt.length ];
-        gapStrings = new DrawnString[ tt.length ];
+        driverNames = new StringValue[ numItems ];
+        gaps = new FloatValue[ numItems ];
         
-        driverNames = new StringValue[ tt.length ];
-        gaps = new FloatValue[ tt.length ];
+        itemsVisible = new Boolean[ numItems ];
         
-        for ( int i = 0; i < tt.length; i++ )
+        for ( int i = 0; i < numItems; i++ )
         {
-            textures[i].setVisible( false );
-            
             captionStrings[i] = new DrawnString( ETVUtils.TRIANGLE_WIDTH + capWidth, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
             nameStrings[i] = new DrawnString( dataAreaLeft, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
             gapStrings[i] = new DrawnString( dataAreaRight, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
             
             driverNames[i] = new StringValue();
             gaps[i] = new FloatValue();
+            
+            itemsVisible[i] = null;
         }
     }
     
@@ -140,15 +164,6 @@ public class ETVStandingsWidget extends Widget
     protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         texture.clear( offsetX, offsetY, width, height, true, null );
-        
-        TransformableTexture[] tt = getSubTextures( isEditorMode, width, height );
-        
-        for ( int i = 0; i < tt.length; i++ )
-        {
-            Color bgColor = ( i == 0 ) ? captionBackgroundColor1st.getColor() : captionBackgroundColor.getColor();
-            
-            ETVUtils.drawLabeledDataBackground( 0, 0, tt[i].getWidth(), tt[i].getHeight(), "00", getFont(), bgColor, getBackgroundColor(), tt[i].getTexture(), true );
-        }
     }
     
     @Override
@@ -157,31 +172,74 @@ public class ETVStandingsWidget extends Widget
         final boolean isEditorMode = ( editorPresets != null );
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        TransformableTexture[] tt = textures;
+        final int itemHeight = this.itemHeight.getEffectiveHeight();
         
-        if ( needsCompleteRedraw )
-        {
-            for ( int i = 0; i < tt.length; i++ )
-            {
-                Color bgColor = ( i == 0 ) ? captionBackgroundColor1st.getColor() : captionBackgroundColor.getColor();
-                
-                captionStrings[i].draw( 0, 0, String.valueOf( i + 1 ), bgColor, tt[i].getTexture() );
-            }
-        }
-        
-        final int numDrivers = isEditorMode ? 1 : scoringInfo.getNumVehicles();
+        final int numDrivers = Math.min( numItems, scoringInfo.getNumVehicles() );
         
         for ( int i = 0; i < numDrivers; i++ )
         {
-            tt[i].setTranslation( 0, 0 + ( height + 3 ) * i );
-            
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
+            
+            Boolean visible;
+            if ( isEditorMode )
+            {
+                visible = true;
+            }
+            else
+            {
+                if ( scoringInfo.getSessionType().isRace() )
+                {
+                    // TODO: better heuristic
+                    if ( vsi.getLapDistance() / scoringInfo.getTrackLength() < 0.2f )
+                        visible = true;
+                    else
+                        visible = false;
+                }
+                else
+                {
+                    visible = ( vsi.getBestLapTime() > 0.0f );
+                }
+            }
+            
+            boolean drawBackground = needsCompleteRedraw;
+            boolean visibilityChanged = false;
+            
+            if ( visible != itemsVisible[i] )
+            {
+                itemsVisible[i] = visible;
+                drawBackground = true;
+                visibilityChanged = true;
+            }
+            
+            int offsetY2 = i * ( itemHeight + ITEM_GAP );
+            
+            if ( drawBackground )
+            {
+                if ( visible )
+                {
+                    int srcOffsetY = ( i == 0 ) ? 0 : itemHeight;
+                    
+                    texture.clear( itemClearImage, 0, srcOffsetY, width, itemHeight, offsetX, offsetY + offsetY2, width, itemHeight, true, null );
+                    
+                    try
+                    {
+                        captionStrings[i].draw( offsetX, offsetY + offsetY2, String.valueOf( i + 1 ), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, texture );
+                    }
+                    catch ( Throwable t )
+                    {
+                    }
+                }
+                else
+                {
+                    texture.clear( offsetX, offsetY + offsetY2, width, itemHeight, true, null );
+                }
+            }
             
             driverNames[i].update( vsi.getDriverNameTLC() );
             
-            if ( needsCompleteRedraw || driverNames[i].hasChanged() )
+            if ( ( needsCompleteRedraw || visibilityChanged || driverNames[i].hasChanged() ) && visible )
             {
-                nameStrings[i].draw( 0, 0, driverNames[i].getValue(), getBackgroundColor(), getFontColor(), tt[i].getTexture() );
+                nameStrings[i].draw( offsetX, offsetY + offsetY2, driverNames[i].getValue(), getBackgroundColor(), getFontColor(), texture );
             }
             
             if ( isEditorMode || ( i > 0 ) )
@@ -191,7 +249,7 @@ public class ETVStandingsWidget extends Widget
                 else
                     gaps[i].update( vsi.getBestLapTime() - scoringInfo.getVehicleScoringInfo( 0 ).getBestLapTime() );
                 
-                if ( needsCompleteRedraw || gaps[i].hasChanged() )
+                if ( ( needsCompleteRedraw || visibilityChanged || gaps[i].hasChanged() ) && visible )
                 {
                     String s;
                     if ( vsi.getBestLapTime() < 0.0f )
@@ -199,17 +257,19 @@ public class ETVStandingsWidget extends Widget
                     else
                         s = ( gaps[i].getValue() < 0f ) ? "+" + ( (int)-gaps[i].getValue() ) + "Lap(s)" : TimingUtil.getTimeAsGapString( gaps[i].getValue() );
                     
-                    gapStrings[i].draw( 0, 0, s, getBackgroundColor(), getFontColor(), tt[i].getTexture() );
+                    gapStrings[i].draw( offsetX, offsetY + offsetY2, s, getBackgroundColor(), getFontColor(), texture );
                 }
             }
-            
-            tt[i].setVisible( true );
         }
         
-        for ( int i = numDrivers; i < tt.length; i++ )
+        for ( int i = numDrivers; i < oldNumItems; i++ )
         {
-            tt[i].setVisible( false );
+            int offsetY2 = i * ( itemHeight + ITEM_GAP );
+            
+            texture.clear( offsetX, offsetY + offsetY2, width, itemHeight, true, null );
         }
+        
+        oldNumItems = numDrivers;
     }
     
     
@@ -224,6 +284,7 @@ public class ETVStandingsWidget extends Widget
         writer.writeProperty( captionBackgroundColor, "The background color for the \"Position\" caption." );
         writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
         writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
+        writer.writeProperty( "itemHeight", Size.unparseValue( itemHeight.getHeight() ), "The height of one item." );
     }
     
     /**
@@ -237,6 +298,7 @@ public class ETVStandingsWidget extends Widget
         if ( captionBackgroundColor.loadProperty( key, value ) );
         else if ( captionBackgroundColor1st.loadProperty( key, value ) );
         else if ( captionColor.loadProperty( key, value ) );
+        else if ( itemHeight.loadProperty( key, value, "sdfsdfsdfsdf", "itemHeight" ) );
     }
     
     /**
@@ -252,6 +314,7 @@ public class ETVStandingsWidget extends Widget
         propsCont.addProperty( captionBackgroundColor );
         propsCont.addProperty( captionBackgroundColor1st );
         propsCont.addProperty( captionColor );
+        propsCont.addProperty( itemHeight.createHeightProperty( "itemHeight" ) );
     }
     
     /*
@@ -270,7 +333,7 @@ public class ETVStandingsWidget extends Widget
     
     public ETVStandingsWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.14f, Size.PERCENT_OFFSET + 0.0254f );
+        super( name, Size.PERCENT_OFFSET + 0.14f, Size.PERCENT_OFFSET + ( 0.025f * 10f ) );
         
         getBackgroundColorProperty().setValue( ETVUtils.TV_STYLE_DATA_BACKGROUND_COLOR );
         getFontColorProperty().setValue( ETVUtils.TV_STYLE_DATA_FONT_COLOR );

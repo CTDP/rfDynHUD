@@ -760,7 +760,7 @@ public class TemperaturesWidget extends Widget
         if ( font2.loadProperty( key, value ) );
         else if ( displayEngine.loadProperty( key, value ) );
         else if ( displayWaterTemp.loadProperty( key, value ) );
-        else if ( key.equals( "engineHeight" ) );
+        else if ( engineHeight.loadProperty( key, value, "sdfsdfsdfsdf", "engineHeight" ) );
         else if ( displayTires.loadProperty( key, value ) );
         else if ( tireSize.loadProperty( key, value, "tireWidth", "tireHeight" ) );
         else if ( displayBrakes.loadProperty( key, value ) );
