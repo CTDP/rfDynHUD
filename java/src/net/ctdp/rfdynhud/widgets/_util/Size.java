@@ -502,6 +502,10 @@ public class Size
         return ( false );
     }
     
+    protected void onWidthPropertySet( float width )
+    {
+    }
+    
     public PosSizeProperty createWidthProperty( String name )
     {
         boolean ro = isWidgetSize ? widget.hasFixedSize() : false;
@@ -511,7 +515,11 @@ public class Size
             @Override
             public void setValue( Object value )
             {
-                set( ( (Number)value ).floatValue(), getHeight() );
+                float width = ( (Number)value ).floatValue();
+                
+                set( width, getHeight() );
+                
+                onWidthPropertySet( width );
             }
             
             @Override
@@ -536,6 +544,10 @@ public class Size
         return ( prop );
     }
     
+    protected void onHeightPropertySet( float height )
+    {
+    }
+    
     public PosSizeProperty createHeightProperty( String name )
     {
         boolean ro = isWidgetSize ? widget.hasFixedSize() : false;
@@ -545,7 +557,11 @@ public class Size
             @Override
             public void setValue( Object value )
             {
-                set( getWidth(), ( (Number)value ).floatValue() );
+                float height = ( (Number)value ).floatValue();
+                
+                set( getWidth(), height );
+                
+                onHeightPropertySet( height );
             }
             
             @Override

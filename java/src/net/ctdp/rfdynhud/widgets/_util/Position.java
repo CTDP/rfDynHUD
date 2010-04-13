@@ -516,6 +516,10 @@ public class Position
         return ( false );
     }
     
+    protected void onPositioningPropertySet( RelativePositioning positioning )
+    {
+    }
+    
     public Property createPositioningProperty( String name )
     {
         Property prop = new Property( name, PropertyEditorType.ENUM )
@@ -530,6 +534,8 @@ public class Position
                 int currY = getEffectiveY();
                 
                 setEffectivePosition( (RelativePositioning)value, currX, currY );
+                
+                onPositioningPropertySet( (RelativePositioning)value );
             }
             
             @Override
@@ -542,6 +548,10 @@ public class Position
         return ( prop );
     }
     
+    protected void onXPropertySet( float x )
+    {
+    }
+    
     public PosSizeProperty createXProperty( String name )
     {
         PosSizeProperty prop = new PosSizeProperty( name, false, false )
@@ -549,7 +559,11 @@ public class Position
             @Override
             public void setValue( Object value )
             {
-                set( ( (Number)value ).floatValue(), getY() );
+                float x = ( (Number)value ).floatValue();
+                
+                set( x, getY() );
+                
+                onXPropertySet( x );
             }
             
             @Override
@@ -568,6 +582,10 @@ public class Position
         return ( prop );
     }
     
+    protected void onYPropertySet( float y )
+    {
+    }
+    
     public PosSizeProperty createYProperty( String name )
     {
         PosSizeProperty prop = new PosSizeProperty( name, false, false )
@@ -575,7 +593,11 @@ public class Position
             @Override
             public void setValue( Object value )
             {
-                set( getX(), ( (Number)value ).floatValue() );
+                float y = ( (Number)value ).floatValue();
+                
+                set( getX(), y );
+                
+                onYPropertySet( y );
             }
             
             @Override

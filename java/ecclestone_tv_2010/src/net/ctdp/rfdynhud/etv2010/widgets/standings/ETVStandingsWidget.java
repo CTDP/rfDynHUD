@@ -7,6 +7,7 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
+import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -14,6 +15,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.FloatValue;
 import net.ctdp.rfdynhud.widgets._util.Size;
@@ -53,6 +55,12 @@ public class ETVStandingsWidget extends Widget
     private final Size itemHeight = new Size( 0, Size.PERCENT_OFFSET + 0.025f, this, true );
     
     private TextureImage2D itemClearImage = null;
+    
+    private static final int NUM_FLAG_TEXTURES = 3;
+    
+    private TransformableTexture[] flagTextures = null;
+    private final FloatValue[] laptimes = new FloatValue[ NUM_FLAG_TEXTURES ];
+    private final DrawnString[] laptimeStrings = new DrawnString[ NUM_FLAG_TEXTURES ];
     
     /**
      * {@inheritDoc}
@@ -100,6 +108,36 @@ public class ETVStandingsWidget extends Widget
                 gaps[i].reset();
             }
         }
+    }
+    
+    @Override
+    public void onRealtimeEntered( boolean isEditorMode, LiveGameData gameData )
+    {
+        super.onRealtimeEntered( isEditorMode, gameData );
+        
+        for ( int i = 0; i < laptimes.length; i++ )
+            laptimes[i].reset();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    {
+        int itemHeight = this.itemHeight.getEffectiveHeight();
+        
+        if ( ( flagTextures == null ) || ( flagTextures[0].getWidth() != widgetInnerWidth ) || ( flagTextures[0].getHeight() != itemHeight ) )
+        {
+            flagTextures = new TransformableTexture[ NUM_FLAG_TEXTURES ];
+            
+            for ( int i = 0; i < NUM_FLAG_TEXTURES; i++ )
+            {
+                flagTextures[i] = new TransformableTexture( widgetInnerWidth, itemHeight );
+            }
+        }
+        
+        return ( flagTextures );
     }
     
     /**
@@ -158,6 +196,16 @@ public class ETVStandingsWidget extends Widget
             
             itemsVisible[i] = null;
         }
+        
+        TransformableTexture[] flagTextures = getSubTexturesImpl( editorPresets != null,  width, height );
+        
+        for ( int i = 0; i < NUM_FLAG_TEXTURES; i++ )
+        {
+            ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), getBackgroundColor(), flagTextures[i].getTexture(), true );
+            
+            laptimes[i] = new FloatValue();
+            laptimeStrings[i] = new DrawnString( flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        }
     }
     
     @Override
@@ -175,6 +223,12 @@ public class ETVStandingsWidget extends Widget
         final int itemHeight = this.itemHeight.getEffectiveHeight();
         
         final int numDrivers = Math.min( numItems, scoringInfo.getNumVehicles() );
+        int numDisplayedLaptimes = 0;
+        
+        for ( int i = 0; i < flagTextures.length; i++ )
+        {
+            flagTextures[i].setVisible( false );
+        }
         
         for ( int i = 0; i < numDrivers; i++ )
         {
@@ -211,14 +265,13 @@ public class ETVStandingsWidget extends Widget
                 visibilityChanged = true;
             }
             
-            int offsetY2 = i * ( itemHeight + ITEM_GAP );
+            int offsetY2 = ( vsi.getPlace() - 1 ) * ( itemHeight + ITEM_GAP );
+            int srcOffsetY = ( vsi.getPlace() == 1 ) ? 0 : itemHeight;
             
             if ( drawBackground )
             {
                 if ( visible )
                 {
-                    int srcOffsetY = ( i == 0 ) ? 0 : itemHeight;
-                    
                     texture.clear( itemClearImage, 0, srcOffsetY, width, itemHeight, offsetX, offsetY + offsetY2, width, itemHeight, true, null );
                     
                     try
@@ -239,10 +292,16 @@ public class ETVStandingsWidget extends Widget
             
             if ( ( needsCompleteRedraw || visibilityChanged || driverNames[i].hasChanged() ) && visible )
             {
-                nameStrings[i].draw( offsetX, offsetY + offsetY2, driverNames[i].getValue(), getBackgroundColor(), getFontColor(), texture );
+                try
+                {
+                    nameStrings[i].draw( offsetX, offsetY + offsetY2, driverNames[i].getValue(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
+                }
+                catch ( Throwable t )
+                {
+                }
             }
             
-            if ( isEditorMode || ( i > 0 ) )
+            if ( vsi.getPlace() > 1 )
             {
                 if ( scoringInfo.getSessionType() == SessionType.RACE )
                     gaps[i].update( ( vsi.getLapsBehindLeader() > 0 ) ? -vsi.getLapsBehindLeader() : -vsi.getTimeBehindLeader() );
@@ -257,7 +316,33 @@ public class ETVStandingsWidget extends Widget
                     else
                         s = ( gaps[i].getValue() < 0f ) ? "+" + ( (int)-gaps[i].getValue() ) + "Lap(s)" : TimingUtil.getTimeAsGapString( gaps[i].getValue() );
                     
-                    gapStrings[i].draw( offsetX, offsetY + offsetY2, s, getBackgroundColor(), getFontColor(), texture );
+                    try
+                    {
+                        gapStrings[i].draw( offsetX, offsetY + offsetY2, s, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
+                    }
+                    catch ( Throwable t )
+                    {
+                    }
+                }
+            }
+            
+            if ( !isEditorMode && ( numDisplayedLaptimes < flagTextures.length - 1 ) )
+            {
+                Laptime lt = vsi.getFastestLaptime();
+                if ( ( lt != null ) && ( lt.getLap() == vsi.getCurrentLap() - 1 ) && ( vsi.getStintStartLap() != vsi.getCurrentLap() ) && ( scoringInfo.getSessionTime() - vsi.getLapStartTime() < 20.0f ) )
+                {
+                    int tti = numDisplayedLaptimes++;
+                    TransformableTexture tt = flagTextures[tti];
+                    
+                    laptimes[tti].update( lt.getLapTime() );
+                    
+                    if ( laptimes[tti].hasChanged() )
+                    {
+                        laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsString( laptimes[tti].getValue(), true ), getBackgroundColor(), tt.getTexture() );
+                    }
+                    
+                    tt.setTranslation( width - ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
+                    tt.setVisible( true );
                 }
             }
         }
