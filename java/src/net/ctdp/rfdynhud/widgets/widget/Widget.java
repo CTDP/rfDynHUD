@@ -696,10 +696,12 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Checks, if the Widget needs any changes before it is drawn. The original method is just an empty stub.
+     * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, TexturedBorder, TextureImage2D, int, int, int, int)}
+     * and {@link #clearBackground(boolean, LiveGameData, TextureImage2D, int, int, int, int)} are (re-)invoked.<br />
+     * The original method is just an empty stub returning false.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
+     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
+     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
@@ -718,8 +720,8 @@ public abstract class Widget implements Documented
     /**
      * This method is called once to initialized {@link DrawnString}s used on this Widget.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
+     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
+     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
@@ -733,8 +735,8 @@ public abstract class Widget implements Documented
     /**
      * This method must contain the actual drawing code for this Widget.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
+     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
+     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
@@ -785,8 +787,8 @@ public abstract class Widget implements Documented
     /**
      * This method invokes the parts of the actual drawing code for this Widget.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display
+     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
+     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param completeRedrawForced
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor

@@ -1,4 +1,4 @@
-package net.ctdp.rfdynhud.etv2010.widgets.lap;
+package net.ctdp.rfdynhud.etv2010.widgets.sessionstate;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -18,6 +18,7 @@ import net.ctdp.rfdynhud.gamedata.YellowFlagState;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.widgets._util.BoolValue;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.EnumValue;
 import net.ctdp.rfdynhud.widgets._util.IntValue;
@@ -53,6 +54,7 @@ public class ETVLapWidget extends Widget
     
     private final IntValue lap = new IntValue();
     private final EnumValue<YellowFlagState> yellowFlagState = new EnumValue<YellowFlagState>( YellowFlagState.NONE );
+    private final BoolValue sectorYellowFlag = new BoolValue();
     
     private static final Alignment[] colAligns = new Alignment[] { Alignment.RIGHT, Alignment.CENTER, Alignment.RIGHT };
     private final int[] colWidths = new int[ 3 ];
@@ -71,6 +73,7 @@ public class ETVLapWidget extends Widget
         
         lap.reset();
         yellowFlagState.reset();
+        sectorYellowFlag.reset();
     }
     
     /**
@@ -90,12 +93,16 @@ public class ETVLapWidget extends Widget
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         yellowFlagState.update( scoringInfo.getYellowFlagState() );
-        if ( yellowFlagState.hasChanged() )
-        {
-            return ( true );
-        }
+        //sectorYellowFlag.update( scoringInfo.getSectorYellowFlag( scoringInfo.getPlayersVehicleScoringInfo().getSector() ) );
+        sectorYellowFlag.update( false );
         
-        return ( false );
+        boolean changed = false;
+        if ( yellowFlagState.hasChanged() )
+            changed = true;
+        if ( sectorYellowFlag.hasChanged() )
+            changed = true;
+        
+        return ( changed );
     }
     
     /**
@@ -123,7 +130,7 @@ public class ETVLapWidget extends Widget
     protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Color dataBgColor;
-        if ( yellowFlagState.getValue() == YellowFlagState.NONE )
+        if ( ( yellowFlagState.getValue() == YellowFlagState.NONE ) && !sectorYellowFlag.getValue() )
             dataBgColor = getBackgroundColor();
         else
             dataBgColor = Color.YELLOW;
@@ -150,11 +157,11 @@ public class ETVLapWidget extends Widget
         else if ( lapDisplayType.getValue() == LapDisplayType.LAPS_DONE )
             lap.update( vsi.getLapsCompleted() );
         
-        if ( needsCompleteRedraw || lap.hasChanged() )
+        if ( needsCompleteRedraw || ( clock1 && lap.hasChanged() ) )
         {
             Color bgColor = getBackgroundColor();
             Color color = getFontColor();
-            if ( yellowFlagState.getValue() != YellowFlagState.NONE )
+            if ( ( yellowFlagState.getValue() != YellowFlagState.NONE ) || sectorYellowFlag.getValue() )
             {
                 bgColor = Color.YELLOW;
                 color = Color.BLACK;

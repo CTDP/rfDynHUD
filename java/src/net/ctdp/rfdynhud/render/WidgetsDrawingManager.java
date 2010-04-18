@@ -419,6 +419,12 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         //boolean clock1 = ( frameCounter % 10 ) == 0L;
         //boolean clock2 = ( frameCounter % 30 ) == 0L;
         
+        if ( completeRedrawForced )
+        {
+            clock1 = true;
+            clock2 = true;
+        }
+        
         frameCounter++;
         
         final int n = getNumWidgets();
