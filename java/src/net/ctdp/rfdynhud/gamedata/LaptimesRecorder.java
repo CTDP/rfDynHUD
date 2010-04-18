@@ -106,8 +106,14 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             }
             else
             {
-                Laptime laptime = laptimesMap.get( driverName ).get( lapsCompleted );
                 laps = laptimesMap.get( driverName );
+                Laptime laptime = laps.get( lapsCompleted );
+                
+                if ( laptime == null )
+                {
+                    laptime = new Laptime( lapsCompleted + 1 );
+                    addLaptime( driverName, lapsCompleted, laptime );
+                }
                 
                 switch ( vsi.getSector() )
                 {
@@ -139,14 +145,22 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             {
                 float trackPos = ( vsi.getLapDistance() / scoringInfo.getTrackLength() );
                 
+                Laptime laptime = vsi.getLaptime( lapsCompleted + 1 );
+                
+                if ( laptime == null )
+                {
+                    laptime = new Laptime( lapsCompleted + 1 );
+                    addLaptime( driverName, lapsCompleted, laptime );
+                }
+                
                 if ( trackPos > 0.5f )
                 {
                     if ( vsi.getStintStartLap() != lapsCompleted + 1 )
-                        vsi.getLaptime( lapsCompleted + 1 ).isInLap = true;
+                        laptime.isInLap = true;
                 }
                 else
                 {
-                    vsi.getLaptime( lapsCompleted + 1 ).isOutLap = true;
+                    laptime.isOutLap = true;
                     
                     Laptime lastLap = vsi.getLaptime( lapsCompleted );
                     if ( lastLap != null )
