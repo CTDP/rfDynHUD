@@ -65,9 +65,9 @@ public class __GDPrivilegedAccess
         gameData.getScoringInfo().onRealtimeExited();
     }
     
-    public static final void updateSessionTime( ScoringInfo scoringInfo )
+    public static final void updateSessionTime( ScoringInfo scoringInfo, long timestamp )
     {
-        scoringInfo.updateSessionTime();
+        scoringInfo.updateSessionTime( timestamp );
     }
     
     public static final void setEngineBoostMapping( int boost, TelemetryData telemData )

@@ -174,13 +174,13 @@ public class InputBindingsTableModel extends DefaultTableModel
                 if ( widgetName.equals( "" ) )
                     return;
                 
-                rows.add( new Object[] { new InputMapping( widgetName, null ), DEFAULT_INPUT_DEVICE } );
+                rows.add( new Object[] { new InputMapping( widgetName, null, DEFAULT_INPUT_DEVICE ), DEFAULT_INPUT_DEVICE } );
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
             }
             else
             {
-                rows.get( row )[0] = new InputMapping( widgetName, getActionFromRow( row ) );
+                rows.get( row )[0] = new InputMapping( widgetName, getActionFromRow( row ), null );
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
             }
@@ -193,7 +193,7 @@ public class InputBindingsTableModel extends DefaultTableModel
                 
                 if ( row == rows.size() )
                 {
-                    rows.add( new Object[] { new InputMapping( getDefaultWidgetName( action ), action ), DEFAULT_INPUT_DEVICE } );
+                    rows.add( new Object[] { new InputMapping( getDefaultWidgetName( action ), action, DEFAULT_INPUT_DEVICE ), DEFAULT_INPUT_DEVICE } );
                     fireTableRowsInserted( row, row );
                     fireTableRowsUpdated( row, row );
                     dirtyFlag = true;
@@ -204,7 +204,7 @@ public class InputBindingsTableModel extends DefaultTableModel
                     
                     String widgetName = mapping.getWidgetName();
                     
-                    rows.get( row )[0] = new InputMapping( widgetName, action );
+                    rows.get( row )[0] = new InputMapping( widgetName, action, null );
                     fireTableRowsUpdated( row, row );
                     dirtyFlag = true;
                 }
@@ -215,7 +215,7 @@ public class InputBindingsTableModel extends DefaultTableModel
                 
                 String widgetName = mapping.getWidgetName();
                 
-                rows.get( row )[0] = new InputMapping( widgetName, null );
+                rows.get( row )[0] = new InputMapping( widgetName, null, null );
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
             }
@@ -226,7 +226,7 @@ public class InputBindingsTableModel extends DefaultTableModel
             
             if ( row == rows.size() )
             {
-                rows.add( new Object[] { new InputMapping( "WIDGET_NAME", null ), device_comp } );
+                rows.add( new Object[] { new InputMapping( "WIDGET_NAME", null, device_comp ), device_comp } );
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
             }
@@ -294,7 +294,7 @@ public class InputBindingsTableModel extends DefaultTableModel
                     
                     InputAction action = KnownInputActions.get( actionName );
                     
-                    rows.add( new Object[] { new InputMapping( widgetName, action ), key } );
+                    rows.add( new Object[] { new InputMapping( widgetName, action, key ), key } );
                     
                     return ( true );
                 }

@@ -47,6 +47,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     private String lastTrackname = null;
     
+    private long lastSessionStartedTime = -1L;
+    private float lastSessionTime = 0f;
+    
     public void setGameData( LiveGameData gameData )
     {
         this.gameData = gameData;
@@ -84,6 +87,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
         {
             this.isComingOutOfGarage = true;
             this.sessionRunning = true;
+            this.lastSessionStartedTime = System.nanoTime();
+            
+            this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
             
             __GDPrivilegedAccess.onSessionStarted( gameData );
             
@@ -111,7 +117,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
         }
         catch ( Throwable t )
         {
-            
         }
     }
     
@@ -378,6 +383,14 @@ public class RFactorEventsManager implements ConfigurationClearListener
     public final boolean isInRealtimeMode()
     {
         return ( realtimeMode );
+    }
+    
+    public final void checkRaceRestart( long updateTimestamp )
+    {
+        if ( ( lastSessionStartedTime != -1L ) && ( updateTimestamp - lastSessionStartedTime > 3000000000L ) && ( lastSessionTime > gameData.getScoringInfo().getSessionTime() ) )
+        {
+            onSessionStarted( false );
+        }
     }
     
     public final void checkAndFireOnLapStarted( boolean isEditorMode )

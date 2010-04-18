@@ -12,6 +12,7 @@ import net.ctdp.rfdynhud.editor.properties.ColorProperty;
 import net.ctdp.rfdynhud.editor.properties.FontProperty;
 import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.FontUtils;
@@ -49,6 +50,8 @@ public class WidgetsConfiguration
     
     private int gameResX = 1280;
     private int gameResY = 1024;
+    
+    private InputMappings inputMappings = null;
     
     private static String getLocalStoreKey( Widget widget )
     {
@@ -191,6 +194,16 @@ public class WidgetsConfiguration
         {
             getWidget( i ).setDirtyFlag();
         }
+    }
+    
+    void setInputMappings( InputMappings inputMappings )
+    {
+        this.inputMappings = inputMappings;
+    }
+    
+    public final InputMappings getInputMappings()
+    {
+        return ( inputMappings );
     }
     
     void setJustLoaded( LiveGameData gameData )

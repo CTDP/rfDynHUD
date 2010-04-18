@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
+import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
@@ -94,7 +95,9 @@ public class RFDynHUD
         {
             inputDeviceManager.decodeData( deviceData );
             
-            inputMappingsManager.loadMappings( inputDeviceManager );
+            InputMappings mappings = inputMappingsManager.loadMappings( inputDeviceManager );
+            
+            __WCPrivilegedAccess.setInputMappings( drawingManager, mappings );
         }
         catch ( Throwable t )
         {

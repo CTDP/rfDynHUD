@@ -9,6 +9,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     private static final double FLT_BIG = 1000000000.0;
     private static final float PI = (float)Math.PI;
     
+    private int lastSessionID = -1;
     private int lastEnteredRealtimeID = -1;
     private long lastTimestamp = -2L;
     
@@ -93,8 +94,9 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         
         long timestamp = System.nanoTime();
         
-        if ( gameData.getScoringInfo().getRealtimeEntredID() > lastEnteredRealtimeID )
+        if ( ( gameData.getScoringInfo().getSessionID() > lastSessionID ) || ( gameData.getScoringInfo().getRealtimeEntredID() > lastEnteredRealtimeID ) )
         {
+            lastSessionID = gameData.getScoringInfo().getSessionID();
             lastEnteredRealtimeID = gameData.getScoringInfo().getRealtimeEntredID();
             engineLifetime = engine.getSafeLifetimeTotal( gameData.getScoringInfo().getRaceLengthPercentage() );
             

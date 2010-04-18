@@ -62,7 +62,7 @@ public class InputMappingsManager
     }
     */
     
-    public void loadMappings( final InputDeviceManager devManager )
+    public InputMappings loadMappings( final InputDeviceManager devManager )
     {
         try
         {
@@ -71,7 +71,7 @@ public class InputMappingsManager
             if ( !configFile.exists() )
             {
                 Logger.log( "    No input_bindings.ini config file found in the config folder." );
-                return;
+                return ( null );
             }
             
             final ArrayList<String[]> rawBindings = new ArrayList<String[]>();
@@ -320,9 +320,9 @@ public class InputMappingsManager
                 }
                 */
                 
-                mappings[i] = new InputMapping( widgetName, KnownInputActions.get( actionName ) );
+                mappings[i] = new InputMapping( widgetName, KnownInputActions.get( actionName ), device + "::" + component );
                 
-                Logger.log( "    Bound \"" + device + "::" + component + "\" to \"" + widgetName + "::" + actionName + "\"" );
+                Logger.log( "    Bound \"" + mappings[i].getDeviceComponent() + "\" to \"" + widgetName + "::" + actionName + "\"" );
                 
                 c++;
             }
@@ -339,6 +339,8 @@ public class InputMappingsManager
         {
             Logger.log( t );
         }
+        
+        return ( new InputMappings( mappings ) );
     }
     
     /**

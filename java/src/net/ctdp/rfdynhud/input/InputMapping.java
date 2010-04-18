@@ -9,6 +9,7 @@ public class InputMapping
 {
     private final String widgetName;
     private final InputAction action;
+    private final String deviceComponent;
     
     public final String getWidgetName()
     {
@@ -20,9 +21,15 @@ public class InputMapping
         return ( action );
     }
     
-    public InputMapping( String widgetName, InputAction action )
+    public final String getDeviceComponent()
+    {
+        return ( deviceComponent );
+    }
+    
+    public InputMapping( String widgetName, InputAction action, String deviceComponent )
     {
         this.widgetName = widgetName;
         this.action = action;
+        this.deviceComponent = deviceComponent;
     }
 }

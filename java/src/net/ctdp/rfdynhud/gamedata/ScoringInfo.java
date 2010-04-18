@@ -54,6 +54,7 @@ public class ScoringInfo
     private final LiveGameData gameData;
     
     private long updateID = 0L;
+    private long updateTimestamp = -1L;
     private int sessionID = 0;
     
     private long sessionStartTimestamp = -1L;
@@ -305,9 +306,9 @@ public class ScoringInfo
         setLastUpdateTimestamp();
     }
     
-    final void updateSessionTime()
+    final void updateSessionTime( long timestamp )
     {
-        extrapolationNanos = System.nanoTime() - lastUpdateTimestamp;
+        extrapolationNanos = timestamp - lastUpdateTimestamp;
         
         if ( extrapolationNanos > 600000000000L )
         {
@@ -354,6 +355,7 @@ public class ScoringInfo
     void onDataUpdated()
     {
         this.updateID++;
+        updateTimestamp = System.nanoTime();
         
         //checkDriverNames();
         
@@ -363,7 +365,7 @@ public class ScoringInfo
         updateStintLengths();
         
         sessionBaseNanos = Math.round( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) * 1000000000.0 );
-        updateSessionTime();
+        updateSessionTime( updateTimestamp );
         
         if ( updateListeners != null )
         {
@@ -381,7 +383,10 @@ public class ScoringInfo
         }
         
         if ( eventsManager != null )
+        {
+            eventsManager.checkRaceRestart( updateTimestamp );
             eventsManager.checkAndFireOnLapStarted( false );
+        }
     }
     
     final LaptimesRecorder getLaptimesRecorder()
@@ -411,6 +416,7 @@ public class ScoringInfo
     
     final void onSessionStarted()
     {
+        this.sessionID++;
         this.sessionStartTimestamp = System.nanoTime();
         
         if ( vehicleScoringInfo != null )
