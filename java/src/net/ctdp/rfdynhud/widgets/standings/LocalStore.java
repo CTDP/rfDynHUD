@@ -1,6 +1,6 @@
 package net.ctdp.rfdynhud.widgets.standings;
 
-import net.ctdp.rfdynhud.widgets.standings.StandingsWidget.StandingsView;
+import net.ctdp.rfdynhud.widgets._util.StandingsView;
 
 public class LocalStore
 {

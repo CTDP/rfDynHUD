@@ -19,8 +19,10 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.widgets._util.DrawnString;
+import net.ctdp.rfdynhud.widgets._util.NameDisplayType;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
+import net.ctdp.rfdynhud.widgets._util.StandingsView;
 import net.ctdp.rfdynhud.widgets._util.TimingUtil;
 import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
@@ -34,22 +36,6 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class StandingsWidget extends Widget
 {
-    public static enum StandingsView
-    {
-        RELATIVE_TO_LEADER,
-        RELATIVE_TO_ME,
-        ABSOLUTE_TIMES,
-        ;
-    }
-    
-    private static enum NameDisplayType
-    {
-        FULL_NAME,
-        SHORT_FORM,
-        THREE_LETTER_CODE,
-        ;
-    }
-    
     private static final InputAction INPUT_ACTION_CYCLE_VIEW = new InputAction( "CycleStandingsViewAction" );
     
     private final ColorProperty fontColor_me = new ColorProperty( this, "fontColor_me", "#7A7727" );
@@ -62,7 +48,7 @@ public class StandingsWidget extends Widget
     private final BooleanProperty allowRelToMeView = new BooleanProperty( this, "allowRelToMeView", true );
     private final BooleanProperty allowAbsTimesView = new BooleanProperty( this, "allowAbsTimesView", true );
     
-    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "allowRelToLeaderView", true );
+    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
     private final EnumProperty<NameDisplayType> nameDisplayType = new EnumProperty<NameDisplayType>( this, "nameDisplayType", NameDisplayType.FULL_NAME );
     private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
     
@@ -73,8 +59,6 @@ public class StandingsWidget extends Widget
     private final int[] colWidths = { 0, 0, 0, 0 };
     private final Alignment[] colAligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT };
     private final int colPadding = 10;
-    @SuppressWarnings( "unused" )
-    private int playerPosStringIndex = -1;
     private int[] vsiIndices = null;
     private int numVehicles = -1;
     
@@ -516,8 +500,6 @@ public class StandingsWidget extends Widget
                 currPosStrings[j] = getPosStringRace( 0, scoringInfo.getVehicleScoringInfo( 0 ), ownPlace, ownLaps, ownLapDistance );
                 vsiIndices[j] = 0;
                 j++;
-                if ( scoringInfo.getVehicleScoringInfo( 0 ).isPlayer() )
-                    playerPosStringIndex = 0;
             }
         }
         
@@ -529,8 +511,6 @@ public class StandingsWidget extends Widget
             currPosStrings[j] = getPosStringRace( i0 + i, vsi, ownPlace, ownLaps, ownLapDistance );
             vsiIndices[j] = i0 + i;
             j++;
-            if ( vsi.isPlayer() )
-                playerPosStringIndex = 0;
         }
         
         return ( numVehicles );
@@ -685,8 +665,6 @@ public class StandingsWidget extends Widget
                 currPosStrings[j] = getPosStringNonRace( 0, scoringInfo.getVehicleScoringInfo( 0 ), 1, ownPlace, ownTime, bestTime );
                 vsiIndices[j] = 0;
                 j++;
-                if ( scoringInfo.getVehicleScoringInfo( 0 ).isPlayer() )
-                    playerPosStringIndex = 0;
             }
         }
         
@@ -701,8 +679,6 @@ public class StandingsWidget extends Widget
             currPosStrings[j] = getPosStringNonRace( i, vsi, i0 + 1, ownPlace, ownTime, bestTime );
             vsiIndices[j] = i0 + i;
             j++;
-            if ( vsi.isPlayer() )
-                playerPosStringIndex = 0;
         }
         
         return ( numVehicles );
@@ -736,6 +712,7 @@ public class StandingsWidget extends Widget
     @Override
     protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
         final boolean isEditorMode = ( editorPresets != null );
         
         if ( gameData.getScoringInfo().getSessionType() == SessionType.RACE )
@@ -745,6 +722,25 @@ public class StandingsWidget extends Widget
         
         if ( ( positionStrings == null ) || ( numVehicles > positionStrings.length ) )
             initPositionStrings( gameData );
+        
+        
+        lastKnownSessionType = scoringInfo.getSessionType();
+        
+        if ( currPosStrings == null )
+        {
+            if ( gameData.getScoringInfo().getSessionType() == SessionType.RACE )
+                initPosStringsRace( gameData );
+            else
+                initPosStringsNonRace( gameData );
+        }
+        
+        boolean result = false;
+        
+        if ( oldNumVehicles != numVehicles )
+        {
+            oldNumVehicles = numVehicles;
+            result = true;
+        }
         
         for ( int i = 0; i < colWidths.length; i++ )
             colWidths[i] = 0;
@@ -758,7 +754,7 @@ public class StandingsWidget extends Widget
         }
         
         if ( !useAutoWidth.getBooleanValue() )
-            return ( false );
+            return ( result );
         
         //int padding = 2 * 8;
         int padding = 0;
@@ -769,10 +765,10 @@ public class StandingsWidget extends Widget
             clearRegion( isEditorMode, texture );
             getSize().setEffectiveSize( getBorder().getWidgetWidth( minWidth ), getBorder().getWidgetHeight( height ) );
             
-            return ( true );
+            result = true;
         }
         
-        return ( false );
+        return ( result );
     }
     
     private void initPositionStrings( LiveGameData gameData )
@@ -803,7 +799,6 @@ public class StandingsWidget extends Widget
         maxDisplayedDrivers = Math.max( 1, h / rowHeight );
         
         currPosStrings = null;
-        playerPosStringIndex = -1;
         vsiIndices = null;
         numVehicles = -1;
         oldPosStirngs = null;
@@ -850,22 +845,6 @@ public class StandingsWidget extends Widget
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        lastKnownSessionType = scoringInfo.getSessionType();
-        
-        if ( currPosStrings == null )
-        {
-            if ( gameData.getScoringInfo().getSessionType() == SessionType.RACE )
-                initPosStringsRace( gameData );
-            else
-                initPosStringsNonRace( gameData );
-        }
-        
-        if ( oldNumVehicles != numVehicles )
-        {
-            oldNumVehicles = numVehicles;
-            needsCompleteRedraw = true;
-        }
-        
         oldPosStirngs = ensureCapacity( oldPosStirngs, numVehicles, true );
         
         for ( int i = 0; i < numVehicles; i++ )
@@ -888,6 +867,9 @@ public class StandingsWidget extends Widget
         writer.writeProperty( fontColor_finished, "The font color used for finished drivers in the format #RRGGBB (hex)." );
         writer.writeProperty( useAutoWidth, "Automatically compute and display the width?" );
         writer.writeProperty( "initialView", getView(), "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
+        //writer.writeProperty( allowAbsTimesView, "" );
+        //writer.writeProperty( allowRelToLeaderView, "" );
+        //writer.writeProperty( allowRelToMeView, "" );
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
         writer.writeProperty( nameDisplayType, "How to display driver names." );
         writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
@@ -916,6 +898,9 @@ public class StandingsWidget extends Widget
                 // Ignore and keep default!
             }
         }
+        //else if ( allowAbsTimesView.loadProperty( key, value ) );
+        //else if ( allowRelToLeaderView.loadProperty( key, value ) );
+        //else if ( allowRelToMeView.loadProperty( key, value ) );
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
         else if ( nameDisplayType.loadProperty( key, value ) );
         else if ( abbreviate.loadProperty( key, value ) );
@@ -952,6 +937,10 @@ public class StandingsWidget extends Widget
                 return ( getView() );
             }
         } );
+        
+        //propsCont.addProperty( allowAbsTimesView );
+        //propsCont.addProperty( allowRelToLeaderView );
+        //propsCont.addProperty( allowRelToMeView );
         
         propsCont.addProperty( forceLeaderDisplayed );
         propsCont.addProperty( nameDisplayType );

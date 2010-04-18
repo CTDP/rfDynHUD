@@ -1,6 +1,5 @@
 package net.ctdp.rfdynhud.util;
 
-
 public class Tools
 {
     public static final Number getNumber( String string )
