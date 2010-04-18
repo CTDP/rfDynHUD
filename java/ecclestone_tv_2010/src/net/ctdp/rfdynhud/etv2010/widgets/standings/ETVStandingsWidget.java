@@ -73,6 +73,12 @@ public class ETVStandingsWidget extends Widget
     
     private int oldNumVehicles = -1;
     
+    private boolean isOnLeftSide = true;
+    
+    private IntValue[] lap = null;
+    private float displayTime;
+    private int lastVisibleIndex = -1;
+    
     /**
      * {@inheritDoc}
      */
@@ -118,8 +124,11 @@ public class ETVStandingsWidget extends Widget
                 positions[i].reset();
                 driverNames[i].reset();
                 gaps[i].reset();
+                lap[i].reset();
             }
         }
+        
+        lastVisibleIndex = -1;
     }
     
     @Override
@@ -215,6 +224,8 @@ public class ETVStandingsWidget extends Widget
         driverNames = new StringValue[ maxNumItems ];
         gaps = new FloatValue[ maxNumItems ];
         
+        lap = new IntValue[ maxNumItems ];
+        
         itemsVisible = new Boolean[ maxNumItems ];
         
         for ( int i = 0; i < maxNumItems; i++ )
@@ -226,6 +237,8 @@ public class ETVStandingsWidget extends Widget
             positions[i] = new IntValue();
             driverNames[i] = new StringValue();
             gaps[i] = new FloatValue();
+            
+            lap[i] = new IntValue();
             
             itemsVisible[i] = null;
         }
@@ -239,6 +252,8 @@ public class ETVStandingsWidget extends Widget
             laptimes[i] = new FloatValue();
             laptimeStrings[i] = new DrawnString( flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         }
+        
+        isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResX() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
     }
     
     @Override
@@ -257,12 +272,42 @@ public class ETVStandingsWidget extends Widget
         
         final int numDrivers = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, StandingsView.RELATIVE_TO_LEADER, forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         int numDisplayedLaptimes = 0;
-        for ( int i = 0; i < numDrivers; i++ )
-            System.out.println( vehicleScoringInfos[i].getPlace() + ", " + vehicleScoringInfos[i].getDriverName() );
         
         for ( int i = 0; i < flagTextures.length; i++ )
         {
             flagTextures[i].setVisible( false );
+        }
+        
+        if ( scoringInfo.getSessionTime() > displayTime )
+        {
+            lastVisibleIndex = -1;
+        }
+        
+        int i2 = 0;
+        if ( ( numDrivers > 1 ) && ( vehicleScoringInfos[1].getPlace() - vehicleScoringInfos[0].getPlace() > 1 ) )
+        {
+            i2 = 1;
+        }
+        
+        for ( int i = 0; i < numDrivers; i++ )
+        {
+            VehicleScoringInfo vsi = vehicleScoringInfos[i];
+            
+            lap[i].update( vsi.getCurrentLap() );
+            
+            if ( lap[i].hasChanged() )
+            {
+                if ( ( i == 0 ) || ( i == i2 ) )
+                {
+                    lastVisibleIndex = 0;
+                    displayTime = scoringInfo.getSessionTime() + 40f;
+                }
+                else if ( scoringInfo.getSessionTime() <= displayTime )
+                {
+                    lastVisibleIndex = Math.max( lastVisibleIndex, i );
+                    displayTime = Math.max( displayTime, scoringInfo.getSessionTime() + 20f );
+                }
+            }
         }
         
         for ( int i = 0; i < numDrivers; i++ )
@@ -277,13 +322,9 @@ public class ETVStandingsWidget extends Widget
             else
             {
                 if ( scoringInfo.getSessionType().isRace() )
-                {
-                    visible = ( ( scoringInfo.getSessionTime() - vehicleScoringInfos[numDrivers - 1].getLapStartTime() ) < 6.0f );
-                }
+                    visible = ( i <= lastVisibleIndex );
                 else
-                {
                     visible = ( vsi.getBestLapTime() > 0.0f );
-                }
             }
             
             boolean drawBackground = needsCompleteRedraw;
@@ -358,7 +399,7 @@ public class ETVStandingsWidget extends Widget
                 }
             }
             
-            if ( !isEditorMode && ( numDisplayedLaptimes < flagTextures.length - 1 ) )
+            if ( !isEditorMode && visible && ( numDisplayedLaptimes < flagTextures.length - 1 ) )
             {
                 Laptime lt = vsi.getFastestLaptime();
                 if ( ( lt != null ) && ( lt.getLap() == vsi.getCurrentLap() - 1 ) && ( vsi.getStintStartLap() != vsi.getCurrentLap() ) && ( scoringInfo.getSessionTime() - vsi.getLapStartTime() < 20.0f ) )
@@ -373,7 +414,10 @@ public class ETVStandingsWidget extends Widget
                         laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsString( laptimes[tti].getValue(), true ), getBackgroundColor(), tt.getTexture() );
                     }
                     
-                    tt.setTranslation( width - ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
+                    if ( isOnLeftSide )
+                        tt.setTranslation( width - ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
+                    else
+                        tt.setTranslation( -width + ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
                     tt.setVisible( true );
                 }
             }
