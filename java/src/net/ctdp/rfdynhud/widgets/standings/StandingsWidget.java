@@ -22,6 +22,7 @@ import net.ctdp.rfdynhud.widgets._util.DrawnString;
 import net.ctdp.rfdynhud.widgets._util.NameDisplayType;
 import net.ctdp.rfdynhud.widgets._util.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
+import net.ctdp.rfdynhud.widgets._util.StandingsTools;
 import net.ctdp.rfdynhud.widgets._util.StandingsView;
 import net.ctdp.rfdynhud.widgets._util.TimingUtil;
 import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
@@ -59,13 +60,14 @@ public class StandingsWidget extends Widget
     private final int[] colWidths = { 0, 0, 0, 0 };
     private final Alignment[] colAligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT };
     private final int colPadding = 10;
-    private int[] vsiIndices = null;
+    //private int[] vsiIndices = null;
     private int numVehicles = -1;
+    private VehicleScoringInfo[] vehicleScoringInfos = null;
     
     private int oldNumVehicles = -1;
     private String[][] oldPosStirngs = null;
     
-    private float[] relTimes = null;
+    private final float[] relTimes = new float[ 64 ];
     
     private SessionType lastKnownSessionType = SessionType.PRACTICE1;
     
@@ -102,40 +104,6 @@ public class StandingsWidget extends Widget
         else if ( array.length < minCapacity )
         {
             String[][] tmp = new String[ minCapacity ][];
-            if ( preserveValues )
-                System.arraycopy( array, 0, tmp, 0, array.length );
-            array = tmp;
-        }
-        
-        return ( array );
-    }
-    
-    private static final int[] ensureCapacity( int[] array, int minCapacity, boolean preserveValues )
-    {
-        if ( array == null )
-        {
-            array = new int[ minCapacity ];
-        }
-        else if ( array.length < minCapacity )
-        {
-            int[] tmp = new int[ minCapacity ];
-            if ( preserveValues )
-                System.arraycopy( array, 0, tmp, 0, array.length );
-            array = tmp;
-        }
-        
-        return ( array );
-    }
-    
-    private static final float[] ensureCapacity( float[] array, int minCapacity, boolean preserveValues )
-    {
-        if ( array == null )
-        {
-            array = new float[ minCapacity ];
-        }
-        else if ( array.length < minCapacity )
-        {
-            float[] tmp = new float[ minCapacity ];
             if ( preserveValues )
                 System.arraycopy( array, 0, tmp, 0, array.length );
             array = tmp;
@@ -230,8 +198,6 @@ public class StandingsWidget extends Widget
                 }
             }
             
-            //Logger.log( "cycleView(): " + sessionType + ", " + includeVisibility + ", " + oldView + ", " + getView() );
-            
             setVisible( false );
             return ( null );
         }
@@ -301,27 +267,6 @@ public class StandingsWidget extends Widget
         
         // Unreachable code!
         return ( null );
-    }
-    
-    private void computeRelativeTimesRace( ScoringInfo scoringInfo, int numVehicles, int ownPlace )
-    {
-        relTimes = ensureCapacity( relTimes, numVehicles, false );
-        
-        relTimes[ownPlace - 1] = 0f;
-        
-        for ( int i = ownPlace - 2; i >= 0; i-- )
-        {
-            VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i + 1 );
-            
-            relTimes[i] = relTimes[i + 1] + vsi.getTimeBehindNextInFront();
-        }
-        
-        for ( int i = ownPlace; i < numVehicles; i++ )
-        {
-            VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
-            
-            relTimes[i] = relTimes[i - 1] + -vsi.getTimeBehindNextInFront();
-        }
     }
     
     private String[] getPositionStringRaceRelToLeader( int ownPlace, VehicleScoringInfo vsi )
@@ -443,7 +388,7 @@ public class StandingsWidget extends Widget
         return ( ss );
     }
     
-    private String[] getPosStringRace( int i, VehicleScoringInfo vsi, int ownPlace, int ownLaps, float ownLapDistance )
+    private String[] getPosStringRace( VehicleScoringInfo vsi, int ownPlace, int ownLaps, float ownLapDistance )
     {
         switch ( getView() )
         {
@@ -451,7 +396,7 @@ public class StandingsWidget extends Widget
                 return ( getPositionStringRaceRelToLeader( ownPlace, vsi ) );
             case RELATIVE_TO_ME:
             case ABSOLUTE_TIMES:
-                return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[i], vsi ) );
+                return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace() - 1], vsi ) );
         }
         
         // unreachable code
@@ -462,55 +407,23 @@ public class StandingsWidget extends Widget
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        numVehicles = scoringInfo.getNumVehicles();
-        int ownPlace = scoringInfo.getOwnPlace();
-        int ownLaps = scoringInfo.getVehicleScoringInfo( ownPlace - 1 ).getLapsCompleted();
-        float ownLapDistance = scoringInfo.getVehicleScoringInfo( ownPlace - 1 ).getLapDistance();
+        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        
+        VehicleScoringInfo myVSI = scoringInfo.getPlayersVehicleScoringInfo();
+        int ownPlace = myVSI.getPlace();
+        int ownLaps = myVSI.getLapsCompleted();
+        float ownLapDistance = myVSI.getLapDistance();
         
         if ( getView() == StandingsView.RELATIVE_TO_ME )
         {
-            computeRelativeTimesRace( scoringInfo, numVehicles, ownPlace );
+            StandingsTools.computeRelativeTimesRace( scoringInfo, relTimes );
         }
         
         currPosStrings = ensureCapacity( currPosStrings, numVehicles, false );
-        vsiIndices = ensureCapacity( vsiIndices, numVehicles, false );
         
-        int i0 = 0;
-        int j = 0;
-        if ( maxDisplayedDrivers < numVehicles )
+        for ( int i = 0; i < numVehicles; i++ )
         {
-            numVehicles = maxDisplayedDrivers;
-            i0 = Math.max( 0, ownPlace - (int)Math.ceil( ( numVehicles + 1 ) / 2f ) );
-            
-            if ( i0 + numVehicles > scoringInfo.getNumVehicles() )
-            {
-                i0 -= i0 + numVehicles - scoringInfo.getNumVehicles();
-                
-                if ( i0 < 0 )
-                {
-                    numVehicles += i0;
-                    i0 = 0;
-                }
-            }
-            
-            if ( ( i0 > 0 ) && forceLeaderDisplayed.getBooleanValue() )
-            {
-                i0++;
-                
-                currPosStrings[j] = getPosStringRace( 0, scoringInfo.getVehicleScoringInfo( 0 ), ownPlace, ownLaps, ownLapDistance );
-                vsiIndices[j] = 0;
-                j++;
-            }
-        }
-        
-        int n = numVehicles - j;
-        for ( int i = 0; i < n; i++ )
-        {
-            VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i0 + i );
-            
-            currPosStrings[j] = getPosStringRace( i0 + i, vsi, ownPlace, ownLaps, ownLapDistance );
-            vsiIndices[j] = i0 + i;
-            j++;
+            currPosStrings[i] = getPosStringRace( vehicleScoringInfos[i], ownPlace, ownLaps, ownLapDistance );
         }
         
         return ( numVehicles );
@@ -629,56 +542,20 @@ public class StandingsWidget extends Widget
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        numVehicles = scoringInfo.getNumVehicles();
+        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        
+        int firstVisiblePlace = vehicleScoringInfos[0].getPlace();
+        float bestTime = vehicleScoringInfos[0].getBestLapTime();
         int ownPlace = scoringInfo.getOwnPlace();
+        float ownTime = scoringInfo.getPlayersVehicleScoringInfo().getBestLapTime();
         
         currPosStrings = ensureCapacity( currPosStrings, numVehicles, false );
-        vsiIndices = ensureCapacity( vsiIndices, numVehicles, false );
         
-        float bestTime = -1f;
-        float ownTime = scoringInfo.getVehicleScoringInfo( ownPlace - 1 ).getBestLapTime();
-        
-        int i0 = 0;
-        int j = 0;
-        if ( maxDisplayedDrivers < numVehicles )
+        for ( int i = 0; i < numVehicles; i++ )
         {
-            numVehicles = maxDisplayedDrivers;
-            i0 = Math.max( 0, ownPlace - (int)Math.ceil( ( numVehicles + 1 ) / 2f ) );
+            VehicleScoringInfo vsi = vehicleScoringInfos[i];
             
-            if ( i0 + numVehicles > scoringInfo.getNumVehicles() )
-            {
-                i0 -= i0 + numVehicles - scoringInfo.getNumVehicles();
-                
-                if ( i0 < 0 )
-                {
-                    numVehicles += i0;
-                    i0 = 0;
-                }
-            }
-            
-            if ( ( i0 > 0 ) && forceLeaderDisplayed.getBooleanValue() )
-            {
-                i0++;
-                
-                bestTime = scoringInfo.getVehicleScoringInfo( 0 ).getBestLapTime();
-                
-                currPosStrings[j] = getPosStringNonRace( 0, scoringInfo.getVehicleScoringInfo( 0 ), 1, ownPlace, ownTime, bestTime );
-                vsiIndices[j] = 0;
-                j++;
-            }
-        }
-        
-        if ( j == 0 )
-            bestTime = scoringInfo.getVehicleScoringInfo( i0 ).getBestLapTime();
-        
-        int n = numVehicles - j;
-        for ( int i = 0; i < n; i++ )
-        {
-            VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i0 + i );
-            
-            currPosStrings[j] = getPosStringNonRace( i, vsi, i0 + 1, ownPlace, ownTime, bestTime );
-            vsiIndices[j] = i0 + i;
-            j++;
+            currPosStrings[i] = getPosStringNonRace( i, vsi, firstVisiblePlace, ownPlace, ownTime, bestTime );
         }
         
         return ( numVehicles );
@@ -704,6 +581,21 @@ public class StandingsWidget extends Widget
             total += colWidths[i];
         
         return ( total );
+    }
+    
+    private void initPositionStrings( LiveGameData gameData )
+    {
+        int n = gameData.getScoringInfo().getNumVehicles();
+        
+        positionStrings = new DrawnString[ n ];
+        
+        for ( int i = 0; i < n; i++ )
+        {
+            if ( i == 0 )
+                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+            else
+                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        }
     }
     
     /**
@@ -771,21 +663,6 @@ public class StandingsWidget extends Widget
         return ( result );
     }
     
-    private void initPositionStrings( LiveGameData gameData )
-    {
-        int n = gameData.getScoringInfo().getNumVehicles();
-        
-        positionStrings = new DrawnString[ n ];
-        
-        for ( int i = 0; i < n; i++ )
-        {
-            if ( i == 0 )
-                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-            else
-                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        }
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -798,8 +675,9 @@ public class StandingsWidget extends Widget
         int rowHeight = positionStrings[0].getMaxHeight( texture, false );
         maxDisplayedDrivers = Math.max( 1, h / rowHeight );
         
+        vehicleScoringInfos = new VehicleScoringInfo[ maxDisplayedDrivers ];
+        
         currPosStrings = null;
-        vsiIndices = null;
         numVehicles = -1;
         oldPosStirngs = null;
     }
@@ -843,13 +721,11 @@ public class StandingsWidget extends Widget
     @Override
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final ScoringInfo scoringInfo = gameData.getScoringInfo();
-        
         oldPosStirngs = ensureCapacity( oldPosStirngs, numVehicles, true );
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            drawPosition( i, scoringInfo.getVehicleScoringInfo( vsiIndices[i] ), needsCompleteRedraw, texture, offsetX, offsetY, width );
+            drawPosition( i, vehicleScoringInfos[i], needsCompleteRedraw, texture, offsetX, offsetY, width );
         }
     }
     

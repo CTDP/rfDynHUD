@@ -37,7 +37,7 @@ public class ThreeLetterCodeManager
             return ( driverName );
         }
         
-        String tlc = driverName.charAt( 0 ) + driverName.substring( sp + 1, Math.min( sp + 3, driverName.length() ) );
+        String tlc = driverName.charAt( 0 ) + driverName.substring( sp + 1, Math.min( sp + 3, driverName.length() ) ).toUpperCase();
         shortForms.put( driverName, tlc );
         
         return ( tlc );

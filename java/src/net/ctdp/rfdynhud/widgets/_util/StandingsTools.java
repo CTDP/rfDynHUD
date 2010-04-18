@@ -5,15 +5,16 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 
 public class StandingsTools
 {
-    // numVehicles schreiben (Rückgabewert)
-    // standingsView = getView()
-    //if ( getView() == StandingsView.RELATIVE_TO_ME )
-    //{
-    //    computeRelativeTimesRace( scoringInfo, scoringInfo.getNumVehicles(), scoringInfo.getOwnPlace() );
-    //}
-    //int ownLaps = scoringInfo.getVehicleScoringInfo( ownPlace - 1 ).getLapsCompleted();
-    //float ownLapDistance = scoringInfo.getVehicleScoringInfo( ownPlace - 1 ).getLapDistance();
-    
+    /**
+     * Fills the target array with {@link VehicleScoringInfo}s for all visible drivers.
+     * 
+     * @param scoringInfo
+     * @param standingsView
+     * @param forceLeaderDisplayed
+     * @param target
+     * 
+     * @return the actual number of displayed drivers.
+     */
     public static int getDisplayedVSIsForScoring( ScoringInfo scoringInfo, StandingsView standingsView, boolean forceLeaderDisplayed, VehicleScoringInfo[] target )
     {
         final int maxDisplayedDrivers = target.length;
@@ -54,5 +55,32 @@ public class StandingsTools
         }
         
         return ( numVehicles );
+    }
+    
+    /**
+     * Computes gaps for all drivers to the player.
+     * 
+     * @param scoringInfo
+     * @param relTimes target array
+     */
+    public static void computeRelativeTimesRace( ScoringInfo scoringInfo, float[] relTimes )
+    {
+        final int numVehicles = scoringInfo.getNumVehicles();
+        final int ownPlace = scoringInfo.getOwnPlace();
+        relTimes[ownPlace - 1] = 0f;
+        
+        for ( int i = ownPlace - 2; i >= 0; i-- )
+        {
+            VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i + 1 );
+            
+            relTimes[i] = relTimes[i + 1] + vsi.getTimeBehindNextInFront();
+        }
+        
+        for ( int i = ownPlace; i < numVehicles; i++ )
+        {
+            VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
+            
+            relTimes[i] = relTimes[i - 1] + -vsi.getTimeBehindNextInFront();
+        }
     }
 }
