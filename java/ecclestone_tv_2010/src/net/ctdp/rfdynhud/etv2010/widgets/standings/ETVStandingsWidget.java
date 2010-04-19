@@ -37,9 +37,9 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class ETVStandingsWidget extends Widget
 {
-    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBackgroundColor", ETVUtils.TV_STYLE_CAPTION_BACKGROUND_COLOR );
-    private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBackgroundColor1st", "#FF0000" );
-    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.TV_STYLE_CAPTION_FONT_COLOR );
+    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
+    private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
+    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
     
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
     
@@ -78,6 +78,34 @@ public class ETVStandingsWidget extends Widget
     private IntValue[] lap = null;
     private float displayTime;
     private int lastVisibleIndex = -1;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedColorValue( String name )
+    {
+        String result = super.getDefaultNamedColorValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        return ( ETVUtils.getDefaultNamedColorValue( name ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedFontValue( String name )
+    {
+        String result = super.getDefaultNamedFontValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        return ( ETVUtils.getDefaultNamedFontValue( name ) );
+    }
     
     /**
      * {@inheritDoc}
@@ -136,8 +164,14 @@ public class ETVStandingsWidget extends Widget
     {
         super.onRealtimeEntered( isEditorMode, gameData );
         
-        for ( int i = 0; i < laptimes.length; i++ )
-            laptimes[i].reset();
+        if ( laptimes != null )
+        {
+            for ( int i = 0; i < laptimes.length; i++ )
+            {
+                if ( laptimes[i] != null )
+                    laptimes[i].reset();
+            }
+        }
         
         oldNumVehicles = -1;
     }
@@ -446,6 +480,7 @@ public class ETVStandingsWidget extends Widget
         writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
         writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
         writer.writeProperty( "itemHeight", Size.unparseValue( itemHeight.getHeight() ), "The height of one item." );
+        writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
     }
     
     /**
@@ -460,6 +495,7 @@ public class ETVStandingsWidget extends Widget
         else if ( captionBackgroundColor1st.loadProperty( key, value ) );
         else if ( captionColor.loadProperty( key, value ) );
         else if ( itemHeight.loadProperty( key, value, "sdfsdfsdfsdf", "itemHeight" ) );
+        else if ( forceLeaderDisplayed.loadProperty( key, value ) );
     }
     
     /**
@@ -476,6 +512,7 @@ public class ETVStandingsWidget extends Widget
         propsCont.addProperty( captionBackgroundColor1st );
         propsCont.addProperty( captionColor );
         propsCont.addProperty( itemHeight.createHeightProperty( "itemHeight" ) );
+        propsCont.addProperty( forceLeaderDisplayed );
     }
     
     /*
@@ -496,8 +533,8 @@ public class ETVStandingsWidget extends Widget
     {
         super( name, Size.PERCENT_OFFSET + 0.14f, Size.PERCENT_OFFSET + ( 0.025f * 10f ) );
         
-        getBackgroundColorProperty().setValue( ETVUtils.TV_STYLE_DATA_BACKGROUND_COLOR );
-        getFontColorProperty().setValue( ETVUtils.TV_STYLE_DATA_FONT_COLOR );
-        getFontProperty().setValue( ETVUtils.TV_STYLE_FONT );
+        getBackgroundColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
+        getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );
+        getFontProperty().setValue( ETVUtils.ETV_STYLE_FONT );
     }
 }

@@ -48,7 +48,9 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class RevMeterWidget extends Widget
 {
-    private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "tacho_orange_2.png" )
+    public static final String DEFAULT_GEAR_FONT_NAME = "GearFont";
+    
+    private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "default_rev_meter_bg.png" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -66,7 +68,7 @@ public class RevMeterWidget extends Widget
             forceAndSetDirty();
         }
     };
-    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "needle4.png" )
+    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "default_rev_meter_needle.png" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -77,7 +79,7 @@ public class RevMeterWidget extends Widget
     private final ImageProperty shiftLightImageName = new ImageProperty( this, "shiftLightImageName", "imageName", "shiftlight_on.png" );
     private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
     private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numberBGImageName", "", false, true );
-    private final ImageProperty velocityBackgroundImageName = new ImageProperty( this, "velocityBackgroundImageName", "velocityBGImageName", "", false, true );
+    private final ImageProperty velocityBackgroundImageName = new ImageProperty( this, "velocityBackgroundImageName", "velocityBGImageName", "cyan_circle.png", false, true );
     
     private TextureImage2D backgroundTexture = null;
     private TransformableTexture needleTexture = null;
@@ -95,7 +97,7 @@ public class RevMeterWidget extends Widget
     
     private float backgroundScaleX, backgroundScaleY;
     
-    private final IntegerProperty needleAxisBottomOffset = new IntegerProperty( this, "needleAxisBottomOffset", "axisBottomOffset", 12 );
+    private final IntegerProperty needleAxisBottomOffset = new IntegerProperty( this, "needleAxisBottomOffset", "axisBottomOffset", 60 );
     
     private final FloatProperty needleRotationForZeroRPM = new FloatProperty( this, "rotationForZeroRPM", (float)Math.PI * 0.68f )
     {
@@ -176,21 +178,21 @@ public class RevMeterWidget extends Widget
     private final IntegerProperty gearPosX = new IntegerProperty( this, "gearPosX", "posX", 354 );
     private final IntegerProperty gearPosY = new IntegerProperty( this, "gearPosY", "posY", 512 );
     
-    private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", "GearFont" );
+    private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
     private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
     
     private final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
     private final IntegerProperty boostBarPosX = new IntegerProperty( this, "boostBarPosX", "barPosX", 135 );
-    private final IntegerProperty boostBarPosY = new IntegerProperty( this, "boostBarPosY", "barPosY", 560 );
+    private final IntegerProperty boostBarPosY = new IntegerProperty( this, "boostBarPosY", "barPosY", 671 );
     private final IntegerProperty boostBarWidth = new IntegerProperty( this, "boostBarWidth", "barWidth", 438 );
-    private final IntegerProperty boostBarHeight = new IntegerProperty( this, "boostBarHeight", "barHeight", 35 );
+    private final IntegerProperty boostBarHeight = new IntegerProperty( this, "boostBarHeight", "barHeight", 27 );
     private final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
     private final IntegerProperty boostNumberPosX = new IntegerProperty( this, "boostNumberPosX", "numberPosX", 392 );
     private final IntegerProperty boostNumberPosY = new IntegerProperty( this, "boostNumberPosY", "numberPosY", 544 );
     private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", "StandardFont" );
     private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
-    private final BooleanProperty displayVelocity = new BooleanProperty( this, "displayVelocity", false );
+    private final BooleanProperty displayVelocity = new BooleanProperty( this, "displayVelocity", true );
     
     private final IntegerProperty velocityPosX = new IntegerProperty( this, "velocityPosX", "posX", 100 );
     private final IntegerProperty velocityPosY = new IntegerProperty( this, "velocityPosY", "posY", 100 );
@@ -230,6 +232,23 @@ public class RevMeterWidget extends Widget
     public String getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedFontValue( String name )
+    {
+        String result = super.getDefaultNamedColorValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        if ( name.equals( DEFAULT_GEAR_FONT_NAME ) )
+            return ( "Monospaced-BOLD-26va" );
+        
+        return ( null );
     }
     
     /**

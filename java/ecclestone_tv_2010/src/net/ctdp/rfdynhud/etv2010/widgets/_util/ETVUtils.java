@@ -17,11 +17,40 @@ public class ETVUtils
     public static final int TRIANGLE_WIDTH = 15;
     private static final boolean AA_TRIANGLE = true;
     
-    public static final String TV_STYLE_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
-    public static final String TV_STYLE_CAPTION_FONT_COLOR = "ETVCaptionFontColor";
-    public static final String TV_STYLE_DATA_BACKGROUND_COLOR = "ETVDataBackgroundColor";
-    public static final String TV_STYLE_DATA_FONT_COLOR = "ETVDataFontColor";
-    public static final String TV_STYLE_FONT = "ETVFont";
+    public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
+    public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST = "ETVCaptionBackgroundColor1st";
+    public static final String ETV_STYLE_CAPTION_FONT_COLOR = "ETVCaptionFontColor";
+    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR = "ETVDataBackgroundColor";
+    public static final String ETV_STYLE_DATA_FONT_COLOR = "ETVDataFontColor";
+    public static final String ETV_STYLE_FONT = "ETVFont";
+    
+    public static String getDefaultNamedColorValue( String name )
+    {
+        if ( name.equals( ETV_STYLE_CAPTION_BACKGROUND_COLOR ) )
+            return ( "#787878" );
+        
+        if ( name.equals( ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST ) )
+            return ( "#FF0000" );
+        
+        if ( name.equals( ETV_STYLE_CAPTION_FONT_COLOR ) )
+            return ( "#FFFFFF" );
+        
+        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR ) )
+            return ( "#000000" );
+        
+        if ( name.equals( ETV_STYLE_DATA_FONT_COLOR ) )
+            return ( "#FFFFFF" );
+        
+        return ( null );
+    }
+    
+    public static String getDefaultNamedFontValue( String name )
+    {
+        if ( name.equals( ETV_STYLE_FONT ) )
+            return ( "Verdana-PLAIN-16va" );
+        
+        return ( null );
+    }
     
     public static final int getLabeledDataDataWidth( int width, Rectangle2D captionBounds )
     {

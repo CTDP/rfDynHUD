@@ -40,8 +40,8 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class ETVSessionStateWidget extends Widget
 {
-    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBackgroundColor", ETVUtils.TV_STYLE_CAPTION_BACKGROUND_COLOR );
-    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.TV_STYLE_CAPTION_FONT_COLOR );
+    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
+    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
     
     private static enum LapDisplayType
     {
@@ -91,6 +91,34 @@ public class ETVSessionStateWidget extends Widget
     private static final Alignment[] colAligns = new Alignment[] { Alignment.RIGHT, Alignment.CENTER, Alignment.RIGHT };
     private final int[] colWidths = new int[ 3 ];
     private static final int colPadding = 10;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedColorValue( String name )
+    {
+        String result = super.getDefaultNamedColorValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        return ( ETVUtils.getDefaultNamedColorValue( name ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedFontValue( String name )
+    {
+        String result = super.getDefaultNamedFontValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        return ( ETVUtils.getDefaultNamedFontValue( name ) );
+    }
     
     @Override
     public String getWidgetPackage()
@@ -415,8 +443,8 @@ public class ETVSessionStateWidget extends Widget
     {
         super( name, Size.PERCENT_OFFSET + 0.12f, Size.PERCENT_OFFSET + 0.0254f );
         
-        getBackgroundColorProperty().setValue( ETVUtils.TV_STYLE_DATA_BACKGROUND_COLOR );
-        getFontColorProperty().setValue( ETVUtils.TV_STYLE_DATA_FONT_COLOR );
-        getFontProperty().setValue( ETVUtils.TV_STYLE_FONT );
+        getBackgroundColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
+        getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );
+        getFontProperty().setValue( ETVUtils.ETV_STYLE_FONT );
     }
 }

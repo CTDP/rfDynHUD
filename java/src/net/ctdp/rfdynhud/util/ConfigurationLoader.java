@@ -5,6 +5,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -25,6 +28,33 @@ import org.openmali.vecmath2.util.ColorUtils;
  */
 public class ConfigurationLoader
 {
+    private static final Comparator<Widget> WIDGET_Y_X_COMPARATOR = new Comparator<Widget>()
+    {
+        @Override
+        public int compare( Widget w1, Widget w2 )
+        {
+            int y1 = w1.getPosition().getEffectiveY();
+            int y2 = w2.getPosition().getEffectiveY();
+            
+            if ( y1 < y2 )
+                return ( -1 );
+            
+            if ( y1 > y2 )
+                return ( +1 );
+            
+            int x1 = w1.getPosition().getEffectiveX();
+            int x2 = w2.getPosition().getEffectiveX();
+            
+            if ( x1 < x2 )
+                return ( -1 );
+            
+            if ( x1 > x2 )
+                return ( +1 );
+            
+            return ( 0 );
+        }
+    };
+    
     /**
      * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
      * 
@@ -43,12 +73,15 @@ public class ConfigurationLoader
             private String widgetName = null;
             private boolean badWidget = false;
             
+            private final ArrayList<Widget> widgets = new ArrayList<Widget>();
+            
             @Override
             protected boolean onGroupParsed( int lineNr, String group )
             {
                 if ( currentWidget != null )
                 {
                     widgetsConfig.addWidget( currentWidget );
+                    widgets.add( currentWidget );
                     currentWidget = null;
                     widgetName = null;
                     badWidget = false;
@@ -161,7 +194,18 @@ public class ConfigurationLoader
                 if ( currentWidget != null )
                 {
                     widgetsConfig.addWidget( currentWidget );
+                    widgets.add( currentWidget );
                     currentWidget = null;
+                    
+                    Collections.sort( widgets, WIDGET_Y_X_COMPARATOR );
+                    
+                    for ( int i = widgetsConfig.getNumWidgets() - 1; i >= 0; i-- )
+                        widgetsConfig.removeWidget( widgetsConfig.getWidget( i ) );
+                    
+                    for ( Widget widget : widgets )
+                    {
+                        widgetsConfig.addWidget( widget );
+                    }
                 }
             }
         }.parse( reader );

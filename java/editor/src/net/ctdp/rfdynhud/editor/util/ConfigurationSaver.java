@@ -2,6 +2,8 @@ package net.ctdp.rfdynhud.editor.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.properties.Property;
@@ -25,13 +27,17 @@ public class ConfigurationSaver
             writer.writeSetting( "Design_Resolution", designResultion );
         
         writer.writeGroup( "NamedColors" );
-        for ( String name : widgetsConfig.getColorNames() )
+        ArrayList<String> colorNames = new ArrayList<String>( widgetsConfig.getColorNames() );
+        Collections.sort( colorNames, String.CASE_INSENSITIVE_ORDER );
+        for ( String name : colorNames )
         {
             writer.writeSetting( name, widgetsConfig.getNamedColor( name ) );
         }
         
         writer.writeGroup( "NamedFonts" );
-        for ( String name : widgetsConfig.getFontNames() )
+        ArrayList<String> fontNames = new ArrayList<String>( widgetsConfig.getFontNames() );
+        Collections.sort( fontNames, String.CASE_INSENSITIVE_ORDER );
+        for ( String name : fontNames )
         {
             writer.writeSetting( name, widgetsConfig.getNamedFontString( name ) );
         }

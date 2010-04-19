@@ -9,6 +9,9 @@ import org.openmali.vecmath2.util.ColorUtils;
 
 public class ColorProperty extends Property
 {
+    public static final String STANDARD_BACKGROUND_COLOR = "StandardBackground";
+    public static final String STANDARD_FONT_COLOR = "StandardFontColor";
+    
     public static final Color FALLBACK_COLOR = Color.MAGENTA;
     
     private final WidgetsConfiguration widgetsConf;
@@ -16,6 +19,17 @@ public class ColorProperty extends Property
     
     private String colorKey;
     private Color color = null;
+    
+    public static String getDefaultNamedColorValue( String name )
+    {
+        if ( name.equals( STANDARD_BACKGROUND_COLOR ) )
+            return ( "#00000096" );
+        
+        if ( name.equals( STANDARD_FONT_COLOR ) )
+            return ( "#C0BC3D" );
+        
+        return ( null );
+    }
     
     public final Widget getWidget()
     {
@@ -64,8 +78,26 @@ public class ColorProperty extends Property
         if ( color == null )
         {
             final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
+            //System.out.println( "a: " + widgetsConf );
             
+            //System.out.println( "b: " + colorKey );
             color = widgetsConf.getNamedColor( colorKey );
+            //System.out.println( "c: " + color );
+            
+            if ( ( color == null ) && ( widget != null ) )
+            {
+                String colorStr = widget.getDefaultNamedColorValue( colorKey );
+                if ( colorStr != null )
+                {
+                    Color color2 = ColorUtils.hexToColor( colorStr, false );
+                    if ( color2 != null )
+                    {
+                        widgetsConf.addNamedColor( colorKey, color2 );
+                        color = color2;
+                    }
+                }
+            }
+            
             if ( ( color == null ) && ( ( color = ColorUtils.hexToColor( colorKey, false ) ) == null ) )
                 color = FALLBACK_COLOR;
         }

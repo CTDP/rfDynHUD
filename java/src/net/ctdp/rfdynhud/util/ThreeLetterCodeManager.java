@@ -24,21 +24,23 @@ public class ThreeLetterCodeManager
     {
         if ( driverName.length() <= 3 )
         {
-            shortForms.put( driverName, driverName );
+            String tlc = driverName.toUpperCase();
+            threeLetterCodes.put( driverName, tlc );
             
-            return ( driverName );
+            return ( tlc );
         }
         
         int sp = driverName.lastIndexOf( ' ' );
         if ( sp == -1 )
         {
-            shortForms.put( driverName, driverName.substring( 0, 3 ) );
+            String tlc = driverName.substring( 0, 3 ).toUpperCase();
+            threeLetterCodes.put( driverName, tlc );
             
-            return ( driverName );
+            return ( tlc );
         }
         
         String tlc = driverName.charAt( 0 ) + driverName.substring( sp + 1, Math.min( sp + 3, driverName.length() ) ).toUpperCase();
-        shortForms.put( driverName, tlc );
+        threeLetterCodes.put( driverName, tlc );
         
         return ( tlc );
     }
@@ -125,18 +127,17 @@ public class ThreeLetterCodeManager
     public static String getThreeLetterCode( String driverName )
     {
         if ( threeLetterCodes == null )
-            return ( driverName );
+            threeLetterCodes = new HashMap<String, String>();
         
         String tlc = threeLetterCodes.get( driverName );
         
         if ( tlc == null )
         {
             tlc = generateThreeLetterCode( driverName );
-            threeLetterCodes.put( driverName, tlc );
             
             Logger.log( "WARNING: No three letter code found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated \"" + tlc + "\"." );
             
-            return ( driverName );
+            return ( tlc );
         }
         
         return ( tlc );
@@ -153,18 +154,17 @@ public class ThreeLetterCodeManager
     public static String getShortForm( String driverName )
     {
         if ( shortForms == null )
-            return ( driverName );
+            shortForms = new HashMap<String, String>();
         
         String sf = shortForms.get( driverName );
         
         if ( sf == null )
         {
             sf = generateShortForm( driverName );
-            shortForms.put( driverName, sf );
             
             Logger.log( "WARNING: No entry found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated short form \"" + sf + "\"." );
             
-            return ( driverName );
+            return ( sf );
         }
         
         return ( sf );

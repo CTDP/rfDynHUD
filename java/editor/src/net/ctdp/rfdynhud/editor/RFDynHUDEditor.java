@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -210,20 +211,15 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
      */
     public String getDocumentationSource( Property property )
     {
-        /*
-        URL docURL = null;
-        
         if ( property == null )
-            docURL = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/widget.html" );
-        else
-            docURL = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getKey() + ".html" );
+            return ( "" );
+        
+        URL docURL = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getPropertyName() + ".html" );
         
         if ( docURL == null )
             return ( "" );
         
         return ( StringUtil.loadString( docURL ) );
-        */
-        return ( "" );
     }
     
     private Property currentDocedProperty = null;
@@ -1042,6 +1038,61 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( menu );
     }
     
+    private JMenu createEditMenu()
+    {
+        JMenu menu = new JMenu( "Edit" );
+        menu.setDisplayedMnemonicIndex( 0 );
+        
+        JMenuItem makeAllPixels = new JMenuItem( "Make all Widgets use Pixels" );
+        makeAllPixels.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                int result = JOptionPane.showConfirmDialog( getMainWindow(), "Do you really want to convert all Widgets' positions and sizes to be absolute pixels?", "Convert all Widgets' coordinates", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
+                if ( result == JOptionPane.YES_OPTION )
+                {
+                    WidgetsConfiguration wc = getEditorPanel().getWidgetsDrawingManager();
+                    for ( int i = 0; i < wc.getNumWidgets(); i++ )
+                        wc.getWidget( i ).setAllPosAndSizeToPixels();
+                }
+            }
+        } );
+        menu.add( makeAllPixels );
+        
+        JMenuItem makeAllPercents = new JMenuItem( "Make all Widgets use Percents" );
+        makeAllPercents.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                int result = JOptionPane.showConfirmDialog( getMainWindow(), "Do you really want to convert all Widgets' positions and sizes to be percents?", "Convert all Widgets' coordinates", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
+                if ( result == JOptionPane.YES_OPTION )
+                {
+                    WidgetsConfiguration wc = getEditorPanel().getWidgetsDrawingManager();
+                    for ( int i = 0; i < wc.getNumWidgets(); i++ )
+                        wc.getWidget( i ).setAllPosAndSizeToPercents();
+                }
+            }
+        } );
+        menu.add( makeAllPercents );
+        
+        menu.addSeparator();
+        
+        JMenuItem removeItem = new JMenuItem( "Remove selected Widget (DEL)" );
+        //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
+        removeItem.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                getEditorPanel().removeSelectedWidget();
+                onWidgetSelected( null );
+            }
+        } );
+        
+        menu.add( removeItem );
+        
+        return ( menu );
+    }
+    
     private JMenuItem createWidgetMenuItem( final Class<?> clazz )
     {
         //JMenuItem widgetMenuItem = new JMenuItem( clazz.getName() );
@@ -1220,21 +1271,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             else
                 getMenu( menu, pkg, 0 ).add( createWidgetMenuItem( clazz ) );
         }
-        
-        menu.add( new JSeparator() );
-        
-        JMenuItem removeItem = new JMenuItem( "Remove selected Widget" );
-        //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
-        removeItem.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                getEditorPanel().removeSelectedWidget();
-                onWidgetSelected( null );
-            }
-        } );
-        
-        menu.add( removeItem );
         
         return ( menu );
     }
@@ -1490,6 +1526,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         JMenuBar menuBar = new JMenuBar();
         
         menuBar.add( createFileMenu() );
+        menuBar.add( createEditMenu() );
         menuBar.add( createWidgetsMenu() );
         menuBar.add( createResolutionsMenu() );
         menuBar.add( createInputMenu() );

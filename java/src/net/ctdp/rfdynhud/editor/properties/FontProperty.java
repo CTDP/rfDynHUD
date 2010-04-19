@@ -11,6 +11,13 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class FontProperty extends Property
 {
+    public static final String STANDARD_FONT_NAME = "StandardFont";
+    public static final String STANDARD_FONT2_NAME = "StandardFont2";
+    public static final String STANDARD_FONT3_NAME = "StandardFont3";
+    public static final String SMALLER_FONT_NAME = "SmallerFont";
+    public static final String SMALLER_FONT3_NAME = "SmallerFont3";
+    public static final String BIGGER_FONT_NAME = "BiggerFont";
+    
     private static final BufferedImage METRICS_PROVIDER_IMAGE = new BufferedImage( 16, 16, BufferedImage.TYPE_INT_BGR );
     private static final Graphics2D METRICS_PROVIDER = METRICS_PROVIDER_IMAGE.createGraphics();
     
@@ -22,6 +29,29 @@ public class FontProperty extends Property
     private Boolean antiAliased = null;
     
     private FontMetrics metrics = null;
+    
+    public static String getDefaultNamedFontValue( String name )
+    {
+        if ( name.equals( STANDARD_FONT_NAME ) )
+            return ( "Monospaced-BOLD-13va" );
+        
+        if ( name.equals( STANDARD_FONT2_NAME ) )
+            return ( "Monospaced-BOLD-12va" );
+        
+        if ( name.equals( STANDARD_FONT3_NAME ) )
+            return ( "Monospaced-BOLD-11va" );
+        
+        if ( name.equals( SMALLER_FONT_NAME ) )
+            return ( "Monospaced-BOLD-13va" );
+        
+        if ( name.equals( SMALLER_FONT3_NAME ) )
+            return ( "Monospaced-BOLD-9va" );
+        
+        if ( name.equals( BIGGER_FONT_NAME ) )
+            return ( "Monospaced-BOLD-14va" );
+        
+        return ( null );
+    }
     
     public final Widget getWidget()
     {
@@ -91,7 +121,16 @@ public class FontProperty extends Property
             font = widget.getConfiguration().getNamedFont( fontKey );
             if ( font == null )
             {
-                font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResY(), false );
+                String fontStr = widget.getDefaultNamedFontValue( fontKey );
+                if ( fontStr != null )
+                {
+                    widget.getConfiguration().addNamedFont( fontKey, fontStr );
+                    font = widget.getConfiguration().getNamedFont( fontKey );
+                }
+                else
+                {
+                    font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResY(), false );
+                }
             }
         }
         
@@ -102,11 +141,17 @@ public class FontProperty extends Property
     {
         if ( antiAliased == null )
         {
-            String fk = widget.getConfiguration().getNamedFontString( fontKey );
-            if ( fk == null )
-                fk = fontKey;
+            String fontStr = widget.getConfiguration().getNamedFontString( fontKey );
+            if ( fontStr == null )
+            {
+                fontStr = widget.getDefaultNamedFontValue( fontKey );
+                if ( fontStr != null )
+                    widget.getConfiguration().addNamedFont( fontKey, fontStr );
+                else
+                    fontStr = fontKey;
+            }
             
-            antiAliased = FontUtils.parseAntiAliasFlag( fk, false );
+            antiAliased = FontUtils.parseAntiAliasFlag( fontStr, false );
         }
         
         return ( antiAliased );

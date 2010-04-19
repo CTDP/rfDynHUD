@@ -80,6 +80,30 @@ public abstract class Widget implements Documented
     private TransformableTexture[] subTextures = null;
     
     /**
+     * Gets the default value for the given named color.
+     * 
+     * @param name
+     * 
+     * @return the default value for the given named color.
+     */
+    public String getDefaultNamedColorValue( String name )
+    {
+        return ( ColorProperty.getDefaultNamedColorValue( name ) );
+    }
+    
+    /**
+     * Gets the default value for the given named font.
+     * 
+     * @param name
+     * 
+     * @return the default value for the given named font.
+     */
+    public String getDefaultNamedFontValue( String name )
+    {
+        return ( FontProperty.getDefaultNamedFontValue( name ) );
+    }
+    
+    /**
      * Gets the package to group the Widget in the editor.
      * This can be an empty String to be displayed in the root or a slash separated path.
      * 
