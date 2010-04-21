@@ -3,6 +3,8 @@ package net.ctdp.rfdynhud.widgets;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +30,33 @@ import org.openmali.vecmath2.util.ColorUtils;
  */
 public class WidgetsConfiguration
 {
+    private static final Comparator<Widget> WIDGET_Y_X_COMPARATOR = new Comparator<Widget>()
+    {
+        @Override
+        public int compare( Widget w1, Widget w2 )
+        {
+            int y1 = w1.getPosition().getEffectiveY();
+            int y2 = w2.getPosition().getEffectiveY();
+            
+            if ( y1 < y2 )
+                return ( -1 );
+            
+            if ( y1 > y2 )
+                return ( +1 );
+            
+            int x1 = w1.getPosition().getEffectiveX();
+            int x2 = w2.getPosition().getEffectiveX();
+            
+            if ( x1 < x2 )
+                return ( -1 );
+            
+            if ( x1 > x2 )
+                return ( +1 );
+            
+            return ( 0 );
+        }
+    };
+    
     public static interface ConfigurationClearListener
     {
         public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig );
@@ -98,6 +127,8 @@ public class WidgetsConfiguration
         widgets.add( widget );
         widgetsMap.put( widget.getName(), widget );
         __WPrivilegedAccess.setConfiguration( this, widget );
+        
+        Collections.sort( widgets, WIDGET_Y_X_COMPARATOR );
     }
     
     /**
