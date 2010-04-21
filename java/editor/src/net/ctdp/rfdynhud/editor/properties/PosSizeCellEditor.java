@@ -13,8 +13,9 @@ import javax.swing.table.TableCellRenderer;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
-import net.ctdp.rfdynhud.widgets._util.Position;
-import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.values.Position;
+import net.ctdp.rfdynhud.values.Size;
 
 /**
  * 

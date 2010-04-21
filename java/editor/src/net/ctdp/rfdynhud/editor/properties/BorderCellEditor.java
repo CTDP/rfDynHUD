@@ -15,6 +15,7 @@ import javax.swing.table.TableCellRenderer;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.editor.util.BorderSelector;
+import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.util.TextureLoader;
 
 /**

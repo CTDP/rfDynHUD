@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.editor.properties;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
+import net.ctdp.rfdynhud.properties.Property;
 
 public class WidgetPropertyChangeListener implements PropertyChangeListener
 {

@@ -2,8 +2,8 @@ package net.ctdp.rfdynhud.editor;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
 public class EDPrivilegedAccess
 {

@@ -9,7 +9,7 @@ import java.awt.event.MouseMotionListener;
 
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
-import net.ctdp.rfdynhud.widgets._util.RelativePositioning;
+import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.standings.StandingsWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 

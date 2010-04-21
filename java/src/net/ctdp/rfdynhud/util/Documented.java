@@ -1,6 +1,6 @@
 package net.ctdp.rfdynhud.util;
 
-import net.ctdp.rfdynhud.editor.properties.Property;
+import net.ctdp.rfdynhud.properties.Property;
 
 public interface Documented
 {

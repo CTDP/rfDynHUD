@@ -15,6 +15,8 @@ import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableColumnModel;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueAccessor;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.util.Tools;
 
 

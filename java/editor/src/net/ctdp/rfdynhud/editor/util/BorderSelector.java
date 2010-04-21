@@ -42,11 +42,11 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import net.ctdp.rfdynhud.editor.properties.BorderProperty;
-import net.ctdp.rfdynhud.editor.properties.Property;
+import net.ctdp.rfdynhud.properties.BorderProperty;
+import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**

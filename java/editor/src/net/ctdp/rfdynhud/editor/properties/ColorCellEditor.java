@@ -13,6 +13,7 @@ import javax.swing.table.TableCellRenderer;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.properties.ColorProperty;
 
 import org.jagatoo.gui.awt_swing.util.ColorChooser;
 import org.jagatoo.gui.awt_swing.util.ColorChooser.ColorChooserDialog;

@@ -1,6 +1,6 @@
 package net.ctdp.rfdynhud.editor.options;
 
-import net.ctdp.rfdynhud.editor.properties.Property;
+import net.ctdp.rfdynhud.properties.Property;
 
 public class ChangedProperty implements Comparable<ChangedProperty>
 {

@@ -4,9 +4,6 @@ import java.awt.Color;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
-import net.ctdp.rfdynhud.editor.properties.EnumProperty;
-import net.ctdp.rfdynhud.editor.properties.FontProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
@@ -14,16 +11,19 @@ import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
+import net.ctdp.rfdynhud.properties.EnumProperty;
+import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
+import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.widgets._util.DrawnString;
-import net.ctdp.rfdynhud.widgets._util.FloatValue;
-import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.FloatValue;
+import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
-import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**

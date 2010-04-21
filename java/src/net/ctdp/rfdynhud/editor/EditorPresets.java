@@ -2,10 +2,10 @@ package net.ctdp.rfdynhud.editor;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.properties.FloatProperty;
-import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
-import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.properties.FloatProperty;
+import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
 public class EditorPresets
 {

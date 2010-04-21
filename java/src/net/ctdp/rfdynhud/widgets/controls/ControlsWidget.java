@@ -3,18 +3,18 @@ package net.ctdp.rfdynhud.widgets.controls;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
-import net.ctdp.rfdynhud.editor.properties.ColorProperty;
-import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
+import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
-import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**

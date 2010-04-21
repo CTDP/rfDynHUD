@@ -1,7 +1,8 @@
 package net.ctdp.rfdynhud.editor.properties;
 
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
-import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 
 public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
 {

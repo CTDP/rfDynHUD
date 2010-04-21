@@ -3,23 +3,23 @@ package net.ctdp.rfdynhud.widgets.timing;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
-import net.ctdp.rfdynhud.editor.properties.ColorProperty;
-import net.ctdp.rfdynhud.editor.properties.IntegerProperty;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
+import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.widgets._util.DrawnString;
-import net.ctdp.rfdynhud.widgets._util.Size;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.util.TimingUtil;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
-import net.ctdp.rfdynhud.widgets._util.TimingUtil;
-import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.widgets._util.DrawnString.Alignment;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**

@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import net.ctdp.rfdynhud.RFDynHUD;
-import net.ctdp.rfdynhud.editor.properties.Property;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.ini.IniWriter;

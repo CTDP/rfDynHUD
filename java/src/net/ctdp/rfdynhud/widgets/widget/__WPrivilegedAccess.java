@@ -1,7 +1,7 @@
 package net.ctdp.rfdynhud.widgets.widget;
 
-import net.ctdp.rfdynhud.editor.properties.ColorProperty;
-import net.ctdp.rfdynhud.editor.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 public class __WPrivilegedAccess

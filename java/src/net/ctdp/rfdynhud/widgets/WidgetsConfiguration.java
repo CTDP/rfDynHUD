@@ -7,15 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import net.ctdp.rfdynhud.editor.properties.BorderProperty;
-import net.ctdp.rfdynhud.editor.properties.ColorProperty;
-import net.ctdp.rfdynhud.editor.properties.FontProperty;
-import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputMappings;
+import net.ctdp.rfdynhud.properties.BorderProperty;
+import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
-import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 

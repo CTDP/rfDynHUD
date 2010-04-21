@@ -37,7 +37,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import net.ctdp.rfdynhud.widgets._util.FontUtils;
+import net.ctdp.rfdynhud.util.FontUtils;
 
 import org.openmali.vecmath2.util.ColorUtils;
 

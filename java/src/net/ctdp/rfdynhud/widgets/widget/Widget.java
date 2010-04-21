@@ -8,30 +8,30 @@ import java.util.HashMap;
 import org.openmali.types.twodee.Rect2i;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.properties.BooleanProperty;
-import net.ctdp.rfdynhud.editor.properties.BorderProperty;
-import net.ctdp.rfdynhud.editor.properties.ColorProperty;
-import net.ctdp.rfdynhud.editor.properties.FontProperty;
-import net.ctdp.rfdynhud.editor.properties.Property;
-import net.ctdp.rfdynhud.editor.properties.PropertyEditorType;
-import net.ctdp.rfdynhud.editor.properties.StringProperty;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
+import net.ctdp.rfdynhud.properties.BorderProperty;
+import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.StringProperty;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
+import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TexturedBorder;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.Position;
+import net.ctdp.rfdynhud.values.RelativePositioning;
+import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets._util.DrawnString;
-import net.ctdp.rfdynhud.widgets._util.Position;
-import net.ctdp.rfdynhud.widgets._util.RelativePositioning;
-import net.ctdp.rfdynhud.widgets._util.Size;
-import net.ctdp.rfdynhud.widgets._util.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.widgets._util.WidgetsConfigurationWriter;
 
 /**
  * This is the base for all Widgets to be drawn on the HUD.<br>

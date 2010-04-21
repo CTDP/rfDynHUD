@@ -24,10 +24,10 @@ import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.EditorTable;
-import net.ctdp.rfdynhud.editor.properties.EnumProperty;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
-import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
+import net.ctdp.rfdynhud.properties.EnumProperty;
+import net.ctdp.rfdynhud.properties.Property;
 
 public class OptionsWindow extends JDialog implements PropertyChangeListener
 {

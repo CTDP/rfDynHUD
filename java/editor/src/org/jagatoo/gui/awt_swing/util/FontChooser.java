@@ -67,11 +67,11 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import net.ctdp.rfdynhud.editor.properties.FontProperty;
-import net.ctdp.rfdynhud.editor.properties.Property;
+import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
-import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
