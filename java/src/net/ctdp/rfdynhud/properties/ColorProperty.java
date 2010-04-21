@@ -61,7 +61,7 @@ public class ColorProperty extends Property
         onValueChanged( oldValue, colorKey );
         
         if ( widget != null )
-            __WPrivilegedAccess.onColorChanged( this, oldValue, colorKey, widget );
+            __WPrivilegedAccess.onPropertyChanged( this, oldValue, colorKey, widget );
     }
     
     public final void setColor( Color color )

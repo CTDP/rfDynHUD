@@ -117,6 +117,11 @@ public class WidgetsConfiguration
         return ( null );
     }
     
+    void sortWidgets()
+    {
+        Collections.sort( widgets, WIDGET_Y_X_COMPARATOR );
+    }
+    
     /**
      * Adds a new {@link Widget} to be drawn by this manager.
      * 
@@ -128,7 +133,7 @@ public class WidgetsConfiguration
         widgetsMap.put( widget.getName(), widget );
         __WPrivilegedAccess.setConfiguration( this, widget );
         
-        Collections.sort( widgets, WIDGET_Y_X_COMPARATOR );
+        sortWidgets();
     }
     
     /**

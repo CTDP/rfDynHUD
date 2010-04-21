@@ -105,7 +105,7 @@ public class FontProperty extends Property
                 onValueChanged( oldValue, fontKey );
                 
                 if ( widget != null )
-                    __WPrivilegedAccess.onFontChanged( this, oldValue, fontKey, widget );
+                    __WPrivilegedAccess.onPropertyChanged( this, oldValue, fontKey, widget );
             }
         }
     }

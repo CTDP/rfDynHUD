@@ -10,6 +10,11 @@ public class __WCPrivilegedAccess
         config.setInputMappings( inputMappings );
     }
     
+    public static final void sortWidgets( WidgetsConfiguration config )
+    {
+        config.sortWidgets();
+    }
+    
     public static final void setJustLoaded( WidgetsConfiguration config, LiveGameData gameData )
     {
         config.setJustLoaded( gameData );

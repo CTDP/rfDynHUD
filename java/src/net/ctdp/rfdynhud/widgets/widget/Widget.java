@@ -32,6 +32,7 @@ import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
 /**
  * This is the base for all Widgets to be drawn on the HUD.<br>
@@ -60,17 +61,7 @@ public abstract class Widget implements Documented
     
     private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME );
     
-    private final BooleanProperty visible = new BooleanProperty( this, "initialVisibility", true )
-    {
-        @Override
-        protected void onValueChanged( boolean newValue )
-        {
-            if ( newValue )
-                Widget.this.needsCompleteRedraw = true;
-            else
-                Widget.this.needsCompleteClear = true;
-        }
-    };
+    private final BooleanProperty visible = new BooleanProperty( this, "initialVisibility", true );
     private boolean needsCompleteRedraw = true;
     private boolean needsCompleteClear = false;
     
@@ -78,12 +69,57 @@ public abstract class Widget implements Documented
     
     private TransformableTexture[] subTextures = null;
     
-    protected void onFontChanged( FontProperty property, String oldValue, String newValue )
+    /**
+     * 
+     * @param property
+     * @param oldValue
+     * @param newValue
+     */
+    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
+        if ( property == visible )
+        {
+            if ( (Boolean)newValue )
+                this.needsCompleteRedraw = true;
+            else
+                this.needsCompleteClear = true;
+        }
     }
     
-    protected void onColorChanged( ColorProperty property, String oldValue, String newValue )
+    /**
+     * 
+     * @param oldPositioning
+     * @param oldX
+     * @param oldY
+     * @param newPositioning
+     * @param newX
+     * @param newY
+     */
+    protected void onPositionChanged( RelativePositioning oldPositioning, float oldX, float oldY, RelativePositioning newPositioning, float newX, float newY )
     {
+        WidgetsConfiguration wc = getConfiguration();
+        
+        if ( wc != null )
+        {
+            __WCPrivilegedAccess.sortWidgets( wc );
+        }
+    }
+    
+    /**
+     * 
+     * @param oldWidth
+     * @param oldHeight
+     * @param newWidth
+     * @param newHeight
+     */
+    protected void onSizeChanged( float oldWidth, float oldHeight, float newWidth, float newHeight )
+    {
+        WidgetsConfiguration wc = getConfiguration();
+        
+        if ( wc != null )
+        {
+            __WCPrivilegedAccess.sortWidgets( wc );
+        }
     }
     
     /**

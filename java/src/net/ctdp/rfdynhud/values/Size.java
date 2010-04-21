@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.values;
 
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class Size
 {
@@ -171,12 +172,17 @@ public class Size
         
         if ( ( width != this.width ) || ( height != this.height ) )
         {
+            float oldWidth = this.width;
+            float oldHeight = this.height;
+            
             this.width = width;
             this.height = height;
             
             applyLimits();
             
             widget.forceAndSetDirty();
+            
+            __WPrivilegedAccess.onSizeChanged( oldWidth, oldHeight, width, height, widget );
         }
         //widget.setDirtyFlag();
         

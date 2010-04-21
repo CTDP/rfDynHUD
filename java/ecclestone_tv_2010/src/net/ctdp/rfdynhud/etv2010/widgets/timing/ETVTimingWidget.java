@@ -16,8 +16,8 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
@@ -41,14 +41,7 @@ public class ETVTimingWidget extends Widget
     private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
     private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
     
-    private final IntegerProperty positionFontSize = new IntegerProperty( this, "positionFontSize", 200 )
-    {
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            positionFont = null;
-        }
-    };
+    private final IntegerProperty positionFontSize = new IntegerProperty( this, "positionFontSize", 200 );
     
     private final BooleanProperty alwaysVisible = new BooleanProperty( this, "alwaysVisible", false );
     
@@ -80,11 +73,15 @@ public class ETVTimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void onFontChanged( FontProperty property, String oldValue, String newValue )
+    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
-        super.onFontChanged( property, oldValue, newValue );
+        super.onPropertyChanged( property, oldValue, newValue );
         
-        if ( property == getFontProperty() )
+        if ( property == positionFontSize )
+        {
+            positionFont = null;
+        }
+        else if ( property == getFontProperty() )
         {
             positionFont = null;
             

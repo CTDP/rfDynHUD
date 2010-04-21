@@ -320,7 +320,7 @@ public class FontChooser extends JPanel
                         if ( fontName.equals( fontProp.getFontKey() ) )
                         {
                             fontProp.refresh();
-                            __WPrivilegedAccess.onFontChanged( fontProp, fontName, fontName, widget );
+                            __WPrivilegedAccess.onPropertyChanged( fontProp, fontName, fontName, widget );
                             
                             propFound = true;
                             break;

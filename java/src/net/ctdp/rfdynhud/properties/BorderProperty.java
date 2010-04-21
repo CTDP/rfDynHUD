@@ -4,6 +4,7 @@ import net.ctdp.rfdynhud.render.BorderCache;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class BorderProperty extends Property
 {
@@ -38,6 +39,9 @@ public class BorderProperty extends Property
             widget.forceAndSetDirty();
         
         onValueChanged( oldValue, borderName );
+        
+        if ( widget != null )
+            __WPrivilegedAccess.onPropertyChanged( this, oldValue, borderName, widget );
     }
     
     public final String getBorderName()

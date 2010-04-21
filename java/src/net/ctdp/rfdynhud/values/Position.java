@@ -4,6 +4,7 @@ import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class Position
 {
@@ -139,6 +140,10 @@ public class Position
         
         if ( ( positioning != this.positioning ) || ( x != this.x ) || ( y != this.y ) )
         {
+            RelativePositioning oldPositioning = this.positioning;
+            float oldX = this.x;
+            float oldY = this.y;
+            
             this.positioning = positioning;
             
             this.x = x;
@@ -147,6 +152,8 @@ public class Position
             //widget.forceAndSetDirty();
             widget.forceCompleteRedraw();
             widget.setDirtyFlag();
+            
+            __WPrivilegedAccess.onPositionChanged( oldPositioning, oldX, oldY, positioning, x, y, widget );
         }
         widget.setDirtyFlag();
         

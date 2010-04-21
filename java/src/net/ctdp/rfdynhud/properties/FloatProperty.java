@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class FloatProperty extends Property
 {
@@ -34,6 +35,9 @@ public class FloatProperty extends Property
             widget.forceAndSetDirty();
         
         onValueChanged( oldValue, value );
+        
+        if ( widget != null )
+            __WPrivilegedAccess.onPropertyChanged( this, oldValue, value, widget );
     }
     
     public final float getFloatValue()

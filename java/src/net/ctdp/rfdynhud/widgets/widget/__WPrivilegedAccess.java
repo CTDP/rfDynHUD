@@ -1,7 +1,7 @@
 package net.ctdp.rfdynhud.widgets.widget;
 
-import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 public class __WPrivilegedAccess
@@ -21,13 +21,18 @@ public class __WPrivilegedAccess
         return ( widget.isInitialized() );
     }
     
-    public static final void onColorChanged( ColorProperty property, String oldValue, String newValue, Widget widget )
+    public static final void onPropertyChanged( Property property, Object oldValue, Object newValue, Widget widget )
     {
-        widget.onColorChanged( property, oldValue, newValue );
+        widget.onPropertyChanged( property, oldValue, newValue );
     }
     
-    public static final void onFontChanged( FontProperty property, String oldValue, String newValue, Widget widget )
+    public static final void onPositionChanged( RelativePositioning oldPositioning, float oldX, float oldY, RelativePositioning newPositioning, float newX, float newY, Widget widget )
     {
-        widget.onFontChanged( property, oldValue, newValue );
+        widget.onPositionChanged( oldPositioning, oldX, oldY, newPositioning, newX, newY );
+    }
+    
+    public static final void onSizeChanged( float oldWidth, float oldHeight, float newWidth, float newHeight, Widget widget )
+    {
+        widget.onSizeChanged( oldWidth, oldHeight, newWidth, newHeight );
     }
 }

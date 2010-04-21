@@ -332,7 +332,7 @@ public class ColorChooser extends JPanel
                         if ( colorKey.equals( colorProp.getColorKey() ) )
                         {
                             colorProp.refresh();
-                            __WPrivilegedAccess.onColorChanged( colorProp, colorKey, colorKey, widget );
+                            __WPrivilegedAccess.onPropertyChanged( colorProp, colorKey, colorKey, widget );
                             
                             propFound = true;
                             break;

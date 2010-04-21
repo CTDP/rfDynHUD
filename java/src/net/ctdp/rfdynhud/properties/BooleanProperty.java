@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class BooleanProperty extends Property
 {
@@ -28,6 +29,9 @@ public class BooleanProperty extends Property
             widget.forceAndSetDirty();
         
         onValueChanged( value );
+        
+        if ( widget != null )
+            __WPrivilegedAccess.onPropertyChanged( this, !value, value, widget );
     }
     
     public final boolean getBooleanValue()
