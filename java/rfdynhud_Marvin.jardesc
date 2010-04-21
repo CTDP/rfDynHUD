@@ -11,6 +11,7 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=rfdynhud/standard_widget_set\/src"/>
         <javaElement handleIdentifier="=rfdynhud/src"/>
     </selectedElements>
 </jardesc>
