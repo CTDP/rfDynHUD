@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -1237,8 +1238,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         */
         
         ArrayList<String> widgetPackages = new ArrayList<String>();
-        for ( Class<?> clazz : classes )
+        Iterator<Class<?>> it = classes.iterator();
+        while ( it.hasNext() )
         {
+            Class<?> clazz = it.next();
+            
             try
             {
                 Widget widget = createWidgetInstance( clazz, null );
@@ -1247,6 +1251,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
             catch ( Throwable t )
             {
+                it.remove();
+                Logger.log( "Error handling Widget class " + clazz.getName() + ":" );
                 Logger.log( t );
             }
         }
@@ -1261,15 +1267,27 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 getMenu( menu, pkg, 0 );
         }
         
-        for ( Class<?> clazz : classes )
+        it = classes.iterator();
+        while ( it.hasNext() )
         {
-            Widget widget = instances.get( clazz );
-            String[] pkg = widget.getWidgetPackage().split( "/" );
+            Class<?> clazz = it.next();
             
-            if ( ( pkg.length == 1 ) && pkg[0].equals( "" ) )
-                menu.add( createWidgetMenuItem( clazz ) );
-            else
-                getMenu( menu, pkg, 0 ).add( createWidgetMenuItem( clazz ) );
+            try
+            {
+                Widget widget = instances.get( clazz );
+                String[] pkg = widget.getWidgetPackage().split( "/" );
+                
+                if ( ( pkg.length == 1 ) && pkg[0].equals( "" ) )
+                    menu.add( createWidgetMenuItem( clazz ) );
+                else
+                    getMenu( menu, pkg, 0 ).add( createWidgetMenuItem( clazz ) );
+            }
+            catch ( Throwable t )
+            {
+                it.remove();
+                Logger.log( "Error handling Widget class " + clazz.getName() + ":" );
+                Logger.log( t );
+            }
         }
         
         return ( menu );

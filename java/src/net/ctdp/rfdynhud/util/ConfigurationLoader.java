@@ -142,7 +142,7 @@ public class ConfigurationLoader
                         }
                         catch ( Throwable t )
                         {
-                            //throw new Error( t );
+                            Logger.log( "Error creating Widget instance of class " + value + ":" );
                             Logger.log( t );
                             badWidget = true;
                         }
