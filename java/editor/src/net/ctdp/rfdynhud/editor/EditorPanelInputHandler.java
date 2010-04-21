@@ -7,10 +7,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.values.RelativePositioning;
-import net.ctdp.rfdynhud.widgets.standings.StandingsWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -299,22 +297,6 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     {
         switch ( e.getKeyCode() )
         {
-            case KeyEvent.VK_S:
-                WidgetsDrawingManager manager = editor.getEditorPanel().getWidgetsDrawingManager();
-                int n = manager.getNumWidgets();
-                
-                for ( int i = 0; i < n; i++ )
-                {
-                    Widget widget = manager.getWidget( i );
-                    if ( widget.getClass() == StandingsWidget.class )
-                    {
-                        ( (StandingsWidget)widget ).cycleView( SessionType.RACE, true );
-                        editor.getEditorPanel().repaint();
-                        break;
-                    }
-                }
-                break;
-                
             case KeyEvent.VK_DELETE:
                 editor.getEditorPanel().removeSelectedWidget();
                 editor.onWidgetSelected( null );
