@@ -4,13 +4,14 @@ import java.awt.Color;
 
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.openmali.vecmath2.util.ColorUtils;
 
 public class ColorProperty extends Property
 {
-    public static final String STANDARD_BACKGROUND_COLOR = "StandardBackground";
-    public static final String STANDARD_FONT_COLOR = "StandardFontColor";
+    public static final String STANDARD_BACKGROUND_COLOR_NAME = "StandardBackground";
+    public static final String STANDARD_FONT_COLOR_NAME = "StandardFontColor";
     
     public static final Color FALLBACK_COLOR = Color.MAGENTA;
     
@@ -22,10 +23,10 @@ public class ColorProperty extends Property
     
     public static String getDefaultNamedColorValue( String name )
     {
-        if ( name.equals( STANDARD_BACKGROUND_COLOR ) )
+        if ( name.equals( STANDARD_BACKGROUND_COLOR_NAME ) )
             return ( "#00000096" );
         
-        if ( name.equals( STANDARD_FONT_COLOR ) )
+        if ( name.equals( STANDARD_FONT_COLOR_NAME ) )
             return ( "#C0BC3D" );
         
         return ( null );
@@ -38,6 +39,11 @@ public class ColorProperty extends Property
     
     protected void onValueChanged( String oldValue, String newValue )
     {
+    }
+    
+    public void refresh()
+    {
+        this.color = null;
     }
     
     public void setColor( String colorKey )
@@ -53,6 +59,9 @@ public class ColorProperty extends Property
             widget.forceAndSetDirty();
         
         onValueChanged( oldValue, colorKey );
+        
+        if ( widget != null )
+            __WPrivilegedAccess.onColorChanged( this, oldValue, colorKey, widget );
     }
     
     public final void setColor( Color color )
@@ -78,11 +87,8 @@ public class ColorProperty extends Property
         if ( color == null )
         {
             final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
-            //System.out.println( "a: " + widgetsConf );
             
-            //System.out.println( "b: " + colorKey );
             color = widgetsConf.getNamedColor( colorKey );
-            //System.out.println( "c: " + color );
             
             if ( ( color == null ) && ( widget != null ) )
             {

@@ -39,9 +39,9 @@ public class FuelWidget extends Widget
     private static final InputAction INPUT_ACTION_INC_PITSTOP = new InputAction( "IncPitstopAction" );
     private static final InputAction INPUT_ACTION_DEC_PITSTOP = new InputAction( "DecPitstopAction" );
     
-    private final FontProperty font2 = new FontProperty( this, "font2", "SmallerFont3" );
+    private final FontProperty font2 = new FontProperty( this, "font2", FontProperty.SMALLER_FONT3_NAME );
     
-    private final FontProperty fuelFont = new FontProperty( this, "fuelFont", "StandardFont" );
+    private final FontProperty fuelFont = new FontProperty( this, "fuelFont", FontProperty.STANDARD_FONT_NAME );
     
     private DrawnString fuelHeaderString = null;
     

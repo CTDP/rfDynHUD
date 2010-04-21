@@ -16,6 +16,7 @@ public class ETVUtils
     
     public static final int TRIANGLE_WIDTH = 15;
     private static final boolean AA_TRIANGLE = true;
+    public static final int ITEM_GAP = 3;
     
     public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
     public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST = "ETVCaptionBackgroundColor1st";
@@ -88,7 +89,7 @@ public class ETVUtils
         return ( vMiddle );
     }
     
-    public static void drawDataBackground( int x, int y, int width, int height, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
+    public static void drawDataBackground( int x, int y, int width, int height, int triangleWidthFactor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
     {
         if ( clearBefore )
             texture.clear( x, y, width, height, true, null );
@@ -99,7 +100,9 @@ public class ETVUtils
         
         texCanvas.setAntialiazingEnabled( AA_TRIANGLE );
         
-        int[] xPoints = new int[] { x, x + TRIANGLE_WIDTH, x + TRIANGLE_WIDTH, x };
+        final int triangWidth = TRIANGLE_WIDTH * triangleWidthFactor;
+        
+        int[] xPoints = new int[] { x, x + triangWidth, x + triangWidth, x };
         int[] yPoints = new int[] { y + height, y + height, y + 0, y + height };
         
         texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
@@ -107,22 +110,27 @@ public class ETVUtils
         
         texCanvas.setAntialiazingEnabled( false );
         
-        //int lapAreaWidth = width - 4 * TRIANGLE_WIDTH - capWidth;
-        Rect2i rect = new Rect2i( x + TRIANGLE_WIDTH, y + 0, width - 2 * TRIANGLE_WIDTH, y + height );
+        //int lapAreaWidth = width - 4 * triangWidth - capWidth;
+        Rect2i rect = new Rect2i( x + triangWidth, y + 0, width - 2 * triangWidth, height );
         
         texCanvas.fillRect( rect );
         //texCanvas.drawRect( rect );
         
         texCanvas.setAntialiazingEnabled( AA_TRIANGLE );
         
-        xPoints = new int[] { x + width - TRIANGLE_WIDTH, x + width, x + width - TRIANGLE_WIDTH, x + width - TRIANGLE_WIDTH };
+        xPoints = new int[] { x + width - triangWidth, x + width, x + width - triangWidth, x + width - triangWidth };
         yPoints = new int[] { y + height, y + 0, y + 0, y + height };
         
         texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
         //texCanvas.drawPolygon( xPoints, yPoints, xPoints.length );
     }
     
-    public static void drawLabeledDataBackground( int x, int y, int width, int height, String caption, Font font, Color captionBgColor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
+    public static void drawDataBackground( int x, int y, int width, int height, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
+    {
+        drawDataBackground( x, y, width, height, 1, dataBgColor, texture, clearBefore );
+    }
+    
+    public static void drawLabeledDataBackground( int x, int y, int width, int height, int triangleWidthFactor, String caption, Font font, Color captionBgColor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
     {
         if ( clearBefore )
             texture.clear( x, y, width, height, true, null );
@@ -137,7 +145,9 @@ public class ETVUtils
         
         texCanvas.setAntialiazingEnabled( AA_TRIANGLE );
         
-        int[] xPoints = new int[] { x + 0, x + TRIANGLE_WIDTH, x + TRIANGLE_WIDTH, x + 0 };
+        final int triangWidth = TRIANGLE_WIDTH * triangleWidthFactor;
+        
+        int[] xPoints = new int[] { x + 0, x + triangWidth, x + triangWidth, x + 0 };
         int[] yPoints = new int[] { y + height, y + height, y + 0, y + height };
         
         texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
@@ -146,19 +156,24 @@ public class ETVUtils
         texCanvas.setAntialiazingEnabled( false );
         
         int capWidth = (int)Math.ceil( capBounds.getWidth() );
-        Rect2i rect = new Rect2i( x + TRIANGLE_WIDTH, y + 0, capWidth, y + height );
+        Rect2i rect = new Rect2i( x + triangWidth, y + 0, capWidth, height );
         
         texCanvas.fillRect( rect );
         //texCanvas.drawRect( rect );
         
         texCanvas.setAntialiazingEnabled( AA_TRIANGLE );
         
-        xPoints = new int[] { x + TRIANGLE_WIDTH + capWidth, x + TRIANGLE_WIDTH + capWidth + TRIANGLE_WIDTH, x + TRIANGLE_WIDTH + capWidth, x + TRIANGLE_WIDTH + capWidth };
+        xPoints = new int[] { x + triangWidth + capWidth, x + triangWidth + capWidth + triangWidth, x + triangWidth + capWidth, x + triangWidth + capWidth };
         yPoints = new int[] { y + height, y + 0, y + 0, y + height };
         
         texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
         //texCanvas.drawPolygon( xPoints, yPoints, xPoints.length );
         
-        drawDataBackground( x + TRIANGLE_WIDTH + capWidth, y, width - TRIANGLE_WIDTH - capWidth, height, dataBgColor, texture, false );
+        drawDataBackground( x + triangWidth + capWidth, y, width - triangWidth - capWidth, height, dataBgColor, texture, false );
+    }
+    
+    public static void drawLabeledDataBackground( int x, int y, int width, int height, String caption, Font font, Color captionBgColor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
+    {
+        drawLabeledDataBackground( x, y, width, height, 1, caption, font, captionBgColor, dataBgColor, texture, clearBefore );
     }
 }

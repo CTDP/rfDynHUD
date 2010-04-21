@@ -434,7 +434,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             try
             {
-                widget.updateVisibility( gameData );
+                widget.updateVisibility( editorPresets, gameData );
                 
                 if ( !isEditorMode || widget.getDirtyFlag( true ) )
                 {

@@ -54,12 +54,11 @@ public abstract class Widget implements Documented
     private final Position position;
     private final Size size;
     
-    private final ColorProperty backgroundColor = new ColorProperty( this, "backgroundColor", "StandardBackground" );
-    private final FontProperty font = new FontProperty( this, "font", "StandardFont" );
-    private final ColorProperty fontColor = new ColorProperty( this, "fontColor", "StandardFontColor" );
+    private final FontProperty font = new FontProperty( this, "font", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty backgroundColor = new ColorProperty( this, "backgroundColor", ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
+    private final ColorProperty fontColor = new ColorProperty( this, "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
     
-    //private final BorderProperty border = new BorderProperty( this, "border", "yellow_border.png" );
-    private final BorderProperty border = new BorderProperty( this, "border", "StandardBorder" );
+    private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME );
     
     private final BooleanProperty visible = new BooleanProperty( this, "initialVisibility", true )
     {
@@ -78,6 +77,14 @@ public abstract class Widget implements Documented
     private boolean initialized = false;
     
     private TransformableTexture[] subTextures = null;
+    
+    protected void onFontChanged( FontProperty property, String oldValue, String newValue )
+    {
+    }
+    
+    protected void onColorChanged( ColorProperty property, String oldValue, String newValue )
+    {
+    }
     
     /**
      * Gets the default value for the given named color.
@@ -524,9 +531,10 @@ public abstract class Widget implements Documented
     /**
      * This method is called first by the rendering system each frame before {@link #isVisible()} is checked.
      * 
+     * @param editorPresets
      * @param gameData
      */
-    public void updateVisibility( LiveGameData gameData )
+    public void updateVisibility( EditorPresets editorPresets, LiveGameData gameData )
     {
     }
     

@@ -36,7 +36,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class TemperaturesWidget extends Widget
 {
-    private final FontProperty font2 = new FontProperty( this, "font2", "SmallerFont" );
+    private final FontProperty font2 = new FontProperty( this, "font2", FontProperty.SMALLER_FONT_NAME );
     
     private final BooleanProperty displayEngine = new BooleanProperty( this, "displayEngine", true );
     private final BooleanProperty displayWaterTemp = new BooleanProperty( this, "displayWaterTemp", true );

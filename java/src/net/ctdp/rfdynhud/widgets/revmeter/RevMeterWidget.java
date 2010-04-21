@@ -189,7 +189,7 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
     private final IntegerProperty boostNumberPosX = new IntegerProperty( this, "boostNumberPosX", "numberPosX", 392 );
     private final IntegerProperty boostNumberPosY = new IntegerProperty( this, "boostNumberPosY", "numberPosY", 544 );
-    private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", "StandardFont" );
+    private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
     private final BooleanProperty displayVelocity = new BooleanProperty( this, "displayVelocity", true );
@@ -197,7 +197,7 @@ public class RevMeterWidget extends Widget
     private final IntegerProperty velocityPosX = new IntegerProperty( this, "velocityPosX", "posX", 100 );
     private final IntegerProperty velocityPosY = new IntegerProperty( this, "velocityPosY", "posY", 100 );
     
-    private final FontProperty velocityFont = new FontProperty( this, "velocityFont", "font", "StandardFont" );
+    private final FontProperty velocityFont = new FontProperty( this, "velocityFont", "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty velocityFontColor = new ColorProperty( this, "velocityFontColor", "fontColor", "#1A261C" );
     
     private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
@@ -205,7 +205,7 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
     private final IntegerProperty rpmPosX1 = new IntegerProperty( this, "rpmPosX1", "rpmPosX", 170 );
     private final IntegerProperty rpmPosY1 = new IntegerProperty( this, "rpmPosY1", "rpmPosY", 603 );
-    private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", "StandardFont" );
+    private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", "#C0BC3D" );
     private final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
     
@@ -214,7 +214,7 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
     private final IntegerProperty rpmPosX2 = new IntegerProperty( this, "rpmPosX2", "rpmPosX", 170 );
     private final IntegerProperty rpmPosY2 = new IntegerProperty( this, "rpmPosY2", "rpmPosY", 603 );
-    private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", "StandardFont" );
+    private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", "#C0BC3D" );
     private final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
     

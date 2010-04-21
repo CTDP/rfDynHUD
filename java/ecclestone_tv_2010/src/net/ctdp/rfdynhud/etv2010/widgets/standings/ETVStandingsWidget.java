@@ -51,8 +51,6 @@ public class ETVStandingsWidget extends Widget
     private StringValue[] driverNames = null;
     private FloatValue[] gaps = null;
     
-    //private int itemHeight = 0;
-    private static final int ITEM_GAP = 3;
     private int maxNumItems = 0;
     
     private int oldNumItems = 0;
@@ -227,7 +225,7 @@ public class ETVStandingsWidget extends Widget
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         int itemHeight = this.itemHeight.getEffectiveHeight();
-        maxNumItems = ( height + ITEM_GAP ) / ( itemHeight + ITEM_GAP );
+        maxNumItems = ( height + ETVUtils.ITEM_GAP ) / ( itemHeight + ETVUtils.ITEM_GAP );
         
         vehicleScoringInfos = new VehicleScoringInfo[ maxNumItems ];
         
@@ -371,7 +369,7 @@ public class ETVStandingsWidget extends Widget
                 visibilityChanged = true;
             }
             
-            int offsetY2 = i * ( itemHeight + ITEM_GAP );
+            int offsetY2 = i * ( itemHeight + ETVUtils.ITEM_GAP );
             int srcOffsetY = ( vsi.getPlace() == 1 ) ? 0 : itemHeight;
             
             if ( drawBackground )
@@ -459,7 +457,7 @@ public class ETVStandingsWidget extends Widget
         
         for ( int i = numDrivers; i < oldNumItems; i++ )
         {
-            int offsetY2 = i * ( itemHeight + ITEM_GAP );
+            int offsetY2 = i * ( itemHeight + ETVUtils.ITEM_GAP );
             
             texture.clear( offsetX, offsetY + offsetY2, width, itemHeight, true, null );
         }

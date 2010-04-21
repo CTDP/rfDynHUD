@@ -46,6 +46,11 @@ public class DrawnString
     private final String prefix;
     private final String postfix;
     
+    public void resetClearRect()
+    {
+        clearRect.set( -1, -1, 0, 0 );
+    }
+    
     public final DrawnString getXRelativeTo()
     {
         return ( xRelativeTo );

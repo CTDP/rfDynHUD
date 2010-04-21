@@ -47,6 +47,7 @@ import net.ctdp.rfdynhud.editor.properties.Property;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.openmali.vecmath2.util.ColorUtils;
 
@@ -307,6 +308,51 @@ public class ColorChooser extends JPanel
         }
     }
     
+    private static boolean applyNamedColor( String colorKey, Color color, WidgetsConfiguration widgetsConfig )
+    {
+        if ( widgetsConfig.addNamedColor( colorKey, color ) )
+        {
+            FlatWidgetPropertiesContainer wpc = new FlatWidgetPropertiesContainer();
+            
+            for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+            {
+                Widget widget = widgetsConfig.getWidget( i );
+                
+                wpc.clear();
+                widget.getProperties( wpc );
+                
+                boolean propFound = false;
+                
+                for ( Property prop : wpc.getList() )
+                {
+                    if ( prop instanceof ColorProperty )
+                    {
+                        ColorProperty colorProp = (ColorProperty)prop;
+                        
+                        if ( colorKey.equals( colorProp.getColorKey() ) )
+                        {
+                            colorProp.refresh();
+                            __WPrivilegedAccess.onColorChanged( colorProp, colorKey, colorKey, widget );
+                            
+                            propFound = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if ( propFound )
+                {
+                    widget.forceAndSetDirty();
+                }
+            }
+            
+            
+            return ( true );
+        }
+        
+        return ( false );
+    }
+    
     protected JPanel createNamedFontSelector( String currentNamedColor, final WidgetsConfiguration widgetsConfig )
     {
         JPanel panel = new JPanel( new BorderLayout() );
@@ -338,7 +384,7 @@ public class ColorChooser extends JPanel
                     case ItemEvent.DESELECTED:
                         if ( lastNameComboSelectedIndex > 0 )
                         {
-                            widgetsConfig.addNamedColor( String.valueOf( e.getItem() ), ColorUtils.hexToColor( composeSelectedColor() ) );
+                            applyNamedColor( String.valueOf( e.getItem() ), ColorUtils.hexToColor( composeSelectedColor() ), widgetsConfig );
                         }
                         break;
                     case ItemEvent.SELECTED:
@@ -455,7 +501,7 @@ public class ColorChooser extends JPanel
                 
                 ( (JButton)e.getSource() ).setActionCommand( "" );
                 
-                widgetsConfig.addNamedColor( newName, ColorUtils.hexToColor( composeSelectedColor() ) );
+                applyNamedColor( newName, ColorUtils.hexToColor( composeSelectedColor() ), widgetsConfig );
                 refillNameCombo( widgetsConfig, combo, newName );
                 remove.setEnabled( combo.getSelectedIndex() > 0 );
             }
@@ -794,7 +840,7 @@ public class ColorChooser extends JPanel
                     {
                         Color color = ColorUtils.hexToColor( colorChooser.composeSelectedColor() );
                         colorChooser.setSelectedColor( color );
-                        colorChooser.valueChanged = widgetsConfig.addNamedColor( getSelectedColorName(), color ) || !getSelectedColorName().equals( startColor );
+                        colorChooser.valueChanged = applyNamedColor( getSelectedColorName(), color, widgetsConfig ) || !getSelectedColorName().equals( startColor );
                         
                         colorChooser.setAllWidgetsDirty( widgetsConfig );
                     }

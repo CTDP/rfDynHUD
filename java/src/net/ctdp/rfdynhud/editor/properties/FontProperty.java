@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class FontProperty extends Property
 {
@@ -62,6 +63,11 @@ public class FontProperty extends Property
     {
     }
     
+    public void refresh()
+    {
+        this.font = null;
+    }
+    
     public void setFont( String fontKey )
     {
         if ( ( fontKey == null ) && ( this.fontKey == null ) )
@@ -97,6 +103,9 @@ public class FontProperty extends Property
                     widget.forceAndSetDirty();
                 
                 onValueChanged( oldValue, fontKey );
+                
+                if ( widget != null )
+                    __WPrivilegedAccess.onFontChanged( this, oldValue, fontKey, widget );
             }
         }
     }

@@ -35,7 +35,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     
     private Widget getWidgetUnderMouse( int x, int y )
     {
-        for ( int i = 0; i < widgetsManager.getNumWidgets(); i++ )
+        for ( int i = widgetsManager.getNumWidgets() - 1; i >= 0; i-- )
         {
             Widget widget = widgetsManager.getWidget( i );
             

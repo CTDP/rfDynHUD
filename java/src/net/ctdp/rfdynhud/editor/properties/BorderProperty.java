@@ -7,6 +7,9 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class BorderProperty extends Property
 {
+    //public static final String DEFAULT_BORDER_NAME = "yellow_border.png";
+    public static final String DEFAULT_BORDER_NAME = "StandardBorder";
+    
     private final WidgetsConfiguration widgetsConf;
     private final Widget widget;
     

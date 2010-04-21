@@ -42,7 +42,7 @@ public class WearWidget extends Widget
         ;
     }
     
-    private final FontProperty font2 = new FontProperty( this, "font2", "SmallerFont" );
+    private final FontProperty font2 = new FontProperty( this, "font2", FontProperty.SMALLER_FONT_NAME );
     
     private final Size engineHeight;
     

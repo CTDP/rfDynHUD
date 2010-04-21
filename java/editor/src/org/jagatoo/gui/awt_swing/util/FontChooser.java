@@ -73,6 +73,7 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.widgets._util.FontUtils;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link FontChooser} provides the ability to choose a font through a GUI dialog.
@@ -295,6 +296,51 @@ public class FontChooser extends JPanel
         }
     }
     
+    private static boolean applyNamedFont( String fontName, String fontStr, WidgetsConfiguration widgetsConfig )
+    {
+        if ( widgetsConfig.addNamedFont( fontName, fontStr ) )
+        {
+            FlatWidgetPropertiesContainer wpc = new FlatWidgetPropertiesContainer();
+            
+            for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+            {
+                Widget widget = widgetsConfig.getWidget( i );
+                
+                wpc.clear();
+                widget.getProperties( wpc );
+                
+                boolean propFound = false;
+                
+                for ( Property prop : wpc.getList() )
+                {
+                    if ( prop instanceof FontProperty )
+                    {
+                        FontProperty fontProp = (FontProperty)prop;
+                        
+                        if ( fontName.equals( fontProp.getFontKey() ) )
+                        {
+                            fontProp.refresh();
+                            __WPrivilegedAccess.onFontChanged( fontProp, fontName, fontName, widget );
+                            
+                            propFound = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if ( propFound )
+                {
+                    widget.forceAndSetDirty();
+                }
+            }
+            
+            
+            return ( true );
+        }
+        
+        return ( false );
+    }
+    
     protected JPanel createNamedFontSelector( String currentNamedFont, final WidgetsConfiguration widgetsConfig )
     {
         JPanel panel = new JPanel( new BorderLayout() );
@@ -326,7 +372,7 @@ public class FontChooser extends JPanel
                     case ItemEvent.DESELECTED:
                         if ( lastNameComboSelectedIndex > 0 )
                         {
-                            widgetsConfig.addNamedFont( String.valueOf( e.getItem() ), composeSelectedFont() );
+                            applyNamedFont( String.valueOf( e.getItem() ), composeSelectedFont(), widgetsConfig );
                         }
                         
                         /*
@@ -463,7 +509,7 @@ public class FontChooser extends JPanel
                 
                 ( (JButton)e.getSource() ).setActionCommand( "" );
                 
-                widgetsConfig.addNamedFont( newName, getSelectedFont() );
+                applyNamedFont( newName, getSelectedFont(), widgetsConfig );
                 refillNameCombo( widgetsConfig, combo, newName );
                 remove.setEnabled( combo.getSelectedIndex() > 0 );
             }
@@ -798,7 +844,7 @@ public class FontChooser extends JPanel
                     else
                     {
                         fontChooser.setSelectedFont( fontChooser.composeSelectedFont(), widgetsConfig.getGameResY() );
-                        fontChooser.valueChanged = widgetsConfig.addNamedFont( getSelectedFontName(), getSelectedFont() ) || !getSelectedFontName().equals( startFont );
+                        fontChooser.valueChanged = applyNamedFont( getSelectedFontName(), getSelectedFont(), widgetsConfig ) || !getSelectedFontName().equals( startFont );
                         
                         fontChooser.setAllWidgetsDirty( widgetsConfig );
                     }
