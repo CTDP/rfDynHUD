@@ -102,6 +102,8 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                         }
                         */
                     }
+                    
+                    last.finished = true;
                 }
             }
             else

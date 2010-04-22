@@ -11,21 +11,21 @@ public class EnumValue<E extends Enum<E>>
 {
     public static final String N_A_VALUE = "N/A";
     
-    private final Enum<E> resetValue;
-    private Enum<E> oldValue;
-    private Enum<E> value;
+    private final E resetValue;
+    private E oldValue;
+    private E value;
     
-    public final Enum<E> getResetValue()
+    public final E getResetValue()
     {
         return ( resetValue );
     }
     
-    public final Enum<E> getOldValue()
+    public final E getOldValue()
     {
         return ( oldValue );
     }
     
-    public final Enum<E> getValue()
+    public final E getValue()
     {
         return ( value );
     }
@@ -45,7 +45,7 @@ public class EnumValue<E extends Enum<E>>
         return ( hasChanged( true ) );
     }
     
-    private final boolean update( Enum<E> newValue, boolean setUnchanged )
+    private final boolean update( E newValue, boolean setUnchanged )
     {
         if ( setUnchanged )
             this.oldValue = value;
@@ -54,7 +54,7 @@ public class EnumValue<E extends Enum<E>>
         return ( hasChanged( false ) );
     }
     
-    public final boolean update( Enum<E> newValue )
+    public final boolean update( E newValue )
     {
         return ( update( newValue, false ) );
     }
@@ -76,6 +76,11 @@ public class EnumValue<E extends Enum<E>>
         return ( value != null );
     }
     
+    public final String getValueAsString()
+    {
+        return ( value.name() );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -85,7 +90,7 @@ public class EnumValue<E extends Enum<E>>
         return ( value.toString() );
     }
     
-    public EnumValue( Enum<E> resetValue )
+    public EnumValue( E resetValue )
     {
         this.resetValue = resetValue;
         

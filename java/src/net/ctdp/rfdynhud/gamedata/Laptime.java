@@ -9,6 +9,7 @@ public class Laptime
     
     boolean isOutLap = false;
     Boolean isInLap = null;
+    boolean finished = false;
     
     public final int getLap()
     {
@@ -45,7 +46,7 @@ public class Laptime
     
     public final float getLapTime()
     {
-        if ( ( sector1 < 0f ) || ( sector3 < 0f ) || ( sector3 < 0f ) )
+        if ( ( sector1 < 0f ) || ( sector2 < 0f ) || ( sector3 < 0f ) )
             return ( -1 );
         
         return ( sector1 + sector2 + sector3 );
@@ -69,6 +70,11 @@ public class Laptime
     public final Boolean isInlap()
     {
         return ( isInLap );
+    }
+    
+    public final boolean isFinished()
+    {
+        return ( finished );
     }
     
     /**

@@ -175,7 +175,7 @@ public class ScoringInfo
             
             for ( int i = oldCount; i < numVehicles; i++ )
             {
-                tmp[i] = new VehicleScoringInfo();
+                tmp[i] = new VehicleScoringInfo( this );
             }
             
             vehicleScoringInfo = tmp;

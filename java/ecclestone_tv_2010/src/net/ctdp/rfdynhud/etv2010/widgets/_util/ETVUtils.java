@@ -22,6 +22,8 @@ public class ETVUtils
     public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST = "ETVCaptionBackgroundColor1st";
     public static final String ETV_STYLE_CAPTION_FONT_COLOR = "ETVCaptionFontColor";
     public static final String ETV_STYLE_DATA_BACKGROUND_COLOR = "ETVDataBackgroundColor";
+    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_FASTER = "ETVDataBackgroundColorFaster";
+    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_SLOWER = "ETVDataBackgroundColorSlower";
     public static final String ETV_STYLE_DATA_FONT_COLOR = "ETVDataFontColor";
     public static final String ETV_STYLE_FONT = "ETVFont";
     
@@ -31,13 +33,19 @@ public class ETVUtils
             return ( "#787878" );
         
         if ( name.equals( ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST ) )
-            return ( "#FF0000" );
+            return ( "#640000" );
         
         if ( name.equals( ETV_STYLE_CAPTION_FONT_COLOR ) )
             return ( "#FFFFFF" );
         
         if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR ) )
             return ( "#000000" );
+        
+        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR_FASTER ) )
+            return ( "#008800" );
+        
+        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR_SLOWER ) )
+            return ( "#BAB802" );
         
         if ( name.equals( ETV_STYLE_DATA_FONT_COLOR ) )
             return ( "#FFFFFF" );

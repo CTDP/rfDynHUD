@@ -64,6 +64,8 @@ public class VehicleScoringInfo
     
     final byte[] buffer = new byte[ BUFFER_SIZE ];
     
+    private final ScoringInfo scoringInfo;
+    
     private String name = null;
     
     private int stintStartLap = -1;
@@ -412,6 +414,22 @@ public class VehicleScoringInfo
     }
     
     /**
+     * The current laptime (may be incomplete).
+     * 
+     * @return current laptime.
+     */
+    public final float getCurrentLaptime()
+    {
+        if ( getStintLength() < 1.0f )
+            return ( -1f );
+        
+        if ( !scoringInfo.getSessionType().isRace() && ( getStintLength() < 1.0f ) )
+            return ( -1f );
+        
+        return ( scoringInfo.getSessionTime() - getLapStartTime() );
+    }
+    
+    /**
      * number of pitstops made
      */
     public final short getNumPitstopsMade()
@@ -709,8 +727,9 @@ public class VehicleScoringInfo
     // Future use
     //unsigned char mExpansion[128];
     
-    VehicleScoringInfo()
+    VehicleScoringInfo( ScoringInfo scoringInfo )
     {
+        this.scoringInfo = scoringInfo;
     }
     
     public static final class VSIPlaceComparator implements Comparator<VehicleScoringInfo>
