@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.properties.BorderProperty;
@@ -153,7 +154,7 @@ public class WidgetsConfiguration
     /**
      * Removes all {@link Widget}s and clears all name- and aliass maps.
      */
-    public void clear( LiveGameData gameData, ConfigurationClearListener clearListener )
+    public void clear( LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
     {
         if ( clearListener != null )
             clearListener.beforeWidgetsConfigurationCleared( this );
@@ -164,7 +165,7 @@ public class WidgetsConfiguration
         {
             Widget widget = widgets.get( i );
             
-            widget.beforeConfigurationCleared( this, gameData );
+            widget.beforeConfigurationCleared( this, gameData, editorPresets );
         }
         
         for ( int i = 0; i < widgets.size(); i++ )
@@ -242,7 +243,7 @@ public class WidgetsConfiguration
         return ( inputMappings );
     }
     
-    void setJustLoaded( LiveGameData gameData )
+    void setJustLoaded( LiveGameData gameData, EditorPresets editorPresets )
     {
         this.needsCheckFixAndBake = true;
         
@@ -267,7 +268,7 @@ public class WidgetsConfiguration
         {
             Widget widget = widgets.get( i );
             
-            widget.afterConfigurationLoaded( this, gameData );
+            widget.afterConfigurationLoaded( this, gameData, editorPresets );
         }
     }
     

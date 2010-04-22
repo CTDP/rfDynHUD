@@ -90,7 +90,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onTrackChanged( String trackname, LiveGameData gameData )
+    public void onTrackChanged( String trackname, LiveGameData gameData, EditorPresets editorPresets )
     {
         track = null;
     }
@@ -274,7 +274,7 @@ public class MapWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( texture2 == null )
             texture.clear( offsetX, offsetY, width, height, true, null );

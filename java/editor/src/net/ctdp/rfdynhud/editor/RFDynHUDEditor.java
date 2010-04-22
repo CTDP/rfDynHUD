@@ -668,7 +668,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         {
             this.templateConfig = new WidgetsConfiguration();
             
-            ConfigurationLoader.forceLoadConfiguration( templateConfigFile, templateConfig, gameData, null );
+            ConfigurationLoader.forceLoadConfiguration( templateConfigFile, templateConfig, gameData, presets, null );
             
             this.currentTemplateFile = templateConfigFile;
             this.lastTemplateConfigModified = templateConfigFile.lastModified();
@@ -690,7 +690,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 widgetsManager.getWidget( i ).clearRegion( true, getOverlayTexture() );
             }
             
-            ConfigurationLoader.forceLoadConfiguration( configFile, widgetsManager, gameData, null );
+            ConfigurationLoader.forceLoadConfiguration( configFile, widgetsManager, gameData, presets, null );
             
             currentConfigFile = configFile;
             
@@ -1711,7 +1711,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else
-                    ConfigurationLoader.loadFactoryDefaults( editor.getEditorPanel().getWidgetsDrawingManager(), editor.gameData, null );
+                    ConfigurationLoader.loadFactoryDefaults( editor.getEditorPanel().getWidgetsDrawingManager(), editor.gameData, editor.presets, null );
             }
             
             __GDPrivilegedAccess.loadEditorDefaults( editor.gameData.getPhysics() );
@@ -1719,8 +1719,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             
             initTestGameData( editor.gameData );
             
-            editor.eventsManager.onSessionStarted( true );
-            editor.eventsManager.onRealtimeEntered( true );
+            editor.eventsManager.onSessionStarted( editor.presets );
+            editor.eventsManager.onRealtimeEntered( editor.presets );
             
             //editor.getEditorPanel().getWidgetsDrawingManager().collectTextures( true, editor.gameData );
             

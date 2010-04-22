@@ -60,9 +60,9 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onSessionStarted( boolean isEditorMode, SessionType sessionType, LiveGameData gameData )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onSessionStarted( isEditorMode, sessionType, gameData );
+        super.onSessionStarted( sessionType, gameData, editorPresets );
         
         lap.reset();
     }
@@ -71,9 +71,9 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onRealtimeEntered( isEditorMode, gameData );
+        super.onRealtimeEntered( gameData, editorPresets );
     }
     
     protected String getGapRowCaption()
@@ -125,9 +125,9 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onPlayerLapStarted( boolean isEditorMode, LiveGameData gameData )
+    public void onPlayerLapStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onPlayerLapStarted( isEditorMode, gameData );
+        super.onPlayerLapStarted( gameData, editorPresets );
         
         VehicleScoringInfo vsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
         

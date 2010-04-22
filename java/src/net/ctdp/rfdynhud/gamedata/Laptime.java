@@ -90,4 +90,15 @@ public class Laptime
     {
         this.lap = lap;
     }
+    
+    public Laptime( int lap, float sector1, float sector2, float sector3, boolean isOutLap, boolean isInLap, boolean finished )
+    {
+        this.lap = lap;
+        this.sector1 = sector1;
+        this.sector2 = sector2;
+        this.sector3 = sector3;
+        this.isOutLap = isOutLap;
+        this.isInLap = isInLap;
+        this.finished = finished;
+    }
 }

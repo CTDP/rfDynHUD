@@ -21,10 +21,13 @@ public class ETVUtils
     public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
     public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST = "ETVCaptionBackgroundColor1st";
     public static final String ETV_STYLE_CAPTION_FONT_COLOR = "ETVCaptionFontColor";
+    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_1ST = "ETVDataBackgroundColor1st";
     public static final String ETV_STYLE_DATA_BACKGROUND_COLOR = "ETVDataBackgroundColor";
     public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_FASTER = "ETVDataBackgroundColorFaster";
     public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_SLOWER = "ETVDataBackgroundColorSlower";
     public static final String ETV_STYLE_DATA_FONT_COLOR = "ETVDataFontColor";
+    public static final String ETV_STYLE_DATA_FONT_COLOR_FASTER = "ETVDataFontColorFaster";
+    public static final String ETV_STYLE_DATA_FONT_COLOR_SLOWER = "ETVDataFontColorSlower";
     public static final String ETV_STYLE_FONT = "ETVFont";
     
     public static String getDefaultNamedColorValue( String name )
@@ -33,10 +36,13 @@ public class ETVUtils
             return ( "#787878" );
         
         if ( name.equals( ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST ) )
-            return ( "#640000" );
+            return ( "#B10000" );
         
         if ( name.equals( ETV_STYLE_CAPTION_FONT_COLOR ) )
             return ( "#FFFFFF" );
+        
+        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR_1ST ) )
+            return ( "#640000" );
         
         if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR ) )
             return ( "#000000" );
@@ -49,6 +55,12 @@ public class ETVUtils
         
         if ( name.equals( ETV_STYLE_DATA_FONT_COLOR ) )
             return ( "#FFFFFF" );
+        
+        if ( name.equals( ETV_STYLE_DATA_FONT_COLOR_FASTER ) )
+            return ( "#FFFFFF" );
+        
+        if ( name.equals( ETV_STYLE_DATA_FONT_COLOR_SLOWER ) )
+            return ( "#000000" );
         
         return ( null );
     }

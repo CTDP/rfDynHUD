@@ -155,9 +155,9 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onSessionStarted( boolean isEditorMode, SessionType sessionType, LiveGameData gameData )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onSessionStarted( isEditorMode, sessionType, gameData );
+        super.onSessionStarted( sessionType, gameData, editorPresets );
         
         this.oldFuelRelevantLaps = -1;
     }
@@ -166,9 +166,9 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onRealtimeEntered( isEditorMode, gameData );
+        super.onRealtimeEntered( gameData, editorPresets );
         
         this.nextPitstopLapCorrection = 0;
         this.nextPitstopFuelLapsCorrection = 0;
@@ -183,9 +183,9 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onPitsExited( LiveGameData gameData )
+    public void onPitsExited( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onPitsExited( gameData );
+        super.onPitsExited( gameData, editorPresets );
         
         if ( stintLength.getValue() < 1 )
         {

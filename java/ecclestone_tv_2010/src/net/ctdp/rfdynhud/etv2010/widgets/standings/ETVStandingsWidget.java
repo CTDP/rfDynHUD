@@ -40,6 +40,7 @@ public class ETVStandingsWidget extends Widget
     private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
     private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
     private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
+    private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
     
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
     
@@ -139,9 +140,9 @@ public class ETVStandingsWidget extends Widget
     }
     
     @Override
-    public void onSessionStarted( boolean isEditorMode, SessionType sessionType, LiveGameData gameData )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onSessionStarted( isEditorMode, sessionType, gameData );
+        super.onSessionStarted( sessionType, gameData, editorPresets );
         
         if ( driverNames != null )
         {
@@ -158,9 +159,9 @@ public class ETVStandingsWidget extends Widget
     }
     
     @Override
-    public void onRealtimeEntered( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onRealtimeEntered( isEditorMode, gameData );
+        super.onRealtimeEntered( gameData, editorPresets );
         
         if ( laptimes != null )
         {
@@ -233,7 +234,7 @@ public class ETVStandingsWidget extends Widget
         {
             itemClearImage = TextureImage2D.createOfflineTexture( width, itemHeight * 2, true );
             
-            ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), getBackgroundColor(), itemClearImage, true );
+            ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
             ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), getBackgroundColor(), itemClearImage, true );
         }
         
@@ -289,7 +290,7 @@ public class ETVStandingsWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         texture.clear( offsetX, offsetY, width, height, true, null );
     }
@@ -477,6 +478,7 @@ public class ETVStandingsWidget extends Widget
         writer.writeProperty( captionBackgroundColor, "The background color for the \"Position\" caption." );
         writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
         writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
+        writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
         writer.writeProperty( "itemHeight", Size.unparseValue( itemHeight.getHeight() ), "The height of one item." );
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
     }
@@ -492,6 +494,7 @@ public class ETVStandingsWidget extends Widget
         if ( captionBackgroundColor.loadProperty( key, value ) );
         else if ( captionBackgroundColor1st.loadProperty( key, value ) );
         else if ( captionColor.loadProperty( key, value ) );
+        else if ( dataBackgroundColor1st.loadProperty( key, value ) );
         else if ( itemHeight.loadProperty( key, value, "sdfsdfsdfsdf", "itemHeight" ) );
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
     }
@@ -509,6 +512,7 @@ public class ETVStandingsWidget extends Widget
         propsCont.addProperty( captionBackgroundColor );
         propsCont.addProperty( captionBackgroundColor1st );
         propsCont.addProperty( captionColor );
+        propsCont.addProperty( dataBackgroundColor1st );
         propsCont.addProperty( itemHeight.createHeightProperty( "itemHeight" ) );
         propsCont.addProperty( forceLeaderDisplayed );
     }

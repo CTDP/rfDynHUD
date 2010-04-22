@@ -176,7 +176,7 @@ public class TelemetryData
                 updateListeners[i].onTelemetryDataUpdated( gameData );
         }
         
-        eventsManager.checkPosition();
+        eventsManager.checkPosition( null );
     }
     
     public final long getUpdateID()

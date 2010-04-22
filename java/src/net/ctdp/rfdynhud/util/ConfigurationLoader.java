@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
@@ -33,9 +34,9 @@ public class ConfigurationLoader
      * 
      * @throws IOException
      */
-    private static void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    private static void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
-        widgetsConfig.clear( gameData, clearListener );
+        widgetsConfig.clear( gameData, editorPresets, clearListener );
         
         new AbstractIniParser()
         {
@@ -166,7 +167,7 @@ public class ConfigurationLoader
             }
         }.parse( reader );
         
-        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData );
+        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, editorPresets );
     }
     
     private static File currentlyLoadedConfigFile = null;
@@ -178,11 +179,11 @@ public class ConfigurationLoader
         return ( currentlyLoadedConfigFile );
     }
     
-    private static File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    private static File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         Logger.log( "Loading configuration file from \"" + file.getAbsolutePath() + "\"" );
         
-        __loadConfiguration( new FileReader( file ), widgetsConfig, gameData, clearListener );
+        __loadConfiguration( new FileReader( file ), widgetsConfig, gameData, editorPresets, clearListener );
         
         currentlyLoadedConfigFile = file.getAbsoluteFile();
         lastModified = currentlyLoadedConfigFile.lastModified();
@@ -190,23 +191,23 @@ public class ConfigurationLoader
         return ( currentlyLoadedConfigFile );
     }
     
-    private static File load( File currentlyLoadedConfigFile, long lastModified, File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    private static File load( File currentlyLoadedConfigFile, long lastModified, File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         if ( currentlyLoadedConfigFile == null )
-            return ( _loadConfiguration( configFile, widgetsConfig, gameData, clearListener ) );
+            return ( _loadConfiguration( configFile, widgetsConfig, gameData, editorPresets, clearListener ) );
         
         if ( !configFile.equals( currentlyLoadedConfigFile ) || ( configFile.lastModified() > lastModified ) )
-            return ( _loadConfiguration( configFile, widgetsConfig, gameData, clearListener ) );
+            return ( _loadConfiguration( configFile, widgetsConfig, gameData, editorPresets, clearListener ) );
         
         return ( currentlyLoadedConfigFile );
     }
     
-    private static boolean load( File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    private static boolean load( File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
         long old_lastModified = lastModified;
         
-        load( currentlyLoadedConfigFile, lastModified, configFile, widgetsConfig, gameData, clearListener );
+        load( currentlyLoadedConfigFile, lastModified, configFile, widgetsConfig, gameData, editorPresets, clearListener );
         
         if ( !currentlyLoadedConfigFile.equals( old_currentlyLoadedConfigFile ) || ( lastModified > old_lastModified ) )
         {
@@ -228,9 +229,9 @@ public class ConfigurationLoader
      * 
      * @throws IOException
      */
-    public static File loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    public static File loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
-        if ( load( file, widgetsConfig, gameData, clearListener ) )
+        if ( load( file, widgetsConfig, gameData, editorPresets, clearListener ) )
             return ( currentlyLoadedConfigFile );
         
         return ( null );
@@ -246,9 +247,9 @@ public class ConfigurationLoader
      * 
      * @throws IOException
      */
-    public static File loadConfiguration( String filename, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    public static File loadConfiguration( String filename, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
-        return ( loadConfiguration( new File( filename ), widgetsConfig, gameData, clearListener ) );
+        return ( loadConfiguration( new File( filename ), widgetsConfig, gameData, editorPresets, clearListener ) );
     }
     
     /**
@@ -261,12 +262,12 @@ public class ConfigurationLoader
      * 
      * @throws IOException
      */
-    public static File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    public static File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         currentlyLoadedConfigFile = null;
         lastModified = -1L;
         
-        if ( load( file, widgetsConfig, gameData, clearListener ) )
+        if ( load( file, widgetsConfig, gameData, editorPresets, clearListener ) )
             return ( currentlyLoadedConfigFile );
         
         return ( null );
@@ -282,16 +283,16 @@ public class ConfigurationLoader
      * 
      * @throws IOException
      */
-    public static File forceLoadConfiguration( String filename, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    public static File forceLoadConfiguration( String filename, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
-        return ( forceLoadConfiguration( new File( filename ), widgetsConfig, gameData, clearListener ) );
+        return ( forceLoadConfiguration( new File( filename ), widgetsConfig, gameData, editorPresets, clearListener ) );
     }
     
-    public static void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    public static void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         Logger.log( "Loading factory default configuration." );
         
-        __loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, clearListener );
+        __loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, editorPresets, clearListener );
         
         currentlyLoadedConfigFile = null;
         lastModified = -1L;
@@ -315,7 +316,7 @@ public class ConfigurationLoader
      * 
      * @return the file, from which the configuration has been loaded.
      */
-    public static boolean reloadConfiguration( boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, ConfigurationClearListener clearListener ) throws IOException
+    public static boolean reloadConfiguration( boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
         
@@ -328,7 +329,7 @@ public class ConfigurationLoader
                 File f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_garage_" + vehicleClass + "_" + sessionType.name() + ".ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
                 
                 if ( isPractice )
@@ -336,14 +337,14 @@ public class ConfigurationLoader
                     f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_garage_" + vehicleClass + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
                     if ( f.exists() )
                     {
-                        return ( load( f, widgetsConfig, gameData, clearListener ) );
+                        return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                     }
                 }
                 
                 f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_garage_" + sessionType.name() + ".ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
                 
                 if ( isPractice )
@@ -351,14 +352,14 @@ public class ConfigurationLoader
                     f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_garage_" + SessionType.PRACTICE_WILDCARD + ".ini" );
                     if ( f.exists() )
                     {
-                        return ( load( f, widgetsConfig, gameData, clearListener ) );
+                        return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                     }
                 }
                 
                 f = new File( RFactorTools.CONFIG_PATH + File.separator + "overlay_garage_" + sessionType.name() + ".ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
                 
                 if ( isPractice )
@@ -366,33 +367,33 @@ public class ConfigurationLoader
                     f = new File( RFactorTools.CONFIG_PATH + File.separator + "overlay_garage_" + SessionType.PRACTICE_WILDCARD + ".ini" );
                     if ( f.exists() )
                     {
-                        return ( load( f, widgetsConfig, gameData, clearListener ) );
+                        return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                     }
                 }
                 
                 f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_garage_" + vehicleClass + ".ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
                 
                 f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_garage.ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
                 
                 f = new File( RFactorTools.CONFIG_PATH + File.separator + "overlay_garage.ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
             }
             
             File f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_" + vehicleClass + "_" + sessionType.name() + ".ini" );
             if ( f.exists() )
             {
-                return ( load( f, widgetsConfig, gameData, clearListener ) );
+                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
             }
             
             if ( isPractice )
@@ -400,14 +401,14 @@ public class ConfigurationLoader
                 f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_" + vehicleClass + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
             }
             
             f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_" + sessionType.name() + ".ini" );
             if ( f.exists() )
             {
-                return ( load( f, widgetsConfig, gameData, clearListener ) );
+                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
             }
             
             if ( isPractice )
@@ -415,14 +416,14 @@ public class ConfigurationLoader
                 f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_" + SessionType.PRACTICE_WILDCARD + ".ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
             }
             
             f = new File( RFactorTools.CONFIG_PATH + File.separator + "overlay_" + sessionType.name() + ".ini" );
             if ( f.exists() )
             {
-                return ( load( f, widgetsConfig, gameData, clearListener ) );
+                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
             }
             
             if ( isPractice )
@@ -430,31 +431,31 @@ public class ConfigurationLoader
                 f = new File( RFactorTools.CONFIG_PATH + File.separator + "overlay_" + SessionType.PRACTICE_WILDCARD + ".ini" );
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
             }
             
             f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay_" + vehicleClass + ".ini" );
             if ( f.exists() )
             {
-                return ( load( f, widgetsConfig, gameData, clearListener ) );
+                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
             }
             
             f = new File( RFactorTools.CONFIG_PATH + File.separator + modName + File.separator + "overlay.ini" );
             if ( f.exists() )
             {
-                return ( load( f, widgetsConfig, gameData, clearListener ) );
+                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
             }
             
             f = new File( RFactorTools.CONFIG_PATH + File.separator + "overlay.ini" );
             if ( f.exists() )
             {
-                return ( load( f, widgetsConfig, gameData, clearListener ) );
+                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
             }
             
             if ( ( currentlyLoadedConfigFile != null ) || isFirstLoadAttempty )
             {
-                loadFactoryDefaults( widgetsConfig, gameData, clearListener );
+                loadFactoryDefaults( widgetsConfig, gameData, editorPresets, clearListener );
                 TextureDirtyRectsManager.forceCompleteRedraw();
             }
             

@@ -515,9 +515,9 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeExited( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onRealtimeEntered( isEditorMode, gameData );
+        super.onRealtimeEntered( gameData, editorPresets );
         
         gear.reset();
         velocity.reset();
@@ -823,13 +823,13 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         texture.clear( backgroundTexture, offsetX, offsetY, width, height, true, null );
         
         if ( displayShiftLight.getBooleanValue() )
         {
-            loadShiftLightTexture( isEditorMode );
+            loadShiftLightTexture( editorPresets != null );
             
             //image.clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
         }

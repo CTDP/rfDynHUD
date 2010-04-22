@@ -567,10 +567,10 @@ public abstract class Widget implements Documented
     /**
      * This method is called first by the rendering system each frame before {@link #isVisible()} is checked.
      * 
-     * @param editorPresets
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void updateVisibility( EditorPresets editorPresets, LiveGameData gameData )
+    public void updateVisibility( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -603,8 +603,9 @@ public abstract class Widget implements Documented
      * 
      * @param widgetsConfig
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -613,8 +614,9 @@ public abstract class Widget implements Documented
      * 
      * @param widgetsConfig
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData )
+    public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -623,29 +625,30 @@ public abstract class Widget implements Documented
      * 
      * @param trackname
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onTrackChanged( String trackname, LiveGameData gameData )
+    public void onTrackChanged( String trackname, LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
     /**
      * This method is executed when a new session was started.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param sessionType
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onSessionStarted( boolean isEditorMode, SessionType sessionType, LiveGameData gameData )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
     /**
      * This method is called when a the user entered realtime mode.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onRealtimeEntered( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -653,8 +656,9 @@ public abstract class Widget implements Documented
      * This method is called when a the car entered the pits.
      * 
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onPitsEntered( LiveGameData gameData )
+    public void onPitsEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -662,8 +666,9 @@ public abstract class Widget implements Documented
      * This method is called when a the car entered the garage.
      * 
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onGarageEntered( LiveGameData gameData )
+    public void onGarageEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -671,8 +676,9 @@ public abstract class Widget implements Documented
      * This method is called when a the car exited the garage.
      * 
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onGarageExited( LiveGameData gameData )
+    public void onGarageExited( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -680,38 +686,39 @@ public abstract class Widget implements Documented
      * This method is called when a the car exited the pits.
      * 
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onPitsExited( LiveGameData gameData )
+    public void onPitsExited( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
     /**
      * This method is called when a the user exited realtime mode.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onRealtimeExited( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
     /**
      * This method is called when a lap has been finished and new new one was started.
      * 
-     * @param isEditorMode
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onLapStarted( boolean isEditorMode, LiveGameData gameData )
+    public void onLapStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
     /**
      * This method is called when the driver has finished a lap and started a new one.
      * 
-     * @param isEditorMode
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onPlayerLapStarted( boolean isEditorMode, LiveGameData gameData )
+    public void onPlayerLapStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -837,16 +844,15 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * 
-     * @param isEditorMode
      * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX
      * @param offsetY
      * @param width
      * @param height
      */
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( hasBackgroundColor() )
             texture.clear( getBackgroundColor(), offsetX, offsetY, width, height, true, null );
@@ -923,7 +929,7 @@ public abstract class Widget implements Documented
         {
             texture.markDirty( offsetX, offsetY, width, height );
             
-            clearBackground( ( editorPresets != null ), gameData, texture, offsetX2, offsetY2, width2, height2 );
+            clearBackground( gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );
         }
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );

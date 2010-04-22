@@ -146,9 +146,9 @@ public class ControlsWidget extends Widget
     }
     
     @Override
-    public void onRealtimeExited( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onRealtimeExited( isEditorMode, gameData );
+        super.onRealtimeExited( gameData, editorPresets );
     }
     
     /**

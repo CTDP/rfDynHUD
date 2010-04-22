@@ -219,18 +219,18 @@ public class ETVSessionStateWidget extends Widget
     }
     
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
         
         //Logger.log( "afterConfigurationLoaded(): " + gameData.getScoringInfo().getMaxLaps() + ", " + gameData.getScoringInfo().getEndTime() );
         //updateSessionLimit( gameData );
     }
     
     @Override
-    public void onSessionStarted( boolean isEditorMode, SessionType sessionType, LiveGameData gameData )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onSessionStarted( isEditorMode, sessionType, gameData );
+        super.onSessionStarted( sessionType, gameData, editorPresets );
         
         //Logger.log( "onSessionStarted(): " + gameData.getScoringInfo().getSessionType() + ", " + gameData.getScoringInfo().getMaxLaps() + ", " + gameData.getScoringInfo().getEndTime() );
         
@@ -308,7 +308,7 @@ public class ETVSessionStateWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ETVUtils.drawLabeledDataBackground( offsetX, offsetY, width, height, caption, getFont(), captionBackgroundColor.getColor(), dataBgColor, texture, true );
     }

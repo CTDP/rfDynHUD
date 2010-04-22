@@ -385,7 +385,7 @@ public class ScoringInfo
         if ( eventsManager != null )
         {
             eventsManager.checkRaceRestart( updateTimestamp );
-            eventsManager.checkAndFireOnLapStarted( false );
+            eventsManager.checkAndFireOnLapStarted( null );
         }
     }
     

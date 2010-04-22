@@ -176,9 +176,9 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onRealtimeEntered( isEditorMode, gameData );
+        super.onRealtimeEntered( gameData, editorPresets );
         
         oldWaterTemp = -1;
         oldOilTemp = -1;

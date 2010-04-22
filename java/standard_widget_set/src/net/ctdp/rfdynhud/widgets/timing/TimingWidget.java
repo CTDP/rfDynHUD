@@ -98,9 +98,9 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onSessionStarted( boolean isEditorMode, SessionType sessionType, LiveGameData gameData )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onSessionStarted( isEditorMode, sessionType, gameData );
+        super.onSessionStarted( sessionType, gameData, editorPresets );
         
         oldLeader = null;
         
@@ -116,9 +116,9 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( boolean isEditorMode, LiveGameData gameData )
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onRealtimeEntered( isEditorMode, gameData );
+        super.onRealtimeEntered( gameData, editorPresets );
         
         currLapValid = false;
         
@@ -129,9 +129,9 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onPitsExited( LiveGameData gameData )
+    public void onPitsExited( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onPitsExited( gameData );
+        super.onPitsExited( gameData, editorPresets );
         
         currLapValid = false;
     }
@@ -140,9 +140,9 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onPlayerLapStarted( boolean isEditorMode, LiveGameData gameData )
+    public void onPlayerLapStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onPlayerLapStarted( isEditorMode, gameData );
+        super.onPlayerLapStarted( gameData, editorPresets );
         
         VehicleScoringInfo vsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
         
@@ -562,9 +562,12 @@ public class TimingWidget extends Widget
                     ofSec3 = 12.345f;
                     ofLap = 79.662f;
                     
-                    sec1 = 34.561f;
-                    sec2 = 32.552f;
-                    sec3 = 12.432f;
+                    //sec1 = 34.561f;
+                    //sec2 = 32.552f;
+                    //sec3 = 12.432f;
+                    sec1 = editorPresets.getCurrentSector1Time();
+                    sec2 = editorPresets.getCurrentSector2Time( false );
+                    sec3 = editorPresets.getCurrentSector3Time();
                 }
                 
                 if ( isDelaying )

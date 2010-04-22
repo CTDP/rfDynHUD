@@ -42,9 +42,12 @@ public class ETVTimingWidget extends Widget
 {
     private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
     private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
-    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
+    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
+    private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
     private final ColorProperty dataBackgroundColorFaster = new ColorProperty( this, "dataBgColorFaster", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_FASTER );
     private final ColorProperty dataBackgroundColorSlower = new ColorProperty( this, "dataBgColorSlower", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_SLOWER );
+    private final ColorProperty dataColorFaster = new ColorProperty( this, "dataColorFaster", ETVUtils.ETV_STYLE_DATA_FONT_COLOR_FASTER );
+    private final ColorProperty dataColorSlower = new ColorProperty( this, "dataColorSlower", ETVUtils.ETV_STYLE_DATA_FONT_COLOR_SLOWER );
     
     private final IntegerProperty positionFontSize = new IntegerProperty( this, "positionFontSize", 200 );
     
@@ -146,9 +149,9 @@ public class ETVTimingWidget extends Widget
     }
     
     @Override
-    public void onSessionStarted( boolean isEditorMode, SessionType sessionType, LiveGameData gameData )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onSessionStarted( isEditorMode, sessionType, gameData );
+        super.onSessionStarted( sessionType, gameData, editorPresets );
         
         ownPlace.reset();
         ownLaptime.reset();
@@ -172,9 +175,9 @@ public class ETVTimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( EditorPresets editorPresets, LiveGameData gameData )
+    public void updateVisibility( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.updateVisibility( editorPresets, gameData );
+        super.updateVisibility( gameData, editorPresets );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
@@ -193,6 +196,9 @@ public class ETVTimingWidget extends Widget
         
         if ( editorPresets != null )
         {
+            referenceTime = new Laptime( 2, 28.733f, 29.649f, 26.36f, false, false, true );
+            referencePlace = 1;
+            
             setVisible( true );
             return;
         }
@@ -280,7 +286,7 @@ public class ETVTimingWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( boolean isEditorMode, LiveGameData gameData, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -296,7 +302,31 @@ public class ETVTimingWidget extends Widget
         
         Color dataBgColor = getBackgroundColor();
         LapState ls = lapState.getValue();
-        if ( referenceTime != null )
+        if ( editorPresets != null )
+        {
+            switch ( vsi.getSector() )
+            {
+                case 1:
+                    if ( editorPresets.getLastLaptime() < referenceTime.getLapTime() )
+                        dataBgColor = dataBackgroundColorFaster.getColor();
+                    else
+                        dataBgColor = dataBackgroundColorSlower.getColor();
+                    break;
+                case 2:
+                    if ( editorPresets.getCurrentSector1Time() < referenceTime.getSector1() )
+                        dataBgColor = dataBackgroundColorFaster.getColor();
+                    else
+                        dataBgColor = dataBackgroundColorSlower.getColor();
+                    break;
+                case 3:
+                    if ( editorPresets.getCurrentSector2Time( true ) < referenceTime.getSector2( true ) )
+                        dataBgColor = dataBackgroundColorFaster.getColor();
+                    else
+                        dataBgColor = dataBackgroundColorSlower.getColor();
+                    break;
+            }
+        }
+        else if ( referenceTime != null )
         {
             if ( ls.isBeforeSectorEnd() )
             {
@@ -359,7 +389,22 @@ public class ETVTimingWidget extends Widget
         }
         
         LapState ls = lapState.getValue();
-        if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
+        if ( editorPresets != null )
+        {
+            switch ( vsi.getSector() )
+            {
+                case 1:
+                    ownLaptime.update( editorPresets.getLastLaptime() );
+                    break;
+                case 2:
+                    ownLaptime.update( editorPresets.getCurrentSector1Time() );
+                    break;
+                case 3:
+                    ownLaptime.update( editorPresets.getCurrentSector2Time( true ) );
+                    break;
+            }
+        }
+        else if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
         {
             ownLaptime.update( vsi.getCurrentLaptime() );
         }
@@ -398,7 +443,22 @@ public class ETVTimingWidget extends Widget
             relPositionString.draw( offsetX, offsetY, relPlace.getValueAsString(), cacheTexture, offsetX, offsetY, texture );
         }
         
-        if ( referenceTime == null )
+        if ( editorPresets != null )
+        {
+            switch ( vsi.getSector() )
+            {
+                case 1:
+                    relLaptime.update( editorPresets.getLastLaptime() - referenceTime.getLapTime() );
+                    break;
+                case 2:
+                    relLaptime.update( editorPresets.getCurrentSector1Time() - referenceTime.getSector1() );
+                    break;
+                case 3:
+                    relLaptime.update( editorPresets.getCurrentSector2Time( true ) - referenceTime.getSector2( true ) );
+                    break;
+            }
+        }
+        else if ( referenceTime == null )
         {
             relLaptime.update( relLaptime.getResetValue() );
         }
@@ -441,10 +501,17 @@ public class ETVTimingWidget extends Widget
         {
             if ( relLaptime.isValid() )
             {
-                if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
+                if ( ls.isAfterSectorStart() || ( editorPresets != null ) )
+                {
+                    if ( relLaptime.getValue() < 0f )
+                        relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( relLaptime.getValue() ), cacheTexture, offsetX, offsetY, dataColorFaster.getColor(), texture );
+                    else
+                        relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( relLaptime.getValue() ), cacheTexture, offsetX, offsetY, dataColorSlower.getColor(), texture );
+                }
+                else if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
+                {
                     relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( relLaptime.getValue(), false, false, true ), cacheTexture, offsetX, offsetY, texture );
-                else if ( ls.isAfterSectorStart() )
-                    relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( relLaptime.getValue() ), cacheTexture, offsetX, offsetY, texture );
+                }
             }
             else
             {
@@ -465,8 +532,11 @@ public class ETVTimingWidget extends Widget
         writer.writeProperty( captionBackgroundColor, "The background color for the \"Position\" caption." );
         writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
         writer.writeProperty( captionColor, "The font color for the \"Position\" caption." );
+        writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
         writer.writeProperty( dataBackgroundColorFaster, "The background color for the data area, if a negative gap is displayed." );
         writer.writeProperty( dataBackgroundColorSlower, "The background color for the data area, if a positive gap is displayed." );
+        writer.writeProperty( dataColorFaster, "The font color for the data area, if a negative gap is displayed." );
+        writer.writeProperty( dataColorSlower, "The font color for the data area, if a positive gap is displayed." );
         
         writer.writeProperty( positionFontSize, "Font size for the position in percent relative to the normal font size." );
         
@@ -486,8 +556,11 @@ public class ETVTimingWidget extends Widget
         if ( captionBackgroundColor.loadProperty( key, value ) );
         else if ( captionBackgroundColor1st.loadProperty( key, value ) );
         else if ( captionColor.loadProperty( key, value ) );
+        else if ( dataBackgroundColor1st.loadProperty( key, value ) );
         else if ( dataBackgroundColorFaster.loadProperty( key, value ) );
         else if ( dataBackgroundColorSlower.loadProperty( key, value ) );
+        else if ( dataColorFaster.loadProperty( key, value ) );
+        else if ( dataColorSlower.loadProperty( key, value ) );
         else if ( positionFontSize.loadProperty( key, value ) );
         else if ( alwaysVisible.loadProperty( key, value ) );
         else if ( visibleTimeBeforeSector.loadProperty( key, value ) );
@@ -507,8 +580,11 @@ public class ETVTimingWidget extends Widget
         propsCont.addProperty( captionBackgroundColor );
         propsCont.addProperty( captionBackgroundColor1st );
         propsCont.addProperty( captionColor );
+        propsCont.addProperty( dataBackgroundColor1st );
         propsCont.addProperty( dataBackgroundColorFaster );
         propsCont.addProperty( dataBackgroundColorSlower );
+        propsCont.addProperty( dataColorFaster );
+        propsCont.addProperty( dataColorSlower );
         propsCont.addProperty( positionFontSize );
         
         propsCont.addGroup( "Visiblity" );
