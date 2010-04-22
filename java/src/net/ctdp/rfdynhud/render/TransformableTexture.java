@@ -323,17 +323,25 @@ public class TransformableTexture
         buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 2, (short)clipRectY );
         buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 4, (short)clipRectWidth );
         buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 6, (short)clipRectHeight );
-        buffer.put( OFFSET_NUM_RECTANLES + index * 1, (byte)usedRectangles.length );
-        buffer.position( OFFSET_RECT_VISIBLE_FLAGS + rectangleIndex );
-        for ( int i = 0; i < usedRectangles.length; i++ )
-            buffer.put( usedRectangles[i].visible );
-        buffer.position( OFFSET_RECTANLES + rectangleIndex * 8 );
-        for ( int i = 0; i < usedRectangles.length; i++ )
+        
+        if ( ( usedRectangles == null ) || ( usedRectangles.length == 0 ) )
         {
-            buffer.putShort( usedRectangles[i].left );
-            buffer.putShort( usedRectangles[i].top );
-            buffer.putShort( usedRectangles[i].width );
-            buffer.putShort( usedRectangles[i].height );
+            buffer.put( OFFSET_NUM_RECTANLES + index * 1, (byte)0 );
+        }
+        else
+        {
+            buffer.put( OFFSET_NUM_RECTANLES + index * 1, (byte)usedRectangles.length );
+            buffer.position( OFFSET_RECT_VISIBLE_FLAGS + rectangleIndex );
+            for ( int i = 0; i < usedRectangles.length; i++ )
+                buffer.put( usedRectangles[i].visible );
+            buffer.position( OFFSET_RECTANLES + rectangleIndex * 8 );
+            for ( int i = 0; i < usedRectangles.length; i++ )
+            {
+                buffer.putShort( usedRectangles[i].left );
+                buffer.putShort( usedRectangles[i].top );
+                buffer.putShort( usedRectangles[i].width );
+                buffer.putShort( usedRectangles[i].height );
+            }
         }
         
         this.dirty = false;
