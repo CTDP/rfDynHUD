@@ -73,11 +73,21 @@ public class ConfigurationLoader
                 
                 if ( group.equals( "NamedColors" ) )
                 {
-                    widgetsConfig.addNamedColor( key, ColorUtils.hexToColor( value ) );
+                    java.awt.Color color = ColorUtils.hexToColor( value, false );
+                    
+                    if ( color == null )
+                        Logger.log( "ERROR: Illegal color value: " + value );
+                    else
+                        widgetsConfig.addNamedColor( key, color );
                 }
                 else if ( group.equals( "NamedFonts" ) )
                 {
-                    widgetsConfig.addNamedFont( key, value );
+                    java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResY(), false );
+                    
+                    if ( font == null )
+                        Logger.log( "ERROR: Illegal font value: " + value );
+                    else
+                        widgetsConfig.addNamedFont( key, value );
                 }
                 else if ( group.equals( "BorderAliases" ) )
                 {
