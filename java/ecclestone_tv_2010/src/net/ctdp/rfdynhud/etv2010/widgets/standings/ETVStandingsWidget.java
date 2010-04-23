@@ -43,6 +43,7 @@ public class ETVStandingsWidget extends Widget
     private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
     
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
+    private final BooleanProperty showFastestLapsInRace = new BooleanProperty( this, "showFastestLapsInRace", true );
     
     private DrawnString[] captionStrings = null;
     private DrawnString[] nameStrings = null;
@@ -156,6 +157,8 @@ public class ETVStandingsWidget extends Widget
         }
         
         lastVisibleIndex = -1;
+        
+        forceReinitialization();
     }
     
     @Override
@@ -179,8 +182,15 @@ public class ETVStandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
+        if ( gameData.getScoringInfo().getSessionType().isRace() && !showFastestLapsInRace.getBooleanValue() )
+        {
+            flagTextures = null;
+            
+            return ( null );
+        }
+        
         int itemHeight = this.itemHeight.getEffectiveHeight();
         
         if ( ( flagTextures == null ) || ( flagTextures[0].getWidth() != widgetInnerWidth ) || ( flagTextures[0].getHeight() != itemHeight ) )
@@ -276,14 +286,17 @@ public class ETVStandingsWidget extends Widget
             itemsVisible[i] = null;
         }
         
-        TransformableTexture[] flagTextures = getSubTexturesImpl( editorPresets != null,  width, height );
+        TransformableTexture[] flagTextures = getSubTexturesImpl( gameData, editorPresets,  width, height );
         
-        for ( int i = 0; i < NUM_FLAG_TEXTURES; i++ )
+        if ( flagTextures != null )
         {
-            ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), getBackgroundColor(), flagTextures[i].getTexture(), true );
-            
-            laptimes[i] = new FloatValue();
-            laptimeStrings[i] = new DrawnString( flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+            for ( int i = 0; i < NUM_FLAG_TEXTURES; i++ )
+            {
+                ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), getBackgroundColor(), flagTextures[i].getTexture(), true );
+                
+                laptimes[i] = new FloatValue();
+                laptimeStrings[i] = new DrawnString( flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+            }
         }
         
         isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResX() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
@@ -306,9 +319,12 @@ public class ETVStandingsWidget extends Widget
         final int numDrivers = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, StandingsView.RELATIVE_TO_LEADER, forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         int numDisplayedLaptimes = 0;
         
-        for ( int i = 0; i < flagTextures.length; i++ )
+        if ( flagTextures != null )
         {
-            flagTextures[i].setVisible( false );
+            for ( int i = 0; i < flagTextures.length; i++ )
+            {
+                flagTextures[i].setVisible( false );
+            }
         }
         
         if ( scoringInfo.getSessionTime() > displayTime )
@@ -410,7 +426,7 @@ public class ETVStandingsWidget extends Widget
             if ( vsi.getPlace() > 1 )
             {
                 if ( scoringInfo.getSessionType() == SessionType.RACE )
-                    gaps[i].update( ( vsi.getLapsBehindLeader() > 0 ) ? -vsi.getLapsBehindLeader() : -vsi.getTimeBehindLeader() );
+                    gaps[i].update( ( vsi.getLapsBehindLeader() > 0 ) ? -vsi.getLapsBehindLeader() - 10000 : -vsi.getTimeBehindLeader() );
                 else
                     gaps[i].update( vsi.getBestLapTime() - scoringInfo.getVehicleScoringInfo( 0 ).getBestLapTime() );
                 
@@ -420,7 +436,7 @@ public class ETVStandingsWidget extends Widget
                     if ( vsi.getBestLapTime() < 0.0f )
                         s = "";
                     else
-                        s = ( gaps[i].getValue() < 0f ) ? "+" + ( (int)-gaps[i].getValue() ) + "Lap(s)" : TimingUtil.getTimeAsGapString( gaps[i].getValue() );
+                        s = ( gaps[i].getValue() < -10000f ) ? "+" + ( (int)-( gaps[i].getValue() + 10000.0f ) ) + "Lap(s)" : TimingUtil.getTimeAsGapString( gaps[i].getValue() );
                     
                     try
                     {
@@ -432,26 +448,29 @@ public class ETVStandingsWidget extends Widget
                 }
             }
             
-            if ( !isEditorMode && visible && ( numDisplayedLaptimes < flagTextures.length - 1 ) )
+            if ( flagTextures != null )
             {
-                Laptime lt = vsi.getFastestLaptime();
-                if ( ( lt != null ) && ( lt.getLap() == vsi.getCurrentLap() - 1 ) && ( vsi.getStintStartLap() != vsi.getCurrentLap() ) && ( scoringInfo.getSessionTime() - vsi.getLapStartTime() < 20.0f ) )
+                if ( !isEditorMode && visible && ( numDisplayedLaptimes < flagTextures.length - 1 ) )
                 {
-                    int tti = numDisplayedLaptimes++;
-                    TransformableTexture tt = flagTextures[tti];
-                    
-                    laptimes[tti].update( lt.getLapTime() );
-                    
-                    if ( laptimes[tti].hasChanged() )
+                    Laptime lt = vsi.getFastestLaptime();
+                    if ( ( lt != null ) && ( lt.getLap() == vsi.getCurrentLap() - 1 ) && ( vsi.getStintStartLap() != vsi.getCurrentLap() ) && ( scoringInfo.getSessionTime() - vsi.getLapStartTime() < 20.0f ) )
                     {
-                        laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsString( laptimes[tti].getValue(), true ), getBackgroundColor(), tt.getTexture() );
+                        int tti = numDisplayedLaptimes++;
+                        TransformableTexture tt = flagTextures[tti];
+                        
+                        laptimes[tti].update( lt.getLapTime() );
+                        
+                        if ( laptimes[tti].hasChanged() )
+                        {
+                            laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsString( laptimes[tti].getValue(), true ), getBackgroundColor(), tt.getTexture() );
+                        }
+                        
+                        if ( isOnLeftSide )
+                            tt.setTranslation( width - ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
+                        else
+                            tt.setTranslation( -width + ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
+                        tt.setVisible( true );
                     }
-                    
-                    if ( isOnLeftSide )
-                        tt.setTranslation( width - ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
-                    else
-                        tt.setTranslation( -width + ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
-                    tt.setVisible( true );
                 }
             }
         }
@@ -481,6 +500,7 @@ public class ETVStandingsWidget extends Widget
         writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
         writer.writeProperty( "itemHeight", Size.unparseValue( itemHeight.getHeight() ), "The height of one item." );
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
+        writer.writeProperty( showFastestLapsInRace, "Display fastest lap flags in race session?" );
     }
     
     /**
@@ -497,6 +517,7 @@ public class ETVStandingsWidget extends Widget
         else if ( dataBackgroundColor1st.loadProperty( key, value ) );
         else if ( itemHeight.loadProperty( key, value, "sdfsdfsdfsdf", "itemHeight" ) );
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
+        else if ( showFastestLapsInRace.loadProperty( key, value ) );
     }
     
     /**
@@ -515,6 +536,7 @@ public class ETVStandingsWidget extends Widget
         propsCont.addProperty( dataBackgroundColor1st );
         propsCont.addProperty( itemHeight.createHeightProperty( "itemHeight" ) );
         propsCont.addProperty( forceLeaderDisplayed );
+        propsCont.addProperty( showFastestLapsInRace );
     }
     
     /*

@@ -117,9 +117,9 @@ public class MapWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
-        initSubTextures( isEditorMode );
+        initSubTextures( editorPresets != null );
         
         return ( itemTextures );
     }

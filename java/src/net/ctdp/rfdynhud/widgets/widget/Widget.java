@@ -252,13 +252,14 @@ public abstract class Widget implements Documented
     /**
      * Gets the {@link TransformableTexture}s, that this {@link Widget} keeps.
      * 
-     * @param isEditorMode
-     * @param widgetWidth
-     * @param widgetHeight
+     * @param gameData
+     * @param editorPresets
+     * @param widgetInnerWidth
+     * @param widgetInnerHeight
      * 
      * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
      */
-    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
         return ( null );
     }
@@ -266,17 +267,18 @@ public abstract class Widget implements Documented
     /**
      * Gets the {@link TransformableTexture}s, that this {@link Widget} keeps.
      * 
-     * @param isEditorMode
-     * @param widgetWidth
-     * @param widgetHeight
+     * @param gameData
+     * @param editorPresets
+     * @param widgetInnerHeight
+     * @param widgetInnerWidth
      * 
      * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
      */
-    public final TransformableTexture[] getSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    public final TransformableTexture[] getSubTextures( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
         if ( !initialized )
         {
-            subTextures = getSubTexturesImpl( isEditorMode, widgetInnerWidth, widgetInnerHeight );
+            subTextures = getSubTexturesImpl( gameData, editorPresets, widgetInnerWidth, widgetInnerHeight );
         }
         
         return ( subTextures );
@@ -304,7 +306,6 @@ public abstract class Widget implements Documented
     
     public void forceReinitialization()
     {
-        //Thread.dumpStack();
         this.initialized = false;
         setDirtyFlag();
     }
@@ -939,7 +940,7 @@ public abstract class Widget implements Documented
         if ( editorPresets != null )
         {
             initialized = wasInitialized;
-            TransformableTexture[] subTextures = getSubTextures( true, width2, height2 );
+            TransformableTexture[] subTextures = getSubTextures( gameData, editorPresets, width2, height2 );
             initialized = true;
             
             if ( subTextures != null )

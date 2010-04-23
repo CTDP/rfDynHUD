@@ -110,7 +110,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         for ( int i = 0; i < numWidgets; i++ )
         {
             Widget widget = getWidget( i );
-            TransformableTexture[] subTextures = widget.getSubTextures( editorPresets != null, widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth(), widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight() );
+            TransformableTexture[] subTextures = widget.getSubTextures( gameData, editorPresets, widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth(), widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight() );
             if ( ( subTextures != null ) && ( subTextures.length > 0 ) )
             {
                 widgetTextures[i] = subTextures;

@@ -468,8 +468,10 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetWidth, int widgetHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetWidth, int widgetHeight )
     {
+        final boolean isEditorMode = ( editorPresets != null );
+        
         int n = 0;
         
         n += loadNeedleTexture( isEditorMode );

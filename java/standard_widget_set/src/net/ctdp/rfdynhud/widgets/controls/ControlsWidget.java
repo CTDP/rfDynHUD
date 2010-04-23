@@ -117,7 +117,7 @@ public class ControlsWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
         int numBars = initSubTextures( widgetInnerWidth, widgetInnerHeight );
         
