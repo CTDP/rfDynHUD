@@ -46,6 +46,8 @@ public class ConfigurationLoader
             private String widgetName = null;
             private boolean badWidget = false;
             
+            private String errorMessages = null;
+            
             @Override
             protected boolean onGroupParsed( int lineNr, String group )
             {
@@ -79,10 +81,13 @@ public class ConfigurationLoader
                     
                     if ( color == null )
                     {
-                        Logger.log( "ERROR: Illegal color value on line #" + lineNr + ": " + value );
+                        String msg = "ERROR: Illegal color value on line #" + lineNr + ": " + value;
+                        Logger.log( msg );
                         
-                        if ( editorPresets != null )
-                            JOptionPane.showMessageDialog( null, "ERROR: Illegal color value on line #" + lineNr + ": " + value, "Error loading config ini", JOptionPane.ERROR_MESSAGE );
+                        if ( errorMessages == null )
+                            errorMessages = msg;
+                        else
+                            errorMessages += "\n" + msg;
                     }
                     else
                     {
@@ -91,14 +96,17 @@ public class ConfigurationLoader
                 }
                 else if ( group.equals( "NamedFonts" ) )
                 {
-                    java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResY(), false );
+                    java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResY(), false, false );
                     
-                    if ( font == null )
+                    if ( ( font == FontUtils.FALLBACK_FONT ) || ( font == FontUtils.FALLBACK_VIRTUAL_FONT ) )
                     {
-                        Logger.log( "ERROR: Illegal font value on line #" + lineNr + ": " + value );
+                        String msg = "ERROR: Illegal font value on line #" + lineNr + ": " + value;
+                        Logger.log( msg );
                         
-                        if ( editorPresets != null )
-                            JOptionPane.showMessageDialog( null, "ERROR: Illegal font value on line #" + lineNr + ": " + value, "Error loading config ini", JOptionPane.ERROR_MESSAGE );
+                        if ( errorMessages == null )
+                            errorMessages = msg;
+                        else
+                            errorMessages += "\n" + msg;
                     }
                     else
                     {
@@ -189,6 +197,11 @@ public class ConfigurationLoader
                 {
                     widgetsConfig.addWidget( currentWidget );
                     currentWidget = null;
+                }
+                
+                if ( ( errorMessages != null ) && ( editorPresets != null ) )
+                {
+                    JOptionPane.showMessageDialog( null, errorMessages, "Error loading config ini", JOptionPane.ERROR_MESSAGE );
                 }
             }
         }.parse( reader );

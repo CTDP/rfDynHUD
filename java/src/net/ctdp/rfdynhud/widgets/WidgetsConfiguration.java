@@ -280,7 +280,7 @@ public class WidgetsConfiguration
             
             if ( virtual == Boolean.TRUE )
             {
-                fontMap.put( name, FontUtils.parseFont( fontStringMap.get( name ), gameResY, false ) );
+                fontMap.put( name, FontUtils.parseFont( fontStringMap.get( name ), gameResY, false, true ) );
             }
         }
         
@@ -520,8 +520,8 @@ public class WidgetsConfiguration
      */
     public boolean addNamedFont( String name, String fontStr )
     {
-        Font font = FontUtils.parseFont( fontStr, gameResY, false );
-        boolean virtual = FontUtils.parseVirtualFlag( fontStr, false );
+        Font font = FontUtils.parseFont( fontStr, gameResY, false, true );
+        boolean virtual = FontUtils.parseVirtualFlag( fontStr, false, true );
         
         Font oldFont = this.fontMap.put( name, font );
         this.fontStringMap.put( name, fontStr );
@@ -591,7 +591,7 @@ public class WidgetsConfiguration
         
         if ( font != null )
         {
-            boolean antiAliased = FontUtils.parseAntiAliasFlag( fontString, false );
+            boolean antiAliased = FontUtils.parseAntiAliasFlag( fontString, false, true );
             fontString = FontUtils.getFontString( font, virtual, antiAliased );
             
             resetFonts( name, fontString );

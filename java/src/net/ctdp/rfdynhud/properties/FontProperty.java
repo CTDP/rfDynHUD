@@ -138,7 +138,7 @@ public class FontProperty extends Property
                 }
                 else
                 {
-                    font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResY(), false );
+                    font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResY(), false, true );
                 }
             }
         }
@@ -160,7 +160,7 @@ public class FontProperty extends Property
                     fontStr = fontKey;
             }
             
-            antiAliased = FontUtils.parseAntiAliasFlag( fontStr, false );
+            antiAliased = FontUtils.parseAntiAliasFlag( fontStr, false, true );
         }
         
         return ( antiAliased );
