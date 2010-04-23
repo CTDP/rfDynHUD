@@ -104,9 +104,11 @@ public class VehicleScoringInfo
      * ################################
      */
     
-    /**
-     * driver name
-     */
+    void setDriverName( String driverName )
+    {
+        this.name = driverName;
+    }
+    
     public final String getDriverName()
     {
         // char mDriverName[32]

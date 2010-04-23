@@ -103,7 +103,7 @@ public class ThreeLetterCodeManager
                     {
                         threeLetterCodes.put( key, value );
                         
-                        shortForms.put( key, generateShortForm( key ) );
+                        generateShortForm( key );
                         
                         return ( true );
                     }
@@ -162,9 +162,7 @@ public class ThreeLetterCodeManager
         {
             sf = generateShortForm( driverName );
             
-            Logger.log( "WARNING: No entry found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated short form \"" + sf + "\"." );
-            
-            return ( sf );
+            //Logger.log( "WARNING: No entry found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated short form \"" + sf + "\"." );
         }
         
         return ( sf );

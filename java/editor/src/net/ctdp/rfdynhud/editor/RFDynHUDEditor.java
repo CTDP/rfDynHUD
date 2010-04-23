@@ -145,6 +145,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private WidgetsConfiguration templateConfig = null;
     private long lastTemplateConfigModified = -1L;
     
+    public final LiveGameData getGameData()
+    {
+        return ( gameData );
+    }
+    
     public final EditorPresets getEditorPresets()
     {
         return ( presets );
@@ -1554,7 +1559,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         window.setJMenuBar( menuBar );
     }
     
-    private static void initTestGameData( LiveGameData gameData )
+    private static void initTestGameData( LiveGameData gameData, EditorPresets editorPresets )
     {
         try
         {
@@ -1570,7 +1575,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             
             //in = new FileInputStream( "data/game_data/scoring_info" );
             in = LiveGameData.class.getResourceAsStream( "/data/game_data/scoring_info" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getScoringInfo() );
+            __GDPrivilegedAccess.loadFromStream( in, editorPresets, gameData.getScoringInfo() );
             in.close();
             
             //in = new FileInputStream( "data/game_data/telemetry_data" );
@@ -1717,7 +1722,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             __GDPrivilegedAccess.loadEditorDefaults( editor.gameData.getPhysics() );
             VehicleSetup.loadEditorDefaults( editor.gameData );
             
-            initTestGameData( editor.gameData );
+            initTestGameData( editor.gameData, editor.presets );
             
             editor.eventsManager.onSessionStarted( editor.presets );
             editor.eventsManager.onRealtimeEntered( editor.presets );

@@ -3,6 +3,7 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 
 public class __GDPrivilegedAccess
@@ -17,6 +18,11 @@ public class __GDPrivilegedAccess
         gameData.getPhysics().loadFromPhysicsFiles( gameData );
     }
     
+    public static final void applyEditorPresets( EditorPresets editorPresets, LiveGameData gameData )
+    {
+        gameData.applyEditorPresets( editorPresets );
+    }
+    
     public static final LaptimesRecorder getLaptimesRecorder( ScoringInfo scoringInfo )
     {
         return ( scoringInfo.getLaptimesRecorder() );
@@ -27,9 +33,9 @@ public class __GDPrivilegedAccess
         telemetryData.loadFromStream( in );
     }
     
-    public static final void loadFromStream( InputStream in, ScoringInfo scoringInfo ) throws IOException
+    public static final void loadFromStream( InputStream in, EditorPresets editorPresets, ScoringInfo scoringInfo ) throws IOException
     {
-        scoringInfo.loadFromStream( in );
+        scoringInfo.loadFromStream( in, editorPresets );
     }
     
     public static final void loadFromStream( InputStream in, CommentaryRequestInfo commentaryInfo ) throws IOException

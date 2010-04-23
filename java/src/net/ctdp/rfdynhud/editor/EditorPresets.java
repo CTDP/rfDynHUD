@@ -4,11 +4,13 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
 public class EditorPresets
 {
+    private final StringProperty driverName = new StringProperty( null, "driverName", "Mike Self" );
     private final FloatProperty lastSector1Time = new FloatProperty( null, "lastSector1Time", 28.829182f );
     private final FloatProperty lastSector2Time = new FloatProperty( null, "lastSector2Time", 29.413128f );
     private final FloatProperty lastSector3Time = new FloatProperty( null, "lastSector3Time", 26.336235f );
@@ -21,6 +23,11 @@ public class EditorPresets
     private final FloatProperty brakeDiscThicknessFR = new FloatProperty( null, "brakeDiscThicknessFR", 0.0145f );
     private final FloatProperty brakeDiscThicknessRL = new FloatProperty( null, "brakeDiscThicknessRL", 0.018f );
     private final FloatProperty brakeDiscThicknessRR = new FloatProperty( null, "brakeDiscThicknessRR", 0.022f );
+    
+    public final String getDriverName()
+    {
+        return ( driverName.getStringValue() );
+    }
     
     public final float getLastSector1Time()
     {
@@ -116,14 +123,26 @@ public class EditorPresets
     
     void getProperties( WidgetPropertiesContainer propsCont )
     {
+        propsCont.addGroup( "Driver" );
+        
+        propsCont.addProperty( driverName );
+        
+        propsCont.addGroup( "Lap Times" );
+        
         propsCont.addProperty( lastSector1Time );
         propsCont.addProperty( lastSector2Time );
         propsCont.addProperty( lastSector3Time );
         propsCont.addProperty( currentSector1Time );
         propsCont.addProperty( currentSector2Time );
         propsCont.addProperty( currentSector3Time );
+        
+        propsCont.addGroup( "Engine" );
+        
         propsCont.addProperty( engineRPM );
         propsCont.addProperty( engineLifetime );
+        
+        propsCont.addGroup( "Brakes" );
+        
         propsCont.addProperty( brakeDiscThicknessFL );
         propsCont.addProperty( brakeDiscThicknessFR );
         propsCont.addProperty( brakeDiscThicknessRL );
@@ -132,6 +151,7 @@ public class EditorPresets
     
     void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
+        writer.writeProperty( driverName, null );
         writer.writeProperty( lastSector1Time, null );
         writer.writeProperty( lastSector2Time, null );
         writer.writeProperty( lastSector3Time, null );
@@ -148,7 +168,8 @@ public class EditorPresets
     
     void loadProperty( String key, String value )
     {
-        if ( lastSector1Time.loadProperty( key, value ) );
+        if ( driverName.loadProperty( key, value ) );
+        else if ( lastSector1Time.loadProperty( key, value ) );
         else if ( lastSector2Time.loadProperty( key, value ) );
         else if ( lastSector3Time.loadProperty( key, value ) );
         else if ( currentSector1Time.loadProperty( key, value ) );

@@ -53,7 +53,7 @@ public class LiveGameData_CPP_Adapter
             scoringInfo.getVehicleScoringInfo( i ).onDataUpdated();
         }
         
-        scoringInfo.onDataUpdated();
+        scoringInfo.onDataUpdated( null );
     }
     
     public final void prepareGraphicsInfoDataUpdate()

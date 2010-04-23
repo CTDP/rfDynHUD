@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.EditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.Property;
 
@@ -100,11 +101,7 @@ public class OptionsWindow extends JDialog implements PropertyChangeListener
         
         props.add( general );
         
-        FlaggedList gameData = new FlaggedList( "Game Data", true );
-        
-        EDPrivilegedAccess.getEditorPresetsProperties( editor.getEditorPresets(), new DefaultWidgetPropertiesContainer( gameData ) );
-        
-        props.add( gameData );
+        EDPrivilegedAccess.getEditorPresetsProperties( editor.getEditorPresets(), new DefaultWidgetPropertiesContainer( props ) );
     }
     
     private Component createPropertiesEditor()
@@ -158,6 +155,7 @@ public class OptionsWindow extends JDialog implements PropertyChangeListener
     
     private void apply()
     {
+        __GDPrivilegedAccess.applyEditorPresets( editor.getEditorPresets(), editor.getGameData() );
         editor.getEditorPanel().getWidgetsDrawingManager().setAllDirtyFlags();
         editor.getEditorPanel().repaint();
         

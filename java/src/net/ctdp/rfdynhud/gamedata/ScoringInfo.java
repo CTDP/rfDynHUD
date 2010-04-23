@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
 
@@ -352,7 +353,15 @@ public class ScoringInfo
         return ( extrapolationTime );
     }
     
-    void onDataUpdated()
+    void applyEditorPresets( EditorPresets editorPresets )
+    {
+        if ( editorPresets == null )
+            return;
+        
+        getPlayersVehicleScoringInfo().setDriverName( editorPresets.getDriverName() );
+    }
+    
+    void onDataUpdated( EditorPresets editorPresets )
     {
         this.updateID++;
         updateTimestamp = System.nanoTime();
@@ -366,6 +375,8 @@ public class ScoringInfo
         
         sessionBaseNanos = Math.round( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) * 1000000000.0 );
         updateSessionTime( updateTimestamp );
+        
+        applyEditorPresets( editorPresets );
         
         if ( updateListeners != null )
         {
@@ -540,7 +551,7 @@ public class ScoringInfo
         return ( sessionID );
     }
     
-    void loadFromStream( InputStream in ) throws IOException
+    void loadFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
     {
         prepareDataUpdate();
         
@@ -565,7 +576,7 @@ public class ScoringInfo
             vehicleScoringInfo[i].loadFromStream( in );
         }
         
-        onDataUpdated();
+        onDataUpdated( editorPresets );
     }
     
     /**

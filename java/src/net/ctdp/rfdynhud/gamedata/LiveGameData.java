@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.File;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.Track;
@@ -61,6 +62,11 @@ public class LiveGameData
     private int lastTrackRaceLaps = -1;
     private File lastAIWFile = null;
     private Track lastTrack = null;
+    
+    void applyEditorPresets( EditorPresets editorPresets )
+    {
+        scoringInfo.applyEditorPresets( editorPresets );
+    }
     
     /**
      * <p>
