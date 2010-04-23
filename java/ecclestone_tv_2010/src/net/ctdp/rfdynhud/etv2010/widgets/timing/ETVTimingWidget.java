@@ -11,7 +11,6 @@ import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
-import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
@@ -43,7 +42,7 @@ public class ETVTimingWidget extends Widget
     private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
     private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
     private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
-    private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
+    private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
     private final ColorProperty dataBackgroundColorFaster = new ColorProperty( this, "dataBgColorFaster", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_FASTER );
     private final ColorProperty dataBackgroundColorSlower = new ColorProperty( this, "dataBgColorSlower", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_SLOWER );
     private final ColorProperty dataColorFaster = new ColorProperty( this, "dataColorFaster", ETVUtils.ETV_STYLE_DATA_FONT_COLOR_FASTER );
@@ -149,9 +148,9 @@ public class ETVTimingWidget extends Widget
     }
     
     @Override
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onSessionStarted( sessionType, gameData, editorPresets );
+        super.onRealtimeEntered( gameData, editorPresets );
         
         ownPlace.reset();
         ownLaptime.reset();
@@ -161,6 +160,8 @@ public class ETVTimingWidget extends Widget
         
         referenceTime = null;
         referencePlace = 0;
+        
+        forceCompleteRedraw();
     }
     
     /**
@@ -188,7 +189,7 @@ public class ETVTimingWidget extends Widget
         
         lapState.update( ls );
         
-        if ( ls != LapState.AFTER_SECTOR1_START )
+        if ( ( ls != LapState.AFTER_SECTOR1_START ) && ( ( vsi.getStintLength() % 1.0f ) > 0.1f ) )
         {
             referenceTime = relTime;
             referencePlace = refVSI.getPlace();
@@ -221,7 +222,7 @@ public class ETVTimingWidget extends Widget
             return;
         }
         
-        if ( ls == LapState.SOMEWHERE )
+        if ( ( ls == LapState.SOMEWHERE ) || ( ls == LapState.OUTLAP ) )
         {
             setVisible( false );
             return;
@@ -330,7 +331,7 @@ public class ETVTimingWidget extends Widget
         {
             if ( ls.isBeforeSectorEnd() )
             {
-                dataBgColor = captionBackgroundColor1st.getColor();
+                dataBgColor = dataBackgroundColor1st.getColor();
             }
             else if ( ls.isAfterSectorStart() )
             {
