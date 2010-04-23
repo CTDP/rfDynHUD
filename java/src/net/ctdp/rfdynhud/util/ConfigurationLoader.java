@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import javax.swing.JOptionPane;
+
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -34,7 +36,7 @@ public class ConfigurationLoader
      * 
      * @throws IOException
      */
-    private static void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private static void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         widgetsConfig.clear( gameData, editorPresets, clearListener );
         
@@ -76,18 +78,32 @@ public class ConfigurationLoader
                     java.awt.Color color = ColorUtils.hexToColor( value, false );
                     
                     if ( color == null )
-                        Logger.log( "ERROR: Illegal color value: " + value );
+                    {
+                        Logger.log( "ERROR: Illegal color value on line #" + lineNr + ": " + value );
+                        
+                        if ( editorPresets != null )
+                            JOptionPane.showMessageDialog( null, "ERROR: Illegal color value on line #" + lineNr + ": " + value, "Error loading config ini", JOptionPane.ERROR_MESSAGE );
+                    }
                     else
+                    {
                         widgetsConfig.addNamedColor( key, color );
+                    }
                 }
                 else if ( group.equals( "NamedFonts" ) )
                 {
                     java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResY(), false );
                     
                     if ( font == null )
-                        Logger.log( "ERROR: Illegal font value: " + value );
+                    {
+                        Logger.log( "ERROR: Illegal font value on line #" + lineNr + ": " + value );
+                        
+                        if ( editorPresets != null )
+                            JOptionPane.showMessageDialog( null, "ERROR: Illegal font value on line #" + lineNr + ": " + value, "Error loading config ini", JOptionPane.ERROR_MESSAGE );
+                    }
                     else
+                    {
                         widgetsConfig.addNamedFont( key, value );
+                    }
                 }
                 else if ( group.equals( "BorderAliases" ) )
                 {
