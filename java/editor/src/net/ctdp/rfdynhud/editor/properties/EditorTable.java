@@ -190,7 +190,7 @@ public class EditorTable extends HierarchicalTable
             if ( editor != null )
             {
                 if ( WidgetPropertyChangeListener.needsAreaClear( property ) )
-                    editor.getEditorPanel().clearSelectedWidget();
+                    editor.getEditorPanel().clearSelectedWidgetRegion();
             }
             
             property.setValue( newValue );

@@ -93,7 +93,7 @@ public class Position
      * @param x
      * @param y
      */
-    public Position set( RelativePositioning positioning, float x, float y )
+    public boolean set( RelativePositioning positioning, float x, float y )
     {
         if ( widget.getConfiguration() != null )
         {
@@ -138,6 +138,8 @@ public class Position
         
         unbake();
         
+        boolean changed = false;
+        
         if ( ( positioning != this.positioning ) || ( x != this.x ) || ( y != this.y ) )
         {
             RelativePositioning oldPositioning = this.positioning;
@@ -154,10 +156,12 @@ public class Position
             widget.setDirtyFlag();
             
             __WPrivilegedAccess.onPositionChanged( oldPositioning, oldX, oldY, positioning, x, y, widget );
+            
+            changed = true;
         }
         widget.setDirtyFlag();
         
-        return ( this );
+        return ( changed );
     }
     
     /**
@@ -166,7 +170,7 @@ public class Position
      * @param x
      * @param y
      */
-    public final Position set( float x, float y )
+    public final boolean set( float x, float y )
     {
         return ( set( getPositioning(), x, y ) );
     }
@@ -176,7 +180,7 @@ public class Position
      * 
      * @param x
      */
-    public final Position setX( float x )
+    public final boolean setX( float x )
     {
         return ( set( getPositioning(), x, getY() ) );
     }
@@ -186,7 +190,7 @@ public class Position
      * 
      * @param y
      */
-    public final Position setY( float y )
+    public final boolean setY( float y )
     {
         return ( set( getPositioning(), getX(), y ) );
     }
@@ -200,7 +204,7 @@ public class Position
      * @param gameResX
      * @param gameResY
      */
-    public final Position setEffectivePosition( RelativePositioning positioning, int x, int y )
+    public final boolean setEffectivePosition( RelativePositioning positioning, int x, int y )
     {
         float scaleW = getScaleWidth();
         float scaleH = getScaleHeight();
@@ -223,25 +227,27 @@ public class Position
         else if ( positioning.isRight() )
             x = (int)scaleW - x - size.getEffectiveWidth();
         
+        boolean changed = false;
+        
         if ( Math.abs( this.x ) > PERCENT_OFFSET_CHECK_POSITIVE )
         {
             float hundretPercentW = getHundretPercentWidth();
             
             if ( Math.abs( this.y ) > PERCENT_OFFSET_CHECK_POSITIVE )
-                set( positioning, ( x < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)x / hundretPercentW, ( y < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)y / scaleH );
+                changed = set( positioning, ( x < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)x / hundretPercentW, ( y < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)y / scaleH );
             else
-                set( positioning, ( x < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)x / hundretPercentW, y );
+                changed = set( positioning, ( x < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)x / hundretPercentW, y );
         }
         else if ( Math.abs( this.y ) > PERCENT_OFFSET_CHECK_POSITIVE )
         {
-            set( positioning, x, ( y < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)y / scaleH );
+            changed = set( positioning, x, ( y < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)y / scaleH );
         }
         else
         {
-            set( positioning, x, y );
+            changed = set( positioning, x, y );
         }
         
-        return ( this );
+        return ( changed );
     }
     
     /**
@@ -252,7 +258,7 @@ public class Position
      * @param gameResX
      * @param gameResY
      */
-    public final Position setEffectivePosition( int x, int y )
+    public final boolean setEffectivePosition( int x, int y )
     {
         return ( setEffectivePosition( getPositioning(), x, y ) );
     }

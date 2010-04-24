@@ -102,17 +102,70 @@ public class EditorPanel extends JPanel
         else if ( gridSizeY.loadProperty( key, value ) );
     }
     
-    private void drawGrid()
+    private final boolean isGridUsed()
     {
         final int gridSizeX = this.gridSizeX.getIntegerValue();
         final int gridSizeY = this.gridSizeY.getIntegerValue();
         
-        if ( !drawGrid.getBooleanValue() || ( gridSizeX <= 1 ) || ( gridSizeY <= 1 ) )
+        return ( drawGrid.getBooleanValue() && ( gridSizeX > 1 ) && ( gridSizeY > 1 ) );
+    }
+    
+    public final int snapXToGrid( int x )
+    {
+        if ( !isGridUsed() )
+            return ( x );
+        
+        return ( Math.min( Math.round( x / (float)gridSizeX.getIntegerValue() ) * gridSizeX.getIntegerValue(), drawingManager.getGameResX() - 1 ) );
+    }
+    
+    public final int snapYToGrid( int y )
+    {
+        if ( !isGridUsed() )
+            return ( y );
+        
+        return ( Math.min( Math.round( y / (float)gridSizeY.getIntegerValue() ) * gridSizeY.getIntegerValue(), drawingManager.getGameResY() - 1 ) );
+    }
+    
+    public void snapWidgetToGrid( Widget widget )
+    {
+        if ( !isGridUsed() )
+            return;
+        
+        int x = widget.getPosition().getEffectiveX();
+        int y = widget.getPosition().getEffectiveY();
+        int w = widget.getSize().getEffectiveWidth();
+        int h = widget.getSize().getEffectiveHeight();
+        
+        x = snapXToGrid( x );
+        y = snapYToGrid( y );
+        w = snapXToGrid( x + w - 1 ) + 1 - x;
+        h = snapYToGrid( y + h - 1 ) + 1 - y;
+        
+        widget.getSize().setEffectiveSize( w, h );
+        widget.getPosition().setEffectivePosition( x, y );
+    }
+    
+    public void snapAllWidgetsToGrid()
+    {
+        final int n = drawingManager.getNumWidgets();
+        Widget[] widgets = new Widget[ n ];
+        for ( int i = 0; i < n; i++ )
+            widgets[i] = drawingManager.getWidget( i );
+        
+        for ( int i = 0; i < n; i++ )
+            snapWidgetToGrid( widgets[i] );
+    }
+    
+    private void drawGrid()
+    {
+        if ( !isGridUsed() )
             return;
         
         Graphics2D g2 = backgroundImage.createGraphics();
         g2.setColor( Color.BLACK );
         
+        final int gridSizeX = this.gridSizeX.getIntegerValue();
+        final int gridSizeY = this.gridSizeY.getIntegerValue();
         final int gameResX = drawingManager.getGameResX();
         final int gameResY = drawingManager.getGameResY();
         
@@ -213,12 +266,17 @@ public class EditorPanel extends JPanel
         //texture.clearOutline( SELECTION_COLOR, offsetX, offsetY, width, height, 2, false, null );
     }
     
-    public void clearSelectedWidget()
+    public void clearWidgetRegion( Widget widget )
     {
-        if ( selectedWidget == null )
+        if ( widget == null )
             return;
         
-        selectedWidget.clearRegion( true, overlay );
+        widget.clearRegion( true, overlay );
+    }
+    
+    public void clearSelectedWidgetRegion()
+    {
+        clearWidgetRegion( selectedWidget );
     }
     
     private long frameIndex = 0;

@@ -145,7 +145,7 @@ public class Size
      * @param width
      * @param height
      */
-    public Size set( float width, float height )
+    public boolean set( float width, float height )
     {
         if ( widget.getConfiguration() != null )
         {
@@ -170,6 +170,8 @@ public class Size
         
         unbake();
         
+        boolean changed = false;
+        
         if ( ( width != this.width ) || ( height != this.height ) )
         {
             float oldWidth = this.width;
@@ -183,10 +185,12 @@ public class Size
             widget.forceAndSetDirty();
             
             __WPrivilegedAccess.onSizeChanged( oldWidth, oldHeight, width, height, widget );
+            
+            changed = true;
         }
         //widget.setDirtyFlag();
         
-        return ( this );
+        return ( changed );
     }
     
     /**
@@ -194,7 +198,7 @@ public class Size
      * 
      * @param width
      */
-    public Size setWidth( float width )
+    public boolean setWidth( float width )
     {
         return ( set( width, getHeight() ) );
     }
@@ -204,7 +208,7 @@ public class Size
      * 
      * @param height
      */
-    public Size setHeight( float height )
+    public boolean setHeight( float height )
     {
         return ( set( getWidth(), height ) );
     }
@@ -217,7 +221,7 @@ public class Size
      * @param gameResX
      * @param gameResY
      */
-    public final Size setEffectiveSize( int width, int height )
+    public final boolean setEffectiveSize( int width, int height )
     {
         float scaleW = getScaleWidth();
         float scaleH = getScaleHeight();
@@ -236,27 +240,29 @@ public class Size
         if ( this.height <= 0f )
             height -= (int)scaleH;
         
+        boolean changed = false;
+        
         if ( Math.abs( this.width ) > PERCENT_OFFSET_CHECK_POSITIVE )
         {
             float hundretPercentW = ( this.width <= 0f ) ? scaleW : getHundretPercentWidth();
             
             if ( Math.abs( this.height ) > PERCENT_OFFSET_CHECK_POSITIVE )
-                set( ( width <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)width / hundretPercentW, ( height <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)height / scaleH );
+                changed = set( ( width <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)width / hundretPercentW, ( height <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)height / scaleH );
             else
-                set( ( width <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)width / hundretPercentW, height );
+                changed = set( ( width <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)width / hundretPercentW, height );
         }
         else if ( Math.abs( this.height ) > PERCENT_OFFSET_CHECK_POSITIVE )
         {
-            set( width, ( height <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)height / scaleH );
+            changed = set( width, ( height <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)height / scaleH );
         }
         else
         {
-            set( width, height );
+            changed = set( width, height );
         }
         
         applyLimits();
         
-        return ( this );
+        return ( changed );
     }
     
     /**

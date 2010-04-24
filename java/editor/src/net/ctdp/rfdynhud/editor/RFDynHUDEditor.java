@@ -1136,6 +1136,39 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         JMenu menu = new JMenu( "Edit" );
         menu.setDisplayedMnemonicIndex( 0 );
         
+        JMenuItem snapWidgetToGrid = new JMenuItem( "Snap selected Widget to grid" );
+        snapWidgetToGrid.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                Widget widget = getEditorPanel().getSelectedWidget();
+                if ( widget != null )
+                {
+                    getEditorPanel().clearWidgetRegion( widget );
+                    getEditorPanel().snapWidgetToGrid( widget );
+                    onWidgetSelected( widget );
+                    getEditorPanel().repaint();
+                }
+            }
+        } );
+        menu.add( snapWidgetToGrid );
+        
+        JMenuItem snapAllWidgetsToGrid = new JMenuItem( "Snap all Widgets to grid" );
+        snapAllWidgetsToGrid.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                for ( int i = 0; i < getEditorPanel().getWidgetsDrawingManager().getNumWidgets(); i++ )
+                    getEditorPanel().clearWidgetRegion( getEditorPanel().getWidgetsDrawingManager().getWidget( i ) );
+                getEditorPanel().snapAllWidgetsToGrid();
+                onWidgetSelected( getEditorPanel().getSelectedWidget() );
+                getEditorPanel().repaint();
+            }
+        } );
+        menu.add( snapAllWidgetsToGrid );
+        
+        menu.addSeparator();
+        
         JMenuItem makeAllPixels = new JMenuItem( "Make all Widgets use Pixels" );
         makeAllPixels.addActionListener( new ActionListener()
         {
