@@ -368,7 +368,7 @@ public class MiscWidget extends Widget
                     oldLapsRemaining = rounded;
                     
                     String string;
-                    if ( ( scoringInfo.getSessionType() == SessionType.RACE ) && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )
+                    if ( scoringInfo.getSessionType().isRace() && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )
                     {
                         string = "0 / " + maxLaps + " / " + maxLaps;
                     }

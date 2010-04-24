@@ -174,6 +174,9 @@ public class RFactorTools
         
         File[] profileCandidates = userDataFolder.listFiles( DIRECTORY_FILE_FILTER );
         
+        if ( profileCandidates == null )
+            return ( null );
+        
         File profilePLR = null;
         for ( File p : profileCandidates )
         {

@@ -25,9 +25,8 @@ public class ScoringInfo
     private static final int OFFSET_RESULTS_STREAM = OFFSET_LAP_DISTANCE + ByteUtil.SIZE_FLOAT;
     
     private static final int OFFSET_NUM_VEHICLES = OFFSET_RESULTS_STREAM + ByteUtil.SIZE_POINTER; // Is it just the pointer to be offsetted or the whole stream???
-    private static final int OFFSET_VEHICLES = OFFSET_NUM_VEHICLES + ByteUtil.SIZE_LONG;
     
-    private static final int OFFSET_GAME_PHASE = OFFSET_VEHICLES + ByteUtil.SIZE_POINTER; // The same question again. Is it the whole array to be offsetted?
+    private static final int OFFSET_GAME_PHASE = OFFSET_NUM_VEHICLES + ByteUtil.SIZE_LONG;
     private static final int OFFSET_YELLOW_FLAG_STATE = OFFSET_GAME_PHASE + ByteUtil.SIZE_CHAR;
     private static final int OFFSET_SECTOR_FLAGS = OFFSET_YELLOW_FLAG_STATE + ByteUtil.SIZE_CHAR;
     private static final int OFFSET_STARTING_LIGHT_FRAME = OFFSET_SECTOR_FLAGS + 3 * ByteUtil.SIZE_CHAR;
@@ -46,7 +45,11 @@ public class ScoringInfo
     private static final int OFFSET_ON_PATH_WETNESS = OFFSET_WIND_SPEED + ByteUtil.SIZE_VECTOR3;
     private static final int OFFSET_OFF_PATH_WETNESS = OFFSET_ON_PATH_WETNESS + ByteUtil.SIZE_FLOAT;
     
-    private static final int BUFFER_SIZE = OFFSET_OFF_PATH_WETNESS + ByteUtil.SIZE_FLOAT + ( 256 * ByteUtil.SIZE_CHAR ); // + ( 1 * VehicleScoringInfo.BUFFER_SIZE ); // How many vehicles?
+    private static final int OFFSET_EXPANSION = OFFSET_OFF_PATH_WETNESS + ByteUtil.SIZE_FLOAT;
+    
+    private static final int OFFSET_VEHICLES = OFFSET_EXPANSION + ( 256 * ByteUtil.SIZE_CHAR );
+    
+    private static final int BUFFER_SIZE = OFFSET_VEHICLES + ByteUtil.SIZE_FLOAT /*+ ( 256 * ByteUtil.SIZE_CHAR )*/; // + ( 1 * VehicleScoringInfo.BUFFER_SIZE ); // How many vehicles?
     
     final byte[] buffer = new byte[ BUFFER_SIZE ];
     
@@ -778,9 +781,7 @@ public class ScoringInfo
         if ( ( sector < 1 ) || ( sector > 3 ) )
             throw new IllegalArgumentException( "Sector must be in range [1, 3]" );
         
-        // (not sure if sector 0 is first or last, so test)
-        
-        short flag = ByteUtil.readByte( buffer, OFFSET_SECTOR_FLAGS + ( sector - 1 ) * 2 );
+        short flag = ByteUtil.readByte( buffer, OFFSET_SECTOR_FLAGS + ( sector % 3 ) );
         
         return ( flag != 0 );
     }

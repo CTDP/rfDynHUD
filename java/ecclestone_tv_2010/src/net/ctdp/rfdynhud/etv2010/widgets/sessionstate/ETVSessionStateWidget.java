@@ -78,12 +78,12 @@ public class ETVSessionStateWidget extends Widget
     
     private String caption = LAPS_CAPTION;
     
+    private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
     private final EnumValue<YellowFlagState> yellowFlagState = new EnumValue<YellowFlagState>( YellowFlagState.NONE );
     private final BoolValue sectorYellowFlag = new BoolValue();
     
     private final IntValue lap = new IntValue();
     private final FloatValue sessionTime = new FloatValue( -1f, 0.1f );
-    private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
     
     private Color dataBgColor = Color.MAGENTA;
     private Color dataFontColor = Color.GREEN;
@@ -259,11 +259,13 @@ public class ETVSessionStateWidget extends Widget
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
+        gamePhase.update( scoringInfo.getGamePhase() );
         yellowFlagState.update( scoringInfo.getYellowFlagState() );
-        //sectorYellowFlag.update( scoringInfo.getSectorYellowFlag( scoringInfo.getPlayersVehicleScoringInfo().getSector() ) );
-        sectorYellowFlag.update( false );
+        sectorYellowFlag.update( scoringInfo.getSectorYellowFlag( scoringInfo.getPlayersVehicleScoringInfo().getSector() ) );
         
         boolean changed = false;
+        if ( gamePhase.hasChanged() )
+            changed = true;
         if ( yellowFlagState.hasChanged() )
             changed = true;
         if ( sectorYellowFlag.hasChanged() )
@@ -271,10 +273,20 @@ public class ETVSessionStateWidget extends Widget
         
         dataBgColor = getBackgroundColor();
         dataFontColor = getFontColor();
-        if ( ( yellowFlagState.getValue() != YellowFlagState.NONE ) || sectorYellowFlag.getValue() )
+        if ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( gamePhase.getValue() == GamePhase.FULL_COURSE_YELLOW ) || sectorYellowFlag.getValue() )
         {
             dataBgColor = Color.YELLOW;
             dataFontColor = Color.BLACK;
+        }
+        else if ( gamePhase.getValue() == GamePhase.GREEN_FLAG )
+        {
+            dataBgColor = Color.GREEN;
+            dataFontColor = Color.WHITE;
+        }
+        else if ( gamePhase.getValue() == GamePhase.SESSION_STOPPED )
+        {
+            dataBgColor = Color.RED;
+            dataFontColor = Color.WHITE;
         }
         
         if ( updateSessionLimit( gameData ) )
@@ -328,14 +340,13 @@ public class ETVSessionStateWidget extends Widget
         if ( sessionLimit == SessionLimit.TIME )
         {
             sessionTime.update( gameData.getScoringInfo().getSessionTime() );
-            gamePhase.update( scoringInfo.getGamePhase() );
             float totalTime = gameData.getScoringInfo().getEndTime();
             if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase.hasChanged( false ) ) ) )
             {
                 sessionTime.setUnchanged();
                 gamePhase.setUnchanged();
                 
-                if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
+                if ( scoringInfo.getSessionType().isRace() && ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
                     stateString.draw( offsetX, offsetY, "--:--:--", dataBgColor, dataFontColor, texture );
                 else if ( scoringInfo.getSessionType().isTestDay() || ( totalTime < 0f ) || ( totalTime > 3000000f ) )
                     stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), dataBgColor, dataFontColor, texture );
@@ -345,7 +356,7 @@ public class ETVSessionStateWidget extends Widget
         }
         else
         {
-            if ( ( scoringInfo.getSessionType() == SessionType.RACE ) && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )
+            if ( scoringInfo.getSessionType().isRace() && ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) )
                 lap.update( 0 );
             else if ( lapDisplayType.getValue() == LapDisplayType.CURRENT_LAP )
                 lap.update( vsi.getCurrentLap() );
