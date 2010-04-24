@@ -56,6 +56,10 @@ public class EditorPanel extends JPanel
         }
         
         cacheGraphics.drawImage( backgroundImage, 0, 0, null );
+        
+        if ( drawingManager != null )
+            drawingManager.setAllDirtyFlags();
+        oldWidgetRects.clear();
     }
     
     public final BufferedImage getBackgroundImage()
@@ -138,12 +142,16 @@ public class EditorPanel extends JPanel
     
     private long frameIndex = 0;
     
-    @Override
-    public void paintComponent( Graphics g )
+    public void drawWidgets( Graphics2D g2, boolean drawEverything )
     {
-        //super.paintComponent( g );
+        HashMap<Widget, Rect2i> oldWidgetRects = this.oldWidgetRects;;
         
-        //System.out.println( "paintComponent()" );
+        if ( drawEverything )
+        {
+            oldWidgetRects = new HashMap<Widget, Rect2i>();
+            
+            drawingManager.setAllDirtyFlags();
+        }
         
         frameIndex++;
         
@@ -224,17 +232,27 @@ public class EditorPanel extends JPanel
                 oldWidgetRect.set( offsetX, offsetY, width, height );
             }
             
-            g.drawImage( cacheImage, 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), null );
+            g2.drawImage( cacheImage, 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), null );
             
             if ( selectedWidget != null )
             {
-                drawSelection( selectedWidget, (Graphics2D)g );
+                drawSelection( selectedWidget, g2 );
             }
         }
         catch ( Throwable t )
         {
             Logger.log( t );
         }
+    }
+    
+    @Override
+    public void paintComponent( Graphics g )
+    {
+        //super.paintComponent( g );
+        
+        //System.out.println( "paintComponent()" );
+        
+        drawWidgets( (Graphics2D)g, false );
     }
     
     public EditorPanel( RFDynHUDEditor editor, BufferedImage backgroundImage, LiveGameData gameData, TextureImage2D overlay, WidgetsDrawingManager drawingManager )

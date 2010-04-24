@@ -41,11 +41,20 @@ public class RFactorTools
         {
             if ( s.contains( "rfdynhud.jar" ) )
                 return ( stripDotDots( s ).getParentFile().getParentFile().getParent() );
-            else if ( s.contains( "rfdynhud_editor.jar" ) )
+            
+            if ( s.contains( "rfdynhud_editor.jar" ) )
                 return ( stripDotDots( s ).getParentFile().getParentFile().getParentFile().getParent() );
         }
         
-        return ( "" );
+        File f = new File( "." );
+        try
+        {
+            return ( f.getCanonicalFile().getAbsolutePath() );
+        }
+        catch ( IOException e )
+        {
+            return ( "" );
+        }
     }
     
     private static File getRFConfigINIPath( File rFactorFolder, final String setting, String def )
@@ -148,6 +157,11 @@ public class RFactorTools
     public static File getUserDataFolder()
     {
         return ( getRFConfigINIPath( RFACTOR_FOLDER, "SaveDir", "UserData" ) );
+    }
+    
+    public static File getUserScreenShotsFolder()
+    {
+        return ( new File( getUserDataFolder(), "ScreenShots" ) );
     }
     
     public static File getProfileFolder( File userDataFolder )

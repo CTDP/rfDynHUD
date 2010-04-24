@@ -12,6 +12,7 @@ import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -463,5 +464,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     public WidgetsDrawingManager( TransformableTexture overlayTT )
     {
         this.textures = new TransformableTexture[] { overlayTT };
+        
+        __WCPrivilegedAccess.setGameResolution( overlayTT.getWidth(), overlayTT.getHeight(), this );
     }
 }

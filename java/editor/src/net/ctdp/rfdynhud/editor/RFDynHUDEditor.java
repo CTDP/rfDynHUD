@@ -77,6 +77,7 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -406,6 +407,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( new File( RFactorTools.EDITOR_PATH ) );
     }
     
+    private static File getEditorSettingsFile()
+    {
+        return ( new File( getSettingsDir(), "editor_settings.ini" ) );
+    }
+    
     private void writeLastConfig( IniWriter writer ) throws Throwable
     {
         if ( ( currentConfigFile != null ) && currentConfigFile.exists() )
@@ -425,7 +431,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     private void saveUserSettings( int extendedState )
     {
-        File userSettingsFile = new File( getSettingsDir(), "editor_settings.ini" );
+        File userSettingsFile = getEditorSettingsFile();
         
         IniWriter writer = null;
         try
@@ -488,9 +494,75 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
+    private int[] loadResolutionFromUserSettings()
+    {
+        File userSettingsFile = getEditorSettingsFile();
+        
+        final boolean[] resFound = { false };
+        final int[] resolution = new int[ 2 ];
+        
+        if ( userSettingsFile.exists() )
+        {
+            try
+            {
+                new AbstractIniParser()
+                {
+                    protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
+                    {
+                        if ( group == null )
+                        {
+                            
+                        }
+                        else if ( group.equals( "General" ) )
+                        {
+                            if ( key.equals( "resolution" ) )
+                            {
+                                try
+                                {
+                                    String[] ss = value.split( "x" );
+                                    int resX = Integer.parseInt( ss[0] );
+                                    int resY = Integer.parseInt( ss[1] );
+                                    if ( checkResolution( resX, resY ) )
+                                    {
+                                        resolution[0] = resX;
+                                        resolution[1] = resY;
+                                        resFound[0] = true;
+                                        
+                                        return ( false );
+                                    }
+                                }
+                                catch ( Throwable t )
+                                {
+                                    t.printStackTrace();
+                                }
+                            }
+                        }
+                        
+                        return ( true );
+                    }
+                }.parse( userSettingsFile );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
+        }
+        
+        if ( !resFound[0] )
+        {
+            GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            DisplayMode dm = graphDev.getDisplayMode();
+            
+            resolution[0] = dm.getWidth();
+            resolution[1] = dm.getHeight();
+        }
+        
+        return ( resolution );
+    }
+    
     private boolean loadUserSettings()
     {
-        File userSettingsFile = new File( getSettingsDir(), "editor_settings.ini" );
+        File userSettingsFile = getEditorSettingsFile();
         
         if ( !userSettingsFile.exists() )
             return ( false );
@@ -509,17 +581,17 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     {
                         if ( key.equals( "resolution" ) )
                         {
-                            if ( checkResolution( value ) )
+                            try
                             {
-                                try
-                                {
-                                    String[] ss = value.split( "x" );
-                                    switchToGameResolution( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
-                                }
-                                catch ( Throwable t )
-                                {
-                                    t.printStackTrace();
-                                }
+                                String[] ss = value.split( "x" );
+                                int resX = Integer.parseInt( ss[0] );
+                                int resY = Integer.parseInt( ss[1] );
+                                if ( ( ( gameResX != resX ) || ( gameResY != resY ) ) && checkResolution( resX, resY ) )
+                                    switchToGameResolution( resX, resY );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
                             }
                         }
                         else if ( key.equals( "defaultScaleType" ) )
@@ -941,12 +1013,16 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( widget );
     }
     
+    private File getBackgroundImageFile( int width, int height )
+    {
+        return ( new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + screenshotSet + File.separator + "background_" + width + "x" + height + ".jpg" ) );
+    }
+    
     private BufferedImage loadBackgroundImage( int width, int height )
     {
         try
         {
-            //return ( ImageIO.read( RFDynHUDEditor.class.getClassLoader().getResource( "data/background_" + width + "x" + height + ".jpg" ) ) );
-            return ( ImageIO.read( new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + screenshotSet + File.separator + "background_" + width + "x" + height + ".jpg" ) ) );
+            return ( ImageIO.read( getBackgroundImageFile( width, height ) ) );
         }
         catch ( IOException e )
         {
@@ -989,6 +1065,34 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         this.screenshotSet = screenshotSet;
         switchToGameResolution( gameResX, gameResY );
+    }
+    
+    private void takeScreenshot()
+    {
+        BufferedImage img = new BufferedImage( gameResX, gameResY, BufferedImage.TYPE_3BYTE_BGR );
+        
+        getEditorPanel().drawWidgets( img.createGraphics(), true );
+        
+        try
+        {
+            File folder = RFactorTools.getUserScreenShotsFolder();
+            folder.mkdirs();
+            
+            String filenameBase = ( currentConfigFile == null ) ? "rfDynHUD_screenshot_" : "rfDynHUD_" + currentConfigFile.getName().replace( ".", "_" ) + "_";
+            int i = 0;
+            File f = new File( folder, filenameBase + Tools.padLeft( i, 3, "0" ) + ".png" );
+            while ( f.exists() )
+            {
+                i++;
+                f = new File( folder, filenameBase + Tools.padLeft( i, 3, "0" ) + ".png" );
+            }
+            
+            ImageIO.write( img, "PNG", f );
+        }
+        catch ( IOException e )
+        {
+            Logger.log( e );
+        }
     }
     
     private JMenu createFileMenu()
@@ -1360,16 +1464,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
-    private boolean checkResolution( String resString )
-    {
-        //URL url = RFDynHUDEditor.class.getClassLoader().getResource( "data/background_" + resString + ".jpg" );
-        File file = new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + screenshotSet + File.separator + "background_" + resString + ".jpg" );
-        return ( file.exists() );
-    }
-    
     private boolean checkResolution( int resX, int resY )
     {
-        return ( checkResolution( resX + "x" + resY ) );
+        return ( getBackgroundImageFile( resX, resY ).exists() );
     }
     
     private JMenu createScreenshotSetsMenu()
@@ -1435,7 +1532,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             
             final String resString = dm.w + "x" + dm.h;
             
-            if ( !checkResolution( resString ) )
+            if ( !checkResolution( dm.w, dm.h ) )
             {
                 item = new JMenuItem( resString + " [" + dm.a + "] (no screenshot available)" );
                 item.setEnabled( false );
@@ -1486,6 +1583,18 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         JMenu menu = new JMenu( "Tools" );
         menu.setDisplayedMnemonicIndex( 0 );
+        
+        JMenuItem screenshotItem = new JMenuItem( "Take Screenshot" );
+        screenshotItem.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                takeScreenshot();
+            }
+        } );
+        menu.add( screenshotItem );
+        
+        menu.addSeparator();
         
         JMenuItem manangerItem = new JMenuItem( "Open Strategy Calculator..." );
         manangerItem.addActionListener( new ActionListener()
@@ -1593,7 +1702,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     private EditorPanel createEditorPanel()
     {
-        BufferedImage backgroundImage = loadBackgroundImage( 1920, 1200 );
+        int[] resolution = loadResolutionFromUserSettings();
+        
+        BufferedImage backgroundImage = loadBackgroundImage( resolution[0], resolution[1] );
         this.gameResX = backgroundImage.getWidth();
         this.gameResY = backgroundImage.getHeight();
         TransformableTexture overlayTexture = __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY );
