@@ -1148,6 +1148,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     getEditorPanel().snapWidgetToGrid( widget );
                     onWidgetSelected( widget );
                     getEditorPanel().repaint();
+                    setDirtyFlag();
                 }
             }
         } );
@@ -1163,6 +1164,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 getEditorPanel().snapAllWidgetsToGrid();
                 onWidgetSelected( getEditorPanel().getSelectedWidget() );
                 getEditorPanel().repaint();
+                setDirtyFlag();
             }
         } );
         menu.add( snapAllWidgetsToGrid );
