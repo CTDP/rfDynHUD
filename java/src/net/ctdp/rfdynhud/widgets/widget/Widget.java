@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 
-import org.openmali.types.twodee.Rect2i;
-
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -16,7 +14,6 @@ import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
@@ -34,6 +31,8 @@ import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
+import org.openmali.types.twodee.Rect2i;
+
 /**
  * This is the base for all Widgets to be drawn on the HUD.<br>
  * Any concrete extension must have a parameterless constructor.
@@ -49,6 +48,8 @@ public abstract class Widget implements Documented
     private Object localStore = null;
     
     private boolean dirtyFlag = true;
+    
+    private final StringProperty type = new StringProperty( this, "type", Widget.this.getClass().getSimpleName(), true );
     
     private final StringProperty name = new StringProperty( this, "name", "" );
     
@@ -1010,19 +1011,7 @@ public abstract class Widget implements Documented
     {
         propsCont.addGroup( "General" );
         
-        propsCont.addProperty( new Property( "type", true, PropertyEditorType.STRING )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( Widget.this.getClass().getSimpleName() );
-            }
-        } );
+        propsCont.addProperty( type );
         
         propsCont.addProperty( name );
         propsCont.addProperty( position.createPositioningProperty( "positioning" ) );

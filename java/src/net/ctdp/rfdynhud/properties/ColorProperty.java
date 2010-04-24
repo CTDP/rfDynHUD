@@ -16,7 +16,6 @@ public class ColorProperty extends Property
     public static final Color FALLBACK_COLOR = Color.MAGENTA;
     
     private final WidgetsConfiguration widgetsConf;
-    private final Widget widget;
     
     private String colorKey;
     private Color color = null;
@@ -30,11 +29,6 @@ public class ColorProperty extends Property
             return ( "#C0BC3D" );
         
         return ( null );
-    }
-    
-    public final Widget getWidget()
-    {
-        return ( widget );
     }
     
     protected void onValueChanged( String oldValue, String newValue )
@@ -143,10 +137,9 @@ public class ColorProperty extends Property
     
     private ColorProperty( WidgetsConfiguration widgetsConf, Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        super( propertyName, nameForDisplay, readonly, PropertyEditorType.COLOR, null, null );
+        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.COLOR, null, null );
         
         this.widgetsConf = widgetsConf;
-        this.widget = widget;
         this.colorKey = defaultValue;
     }
     

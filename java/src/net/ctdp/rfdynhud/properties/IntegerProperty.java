@@ -5,17 +5,10 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class IntegerProperty extends Property
 {
-    private final Widget widget;
-    
     private int value;
     
     private final int minValue;
     private final int maxValue;
-    
-    public final Widget getWidget()
-    {
-        return ( widget );
-    }
     
     protected void onValueChanged( int oldValue, int newValue )
     {
@@ -77,9 +70,8 @@ public class IntegerProperty extends Property
     
     public IntegerProperty( Widget widget, String propertyName, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
-        super( propertyName, nameForDisplay, readonly, PropertyEditorType.INTEGER, null, null );
+        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.INTEGER, null, null );
         
-        this.widget = widget;
         this.value = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;

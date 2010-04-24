@@ -529,7 +529,7 @@ public class Position
     
     public Property createPositioningProperty( String name )
     {
-        Property prop = new Property( name, PropertyEditorType.ENUM )
+        Property prop = new Property( widget, name, PropertyEditorType.ENUM )
         {
             @Override
             public void setValue( Object value )
@@ -561,7 +561,7 @@ public class Position
     
     public PosSizeProperty createXProperty( String name )
     {
-        PosSizeProperty prop = new PosSizeProperty( name, false, false )
+        PosSizeProperty prop = new PosSizeProperty( widget, name, false, false )
         {
             @Override
             public void setValue( Object value )
@@ -595,7 +595,7 @@ public class Position
     
     public PosSizeProperty createYProperty( String name )
     {
-        PosSizeProperty prop = new PosSizeProperty( name, false, false )
+        PosSizeProperty prop = new PosSizeProperty( widget, name, false, false )
         {
             @Override
             public void setValue( Object value )

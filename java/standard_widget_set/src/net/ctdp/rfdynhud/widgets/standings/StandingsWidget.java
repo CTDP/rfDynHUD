@@ -796,7 +796,7 @@ public class StandingsWidget extends Widget
         propsCont.addProperty( fontColor_out );
         propsCont.addProperty( fontColor_finished );
         propsCont.addProperty( useAutoWidth );
-        propsCont.addProperty( new Property( "initialView", PropertyEditorType.ENUM )
+        propsCont.addProperty( new Property( this, "initialView", PropertyEditorType.ENUM )
         {
             @Override
             public void setValue( Object value )

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import net.ctdp.rfdynhud.RFDynHUD;
-import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -48,28 +47,7 @@ public class ConfigurationSaver
             writer.writeSetting( alias, widgetsConfig.getBorderName( alias ) );
         }
         
-        final WidgetsConfigurationWriter confWriter = new WidgetsConfigurationWriter()
-        {
-            public void writeProperty( String key, Object value, String comment ) throws IOException
-            {
-                writer.writeSetting( key, value, comment );
-            }
-            
-            public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException
-            {
-                writer.writeSetting( key, value, quoteValue, comment );
-            }
-            
-            public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
-            {
-                writer.writeSetting( property.getPropertyName(), property.getValue(), quoteValue, comment );
-            }
-            
-            public void writeProperty( Property property, String comment ) throws IOException
-            {
-                writer.writeSetting( property.getPropertyName(), property.getValue(), comment );
-            }
-        };
+        WidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( writer );
         
         int n = widgetsConfig.getNumWidgets();
         for ( int i = 0; i < n; i++ )

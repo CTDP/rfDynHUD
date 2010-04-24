@@ -425,7 +425,7 @@ public class MapWidget extends Widget
         
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( new Property( "itemRadius", PropertyEditorType.INTEGER )
+        propsCont.addProperty( new Property( this, "itemRadius", PropertyEditorType.INTEGER )
         {
             @Override
             public void setValue( Object value )

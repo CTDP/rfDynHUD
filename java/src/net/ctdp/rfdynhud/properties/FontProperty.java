@@ -23,7 +23,6 @@ public class FontProperty extends Property
     private static final Graphics2D METRICS_PROVIDER = METRICS_PROVIDER_IMAGE.createGraphics();
     
     private final WidgetsConfiguration widgetsConf;
-    private final Widget widget;
     
     private String fontKey;
     private Font font = null;
@@ -52,11 +51,6 @@ public class FontProperty extends Property
             return ( "Monospaced-BOLD-14va" );
         
         return ( null );
-    }
-    
-    public final Widget getWidget()
-    {
-        return ( widget );
     }
     
     protected void onValueChanged( String oldValue, String newValue )
@@ -208,10 +202,9 @@ public class FontProperty extends Property
     
     private FontProperty( WidgetsConfiguration widgetsConf, Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        super( propertyName, nameForDisplay, readonly, PropertyEditorType.FONT, null, null );
+        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.FONT, null, null );
         
         this.widgetsConf = widgetsConf;
-        this.widget = widget;
         this.fontKey = defaultValue;
     }
     

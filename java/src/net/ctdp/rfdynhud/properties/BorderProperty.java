@@ -12,15 +12,9 @@ public class BorderProperty extends Property
     public static final String DEFAULT_BORDER_NAME = "StandardBorder";
     
     private final WidgetsConfiguration widgetsConf;
-    private final Widget widget;
     
     private String borderName;
     private BorderWrapper border = null;
-    
-    public final Widget getWidget()
-    {
-        return ( widget );
-    }
     
     protected void onValueChanged( String oldValue, String newValue )
     {
@@ -105,10 +99,9 @@ public class BorderProperty extends Property
     
     private BorderProperty( WidgetsConfiguration widgetsConf, Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        super( propertyName, nameForDisplay, readonly, PropertyEditorType.BORDER, null, null );
+        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.BORDER, null, null );
         
         this.widgetsConf = widgetsConf;
-        this.widget = widget;
         this.borderName = defaultValue;
     }
     

@@ -519,7 +519,7 @@ public class MiscWidget extends Widget
         propsCont.addProperty( lapDisplayType );
         propsCont.addProperty( displayVelocity );
         
-        propsCont.addProperty( new Property( "relTopspeedResetDelay", PropertyEditorType.INTEGER )
+        propsCont.addProperty( new Property( this, "relTopspeedResetDelay", PropertyEditorType.INTEGER )
         {
             @Override
             public void setValue( Object value )

@@ -9,6 +9,7 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
@@ -29,9 +30,7 @@ public class ControlsWidget extends Widget
         @Override
         protected void onValueChanged( boolean newValue )
         {
-            texClutch = null;
-            texBrake = null;
-            texThrottle = null;
+            resetTransTexs();
         }
     };
     private final BooleanProperty displayBrake = new BooleanProperty( this, "displayBrake", true )
@@ -39,9 +38,7 @@ public class ControlsWidget extends Widget
         @Override
         protected void onValueChanged( boolean newValue )
         {
-            texClutch = null;
-            texBrake = null;
-            texThrottle = null;
+            resetTransTexs();
         }
     };
     private final BooleanProperty displayThrottle = new BooleanProperty( this, "displayThrottle", true )
@@ -49,9 +46,7 @@ public class ControlsWidget extends Widget
         @Override
         protected void onValueChanged( boolean newValue )
         {
-            texClutch = null;
-            texBrake = null;
-            texThrottle = null;
+            resetTransTexs();
         }
     };
     
@@ -63,12 +58,25 @@ public class ControlsWidget extends Widget
     private TransformableTexture texBrake = null;
     private TransformableTexture texThrottle = null;
     
+    private void resetTransTexs()
+    {
+        texClutch = null;
+        texBrake = null;
+        texThrottle = null;
+    }
+    
     private final IntegerProperty gap = new IntegerProperty( this, "gap", 10 );
     
     @Override
     public String getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
+    }
+    
+    @Override
+    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    {
+        super.onPropertyChanged( property, oldValue, newValue );
     }
     
     private int initSubTextures( int widgetInnerWidth, int widgetInnerHeight )

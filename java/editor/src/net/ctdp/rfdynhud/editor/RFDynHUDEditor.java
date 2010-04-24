@@ -58,6 +58,7 @@ import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
+import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
@@ -279,7 +280,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         propsCont.addGroup( "General" );
         
-        propsCont.addProperty( new Property( "resolution", true, PropertyEditorType.STRING )
+        propsCont.addProperty( new Property( null, "resolution", true, PropertyEditorType.STRING )
         {
             @Override
             public void setValue( Object value )
@@ -293,7 +294,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
         } );
         
-        propsCont.addProperty( new Property( "screenshotSet", true, PropertyEditorType.STRING )
+        getEditorPanel().getProperties( propsCont );
+        
+        propsCont.addProperty( new Property( null, "screenshotSet", true, PropertyEditorType.STRING )
         {
             @Override
             public void setValue( Object value )
@@ -307,7 +310,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
         } );
         
-        propsCont.addProperty( new Property( "templateConfig", true, PropertyEditorType.STRING )
+        propsCont.addProperty( new Property( null, "templateConfig", true, PropertyEditorType.STRING )
         {
             @Override
             public void setValue( Object value )
@@ -437,9 +440,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         try
         {
             writer = new IniWriter( userSettingsFile );
+            WidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( writer );
             
             writer.writeGroup( "General" );
             writer.writeSetting( "resolution", gameResX + "x" + gameResY );
+            getEditorPanel().saveProperties( confWriter );
             writer.writeSetting( "defaultScaleType", optionsWindow.getDefaultScaleType() );
             writer.writeSetting( "screenshotSet", screenshotSet );
             writeLastConfig( writer );
@@ -454,30 +459,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             writer.writeSetting( "windowVisible", optionsWindowVisible );
             writer.writeSetting( "autoApply", optionsWindow.getAutoApply() );
             writer.writeGroup( "EditorPresets" );
-            
-            final IniWriter writer2 = writer;
-            final WidgetsConfigurationWriter confWriter = new WidgetsConfigurationWriter()
-            {
-                public void writeProperty( String key, Object value, String comment ) throws IOException
-                {
-                    writer2.writeSetting( key, value, comment );
-                }
-                
-                public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException
-                {
-                    writer2.writeSetting( key, value, quoteValue, comment );
-                }
-                
-                public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
-                {
-                    writer2.writeSetting( property.getPropertyName(), property.getValue(), quoteValue, comment );
-                }
-                
-                public void writeProperty( Property property, String comment ) throws IOException
-                {
-                    writer2.writeSetting( property.getPropertyName(), property.getValue(), comment );
-                }
-            };
             
             EDPrivilegedAccess.saveProperties( presets, confWriter );
         }
@@ -579,6 +560,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     }
                     else if ( group.equals( "General" ) )
                     {
+                        getEditorPanel().loadProperty( key, value );
+                        
                         if ( key.equals( "resolution" ) )
                         {
                             try
@@ -1018,7 +1001,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + screenshotSet + File.separator + "background_" + width + "x" + height + ".jpg" ) );
     }
     
-    private BufferedImage loadBackgroundImage( int width, int height )
+    public BufferedImage loadBackgroundImage( int width, int height )
     {
         try
         {

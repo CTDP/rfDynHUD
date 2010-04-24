@@ -5,14 +5,7 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class BooleanProperty extends Property
 {
-    private final Widget widget;
-    
     private boolean value;
-    
-    public final Widget getWidget()
-    {
-        return ( widget );
-    }
     
     protected void onValueChanged( boolean newValue )
     {
@@ -71,9 +64,8 @@ public class BooleanProperty extends Property
     
     public BooleanProperty( Widget widget, String propertyName, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
-        super( propertyName, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
+        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
         
-        this.widget = widget;
         this.value = defaultValue;
     }
     

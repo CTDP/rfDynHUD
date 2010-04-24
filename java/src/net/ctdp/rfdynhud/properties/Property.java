@@ -1,5 +1,7 @@
 package net.ctdp.rfdynhud.properties;
 
+import net.ctdp.rfdynhud.widgets.widget.Widget;
+
 /**
  * The {@link Property} serves as a general data container and adapter.
  * You can use it to put data into a GUI component and live update it.
@@ -8,12 +10,19 @@ package net.ctdp.rfdynhud.properties;
  */
 public abstract class Property
 {
+    protected final Widget widget;
+    
     private final String name;
     private final String nameForDisplay;
     private final boolean readonly;
     private final PropertyEditorType editorType;
     private final String buttonText;
     private final String buttonTooltip;
+    
+    public final Widget getWidget()
+    {
+        return ( widget );
+    }
     
     public final String getPropertyName()
     {
@@ -64,6 +73,7 @@ public abstract class Property
     
     /**
      * 
+     * @param widget
      * @param name
      * @param nameForDisplay
      * @param readonly
@@ -71,8 +81,9 @@ public abstract class Property
      * @param buttonText
      * @param buttonTooltip
      */
-    public Property( String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
+    public Property( Widget widget, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
+        this.widget = widget;
         this.name = name;
         this.nameForDisplay = nameForDisplay;
         this.readonly = readonly;
@@ -81,14 +92,14 @@ public abstract class Property
         this.buttonTooltip = buttonTooltip;
     }
     
-    public Property( String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType )
+    public Property( Widget widget, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType )
     {
-        this( name, nameForDisplay, readonly, editorType, null, null );
+        this( widget, name, nameForDisplay, readonly, editorType, null, null );
     }
     
-    public Property( String name, String nameForDisplay, PropertyEditorType editorType )
+    public Property( Widget widget, String name, String nameForDisplay, PropertyEditorType editorType )
     {
-        this( name, nameForDisplay, false, editorType, null, null );
+        this( widget, name, nameForDisplay, false, editorType, null, null );
     }
     
     /**
@@ -99,18 +110,18 @@ public abstract class Property
      * @param buttonText
      * @param buttonTooltip
      */
-    public Property( String name, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
+    public Property( Widget widget, String name, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
-        this( name, name, readonly, editorType, buttonText, buttonTooltip );
+        this( widget, name, name, readonly, editorType, buttonText, buttonTooltip );
     }
     
-    public Property( String name, boolean readonly, PropertyEditorType editorType )
+    public Property( Widget widget, String name, boolean readonly, PropertyEditorType editorType )
     {
-        this( name, readonly, editorType, null, null );
+        this( widget, name, readonly, editorType, null, null );
     }
     
-    public Property( String name, PropertyEditorType editorType )
+    public Property( Widget widget, String name, PropertyEditorType editorType )
     {
-        this( name, false, editorType, null, null );
+        this( widget, name, false, editorType, null, null );
     }
 }

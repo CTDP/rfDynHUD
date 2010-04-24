@@ -196,7 +196,7 @@ public class EditorTable extends HierarchicalTable
             property.setValue( newValue );
             ( (EditorTable)table ).propsEditor.invokeChangeListeners( property, oldValue, newValue, table.getSelectedRow(), table.getSelectedColumn() );
             
-            if ( editor != null )
+            if ( ( editor != null ) && ( property.getWidget() != null ) )
             {
                 editor.getEditorPanel().repaint();
                 editor.setDirtyFlag();

@@ -5,14 +5,7 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class StringProperty extends Property
 {
-    private final Widget widget;
-    
     private String value;
-    
-    public final Widget getWidget()
-    {
-        return ( widget );
-    }
     
     protected void onValueChanged( String oldValue, String newValue )
     {
@@ -72,9 +65,8 @@ public class StringProperty extends Property
     
     protected StringProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly, PropertyEditorType propEdType )
     {
-        super( propertyName, nameForDisplay, readonly, propEdType, null, null );
+        super( widget, propertyName, nameForDisplay, readonly, propEdType, null, null );
         
-        this.widget = widget;
         this.value = defaultValue;
     }
     

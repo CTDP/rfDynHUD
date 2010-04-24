@@ -1,10 +1,12 @@
 package net.ctdp.rfdynhud.editor;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,10 +16,14 @@ import javax.swing.JPanel;
 import org.openmali.types.twodee.Rect2i;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
+import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -34,6 +40,36 @@ public class EditorPanel extends JPanel
     private BufferedImage cacheImage;
     private Graphics2D cacheGraphics;
     
+    private final BooleanProperty drawGrid = new BooleanProperty( null, "drawGrid", false )
+    {
+        @Override
+        protected void onValueChanged( boolean newValue )
+        {
+            if ( drawingManager != null )
+                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+        }
+    };
+    
+    private final IntegerProperty gridSizeX = new IntegerProperty( null, "gridSizeX", 10 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            if ( drawingManager != null )
+                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+        }
+    };
+    
+    private final IntegerProperty gridSizeY = new IntegerProperty( null, "gridSizeY", 10 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            if ( drawingManager != null )
+                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+        }
+    };
+    
     private LiveGameData gameData;
     
     private TextureImage2D overlay;
@@ -45,6 +81,50 @@ public class EditorPanel extends JPanel
     private Widget selectedWidget = null;
     private static final java.awt.Color SELECTION_COLOR = new java.awt.Color( 255, 0, 0, 127 );
     
+    public void getProperties( WidgetPropertiesContainer propsCont )
+    {
+        propsCont.addProperty( drawGrid );
+        propsCont.addProperty( gridSizeX );
+        propsCont.addProperty( gridSizeY );
+    }
+    
+    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( drawGrid, null );
+        writer.writeProperty( gridSizeX, null );
+        writer.writeProperty( gridSizeY, null );
+    }
+    
+    public void loadProperty( String key, String value )
+    {
+        if ( drawGrid.loadProperty( key, value ) );
+        else if ( gridSizeX.loadProperty( key, value ) );
+        else if ( gridSizeY.loadProperty( key, value ) );
+    }
+    
+    private void drawGrid()
+    {
+        final int gridSizeX = this.gridSizeX.getIntegerValue();
+        final int gridSizeY = this.gridSizeY.getIntegerValue();
+        
+        if ( !drawGrid.getBooleanValue() || ( gridSizeX <= 1 ) || ( gridSizeY <= 1 ) )
+            return;
+        
+        Graphics2D g2 = backgroundImage.createGraphics();
+        g2.setColor( Color.BLACK );
+        
+        final int gameResX = drawingManager.getGameResX();
+        final int gameResY = drawingManager.getGameResY();
+        
+        for ( int x = gridSizeX - 1; x < gameResX; x += gridSizeX )
+        {
+            for ( int y = gridSizeY - 1; y < gameResY; y += gridSizeY )
+            {
+                g2.drawLine( x, y, x, y );
+            }
+        }
+    }
+    
     public void setBackgroundImage( BufferedImage image )
     {
         this.backgroundImage = image;
@@ -55,10 +135,11 @@ public class EditorPanel extends JPanel
             cacheGraphics = cacheImage.createGraphics();
         }
         
+        drawGrid();
+        
         cacheGraphics.drawImage( backgroundImage, 0, 0, null );
         
-        if ( drawingManager != null )
-            drawingManager.setAllDirtyFlags();
+        drawingManager.setAllDirtyFlags();
         oldWidgetRects.clear();
     }
     
@@ -259,12 +340,12 @@ public class EditorPanel extends JPanel
     {
         this.editor = editor;
         
-        setBackgroundImage( backgroundImage );
-        
         this.gameData = gameData;
         
         this.overlay = overlay;
         this.drawingManager = drawingManager;
+        
+        setBackgroundImage( backgroundImage );
         
         EditorPanelInputHandler inputHandler = new EditorPanelInputHandler( editor, drawingManager );
         this.addMouseListener( inputHandler );

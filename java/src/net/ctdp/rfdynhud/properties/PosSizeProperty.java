@@ -1,5 +1,7 @@
 package net.ctdp.rfdynhud.properties;
 
+import net.ctdp.rfdynhud.widgets.widget.Widget;
+
 public abstract class PosSizeProperty extends Property
 {
     private static final String FLIP_TEXT = "flip";
@@ -60,15 +62,15 @@ public abstract class PosSizeProperty extends Property
     {
     }
     
-    public PosSizeProperty( String key, boolean readonly, boolean isSizeProp )
+    public PosSizeProperty( Widget widget, String key, boolean readonly, boolean isSizeProp )
     {
-        super( key, readonly, PropertyEditorType.POS_SIZE, null, null );
+        super( widget, key, readonly, PropertyEditorType.POS_SIZE, null, null );
         
         this.isSizeProp = isSizeProp;
     }
     
-    public PosSizeProperty( String key, boolean isSizeProp )
+    public PosSizeProperty( Widget widget, String key, boolean isSizeProp )
     {
-        this( key, false, isSizeProp );
+        this( widget, key, false, isSizeProp );
     }
 }

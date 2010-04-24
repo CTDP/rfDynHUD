@@ -5,14 +5,7 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class EnumProperty<E extends Enum<E>> extends Property
 {
-    private final Widget widget;
-    
     private E value;
-    
-    public final Widget getWidget()
-    {
-        return ( widget );
-    }
     
     protected void onValueChanged( E oldValue, E newValue )
     {
@@ -79,9 +72,8 @@ public class EnumProperty<E extends Enum<E>> extends Property
     
     public EnumProperty( Widget widget, String propertyName, String nameForDisplay, E defaultValue, boolean readonly )
     {
-        super( propertyName, nameForDisplay, readonly, PropertyEditorType.ENUM, null, null );
+        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.ENUM, null, null );
         
-        this.widget = widget;
         this.value = defaultValue;
     }
     

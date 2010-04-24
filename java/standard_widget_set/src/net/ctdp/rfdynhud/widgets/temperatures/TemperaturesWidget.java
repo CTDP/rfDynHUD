@@ -791,7 +791,7 @@ public class TemperaturesWidget extends Widget
         propsCont.addProperty( brakeSize.createWidthProperty( "brakeWidth" ) );
         propsCont.addProperty( brakeSize.createHeightProperty( "brakeHeight" ) );
         
-        propsCont.addProperty( new Property( "brakeTempsPeekDelay", PropertyEditorType.INTEGER )
+        propsCont.addProperty( new Property( this, "brakeTempsPeekDelay", PropertyEditorType.INTEGER )
         {
             @Override
             public void setValue( Object value )

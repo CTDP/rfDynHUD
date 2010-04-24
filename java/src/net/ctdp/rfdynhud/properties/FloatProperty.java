@@ -5,17 +5,10 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class FloatProperty extends Property
 {
-    private final Widget widget;
-    
     private float value;
     
     private final float minValue;
     private final float maxValue;
-    
-    public final Widget getWidget()
-    {
-        return ( widget );
-    }
     
     protected void onValueChanged( float oldValue, float newValue )
     {
@@ -77,9 +70,8 @@ public class FloatProperty extends Property
     
     public FloatProperty( Widget widget, String propertyName, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly )
     {
-        super( propertyName, nameForDisplay, readonly, PropertyEditorType.FLOAT, null, null );
+        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.FLOAT, null, null );
         
-        this.widget = widget;
         this.value = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;

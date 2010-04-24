@@ -516,7 +516,7 @@ public class Size
     {
         boolean ro = isWidgetSize ? widget.hasFixedSize() : false;
         
-        PosSizeProperty prop = new PosSizeProperty( name, ro, true )
+        PosSizeProperty prop = new PosSizeProperty( widget, name, ro, true )
         {
             @Override
             public void setValue( Object value )
@@ -558,7 +558,7 @@ public class Size
     {
         boolean ro = isWidgetSize ? widget.hasFixedSize() : false;
         
-        PosSizeProperty prop = new PosSizeProperty( name, ro, true )
+        PosSizeProperty prop = new PosSizeProperty( widget, name, ro, true )
         {
             @Override
             public void setValue( Object value )
