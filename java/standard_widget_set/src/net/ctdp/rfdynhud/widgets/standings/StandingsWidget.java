@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.FinishStatus;
+import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -57,9 +58,9 @@ public class StandingsWidget extends Widget
     private int maxDisplayedDrivers = 100;
     
     private String[][] currPosStrings = null;
-    private final int[] colWidths = { 0, 0, 0, 0 };
-    private final Alignment[] colAligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT };
-    private final int colPadding = 10;
+    private final int[] colWidths = { 0, 0, 0, 0, 0 };
+    private final Alignment[] colAligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT, Alignment.LEFT };
+    private final int colPadding = 8;
     //private int[] vsiIndices = null;
     private int numVehicles = -1;
     private VehicleScoringInfo[] vehicleScoringInfos = null;
@@ -269,11 +270,11 @@ public class StandingsWidget extends Widget
         return ( null );
     }
     
-    private String[] getPositionStringRaceRelToLeader( int ownPlace, VehicleScoringInfo vsi )
+    private String[] getPositionStringRaceRelToLeader( int ownPlace, GamePhase gamePhase, VehicleScoringInfo vsi )
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 4 ];
+        String[] ss = new String[ 5 ];
         
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
@@ -282,7 +283,7 @@ public class StandingsWidget extends Widget
         FinishStatus finishStatus = vsi.getFinishStatus();
         if ( finishStatus == FinishStatus.NONE )
         {
-            if ( place > 1 )
+            if ( ( gamePhase != GamePhase.FORMATION_LAP ) && ( gamePhase != GamePhase.RECONNAISSANCE_LAPS ) && ( place > 1 ) )
             {
                 int lbl = vsi.getLapsBehindLeader();
                 if ( lbl > 0 )
@@ -302,31 +303,42 @@ public class StandingsWidget extends Widget
             
             int stops = vsi.getNumPitstopsMade();
             if ( abbreviate.getBooleanValue() )
-                ss[3] = stops + "S";
+            {
+                ss[3] = String.valueOf( stops ) + "S";
+                ss[4] = null;
+            }
             else if ( stops == 1 )
-                ss[3] = stops + " Stop";
+            {
+                ss[3] = String.valueOf( stops );
+                ss[4] = "Stop";
+            }
             else
-                ss[3] = stops + " Stops";
+            {
+                ss[3] = String.valueOf( stops );
+                ss[4] = "Stops";
+            }
         }
         else if ( finishStatus == FinishStatus.FINISHED )
         {
             ss[2] = "(" + finishStatus.toString() + ")";
             ss[3] = null;
+            ss[4] = null;
         }
         else
         {
             ss[2] = "Out! (" + finishStatus.toString() + ")";
             ss[3] = null;
+            ss[4] = null;
         }
         
         return ( ss );
     }
     
-    private String[] getPositionStringRaceRelToMe( int ownPlace, int ownLaps, float ownLapDistance, float relTime, VehicleScoringInfo vsi )
+    private String[] getPositionStringRaceRelToMe( int ownPlace, int ownLaps, float ownLapDistance, float relTime, GamePhase gamePhase, VehicleScoringInfo vsi )
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 4 ];
+        String[] ss = new String[ 5 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
         ss[1] = getDisplayedDriverName( vsi.getDriverName() );
@@ -334,7 +346,7 @@ public class StandingsWidget extends Widget
         FinishStatus finishStatus = vsi.getFinishStatus();
         if ( finishStatus == FinishStatus.NONE )
         {
-            if ( place != ownPlace )
+            if ( ( gamePhase != GamePhase.FORMATION_LAP ) && ( gamePhase != GamePhase.RECONNAISSANCE_LAPS ) && ( place != ownPlace ) )
             {
                 int lapDiff = ownLaps - vsi.getLapsCompleted();
                 if ( ( lapDiff > 0 ) && ( ownLapDistance < vsi.getLapDistance() ) )
@@ -368,35 +380,46 @@ public class StandingsWidget extends Widget
             
             int stops = vsi.getNumPitstopsMade();
             if ( abbreviate.getBooleanValue() )
-                ss[3] = stops + "S";
+            {
+                ss[3] = String.valueOf( stops ) + "S";
+                ss[4] = null;
+            }
             else if ( stops == 1 )
-                ss[3] = stops + " Stop";
+            {
+                ss[3] = String.valueOf( stops );
+                ss[4] = "Stop";
+            }
             else
-                ss[3] = stops + " Stops";
+            {
+                ss[3] = String.valueOf( stops );
+                ss[4] = "Stops";
+            }
         }
         else if ( finishStatus == FinishStatus.FINISHED )
         {
             ss[2] = "(" + finishStatus.toString() + ")";
             ss[3] = null;
+            ss[4] = null;
         }
         else
         {
             ss[2] = "Out! (" + finishStatus.toString() + ")";
             ss[3] = null;
+            ss[4] = null;
         }
         
         return ( ss );
     }
     
-    private String[] getPosStringRace( VehicleScoringInfo vsi, int ownPlace, int ownLaps, float ownLapDistance )
+    private String[] getPosStringRace( int ownPlace, int ownLaps, float ownLapDistance, GamePhase gamePhase, VehicleScoringInfo vsi )
     {
         switch ( getView() )
         {
             case RELATIVE_TO_LEADER:
-                return ( getPositionStringRaceRelToLeader( ownPlace, vsi ) );
+                return ( getPositionStringRaceRelToLeader( ownPlace, gamePhase, vsi ) );
             case RELATIVE_TO_ME:
             case ABSOLUTE_TIMES:
-                return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace() - 1], vsi ) );
+                return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace() - 1], gamePhase, vsi ) );
         }
         
         // unreachable code
@@ -406,6 +429,8 @@ public class StandingsWidget extends Widget
     private int initPosStringsRace( LiveGameData gameData )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        
+        GamePhase gamePhase = scoringInfo.getGamePhase();
         
         numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         
@@ -423,7 +448,7 @@ public class StandingsWidget extends Widget
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            currPosStrings[i] = getPosStringRace( vehicleScoringInfos[i], ownPlace, ownLaps, ownLapDistance );
+            currPosStrings[i] = getPosStringRace( ownPlace, ownLaps, ownLapDistance, gamePhase, vehicleScoringInfos[i] );
         }
         
         return ( numVehicles );
@@ -433,7 +458,7 @@ public class StandingsWidget extends Widget
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 4 ];
+        String[] ss = new String[ 5 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
         ss[1] = getDisplayedDriverName( vsi.getDriverName() );
@@ -454,11 +479,20 @@ public class StandingsWidget extends Widget
         
         int lapsCompleted = vsi.getLapsCompleted();
         if ( abbreviate.getBooleanValue() )
-            ss[3] = lapsCompleted + "L";
+        {
+            ss[3] = String.valueOf( lapsCompleted ) + "L";
+            ss[4] = null;
+        }
         else if ( lapsCompleted == 1 )
-            ss[3] = lapsCompleted + " Lap";
+        {
+            ss[3] = String.valueOf( lapsCompleted );
+            ss[4] = "Lap";
+        }
         else
-            ss[3] = lapsCompleted + " Laps";
+        {
+            ss[3] = String.valueOf( lapsCompleted );
+            ss[4] = "Laps";
+        }
         
         return ( ss );
     }
@@ -467,7 +501,7 @@ public class StandingsWidget extends Widget
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 4 ];
+        String[] ss = new String[ 5 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
         ss[1] = getDisplayedDriverName( vsi.getDriverName() );
@@ -488,11 +522,20 @@ public class StandingsWidget extends Widget
         
         int lapsCompleted = vsi.getLapsCompleted();
         if ( abbreviate.getBooleanValue() )
-            ss[3] = lapsCompleted + "L";
+        {
+            ss[3] = String.valueOf( lapsCompleted ) + "L";
+            ss[4] = null;
+        }
         else if ( lapsCompleted == 1 )
-            ss[3] = lapsCompleted + " Lap";
+        {
+            ss[3] = String.valueOf( lapsCompleted );
+            ss[4] = "Lap";
+        }
         else
-            ss[3] = lapsCompleted + " Laps";
+        {
+            ss[3] = String.valueOf( lapsCompleted );
+            ss[4] = "Laps";
+        }
         
         return ( ss );
     }
@@ -620,7 +663,7 @@ public class StandingsWidget extends Widget
         
         if ( currPosStrings == null )
         {
-            if ( gameData.getScoringInfo().getSessionType() == SessionType.RACE )
+            if ( gameData.getScoringInfo().getSessionType().isRace() )
                 initPosStringsRace( gameData );
             else
                 initPosStringsNonRace( gameData );

@@ -278,11 +278,13 @@ public class ETVSessionStateWidget extends Widget
             dataBgColor = Color.YELLOW;
             dataFontColor = Color.BLACK;
         }
+        /*
         else if ( gamePhase.getValue() == GamePhase.GREEN_FLAG )
         {
             dataBgColor = Color.GREEN;
             dataFontColor = Color.WHITE;
         }
+        */
         else if ( gamePhase.getValue() == GamePhase.SESSION_STOPPED )
         {
             dataBgColor = Color.RED;
