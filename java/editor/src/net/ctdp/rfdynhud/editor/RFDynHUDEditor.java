@@ -1091,13 +1091,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             {
                 KeyEvent kev = (KeyEvent)event;
                 
-                if ( kev.getKeyCode() == KeyEvent.VK_ESCAPE )
+                if ( ( kev.getID() == KeyEvent.KEY_PRESSED ) && ( ( kev.getKeyCode() == KeyEvent.VK_ESCAPE ) || ( kev.getKeyCode() == KeyEvent.VK_F4 ) ) )
                 {
                     Toolkit.getDefaultToolkit().removeAWTEventListener( this );
                     JDialog d = null;
                     if ( event.getSource() instanceof java.awt.Window )
                         d = (JDialog)event.getSource();
-                    else
+                    else if ( ( (JComponent)event.getSource() ).getRootPane().getParent() instanceof JDialog )
                         d = (JDialog)( (JComponent)event.getSource() ).getRootPane().getParent();
                     
                     d.setVisible( false );
@@ -1739,16 +1739,25 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         menu.setDisplayedMnemonicIndex( 0 );
         
         JMenuItem previewItem = new JMenuItem( "Show fullscreen preview..." );
+        previewItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F4, 0 ) );
         previewItem.addActionListener( new ActionListener()
         {
+            private long lastWhen = -1L;
+            
             public void actionPerformed( ActionEvent e )
             {
+                if ( e.getWhen() < lastWhen + 1500L )
+                    return;
+                
                 showFullscreenPreview();
+                
+                lastWhen = e.getWhen();
             }
         } );
         menu.add( previewItem );
         
         JMenuItem screenshotItem = new JMenuItem( "Take Screenshot" );
+        screenshotItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F12, 0 ) );
         screenshotItem.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
