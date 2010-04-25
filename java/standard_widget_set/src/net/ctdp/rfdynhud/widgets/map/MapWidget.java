@@ -16,7 +16,6 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
@@ -122,14 +121,6 @@ public class MapWidget extends Widget
         initSubTextures( editorPresets != null );
         
         return ( itemTextures );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
-    {
     }
     
     /**

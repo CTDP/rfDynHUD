@@ -99,9 +99,8 @@ public class FuelWidget extends Widget
     private final IntValue pitstopFuel = new IntValue( ValidityTest.GREATER_THAN, 0 );
     private final IntValue stintLength = new IntValue( ValidityTest.GREATER_THAN, 0 );
     
-    //private float fuelAtLapStart = -1f;
-    //private float lastFuelUsage = -1f;
     private int oldFuel = -1;
+    private float oldAverage = -1f;
     
     @Override
     public String getWidgetPackage()
@@ -177,6 +176,7 @@ public class FuelWidget extends Widget
         
         this.stintLength.reset();
         this.oldFuel = -1;
+        this.oldAverage = -1f;
     }
     
     /**
@@ -200,7 +200,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
     {
         if ( action == INPUT_ACTION_INC_PITSTOP )
         {
@@ -319,9 +319,10 @@ public class FuelWidget extends Widget
         float avgFuelUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getAverage();
         
         int fuel_ = Math.round( fuel * 10f );
-        if ( needsCompleteRedraw || ( clock1 && ( fuel_ != oldFuel ) ) )
+        if ( needsCompleteRedraw || ( clock1 && ( ( fuel_ != oldFuel ) || ( avgFuelUsage != oldAverage ) ) ) )
         {
             oldFuel = fuel_;
+            oldAverage = avgFuelUsage;
             
             int fuelY = fuelHeaderString.getAbsY() + fuelHeaderString.getMaxHeight( true ) + 0;
             int fuelHeight = height - fuelY - 4;
@@ -353,8 +354,6 @@ public class FuelWidget extends Widget
         {
             if ( isEditorMode || ( fuelRelevantLaps != oldFuelRelevantLaps ) )
             {
-                this.oldFuelRelevantLaps = fuelRelevantLaps;
-                
                 fuelUsageOneLapString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
                 fuelUsageAvgString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
             }
@@ -373,6 +372,8 @@ public class FuelWidget extends Widget
             string = NumberUtil.formatFloat( avgFuelUsage, 3, true ) + "L";
             fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, texture );
         }
+        
+        this.oldFuelRelevantLaps = fuelRelevantLaps;
         
         if ( needsCompleteRedraw )
         {

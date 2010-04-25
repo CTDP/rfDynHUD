@@ -8,7 +8,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntegerProperty;
@@ -152,14 +151,6 @@ public class TimingWidget extends Widget
             lastLapDisplayTime = vsi.getLapStartTime() + ( vsi.getLaptime( vsi.getLapsCompleted() ).getSector1() * -lastLapDisplayDelay.getIntegerValue() / 100f );
         else
             lastLapDisplayTime = vsi.getLapStartTime() + ( lastLapDisplayDelay.getIntegerValue() / 1000f );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
-    {
     }
     
     /**

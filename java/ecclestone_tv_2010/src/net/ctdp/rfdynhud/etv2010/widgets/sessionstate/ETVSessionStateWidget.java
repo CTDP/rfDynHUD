@@ -14,7 +14,6 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
-import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
@@ -241,14 +240,6 @@ public class ETVSessionStateWidget extends Widget
         gamePhase.reset();
         
         //updateSessionLimit( gameData );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
-    {
     }
     
     /**

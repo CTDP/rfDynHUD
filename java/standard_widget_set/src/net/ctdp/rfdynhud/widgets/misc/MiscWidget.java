@@ -7,9 +7,7 @@ import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
-import net.ctdp.rfdynhud.gamedata.TopspeedRecorder;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.Property;
@@ -70,7 +68,8 @@ public class MiscWidget extends Widget
     private final IntValue place = new IntValue( ValidityTest.GREATER_THAN, 0 );
     private final FloatValue fastestLap = new FloatValue( ValidityTest.GREATER_THAN, 0f );
     private final FloatValue sessionTime = new FloatValue( -1f, 0.1f );
-    private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
+    private final EnumValue<GamePhase> gamePhase1 = new EnumValue<GamePhase>();
+    private final EnumValue<GamePhase> gamePhase2 = new EnumValue<GamePhase>();
     private final IntValue lapsCompleted = new IntValue();
     private float oldLapsRemaining = -1f;
     private float oldAbsTopspeed = -1f;
@@ -140,7 +139,8 @@ public class MiscWidget extends Widget
         fastestLap.reset();
         
         sessionTime.reset();
-        gamePhase.reset();
+        gamePhase1.reset();
+        gamePhase2.reset();
         lapsCompleted.reset();
         oldLapsRemaining = -1f;
         
@@ -152,14 +152,6 @@ public class MiscWidget extends Widget
         updateAbs = false;
         
         //forceReinitialization();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
-    {
     }
     
     /**
@@ -280,6 +272,7 @@ public class MiscWidget extends Widget
         final java.awt.Color backgroundColor = getBackgroundColor();
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
         
         if ( displayScoring.getBooleanValue() )
         {
@@ -347,8 +340,6 @@ public class MiscWidget extends Widget
         
         if ( displayTiming.getBooleanValue() )
         {
-            gamePhase.update( scoringInfo.getGamePhase() );
-            VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
             lapsCompleted.update( vsi.getLapsCompleted() );
             final int maxLaps = scoringInfo.getMaxLaps();
             if ( maxLaps < Integer.MAX_VALUE / 2 )
@@ -362,8 +353,9 @@ public class MiscWidget extends Widget
                 }
                 
                 float rounded = Math.round( lapsRemaining * 10f );
+                gamePhase1.update( scoringInfo.getGamePhase() );
                 
-                if ( needsCompleteRedraw || ( rounded != oldLapsRemaining ) || gamePhase.hasChanged())
+                if ( needsCompleteRedraw || ( rounded != oldLapsRemaining ) || gamePhase1.hasChanged())
                 {
                     oldLapsRemaining = rounded;
                     
@@ -413,11 +405,12 @@ public class MiscWidget extends Widget
             }
             
             sessionTime.update( gameData.getScoringInfo().getSessionTime() );
+            gamePhase2.update( scoringInfo.getGamePhase() );
             float totalTime = gameData.getScoringInfo().getEndTime();
-            if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase.hasChanged( false ) ) ) )
+            if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase2.hasChanged( false ) ) ) )
             {
                 sessionTime.setUnchanged();
-                gamePhase.setUnchanged();
+                gamePhase2.setUnchanged();
                 
                 if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
                     sessionTimeString.draw( offsetX, offsetY, "--:--:--", backgroundColor, texture );
@@ -447,8 +440,18 @@ public class MiscWidget extends Widget
                 updateAbs = true;
             }
             
-            float topspeed = TopspeedRecorder.MASTER_TOPSPEED_RECORDER.getTopSpeed();
-            if ( needsCompleteRedraw || ( clock1 && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
+            boolean forceUpdateAbs = false;
+            float topspeed = vsi.getTopspeed();
+            if ( topspeed < ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed )
+            {
+                ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = 0f;
+                oldAbsTopspeed = -1f;
+                topspeed = 0f;
+                updateAbs = true;
+                forceUpdateAbs = true;
+            }
+            
+            if ( needsCompleteRedraw || ( ( clock1 || forceUpdateAbs ) && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
             {
                 if ( !needsCompleteRedraw )
                     ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = topspeed;

@@ -1837,25 +1837,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( resMenu );
     }
     
-    private JMenu createInputMenu()
-    {
-        JMenu menu = new JMenu( "Input" );
-        menu.setDisplayedMnemonicIndex( 0 );
-        
-        JMenuItem manangerItem = new JMenuItem( "Open InputBindingsManager..." );
-        manangerItem.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                InputBindingsGUI.showInputBindingsGUI( RFDynHUDEditor.this );
-            }
-        } );
-        
-        menu.add( manangerItem );
-        
-        return ( menu );
-    }
-    
     private JMenu createToolsMenu()
     {
         JMenu menu = new JMenu( "Tools" );
@@ -1901,6 +1882,19 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
         } );
         menu.add( manangerItem );
+        
+        menu.addSeparator();
+        
+        JMenuItem inputMgrItem = new JMenuItem( "Open InputBindingsManager..." );
+        inputMgrItem.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                InputBindingsGUI.showInputBindingsGUI( RFDynHUDEditor.this );
+            }
+        } );
+        
+        menu.add( inputMgrItem );
         
         menu.addSeparator();
         
@@ -1957,7 +1951,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         menuBar.add( createEditMenu() );
         menuBar.add( createWidgetsMenu() );
         menuBar.add( createResolutionsMenu() );
-        menuBar.add( createInputMenu() );
         menuBar.add( createToolsMenu() );
         menuBar.add( createHelpMenu() );
         

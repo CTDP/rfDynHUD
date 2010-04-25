@@ -114,7 +114,7 @@ public class RFDynHUD
     {
         try
         {
-            int pluginEnabled = inputMappingsManager.update( drawingManager, gameData, eventsManager, modifierMask );
+            int pluginEnabled = inputMappingsManager.update( drawingManager, gameData, null, eventsManager, modifierMask );
             
             if ( pluginEnabled == -1 )
             {

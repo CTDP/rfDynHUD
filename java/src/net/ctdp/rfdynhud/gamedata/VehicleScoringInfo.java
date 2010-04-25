@@ -74,6 +74,8 @@ public class VehicleScoringInfo
     ArrayList<Laptime> laptimes = null;
     Laptime fastestLaptime = null;
     
+    float topspeed = 0f;
+    
     void onDataUpdated()
     {
         name = null;
@@ -650,6 +652,14 @@ public class VehicleScoringInfo
         
         //return ( mps * 3600f / 1000f );
         return ( mps * 3.6f );
+    }
+    
+    /**
+     * topspeed in km/h
+     */
+    public final float getTopspeed()
+    {
+        return ( topspeed );
     }
     
     /**

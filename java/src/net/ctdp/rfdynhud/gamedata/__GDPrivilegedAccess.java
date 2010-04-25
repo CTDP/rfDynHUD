@@ -5,9 +5,13 @@ import java.io.InputStream;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
+import net.ctdp.rfdynhud.input.InputAction;
 
 public class __GDPrivilegedAccess
 {
+    public static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = FuelUsageRecorder.INPUT_ACTION_RESET_FUEL_CONSUMPTION;
+    public static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = TopspeedRecorder.INPUT_ACTION_RESET_TOPSPEEDS;
+    
     public static final void loadEditorDefaults( VehiclePhysics physics )
     {
         physics.loadEditorDefaults();

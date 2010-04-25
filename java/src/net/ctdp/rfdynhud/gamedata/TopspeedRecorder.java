@@ -1,26 +1,63 @@
 package net.ctdp.rfdynhud.gamedata;
 
-public class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener
+import java.util.HashMap;
+
+import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.input.InputActionConsumer;
+import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
+
+class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, ScoringInfo.ScoringInfoUpdateListener
 {
-    public static final TopspeedRecorder MASTER_TOPSPEED_RECORDER = new TopspeedRecorder();
+    private static final class MasterTopspeedRecorder extends TopspeedRecorder implements InputActionConsumer
+    {
+        private long firstResetStrokeTime = -1L;
+        private int resetStrokes = 0;
+        
+        @Override
+        public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+        {
+            if ( action == INPUT_ACTION_RESET_TOPSPEEDS )
+            {
+                long t = System.nanoTime();
+                
+                if ( t - firstResetStrokeTime > 1000000000L )
+                {
+                    resetStrokes = 1;
+                    firstResetStrokeTime = t;
+                }
+                else if ( ++resetStrokes >= 3 )
+                {
+                    liveReset();
+                }
+            }
+        }
+    }
     
-    private float value = 0f;
+    static final TopspeedRecorder MASTER_TOPSPEED_RECORDER = new MasterTopspeedRecorder();
+    static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = __InpPrivilegedAccess.createInputAction( "ResetTopSpeeds", true, false, (InputActionConsumer)MASTER_TOPSPEED_RECORDER );
+    
+    private static final class FloatContainer
+    {
+        public float value = 0f;
+    }
+    
+    private final HashMap<String, FloatContainer> store = new HashMap<String, FloatContainer>();
     
     private long firstValidTime = Long.MAX_VALUE;
     
     /**
-     * Gets the recorded top speed as km/h (kph).
-     * 
-     * @return the recorded top speed.
+     * Call this to reset the recorder while in cockpit.
      */
-    public final float getTopSpeed()
+    public void liveReset()
     {
-        return ( value );
+        store.clear();
     }
     
     public void reset()
     {
-        value = 0f;
+        liveReset();
+        
         firstValidTime = Long.MAX_VALUE;
     }
     
@@ -40,12 +77,63 @@ public class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListen
     @Override
     public void onTelemetryDataUpdated( LiveGameData gameData )
     {
-        if ( gameData.getScoringInfo().getSessionNanos() >= firstValidTime )
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        
+        if ( scoringInfo.getSessionNanos() < firstValidTime )
+            return;
+        
+        VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        
+        float velocity = gameData.getTelemetryData().getScalarVelocityKPH();
+        
+        String driverName = vsi.getDriverName();
+        FloatContainer fc = store.get( driverName );
+        if ( fc == null )
         {
-            float velocity = gameData.getTelemetryData().getScalarVelocityKPH();
+            fc = new FloatContainer();
+            fc.value = velocity;
+            store.put( driverName, fc );
+        }
+        else if ( velocity > fc.value )
+        {
+            fc.value = velocity;
+        }
+        
+        vsi.topspeed = fc.value;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onScoringInfoUpdated( LiveGameData gameData )
+    {
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        
+        if ( scoringInfo.getSessionNanos() < firstValidTime )
+            return;
+        
+        final int n = scoringInfo.getNumVehicles();
+        for ( int i = 0; i < n; i++ )
+        {
+            VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             
-            if ( velocity > value )
-                value = velocity;
+            float velocity = vsi.getScalarVelocityKPH();
+            
+            String driverName = vsi.getDriverName();
+            FloatContainer fc = store.get( driverName );
+            if ( fc == null )
+            {
+                fc = new FloatContainer();
+                fc.value = velocity;
+                store.put( driverName, fc );
+            }
+            else if ( velocity > fc.value )
+            {
+                fc.value = velocity;
+            }
+            
+            vsi.topspeed = fc.value;
         }
     }
     

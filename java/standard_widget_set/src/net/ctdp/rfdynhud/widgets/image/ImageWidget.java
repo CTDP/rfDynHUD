@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ImageTemplate;
@@ -38,14 +37,6 @@ public class ImageWidget extends Widget
     public String getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
-    {
     }
     
     /**

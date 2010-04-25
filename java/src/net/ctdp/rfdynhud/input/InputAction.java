@@ -20,6 +20,7 @@ public class InputAction implements Comparable<InputAction>
     private final String name;
     private final Boolean acceptedState;
     private final boolean isWidgetAction;
+    private final InputActionConsumer consumer;
     
     public final int getID()
     {
@@ -39,6 +40,11 @@ public class InputAction implements Comparable<InputAction>
     public final boolean isWidgetAction()
     {
         return ( isWidgetAction );
+    }
+    
+    public final InputActionConsumer getConsumer()
+    {
+        return ( consumer );
     }
     
     @Override
@@ -91,13 +97,14 @@ public class InputAction implements Comparable<InputAction>
         return ( getName() + " (ID=" + getID() + ")" );
     }
     
-    InputAction( String name, Boolean acceptedState, boolean isWidgetAction )
+    InputAction( String name, Boolean acceptedState, boolean isWidgetAction, InputActionConsumer consumer )
     {
         this.id = nextId++;
         
         this.name = name;
         this.acceptedState = acceptedState;
         this.isWidgetAction = isWidgetAction;
+        this.consumer = consumer;
     }
     
     /**
@@ -108,7 +115,7 @@ public class InputAction implements Comparable<InputAction>
      */
     public InputAction( String name, Boolean acceptedState )
     {
-        this( name, acceptedState, true );
+        this( name, acceptedState, true, null );
     }
     
     /**
@@ -119,6 +126,6 @@ public class InputAction implements Comparable<InputAction>
      */
     public InputAction( String name )
     {
-        this( name, true, true );
+        this( name, true, true, null );
     }
 }

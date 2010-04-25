@@ -18,7 +18,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.PhysicsSetting;
-import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FloatProperty;
@@ -526,14 +525,6 @@ public class RevMeterWidget extends Widget
         
         LocalStore store = (LocalStore)getLocalStore();
         store.storedBaseMaxRPM = 1f;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
-    {
     }
     
     /**

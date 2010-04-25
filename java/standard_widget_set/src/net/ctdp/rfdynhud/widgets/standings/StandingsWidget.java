@@ -246,7 +246,7 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
     {
         if ( action == INPUT_ACTION_CYCLE_VIEW )
         {

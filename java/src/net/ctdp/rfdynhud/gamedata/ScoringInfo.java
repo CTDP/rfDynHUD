@@ -1169,5 +1169,6 @@ public class ScoringInfo
         
         registerListener( laptimesRecorder );
         registerListener( FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER );
+        registerListener( TopspeedRecorder.MASTER_TOPSPEED_RECORDER );
     }
 }

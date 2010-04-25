@@ -335,11 +335,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is fired by the {@link InputMappingsManager},
      * if the state of a bound input component has changed.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param mapping
      * @param state
+     * @param modifierMask
+     * @param when
+     * @param gameData
+     * @param editorPresets
      */
-    public void fireOnInputStateChanged( boolean isEditorMode, InputMapping mapping, boolean state, int modifierMask )
+    public void fireOnInputStateChanged( InputMapping mapping, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
     {
         Widget widget = getWidget( mapping.getWidgetName() );
         InputAction action = mapping.getAction();
@@ -350,7 +353,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         if ( action == KnownInputActions.ToggleWidgetVisibility )
             widget.setVisible( !widget.isVisible() );
         else
-            widget.onBoundInputStateChanged( isEditorMode, mapping.getAction(), state, modifierMask );
+            widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, editorPresets );
     }
     
     /**

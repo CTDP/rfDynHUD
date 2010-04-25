@@ -746,12 +746,16 @@ public abstract class Widget implements Documented
     /**
      * This event is fired, when a bound input component has changed its state.
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param action
      * @param state
      * @param modifierMask see {@link InputAction}
+     * @param when
+     * @param gameData
+     * @param editorPresets
      */
-    public abstract void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask );
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+    {
+    }
     
     /**
      * 

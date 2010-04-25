@@ -9,6 +9,7 @@ import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,6 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
@@ -99,6 +101,7 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         */
         
         JMenuItem save = new JMenuItem( "Save", 0 );
+        save.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_S, InputEvent.CTRL_MASK ) );
         save.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )

@@ -12,7 +12,6 @@ import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.WheelPart;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
-import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
@@ -192,14 +191,6 @@ public class TemperaturesWidget extends Widget
         lastBrakeTempTime = -1L;
         
         //forceReinitialization();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
-    {
     }
     
     /**

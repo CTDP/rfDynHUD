@@ -10,7 +10,6 @@ import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
-import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
@@ -214,14 +213,6 @@ public class WearWidget extends Widget
             oldTireWear[i] = -1;
         
         //forceReinitialization();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onBoundInputStateChanged( boolean isEditorMode, InputAction action, boolean state, int modifierMask )
-    {
     }
     
     /**

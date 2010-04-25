@@ -1,10 +1,39 @@
 package net.ctdp.rfdynhud.gamedata;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.input.InputActionConsumer;
+import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
+
 public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
-    public static final FuelUsageRecorder MASTER_FUEL_USAGE_RECORDER = new FuelUsageRecorder();
+    private static final class MasterFuelUsageRecorder extends FuelUsageRecorder implements InputActionConsumer
+    {
+        private long firstResetStrokeTime = -1L;
+        private int resetStrokes = 0;
+        
+        @Override
+        public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+        {
+            if ( action == INPUT_ACTION_RESET_FUEL_CONSUMPTION )
+            {
+                long t = System.nanoTime();
+                
+                if ( t - firstResetStrokeTime > 1000000000L )
+                {
+                    resetStrokes = 1;
+                    firstResetStrokeTime = t;
+                }
+                else if ( ++resetStrokes >= 3 )
+                {
+                    liveReset();
+                }
+            }
+        }
+    }
     
-    private boolean wasInRealTime = false;
+    public static final FuelUsageRecorder MASTER_FUEL_USAGE_RECORDER = new MasterFuelUsageRecorder();
+    static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = __InpPrivilegedAccess.createInputAction( "ResetFuelConsumption", true, false, (InputActionConsumer)MASTER_FUEL_USAGE_RECORDER );
     
     private float lastLap = -1f;
     private float average = -1f;
@@ -32,8 +61,6 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     
     public void reset()
     {
-        wasInRealTime = false;
-        
         lastLap = -1f;
         average = -1f;
         
@@ -44,12 +71,31 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         relevantFuel = 0f;
     }
     
+    /**
+     * Call this to reset the recorder while in cockpit.
+     */
+    public void liveReset()
+    {
+        oldLapsCompleted = -1;
+        
+        lastLap = -1f;
+        average = -1f;
+        
+        fuelRelevantLaps = 0;
+        relevantFuel = 0f;
+    }
+    
     public void onSessionStarted( LiveGameData gameData )
     {
         reset();
     }
     
-    public void onRealtimeEntered( LiveGameData gameData ) {}
+    public void onRealtimeEntered( LiveGameData gameData )
+    {
+        oldLapsCompleted = -1;
+        lapStartFuel = -1f;
+        //lastLap = -1f;
+    }
     
     /**
      * {@inheritDoc}
@@ -59,21 +105,17 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        if ( scoringInfo.isInRealtimeMode() != wasInRealTime )
-        {
-            // entered realtime mode (cockpit)
-            wasInRealTime = scoringInfo.isInRealtimeMode();
-            
-            if ( wasInRealTime )
-            {
-                lapStartFuel = -1f;
-                lastLap = -1f;
-            }
-        }
+        if ( !scoringInfo.isInRealtimeMode() )
+            return;
         
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
         
         short lapsCompleted = vsi.getLapsCompleted();
+        
+        if ( oldLapsCompleted == -1 )
+        {
+            oldLapsCompleted = lapsCompleted;
+        }
         
         if ( lapsCompleted != oldLapsCompleted )
         {
