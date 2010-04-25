@@ -1,12 +1,17 @@
 package net.ctdp.rfdynhud.editor;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -29,6 +34,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -36,12 +44,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.html.HTMLDocument;
 
@@ -1050,6 +1061,76 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         switchToGameResolution( gameResX, gameResY );
     }
     
+    private void showFullscreenPreview()
+    {
+        JPanel p = new JPanel()
+        {
+            private static final long serialVersionUID = 1L;
+            
+            @Override
+            protected void paintComponent( Graphics g )
+            {
+                getEditorPanel().drawWidgets( (Graphics2D)g, true );
+            }
+        };
+        
+        JDialog f = new JDialog( getMainWindow(), true );
+        f.setContentPane( p );
+        f.setUndecorated( true );
+        f.setSize( gameResX, gameResY );
+        f.setLocation( 0, 0 );
+        
+        final GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        //graphDev.setFullScreenWindow( f );
+        //graphDev.setDisplayMode( awtMode );
+        
+        Toolkit.getDefaultToolkit().addAWTEventListener( new AWTEventListener()
+        {
+            @Override
+            public void eventDispatched( AWTEvent event )
+            {
+                KeyEvent kev = (KeyEvent)event;
+                
+                if ( kev.getKeyCode() == KeyEvent.VK_ESCAPE )
+                {
+                    Toolkit.getDefaultToolkit().removeAWTEventListener( this );
+                    JDialog d = null;
+                    if ( event.getSource() instanceof java.awt.Window )
+                        d = (JDialog)event.getSource();
+                    else
+                        d = (JDialog)( (JComponent)event.getSource() ).getRootPane().getParent();
+                    
+                    d.setVisible( false );
+                    if ( graphDev.getFullScreenWindow() == d )
+                        graphDev.setFullScreenWindow( null );
+                }
+            }
+        }, AWTEvent.KEY_EVENT_MASK );
+        
+        EditorPanel editorPanel = getEditorPanel();
+        
+        boolean gridSuppressed = false;
+        if ( editorPanel.getDrawGrid() && ( editorPanel.getGridSizeX() > 1 ) && ( editorPanel.getGridSizeY() > 1 ) )
+        {
+            editorPanel.setBGImageReloadSuppressed( true );
+            editorPanel.setDrawGrid( false );
+            editorPanel.setBGImageReloadSuppressed( false );
+            editorPanel.setBackgroundImage( loadBackgroundImage( gameResX, gameResY ) );
+            
+            gridSuppressed = true;
+        }
+        
+        f.setVisible( true );
+        
+        if ( gridSuppressed )
+        {
+            editorPanel.setBGImageReloadSuppressed( true );
+            editorPanel.setDrawGrid( true );
+            editorPanel.setBGImageReloadSuppressed( false );
+            editorPanel.setBackgroundImage( loadBackgroundImage( gameResX, gameResY ) );
+        }
+    }
+    
     private void takeScreenshot()
     {
         BufferedImage img = new BufferedImage( gameResX, gameResY, BufferedImage.TYPE_3BYTE_BGR );
@@ -1136,8 +1217,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         JMenu menu = new JMenu( "Edit" );
         menu.setDisplayedMnemonicIndex( 0 );
         
-        JMenuItem snapWidgetToGrid = new JMenuItem( "Snap selected Widget to grid" );
-        snapWidgetToGrid.addActionListener( new ActionListener()
+        final JMenuItem snapSelWidgetToGrid = new JMenuItem( "Snap selected Widget to grid" );
+        snapSelWidgetToGrid.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
             {
@@ -1152,9 +1233,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 }
             }
         } );
-        menu.add( snapWidgetToGrid );
+        menu.add( snapSelWidgetToGrid );
         
-        JMenuItem snapAllWidgetsToGrid = new JMenuItem( "Snap all Widgets to grid" );
+        final JMenuItem snapAllWidgetsToGrid = new JMenuItem( "Snap all Widgets to grid" );
         snapAllWidgetsToGrid.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
@@ -1171,7 +1252,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         menu.addSeparator();
         
-        JMenuItem makeAllPixels = new JMenuItem( "Make all Widgets use Pixels" );
+        final JMenuItem makeAllPixels = new JMenuItem( "Make all Widgets use Pixels" );
         makeAllPixels.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
@@ -1187,7 +1268,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         } );
         menu.add( makeAllPixels );
         
-        JMenuItem makeAllPercents = new JMenuItem( "Make all Widgets use Percents" );
+        final JMenuItem makeAllPercents = new JMenuItem( "Make all Widgets use Percents" );
         makeAllPercents.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
@@ -1205,7 +1286,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         menu.addSeparator();
         
-        JMenuItem removeItem = new JMenuItem( "Remove selected Widget (DEL)" );
+        final JMenuItem removeItem = new JMenuItem( "Remove selected Widget (DEL)" );
         //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
         removeItem.addActionListener( new ActionListener()
         {
@@ -1217,6 +1298,32 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         } );
         
         menu.add( removeItem );
+        
+        menu.addMenuListener( new MenuListener()
+        {
+            @Override
+            public void menuSelected( MenuEvent e )
+            {
+                boolean hasSelected = ( getEditorPanel().getSelectedWidget() != null );
+                boolean hasWidgets = ( getEditorPanel().getWidgetsDrawingManager().getNumWidgets() > 0 );
+                
+                snapSelWidgetToGrid.setEnabled( hasSelected );
+                snapAllWidgetsToGrid.setEnabled( hasWidgets );
+                removeItem.setEnabled( hasSelected );
+                makeAllPixels.setEnabled( hasWidgets );
+                makeAllPercents.setEnabled( hasWidgets );
+            }
+            
+            @Override
+            public void menuDeselected( MenuEvent e )
+            {
+            }
+            
+            @Override
+            public void menuCanceled( MenuEvent e )
+            {
+            }
+        } );
         
         return ( menu );
     }
@@ -1553,11 +1660,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             if ( !checkResolution( dm.w, dm.h ) )
             {
                 item = new JMenuItem( resString + " [" + dm.a + "] (no screenshot available)" );
+                item.setName( dm.w + "x" + dm.h );
                 item.setEnabled( false );
             }
             else
             {
-                item = new JMenuItem( resString + " [" + dm.a + "]" );
+                item = new JCheckBoxMenuItem( resString + " [" + dm.a + "]" );
+                item.setName( dm.w + "x" + dm.h );
                 
                 item.setActionCommand( resString );
                 final DM dm2 = dm;
@@ -1574,6 +1683,33 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             
             resMenu.add( item );
         }
+        
+        resMenu.addMenuListener( new MenuListener()
+        {
+            @Override
+            public void menuSelected( MenuEvent e )
+            {
+                String resString = gameResX + "x" + gameResY;
+                
+                JMenu menu = (JMenu)e.getSource();
+                
+                for ( Component mi : menu.getMenuComponents() )
+                {
+                    if ( mi instanceof JMenuItem )
+                        ( (JMenuItem)mi ).setSelected( resString.equals( mi.getName() ) );
+                }
+            }
+            
+            @Override
+            public void menuDeselected( MenuEvent e )
+            {
+            }
+            
+            @Override
+            public void menuCanceled( MenuEvent e )
+            {
+            }
+        } );
         
         return ( resMenu );
     }
@@ -1601,6 +1737,16 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         JMenu menu = new JMenu( "Tools" );
         menu.setDisplayedMnemonicIndex( 0 );
+        
+        JMenuItem previewItem = new JMenuItem( "Show fullscreen preview..." );
+        previewItem.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                showFullscreenPreview();
+            }
+        } );
+        menu.add( previewItem );
         
         JMenuItem screenshotItem = new JMenuItem( "Take Screenshot" );
         screenshotItem.addActionListener( new ActionListener()
@@ -1722,9 +1868,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         int[] resolution = loadResolutionFromUserSettings();
         
-        BufferedImage backgroundImage = loadBackgroundImage( resolution[0], resolution[1] );
-        this.gameResX = backgroundImage.getWidth();
-        this.gameResY = backgroundImage.getHeight();
+        this.gameResX = resolution[0];
+        this.gameResY = resolution[1];
         TransformableTexture overlayTexture = __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY );
         WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( overlayTexture );
         
@@ -1732,7 +1877,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         this.gameData = new LiveGameData( eventsManager );
         eventsManager.setGameData( gameData );
         
-        EditorPanel editorPanel = new EditorPanel( this, backgroundImage, gameData, overlayTexture.getTexture(), drawingManager );
+        EditorPanel editorPanel = new EditorPanel( this, gameData, overlayTexture.getTexture(), drawingManager );
         editorPanel.setPreferredSize( new Dimension( gameResX, gameResY ) );
         
         return ( editorPanel );
@@ -1857,6 +2002,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             editor.eventsManager.onRealtimeEntered( editor.presets );
             
             //editor.getEditorPanel().getWidgetsDrawingManager().collectTextures( true, editor.gameData );
+            
+            editor.getEditorPanel().setBackgroundImage( editor.loadBackgroundImage( editor.gameResX, editor.gameResY ) );
             
             editor.getMainWindow().addWindowListener( new WindowAdapter()
             {

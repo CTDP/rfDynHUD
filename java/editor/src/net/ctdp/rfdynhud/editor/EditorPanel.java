@@ -40,12 +40,19 @@ public class EditorPanel extends JPanel
     private BufferedImage cacheImage;
     private Graphics2D cacheGraphics;
     
+    private boolean bgImageReloadSuppressed = false;
+    
+    public void setBGImageReloadSuppressed( boolean suppressed )
+    {
+        this.bgImageReloadSuppressed = suppressed;
+    }
+    
     private final BooleanProperty drawGrid = new BooleanProperty( null, "drawGrid", false )
     {
         @Override
         protected void onValueChanged( boolean newValue )
         {
-            if ( drawingManager != null )
+            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
                 setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
         }
     };
@@ -55,7 +62,7 @@ public class EditorPanel extends JPanel
         @Override
         protected void onValueChanged( int oldValue, int newValue )
         {
-            if ( drawingManager != null )
+            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
                 setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
         }
     };
@@ -65,7 +72,7 @@ public class EditorPanel extends JPanel
         @Override
         protected void onValueChanged( int oldValue, int newValue )
         {
-            if ( drawingManager != null )
+            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
                 setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
         }
     };
@@ -80,6 +87,26 @@ public class EditorPanel extends JPanel
     
     private Widget selectedWidget = null;
     private static final java.awt.Color SELECTION_COLOR = new java.awt.Color( 255, 0, 0, 127 );
+    
+    public void setDrawGrid( boolean drawGrid )
+    {
+        this.drawGrid.setBooleanValue( drawGrid );
+    }
+    
+    public final boolean getDrawGrid()
+    {
+        return ( drawGrid.getBooleanValue() );
+    }
+    
+    public final int getGridSizeX()
+    {
+        return ( gridSizeX.getIntegerValue() );
+    }
+    
+    public final int getGridSizeY()
+    {
+        return ( gridSizeY.getIntegerValue() );
+    }
     
     public void getProperties( WidgetPropertiesContainer propsCont )
     {
@@ -97,9 +124,13 @@ public class EditorPanel extends JPanel
     
     public void loadProperty( String key, String value )
     {
+        bgImageReloadSuppressed = true;
+        
         if ( drawGrid.loadProperty( key, value ) );
         else if ( gridSizeX.loadProperty( key, value ) );
         else if ( gridSizeY.loadProperty( key, value ) );
+        
+        bgImageReloadSuppressed = false;
     }
     
     private final boolean isGridUsed()
@@ -394,7 +425,7 @@ public class EditorPanel extends JPanel
         drawWidgets( (Graphics2D)g, false );
     }
     
-    public EditorPanel( RFDynHUDEditor editor, BufferedImage backgroundImage, LiveGameData gameData, TextureImage2D overlay, WidgetsDrawingManager drawingManager )
+    public EditorPanel( RFDynHUDEditor editor, LiveGameData gameData, TextureImage2D overlay, WidgetsDrawingManager drawingManager )
     {
         this.editor = editor;
         
@@ -402,8 +433,6 @@ public class EditorPanel extends JPanel
         
         this.overlay = overlay;
         this.drawingManager = drawingManager;
-        
-        setBackgroundImage( backgroundImage );
         
         EditorPanelInputHandler inputHandler = new EditorPanelInputHandler( editor, drawingManager );
         this.addMouseListener( inputHandler );
