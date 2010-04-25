@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.editor;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,7 +37,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -157,6 +157,33 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     private WidgetsConfiguration templateConfig = null;
     private long lastTemplateConfigModified = -1L;
+    
+    private static final HashMap<String, java.awt.DisplayMode> displayModes = new HashMap<String, java.awt.DisplayMode>();
+    static
+    {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        for ( DisplayMode dm : ge.getDefaultScreenDevice().getDisplayModes() )
+        {
+            if ( ( dm.getWidth() >= 800 ) && ( dm.getWidth() >= 600 ) && ( dm.getBitDepth() == 32 ) )
+            {
+                String key = dm.getWidth() + "x" + dm.getHeight();
+                
+                DisplayMode dm2 = displayModes.get( key );
+                if ( dm2 == null )
+                {
+                    displayModes.put( key, dm );
+                }
+                else
+                {
+                    if ( dm.getRefreshRate() > dm2.getRefreshRate() )
+                    {
+                        displayModes.remove( key );
+                        displayModes.put( key, dm );
+                    }
+                }
+            }
+        }
+    }
     
     public final LiveGameData getGameData()
     {
@@ -542,8 +569,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         if ( !resFound[0] )
         {
-            GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-            DisplayMode dm = graphDev.getDisplayMode();
+            DisplayMode dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
             
             resolution[0] = dm.getWidth();
             resolution[1] = dm.getHeight();
@@ -1029,8 +1055,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     public void switchToGameResolution( int resX, int resY )
     {
         BufferedImage backgroundImage = loadBackgroundImage( resX, resY );
-        this.gameResX = backgroundImage.getWidth();
-        this.gameResY = backgroundImage.getHeight();
+        this.gameResX = resX;
+        this.gameResY = resY;
+        __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, editorPanel.getWidgetsDrawingManager() );
         TransformableTexture overlayTexture = __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY );
         
         editorPanel.setBackgroundImage( backgroundImage );
@@ -1038,7 +1065,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         editorPanel.setPreferredSize( new Dimension( gameResX, gameResY ) );
         editorPanel.setMaximumSize( new Dimension( gameResX, gameResY ) );
         editorPanel.setMinimumSize( new Dimension( gameResX, gameResY ) );
-        __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, editorPanel.getWidgetsDrawingManager() );
         ( (JScrollPane)editorPanel.getParent().getParent() ).doLayout();
         
         onWidgetSelected( editorPanel.getSelectedWidget() );
@@ -1063,6 +1089,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     private void showFullscreenPreview()
     {
+        Logger.log( "Showing fullscreen preview" );
+        
+        final GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        final DisplayMode desktopDM = graphDev.getDisplayMode();
+        
         JPanel p = new JPanel()
         {
             private static final long serialVersionUID = 1L;
@@ -1070,19 +1101,46 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             @Override
             protected void paintComponent( Graphics g )
             {
-                getEditorPanel().drawWidgets( (Graphics2D)g, true );
+                getEditorPanel().drawWidgets( (Graphics2D)g, true, false );
             }
         };
+        p.setBackground( Color.BLACK );
         
-        JDialog f = new JDialog( getMainWindow(), true );
-        f.setContentPane( p );
-        f.setUndecorated( true );
-        f.setSize( gameResX, gameResY );
-        f.setLocation( 0, 0 );
+        DisplayMode dm = displayModes.get( gameResX + "x" + gameResY );
         
-        final GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        //graphDev.setFullScreenWindow( f );
-        //graphDev.setDisplayMode( awtMode );
+        //boolean isSameMode = dm.equals( desktopDM );
+        boolean isSameMode = ( ( dm.getWidth() == desktopDM.getWidth() ) && ( dm.getHeight() == desktopDM.getHeight() ) );
+        java.awt.Window w;
+        //if ( isSameMode )
+        {
+            javax.swing.JDialog d = new javax.swing.JDialog( getMainWindow(), isSameMode );
+            
+            d.setUndecorated( true );
+            d.setSize( gameResX, gameResY );
+            d.setResizable( false );
+            d.setContentPane( p );
+            
+            w = d;
+        }
+        /*
+        else
+        {
+            java.awt.Dialog d = new java.awt.Dialog( getMainWindow() );
+            //java.awt.Frame d = new java.awt.Frame();
+            
+            d.setLayout( new java.awt.GridLayout( 1, 1 ) );
+            d.add( p );
+            d.setUndecorated( true );
+            d.setSize( gameResX, gameResY );
+            d.setResizable( false );
+            
+            w = d;
+        }
+        */
+        
+        w.setName( "preview frame" );
+        w.setBackground( Color.BLACK );
+        w.setLocation( 0, 0 );
         
         Toolkit.getDefaultToolkit().addAWTEventListener( new AWTEventListener()
         {
@@ -1091,25 +1149,94 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             {
                 KeyEvent kev = (KeyEvent)event;
                 
-                if ( ( kev.getID() == KeyEvent.KEY_PRESSED ) && ( ( kev.getKeyCode() == KeyEvent.VK_ESCAPE ) || ( kev.getKeyCode() == KeyEvent.VK_F4 ) ) )
+                if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    Toolkit.getDefaultToolkit().removeAWTEventListener( this );
-                    JDialog d = null;
-                    if ( event.getSource() instanceof java.awt.Window )
-                        d = (JDialog)event.getSource();
-                    else if ( ( (JComponent)event.getSource() ).getRootPane().getParent() instanceof JDialog )
-                        d = (JDialog)( (JComponent)event.getSource() ).getRootPane().getParent();
-                    
-                    d.setVisible( false );
-                    if ( graphDev.getFullScreenWindow() == d )
-                        graphDev.setFullScreenWindow( null );
+                    if ( ( kev.getKeyCode() == KeyEvent.VK_ESCAPE ) || ( kev.getKeyCode() == KeyEvent.VK_F4 ) )
+                    {
+                        Toolkit.getDefaultToolkit().removeAWTEventListener( this );
+                        java.awt.Window w = null;
+                        if ( event.getSource() instanceof java.awt.Window )
+                            w = (java.awt.Window)event.getSource();
+                        else if ( "preview frame".equals( ( (JComponent)event.getSource() ).getRootPane().getParent().getName() ) )
+                            w = (java.awt.Window)( (JComponent)event.getSource() ).getRootPane().getParent();
+                        
+                        //graphDev.setDisplayMode( desktopDM );
+                        
+                        if ( graphDev.getFullScreenWindow() == w )
+                            graphDev.setFullScreenWindow( null );
+                        
+                        //w.setVisible( false );
+                        w.dispose();
+                    }
+                    else if ( kev.getKeyCode() == KeyEvent.VK_F12 )
+                    {
+                        takeScreenshot();
+                    }
                 }
             }
         }, AWTEvent.KEY_EVENT_MASK );
         
+        w.addWindowListener( new WindowAdapter()
+        {
+            private boolean gridSuppressed = false;
+            
+            @Override
+            public void windowOpened( WindowEvent e )
+            {
+                EditorPanel editorPanel = getEditorPanel();
+                
+                if ( editorPanel.getDrawGrid() && ( editorPanel.getGridSizeX() > 1 ) && ( editorPanel.getGridSizeY() > 1 ) )
+                {
+                    editorPanel.setBGImageReloadSuppressed( true );
+                    editorPanel.setDrawGrid( false );
+                    editorPanel.setBGImageReloadSuppressed( false );
+                    editorPanel.setBackgroundImage( loadBackgroundImage( gameResX, gameResY ) );
+                    
+                    gridSuppressed = true;
+                }
+                
+                //graphDev.setDisplayMode( displayModes.get( gameResX + "x" + gameResY ) );
+            }
+            
+            @Override
+            public void windowClosed( WindowEvent e )
+            {
+                Logger.log( "Closing fullscreen preview" );
+                
+                EditorPanel editorPanel = getEditorPanel();
+                
+                if ( gridSuppressed )
+                {
+                    editorPanel.setBGImageReloadSuppressed( true );
+                    editorPanel.setDrawGrid( true );
+                    editorPanel.setBGImageReloadSuppressed( false );
+                    editorPanel.setBackgroundImage( loadBackgroundImage( gameResX, gameResY ) );
+                }
+                
+                editorPanel.repaint();
+                onWidgetSelected( editorPanel.getSelectedWidget() );
+            }
+        } );
+        
+        if ( isSameMode )
+        {
+            w.setVisible( true );
+        }
+        else
+        {
+            graphDev.setFullScreenWindow( w );
+            graphDev.setDisplayMode( dm );
+        }
+    }
+    
+    private void takeScreenshot()
+    {
         EditorPanel editorPanel = getEditorPanel();
         
+        BufferedImage img = new BufferedImage( gameResX, gameResY, BufferedImage.TYPE_3BYTE_BGR );
+        
         boolean gridSuppressed = false;
+        
         if ( editorPanel.getDrawGrid() && ( editorPanel.getGridSizeX() > 1 ) && ( editorPanel.getGridSizeY() > 1 ) )
         {
             editorPanel.setBGImageReloadSuppressed( true );
@@ -1120,7 +1247,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             gridSuppressed = true;
         }
         
-        f.setVisible( true );
+        editorPanel.drawWidgets( img.createGraphics(), true, false );
         
         if ( gridSuppressed )
         {
@@ -1129,13 +1256,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             editorPanel.setBGImageReloadSuppressed( false );
             editorPanel.setBackgroundImage( loadBackgroundImage( gameResX, gameResY ) );
         }
-    }
-    
-    private void takeScreenshot()
-    {
-        BufferedImage img = new BufferedImage( gameResX, gameResY, BufferedImage.TYPE_3BYTE_BGR );
         
-        getEditorPanel().drawWidgets( img.createGraphics(), true );
+        editorPanel.repaint();
+        onWidgetSelected( editorPanel.getSelectedWidget() );
         
         try
         {
@@ -1150,6 +1273,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 i++;
                 f = new File( folder, filenameBase + Tools.padLeft( i, 3, "0" ) + ".png" );
             }
+            
+            Logger.log( "Saving screenshot to file " + f.getPath() );
             
             ImageIO.write( img, "PNG", f );
         }
@@ -1629,12 +1754,10 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         resMenu.add( sssMenu );
         resMenu.add( new JSeparator() );
         
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         HashSet<DM> set = new HashSet<DM>();
-        for ( DisplayMode dm : ge.getDefaultScreenDevice().getDisplayModes() )
+        for ( DisplayMode dm : displayModes.values() )
         {
-            if ( ( dm.getWidth() >= 800 ) && ( dm.getWidth() >= 600 ) )
-                set.add( new DM( dm.getWidth(), dm.getHeight() ) );
+            set.add( new DM( dm.getWidth(), dm.getHeight() ) );
         }
         
         DM[] array = new DM[ set.size() ];

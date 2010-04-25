@@ -312,7 +312,7 @@ public class EditorPanel extends JPanel
     
     private long frameIndex = 0;
     
-    public void drawWidgets( Graphics2D g2, boolean drawEverything )
+    public void drawWidgets( Graphics2D g2, boolean drawEverything, boolean drawSelection )
     {
         HashMap<Widget, Rect2i> oldWidgetRects = this.oldWidgetRects;;
         
@@ -404,7 +404,7 @@ public class EditorPanel extends JPanel
             
             g2.drawImage( cacheImage, 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), null );
             
-            if ( selectedWidget != null )
+            if ( drawSelection && ( selectedWidget != null ) )
             {
                 drawSelection( selectedWidget, g2 );
             }
@@ -422,7 +422,7 @@ public class EditorPanel extends JPanel
         
         //System.out.println( "paintComponent()" );
         
-        drawWidgets( (Graphics2D)g, false );
+        drawWidgets( (Graphics2D)g, false, true );
     }
     
     public EditorPanel( RFDynHUDEditor editor, LiveGameData gameData, TextureImage2D overlay, WidgetsDrawingManager drawingManager )
