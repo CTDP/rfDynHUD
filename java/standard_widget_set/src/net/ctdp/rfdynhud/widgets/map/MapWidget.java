@@ -80,11 +80,6 @@ public class MapWidget extends Widget
         forceAndSetDirty();
     }
     
-    public final int getItemRadius()
-    {
-        return ( baseItemRadius );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -342,6 +337,7 @@ public class MapWidget extends Widget
                             
                             tt.getTexture().clear( true, null );
                             
+                            tt.getTextureCanvas().setAntialiazingEnabled( true );
                             tt.getTextureCanvas().fillArc( 0, 0, itemRadius + itemRadius, itemRadius + itemRadius, 0, 360 );
                             
                             if ( displayPositionNumbers.getBooleanValue() )
@@ -372,7 +368,7 @@ public class MapWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( "itemRadius", getItemRadius(), "The abstract radius for any displayed driver item." );
+        writer.writeProperty( "itemRadius", baseItemRadius, "The abstract radius for any displayed driver item." );
         writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
@@ -427,7 +423,7 @@ public class MapWidget extends Widget
             @Override
             public Object getValue()
             {
-                return ( getItemRadius() );
+                return ( baseItemRadius );
             }
         } );
         

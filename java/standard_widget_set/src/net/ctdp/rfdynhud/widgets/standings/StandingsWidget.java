@@ -60,6 +60,7 @@ public class StandingsWidget extends Widget
     private int maxDisplayedDrivers = 100;
     
     private String[][] currPosStrings = null;
+    private final int[] oldColWidths = { 0, 0, 0, 0, 0, 0, 0 };
     private final int[] colWidths = { 0, 0, 0, 0, 0, 0, 0 };
     private final Alignment[] colAligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.LEFT };
     private final int colPadding = 8;
@@ -240,6 +241,8 @@ public class StandingsWidget extends Widget
             for ( int i = 0; i < oldPosStirngs.length; i++ )
                 oldPosStirngs[i] = null;
         }
+        
+        Arrays.fill( oldColWidths, -1 );
         
         //forceReinitialization();
     }
@@ -691,6 +694,33 @@ public class StandingsWidget extends Widget
         }
     }
     
+    private int updateColumnWidths( TextureImage2D texture, int widgetWidth )
+    {
+        Arrays.fill( colWidths, 0 );
+        
+        int minWidth = 0;
+        for ( int i = 0; i < numVehicles; i++ )
+        {
+            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], colAligns, colPadding, texture, colWidths );
+            if ( w > minWidth )
+                minWidth = w;
+        }
+        
+        if ( colWidths[5] > 0 )
+        {
+            colWidths[5] += 15;
+            minWidth += 15;
+        }
+        
+        if ( !useAutoWidth.getBooleanValue() )
+        {
+            if ( minWidth < widgetWidth )
+                colWidths[1] += widgetWidth - minWidth;
+        }
+        
+        return ( minWidth );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -727,23 +757,10 @@ public class StandingsWidget extends Widget
             result = true;
         }
         
-        Arrays.fill( colWidths, 0 );
-        
-        int minWidth = 0;
-        for ( int i = 0; i < numVehicles; i++ )
-        {
-            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], colAligns, colPadding, texture, colWidths );
-            if ( w > minWidth )
-                minWidth = w;
-        }
+        int minWidth = updateColumnWidths( texture, width );
         
         if ( !useAutoWidth.getBooleanValue() )
-        {
-            if ( minWidth < width )
-                colWidths[1] += width - minWidth;
-            
             return ( result );
-        }
         
         //int padding = 2 * 8;
         int padding = 0;
@@ -779,13 +796,13 @@ public class StandingsWidget extends Widget
         oldPosStirngs = null;
     }
     
-    private void drawPosition( int i, VehicleScoringInfo vsi, boolean needsCompleteRedraw, TextureImage2D texture, int offsetX, int offsetY, int width )
+    private void drawPosition( boolean clock2, int i, VehicleScoringInfo vsi, boolean needsCompleteRedraw, TextureImage2D texture, int offsetX, int offsetY, int width )
     {
         //texture.getTextureCanvas().pushClip( offsetX + positionStrings[i].getAbsX(), clipRect.getTop(), width - positionStrings[i].getAbsX() - 13, clipRect.getHeight() );
         
         String[] ss = currPosStrings[i];
         
-        if ( needsCompleteRedraw || !Arrays.equals( ss, oldPosStirngs[i] ) )
+        if ( needsCompleteRedraw || ( clock2 && !Arrays.equals( ss, oldPosStirngs[i] ) ) )
         {
             java.awt.Color fc = null;
             
@@ -820,9 +837,15 @@ public class StandingsWidget extends Widget
     {
         oldPosStirngs = ensureCapacity( oldPosStirngs, numVehicles, true );
         
+        if ( clock2 && !Arrays.equals( oldColWidths, colWidths ) )
+        {
+            needsCompleteRedraw = true;
+            System.arraycopy( colWidths, 0, oldColWidths, 0, colWidths.length );
+        }
+        
         for ( int i = 0; i < numVehicles; i++ )
         {
-            drawPosition( i, vehicleScoringInfos[i], needsCompleteRedraw, texture, offsetX, offsetY, width );
+            drawPosition( clock2, i, vehicleScoringInfos[i], needsCompleteRedraw, texture, offsetX, offsetY, width );
         }
     }
     
