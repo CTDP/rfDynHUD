@@ -21,6 +21,7 @@ import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.StandingsTools;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.util.TimingUtil;
@@ -53,13 +54,14 @@ public class StandingsWidget extends Widget
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
     private final EnumProperty<NameDisplayType> nameDisplayType = new EnumProperty<NameDisplayType>( this, "nameDisplayType", NameDisplayType.FULL_NAME );
     private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
+    private final BooleanProperty showTopspeeds = new BooleanProperty( this, "showTopspeeds", false );
     
     private DrawnString[] positionStrings = null;
     private int maxDisplayedDrivers = 100;
     
     private String[][] currPosStrings = null;
-    private final int[] colWidths = { 0, 0, 0, 0, 0 };
-    private final Alignment[] colAligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT, Alignment.LEFT };
+    private final int[] colWidths = { 0, 0, 0, 0, 0, 0, 0 };
+    private final Alignment[] colAligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT, Alignment.LEFT };
     private final int colPadding = 8;
     //private int[] vsiIndices = null;
     private int numVehicles = -1;
@@ -274,7 +276,7 @@ public class StandingsWidget extends Widget
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 5 ];
+        String[] ss = new String[ 7 ];
         
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
@@ -317,18 +319,33 @@ public class StandingsWidget extends Widget
                 ss[3] = String.valueOf( stops );
                 ss[4] = "Stops";
             }
+            
+            if ( showTopspeeds.getBooleanValue() )
+            {
+                ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
+                ss[6] = "km/h";
+            }
+            else
+            {
+                ss[5] = null;
+                ss[6] = null;
+            }
         }
         else if ( finishStatus == FinishStatus.FINISHED )
         {
             ss[2] = "(" + finishStatus.toString() + ")";
             ss[3] = null;
             ss[4] = null;
+            ss[5] = null;
+            ss[6] = null;
         }
         else
         {
             ss[2] = "Out! (" + finishStatus.toString() + ")";
             ss[3] = null;
             ss[4] = null;
+            ss[5] = null;
+            ss[6] = null;
         }
         
         return ( ss );
@@ -338,7 +355,7 @@ public class StandingsWidget extends Widget
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 5 ];
+        String[] ss = new String[ 7 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
         ss[1] = getDisplayedDriverName( vsi.getDriverName() );
@@ -394,18 +411,33 @@ public class StandingsWidget extends Widget
                 ss[3] = String.valueOf( stops );
                 ss[4] = "Stops";
             }
+            
+            if ( showTopspeeds.getBooleanValue() )
+            {
+                ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
+                ss[6] = "km/h";
+            }
+            else
+            {
+                ss[5] = null;
+                ss[6] = null;
+            }
         }
         else if ( finishStatus == FinishStatus.FINISHED )
         {
             ss[2] = "(" + finishStatus.toString() + ")";
             ss[3] = null;
             ss[4] = null;
+            ss[5] = null;
+            ss[6] = null;
         }
         else
         {
             ss[2] = "Out! (" + finishStatus.toString() + ")";
             ss[3] = null;
             ss[4] = null;
+            ss[5] = null;
+            ss[6] = null;
         }
         
         return ( ss );
@@ -458,7 +490,7 @@ public class StandingsWidget extends Widget
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 5 ];
+        String[] ss = new String[ 7 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
         ss[1] = getDisplayedDriverName( vsi.getDriverName() );
@@ -494,6 +526,17 @@ public class StandingsWidget extends Widget
             ss[4] = "Laps";
         }
         
+        if ( showTopspeeds.getBooleanValue() )
+        {
+            ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
+            ss[6] = "km/h";
+        }
+        else
+        {
+            ss[5] = null;
+            ss[6] = null;
+        }
+        
         return ( ss );
     }
     
@@ -501,7 +544,7 @@ public class StandingsWidget extends Widget
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 5 ];
+        String[] ss = new String[ 7 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
         ss[1] = getDisplayedDriverName( vsi.getDriverName() );
@@ -535,6 +578,17 @@ public class StandingsWidget extends Widget
         {
             ss[3] = String.valueOf( lapsCompleted );
             ss[4] = "Laps";
+        }
+        
+        if ( showTopspeeds.getBooleanValue() )
+        {
+            ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
+            ss[6] = "km/h";
+        }
+        else
+        {
+            ss[5] = null;
+            ss[6] = null;
         }
         
         return ( ss );
@@ -617,11 +671,7 @@ public class StandingsWidget extends Widget
         
         String[] strs = { "99.", ( nameDisplayType.getEnumValue() == NameDisplayType.THREE_LETTER_CODE ) ? "AAAA" : ( ( nameDisplayType.getEnumValue() == NameDisplayType.SHORT_FORM ) ? "G. Fisichella___" : "Giancarlo Fisichella___" ), "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
         
-        ds.getMinColWidths( strs, colAligns, colPadding, texCanvas.getImage(), colWidths );
-        
-        int total = 0;
-        for ( int i = 0; i < colWidths.length; i++ )
-            total += colWidths[i];
+        int total = ds.getMinColWidths( strs, colAligns, colPadding, texCanvas.getImage(), colWidths );
         
         return ( total );
     }
@@ -677,8 +727,7 @@ public class StandingsWidget extends Widget
             result = true;
         }
         
-        for ( int i = 0; i < colWidths.length; i++ )
-            colWidths[i] = 0;
+        Arrays.fill( colWidths, 0 );
         
         int minWidth = 0;
         for ( int i = 0; i < numVehicles; i++ )
@@ -689,7 +738,12 @@ public class StandingsWidget extends Widget
         }
         
         if ( !useAutoWidth.getBooleanValue() )
+        {
+            if ( minWidth < width )
+                colWidths[1] += width - minWidth;
+            
             return ( result );
+        }
         
         //int padding = 2 * 8;
         int padding = 0;
@@ -792,6 +846,7 @@ public class StandingsWidget extends Widget
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
         writer.writeProperty( nameDisplayType, "How to display driver names." );
         writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
+        writer.writeProperty( showTopspeeds, "Whether to show a topspeeds column or not." );
     }
     
     /**
@@ -823,6 +878,7 @@ public class StandingsWidget extends Widget
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
         else if ( nameDisplayType.loadProperty( key, value ) );
         else if ( abbreviate.loadProperty( key, value ) );
+        else if ( showTopspeeds.loadProperty( key, value ) );
     }
     
     /**
@@ -864,6 +920,7 @@ public class StandingsWidget extends Widget
         propsCont.addProperty( forceLeaderDisplayed );
         propsCont.addProperty( nameDisplayType );
         propsCont.addProperty( abbreviate );
+        propsCont.addProperty( showTopspeeds );
     }
     
     public StandingsWidget( String name )
