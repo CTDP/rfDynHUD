@@ -13,6 +13,8 @@ public enum PropertyEditorType
     POS_SIZE,
     BOOLEAN,
     ENUM,
+    ARRAY,
+    LIST,
     FONT,
     COLOR,
     IMAGE,

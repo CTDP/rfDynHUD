@@ -10,7 +10,7 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -31,7 +31,7 @@ public class TimingWidget extends Widget
     private final BooleanProperty displayAbsFastest = new BooleanProperty( this, "displayAbsFastest", true );
     private final BooleanProperty cumulativeSectors = new BooleanProperty( this, "cumulativeSectors", false );
     private final BooleanProperty forceCurrentCumulSectors = new BooleanProperty( this, "forceCurrentCumulSectors", true );
-    private final IntegerProperty lastLapDisplayDelay = new IntegerProperty( this, "lastLapDisplayDelay", "lastLapDisplayDelay", 10000, -100, Integer.MAX_VALUE, false ); // ten seconds
+    private final IntProperty lastLapDisplayDelay = new IntProperty( this, "lastLapDisplayDelay", "lastLapDisplayDelay", 10000, -100, Integer.MAX_VALUE, false ); // ten seconds
     
     private final ColorProperty slowerColor = new ColorProperty( this, "slowerColor", "#FF7248" );
     private final ColorProperty fasterColor = new ColorProperty( this, "fasterColor", "#6AFF3D" );
@@ -147,10 +147,10 @@ public class TimingWidget extends Widget
         
         if ( vsi.getStintLength() < 1.9f )
             lastLapDisplayTime = -1f;
-        else if ( lastLapDisplayDelay.getIntegerValue() < 0 )
-            lastLapDisplayTime = vsi.getLapStartTime() + ( vsi.getLaptime( vsi.getLapsCompleted() ).getSector1() * -lastLapDisplayDelay.getIntegerValue() / 100f );
+        else if ( lastLapDisplayDelay.getIntValue() < 0 )
+            lastLapDisplayTime = vsi.getLapStartTime() + ( vsi.getLaptime( vsi.getLapsCompleted() ).getSector1() * -lastLapDisplayDelay.getIntValue() / 100f );
         else
-            lastLapDisplayTime = vsi.getLapStartTime() + ( lastLapDisplayDelay.getIntegerValue() / 1000f );
+            lastLapDisplayTime = vsi.getLapStartTime() + ( lastLapDisplayDelay.getIntValue() / 1000f );
     }
     
     /**

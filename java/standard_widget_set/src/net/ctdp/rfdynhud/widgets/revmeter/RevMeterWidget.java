@@ -23,7 +23,7 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
-import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -96,7 +96,7 @@ public class RevMeterWidget extends Widget
     
     private float backgroundScaleX, backgroundScaleY;
     
-    private final IntegerProperty needleAxisBottomOffset = new IntegerProperty( this, "needleAxisBottomOffset", "axisBottomOffset", 60 );
+    private final IntProperty needleAxisBottomOffset = new IntProperty( this, "needleAxisBottomOffset", "axisBottomOffset", 60 );
     
     private final FloatProperty needleRotationForZeroRPM = new FloatProperty( this, "rotationForZeroRPM", (float)Math.PI * 0.68f )
     {
@@ -129,9 +129,9 @@ public class RevMeterWidget extends Widget
     
     private final BooleanProperty displayRevMarkers = new BooleanProperty( this, "displayRevMarkers", true );
     private final BooleanProperty displayRevMarkerNumbers = new BooleanProperty( this, "displayRevMarkerNumbers", true );
-    private final IntegerProperty revMarkersInnerRadius = new IntegerProperty( this, "revMarkersInnerRadius", "innerRadius", 224 );
-    private final IntegerProperty revMarkersLength = new IntegerProperty( this, "revMarkersLength", "length", 50, 4, Integer.MAX_VALUE, false );
-    private final IntegerProperty revMarkersBigStep = new IntegerProperty( this, "revMarkersBigStep", "bigStep", 1000, 300, Integer.MAX_VALUE, false )
+    private final IntProperty revMarkersInnerRadius = new IntProperty( this, "revMarkersInnerRadius", "innerRadius", 224 );
+    private final IntProperty revMarkersLength = new IntProperty( this, "revMarkersLength", "length", 50, 4, Integer.MAX_VALUE, false );
+    private final IntProperty revMarkersBigStep = new IntProperty( this, "revMarkersBigStep", "bigStep", 1000, 300, Integer.MAX_VALUE, false )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -139,7 +139,7 @@ public class RevMeterWidget extends Widget
             fixSmallStep();
         }
     };
-    private final IntegerProperty revMarkersSmallStep = new IntegerProperty( this, "revMarkersSmallStep", "smallStep", 200, 20, Integer.MAX_VALUE, false )
+    private final IntProperty revMarkersSmallStep = new IntProperty( this, "revMarkersSmallStep", "smallStep", 200, 20, Integer.MAX_VALUE, false )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -156,7 +156,7 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
     private final BooleanProperty displayShiftLight = new BooleanProperty( this, "displayShiftLight", true );
-    private final IntegerProperty shiftLightPosX = new IntegerProperty( this, "shiftLightPosX", "posX", 625 )
+    private final IntProperty shiftLightPosX = new IntProperty( this, "shiftLightPosX", "posX", 625 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -164,7 +164,7 @@ public class RevMeterWidget extends Widget
             shiftLightTexture = null;
         }
     };
-    private final IntegerProperty shiftLightPosY = new IntegerProperty( this, "shiftLightPosY", "posY", 42 )
+    private final IntProperty shiftLightPosY = new IntProperty( this, "shiftLightPosY", "posY", 42 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -172,29 +172,29 @@ public class RevMeterWidget extends Widget
             shiftLightTexture = null;
         }
     };
-    private final IntegerProperty shiftLightRPM = new IntegerProperty( this, "shiftLightRPM", "activationRPM", -500 );
+    private final IntProperty shiftLightRPM = new IntProperty( this, "shiftLightRPM", "activationRPM", -500 );
     
-    private final IntegerProperty gearPosX = new IntegerProperty( this, "gearPosX", "posX", 354 );
-    private final IntegerProperty gearPosY = new IntegerProperty( this, "gearPosY", "posY", 512 );
+    private final IntProperty gearPosX = new IntProperty( this, "gearPosX", "posX", 354 );
+    private final IntProperty gearPosY = new IntProperty( this, "gearPosY", "posY", 512 );
     
     private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
     private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
     
     private final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
-    private final IntegerProperty boostBarPosX = new IntegerProperty( this, "boostBarPosX", "barPosX", 135 );
-    private final IntegerProperty boostBarPosY = new IntegerProperty( this, "boostBarPosY", "barPosY", 671 );
-    private final IntegerProperty boostBarWidth = new IntegerProperty( this, "boostBarWidth", "barWidth", 438 );
-    private final IntegerProperty boostBarHeight = new IntegerProperty( this, "boostBarHeight", "barHeight", 27 );
+    private final IntProperty boostBarPosX = new IntProperty( this, "boostBarPosX", "barPosX", 135 );
+    private final IntProperty boostBarPosY = new IntProperty( this, "boostBarPosY", "barPosY", 671 );
+    private final IntProperty boostBarWidth = new IntProperty( this, "boostBarWidth", "barWidth", 438 );
+    private final IntProperty boostBarHeight = new IntProperty( this, "boostBarHeight", "barHeight", 27 );
     private final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
-    private final IntegerProperty boostNumberPosX = new IntegerProperty( this, "boostNumberPosX", "numberPosX", 392 );
-    private final IntegerProperty boostNumberPosY = new IntegerProperty( this, "boostNumberPosY", "numberPosY", 544 );
+    private final IntProperty boostNumberPosX = new IntProperty( this, "boostNumberPosX", "numberPosX", 392 );
+    private final IntProperty boostNumberPosY = new IntProperty( this, "boostNumberPosY", "numberPosY", 544 );
     private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
     private final BooleanProperty displayVelocity = new BooleanProperty( this, "displayVelocity", true );
     
-    private final IntegerProperty velocityPosX = new IntegerProperty( this, "velocityPosX", "posX", 100 );
-    private final IntegerProperty velocityPosY = new IntegerProperty( this, "velocityPosY", "posY", 100 );
+    private final IntProperty velocityPosX = new IntProperty( this, "velocityPosX", "posX", 100 );
+    private final IntProperty velocityPosY = new IntProperty( this, "velocityPosY", "posY", 100 );
     
     private final FontProperty velocityFont = new FontProperty( this, "velocityFont", "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty velocityFontColor = new ColorProperty( this, "velocityFontColor", "fontColor", "#1A261C" );
@@ -202,8 +202,8 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
     private final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
     private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
-    private final IntegerProperty rpmPosX1 = new IntegerProperty( this, "rpmPosX1", "rpmPosX", 170 );
-    private final IntegerProperty rpmPosY1 = new IntegerProperty( this, "rpmPosY1", "rpmPosY", 603 );
+    private final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
+    private final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
     private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", "#C0BC3D" );
     private final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
@@ -211,8 +211,8 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
     private final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
     private final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
-    private final IntegerProperty rpmPosX2 = new IntegerProperty( this, "rpmPosX2", "rpmPosX", 170 );
-    private final IntegerProperty rpmPosY2 = new IntegerProperty( this, "rpmPosY2", "rpmPosY", 603 );
+    private final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
+    private final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
     private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", "#C0BC3D" );
     private final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
@@ -261,7 +261,7 @@ public class RevMeterWidget extends Widget
     
     private void fixSmallStep()
     {
-        this.revMarkersSmallStep.setIntegerValue( revMarkersBigStep.getIntegerValue() / Math.round( (float)revMarkersBigStep.getIntegerValue() / (float)revMarkersSmallStep.getIntegerValue() ) );
+        this.revMarkersSmallStep.setIntValue( revMarkersBigStep.getIntValue() / Math.round( (float)revMarkersBigStep.getIntValue() / (float)revMarkersSmallStep.getIntValue() ) );
     }
     
     private int loadNeedleTexture( boolean isEditorMode )
@@ -320,8 +320,8 @@ public class RevMeterWidget extends Widget
                 {
                     shiftLightTexture = new TransformableTexture( w, h * 2, 0, 0, 0, 0, 0f, 1f, 1f );
                     shiftLightTexture.getTexture().clear( false, null );
-                    it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), it.getBaseWidth(), it.getBaseHeight(), 0, 0, w, h, shiftLightTexture.getTexture(), false );
-                    it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), it.getBaseWidth(), it.getBaseHeight(), 0, h, w, h, shiftLightTexture.getTexture(), false );
+                    it0.drawScaled( shiftLightPosX.getIntValue(), shiftLightPosY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, 0, w, h, shiftLightTexture.getTexture(), false );
+                    it0.drawScaled( shiftLightPosX.getIntValue(), shiftLightPosY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, h, w, h, shiftLightTexture.getTexture(), false );
                     it.drawScaled( 0, 0, w, h, shiftLightTexture.getTexture(), false );
                     
                     //it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), shiftLightPosX.getIntegerValue() + it.getBaseWidth(), shiftLightPosY.getIntegerValue() + it.getBaseHeight(), 0, h, w, shiftLightTexture.getHeight(), shiftLightTexture.getTexture(), false );
@@ -563,8 +563,8 @@ public class RevMeterWidget extends Widget
             loadShiftLightTexture( isEditorMode );
         }
         
-        needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset.getIntegerValue() * backgroundScaleX ) );
-        needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset.getIntegerValue() * backgroundScaleX ) );
+        needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
+        needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
         //needleTexture.setRotation( 0f );
         //needleTexture.setScale( 1f, 1f );
         
@@ -581,13 +581,13 @@ public class RevMeterWidget extends Widget
         
         if ( gearBackgroundTexture == null )
         {
-            fx = Math.round( gearPosX.getIntegerValue() * backgroundScaleX );
-            fy = Math.round( gearPosY.getIntegerValue() * backgroundScaleY );
+            fx = Math.round( gearPosX.getIntValue() * backgroundScaleX );
+            fy = Math.round( gearPosY.getIntValue() * backgroundScaleY );
         }
         else
         {
-            gearBackgroundTexPosX = Math.round( gearPosX.getIntegerValue() * backgroundScaleX - gearBackgroundTexture.getWidth() / 2.0f );
-            gearBackgroundTexPosY = Math.round( gearPosY.getIntegerValue() * backgroundScaleY - gearBackgroundTexture.getHeight() / 2.0f );
+            gearBackgroundTexPosX = Math.round( gearPosX.getIntValue() * backgroundScaleX - gearBackgroundTexture.getWidth() / 2.0f );
+            gearBackgroundTexPosY = Math.round( gearPosY.getIntValue() * backgroundScaleY - gearBackgroundTexture.getHeight() / 2.0f );
             
             fx = gearBackgroundTexture.getWidth() / 2;
             fy = gearBackgroundTexture.getHeight() / 2;
@@ -607,13 +607,13 @@ public class RevMeterWidget extends Widget
         
         if ( boostNumberBackgroundTexture == null )
         {
-            fx = Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX );
-            fy = Math.round( boostNumberPosY.getIntegerValue() * backgroundScaleY );
+            fx = Math.round( boostNumberPosX.getIntValue() * backgroundScaleX );
+            fy = Math.round( boostNumberPosY.getIntValue() * backgroundScaleY );
         }
         else
         {
-            boostNumberBackgroundTexPosX = Math.round( boostNumberPosX.getIntegerValue() * backgroundScaleX - boostNumberBackgroundTexture.getWidth() / 2.0f );
-            boostNumberBackgroundTexPosY = Math.round( boostNumberPosY.getIntegerValue() * backgroundScaleY - boostNumberBackgroundTexture.getHeight() / 2.0f );
+            boostNumberBackgroundTexPosX = Math.round( boostNumberPosX.getIntValue() * backgroundScaleX - boostNumberBackgroundTexture.getWidth() / 2.0f );
+            boostNumberBackgroundTexPosY = Math.round( boostNumberPosY.getIntValue() * backgroundScaleY - boostNumberBackgroundTexture.getHeight() / 2.0f );
             
             fx = boostNumberBackgroundTexture.getWidth() / 2;
             fy = boostNumberBackgroundTexture.getHeight() / 2;
@@ -633,13 +633,13 @@ public class RevMeterWidget extends Widget
         
         if ( velocityBackgroundTexture == null )
         {
-            fx = Math.round( velocityPosX.getIntegerValue() * backgroundScaleX );
-            fy = Math.round( velocityPosY.getIntegerValue() * backgroundScaleY );
+            fx = Math.round( velocityPosX.getIntValue() * backgroundScaleX );
+            fy = Math.round( velocityPosY.getIntValue() * backgroundScaleY );
         }
         else
         {
-            velocityBackgroundTexPosX = Math.round( velocityPosX.getIntegerValue() * backgroundScaleX - velocityBackgroundTexture.getWidth() / 2.0f );
-            velocityBackgroundTexPosY = Math.round( velocityPosY.getIntegerValue() * backgroundScaleY - velocityBackgroundTexture.getHeight() / 2.0f );
+            velocityBackgroundTexPosX = Math.round( velocityPosX.getIntValue() * backgroundScaleX - velocityBackgroundTexture.getWidth() / 2.0f );
+            velocityBackgroundTexPosY = Math.round( velocityPosY.getIntValue() * backgroundScaleY - velocityBackgroundTexture.getHeight() / 2.0f );
             
             fx = velocityBackgroundTexture.getWidth() / 2;
             fy = velocityBackgroundTexture.getHeight() / 2;
@@ -648,12 +648,12 @@ public class RevMeterWidget extends Widget
         velocityString = new DrawnString( fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor() );
         
         if ( displayRPMString1.getBooleanValue() )
-            rpmString1 = new DrawnString( width - Math.round( rpmPosX1.getIntegerValue() * backgroundScaleX ), Math.round( rpmPosY1.getIntegerValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
+            rpmString1 = new DrawnString( width - Math.round( rpmPosX1.getIntValue() * backgroundScaleX ), Math.round( rpmPosY1.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
         else
             rpmString1 = null;
         
         if ( displayRPMString2.getBooleanValue() )
-            rpmString2 = new DrawnString( width - Math.round( rpmPosX2.getIntegerValue() * backgroundScaleX ), Math.round( rpmPosY2.getIntegerValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
+            rpmString2 = new DrawnString( width - Math.round( rpmPosX2.getIntValue() * backgroundScaleX ), Math.round( rpmPosY2.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
         else
             rpmString2 = null;
     }
@@ -711,8 +711,8 @@ public class RevMeterWidget extends Widget
             at2 = new AffineTransform();
         }
         
-        float innerRadius = revMarkersInnerRadius.getIntegerValue() * backgroundScaleX;
-        float outerRadius = ( revMarkersInnerRadius.getIntegerValue() + revMarkersLength.getIntegerValue() - 1 ) * backgroundScaleX;
+        float innerRadius = revMarkersInnerRadius.getIntValue() * backgroundScaleX;
+        float outerRadius = ( revMarkersInnerRadius.getIntValue() + revMarkersLength.getIntValue() - 1 ) * backgroundScaleX;
         float outerRadius2 = innerRadius + ( outerRadius - innerRadius ) * 0.75f;
         
         if ( fillHighBackground.getBooleanValue() )
@@ -764,7 +764,7 @@ public class RevMeterWidget extends Widget
             texCanvas.setFont( numberFont );
             FontMetrics metrics = texCanvas.getFontMetrics( numberFont );
             
-            final int smallStep = revMarkersSmallStep.getIntegerValue();
+            final int smallStep = revMarkersSmallStep.getIntValue();
             for ( int rpm = 0; rpm <= maxRPM; rpm += smallStep )
             {
                 float angle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( rpm / maxRPM ) );
@@ -779,7 +779,7 @@ public class RevMeterWidget extends Widget
                 else
                     texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxRPM - mediumRPM ) ) : revMarkersHighColor.getColor() );
                 
-                if ( ( rpm % revMarkersBigStep.getIntegerValue() ) == 0 )
+                if ( ( rpm % revMarkersBigStep.getIntValue() ) == 0 )
                 {
                     texCanvas.setStroke( thousand );
                     texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius ) );
@@ -894,7 +894,7 @@ public class RevMeterWidget extends Widget
                 int maxBoost = (int)gameData.getPhysics().getEngine().getBoostRange().getMaxValue();
                 boolean inverted = ( gameData.getPhysics().getEngine().getRPMIncreasePerBoostLevel() < 0f );
                 boolean tempBoost = false;
-                drawBoostBar( boost.getValue(), maxBoost, inverted, tempBoost, texture.getTextureCanvas(), offsetX + Math.round( boostBarPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( boostBarPosY.getIntegerValue() * backgroundScaleY ), Math.round( boostBarWidth.getIntegerValue() * backgroundScaleX ), Math.round( boostBarHeight.getIntegerValue() * backgroundScaleY ) );
+                drawBoostBar( boost.getValue(), maxBoost, inverted, tempBoost, texture.getTextureCanvas(), offsetX + Math.round( boostBarPosX.getIntValue() * backgroundScaleX ), offsetY + Math.round( boostBarPosY.getIntValue() * backgroundScaleY ), Math.round( boostBarWidth.getIntValue() * backgroundScaleX ), Math.round( boostBarHeight.getIntValue() * backgroundScaleY ) );
             }
         }
         
@@ -954,15 +954,15 @@ public class RevMeterWidget extends Widget
         if ( shiftLightTexture != null )
         {
             float maxRPM_boost = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM, boost.getValue() );
-            if ( rpm >= maxRPM_boost + shiftLightRPM.getIntegerValue() )
+            if ( rpm >= maxRPM_boost + shiftLightRPM.getIntValue() )
             {
                 shiftLightTexture.setClipRect( 0, 0, shiftLightTexture.getWidth(), shiftLightTexture.getHeight() / 2, true );
-                shiftLightTexture.setTranslation( Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ) );
+                shiftLightTexture.setTranslation( Math.round( shiftLightPosX.getIntValue() * backgroundScaleX ), Math.round( shiftLightPosY.getIntValue() * backgroundScaleY ) );
             }
             else
             {
                 shiftLightTexture.setClipRect( 0, shiftLightTexture.getHeight() / 2, shiftLightTexture.getWidth(), shiftLightTexture.getHeight() / 2, true );
-                shiftLightTexture.setTranslation( Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ) - shiftLightTexture.getHeight() / 2 );
+                shiftLightTexture.setTranslation( Math.round( shiftLightPosX.getIntValue() * backgroundScaleX ), Math.round( shiftLightPosY.getIntValue() * backgroundScaleY ) - shiftLightTexture.getHeight() / 2 );
             }
         }
         

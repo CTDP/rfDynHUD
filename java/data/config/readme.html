@@ -117,7 +117,10 @@ to save some room on the screen. The file is accessed as &quot;three_letter_code
 <pre>
 Rubens Barrichello=BAR
 Michael Schumacher=Mich
+Pedro De La Rosa=DLR;P. d.l.Rosa
 </pre>
+As you can see you can also separate a second short form by a semicolon from the actual three letter code. This short form is
+normally generated. But for some names it can be usefull to define it yourself.
 </p>
 
 <p>
@@ -134,8 +137,8 @@ for each of the resolutions, that you see under the &quot;Resolutions&quot; menu
 resultion, that you want to use in the editor. But we encourage you to create a complete set of screenshots and send them to us, so
 that we can provide them as additional downloads.<br />
 After you created those screenshots copy them to a new folder under the editor\backgrounds folder in the plugin folder. There you'll
-find a folder called &quot;default&quot;, which contains the default screenshot-set. Restart the editor and drop down the Resolutions menu from
-the menu bar. The first entry &quot;Screenshot Set&quot; opens a sub menu, where you can select your newly created custom screenshot set.
+find a folder called &quot;default&quot;, which contains the default screenshot-set. Now select the new set from the properties editor
+to the right after deletecting any Widget.
 </p>
 
 <p>
@@ -165,9 +168,9 @@ properties editor and the description will be displayed in the panel below.
 
 <p>
 <strong>Templates</strong><br />
-It is possible to define templates for any Widget type. This is simply done by storing a widget configuration file named
-&quot;templates.ini&quot; in the config folder. This file is reloaded any time you (re-)load your configuration. It is first searched
-next to the loaded configuration file and if not found tried a folder up and so forth up to the main config folder.
+It is possible to define templates for any Widget type. This is simply done by storing a Widget configuration file containing
+one Widget of any kind. Then select the configuration file for the &quot;templateConfig&quot; property in the property editor to the right
+after deselecting any Widget.
 </p>
 
 <p>

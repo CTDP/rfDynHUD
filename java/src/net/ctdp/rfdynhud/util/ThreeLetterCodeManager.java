@@ -101,9 +101,26 @@ public class ThreeLetterCodeManager
                 {
                     protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                     {
-                        threeLetterCodes.put( key, value );
-                        
-                        generateShortForm( key );
+                        int idx = value.indexOf( ';' );
+                        if ( idx >= 0 )
+                        {
+                            threeLetterCodes.put( key, value.substring( 0, idx ) );
+                            
+                            if ( idx < value.length() - 1 )
+                            {
+                                shortForms.put( key, value.substring( idx + 1 ) );
+                            }
+                            else
+                            {
+                                generateShortForm( key );
+                            }
+                        }
+                        else
+                        {
+                            threeLetterCodes.put( key, value );
+                            
+                            generateShortForm( key );
+                        }
                         
                         return ( true );
                     }

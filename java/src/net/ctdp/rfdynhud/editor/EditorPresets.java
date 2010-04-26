@@ -3,7 +3,7 @@ package net.ctdp.rfdynhud.editor;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.properties.FloatProperty;
-import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
@@ -17,8 +17,8 @@ public class EditorPresets
     private final FloatProperty currentSector1Time = new FloatProperty( null, "currentSector1Time", 29.138f );
     private final FloatProperty currentSector2Time = new FloatProperty( null, "currentSector2Time", 27.988f );
     private final FloatProperty currentSector3Time = new FloatProperty( null, "currentSector3Time", 26.440f );
-    private final IntegerProperty engineRPM = new IntegerProperty( null, "engineRPM", 3750 );
-    private final IntegerProperty engineLifetime = new IntegerProperty( null, "engineLifetime", 1000 );
+    private final IntProperty engineRPM = new IntProperty( null, "engineRPM", 3750 );
+    private final IntProperty engineLifetime = new IntProperty( null, "engineLifetime", 1000 );
     private final FloatProperty brakeDiscThicknessFL = new FloatProperty( null, "brakeDiscThicknessFL", 0.021f );
     private final FloatProperty brakeDiscThicknessFR = new FloatProperty( null, "brakeDiscThicknessFR", 0.0145f );
     private final FloatProperty brakeDiscThicknessRL = new FloatProperty( null, "brakeDiscThicknessRL", 0.018f );
@@ -93,12 +93,12 @@ public class EditorPresets
     
     public int getEngineRPM()
     {
-        return ( engineRPM.getIntegerValue() );
+        return ( engineRPM.getIntValue() );
     }
     
     public final int getEngineLifetime()
     {
-        return ( engineLifetime.getIntegerValue() );
+        return ( engineLifetime.getIntValue() );
     }
     
     public final float getBrakeDiscThicknessFL()

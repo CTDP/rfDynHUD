@@ -12,7 +12,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
-import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -43,7 +43,7 @@ public class TrackPositionWidget extends Widget
     private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", "#0000FFC0" );
     private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", "#FFFF00C0" );
     
-    private final IntegerProperty maxDisplayedVehicles = new IntegerProperty( this, "maxDisplayedVehicles", "maxDisplayedVehicles", 22, 1, 50, false );
+    private final IntProperty maxDisplayedVehicles = new IntProperty( this, "maxDisplayedVehicles", "maxDisplayedVehicles", 22, 1, 50, false );
     
     private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
     
@@ -72,7 +72,7 @@ public class TrackPositionWidget extends Widget
     
     private void initSubTextures( boolean isEditorMode )
     {
-        final int maxDspVehicles = this.maxDisplayedVehicles.getIntegerValue();
+        final int maxDspVehicles = this.maxDisplayedVehicles.getIntValue();
         
         itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResY() / 960f );
         
@@ -139,7 +139,7 @@ public class TrackPositionWidget extends Widget
         FontMetrics metrics = texture.getTextureCanvas().getFontMetrics( font );
         
         boolean normal = false;
-        int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles.getIntegerValue() );
+        int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles.getIntValue() );
         for ( int i = 0; i < n; i++ )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
@@ -208,7 +208,7 @@ public class TrackPositionWidget extends Widget
             }
         }
         
-        for ( int i = n; i < maxDisplayedVehicles.getIntegerValue(); i++ )
+        for ( int i = n; i < maxDisplayedVehicles.getIntValue(); i++ )
             itemTextures[i].setVisible( false );
     }
     

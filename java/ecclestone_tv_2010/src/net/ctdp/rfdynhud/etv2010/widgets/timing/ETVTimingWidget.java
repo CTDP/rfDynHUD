@@ -14,7 +14,7 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -47,12 +47,12 @@ public class ETVTimingWidget extends Widget
     private final ColorProperty dataColorFaster = new ColorProperty( this, "dataColorFaster", ETVUtils.ETV_STYLE_DATA_FONT_COLOR_FASTER );
     private final ColorProperty dataColorSlower = new ColorProperty( this, "dataColorSlower", ETVUtils.ETV_STYLE_DATA_FONT_COLOR_SLOWER );
     
-    private final IntegerProperty positionFontSize = new IntegerProperty( this, "positionFontSize", 200 );
+    private final IntProperty positionFontSize = new IntProperty( this, "positionFontSize", 200 );
     
     private final BooleanProperty alwaysVisible = new BooleanProperty( this, "alwaysVisible", false );
     
-    private final IntegerProperty visibleTimeBeforeSector = new IntegerProperty( this, "visibleTimeBeforeSector", 7 );
-    private final IntegerProperty visibleTimeAfterSector = new IntegerProperty( this, "visibleTimeAfterSector", 7 );
+    private final IntProperty visibleTimeBeforeSector = new IntProperty( this, "visibleTimeBeforeSector", 7 );
+    private final IntProperty visibleTimeAfterSector = new IntProperty( this, "visibleTimeAfterSector", 7 );
     
     private Font positionFont = null;
     
@@ -106,7 +106,7 @@ public class ETVTimingWidget extends Widget
         {
             Font base = getFont();
             
-            positionFont = base.deriveFont( base.getSize() * ( positionFontSize.getIntegerValue() / 100f ) );
+            positionFont = base.deriveFont( base.getSize() * ( positionFontSize.getIntValue() / 100f ) );
         }
         
         return ( positionFont );
@@ -176,7 +176,7 @@ public class ETVTimingWidget extends Widget
         VehicleScoringInfo refVSI = scoringInfo.getFastestLapVSI();
         Laptime relTime = refVSI.getFastestLaptime();
         
-        LapState ls = LapState.getLapState( scoringInfo, vsi, relTime, visibleTimeBeforeSector.getIntegerValue(), visibleTimeAfterSector.getIntegerValue(), true );
+        LapState ls = LapState.getLapState( scoringInfo, vsi, relTime, visibleTimeBeforeSector.getIntValue(), visibleTimeAfterSector.getIntValue(), true );
         
         lapState.update( ls );
         

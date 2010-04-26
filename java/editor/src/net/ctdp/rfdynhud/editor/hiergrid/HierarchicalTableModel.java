@@ -204,9 +204,9 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
                 return;
             }
             
-            accessor.setValue( (JTable)this.getTableModelListeners()[this.getTableModelListeners().length - 1], this, rowData, column - 1, value );
+            //accessor.setValue( (JTable)this.getTableModelListeners()[this.getTableModelListeners().length - 1], this, rowData, column - 1, value );
             
-            fireTableDataChanged();
+            //fireTableDataChanged();
         }
         
         accessor.setValue( (JTable)this.getTableModelListeners()[this.getTableModelListeners().length - 1], this, rowData, column - 1, value );

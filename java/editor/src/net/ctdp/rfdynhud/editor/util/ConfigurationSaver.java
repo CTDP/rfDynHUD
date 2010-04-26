@@ -14,7 +14,7 @@ import org.jagatoo.util.ini.IniWriter;
 
 public class ConfigurationSaver
 {
-    public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, File out ) throws IOException
+    public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, File out ) throws IOException
     {
         final IniWriter writer = new IniWriter( out );
         writer.setMinEqualSignPosition( 25 );
@@ -22,8 +22,8 @@ public class ConfigurationSaver
         
         writer.writeGroup( "Meta" );
         writer.writeSetting( "rfDynHUD_Version", RFDynHUD.VERSION.toString() );
-        if ( designResultion != null )
-            writer.writeSetting( "Design_Resolution", designResultion );
+        writer.writeSetting( "Design_Resolution", designResultion );
+        writer.writeSetting( "Design_Grid", "(" + gridOffsetX + "," + gridOffsetY + ";" + gridSizeX + "," + gridSizeY + ")" );
         
         writer.writeGroup( "NamedColors" );
         ArrayList<String> colorNames = new ArrayList<String>( widgetsConfig.getColorNames() );

@@ -87,39 +87,49 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         //if ( widgetChanged )
             editor.onWidgetSelected( selectedWidget );
         
-        if ( selectedWidget != null )
+        if ( e.getButton() == MouseEvent.BUTTON1 )
         {
-            mousePressedX = x;
-            mousePressedY = y;
-            
-            widgetDragStartX = selectedWidget.getPosition().getEffectiveX();
-            widgetDragStartY = selectedWidget.getPosition().getEffectiveY();
-            
-            if ( editor.getEditorPanel().getCursor().getType() == Cursor.DEFAULT_CURSOR )
+            if ( selectedWidget != null )
             {
-                editor.getEditorPanel().setCursor( Cursor.getPredefinedCursor( Cursor.MOVE_CURSOR ) );
+                mousePressedX = x;
+                mousePressedY = y;
+                
+                widgetDragStartX = selectedWidget.getPosition().getEffectiveX();
+                widgetDragStartY = selectedWidget.getPosition().getEffectiveY();
+                
+                if ( editor.getEditorPanel().getCursor().getType() == Cursor.DEFAULT_CURSOR )
+                {
+                    editor.getEditorPanel().setCursor( Cursor.getPredefinedCursor( Cursor.MOVE_CURSOR ) );
+                }
+                else
+                {
+                    widgetDragStartWidth = selectedWidget.getSize().getEffectiveWidth();
+                    widgetDragStartHeight = selectedWidget.getSize().getEffectiveHeight();
+                }
             }
-            else
-            {
-                widgetDragStartWidth = selectedWidget.getSize().getEffectiveWidth();
-                widgetDragStartHeight = selectedWidget.getSize().getEffectiveHeight();
-            }
+        }
+        else if ( e.getButton() == MouseEvent.BUTTON3 )
+        {
+            editor.initContextMenu();
         }
     }
     
     public void mouseReleased( MouseEvent e )
     {
-        if ( selectedWidget != null )
+        if ( e.getButton() == MouseEvent.BUTTON1 )
         {
-            selectedWidget = null;
-            mousePressedX = -1;
-            mousePressedY = -1;
-            widgetDragStartX = -1;
-            widgetDragStartY = -1;
-            widgetDragStartWidth = -1;
-            widgetDragStartHeight = -1;
-            
-            mouseMoved( e );
+            if ( selectedWidget != null )
+            {
+                selectedWidget = null;
+                mousePressedX = -1;
+                mousePressedY = -1;
+                widgetDragStartX = -1;
+                widgetDragStartY = -1;
+                widgetDragStartWidth = -1;
+                widgetDragStartHeight = -1;
+                
+                mouseMoved( e );
+            }
         }
     }
     

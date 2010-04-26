@@ -14,7 +14,7 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
-import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -45,13 +45,13 @@ public class FuelWidget extends Widget
     
     private DrawnString fuelHeaderString = null;
     
-    private final IntegerProperty fuelBarLeftOffset = new IntegerProperty( this, "fuelBarLeftOffset", 4 );
+    private final IntProperty fuelBarLeftOffset = new IntProperty( this, "fuelBarLeftOffset", 4 );
     private final Size fuelBarWidth;
     
     private final ColorProperty fuelFontColor = new ColorProperty( this, "fuelFontColor", "#2828FF" );
     
     private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( this, "roundUpRemainingLaps", false );
-    private final IntegerProperty fuelSafetyPlanning = new IntegerProperty( this, "fuelSafetyPlanning", 2);
+    private final IntProperty fuelSafetyPlanning = new IntProperty( this, "fuelSafetyPlanning", 2);
     
     private DrawnString fuelLoadString1 = null;
     private DrawnString fuelLoadString2 = null;
@@ -252,13 +252,13 @@ public class FuelWidget extends Widget
         fuelHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fuel: (", ")" );
         
         int fuelBarWidth = this.fuelBarWidth.getEffectiveWidth();
-        int fuelBarCenter = left + fuelBarLeftOffset.getIntegerValue() + ( fuelBarWidth / 2 );
+        int fuelBarCenter = left + fuelBarLeftOffset.getIntValue() + ( fuelBarWidth / 2 );
         
         fuelLoadString1 = new DrawnString( fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "L" );
         fuelLoadString2 = new DrawnString( null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "kg" );
         fuelLoadString3 = new DrawnString( null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null );
         
-        int rightLeft = left + fuelBarLeftOffset.getIntegerValue() + fuelBarWidth + 2;
+        int rightLeft = left + fuelBarLeftOffset.getIntValue() + fuelBarWidth + 2;
         
         fuelUsageHeaderString = new DrawnString( null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Usage:", null );
         fuelUsageLastLapHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Last lap", null );
@@ -326,7 +326,7 @@ public class FuelWidget extends Widget
             
             int fuelY = fuelHeaderString.getAbsY() + fuelHeaderString.getMaxHeight( true ) + 0;
             int fuelHeight = height - fuelY - 4;
-            drawFuel( fuel, tankSize, texture, offsetX + fuelBarLeftOffset.getIntegerValue(), offsetY + fuelY, fuelHeight );
+            drawFuel( fuel, tankSize, texture, offsetX + fuelBarLeftOffset.getIntValue(), offsetY + fuelY, fuelHeight );
             
             String string = NumberUtil.formatFloat( fuel, 1, true );
             fuelLoadString1.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
@@ -437,7 +437,7 @@ public class FuelWidget extends Widget
                     String string = String.valueOf( nextPitstopLap ) + postfix1;
                     nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
-                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntegerValue() ) + "L (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + postfix2 + ")";
+                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + "L (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + postfix2 + ")";
                     nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 }
                 else

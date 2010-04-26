@@ -37,7 +37,7 @@ public class WidgetPropertyChangeListener implements PropertyChangeListener
                 if ( needsAreaClear( property ) )
                     editor.getEditorPanel().clearSelectedWidgetRegion();
                 
-                property.setValue( newValue );
+                //property.setValue( newValue );
                 
                 editor.getEditorPanel().repaint();
             }

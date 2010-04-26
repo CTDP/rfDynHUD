@@ -3,7 +3,7 @@ package net.ctdp.rfdynhud.properties;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
-public class IntegerProperty extends Property
+public class IntProperty extends Property
 {
     private int value;
     
@@ -14,7 +14,7 @@ public class IntegerProperty extends Property
     {
     }
     
-    public void setIntegerValue( int value )
+    public void setIntValue( int value )
     {
         value = Math.max( minValue, Math.min( value, maxValue ) );
         
@@ -33,7 +33,7 @@ public class IntegerProperty extends Property
             __WPrivilegedAccess.onPropertyChanged( this, oldValue, value, widget );
     }
     
-    public final int getIntegerValue()
+    public final int getIntValue()
     {
         return ( value );
     }
@@ -44,7 +44,7 @@ public class IntegerProperty extends Property
     @Override
     public void setValue( Object value )
     {
-        setIntegerValue( ( (Number)value ).intValue() );
+        setIntValue( ( (Number)value ).intValue() );
     }
     
     /**
@@ -53,7 +53,7 @@ public class IntegerProperty extends Property
     @Override
     public Object getValue()
     {
-        return ( getIntegerValue() );
+        return ( getIntValue() );
     }
     
     public final boolean loadProperty( String key, String value )
@@ -68,7 +68,7 @@ public class IntegerProperty extends Property
         return ( false );
     }
     
-    public IntegerProperty( Widget widget, String propertyName, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
+    public IntProperty( Widget widget, String propertyName, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
         super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.INTEGER, null, null );
         
@@ -77,22 +77,22 @@ public class IntegerProperty extends Property
         this.maxValue = maxValue;
     }
     
-    public IntegerProperty( Widget widget, String propertyName, String nameForDisplay, int defaultValue, boolean readonly )
+    public IntProperty( Widget widget, String propertyName, String nameForDisplay, int defaultValue, boolean readonly )
     {
         this( widget, propertyName, nameForDisplay, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, readonly );
     }
     
-    public IntegerProperty( Widget widget, String propertyName, String nameForDisplay, int defaultValue )
+    public IntProperty( Widget widget, String propertyName, String nameForDisplay, int defaultValue )
     {
         this( widget, propertyName, nameForDisplay, defaultValue, false );
     }
     
-    public IntegerProperty( Widget widget, String propertyName, int defaultValue, boolean readonly )
+    public IntProperty( Widget widget, String propertyName, int defaultValue, boolean readonly )
     {
         this( widget, propertyName, propertyName, defaultValue, readonly );
     }
     
-    public IntegerProperty( Widget widget, String propertyName, int defaultValue )
+    public IntProperty( Widget widget, String propertyName, int defaultValue )
     {
         this( widget, propertyName, defaultValue, false );
     }

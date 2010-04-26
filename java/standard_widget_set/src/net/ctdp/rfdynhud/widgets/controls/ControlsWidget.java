@@ -7,7 +7,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -64,7 +64,7 @@ public class ControlsWidget extends Widget
         texThrottle = null;
     }
     
-    private final IntegerProperty gap = new IntegerProperty( this, "gap", 10 );
+    private final IntProperty gap = new IntProperty( this, "gap", 10 );
     
     @Override
     public String getWidgetPackage()
@@ -97,7 +97,7 @@ public class ControlsWidget extends Widget
             return ( 0 );
         }
         
-        final int gap = this.gap.getIntegerValue();
+        final int gap = this.gap.getIntValue();
         final int w = ( widgetInnerWidth - 6 + gap ) / numBars - gap;
         final int h = widgetInnerHeight - 6;
         

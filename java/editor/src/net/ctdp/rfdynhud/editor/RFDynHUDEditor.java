@@ -20,9 +20,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -75,6 +79,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -314,9 +319,113 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
+    private static boolean checkConfigFile( File f )
+    {
+        BufferedReader br = null;
+        
+        try
+        {
+            br = new BufferedReader( new InputStreamReader( new FileInputStream( f ) ) );
+            if ( !"[Meta]".equals( br.readLine() ) )
+                return ( false );
+            
+            String line = br.readLine();
+            
+            if ( line == null )
+                return ( false );
+            
+            if ( !line.startsWith( "rfDynHUD_Version" ) )
+                return ( false );
+            
+            return ( true );
+        }
+        catch ( IOException e )
+        {
+            return ( false );
+        }
+        finally
+        {
+            try
+            {
+                br.close();
+            }
+            catch ( IOException e )
+            {
+            }
+        }
+    }
+    
+    private void fillConfigurationFiles( File folder, ArrayList<String> list )
+    {
+        for ( File f : folder.listFiles() )
+        {
+            if ( f.isFile() && f.getName().toLowerCase().endsWith( ".ini" ) )
+            {
+                if ( checkConfigFile( f ) )
+                    list.add( f.getAbsolutePath().substring( RFactorTools.CONFIG_PATH.length() + 1 ) );
+            }
+        }
+        
+        for ( File f : folder.listFiles() )
+        {
+            if ( f.isDirectory() )
+            {
+                fillConfigurationFiles( f, list );
+            }
+        }
+    }
+    
+    private ArrayList<String> getConfigurationFiles()
+    {
+        ArrayList<String> list = new ArrayList<String>();
+        
+        fillConfigurationFiles( RFactorTools.CONFIG_FOLDER, list );
+        
+        return ( list );
+    }
+    
+    private String getCurrentTemplateFileForProperty()
+    {
+        if ( currentTemplateFile == null )
+            return ( "none" );
+        
+        return ( currentTemplateFile.getAbsolutePath().substring( RFactorTools.CONFIG_PATH.length() + 1 ) );
+    }
+    
+    private ArrayList<String> getScreenshotSets()
+    {
+        ArrayList<String> list = new ArrayList<String>();
+        
+        File root = new File( RFactorTools.EDITOR_FOLDER, "backgrounds" );
+        for ( File f : root.listFiles() )
+        {
+            if ( f.isDirectory() && !f.getName().toLowerCase().equals( ".svn" ) )
+            {
+                list.add( f.getAbsolutePath().substring( root.getAbsolutePath().length() + 1 ) );
+            }
+        }
+        
+        return ( list );
+    }
+    
     private void getProperties( WidgetPropertiesContainer propsCont )
     {
         propsCont.addGroup( "General" );
+        
+        propsCont.addProperty( new ListProperty<String, ArrayList<String>>( null, "screenshotSet", screenshotSet, getScreenshotSets() )
+        {
+            @Override
+            public void setValue( Object value )
+            {
+                switchScreenshotSet( (String)value );
+            }
+            
+            @Override
+            public Object getValue()
+            {
+                return ( screenshotSet );
+            }
+        } );
         
         propsCont.addProperty( new Property( null, "resolution", true, PropertyEditorType.STRING )
         {
@@ -334,34 +443,41 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         getEditorPanel().getProperties( propsCont );
         
-        propsCont.addProperty( new Property( null, "screenshotSet", true, PropertyEditorType.STRING )
+        propsCont.addProperty( new ListProperty<String, ArrayList<String>>( null, "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
         {
             @Override
             public void setValue( Object value )
             {
+                try
+                {
+                    loadTemplateConfig( new File( RFactorTools.CONFIG_FOLDER, (String)value ) );
+                }
+                catch ( IOException e )
+                {
+                    Logger.log( e );
+                }
             }
             
             @Override
             public Object getValue()
             {
-                return ( screenshotSet );
-            }
-        } );
-        
-        propsCont.addProperty( new Property( null, "templateConfig", true, PropertyEditorType.STRING )
-        {
-            @Override
-            public void setValue( Object value )
-            {
+                return ( getCurrentTemplateFileForProperty() );
             }
             
             @Override
-            public Object getValue()
+            public void onButtonClicked( Object button )
             {
-                if ( currentTemplateFile == null )
-                    return ( "none" );
-                
-                return ( currentTemplateFile.getAbsolutePath().substring( RFactorTools.CONFIG_PATH.length() + 1 ) );
+                if ( currentTemplateFile != null )
+                {
+                    try
+                    {
+                        loadTemplateConfig( currentTemplateFile );
+                    }
+                    catch ( IOException e )
+                    {
+                        Logger.log( e );
+                    }
+                }
             }
         } );
     }
@@ -481,10 +597,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             WidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( writer );
             
             writer.writeGroup( "General" );
+            writer.writeSetting( "screenshotSet", screenshotSet );
             writer.writeSetting( "resolution", gameResX + "x" + gameResY );
             getEditorPanel().saveProperties( confWriter );
+            writer.writeSetting( "templatesConfig", getCurrentTemplateFileForProperty() );
             writer.writeSetting( "defaultScaleType", optionsWindow.getDefaultScaleType() );
-            writer.writeSetting( "screenshotSet", screenshotSet );
             writeLastConfig( writer );
             writer.writeSetting( "alwaysShowHelpOnStartup", alwaysShowHelpOnStartup );
             writer.writeGroup( "MainWindow" );
@@ -599,7 +716,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     {
                         getEditorPanel().loadProperty( key, value );
                         
-                        if ( key.equals( "resolution" ) )
+                        if ( key.equals( "screenshotSet" ) )
+                        {
+                            screenshotSet = value;
+                        }
+                        else if ( key.equals( "resolution" ) )
                         {
                             try
                             {
@@ -614,6 +735,17 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                                 t.printStackTrace();
                             }
                         }
+                        else if ( key.equals( "templatesConfig" ) )
+                        {
+                            try
+                            {
+                                loadTemplateConfig( new File( RFactorTools.CONFIG_FOLDER, value ) );
+                            }
+                            catch ( IOException e )
+                            {
+                                Logger.log( e );
+                            }
+                        }
                         else if ( key.equals( "defaultScaleType" ) )
                         {
                             try
@@ -624,10 +756,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                             {
                                 t.printStackTrace();
                             }
-                        }
-                        else if ( key.equals( "screenshotSet" ) )
-                        {
-                            screenshotSet = value;
                         }
                         else if ( key.equals( "lastConfig" ) )
                         {
@@ -748,18 +876,15 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( true );
     }
     
-    private File loadTemplateConfig( File configFile ) throws IOException
+    private File loadTemplateConfig( File templateConfigFile ) throws IOException
     {
-        File path = configFile.getParentFile();
-        File templateConfigFile = new File( path, "templates.ini" );
-        while ( !templateConfigFile.exists() && !path.equals( RFactorTools.CONFIG_FOLDER ) )
-        {
-            path = path.getParentFile();
-            templateConfigFile = new File( path, "templates.ini" );
-        }
-        
         if ( !templateConfigFile.exists() )
+        {
+            this.currentTemplateFile = null;
+            this.lastTemplateConfigModified = -1L;
+            
             return ( null );
+        }
         
         if ( !templateConfigFile.equals( this.currentTemplateFile ) || ( templateConfigFile.lastModified() > lastTemplateConfigModified ) )
         {
@@ -778,8 +903,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         try
         {
-            currentTemplateFile = loadTemplateConfig( configFile );
-            
             WidgetsDrawingManager widgetsManager = getEditorPanel().getWidgetsDrawingManager();
             int n = widgetsManager.getNumWidgets();
             for ( int i = 0; i < n; i++ )
@@ -863,7 +986,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         try
         {
-            ConfigurationSaver.saveConfiguration( getEditorPanel().getWidgetsDrawingManager(), gameResX + "x" + gameResY, currentConfigFile );
+            EditorPanel ep = getEditorPanel();
+            ConfigurationSaver.saveConfiguration( getEditorPanel().getWidgetsDrawingManager(), gameResX + "x" + gameResY, ep.getGridOffsetX(), ep.getGridOffsetY(), ep.getGridSizeX(), ep.getGridSizeY(), currentConfigFile );
             
             resetDirtyFlag();
             
@@ -1337,12 +1461,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( menu );
     }
     
-    private JMenu createEditMenu()
+    private JMenuItem createSnapSelWidgetToGridMenu()
     {
-        JMenu menu = new JMenu( "Edit" );
-        menu.setDisplayedMnemonicIndex( 0 );
-        
-        final JMenuItem snapSelWidgetToGrid = new JMenuItem( "Snap selected Widget to grid" );
+        JMenuItem snapSelWidgetToGrid = new JMenuItem( "Snap selected Widget to grid" );
         snapSelWidgetToGrid.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
@@ -1358,9 +1479,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 }
             }
         } );
-        menu.add( snapSelWidgetToGrid );
         
-        final JMenuItem snapAllWidgetsToGrid = new JMenuItem( "Snap all Widgets to grid" );
+        return ( snapSelWidgetToGrid );
+    }
+    
+    private JMenuItem createSnapAllWidgetsToGridMenu()
+    {
+        JMenuItem snapAllWidgetsToGrid = new JMenuItem( "Snap all Widgets to grid" );
         snapAllWidgetsToGrid.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
@@ -1373,6 +1498,35 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 setDirtyFlag();
             }
         } );
+        
+        return ( snapAllWidgetsToGrid );
+    }
+    
+    private JMenuItem createRemoveWidgetMenu()
+    {
+        JMenuItem removeItem = new JMenuItem( "Remove selected Widget (DEL)" );
+        //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
+        removeItem.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                getEditorPanel().removeSelectedWidget();
+                onWidgetSelected( null );
+            }
+        } );
+        
+        return ( removeItem );
+    }
+    
+    private JMenu createEditMenu()
+    {
+        JMenu menu = new JMenu( "Edit" );
+        menu.setDisplayedMnemonicIndex( 0 );
+        
+        final JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu();
+        menu.add( snapSelWidgetToGrid );
+        
+        final JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu();
         menu.add( snapAllWidgetsToGrid );
         
         menu.addSeparator();
@@ -1411,17 +1565,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         menu.addSeparator();
         
-        final JMenuItem removeItem = new JMenuItem( "Remove selected Widget (DEL)" );
-        //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
-        removeItem.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                getEditorPanel().removeSelectedWidget();
-                onWidgetSelected( null );
-            }
-        } );
-        
+        final JMenuItem removeItem = createRemoveWidgetMenu();
         menu.add( removeItem );
         
         menu.addMenuListener( new MenuListener()
@@ -1451,6 +1595,29 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         } );
         
         return ( menu );
+    }
+    
+    public void initContextMenu()
+    {
+        JPopupMenu menu = new JPopupMenu();
+        
+        JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu();
+        menu.add( snapSelWidgetToGrid );
+        
+        JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu();
+        menu.add( snapAllWidgetsToGrid );
+        
+        JMenuItem removeItem = createRemoveWidgetMenu();
+        menu.add( removeItem );
+        
+        boolean hasSelected = ( getEditorPanel().getSelectedWidget() != null );
+        boolean hasWidgets = ( getEditorPanel().getWidgetsDrawingManager().getNumWidgets() > 0 );
+        
+        snapSelWidgetToGrid.setEnabled( hasSelected );
+        snapAllWidgetsToGrid.setEnabled( hasWidgets );
+        removeItem.setEnabled( hasSelected );
+        
+        getEditorPanel().setComponentPopupMenu( menu );
     }
     
     private JMenuItem createWidgetMenuItem( final Class<?> clazz )
@@ -1719,40 +1886,10 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( getBackgroundImageFile( resX, resY ).exists() );
     }
     
-    private JMenu createScreenshotSetsMenu()
-    {
-        JMenu menu = new JMenu( "Screenshot Set" );
-        
-        File root = new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" );
-        for ( File f : root.listFiles() )
-        {
-            if ( f.isDirectory() && !f.getName().toLowerCase().equals( ".svn" ) )
-            {
-                final JMenuItem mi = new JMenuItem( f.getName() );
-                mi.addActionListener( new ActionListener()
-                {
-                    public void actionPerformed( ActionEvent e )
-                    {
-                        switchScreenshotSet( mi.getText() );
-                    }
-                } );
-                
-                menu.add( mi );
-            }
-        }
-        
-        return ( menu );
-    }
-    
     private JMenu createResolutionsMenu()
     {
         JMenu resMenu = new JMenu( "Resolutions" );
         resMenu.setDisplayedMnemonicIndex( 0 );
-        
-        JMenu sssMenu = createScreenshotSetsMenu();
-        resMenu.setDisplayedMnemonicIndex( 0 );
-        resMenu.add( sssMenu );
-        resMenu.add( new JSeparator() );
         
         HashSet<DM> set = new HashSet<DM>();
         for ( DisplayMode dm : displayModes.values() )

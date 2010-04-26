@@ -61,6 +61,8 @@ public class EnumProperty<E extends Enum<E>> extends Property
                 if ( e.name().equals( value ) )
                 {
                     setValue( e );
+                    
+                    return ( true );
                 }
             }
             

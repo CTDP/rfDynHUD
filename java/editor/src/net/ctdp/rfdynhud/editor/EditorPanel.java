@@ -17,7 +17,7 @@ import org.openmali.types.twodee.Rect2i;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
-import net.ctdp.rfdynhud.properties.IntegerProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -57,7 +57,7 @@ public class EditorPanel extends JPanel
         }
     };
     
-    private final IntegerProperty gridSizeX = new IntegerProperty( null, "gridSizeX", 10 )
+    private final IntProperty gridOffsetX = new IntProperty( null, "gridOffsetX", 0 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -67,7 +67,27 @@ public class EditorPanel extends JPanel
         }
     };
     
-    private final IntegerProperty gridSizeY = new IntegerProperty( null, "gridSizeY", 10 )
+    private final IntProperty gridOffsetY = new IntProperty( null, "gridOffsetY", 0 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
+                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+        }
+    };
+    
+    private final IntProperty gridSizeX = new IntProperty( null, "gridSizeX", 10 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
+                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+        }
+    };
+    
+    private final IntProperty gridSizeY = new IntProperty( null, "gridSizeY", 10 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -98,19 +118,31 @@ public class EditorPanel extends JPanel
         return ( drawGrid.getBooleanValue() );
     }
     
+    public final int getGridOffsetX()
+    {
+        return ( gridOffsetX.getIntValue() );
+    }
+    
+    public final int getGridOffsetY()
+    {
+        return ( gridOffsetY.getIntValue() );
+    }
+    
     public final int getGridSizeX()
     {
-        return ( gridSizeX.getIntegerValue() );
+        return ( gridSizeX.getIntValue() );
     }
     
     public final int getGridSizeY()
     {
-        return ( gridSizeY.getIntegerValue() );
+        return ( gridSizeY.getIntValue() );
     }
     
     public void getProperties( WidgetPropertiesContainer propsCont )
     {
         propsCont.addProperty( drawGrid );
+        propsCont.addProperty( gridOffsetX );
+        propsCont.addProperty( gridOffsetY );
         propsCont.addProperty( gridSizeX );
         propsCont.addProperty( gridSizeY );
     }
@@ -118,6 +150,8 @@ public class EditorPanel extends JPanel
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
         writer.writeProperty( drawGrid, null );
+        writer.writeProperty( gridOffsetX, null );
+        writer.writeProperty( gridOffsetY, null );
         writer.writeProperty( gridSizeX, null );
         writer.writeProperty( gridSizeY, null );
     }
@@ -127,6 +161,8 @@ public class EditorPanel extends JPanel
         bgImageReloadSuppressed = true;
         
         if ( drawGrid.loadProperty( key, value ) );
+        else if ( gridOffsetX.loadProperty( key, value ) );
+        else if ( gridOffsetY.loadProperty( key, value ) );
         else if ( gridSizeX.loadProperty( key, value ) );
         else if ( gridSizeY.loadProperty( key, value ) );
         
@@ -135,8 +171,8 @@ public class EditorPanel extends JPanel
     
     private final boolean isGridUsed()
     {
-        final int gridSizeX = this.gridSizeX.getIntegerValue();
-        final int gridSizeY = this.gridSizeY.getIntegerValue();
+        final int gridSizeX = this.gridSizeX.getIntValue();
+        final int gridSizeY = this.gridSizeY.getIntValue();
         
         return ( drawGrid.getBooleanValue() && ( gridSizeX > 1 ) && ( gridSizeY > 1 ) );
     }
@@ -146,7 +182,7 @@ public class EditorPanel extends JPanel
         if ( !isGridUsed() )
             return ( x );
         
-        return ( Math.min( Math.round( x / (float)gridSizeX.getIntegerValue() ) * gridSizeX.getIntegerValue(), drawingManager.getGameResX() - 1 ) );
+        return ( gridOffsetX.getIntValue() + Math.min( Math.round( ( x - gridOffsetX.getIntValue() ) / (float)gridSizeX.getIntValue() ) * gridSizeX.getIntValue(), drawingManager.getGameResX() - 1 ) );
     }
     
     public final int snapYToGrid( int y )
@@ -154,7 +190,7 @@ public class EditorPanel extends JPanel
         if ( !isGridUsed() )
             return ( y );
         
-        return ( Math.min( Math.round( y / (float)gridSizeY.getIntegerValue() ) * gridSizeY.getIntegerValue(), drawingManager.getGameResY() - 1 ) );
+        return ( gridOffsetY.getIntValue() + Math.min( Math.round( ( y - gridOffsetY.getIntValue() ) / (float)gridSizeY.getIntValue() ) * gridSizeY.getIntValue(), drawingManager.getGameResY() - 1 ) );
     }
     
     public void snapWidgetToGrid( Widget widget )
@@ -195,14 +231,16 @@ public class EditorPanel extends JPanel
         Graphics2D g2 = backgroundImage.createGraphics();
         g2.setColor( Color.BLACK );
         
-        final int gridSizeX = this.gridSizeX.getIntegerValue();
-        final int gridSizeY = this.gridSizeY.getIntegerValue();
+        final int gridOffsetX = this.gridOffsetX.getIntValue();
+        final int gridOffsetY = this.gridOffsetY.getIntValue();
+        final int gridSizeX = this.gridSizeX.getIntValue();
+        final int gridSizeY = this.gridSizeY.getIntValue();
         final int gameResX = drawingManager.getGameResX();
         final int gameResY = drawingManager.getGameResY();
         
-        for ( int x = gridSizeX - 1; x < gameResX; x += gridSizeX )
+        for ( int x = gridSizeX - 1 + gridOffsetX; x < gameResX - gridOffsetX; x += gridSizeX )
         {
-            for ( int y = gridSizeY - 1; y < gameResY; y += gridSizeY )
+            for ( int y = gridSizeY - 1 + gridOffsetY; y < gameResY - gridOffsetY; y += gridSizeY )
             {
                 g2.drawLine( x, y, x, y );
             }

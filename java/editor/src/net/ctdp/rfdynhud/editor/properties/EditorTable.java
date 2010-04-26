@@ -47,6 +47,8 @@ public class EditorTable extends HierarchicalTable
     private final PosSizeCellEditor posSizeEditor = new PosSizeCellEditor();
     private final StringCellEditor stringEditor = new StringCellEditor();
     private final EnumCellEditor enumEditor = new EnumCellEditor();
+    private final ArrayCellEditor arrayEditor = new ArrayCellEditor();
+    private final ListCellEditor listEditor = new ListCellEditor();
     private final FontCellEditor fontEditor = new FontCellEditor();
     private final ColorCellEditor colorEditor = new ColorCellEditor();
     private final ImageNameCellEditor imageEditor = new ImageNameCellEditor();
@@ -99,6 +101,12 @@ public class EditorTable extends HierarchicalTable
             case ENUM:
                 //return ( enumEditor );
                 return ( new EnumCellEditor() );
+            case ARRAY:
+                //return ( arrayEditor );
+                return ( new ArrayCellEditor() );
+            case LIST:
+                //return ( listEditor );
+                return ( new ListCellEditor() );
             case FONT:
                 //return ( fontEditor );
                 return ( new FontCellEditor() );
@@ -152,6 +160,12 @@ public class EditorTable extends HierarchicalTable
             case ENUM:
                 //return ( enumEditor );
                 return ( new EnumCellEditor() );
+            case ARRAY:
+                //return ( arrayEditor );
+                return ( new ArrayCellEditor() );
+            case LIST:
+                //return ( listEditor );
+                return ( new ListCellEditor() );
             case FONT:
                 //return ( fontEditor );
                 return ( new FontCellEditor() );

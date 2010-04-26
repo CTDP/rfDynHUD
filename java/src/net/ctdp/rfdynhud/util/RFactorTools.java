@@ -131,6 +131,7 @@ public class RFactorTools
     public static final File CONFIG_FOLDER = new File( CONFIG_PATH );
     public static final File IMAGES_FOLDER = new File( CONFIG_PATH + File.separator + "data" + File.separator + "images" );
     public static final String EDITOR_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "editor" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data";
+    public static final File EDITOR_FOLDER = new File( EDITOR_PATH );
     public static final String LOG_PATH = PLUGIN_PATH + File.separator + "log";
     
     private static File lastPLRFile = null;
