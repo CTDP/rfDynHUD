@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -29,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -123,10 +125,31 @@ public class ImageSelector
     
     private HashMap<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
     
+    private BufferedImage getImageFromCache( String name )
+    {
+        BufferedImage bi = cache.get( name );
+        if ( bi == null )
+        {
+            File file = new File( folder, name );
+            try
+            {
+                bi = ImageIO.read( file );
+                cache.put( name, bi );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+            }
+        }
+        
+        return ( bi );
+    }
+    
     private class ListItem implements ListCellRenderer
     {
         private JPanel panel = null;
         private JLabel label = null;
+        private JLabel label2 = null;
         private JPanel canvas = null;
         
         public Component getListCellRendererComponent( JList list, final Object value, int index, boolean isSelected, boolean cellHasFocus )
@@ -135,6 +158,11 @@ public class ImageSelector
             {
                 panel = new JPanel( new BorderLayout() );
                 label = new JLabel();
+                label2 = new JLabel();
+                label2.setPreferredSize( new Dimension( 100, 24 ) );
+                label2.setMinimumSize( new Dimension( 100, 24 ) );
+                label2.setBorder( new EmptyBorder( 0, 10, 0, 10 ) );
+                label.setHorizontalAlignment( JLabel.RIGHT );
                 canvas = new JPanel()
                 {
                     private static final long serialVersionUID = 1L;
@@ -142,20 +170,7 @@ public class ImageSelector
                     @Override
                     public void paintComponent( Graphics g )
                     {
-                        BufferedImage bi = cache.get( String.valueOf( value ) );
-                        if ( bi == null )
-                        {
-                            File file = new File( folder, String.valueOf( value ) );
-                            try
-                            {
-                                bi = ImageIO.read( file );
-                                cache.put( String.valueOf( value ), bi );
-                            }
-                            catch ( IOException e )
-                            {
-                                e.printStackTrace();
-                            }
-                        }
+                        BufferedImage bi = getImageFromCache( String.valueOf( value ) );
                         
                         if ( bi != null )
                         {
@@ -169,6 +184,7 @@ public class ImageSelector
                 
                 panel.add( label, BorderLayout.WEST );
                 panel.add( canvas, BorderLayout.CENTER );
+                panel.add( label2, BorderLayout.EAST );
             }
             
             if ( isSelected )
@@ -184,6 +200,12 @@ public class ImageSelector
             
             String name = String.valueOf( value );
             label.setText( name );
+            
+            BufferedImage bi = getImageFromCache( name );
+            if ( bi != null )
+            {
+                label2.setText( bi.getWidth() + "x" + bi.getHeight() + "x" + ( bi.getColorModel().hasAlpha() ? "32" : "24" ) );
+            }
             
             return ( panel );
         }
@@ -265,7 +287,7 @@ public class ImageSelector
         
         contentPane.add( footer, BorderLayout.SOUTH );
         
-        dialog.setSize( 300, 500 );
+        dialog.setSize( 380, 500 );
         dialog.setLocationRelativeTo( owner );
         dialog.setModal( true );
         dialog.addWindowListener( new WindowAdapter()
