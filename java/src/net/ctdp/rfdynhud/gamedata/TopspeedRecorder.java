@@ -35,7 +35,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     }
     
     static final TopspeedRecorder MASTER_TOPSPEED_RECORDER = new MasterTopspeedRecorder();
-    static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = __InpPrivilegedAccess.createInputAction( "ResetTopSpeeds", true, false, (InputActionConsumer)MASTER_TOPSPEED_RECORDER );
+    static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = __InpPrivilegedAccess.createInputAction( "ResetTopSpeeds", true, false, (InputActionConsumer)MASTER_TOPSPEED_RECORDER, FuelUsageRecorder.class.getClassLoader().getResource( FuelUsageRecorder.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetTopSpeeds.html" ) );
     
     private static final class FloatContainer
     {

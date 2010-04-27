@@ -108,6 +108,18 @@ public class EditorPanel extends JPanel
     private Widget selectedWidget = null;
     private static final java.awt.Color SELECTION_COLOR = new java.awt.Color( 255, 0, 0, 127 );
     
+    private final ArrayList<WidgetSelectionListener> selectionListeners = new ArrayList<WidgetSelectionListener>();
+    
+    public void addWidgetSelectionListener( WidgetSelectionListener l )
+    {
+        selectionListeners.add( l );
+    }
+    
+    public void removeWidgetSelectionListener( WidgetSelectionListener l )
+    {
+        selectionListeners.remove( l );
+    }
+    
     public void setDrawGrid( boolean drawGrid )
     {
         this.drawGrid.setBooleanValue( drawGrid );
@@ -298,6 +310,11 @@ public class EditorPanel extends JPanel
         this.selectedWidget = widget;
         
         this.repaint();
+        
+        for ( int i = 0; i < selectionListeners.size(); i++ )
+        {
+            selectionListeners.get( i ).onWidgetSelected( selectedWidget );
+        }
     }
     
     public final Widget getSelectedWidget()

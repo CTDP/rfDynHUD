@@ -1,5 +1,6 @@
 package net.ctdp.rfdynhud.input;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,11 +15,21 @@ import org.jagatoo.util.classes.SuperClassCriterium;
 
 public class KnownInputActions
 {
-    public static final InputAction TogglePlugin = new InputAction( "TogglePlugin", true, false, null );
-    public static final InputAction ToggleWidgetVisibility = new InputAction( "ToggleWidgetVisibility", true );
-    public static final InputAction IncBoost = new InputAction( "IncBoost", true, false, null );
-    public static final InputAction DecBoost = new InputAction( "DecBoost", true, false, null );
-    public static final InputAction TempBoost = new InputAction( "TempBoost", null, false, null );
+    private static URL getDocURL( String actionName )
+    {
+        return ( KnownInputActions.class.getClassLoader().getResource( KnownInputActions.class.getPackage().getName().replace( '.', '/' ) + "/doc/" + actionName + ".html" ) );
+    }
+    
+    private static URL getDocURL( InputAction action, Widget widget )
+    {
+        return ( widget.getClass().getClassLoader().getResource( widget.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/" + action.getName() + ".html" ) );
+    }
+    
+    public static final InputAction TogglePlugin = new InputAction( "TogglePlugin", true, false, null, getDocURL( "TogglePlugin" ) );
+    public static final InputAction ToggleWidgetVisibility = new InputAction( "ToggleWidgetVisibility", true, true, null, getDocURL( "ToggleWidgetVisibility" ) );
+    public static final InputAction IncBoost = new InputAction( "IncBoost", true, false, null, getDocURL( "IncBoost" ) );
+    public static final InputAction DecBoost = new InputAction( "DecBoost", true, false, null, getDocURL( "DecBoost" ) );
+    public static final InputAction TempBoost = new InputAction( "TempBoost", null, false, null, getDocURL( "TempBoost" ) );
     public static final InputAction ResetFuelConsumption = __GDPrivilegedAccess.INPUT_ACTION_RESET_FUEL_CONSUMPTION;
     public static final InputAction ResetTopSpeeds = __GDPrivilegedAccess.INPUT_ACTION_RESET_TOPSPEEDS;
     
@@ -62,7 +73,11 @@ public class KnownInputActions
                         {
                             InputAction ia = ias[j];
                             if ( ia != null )
+                            {
+                                ia.setDoc( getDocURL( ia, widget ) );
+                                
                                 addAction( ia );
+                            }
                         }
                     }
                 }

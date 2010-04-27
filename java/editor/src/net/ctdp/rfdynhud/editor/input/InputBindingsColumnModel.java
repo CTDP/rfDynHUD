@@ -7,13 +7,13 @@ public class InputBindingsColumnModel extends DefaultTableColumnModel
 {
     private static final long serialVersionUID = -8316456120753822033L;
     
-    public void init()
+    public void init( InputBindingsGUI gui )
     {
         TableColumn column = new TableColumn( 0, 250, new WidgetNameEditor(), new WidgetNameEditor() );
         column.setHeaderValue( "Widget Name" );
         addColumn( column );
         
-        column = new TableColumn( 1, 250, new InputActionEditor(), new InputActionEditor() );
+        column = new TableColumn( 1, 250, new InputActionEditor( gui ), new InputActionEditor( gui ) );
         column.setHeaderValue( "Action" );
         addColumn( column );
         
@@ -22,8 +22,8 @@ public class InputBindingsColumnModel extends DefaultTableColumnModel
         addColumn( column );
     }
     
-    public InputBindingsColumnModel()
+    public InputBindingsColumnModel( InputBindingsGUI gui )
     {
-        init();
+        init( gui );
     }
 }

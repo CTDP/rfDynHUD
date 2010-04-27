@@ -33,7 +33,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     }
     
     public static final FuelUsageRecorder MASTER_FUEL_USAGE_RECORDER = new MasterFuelUsageRecorder();
-    static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = __InpPrivilegedAccess.createInputAction( "ResetFuelConsumption", true, false, (InputActionConsumer)MASTER_FUEL_USAGE_RECORDER );
+    static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = __InpPrivilegedAccess.createInputAction( "ResetFuelConsumption", true, false, (InputActionConsumer)MASTER_FUEL_USAGE_RECORDER, FuelUsageRecorder.class.getClassLoader().getResource( FuelUsageRecorder.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetFuelConsumption.html" ) );
     
     private float lastLap = -1f;
     private float average = -1f;

@@ -1,5 +1,9 @@
 package net.ctdp.rfdynhud.input;
 
+import java.net.URL;
+
+import net.ctdp.rfdynhud.util.StringUtil;
+
 /**
  * This is a simple abstraction of an input action.
  * 
@@ -21,6 +25,7 @@ public class InputAction implements Comparable<InputAction>
     private final Boolean acceptedState;
     private final boolean isWidgetAction;
     private final InputActionConsumer consumer;
+    private String doc = null;
     
     public final int getID()
     {
@@ -45,6 +50,30 @@ public class InputAction implements Comparable<InputAction>
     public final InputActionConsumer getConsumer()
     {
         return ( consumer );
+    }
+    
+    private static final String doc_header = StringUtil.loadString( InputAction.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
+    private static final String doc_footer = StringUtil.loadString( InputAction.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
+    
+    private static String getDoc( URL docURL )
+    {
+        if ( docURL == null )
+            return ( "" );
+        
+        if ( doc_header.equals( "" ) )
+            return ( null );
+        
+        return ( doc_header + StringUtil.loadString( docURL ) + doc_footer );
+    }
+    
+    void setDoc( URL docURL )
+    {
+        this.doc = getDoc( docURL );
+    }
+    
+    public final String getDoc()
+    {
+        return ( doc );
     }
     
     @Override
@@ -97,7 +126,7 @@ public class InputAction implements Comparable<InputAction>
         return ( getName() + " (ID=" + getID() + ")" );
     }
     
-    InputAction( String name, Boolean acceptedState, boolean isWidgetAction, InputActionConsumer consumer )
+    InputAction( String name, Boolean acceptedState, boolean isWidgetAction, InputActionConsumer consumer, URL docURL )
     {
         this.id = nextId++;
         
@@ -105,6 +134,7 @@ public class InputAction implements Comparable<InputAction>
         this.acceptedState = acceptedState;
         this.isWidgetAction = isWidgetAction;
         this.consumer = consumer;
+        this.setDoc( docURL );
     }
     
     /**
@@ -115,7 +145,7 @@ public class InputAction implements Comparable<InputAction>
      */
     public InputAction( String name, Boolean acceptedState )
     {
-        this( name, acceptedState, true, null );
+        this( name, acceptedState, true, null, null );
     }
     
     /**
@@ -126,6 +156,6 @@ public class InputAction implements Comparable<InputAction>
      */
     public InputAction( String name )
     {
-        this( name, true, true, null );
+        this( name, true, true, null, null );
     }
 }

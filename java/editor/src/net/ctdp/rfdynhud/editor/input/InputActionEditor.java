@@ -1,6 +1,5 @@
 package net.ctdp.rfdynhud.editor.input;
 
-import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -16,6 +15,8 @@ import net.ctdp.rfdynhud.input.KnownInputActions;
 public class InputActionEditor extends AbstractCellEditor implements TableCellEditor, TableCellRenderer
 {
     private static final long serialVersionUID = 5993944777559988223L;
+    
+    private final InputBindingsGUI gui;
     
     private static InputAction[] knownActions = KnownInputActions.getAll();
     
@@ -37,7 +38,7 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
         }
     }
     
-    public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    public JComboBox getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         initCombo();
         
@@ -62,9 +63,23 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
         return ( combo );
     }
     
-    public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, final int row, final int column )
+    private void showInputActionDoc( Object value )
     {
-        final JComboBox combo = (JComboBox)getTableCellRendererComponent( table, value, isSelected, false, row, column );
+        if ( value instanceof InputAction )
+        {
+            gui.showInputActionDoc( (InputAction)value );
+        }
+        else
+        {
+            gui.showInputActionDoc( null );
+        }
+    }
+    
+    public JComboBox getTableCellEditorComponent( JTable table, Object value, boolean isSelected, final int row, final int column )
+    {
+        showInputActionDoc( value );
+        
+        final JComboBox combo = getTableCellRendererComponent( table, value, isSelected, false, row, column );
         
         combo.addItemListener( new ItemListener()
         {
@@ -76,6 +91,8 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
                     lastTable.getModel().setValueAt( e.getItem(), row, column );
                     stopCellEditing();
                     combo.removeItemListener( this );
+                    
+                    showInputActionDoc( e.getItem() );
                 }
             }
         } );
@@ -86,5 +103,10 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
     public Object getCellEditorValue()
     {
         return ( combo.getSelectedItem() );
+    }
+    
+    public InputActionEditor( InputBindingsGUI gui )
+    {
+        this.gui = gui;
     }
 }

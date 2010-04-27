@@ -3,9 +3,11 @@ package net.ctdp.rfdynhud.editor.input;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
+import net.ctdp.rfdynhud.editor.WidgetSelectionListener;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMapping;
@@ -19,7 +21,7 @@ import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 import org.jagatoo.util.ini.IniWriter;
 
-public class InputBindingsTableModel extends DefaultTableModel
+public class InputBindingsTableModel extends DefaultTableModel implements WidgetSelectionListener
 {
     private static final long serialVersionUID = -6979661218242852874L;
     
@@ -36,7 +38,14 @@ public class InputBindingsTableModel extends DefaultTableModel
     
     private int currentInputPollingRow = -1;
     
+    private JTable table = null;
+    
     private boolean dirtyFlag = false;
+    
+    public void setTable( JTable table )
+    {
+        this.table = table;
+    }
     
     public void setDirtyFlag()
     {
@@ -112,27 +121,35 @@ public class InputBindingsTableModel extends DefaultTableModel
         return ( ( (InputMapping)rows.get( row )[0] ).getAction() );
     }
     
+    private boolean widgetHostsAction( Widget widget, InputAction action )
+    {
+        InputAction[] actions = widget.getInputActions();
+        
+        if ( actions != null )
+        {
+            for ( InputAction widgetAction : actions )
+            {
+                if ( widgetAction.equals( action ) )
+                    return ( true );
+            }
+        }
+        
+        return ( false );
+    }
+    
     private String getDefaultWidgetName( InputAction action )
     {
+        if ( ( action == null ) || !action.isWidgetAction() )
+            return ( GLOBAL );
+        
         final int numWidgets = widgetsConfig.getNumWidgets();
         for ( int i = 0; i < numWidgets; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
             
-            InputAction[] actions = widget.getInputActions();
-            
-            if ( actions != null )
-            {
-                for ( InputAction widgetAction : actions )
-                {
-                    if ( widgetAction.equals( action ) )
-                        return ( widget.getName() );
-                }
-            }
+            if ( widgetHostsAction( widget, action ) )
+                return ( widget.getName() );
         }
-        
-        if ( ( action == null ) || !action.isWidgetAction() )
-            return ( GLOBAL );
         
         if ( editor.getEditorPanel().getSelectedWidget() != null )
             return ( editor.getEditorPanel().getSelectedWidget().getName() );
@@ -235,6 +252,23 @@ public class InputBindingsTableModel extends DefaultTableModel
                 rows.get( row )[1] = device_comp;
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
+            }
+        }
+    }
+    
+    public void onWidgetSelected( Widget widget )
+    {
+        int row = table.getSelectedRow();
+        int column = table.getSelectedColumn();
+        
+        if ( ( widget != null ) && ( column == 0 ) )
+        {
+            InputAction action = getActionFromRow( row );
+            
+            if ( ( action != null ) && widgetHostsAction( widget, action ) )
+            {
+                table.getCellEditor( row, column ).stopCellEditing();
+                setValueAt( widget.getName(), row, column );
             }
         }
     }

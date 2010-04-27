@@ -1,6 +1,8 @@
 package net.ctdp.rfdynhud.editor.input;
 
 import java.awt.Component;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
@@ -20,6 +22,15 @@ public class WidgetNameEditor extends AbstractCellEditor implements TableCellEdi
             return;
         
         textField = new JTextField();
+        
+        textField.addFocusListener( new FocusAdapter()
+        {
+            @Override
+            public void focusLost( FocusEvent e )
+            {
+                //stopCellEditing();
+            }
+        } );
     }
     
     public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )

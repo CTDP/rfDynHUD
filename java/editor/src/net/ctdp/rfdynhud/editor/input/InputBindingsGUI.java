@@ -29,9 +29,9 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.border.BevelBorder;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
+import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.StringUtil;
 
@@ -39,13 +39,15 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
 {
     private static InputBindingsGUI gui = null;
     
+    private final RFDynHUDEditor editor;
+    
     private final DirectInputConnection directInputConnection;
     private final JDialog frame;
     private int pollingRow = -1;
     private final InputBindingsTableModel inputBindingsTableModel;
     private AWTEventListener listener;
     
-    private JScrollPane helpSP;
+    private JEditorPane actionDocPanel;
     
     private void close()
     {
@@ -151,18 +153,47 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         }
         
         JEditorPane p = new JEditorPane( "text/html", s );
-        p.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
+        //p.setBorder( new javax.swing.border.BevelBorder( javax.swing.border.BevelBorder.LOWERED ) );
         p.setEditable( false );
+        p.setAutoscrolls( false );
+        p.setCaretPosition( 0 );
         
-        helpSP = new JScrollPane( p );
+        JScrollPane helpSP = new JScrollPane( p );
         
-        helpSP.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
+        helpSP.setPreferredSize( new Dimension( 300, 100 ) );
         
         return ( helpSP );
     }
     
+    private Component createActionDocPanel()
+    {
+        this.actionDocPanel = new JEditorPane( "text/html", "" );
+        //actionDocPanel.setBorder( new javax.swing.border.BevelBorder( javax.swing.border.BevelBorder.LOWERED ) );
+        actionDocPanel.setEditable( false );
+        actionDocPanel.setAutoscrolls( false );
+        actionDocPanel.setCaretPosition( 0 );
+        
+        JScrollPane helpSP = new JScrollPane( actionDocPanel );
+        
+        helpSP.setPreferredSize( new Dimension( 300, 150 ) );
+        
+        return ( helpSP );
+    }
+    
+    public void showInputActionDoc( InputAction action )
+    {
+        if ( ( action == null ) || ( action.getDoc() == null ) )
+            actionDocPanel.setText( "" );
+        else
+            actionDocPanel.setText( action.getDoc() );
+        
+        actionDocPanel.setCaretPosition( 0 );
+    }
+    
     private InputBindingsGUI( RFDynHUDEditor editor )
     {
+        this.editor = editor;
+        
         this.frame = new JDialog( editor.getMainWindow(), "rfDynHUD InputBindingsManager" );
         
         frame.setSize( 900, 480 );
@@ -194,7 +225,8 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         */
         
         this.inputBindingsTableModel = new InputBindingsTableModel( editor, editor.getEditorPanel().getWidgetsDrawingManager(), directInputConnection.getInputDeviceManager() );
-        final JTable table = new JTable( inputBindingsTableModel, new InputBindingsColumnModel(), new DefaultListSelectionModel() );
+        final JTable table = new JTable( inputBindingsTableModel, new InputBindingsColumnModel( this ), new DefaultListSelectionModel() );
+        inputBindingsTableModel.setTable( table );
         table.setRowHeight( 20 );
         
         table.addMouseListener( new MouseAdapter()
@@ -219,7 +251,11 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         
         split.add( new JScrollPane( table ) );
         
-        split.add( createHelpPanel() );
+        JSplitPane split2 = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
+        split2.setResizeWeight( 1 );
+        split2.add( createHelpPanel() );
+        split2.add( createActionDocPanel() );
+        split.add( split2 );
         
         contentPane.add( split, BorderLayout.CENTER );
         
@@ -250,9 +286,21 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         frame.addWindowListener( new WindowAdapter()
         {
             @Override
+            public void windowOpened( WindowEvent e )
+            {
+                InputBindingsGUI.this.editor.getEditorPanel().addWidgetSelectionListener( inputBindingsTableModel );
+            }
+            
+            @Override
             public void windowClosing( WindowEvent e )
             {
                 close();
+            }
+            
+            @Override
+            public void windowClosed( WindowEvent e )
+            {
+                InputBindingsGUI.this.editor.getEditorPanel().removeWidgetSelectionListener( inputBindingsTableModel );
             }
         } );
     }
@@ -265,22 +313,6 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         {
             gui = new InputBindingsGUI( editor );
         }
-        
-        gui.frame.addWindowListener( new WindowAdapter()
-        {
-            private boolean shot = false;
-            
-            public void windowOpened( WindowEvent e )
-            {
-                if ( shot )
-                    return;
-                
-                //gui.frame.pack();
-                gui.helpSP.getVerticalScrollBar().setValue( 0 );
-                
-                shot = true;
-            }
-        } );
         
         gui.frame.setVisible( true );
     }
