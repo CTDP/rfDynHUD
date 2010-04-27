@@ -136,7 +136,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private int gameResX;
     private int gameResY;
     
-    private String screenshotSet = "default";
+    private static final String DEFAULT_SCREENSHOT_SET = "CTDPF106_Fer_T-Cam";
+    private String screenshotSet = DEFAULT_SCREENSHOT_SET;
     
     private boolean alwaysShowHelpOnStartup = true;
     
@@ -235,6 +236,53 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     public final int getGameResY()
     {
         return ( gameResY );
+    }
+    
+    private static final File BACKGROUNDS_FOLDER = new File( RFactorTools.EDITOR_PATH, "backgrounds" );
+    
+    private File getScreenshotSetFolder()
+    {
+        return ( new File( BACKGROUNDS_FOLDER, screenshotSet ) );
+    }
+    
+    private File getBackgroundImageFile( int width, int height )
+    {
+        return ( new File( getScreenshotSetFolder(), File.separator + "background_" + width + "x" + height + ".jpg" ) );
+    }
+    
+    private void setScreenshotSet( String screenshotSet )
+    {
+        if ( !BACKGROUNDS_FOLDER.exists() )
+        {
+            this.screenshotSet = DEFAULT_SCREENSHOT_SET;
+            return;
+        }
+        
+        File folder = new File( BACKGROUNDS_FOLDER, screenshotSet );
+        if ( folder.exists() && folder.isDirectory() )
+        {
+            this.screenshotSet = screenshotSet;
+        }
+        else
+        {
+            if ( new File( BACKGROUNDS_FOLDER, DEFAULT_SCREENSHOT_SET ).exists() )
+            {
+                this.screenshotSet = DEFAULT_SCREENSHOT_SET;
+            }
+            else
+            {
+                for ( File f : BACKGROUNDS_FOLDER.listFiles() )
+                {
+                    if ( f.isDirectory() )
+                    {
+                        this.screenshotSet = f.getName();
+                        return;
+                    }
+                }
+            }
+            
+            this.screenshotSet = DEFAULT_SCREENSHOT_SET;
+        }
     }
     
     public final String getScreenshotSet()
@@ -718,7 +766,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         
                         if ( key.equals( "screenshotSet" ) )
                         {
-                            screenshotSet = value;
+                            setScreenshotSet( value );
                         }
                         else if ( key.equals( "resolution" ) )
                         {
@@ -1157,11 +1205,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( widget );
     }
     
-    private File getBackgroundImageFile( int width, int height )
-    {
-        return ( new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + screenshotSet + File.separator + "background_" + width + "x" + height + ".jpg" ) );
-    }
-    
     private static BufferedImage createFallbackImage( int width, int height, String message )
     {
         BufferedImage bi = new BufferedImage( width, height, BufferedImage.TYPE_3BYTE_BGR );
@@ -1204,15 +1247,19 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         File file = getBackgroundImageFile( width, height );
         
-        try
+        if ( file.exists() && file.isFile() )
         {
-            result = ImageIO.read( file );
-        }
-        catch ( IOException e )
-        {
-            Logger.log( e );
-            
-            result = null;
+            try
+            {
+                result = ImageIO.read( file );
+            }
+            catch ( IOException e )
+            {
+                Logger.log( "Unable to read background image file \"" + file.getAbsolutePath() + "\"" );
+                Logger.log( e );
+                
+                result = null;
+            }
         }
         
         if ( result == null )
@@ -1258,7 +1305,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         Logger.log( "Switching to Screenshot Set \"" + screenshotSet + "\"..." );
         
-        this.screenshotSet = screenshotSet;
+        setScreenshotSet( screenshotSet );
         switchToGameResolution( gameResX, gameResY );
     }
     
