@@ -22,6 +22,14 @@ void logg( const char* message )
     fclose( f );
 }
 
+void logg2( const char* message )
+{
+    FILE* f;
+    fopen_s( &f, LOG_FILENAME, "a" );
+    fprintf( f, "%s", message );
+    fclose( f );
+}
+
 char* readJavaHomeFromRegistry()
 {
     char* buffer = (char*)malloc( MAX_PATH );
@@ -133,7 +141,8 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     
     logg( "Invoking Java VM..." );
     
-    JavaVMOption options[7];
+    const unsigned int NUM_OPTIONS = 7;
+    JavaVMOption options[NUM_OPTIONS];
     
     char* searchPath = cropBuffer2( appendPath2( "\\*.jar", setBuffer( PLUGIN_PATH, fileBuffer ), false ) );
     
@@ -172,6 +181,13 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     options[6].optionString = "-Xincgc";
     
     free( fileBuffer );
+    
+    logg( "JVM options:" );
+    for ( unsigned int i = 0; i < NUM_OPTIONS; i++ )
+    {
+        logg2( "    " );
+        logg( options[i].optionString );
+    }
     
     JavaVMInitArgs vm_args;
     
