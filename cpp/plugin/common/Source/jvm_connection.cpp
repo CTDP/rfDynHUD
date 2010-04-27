@@ -180,6 +180,10 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     
     free( fileBuffer );
     
+    logg( "JVM options:" );
+    for ( unsigned int i = 0; i < nOptions; i++ )
+        logg2( "    ", options[i].optionString, true );
+    
     JavaVMInitArgs vm_args;
     
     vm_args.version = JNI_VERSION_1_6;
