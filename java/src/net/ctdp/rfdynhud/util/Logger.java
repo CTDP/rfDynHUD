@@ -10,12 +10,12 @@ import java.io.PrintWriter;
 
 public class Logger
 {
-    private static final File LOG_FOLDER = new File( RFactorTools.PLUGIN_FOLDER, "log" );
-    private static File LOG_FILE = new File( LOG_FOLDER, "rfdynhud.log" );
+    private static final File LOG_FOLDER = RFactorTools.LOG_FOLDER;
+    private static File LOG_FILE = new File( LOG_FOLDER, "rfdynhud.log" ).getAbsoluteFile();
     
     static void setEditorMode()
     {
-        LOG_FILE = new File( LOG_FOLDER, "rfdynhud_editor.log" );
+        LOG_FILE = new File( LOG_FOLDER, "rfdynhud_editor.log" ).getAbsoluteFile();
     }
     
     private static void logException( Throwable t )

@@ -30,31 +30,52 @@ public class RFactorTools
             t.printStackTrace();
         }
         
-        return ( new File( "." ).getAbsoluteFile() );
+        return ( new File( pathname ).getAbsoluteFile() );
     }
     
-    public static String extractRFactorPath()
+    public static File extractPluginFolder()
     {
         String[] classPath = System.getProperty( "java.class.path" ).split( File.pathSeparator );
         
         for ( String s : classPath )
         {
             if ( s.contains( "rfdynhud.jar" ) )
-                return ( stripDotDots( s ).getParentFile().getParentFile().getParent() );
+                return ( stripDotDots( s ).getParentFile() );
             
             if ( s.contains( "rfdynhud_editor.jar" ) )
-                return ( stripDotDots( s ).getParentFile().getParentFile().getParentFile().getParent() );
+                return ( stripDotDots( s ).getParentFile().getParentFile().getAbsoluteFile() );
         }
         
         File f = new File( "." );
         try
         {
-            return ( f.getCanonicalFile().getAbsolutePath() );
+            return ( f.getCanonicalFile().getAbsoluteFile() );
         }
         catch ( IOException e )
         {
-            return ( "" );
+            return ( new File( "." ).getAbsoluteFile() );
         }
+    }
+    
+    private static boolean isRoot( File folder )
+    {
+        return ( folder.getParent() == null );
+    }
+    
+    private static File findRFactorFolder( File pluginFolder )
+    {
+        File f = pluginFolder.getParentFile();
+        
+        while ( !new File( f, "rFactor.exe" ).exists() && !isRoot( f ) )
+            f = f.getParentFile();
+        
+        if ( new File( f, "rFactor.exe" ).exists() )
+            return ( f.getAbsoluteFile() );
+        
+        if ( isRoot( pluginFolder ) )
+            return ( pluginFolder.getAbsoluteFile() );
+        
+        return ( pluginFolder.getParentFile().getAbsoluteFile() );
     }
     
     private static File getRFConfigINIPath( File rFactorFolder, final String setting, String def )
@@ -123,16 +144,18 @@ public class RFactorTools
         }
     }
     
-    public static final String RFACTOR_PATH = extractRFactorPath();
-    public static final File RFACTOR_FOLDER = new File( RFACTOR_PATH );
-    public static final String PLUGIN_PATH = new File( getRFConfigINIPath( RFACTOR_FOLDER, "PluginsDir", "Plugins" ), "rfDynHUD" ).getAbsolutePath();
-    public static final File PLUGIN_FOLDER = new File( PLUGIN_PATH );
-    public static final String CONFIG_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "config" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data" + File.separator + "config";
-    public static final File CONFIG_FOLDER = new File( CONFIG_PATH );
-    public static final File IMAGES_FOLDER = new File( CONFIG_PATH + File.separator + "data" + File.separator + "images" );
-    public static final String EDITOR_PATH = ResourceManager.isJarMode() ? PLUGIN_PATH + File.separator + "editor" : new java.io.File( "." ).getAbsoluteFile().getParent() + File.separator + "data";
-    public static final File EDITOR_FOLDER = new File( EDITOR_PATH );
-    public static final String LOG_PATH = PLUGIN_PATH + File.separator + "log";
+    public static final File PLUGIN_FOLDER = extractPluginFolder();
+    //public static final String PLUGIN_PATH = new File( getRFConfigINIPath( RFACTOR_FOLDER, "PluginsDir", "Plugins" ), "rfDynHUD" ).getAbsolutePath();
+    public static final String PLUGIN_PATH = PLUGIN_FOLDER.getAbsolutePath();
+    public static final File RFACTOR_FOLDER = findRFactorFolder( PLUGIN_FOLDER );
+    public static final String RFACTOR_PATH = RFACTOR_FOLDER.getAbsolutePath();
+    public static final File CONFIG_FOLDER = ResourceManager.isJarMode() ? new File( PLUGIN_FOLDER, "config" ).getAbsoluteFile() : new File( new File( stripDotDots( new File( "." ).getAbsolutePath() ), "data" ), "config" ).getAbsoluteFile();
+    public static final String CONFIG_PATH = CONFIG_FOLDER.getAbsolutePath();
+    public static final File IMAGES_FOLDER = new File( new File( CONFIG_FOLDER, "data" ), "images" ).getAbsoluteFile();
+    public static final File EDITOR_FOLDER = ResourceManager.isJarMode() ? new File( PLUGIN_FOLDER, "editor" ).getAbsoluteFile() : new File( stripDotDots( new File( "." ).getAbsolutePath() ), "data" ).getAbsoluteFile();
+    public static final String EDITOR_PATH = EDITOR_FOLDER.getAbsolutePath();
+    public static final File LOG_FOLDER = new File( PLUGIN_FOLDER, "log" ).getAbsoluteFile();
+    public static final String LOG_PATH = LOG_FOLDER.getAbsolutePath();
     
     private static File lastPLRFile = null;
     private static long lastPLRModified = -1L;

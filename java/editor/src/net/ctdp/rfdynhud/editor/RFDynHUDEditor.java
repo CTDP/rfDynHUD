@@ -1162,18 +1162,69 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( new File( RFactorTools.EDITOR_PATH + File.separator + "backgrounds" + File.separator + screenshotSet + File.separator + "background_" + width + "x" + height + ".jpg" ) );
     }
     
+    private static BufferedImage createFallbackImage( int width, int height, String message )
+    {
+        BufferedImage bi = new BufferedImage( width, height, BufferedImage.TYPE_3BYTE_BGR );
+        
+        Graphics2D g = bi.createGraphics();
+        
+        for ( int y = 0; y < height; y += 5 )
+        {
+            for ( int x = 0; x < width; x += 5 )
+            {
+                if ( ( y % 10 ) == 0 )
+                {
+                    if ( ( x % 10 ) == 0 )
+                        g.setColor( Color.LIGHT_GRAY );
+                    else
+                        g.setColor( Color.WHITE );
+                }
+                else
+                {
+                    if ( ( x % 10 ) == 0 )
+                        g.setColor( Color.WHITE );
+                    else
+                        g.setColor( Color.LIGHT_GRAY );
+                }
+                
+                g.fillRect( x, y, 5, 5 );
+            }
+        }
+        
+        g.setColor( Color.RED );
+        g.setFont( new java.awt.Font( "Verdana", java.awt.Font.BOLD, 14 ) );
+        g.drawString( message, 50, 50 );
+        
+        return ( bi );
+    }
+    
     public BufferedImage loadBackgroundImage( int width, int height )
     {
+        BufferedImage result = null;
+        
+        File file = getBackgroundImageFile( width, height );
+        
         try
         {
-            return ( ImageIO.read( getBackgroundImageFile( width, height ) ) );
+            result = ImageIO.read( file );
         }
         catch ( IOException e )
         {
-            e.printStackTrace();
+            Logger.log( e );
             
-            return ( null );
+            result = null;
         }
+        
+        if ( result == null )
+        {
+            String message = "Background image not found: \"" + file.getAbsolutePath() + "\"!";
+            
+            Logger.log( message );
+            
+            result = createFallbackImage( width, height, message );
+        }
+        
+        return ( result );
     }
     
     public void switchToGameResolution( int resX, int resY )
