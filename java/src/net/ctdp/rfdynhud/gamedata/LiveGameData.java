@@ -65,7 +65,9 @@ public class LiveGameData
     
     void applyEditorPresets( EditorPresets editorPresets )
     {
+        telemetryData.applyEditorPresets( editorPresets );
         scoringInfo.applyEditorPresets( editorPresets );
+        setup.applyEditorPresets( editorPresets );
     }
     
     /**

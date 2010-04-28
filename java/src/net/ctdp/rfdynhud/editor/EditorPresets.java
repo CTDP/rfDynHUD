@@ -11,18 +11,19 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 public class EditorPresets
 {
     private final StringProperty driverName = new StringProperty( null, "driverName", "Mike Self" );
-    private final FloatProperty lastSector1Time = new FloatProperty( null, "lastSector1Time", 28.829182f );
-    private final FloatProperty lastSector2Time = new FloatProperty( null, "lastSector2Time", 29.413128f );
-    private final FloatProperty lastSector3Time = new FloatProperty( null, "lastSector3Time", 26.336235f );
-    private final FloatProperty currentSector1Time = new FloatProperty( null, "currentSector1Time", 29.138f );
-    private final FloatProperty currentSector2Time = new FloatProperty( null, "currentSector2Time", 27.988f );
-    private final FloatProperty currentSector3Time = new FloatProperty( null, "currentSector3Time", 26.440f );
-    private final IntProperty engineRPM = new IntProperty( null, "engineRPM", 3750 );
-    private final IntProperty engineLifetime = new IntProperty( null, "engineLifetime", 1000 );
-    private final FloatProperty brakeDiscThicknessFL = new FloatProperty( null, "brakeDiscThicknessFL", 0.021f );
-    private final FloatProperty brakeDiscThicknessFR = new FloatProperty( null, "brakeDiscThicknessFR", 0.0145f );
-    private final FloatProperty brakeDiscThicknessRL = new FloatProperty( null, "brakeDiscThicknessRL", 0.018f );
-    private final FloatProperty brakeDiscThicknessRR = new FloatProperty( null, "brakeDiscThicknessRR", 0.022f );
+    private final FloatProperty lastSector1Time = new FloatProperty( null, "lastSector1Time", 28.829182f, 0f, Float.MAX_VALUE );
+    private final FloatProperty lastSector2Time = new FloatProperty( null, "lastSector2Time", 29.413128f, 0f, Float.MAX_VALUE );
+    private final FloatProperty lastSector3Time = new FloatProperty( null, "lastSector3Time", 26.336235f, 0f, Float.MAX_VALUE );
+    private final FloatProperty currentSector1Time = new FloatProperty( null, "currentSector1Time", 29.138f, 0f, Float.MAX_VALUE );
+    private final FloatProperty currentSector2Time = new FloatProperty( null, "currentSector2Time", 27.988f, 0f, Float.MAX_VALUE );
+    private final FloatProperty currentSector3Time = new FloatProperty( null, "currentSector3Time", 26.440f, 0f, Float.MAX_VALUE );
+    private final IntProperty engineBoost = new IntProperty( null, "engineBoost", 5, 1, 9 );
+    private final IntProperty engineRPM = new IntProperty( null, "engineRPM", 3750, 0, 20000 );
+    private final IntProperty engineLifetime = new IntProperty( null, "engineLifetime", 1000, 0, Integer.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessFL = new FloatProperty( null, "brakeDiscThicknessFL", 0.021f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessFR = new FloatProperty( null, "brakeDiscThicknessFR", 0.0145f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessRL = new FloatProperty( null, "brakeDiscThicknessRL", 0.018f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessRR = new FloatProperty( null, "brakeDiscThicknessRR", 0.022f, 0f, Float.MAX_VALUE );
     
     public final String getDriverName()
     {
@@ -91,7 +92,12 @@ public class EditorPresets
         return ( currentSector1Time.getFloatValue() + currentSector2Time.getFloatValue() + currentSector3Time.getFloatValue() );
     }
     
-    public int getEngineRPM()
+    public final int getEngineBoost()
+    {
+        return ( engineBoost.getIntValue() );
+    }
+    
+    public final int getEngineRPM()
     {
         return ( engineRPM.getIntValue() );
     }
@@ -138,6 +144,7 @@ public class EditorPresets
         
         propsCont.addGroup( "Engine" );
         
+        propsCont.addProperty( engineBoost );
         propsCont.addProperty( engineRPM );
         propsCont.addProperty( engineLifetime );
         
@@ -158,6 +165,7 @@ public class EditorPresets
         writer.writeProperty( currentSector1Time, null );
         writer.writeProperty( currentSector2Time, null );
         writer.writeProperty( currentSector3Time, null );
+        writer.writeProperty( engineBoost, null );
         writer.writeProperty( engineRPM, null );
         writer.writeProperty( engineLifetime, null );
         writer.writeProperty( brakeDiscThicknessFL, null );
@@ -175,6 +183,7 @@ public class EditorPresets
         else if ( currentSector1Time.loadProperty( key, value ) );
         else if ( currentSector2Time.loadProperty( key, value ) );
         else if ( currentSector3Time.loadProperty( key, value ) );
+        else if ( engineBoost.loadProperty( key, value ) );
         else if ( engineRPM.loadProperty( key, value ) );
         else if ( engineLifetime.loadProperty( key, value ) );
         else if ( brakeDiscThicknessFL.loadProperty( key, value ) );

@@ -56,7 +56,8 @@ public class RevMeterWidget extends Widget
         {
             backgroundTexture = null;
             needleTexture = null;
-            shiftLightTexture = null;
+            for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+                shiftLights[i].resetTextures();
             gearBackgroundTexture = null;
             gearBackgroundTexture_bak = null;
             boostNumberBackgroundTexture = null;
@@ -75,14 +76,12 @@ public class RevMeterWidget extends Widget
             needleTexture = null;
         }
     };
-    private final ImageProperty shiftLightImageName = new ImageProperty( this, "shiftLightImageName", "imageName", "shiftlight_on.png" );
     private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
     private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numberBGImageName", "", false, true );
     private final ImageProperty velocityBackgroundImageName = new ImageProperty( this, "velocityBackgroundImageName", "velocityBGImageName", "cyan_circle.png", false, true );
     
     private TextureImage2D backgroundTexture = null;
     private TransformableTexture needleTexture = null;
-    private TransformableTexture shiftLightTexture = null;
     private TransformableTexture gearBackgroundTexture = null;
     private TextureImage2D gearBackgroundTexture_bak = null;
     private TransformableTexture boostNumberBackgroundTexture = null;
@@ -155,24 +154,34 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
     private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
-    private final BooleanProperty displayShiftLight = new BooleanProperty( this, "displayShiftLight", true );
-    private final IntProperty shiftLightPosX = new IntProperty( this, "shiftLightPosX", "posX", 625 )
+    private ShiftLight[] shiftLights = { new ShiftLight( this, 1 ) };
+    
+    private void initShiftLights( int oldNumber, int newNumber )
+    {
+        if ( newNumber > oldNumber )
+        {
+            ShiftLight[] newArray = new ShiftLight[ newNumber ];
+            
+            System.arraycopy( shiftLights, 0, newArray, 0, oldNumber );
+            
+            for ( int i = oldNumber; i < newNumber; i++ )
+                newArray[i] = new ShiftLight( RevMeterWidget.this, i + 1 );
+            
+            shiftLights = newArray;
+        }
+        
+        if ( ( oldNumber < 1 ) && ( newNumber == 1 ) )
+            shiftLights[0].activationRPM.setValue( -500 );
+    }
+    
+    private final IntProperty numShiftLights = new IntProperty( this, "numShiftLights", 1, 0, 5 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
         {
-            shiftLightTexture = null;
+            initShiftLights( oldValue, newValue );
         }
     };
-    private final IntProperty shiftLightPosY = new IntProperty( this, "shiftLightPosY", "posY", 42 )
-    {
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            shiftLightTexture = null;
-        }
-    };
-    private final IntProperty shiftLightRPM = new IntProperty( this, "shiftLightRPM", "activationRPM", -500 );
     
     private final IntProperty gearPosX = new IntProperty( this, "gearPosX", "posX", 354 );
     private final IntProperty gearPosY = new IntProperty( this, "gearPosY", "posY", 512 );
@@ -285,46 +294,6 @@ public class RevMeterWidget extends Widget
                 if ( ( needleTexture == null ) || ( needleTexture.getWidth() != w ) || ( needleTexture.getHeight() != h ) )
                 {
                     needleTexture = it.getScaledTransformableTexture( w, h );
-                }
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-                
-                return ( 0 );
-            }
-        }
-        
-        return ( 1 );
-    }
-    
-    private int loadShiftLightTexture( boolean isEditorMode )
-    {
-        if ( ( shiftLightTexture == null ) || isEditorMode )
-        {
-            try
-            {
-                ImageTemplate it0 = backgroundImageName.getImage();
-                float scale = ( it0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
-                ImageTemplate it = shiftLightImageName.getImage();
-                
-                if ( it == null )
-                {
-                    shiftLightTexture = null;
-                    return ( 0 );
-                }
-                
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
-                if ( ( shiftLightTexture == null ) || ( shiftLightTexture.getWidth() != w ) || ( shiftLightTexture.getHeight() != h * 2 ) )
-                {
-                    shiftLightTexture = new TransformableTexture( w, h * 2, 0, 0, 0, 0, 0f, 1f, 1f );
-                    shiftLightTexture.getTexture().clear( false, null );
-                    it0.drawScaled( shiftLightPosX.getIntValue(), shiftLightPosY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, 0, w, h, shiftLightTexture.getTexture(), false );
-                    it0.drawScaled( shiftLightPosX.getIntValue(), shiftLightPosY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, h, w, h, shiftLightTexture.getTexture(), false );
-                    it.drawScaled( 0, 0, w, h, shiftLightTexture.getTexture(), false );
-                    
-                    //it0.drawScaled( shiftLightPosX.getIntegerValue(), shiftLightPosY.getIntegerValue(), shiftLightPosX.getIntegerValue() + it.getBaseWidth(), shiftLightPosY.getIntegerValue() + it.getBaseHeight(), 0, h, w, shiftLightTexture.getHeight(), shiftLightTexture.getTexture(), false );
                 }
             }
             catch ( Throwable t )
@@ -475,10 +444,8 @@ public class RevMeterWidget extends Widget
         
         n += loadNeedleTexture( isEditorMode );
         
-        if ( displayShiftLight.getBooleanValue() )
-            n += loadShiftLightTexture( isEditorMode );
-        else
-            shiftLightTexture = null;
+        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
+            n += shiftLights[s].loadTextures( isEditorMode, backgroundImageName );
         
         if ( !gearBackgroundImageName.getStringValue().equals( "" ) )
             n += loadGearBackgroundTexture( isEditorMode );
@@ -500,8 +467,8 @@ public class RevMeterWidget extends Widget
         int i = 0;
         if ( needleTexture != null )
             result[i++] = needleTexture;
-        if ( shiftLightTexture != null )
-            result[i++] = shiftLightTexture;
+        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
+            i = shiftLights[s].writeTexturesToArray( result, i );
         if ( gearBackgroundTexture != null )
             result[i++] = gearBackgroundTexture;
         if ( boostNumberBackgroundTexture != null )
@@ -558,10 +525,8 @@ public class RevMeterWidget extends Widget
         backgroundScaleX = (float)width / (float)it.getBaseWidth();
         backgroundScaleY = (float)height / (float)it.getBaseHeight();
         
-        if ( displayShiftLight.getBooleanValue() )
-        {
-            loadShiftLightTexture( isEditorMode );
-        }
+        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
+            shiftLights[s].loadTextures( isEditorMode, backgroundImageName );
         
         needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
         needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
@@ -820,12 +785,8 @@ public class RevMeterWidget extends Widget
     {
         texture.clear( backgroundTexture, offsetX, offsetY, width, height, true, null );
         
-        if ( displayShiftLight.getBooleanValue() )
-        {
-            loadShiftLightTexture( editorPresets != null );
-            
-            //image.clear( offsetX + Math.round( shiftLightPosX.getIntegerValue() * backgroundScaleX ), offsetY + Math.round( shiftLightPosY.getIntegerValue() * backgroundScaleY ), shiftLightTexture.getWidth(), shiftLightTexture.getHeight(), true, null );
-        }
+        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
+            shiftLights[s].loadTextures( editorPresets != null, backgroundImageName );
         
         drawMarks( gameData, texture.getTextureCanvas(), offsetX, offsetY, width, height );
     }
@@ -951,20 +912,8 @@ public class RevMeterWidget extends Widget
             rpmString2.draw( offsetX, offsetY, string, backgroundTexture, offsetX, offsetY, texture );
         }
         
-        if ( shiftLightTexture != null )
-        {
-            float maxRPM_boost = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM, boost.getValue() );
-            if ( rpm >= maxRPM_boost + shiftLightRPM.getIntValue() )
-            {
-                shiftLightTexture.setClipRect( 0, 0, shiftLightTexture.getWidth(), shiftLightTexture.getHeight() / 2, true );
-                shiftLightTexture.setTranslation( Math.round( shiftLightPosX.getIntValue() * backgroundScaleX ), Math.round( shiftLightPosY.getIntValue() * backgroundScaleY ) );
-            }
-            else
-            {
-                shiftLightTexture.setClipRect( 0, shiftLightTexture.getHeight() / 2, shiftLightTexture.getWidth(), shiftLightTexture.getHeight() / 2, true );
-                shiftLightTexture.setTranslation( Math.round( shiftLightPosX.getIntValue() * backgroundScaleX ), Math.round( shiftLightPosY.getIntValue() * backgroundScaleY ) - shiftLightTexture.getHeight() / 2 );
-            }
-        }
+        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
+            shiftLights[s].updateTextures( gameData, store.storedBaseMaxRPM, rpm, boost.getValue(), backgroundScaleX, backgroundScaleY );
         
         if ( needleTexture != null )
         {
@@ -1010,11 +959,9 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( interpolateMarkerColors, "Interpolate medium and high colors." );
         writer.writeProperty( revMarkersFont, "The font used to draw the rev marker numbers." );
         writer.writeProperty( revMarkersFontColor, "The font color used to draw the rev marker numbers." );
-        writer.writeProperty( displayShiftLight, "Display a shift light?" );
-        writer.writeProperty( shiftLightImageName, "The name of the shift light image." );
-        writer.writeProperty( shiftLightPosX, "The x-offset in pixels to the gear label." );
-        writer.writeProperty( shiftLightPosY, "The y-offset in pixels to the gear label." );
-        writer.writeProperty( shiftLightRPM, "The RPM (rounds per minute) to subtract from the maximum for the level to display shoft light on" );
+        writer.writeProperty( numShiftLights, "The number of shift lights to render." );
+        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+            shiftLights[i].saveProperties( writer );
         writer.writeProperty( gearBackgroundImageName, "The name of the image to render behind the gear number." );
         writer.writeProperty( gearPosX, "The x-offset in pixels to the gear label." );
         writer.writeProperty( gearPosY, "The y-offset in pixels to the gear label." );
@@ -1055,6 +1002,15 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( rpmJoinString2, "The String to use to join the current and max RPM." );
     }
     
+    private boolean loadShiftLightProperty( String key, String value )
+    {
+        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+            if ( shiftLights[i].loadProperty( key, value ) )
+                return ( true );
+        
+        return ( false );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -1068,11 +1024,13 @@ public class RevMeterWidget extends Widget
         else if ( needleAxisBottomOffset.loadProperty( key, value ) );
         else if ( needleRotationForZeroRPM.loadProperty( key, value ) );
         else if ( needleRotationForMaxRPM.loadProperty( key, value ) );
-        else if ( displayShiftLight.loadProperty( key, value ) );
-        else if ( shiftLightImageName.loadProperty( key, value ) );
-        else if ( shiftLightPosX.loadProperty( key, value ) );
-        else if ( shiftLightPosY.loadProperty( key, value ) );
-        else if ( shiftLightRPM.loadProperty( key, value ) );
+        else if ( numShiftLights.loadProperty( key, value ) )
+        {
+            this.shiftLights = new ShiftLight[ numShiftLights.getIntValue() ];
+            for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+                shiftLights[i] = new ShiftLight( this, i + 1 );
+        }
+        else if ( loadShiftLightProperty( key, value ) );
         else if ( displayRevMarkers.loadProperty( key, value ) );
         else if ( displayRevMarkerNumbers.loadProperty( key, value ) );
         else if ( revMarkersInnerRadius.loadProperty( key, value ) );
@@ -1161,13 +1119,26 @@ public class RevMeterWidget extends Widget
         propsCont.addProperty( revMarkersFont );
         propsCont.addProperty( revMarkersFontColor );
         
-        propsCont.addGroup( "Shift Light" );
+        propsCont.addGroup( "Shift Lights" );
         
-        propsCont.addProperty( displayShiftLight );
-        propsCont.addProperty( shiftLightImageName );
-        propsCont.addProperty( shiftLightPosX );
-        propsCont.addProperty( shiftLightPosY );
-        propsCont.addProperty( shiftLightRPM );
+        propsCont.addProperty( numShiftLights );
+        
+        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+            shiftLights[i].getProperties( propsCont, forceAll );
+        
+        if ( forceAll )
+        {
+            if ( numShiftLights.getIntValue() < 1 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT1.getProperties( propsCont, forceAll );
+            if ( numShiftLights.getIntValue() < 2 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT2.getProperties( propsCont, forceAll );
+            if ( numShiftLights.getIntValue() < 3 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT3.getProperties( propsCont, forceAll );
+            if ( numShiftLights.getIntValue() < 4 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT4.getProperties( propsCont, forceAll );
+            if ( numShiftLights.getIntValue() < 5 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT5.getProperties( propsCont, forceAll );
+        }
         
         propsCont.addGroup( "Gear" );
         
@@ -1235,5 +1206,7 @@ public class RevMeterWidget extends Widget
         super( name, Size.PERCENT_OFFSET + 0.163125f, Size.PERCENT_OFFSET + 0.2175f );
         
         getBackgroundColorProperty().setColor( (String)null );
+        
+        initShiftLights( 0, 1 );
     }
 }

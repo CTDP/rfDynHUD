@@ -212,8 +212,7 @@ public class EditorTable extends HierarchicalTable
             
             if ( ( editor != null ) && ( property.getWidget() != null ) )
             {
-                editor.getEditorPanel().repaint();
-                editor.setDirtyFlag();
+                editor.onWidgetChanged( property.getWidget(), property.getPropertyName() );
             }
         }
         

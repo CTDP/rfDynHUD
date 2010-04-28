@@ -96,4 +96,9 @@ public class FloatProperty extends Property
     {
         this( widget, propertyName, defaultValue, false );
     }
+    
+    public FloatProperty( Widget widget, String propertyName, float defaultValue, float minValue, float maxValue )
+    {
+        this( widget, propertyName, propertyName, defaultValue, minValue, maxValue, false );
+    }
 }

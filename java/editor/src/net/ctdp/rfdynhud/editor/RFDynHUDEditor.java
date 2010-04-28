@@ -427,6 +427,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         ArrayList<String> list = new ArrayList<String>();
         
+        list.add( "<none>" );
+        
         fillConfigurationFiles( RFactorTools.CONFIG_FOLDER, list );
         
         return ( list );
@@ -435,7 +437,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private String getCurrentTemplateFileForProperty()
     {
         if ( currentTemplateFile == null )
-            return ( "none" );
+            return ( "<none>" );
         
         return ( currentTemplateFile.getAbsolutePath().substring( RFactorTools.CONFIG_PATH.length() + 1 ) );
     }
@@ -496,13 +498,22 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             @Override
             public void setValue( Object value )
             {
-                try
+                if ( value.equals( "none" ) )
                 {
-                    loadTemplateConfig( new File( RFactorTools.CONFIG_FOLDER, (String)value ) );
+                    currentTemplateFile = null;
+                    lastTemplateConfigModified = -1L;
+                    templateConfig = null;
                 }
-                catch ( IOException e )
+                else
                 {
-                    Logger.log( e );
+                    try
+                    {
+                        loadTemplateConfig( new File( RFactorTools.CONFIG_FOLDER, (String)value ) );
+                    }
+                    catch ( IOException e )
+                    {
+                        Logger.log( e );
+                    }
                 }
             }
             
@@ -584,7 +595,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     //private long nextRedrawTime = -1L;
     
-    public void onWidgetChanged( Widget widget, String propertyName, boolean isSelected )
+    public void onWidgetChanged( Widget widget, String propertyName )
     {
         //if ( System.currentTimeMillis() >= nextRedrawTime )
         {
@@ -594,8 +605,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         setDirtyFlag();
         
-        if ( isSelected )
+        if ( ( widget != null ) && ( widget == getEditorPanel().getSelectedWidget() ) )
+        {
             editorTable.apply();
+            onWidgetSelected( widget );
+        }
     }
     
     private static File getSettingsDir()
@@ -930,6 +944,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         {
             this.currentTemplateFile = null;
             this.lastTemplateConfigModified = -1L;
+            this.templateConfig = null;
             
             return ( null );
         }
@@ -2215,6 +2230,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             in = LiveGameData.class.getResourceAsStream( "/data/game_data/telemetry_data" );
             __GDPrivilegedAccess.loadFromStream( in, gameData.getTelemetryData() );
             in.close();
+            
+            __GDPrivilegedAccess.applyEditorPresets( editorPresets, gameData );
         }
         catch ( IOException e )
         {

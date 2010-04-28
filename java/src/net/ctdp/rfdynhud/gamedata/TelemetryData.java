@@ -3,6 +3,7 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
 
@@ -98,6 +99,7 @@ public class TelemetryData
     
     private int engineBoostMapping = 5;
     private boolean tempBoostFlag = false;
+    private int editorBoost = -1;
     
     float engineLifetime = 0.0f;
     float brakeDiscThicknessFL = 0.0f;
@@ -164,6 +166,18 @@ public class TelemetryData
     
     void prepareDataUpdate()
     {
+    }
+    
+    void applyEditorPresets( EditorPresets editorPresets )
+    {
+        if ( editorPresets == null )
+        {
+            editorBoost = -1;
+        }
+        else
+        {
+            editorBoost = editorPresets.getEngineBoost();
+        }
     }
     
     void onDataUpdated()
@@ -277,6 +291,9 @@ public class TelemetryData
     
     public final int getEffectiveEngineBoostMapping()
     {
+        if ( editorBoost > 0 )
+            return ( editorBoost );
+        
         if ( tempBoostFlag )
             return ( (int)gameData.getPhysics().getEngine().getBoostRange().getMaxValue() );
         

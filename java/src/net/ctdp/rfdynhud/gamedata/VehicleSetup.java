@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorTools;
@@ -745,6 +746,10 @@ public class VehicleSetup
         
         // Unreachable code!
         return ( null );
+    }
+    
+    void applyEditorPresets( EditorPresets editorPresets )
+    {
     }
     
     private VehicleSetup()

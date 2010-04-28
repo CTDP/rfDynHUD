@@ -364,7 +364,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             }
             
             if ( changed )
-                editor.onWidgetChanged( selectedWidget, "POSITIONAL", true );
+                editor.onWidgetChanged( selectedWidget, "POSITIONAL" );
         }
     }
     

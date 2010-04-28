@@ -96,4 +96,9 @@ public class IntProperty extends Property
     {
         this( widget, propertyName, defaultValue, false );
     }
+    
+    public IntProperty( Widget widget, String propertyName, int defaultValue, int minValue, int maxValue )
+    {
+        this( widget, propertyName, propertyName, defaultValue, minValue, maxValue, false );
+    }
 }

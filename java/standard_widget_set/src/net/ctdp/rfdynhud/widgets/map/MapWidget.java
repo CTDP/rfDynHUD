@@ -53,7 +53,7 @@ public class MapWidget extends Widget
     private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", "#0000FFC0" );
     private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", "#FFFF00C0" );
     
-    private final IntProperty maxDisplayedVehicles = new IntProperty( this, "maxDisplayedVehicles", "maxDisplayedVehicles", 22, 1, 50, false );
+    private final IntProperty maxDisplayedVehicles = new IntProperty( this, "maxDisplayedVehicles", 22, 1, 50 );
     
     private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
     
