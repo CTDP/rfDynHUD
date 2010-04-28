@@ -245,13 +245,11 @@ public class StartingLightWidget extends Widget
         propsCont.addProperty( visibleTimeAfterLightsOff );
     }
     
-    /*
     @Override
     protected boolean hasText()
     {
         return ( false );
     }
-    */
     
     /*
     @Override
