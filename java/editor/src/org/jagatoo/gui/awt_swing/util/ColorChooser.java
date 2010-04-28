@@ -285,7 +285,7 @@ public class ColorChooser extends JPanel
             widget.forceAndSetDirty();
             
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             resetColorPropertyValues( propsCont.getList() );
         }
@@ -319,7 +319,7 @@ public class ColorChooser extends JPanel
                 Widget widget = widgetsConfig.getWidget( i );
                 
                 wpc.clear();
-                widget.getProperties( wpc );
+                widget.getProperties( wpc, true );
                 
                 boolean propFound = false;
                 

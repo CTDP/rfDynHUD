@@ -8,6 +8,7 @@ import java.util.Collections;
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.ini.IniWriter;
@@ -48,6 +49,8 @@ public class ConfigurationSaver
         }
         
         WidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( writer );
+        
+        __WCPrivilegedAccess.sortWidgets( widgetsConfig );
         
         int n = widgetsConfig.getNumWidgets();
         for ( int i = 0; i < n; i++ )

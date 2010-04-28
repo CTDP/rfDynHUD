@@ -486,7 +486,7 @@ public class WidgetsConfiguration
         for ( Widget widget : widgets )
         {
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             renameColorPropertyValues( propsCont.getList(), oldName, newName );
         }
@@ -504,7 +504,7 @@ public class WidgetsConfiguration
         for ( Widget widget : widgets )
         {
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             renameColorPropertyValues( propsCont.getList(), oldName, newValue );
         }
@@ -631,7 +631,7 @@ public class WidgetsConfiguration
         for ( Widget widget : widgets )
         {
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             resetAllFontProperties( propsCont.getList() );
         }
@@ -652,7 +652,7 @@ public class WidgetsConfiguration
         for ( Widget widget : widgets )
         {
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             renameFontPropertyValues( propsCont.getList(), oldName, newName );
             //break;
@@ -673,7 +673,7 @@ public class WidgetsConfiguration
         for ( Widget widget : widgets )
         {
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             renameFontPropertyValues( propsCont.getList(), oldName, newValue );
             //break;
@@ -762,7 +762,7 @@ public class WidgetsConfiguration
         for ( Widget widget : widgets )
         {
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             renameBorderPropertyValues( propsCont.getList(), oldName, newName );
             //break;
@@ -781,7 +781,7 @@ public class WidgetsConfiguration
         for ( Widget widget : widgets )
         {
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             renameBorderPropertyValues( propsCont.getList(), oldName, newValue );
             //break;

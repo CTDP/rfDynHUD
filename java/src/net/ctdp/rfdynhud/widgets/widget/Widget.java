@@ -1009,9 +1009,10 @@ public abstract class Widget implements Documented
     /**
      * Puts all editable properties to the editor.
      * 
-     * @param propsList
+     * @param propsCont
+     * @param forceAll
      */
-    public void getProperties( WidgetPropertiesContainer propsCont )
+    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "General" );
         

@@ -315,6 +315,8 @@ public class EditorPanel extends JPanel
         {
             selectionListeners.get( i ).onWidgetSelected( selectedWidget );
         }
+        
+        drawingManager.setAllDirtyFlags();
     }
     
     public final Widget getSelectedWidget()

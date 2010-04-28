@@ -259,9 +259,9 @@ public class TrackPositionWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont )
+    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        super.getProperties( propsCont );
+        super.getProperties( propsCont, forceAll );
         
         propsCont.addGroup( "Specific" );
         
@@ -295,6 +295,6 @@ public class TrackPositionWidget extends Widget
     
     public TrackPositionWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.145f, Size.PERCENT_OFFSET + 0.103f );
+        super( name, Size.PERCENT_OFFSET + 0.35f, Size.PERCENT_OFFSET + 0.05859375f );
     }
 }

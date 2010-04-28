@@ -206,6 +206,7 @@ public class ConfigurationLoader
             }
         }.parse( reader );
         
+        __WCPrivilegedAccess.sortWidgets( widgetsConfig );
         __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, editorPresets );
     }
     

@@ -1130,9 +1130,9 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont )
+    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        super.getProperties( propsCont );
+        super.getProperties( propsCont, forceAll );
         
         propsCont.addGroup( "Specific" );
         

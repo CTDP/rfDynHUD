@@ -573,7 +573,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
         else
         {
-            widget.getProperties( new DefaultWidgetPropertiesContainer( propsList ) );
+            widget.getProperties( new DefaultWidgetPropertiesContainer( propsList ), false );
         }
         
         onPropertySelected( null, -1 );
@@ -1163,8 +1163,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         FlatWidgetPropertiesContainer pcTemplate = new FlatWidgetPropertiesContainer();
         FlatWidgetPropertiesContainer pcTarget = new FlatWidgetPropertiesContainer();
         
-        template.getProperties( pcTemplate );
-        widget.getProperties( pcTarget );
+        template.getProperties( pcTemplate, true );
+        widget.getProperties( pcTarget, true );
         
         copyPropertiesFromTemplate( pcTemplate.getList(), pcTarget.getList() );
     }

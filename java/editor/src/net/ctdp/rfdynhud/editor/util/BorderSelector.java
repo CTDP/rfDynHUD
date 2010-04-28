@@ -224,7 +224,7 @@ public class BorderSelector extends DefaultTableModel
             widget.forceAndSetDirty();
             
             propsCont.clear();
-            widget.getProperties( propsCont );
+            widget.getProperties( propsCont, true );
             
             resetBorderPropertyValues( propsCont.getList() );
         }

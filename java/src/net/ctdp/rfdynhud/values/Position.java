@@ -159,7 +159,6 @@ public class Position
             
             changed = true;
         }
-        widget.setDirtyFlag();
         
         return ( changed );
     }
