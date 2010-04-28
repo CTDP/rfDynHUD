@@ -11,7 +11,6 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
@@ -37,18 +36,15 @@ public class TrackPositionWidget extends Widget
     private int baseItemRadius = 7;
     private int itemRadius = baseItemRadius;
     
-    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", "#FFFFFFC0" );
-    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", "#FF0000C0" );
-    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", "#00FF00C0" );
-    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", "#0000FFC0" );
-    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", "#FFFF00C0" );
+    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
+    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
+    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
+    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
     
     private final IntProperty maxDisplayedVehicles = new IntProperty( this, "maxDisplayedVehicles", 22, 1, 50 );
     
     private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
-    
-    private final FontProperty posNumberFont = new FontProperty( this, "posNumberFont", "Monospaced-PLAIN-9va" );
-    private final ColorProperty posNumberFontColor = new ColorProperty( this, "posNumberFontColor", "#000000" );
     
     private static final int ANTI_ALIAS_RADIUS_OFFSET = 1;
     
@@ -61,6 +57,38 @@ public class TrackPositionWidget extends Widget
     public String getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedColorValue( String name )
+    {
+        String result = super.getDefaultNamedColorValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        result = StandardWidgetSet.getDefaultNamedColorValue( name );
+        
+        return ( result );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedFontValue( String name )
+    {
+        String result = super.getDefaultNamedFontValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        result = StandardWidgetSet.getDefaultNamedFontValue( name );
+        
+        return ( result );
     }
     
     public void setItemRadius( int radius )
@@ -108,6 +136,11 @@ public class TrackPositionWidget extends Widget
         final boolean isEditorMode = ( editorPresets != null );
         
         initSubTextures( isEditorMode );
+        
+        for ( int i = 0; i < maxDisplayedVehicles.getIntValue(); i++ )
+        {
+            itemStates[i] = -1;
+        }
     }
     
     @Override
@@ -130,12 +163,12 @@ public class TrackPositionWidget extends Widget
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        int off2 = ( posNumberFont.isAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
+        int off2 = ( isFontAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
         
         short ownPlace = scoringInfo.getOwnPlace();
         
-        final Font font = posNumberFont.getFont();
-        final boolean posNumberFontAntiAliased = posNumberFont.isAntiAliased();
+        final Font font = getFont();
+        final boolean posNumberFontAntiAliased = isFontAntiAliased();
         FontMetrics metrics = texture.getTextureCanvas().getFontMetrics( font );
         
         boolean normal = false;
@@ -202,7 +235,7 @@ public class TrackPositionWidget extends Widget
                         float fw = (float)bounds.getWidth();
                         float fh = (float)( metrics.getAscent() - metrics.getDescent() );
                         
-                        tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, posNumberFontColor.getColor(), false, null );
+                        tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, getFontColor(), false, null );
                     }
                 }
             }
@@ -229,8 +262,6 @@ public class TrackPositionWidget extends Widget
         writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
         writer.writeProperty( maxDisplayedVehicles, "The maximum number of displayed vehicles." );
         writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
-        writer.writeProperty( posNumberFont, "The font used for position numbers." );
-        writer.writeProperty( posNumberFontColor, "The font color used for position numbers in the format #RRGGBB (hex)." );
     }
     
     /**
@@ -251,8 +282,6 @@ public class TrackPositionWidget extends Widget
         else if ( markColorNextBehind.loadProperty( key, value ) );
         else if ( maxDisplayedVehicles.loadProperty( key, value ) );
         else if ( displayPositionNumbers.loadProperty( key, value ) );
-        else if ( posNumberFont.loadProperty( key, value ) );
-        else if ( posNumberFontColor.loadProperty( key, value ) );
     }
     
     /**
@@ -289,12 +318,13 @@ public class TrackPositionWidget extends Widget
         propsCont.addProperty( maxDisplayedVehicles );
         
         propsCont.addProperty( displayPositionNumbers );
-        propsCont.addProperty( posNumberFont );
-        propsCont.addProperty( posNumberFontColor );
     }
     
     public TrackPositionWidget( String name )
     {
         super( name, Size.PERCENT_OFFSET + 0.35f, Size.PERCENT_OFFSET + 0.05859375f );
+        
+        getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
+        getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );
     }
 }

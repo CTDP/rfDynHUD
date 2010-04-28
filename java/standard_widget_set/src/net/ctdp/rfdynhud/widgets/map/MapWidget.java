@@ -18,7 +18,6 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
@@ -47,18 +46,15 @@ public class MapWidget extends Widget
     private int baseItemRadius = 7;
     private int itemRadius = baseItemRadius;
     
-    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", "#FFFFFFC0" );
-    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", "#FF0000C0" );
-    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", "#00FF00C0" );
-    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", "#0000FFC0" );
-    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", "#FFFF00C0" );
+    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
+    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
+    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
+    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
     
     private final IntProperty maxDisplayedVehicles = new IntProperty( this, "maxDisplayedVehicles", 22, 1, 50 );
     
     private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
-    
-    private final FontProperty posNumberFont = new FontProperty( this, "posNumberFont", "Monospaced-PLAIN-9va" );
-    private final ColorProperty posNumberFontColor = new ColorProperty( this, "posNumberFontColor", "#000000" );
     
     private static final int ANTI_ALIAS_RADIUS_OFFSET = 1;
     
@@ -71,6 +67,38 @@ public class MapWidget extends Widget
     public String getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedColorValue( String name )
+    {
+        String result = super.getDefaultNamedColorValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        result = StandardWidgetSet.getDefaultNamedColorValue( name );
+        
+        return ( result );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedFontValue( String name )
+    {
+        String result = super.getDefaultNamedFontValue( name );
+        
+        if ( result != null )
+            return ( result );
+        
+        result = StandardWidgetSet.getDefaultNamedFontValue( name );
+        
+        return ( result );
     }
     
     public void setItemRadius( int radius )
@@ -185,7 +213,7 @@ public class MapWidget extends Widget
             Texture2DCanvas tc = texture2.getTextureCanvas();
             tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             
-            int off2 = ( posNumberFont.isAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
+            int off2 = ( isFontAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
             int dia = itemRadius + itemRadius + off2 + off2;
             
             scale = track.getScale( width - dia, height - dia );
@@ -257,6 +285,11 @@ public class MapWidget extends Widget
             scale = 1f;
             texture2 = null;
         }
+        
+        for ( int i = 0; i < maxDisplayedVehicles.getIntValue(); i++ )
+        {
+            itemStates[i] = -1;
+        }
     }
     
     @Override
@@ -275,12 +308,12 @@ public class MapWidget extends Widget
         
         if ( ( track != null ) && ( texture2 != null ) )
         {
-            int off2 = ( posNumberFont.isAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
+            int off2 = ( isFontAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
             
             short ownPlace = scoringInfo.getOwnPlace();
             
-            final Font font = posNumberFont.getFont();
-            final boolean posNumberFontAntiAliased = posNumberFont.isAntiAliased();
+            final Font font = getFont();
+            final boolean posNumberFontAntiAliased = isFontAntiAliased();
             FontMetrics metrics = texture.getTextureCanvas().getFontMetrics( font );
             
             boolean normal = false;
@@ -347,7 +380,7 @@ public class MapWidget extends Widget
                                 float fw = (float)bounds.getWidth();
                                 float fh = (float)( metrics.getAscent() - metrics.getDescent() );
                                 
-                                tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, posNumberFontColor.getColor(), false, null );
+                                tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, getFontColor(), false, null );
                             }
                         }
                     }
@@ -376,8 +409,6 @@ public class MapWidget extends Widget
         writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
         writer.writeProperty( maxDisplayedVehicles, "The maximum number of displayed vehicles." );
         writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
-        writer.writeProperty( posNumberFont, "The font used for position numbers." );
-        writer.writeProperty( posNumberFontColor, "The font color used for position numbers in the format #RRGGBB (hex)." );
     }
     
     /**
@@ -398,8 +429,6 @@ public class MapWidget extends Widget
         else if ( markColorNextBehind.loadProperty( key, value ) );
         else if ( maxDisplayedVehicles.loadProperty( key, value ) );
         else if ( displayPositionNumbers.loadProperty( key, value ) );
-        else if ( posNumberFont.loadProperty( key, value ) );
-        else if ( posNumberFontColor.loadProperty( key, value ) );
     }
     
     /**
@@ -436,17 +465,7 @@ public class MapWidget extends Widget
         propsCont.addProperty( maxDisplayedVehicles );
         
         propsCont.addProperty( displayPositionNumbers );
-        propsCont.addProperty( posNumberFont );
-        propsCont.addProperty( posNumberFontColor );
     }
-    
-    /*
-    @Override
-    protected boolean hasText()
-    {
-        return ( false );
-    }
-    */
     
     @Override
     protected boolean canHaveBorder()
@@ -459,5 +478,8 @@ public class MapWidget extends Widget
         super( name, Size.PERCENT_OFFSET + 0.145f, Size.PERCENT_OFFSET + 0.103f );
         
         getBackgroundColorProperty().setColor( (String)null );
+        
+        getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
+        getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );
     }
 }

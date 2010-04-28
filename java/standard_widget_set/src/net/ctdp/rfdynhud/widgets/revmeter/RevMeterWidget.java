@@ -248,7 +248,7 @@ public class RevMeterWidget extends Widget
     @Override
     public String getDefaultNamedFontValue( String name )
     {
-        String result = super.getDefaultNamedColorValue( name );
+        String result = super.getDefaultNamedFontValue( name );
         
         if ( result != null )
             return ( result );
