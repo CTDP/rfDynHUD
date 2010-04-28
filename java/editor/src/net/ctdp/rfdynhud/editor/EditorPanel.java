@@ -77,7 +77,7 @@ public class EditorPanel extends JPanel
         }
     };
     
-    private final IntProperty gridSizeX = new IntProperty( null, "gridSizeX", 10 )
+    private final IntProperty gridSizeX = new IntProperty( null, "gridSizeX", "gridSizeX", 10, 0, 5000, false )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -87,7 +87,7 @@ public class EditorPanel extends JPanel
         }
     };
     
-    private final IntProperty gridSizeY = new IntProperty( null, "gridSizeY", 10 )
+    private final IntProperty gridSizeY = new IntProperty( null, "gridSizeY", "gridSizeY", 10, 0, 5000, false )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )

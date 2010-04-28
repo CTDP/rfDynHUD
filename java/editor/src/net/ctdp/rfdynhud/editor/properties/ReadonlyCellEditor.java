@@ -61,9 +61,15 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<JLabel> implements 
         return ( false );
     }
     
-    public Object getCellEditorValue()
+    @Override
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( label.getText() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public ReadonlyCellEditor()

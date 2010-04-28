@@ -95,9 +95,14 @@ public class BooleanCellEditor extends KeyValueCellRenderer<JPanel> implements T
     }
     
     @Override
-    public Object getCellEditorValue()
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( checkbox.isSelected() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public BooleanCellEditor()

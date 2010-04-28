@@ -100,18 +100,31 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
         return ( panel );
     }
     
-    public Object getCellEditorValue()
+    @Override
+    protected Object getCellEditorValueImpl() throws Throwable
     {
-        try
+        if ( prop.isSizeProp() )
+            return ( Size.parseValue( textfield.getText() ) );
+        
+        return ( Position.parseValue( textfield.getText() ) );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
+        float fv = (Float)oldValue;
+        boolean isPerc = ( Math.abs( fv ) > Size.PERCENT_OFFSET_CHECK_POSITIVE );
+        
+        if ( isPerc )
         {
             if ( prop.isSizeProp() )
-                return ( Size.parseValue( textfield.getText() ) );
-            
-            return ( Position.parseValue( textfield.getText() ) );
+                textfield.setText( Size.unparseValue( fv ) );
+            else
+                textfield.setText( Position.unparseValue( fv ) );
         }
-        catch ( Throwable t )
+        else
         {
-            return ( 0f );
+            textfield.setText( String.valueOf( (int)fv ) );
         }
     }
     

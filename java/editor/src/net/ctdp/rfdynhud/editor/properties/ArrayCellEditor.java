@@ -78,9 +78,15 @@ public class ArrayCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         return ( panel );
     }
     
-    public Object getCellEditorValue()
+    @Override
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( combobox.getSelectedItem() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public ArrayCellEditor()

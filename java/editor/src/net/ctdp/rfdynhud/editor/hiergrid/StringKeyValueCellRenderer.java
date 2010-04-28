@@ -22,9 +22,14 @@ public class StringKeyValueCellRenderer extends KeyValueCellRenderer< JLabel >
     }
     
     @Override
-    public Object getCellEditorValue()
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( getComponent().toString() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public StringKeyValueCellRenderer()

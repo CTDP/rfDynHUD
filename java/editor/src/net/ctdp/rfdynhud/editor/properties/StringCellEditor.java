@@ -84,9 +84,14 @@ public class StringCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
     }
     
     @Override
-    public Object getCellEditorValue()
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( textfield.getText() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public StringCellEditor()

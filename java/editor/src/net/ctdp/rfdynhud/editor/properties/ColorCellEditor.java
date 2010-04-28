@@ -102,9 +102,14 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
     }
     
     @Override
-    public Object getCellEditorValue()
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( label.getText() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public ColorCellEditor()

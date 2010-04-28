@@ -261,7 +261,7 @@ public class StartingLightWidget extends Widget
     
     public StartingLightWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.17f, Size.PERCENT_OFFSET + 0.086f );
+        super( name, Size.PERCENT_OFFSET + 0.11328125f, Size.PERCENT_OFFSET + 0.083984375f );
         
         //getBackgroundColorProperty().setColor( (String)null );
     }

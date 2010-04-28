@@ -58,9 +58,15 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer< JLabel >
         component.setHorizontalAlignment( SwingConstants.CENTER );
     }
     
-    public Object getCellEditorValue()
+    @Override
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( getComponent().toString() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public GroupHeaderCellRenderer()

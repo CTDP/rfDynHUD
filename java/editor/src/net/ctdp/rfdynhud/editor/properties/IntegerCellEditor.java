@@ -75,16 +75,16 @@ public class IntegerCellEditor extends KeyValueCellRenderer<JPanel> implements T
         return ( panel );
     }
     
-    public Object getCellEditorValue()
+    @Override
+    protected Object getCellEditorValueImpl() throws Throwable
     {
-        try
-        {
-            return ( Integer.parseInt( textfield.getText() ) );
-        }
-        catch ( Throwable t )
-        {
-            return ( 0 );
-        }
+        return ( Integer.parseInt( textfield.getText() ) );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
+        textfield.setText( String.valueOf( oldValue ) );
     }
     
     public IntegerCellEditor()

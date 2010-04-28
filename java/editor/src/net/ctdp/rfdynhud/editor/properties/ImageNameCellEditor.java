@@ -98,9 +98,14 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
     }
     
     @Override
-    public Object getCellEditorValue()
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( label.getText() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public ImageNameCellEditor()

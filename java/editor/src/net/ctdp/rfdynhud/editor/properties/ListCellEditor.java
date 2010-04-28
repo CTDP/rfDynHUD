@@ -78,9 +78,15 @@ public class ListCellEditor extends KeyValueCellRenderer<JPanel> implements Tabl
         return ( panel );
     }
     
-    public Object getCellEditorValue()
+    @Override
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( combobox.getSelectedItem() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public ListCellEditor()

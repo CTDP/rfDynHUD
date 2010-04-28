@@ -83,16 +83,16 @@ public class FloatCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         return ( panel );
     }
     
-    public Object getCellEditorValue()
+    @Override
+    protected Object getCellEditorValueImpl() throws Throwable
     {
-        try
-        {
-            return ( Float.parseFloat( textfield.getText() ) );
-        }
-        catch ( Throwable t )
-        {
-            return ( 0f );
-        }
+        return ( Float.parseFloat( textfield.getText() ) );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
+        textfield.setText( String.valueOf( oldValue ) );
     }
     
     public FloatCellEditor()

@@ -25,6 +25,8 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
     private int level = 0;
     private int row = 0;
     
+    private Object oldValue = null;
+    
     public void setComponent( C component )
     {
         this.component = component;
@@ -88,6 +90,8 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
         }
         
         component.setFont( table.getFont() );
+        
+        oldValue = value;
     }
     
     public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
@@ -101,6 +105,25 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
         prepareComponent( component, table, value, isSelected, hasFocus, row, column );
         
         return ( component );
+    }
+    
+    protected abstract Object getCellEditorValueImpl() throws Throwable;
+    
+    protected abstract void applyOldValue( Object oldValue );
+    
+    @Override
+    public final Object getCellEditorValue()
+    {
+        try
+        {
+            return ( getCellEditorValueImpl() );
+        }
+        catch ( Throwable t )
+        {
+            applyOldValue( oldValue );
+            
+            return ( oldValue );
+        }
     }
     
     protected void finalizeEdit( JTable table )

@@ -22,9 +22,15 @@ public class KeyCellRenderer extends KeyValueCellRenderer< KeyRenderLabel >
         component.setText( String.valueOf( value ) );
     }
     
-    public Object getCellEditorValue()
+    @Override
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( getComponent().toString() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public KeyCellRenderer()

@@ -107,9 +107,14 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
     }
     
     @Override
-    public Object getCellEditorValue()
+    protected Object getCellEditorValueImpl() throws Throwable
     {
         return ( label.getText() );
+    }
+    
+    @Override
+    protected void applyOldValue( Object oldValue )
+    {
     }
     
     public BorderCellEditor()
