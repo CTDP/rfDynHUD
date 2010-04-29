@@ -404,6 +404,8 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( displayEveryXLaps, "Show the Widget every x laps." );
+        writer.writeProperty( visibleTime, "Time in seconds to keep the Widget visible." );
         writer.writeProperty( preferNextInFront, "Whether to prefer next in front, even if next behind is closer." );
     }
     
@@ -415,7 +417,9 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     {
         super.loadProperty( key, value );
         
-        if ( preferNextInFront.loadProperty( key, value ) );
+        if ( displayEveryXLaps.loadProperty( key, value ) );
+        else if ( visibleTime.loadProperty( key, value ) );
+        else if ( preferNextInFront.loadProperty( key, value ) );
     }
     
     /**
@@ -428,6 +432,8 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         propsCont.addGroup( "Specific" );
         
+        propsCont.addProperty( displayEveryXLaps );
+        propsCont.addProperty( visibleTime );
         propsCont.addProperty( preferNextInFront );
     }
     
