@@ -229,9 +229,9 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         forceCompleteRedraw();
     }
     
-    @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    private void drawTimeCompare( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        final boolean isEditorMode = ( editorPresets != null );
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
@@ -325,17 +325,23 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         lapCaptionString3.resetClearRect();
         lapCaptionString3.draw( offsetX, offsetY, "Lap " + ( vsi.getCurrentLap() - 1 ), null, texture );
         
+        float laptime1 = isEditorMode ? 84.567f : vsi.getLaptime( vsi.getCurrentLap() - 3 ).getLapTime();
+        
         ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + 0 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
         laptimeString1.resetClearRect();
-        laptimeString1.draw( offsetX, offsetY, "1:24.567", null, texture );
+        laptimeString1.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime1, false, false, true ), null, texture );
+        
+        float laptime2 = isEditorMode ? editorPresets.getLastLaptime() : vsi.getLaptime( vsi.getCurrentLap() - 2 ).getLapTime();
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
         laptimeString2.resetClearRect();
-        laptimeString2.draw( offsetX, offsetY, "1:25.678", null, texture );
+        laptimeString2.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime2, false, false, true ), null, texture );
+        
+        float laptime3 = isEditorMode ? editorPresets.getCurrentLaptime() : vsi.getLaptime( vsi.getCurrentLap() - 1 ).getLapTime();
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
         laptimeString3.resetClearRect();
-        laptimeString3.draw( offsetX, offsetY, "1:26.789", null, texture );
+        laptimeString3.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime3, false, false, true ), null, texture );
         
         float gap1, gap2, gap3;
         if ( editorPresets != null )
@@ -386,8 +392,12 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH * 3 / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY + 2 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidthTimes2, rowHeight, dataBgColor, texture, false );
         gapString3.resetClearRect();
         gapString3.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( gap3 ), null, dataColor, texture );
-        
-        
+    }
+    
+    @Override
+    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        drawTimeCompare( gameData, editorPresets, texture, offsetX, offsetY, width, height );
     }
     
     @Override
