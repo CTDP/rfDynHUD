@@ -14,7 +14,7 @@ public class ETVUtils
 {
     public static final String WIDGET_PACKAGE = "CTDP/Ecclestone TV 2010";
     
-    public static final int TRIANGLE_WIDTH = 15;
+    public static final int TRIANGLE_WIDTH = 16;
     private static final boolean AA_TRIANGLE = true;
     public static final int ITEM_GAP = 3;
     

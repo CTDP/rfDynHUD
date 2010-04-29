@@ -11,4 +11,9 @@ public enum FinishStatus
     DNF, // 2
     DQ, // 3
     ;
+    
+    public final boolean isNone()
+    {
+        return ( this == NONE );
+    }
 }

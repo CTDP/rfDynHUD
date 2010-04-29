@@ -6,6 +6,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.etv2010.widgets._base.ETVWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.Laptime;
@@ -14,7 +15,6 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
-import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -30,18 +30,14 @@ import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
  * The {@link ETVSessionStateWidget} displays the current lap.
  * 
  * @author Marvin Froehlich
  */
-public class ETVSessionStateWidget extends Widget
+public class ETVSessionStateWidget extends ETVWidgetBase
 {
-    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
-    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
-    
     private static enum LapDisplayType
     {
         CURRENT_LAP,
@@ -90,40 +86,6 @@ public class ETVSessionStateWidget extends Widget
     private static final Alignment[] colAligns = new Alignment[] { Alignment.RIGHT, Alignment.CENTER, Alignment.RIGHT };
     private final int[] colWidths = new int[ 3 ];
     private static final int colPadding = 10;
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDefaultNamedColorValue( String name )
-    {
-        String result = super.getDefaultNamedColorValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        return ( ETVUtils.getDefaultNamedColorValue( name ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDefaultNamedFontValue( String name )
-    {
-        String result = super.getDefaultNamedFontValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        return ( ETVUtils.getDefaultNamedFontValue( name ) );
-    }
-    
-    @Override
-    public String getWidgetPackage()
-    {
-        return ( ETVUtils.WIDGET_PACKAGE );
-    }
     
     private static final SessionLimit getSessionLimit( ScoringInfo scoringInfo, SessionLimit preference )
     {
@@ -375,8 +337,6 @@ public class ETVSessionStateWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( captionBackgroundColor, "The background color for the \"Lap\" caption." );
-        writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
         writer.writeProperty( testDayCaption, "The caption String (on the left) for the TEST_DAY session." );
         writer.writeProperty( practice1Caption, "The caption String (on the left) for the PRACTICE1 session." );
         writer.writeProperty( practice2Caption, "The caption String (on the left) for the PRACTICE2 session." );
@@ -395,9 +355,7 @@ public class ETVSessionStateWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( captionBackgroundColor.loadProperty( key, value ) );
-        else if ( captionColor.loadProperty( key, value ) );
-        else if ( testDayCaption.loadProperty( key, value ) );
+        if ( testDayCaption.loadProperty( key, value ) );
         else if ( practice1Caption.loadProperty( key, value ) );
         else if ( practice2Caption.loadProperty( key, value ) );
         else if ( practice3Caption.loadProperty( key, value ) );
@@ -417,8 +375,6 @@ public class ETVSessionStateWidget extends Widget
         
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( captionBackgroundColor );
-        propsCont.addProperty( captionColor );
         propsCont.addProperty( testDayCaption );
         propsCont.addProperty( practice1Caption );
         propsCont.addProperty( practice2Caption );
@@ -429,26 +385,8 @@ public class ETVSessionStateWidget extends Widget
         propsCont.addProperty( sessionLimitPreference );
     }
     
-    /*
-    @Override
-    protected boolean hasText()
-    {
-        return ( false );
-    }
-    */
-    
-    @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    
     public ETVSessionStateWidget( String name )
     {
         super( name, Size.PERCENT_OFFSET + 0.12f, Size.PERCENT_OFFSET + 0.0254f );
-        
-        getBackgroundColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
-        getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );
-        getFontProperty().setValue( ETVUtils.ETV_STYLE_FONT );
     }
 }

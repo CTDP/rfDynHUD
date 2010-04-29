@@ -5,6 +5,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.etv2010.widgets._base.ETVWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -27,18 +28,15 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.StandingsView;
 import net.ctdp.rfdynhud.values.StringValue;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
  * The {@link ETVStandingsWidget} displays the list of drivers and gaps.
  * 
  * @author Marvin Froehlich
  */
-public class ETVStandingsWidget extends Widget
+public class ETVStandingsWidget extends ETVWidgetBase
 {
-    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
     private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
-    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
     private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
     
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
@@ -82,34 +80,6 @@ public class ETVStandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public String getDefaultNamedColorValue( String name )
-    {
-        String result = super.getDefaultNamedColorValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        return ( ETVUtils.getDefaultNamedColorValue( name ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDefaultNamedFontValue( String name )
-    {
-        String result = super.getDefaultNamedFontValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        return ( ETVUtils.getDefaultNamedFontValue( name ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void bake()
     {
         super.bake();
@@ -131,12 +101,6 @@ public class ETVStandingsWidget extends Widget
         
         if ( itemHeight.isHeightPercentageValue() )
             itemHeight.flipHeightPercentagePx();
-    }
-    
-    @Override
-    public String getWidgetPackage()
-    {
-        return ( ETVUtils.WIDGET_PACKAGE );
     }
     
     @Override
@@ -485,9 +449,7 @@ public class ETVStandingsWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( captionBackgroundColor, "The background color for the \"Position\" caption." );
         writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
-        writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
         writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
         writer.writeProperty( "itemHeight", Size.unparseValue( itemHeight.getHeight() ), "The height of one item." );
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
@@ -502,9 +464,7 @@ public class ETVStandingsWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( captionBackgroundColor.loadProperty( key, value ) );
-        else if ( captionBackgroundColor1st.loadProperty( key, value ) );
-        else if ( captionColor.loadProperty( key, value ) );
+        if ( captionBackgroundColor1st.loadProperty( key, value ) );
         else if ( dataBackgroundColor1st.loadProperty( key, value ) );
         else if ( itemHeight.loadProperty( key, value, "sdfsdfsdfsdf", "itemHeight" ) );
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
@@ -519,37 +479,18 @@ public class ETVStandingsWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
+        propsCont.addProperty( captionBackgroundColor1st );
+        propsCont.addProperty( dataBackgroundColor1st );
+        
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( captionBackgroundColor );
-        propsCont.addProperty( captionBackgroundColor1st );
-        propsCont.addProperty( captionColor );
-        propsCont.addProperty( dataBackgroundColor1st );
         propsCont.addProperty( itemHeight.createHeightProperty( "itemHeight" ) );
         propsCont.addProperty( forceLeaderDisplayed );
         propsCont.addProperty( showFastestLapsInRace );
     }
     
-    /*
-    @Override
-    protected boolean hasText()
-    {
-        return ( false );
-    }
-    */
-    
-    @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    
     public ETVStandingsWidget( String name )
     {
         super( name, Size.PERCENT_OFFSET + 0.14f, Size.PERCENT_OFFSET + ( 0.025f * 10f ) );
-        
-        getBackgroundColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
-        getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );
-        getFontProperty().setValue( ETVUtils.ETV_STYLE_FONT );
     }
 }

@@ -7,13 +7,13 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.etv2010.widgets._base.ETVTimingWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
-import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -29,24 +29,14 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LapState;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.ValidityTest;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
  * The {@link ETVTimingWidget} displays the current lap time.
  * 
  * @author Marvin Froehlich
  */
-public class ETVTimingWidget extends Widget
+public class ETVTimingWidget extends ETVTimingWidgetBase
 {
-    private final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
-    private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
-    private final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
-    private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
-    private final ColorProperty dataBackgroundColorFaster = new ColorProperty( this, "dataBgColorFaster", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_FASTER );
-    private final ColorProperty dataBackgroundColorSlower = new ColorProperty( this, "dataBgColorSlower", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_SLOWER );
-    private final ColorProperty dataColorFaster = new ColorProperty( this, "dataColorFaster", ETVUtils.ETV_STYLE_DATA_FONT_COLOR_FASTER );
-    private final ColorProperty dataColorSlower = new ColorProperty( this, "dataColorSlower", ETVUtils.ETV_STYLE_DATA_FONT_COLOR_SLOWER );
-    
     private final IntProperty positionFontSize = new IntProperty( this, "positionFontSize", 200 );
     
     private final BooleanProperty alwaysVisible = new BooleanProperty( this, "alwaysVisible", false );
@@ -110,40 +100,6 @@ public class ETVTimingWidget extends Widget
         }
         
         return ( positionFont );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDefaultNamedColorValue( String name )
-    {
-        String result = super.getDefaultNamedColorValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        return ( ETVUtils.getDefaultNamedColorValue( name ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDefaultNamedFontValue( String name )
-    {
-        String result = super.getDefaultNamedFontValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        return ( ETVUtils.getDefaultNamedFontValue( name ) );
-    }
-    
-    @Override
-    public String getWidgetPackage()
-    {
-        return ( ETVUtils.WIDGET_PACKAGE );
     }
     
     @Override
@@ -521,15 +477,6 @@ public class ETVTimingWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( captionBackgroundColor, "The background color for the \"Position\" caption." );
-        writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
-        writer.writeProperty( captionColor, "The font color for the \"Position\" caption." );
-        writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
-        writer.writeProperty( dataBackgroundColorFaster, "The background color for the data area, if a negative gap is displayed." );
-        writer.writeProperty( dataBackgroundColorSlower, "The background color for the data area, if a positive gap is displayed." );
-        writer.writeProperty( dataColorFaster, "The font color for the data area, if a negative gap is displayed." );
-        writer.writeProperty( dataColorSlower, "The font color for the data area, if a positive gap is displayed." );
-        
         writer.writeProperty( positionFontSize, "Font size for the position in percent relative to the normal font size." );
         
         writer.writeProperty( alwaysVisible, "Always visible? If true, visibleTimeBeforeSector and visibleTimeAfterSector are ignored." );
@@ -545,15 +492,7 @@ public class ETVTimingWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( captionBackgroundColor.loadProperty( key, value ) );
-        else if ( captionBackgroundColor1st.loadProperty( key, value ) );
-        else if ( captionColor.loadProperty( key, value ) );
-        else if ( dataBackgroundColor1st.loadProperty( key, value ) );
-        else if ( dataBackgroundColorFaster.loadProperty( key, value ) );
-        else if ( dataBackgroundColorSlower.loadProperty( key, value ) );
-        else if ( dataColorFaster.loadProperty( key, value ) );
-        else if ( dataColorSlower.loadProperty( key, value ) );
-        else if ( positionFontSize.loadProperty( key, value ) );
+        if ( positionFontSize.loadProperty( key, value ) );
         else if ( alwaysVisible.loadProperty( key, value ) );
         else if ( visibleTimeBeforeSector.loadProperty( key, value ) );
         else if ( visibleTimeAfterSector.loadProperty( key, value ) );
@@ -567,16 +506,6 @@ public class ETVTimingWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Colors and Fonts" );
-        
-        propsCont.addProperty( captionBackgroundColor );
-        propsCont.addProperty( captionBackgroundColor1st );
-        propsCont.addProperty( captionColor );
-        propsCont.addProperty( dataBackgroundColor1st );
-        propsCont.addProperty( dataBackgroundColorFaster );
-        propsCont.addProperty( dataBackgroundColorSlower );
-        propsCont.addProperty( dataColorFaster );
-        propsCont.addProperty( dataColorSlower );
         propsCont.addProperty( positionFontSize );
         
         propsCont.addGroup( "Visiblity" );
@@ -586,26 +515,8 @@ public class ETVTimingWidget extends Widget
         propsCont.addProperty( visibleTimeAfterSector );
     }
     
-    /*
-    @Override
-    protected boolean hasText()
-    {
-        return ( false );
-    }
-    */
-    
-    @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    
     public ETVTimingWidget( String name )
     {
         super( name, Size.PERCENT_OFFSET + 0.2f, Size.PERCENT_OFFSET + 0.08496094f );
-        
-        getBackgroundColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
-        getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );
-        getFontProperty().setValue( ETVUtils.ETV_STYLE_FONT );
     }
 }
