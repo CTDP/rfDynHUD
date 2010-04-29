@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.editor.properties;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Insets;
 
 import javax.swing.JButton;
@@ -60,6 +61,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
             button.setToolTipText( prop.getButtonTooltip() );
         }
         
+        /*
         if ( isSelected )
         {
             label.setBackground( table.getSelectionBackground() );
@@ -70,6 +72,14 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
             label.setBackground( table.getBackground() );
             label.setForeground( table.getForeground() );
         }
+        */
+        
+        Color color = prop.getColor();
+        
+        if ( ( color.getRed() < 20 ) && ( color.getGreen() < 20 ) && ( color.getBlue() < 20 ) )
+            color = Color.WHITE;
+        
+        label.setBackground( color );
         label.setFont( table.getFont() );
         
         label.setText( (String)value );
@@ -87,8 +97,8 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         
         //if ( isSelected )
         {
-            label.setBackground( table.getSelectionBackground() );
-            label.setForeground( table.getSelectionForeground() );
+            //label.setBackground( table.getSelectionBackground() );
+            //label.setForeground( table.getSelectionForeground() );
         }
         /*
         else

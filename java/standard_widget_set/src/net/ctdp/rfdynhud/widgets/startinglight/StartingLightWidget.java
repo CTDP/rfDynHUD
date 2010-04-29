@@ -80,9 +80,9 @@ public class StartingLightWidget extends Widget
     }
     
     @Override
-    public void updateVisibility( LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.updateVisibility( gameData, editorPresets );
+        super.updateVisibility( clock1, clock2, gameData, editorPresets );
         
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         

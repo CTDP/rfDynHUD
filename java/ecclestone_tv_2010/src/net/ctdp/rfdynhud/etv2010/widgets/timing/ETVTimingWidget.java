@@ -123,9 +123,9 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.updateVisibility( gameData, editorPresets );
+        super.updateVisibility( clock1, clock2, gameData, editorPresets );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();

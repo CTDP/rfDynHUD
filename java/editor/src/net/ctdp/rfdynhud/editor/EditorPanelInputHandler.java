@@ -40,7 +40,6 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     
     private WidgetsDrawingManager widgetsManager;
     
-    @SuppressWarnings( "unused" )
     private BorderPart overBorderPart = null;
     
     private int mousePressedX = -1;
@@ -51,6 +50,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     private int widgetDragStartHeight = -1;
     private Widget selectedWidget = null;
     
+    private boolean isShiftDown = false;
     private boolean isControlDown = false;
     
     private Widget getWidgetUnderMouse( int x, int y )
@@ -129,6 +129,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 widgetDragStartHeight = -1;
                 
                 mouseMoved( e );
+                
+                widgetsManager.setAllDirtyFlags();
+                
+                editor.getEditorPanel().repaint();
             }
         }
     }
@@ -299,6 +303,32 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 w = Math.min( w, gameResX - x );
                 h = Math.min( h, gameResY - y );
                 
+                if ( isShiftDown )
+                {
+                    float aspect = widgetDragStartWidth / (float)widgetDragStartHeight;
+                    
+                    switch ( overBorderPart )
+                    {
+                        case BOTTOM:
+                        case TOP:
+                            w = Math.round( h * aspect );
+                            break;
+                        case LEFT:
+                        case RIGHT:
+                            h = Math.round( w / aspect );
+                            break;
+                        default:
+                            int dw = w - widgetDragStartWidth;
+                            int dh = h - widgetDragStartHeight;
+                            
+                            if ( dw >= dh )
+                                h = Math.round( w / aspect );
+                            else
+                                w = Math.round( h * aspect );
+                            break;
+                    }
+                }
+                
                 if ( !isControlDown )
                 {
                     EditorPanel panel = editor.getEditorPanel();
@@ -399,6 +429,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             {
                 KeyEvent kev = (KeyEvent)event;
                 
+                isShiftDown = kev.isShiftDown();
                 isControlDown = kev.isControlDown();
             }
         }, AWTEvent.KEY_EVENT_MASK );

@@ -569,10 +569,12 @@ public abstract class Widget implements Documented
     /**
      * This method is called first by the rendering system each frame before {@link #isVisible()} is checked.
      * 
+     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
+     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void updateVisibility( LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -1006,6 +1008,22 @@ public abstract class Widget implements Documented
         else if ( fontColor.loadProperty( key, value ) );
     }
     
+    protected void addBorderPropertyToContainer( BorderProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( property );
+    }
+    
+    protected void addBackgroundColorPropertyToContainer( ColorProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( property );
+    }
+    
+    protected void addFontPropertiesToContainer( FontProperty font, ColorProperty fontColor, WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( font );
+        propsCont.addProperty( fontColor );
+    }
+    
     /**
      * Puts all editable properties to the editor.
      * 
@@ -1028,18 +1046,17 @@ public abstract class Widget implements Documented
         
         if ( canHaveBorder() )
         {
-            propsCont.addProperty( border );
+            addBorderPropertyToContainer( border, propsCont, forceAll );
         }
         
         if ( hasBackgroundColor() )
         {
-            propsCont.addProperty( backgroundColor );
+            addBackgroundColorPropertyToContainer( backgroundColor, propsCont, forceAll );
         }
         
         if ( hasText() )
         {
-            propsCont.addProperty( font );
-            propsCont.addProperty( fontColor );
+            addFontPropertiesToContainer( font, fontColor, propsCont, forceAll );
         }
     }
     

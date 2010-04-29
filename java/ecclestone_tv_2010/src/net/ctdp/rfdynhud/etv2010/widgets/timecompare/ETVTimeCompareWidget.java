@@ -8,6 +8,7 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.etv2010.widgets._base.ETVTimingWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
+import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -61,8 +62,12 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     private DrawnString gapString2 = null;
     private DrawnString gapString3 = null;
     
-    private final IntValue lap = new IntValue();
+    private final IntValue laps = new IntValue();
+    private VehicleScoringInfo relVSI = null;
+    private int relLapsOffset = 0;
     
+    private int decision = 0;
+    private short decisionPlace = 0;
     private float hideTime = -1f;
     
     /**
@@ -88,7 +93,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     {
         super.onSessionStarted( sessionType, gameData, editorPresets );
         
-        lap.reset();
+        laps.reset();
     }
     
     /**
@@ -99,6 +104,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     {
         super.onRealtimeEntered( gameData, editorPresets );
         
+        decision = 0;
         hideTime = -1f;
     }
     
@@ -106,15 +112,22 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.updateVisibility( gameData, editorPresets );
-        
-        if ( editorPresets != null )
-            return;
+        super.updateVisibility( clock1, clock2, gameData, editorPresets );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        
+        if ( editorPresets != null )
+        {
+            relVSI = scoringInfo.getVehicleScoringInfo( vsi.getPlace() - 2 ); // next in front
+            relLapsOffset = vsi.getLapsBehindNextInFront();
+            decision = 0;
+            return;
+        }
+        
+        relVSI = null;
         
         if ( !scoringInfo.getSessionType().isRace() || !vsi.getFinishStatus().isNone() )
         {
@@ -122,51 +135,179 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             return;
         }
         
-        lap.update( vsi.getCurrentLap() );
+        laps.update( vsi.getLapsCompleted() );
         
-        if ( lap.hasChanged() )
+        if ( laps.hasChanged() )
         {
-            if ( lap.getValue() < 4 )
+            if ( laps.getValue() < 3 )
             {
+                decision = 0;
                 setVisible( false );
             }
-            else if ( ( ( lap.getValue() - 1 ) % displayEveryXLaps.getIntValue() ) == 0 )
+            else if ( ( laps.getValue() % displayEveryXLaps.getIntValue() ) == 0 )
             {
-                boolean b = true;
+                if ( ( decision != 0 ) && ( decisionPlace != vsi.getPlace() ) )
+                {
+                    //Logger.log( "x" );
+                    decision = 0;
+                }
                 
-                if ( scoringInfo.getNumVehicles() == 1 )
+                if ( decision == -1 )
                 {
-                    b = false;
                 }
-                else if ( vsi.getPlace() == 1 )
+                else if ( decision == +1 )
                 {
-                    VehicleScoringInfo vsi2 = scoringInfo.getVehicleScoringInfo( 1 ); // 2nd
-                    b = vsi2.getFinishStatus().isNone() && ( vsi2.getLapsCompleted() >= 3 );
-                }
-                else if ( vsi.getPlace() == scoringInfo.getNumVehicles() )
-                {
-                    VehicleScoringInfo vsi2 = scoringInfo.getVehicleScoringInfo( scoringInfo.getNumVehicles() - 2 ); // next in front
-                    b = vsi2.getFinishStatus().isNone();
+                    VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
+                    if ( !vsi_nb.getFinishStatus().isNone() )
+                    {
+                        //Logger.log( "y" );
+                        decision = 0;
+                        laps.reset();
+                        setVisible( false );
+                    }
+                    else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() >= laps.getValue() )
+                    {
+                        //Logger.log( "z" );
+                        decision = 0;
+                        relVSI = vsi_nb;
+                        relLapsOffset = vsi_nb.getLapsBehindNextInFront();
+                        setVisible( true );
+                    }
                 }
                 else
                 {
-                    // There are at least 3 vehicles in the race.
+                    boolean b = false;
                     
-                    VehicleScoringInfo vsi2 = scoringInfo.getVehicleScoringInfo( vsi.getPlace() - 2 ); // next in front
-                    VehicleScoringInfo vsi3 = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
-                    b = ( ( vsi2.getFinishStatus().isNone() && ( vsi2.getLapsCompleted() >= 3 ) ) || ( vsi3.getFinishStatus().isNone() && ( vsi3.getLapsCompleted() >= 3 ) ) );
-                }
-                
-                setVisible( b );
-                
-                if ( b )
-                {
-                    hideTime = scoringInfo.getSessionTime() + visibleTime.getFloatValue();
-                    forceCompleteRedraw();
+                    if ( scoringInfo.getNumVehicles() == 1 )
+                    {
+                        b = false;
+                    }
+                    else if ( vsi.getPlace() == 1 )
+                    {
+                        VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( 1 ); // 2nd
+                        if ( vsi_nb.getFinishStatus().isNone()  )
+                        {
+                            if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
+                            {
+                                //Logger.log( "a" );
+                                decision = +1;
+                                decisionPlace = vsi.getPlace();
+                                b = false;
+                                laps.reset();
+                            }
+                            else
+                            {
+                                decision = 0;
+                                relVSI = vsi_nb;
+                                relLapsOffset = vsi_nb.getLapsBehindNextInFront();
+                                b = true;
+                            }
+                        }
+                        else
+                        {
+                            decision = 0;
+                            b = false;
+                        }
+                    }
+                    else if ( vsi.getPlace() == scoringInfo.getNumVehicles() )
+                    {
+                        VehicleScoringInfo vsi_nif = scoringInfo.getVehicleScoringInfo( scoringInfo.getNumVehicles() - 2 ); // next in front
+                        b = vsi_nif.getFinishStatus().isNone();
+                        
+                        decision = 0;
+                        
+                        if ( b )
+                        {
+                            relVSI = vsi_nif;
+                            relLapsOffset = vsi.getLapsBehindNextInFront();
+                        }
+                    }
+                    else
+                    {
+                        // There are at least 3 vehicles in the race.
+                        
+                        VehicleScoringInfo vsi_nif = scoringInfo.getVehicleScoringInfo( vsi.getPlace() - 2 ); // next in front
+                        if ( vsi_nif.getFinishStatus().isNone() && ( vsi_nif.getLapsCompleted() + vsi.getLapsBehindNextInFront() >= 3 ) )
+                        {
+                            VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
+                            
+                            if ( preferNextInFront.getBooleanValue() || !vsi_nb.getFinishStatus().isNone() || ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() >= 3 ) )
+                            {
+                                decision = 0;
+                                relVSI = vsi_nif;
+                                relLapsOffset = vsi.getLapsBehindNextInFront();
+                                b = true;
+                            }
+                            else
+                            {
+                                float gapToNextInFront = Math.abs( vsi.getTimeBehindNextInFront() );
+                                float gapToNextBehind = Math.abs( vsi_nb.getTimeBehindNextInFront() );
+                                
+                                if ( gapToNextInFront < gapToNextBehind )
+                                {
+                                    decision = 0;
+                                    relVSI = vsi_nif;
+                                    relLapsOffset = vsi.getLapsBehindNextInFront();
+                                    b = true;
+                                }
+                                else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
+                                {
+                                    //Logger.log( "b" );
+                                    decision = +1;
+                                    decisionPlace = vsi.getPlace();
+                                    b = false;
+                                    laps.reset();
+                                }
+                                else
+                                {
+                                    decision = 0;
+                                    relVSI = vsi_nb;
+                                    relLapsOffset = vsi_nb.getLapsBehindNextInFront();
+                                    b = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
+                            if ( vsi_nb.getFinishStatus().isNone() && ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() >= 3 ) )
+                            {
+                                if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
+                                {
+                                    //Logger.log( "c" );
+                                    decision = +1;
+                                    decisionPlace = vsi.getPlace();
+                                    b = false;
+                                    laps.reset();
+                                }
+                                else
+                                {
+                                    decision = 0;
+                                    relVSI = vsi_nb;
+                                    relLapsOffset = vsi_nb.getLapsBehindNextInFront();
+                                    b = true;
+                                }
+                            }
+                            else
+                            {
+                                decision = 0;
+                                b = false;
+                            }
+                        }
+                    }
+                    
+                    setVisible( b );
+                    
+                    if ( b )
+                    {
+                        hideTime = scoringInfo.getSessionTime() + visibleTime.getFloatValue();
+                        forceCompleteRedraw();
+                    }
                 }
             }
             else
             {
+                decision = 0;
                 setVisible( false );
                 hideTime = -1f;
             }
@@ -174,10 +315,10 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         else if ( scoringInfo.getSessionTime() < hideTime )
         {
             setVisible( true );
-            forceCompleteRedraw();
         }
         else
         {
+            decision = 0;
             setVisible( false );
             hideTime = -1f;
         }
@@ -203,7 +344,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         Rectangle2D posBounds = positionMetrics.getStringBounds( "00", texCanvas );
         
-        namesWidth = Math.round( width * 2f / 5f );
+        namesWidth = Math.round( width * 0.35f );
         timesWidth = width - namesWidth - ETVUtils.ITEM_GAP;
         
         positionWidth = (int)Math.round( posBounds.getWidth() );
@@ -229,61 +370,23 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         forceCompleteRedraw();
     }
     
-    private void drawTimeCompare( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    private static final float getLaptime( VehicleScoringInfo vsi, int lap )
+    {
+        Laptime lt = vsi.getLaptime( lap );
+        
+        if ( lt == null )
+            return ( -1f );
+        
+        return ( lt.getLapTime() );        
+    }
+    
+    @Override
+    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
-        VehicleScoringInfo relVSI;
-        //if ( scoringInfo.getNumVehicles() == 1 ) // Because of updateVisibility() this is impossible here.
-        if ( vsi.getPlace() == 1 )
-        {
-            // Because of updateVisibility() next behind must be valid.
-            relVSI = scoringInfo.getVehicleScoringInfo( 1 );
-        }
-        else if ( vsi.getPlace() == scoringInfo.getNumVehicles() )
-        {
-            // Because of updateVisibility() next in front must be valid.
-            relVSI = scoringInfo.getVehicleScoringInfo( scoringInfo.getNumVehicles() - 2 );
-        }
-        else
-        {
-            // There are at least 3 vehicles in the race.
-            
-            VehicleScoringInfo vsi2 = scoringInfo.getVehicleScoringInfo( vsi.getPlace() - 2 ); // next in front
-            if ( vsi2.getFinishStatus().isNone() && ( vsi2.getLapsCompleted() >= 3 ) )
-            {
-                VehicleScoringInfo vsi3 = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
-                if ( vsi2.getFinishStatus().isNone() && ( vsi2.getLapsCompleted() >= 3 ) )
-                {
-                    if ( preferNextInFront.getBooleanValue() )
-                    {
-                        relVSI = vsi2;
-                    }
-                    else
-                    {
-                        float gapToNextInFront = Math.abs( vsi.getTimeBehindNextInFront() );
-                        float gapToNextBehind = Math.abs( vsi3.getTimeBehindNextInFront() );
-                        
-                        if ( gapToNextInFront < gapToNextBehind )
-                            relVSI = vsi2;
-                        else
-                            relVSI = vsi3;
-                    }
-                }
-                else
-                {
-                    relVSI = vsi2;
-                }
-            }
-            else
-            {
-                // Because of updateVisibility() next behind must be valid.
-                
-                relVSI = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
-            }
-        }
         
         texture.clear( offsetX, offsetY, width, height, true, null );
         
@@ -315,89 +418,154 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + 0 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
         lapCaptionString1.resetClearRect();
-        lapCaptionString1.draw( offsetX, offsetY, "Lap " + ( vsi.getCurrentLap() - 3 ), null, texture );
+        lapCaptionString1.draw( offsetX, offsetY, "Lap " + ( vsi.getLapsCompleted() - 2 ), null, texture );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
         lapCaptionString2.resetClearRect();
-        lapCaptionString2.draw( offsetX, offsetY, "Lap " + ( vsi.getCurrentLap() - 2 ), null, texture );
+        lapCaptionString2.draw( offsetX, offsetY, "Lap " + ( vsi.getLapsCompleted() - 1 ), null, texture );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
         lapCaptionString3.resetClearRect();
-        lapCaptionString3.draw( offsetX, offsetY, "Lap " + ( vsi.getCurrentLap() - 1 ), null, texture );
+        lapCaptionString3.draw( offsetX, offsetY, "Lap " + ( vsi.getLapsCompleted() - 0 ), null, texture );
         
-        float laptime1 = isEditorMode ? 84.567f : vsi.getLaptime( vsi.getCurrentLap() - 3 ).getLapTime();
+        float laptime1 = isEditorMode ? 84.567f : getLaptime( vsi, vsi.getLapsCompleted() - 2 );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + 0 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
-        laptimeString1.resetClearRect();
-        laptimeString1.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime1, false, false, true ), null, texture );
+        if ( laptime1 > 0f )
+        {
+            laptimeString1.resetClearRect();
+            laptimeString1.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime1, false, false, true ), null, texture );
+        }
         
-        float laptime2 = isEditorMode ? editorPresets.getLastLaptime() : vsi.getLaptime( vsi.getCurrentLap() - 2 ).getLapTime();
+        float laptime2 = isEditorMode ? editorPresets.getLastLaptime() : getLaptime( vsi, vsi.getLapsCompleted() - 1 );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
-        laptimeString2.resetClearRect();
-        laptimeString2.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime2, false, false, true ), null, texture );
+        if ( laptime2 > 0f )
+        {
+            laptimeString2.resetClearRect();
+            laptimeString2.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime2, false, false, true ), null, texture );
+        }
         
-        float laptime3 = isEditorMode ? editorPresets.getCurrentLaptime() : vsi.getLaptime( vsi.getCurrentLap() - 1 ).getLapTime();
+        float laptime3 = isEditorMode ? editorPresets.getCurrentLaptime() : getLaptime( vsi, vsi.getLapsCompleted() - 0 );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
-        laptimeString3.resetClearRect();
-        laptimeString3.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime3, false, false, true ), null, texture );
+        if ( laptime3 > 0f )
+        {
+            laptimeString3.resetClearRect();
+            laptimeString3.draw( offsetX, offsetY, TimingUtil.getTimeAsString( laptime3, false, false, true ), null, texture );
+        }
         
         float gap1, gap2, gap3;
+        String gapStr1, gapStr2, gapStr3;
         if ( editorPresets != null )
         {
             gap1 = -1.234f;
             gap2 = +0.123f;
             gap3 = -2.345f;
+            
+            gapStr1 = TimingUtil.getTimeAsGapString( gap1 );
+            gapStr2 = TimingUtil.getTimeAsGapString( gap2 );
+            gapStr3 = TimingUtil.getTimeAsGapString( gap3 );
         }
         else
         {
-            gap1 = relVSI.getLaptime( relVSI.getCurrentLap() - 3 ).getLapTime() - vsi.getLaptime( vsi.getCurrentLap() - 3 ).getLapTime();
-            gap2 = relVSI.getLaptime( relVSI.getCurrentLap() - 2 ).getLapTime() - vsi.getLaptime( vsi.getCurrentLap() - 2 ).getLapTime();
-            gap3 = relVSI.getLaptime( relVSI.getCurrentLap() - 1 ).getLapTime() - vsi.getLaptime( vsi.getCurrentLap() - 1 ).getLapTime();
+            float rlt1 = getLaptime( relVSI, relVSI.getLapsCompleted() - 2 + relLapsOffset );
+            float rlt2 = getLaptime( relVSI, relVSI.getLapsCompleted() - 1 + relLapsOffset );
+            float rlt3 = getLaptime( relVSI, relVSI.getLapsCompleted() - 0 + relLapsOffset );
+            
+            if ( rlt1 > 0f )
+            {
+                gap1 = rlt1 - vsi.getLaptime( vsi.getLapsCompleted() - 2 ).getLapTime();
+                gapStr1 = TimingUtil.getTimeAsGapString( gap1 );
+            }
+            else
+            {
+                gap1 = 0f;
+                gapStr1 = null;
+            }
+            
+            if ( rlt2 > 0f )
+            {
+                gap2 = rlt2 - vsi.getLaptime( vsi.getLapsCompleted() - 1 ).getLapTime();
+                gapStr2 = TimingUtil.getTimeAsGapString( gap2 );
+            }
+            else
+            {
+                gap2 = 0f;
+                gapStr2 = null;
+            }
+            
+            if ( rlt3 > 0f )
+            {
+                gap3 = rlt3 - vsi.getLaptime( vsi.getLapsCompleted() - 0 ).getLapTime();
+                gapStr3 = TimingUtil.getTimeAsGapString( gap3 );
+            }
+            else
+            {
+                gap3 = 0f;
+                gapStr3 = null;
+            }
         }
         
         dataBgColor = dataBackgroundColorFaster.getColor();
         Color dataColor = dataColorFaster.getColor();
-        if ( gap1 < 0f )
+        if ( gapStr1 == null )
+        {
+            dataBgColor = getBackgroundColor();
+            dataColor = getFontColor();
+        }
+        else if ( gap1 < 0f )
         {
             dataBgColor = dataBackgroundColorSlower.getColor();
             dataColor = dataColorSlower.getColor();
         }
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH * 3 / 2 + 0 * dataWidthTimes2, offsetY + 2 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidthTimes2, rowHeight, dataBgColor, texture, false );
-        gapString1.resetClearRect();
-        gapString1.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( gap1 ), null, dataColor, texture );
+        if ( gapStr1 != null )
+        {
+            gapString1.resetClearRect();
+            gapString1.draw( offsetX, offsetY, gapStr1, null, dataColor, texture );
+        }
         
         dataBgColor = dataBackgroundColorFaster.getColor();
         dataColor = dataColorFaster.getColor();
-        if ( gap2 < 0f )
+        if ( gapStr2 == null )
+        {
+            dataBgColor = getBackgroundColor();
+            dataColor = getFontColor();
+        }
+        else if ( gap2 < 0f )
         {
             dataBgColor = dataBackgroundColorSlower.getColor();
             dataColor = dataColorSlower.getColor();
         }
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH * 3 / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY + 2 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidthTimes2, rowHeight, dataBgColor, texture, false );
-        gapString2.resetClearRect();
-        gapString2.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( gap2 ), null, dataColor, texture );
+        if ( gapStr2 != null )
+        {
+            gapString2.resetClearRect();
+            gapString2.draw( offsetX, offsetY, gapStr2, null, dataColor, texture );
+        }
         
         dataBgColor = dataBackgroundColorFaster.getColor();
         dataColor = dataColorFaster.getColor();
-        if ( gap2 < 0f )
+        if ( gapStr3 == null )
+        {
+            dataBgColor = getBackgroundColor();
+            dataColor = getFontColor();
+        }
+        else if ( gap3 < 0f )
         {
             dataBgColor = dataBackgroundColorSlower.getColor();
             dataColor = dataColorSlower.getColor();
         }
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH * 3 / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY + 2 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidthTimes2, rowHeight, dataBgColor, texture, false );
-        gapString3.resetClearRect();
-        gapString3.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( gap3 ), null, dataColor, texture );
-    }
-    
-    @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
-    {
-        drawTimeCompare( gameData, editorPresets, texture, offsetX, offsetY, width, height );
+        if ( gapStr3 != null )
+        {
+            gapString3.resetClearRect();
+            gapString3.draw( offsetX, offsetY, gapStr3, null, dataColor, texture );
+        }
     }
     
     @Override
@@ -449,6 +617,6 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     
     public ETVTimeCompareWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.50f, Size.PERCENT_OFFSET + 0.08496094f );
+        super( name, Size.PERCENT_OFFSET + 0.407f, Size.PERCENT_OFFSET + 0.08496094f );
     }
 }

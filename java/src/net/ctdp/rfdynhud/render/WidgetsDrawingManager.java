@@ -438,7 +438,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             try
             {
-                widget.updateVisibility( gameData, editorPresets );
+                widget.updateVisibility( clock1, clock2, gameData, editorPresets );
                 
                 if ( !isEditorMode || widget.getDirtyFlag( true ) )
                 {
