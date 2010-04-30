@@ -259,16 +259,17 @@ public class FuelWidget extends Widget
         fuelLoadString3 = new DrawnString( null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null );
         
         int rightLeft = left + fuelBarLeftOffset.getIntValue() + fuelBarWidth + 2;
+        int lastToAvgSpacing = 70; // 85
         
         fuelUsageHeaderString = new DrawnString( null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Usage:", null );
         fuelUsageLastLapHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Last lap", null );
-        fuelUsageAvgHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 135, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "avg.", null );
+        fuelUsageAvgHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, String.valueOf( (char)216 ), null );
         
         fuelUsageOneLapString = new DrawnString( null, fuelUsageLastLapHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
-        fuelUsageAvgString = new DrawnString( null, fuelUsageAvgHeaderString, rightLeft + 135, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
+        fuelUsageAvgString = new DrawnString( null, fuelUsageAvgHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
         
         nextPitstopHeaderString = new DrawnString( null, fuelUsageOneLapString, rightLeft, 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Next Pitstop:", null );
-        nextPitstopLapString = new DrawnString( null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Lap ", null );
+        nextPitstopLapString = new DrawnString( null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Lap: ", null );
         nextPitstopFuelString = new DrawnString( null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Fuel: ", null );
     }
     
@@ -427,17 +428,14 @@ public class FuelWidget extends Widget
         {
             oldNextPitstopLapCorrection = tmp;
             
-            String postfix1 = " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")";
-            String postfix2 = NumberUtil.delta( nextPitstopFuelLapsCorrection );
-            
             if ( avgFuelUsage > 0f )
             {
                 if ( pitstopFuel.isValid() )
                 {
-                    String string = String.valueOf( nextPitstopLap ) + postfix1;
+                    String string = String.valueOf( nextPitstopLap ) + " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")";
                     nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
-                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + "L (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + postfix2 + ")";
+                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + "L (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
                     nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 }
                 else
@@ -448,8 +446,8 @@ public class FuelWidget extends Widget
             }
             else
             {
-                nextPitstopLapString.draw( offsetX, offsetY, "N/A" + postfix1, backgroundColor, texture );
-                nextPitstopFuelString.draw( offsetX, offsetY, "N/A (" + postfix2 + " Laps)", backgroundColor, texture );
+                nextPitstopLapString.draw( offsetX, offsetY, "N/A (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")", backgroundColor, texture );
+                nextPitstopFuelString.draw( offsetX, offsetY, "N/A (" + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + " Laps)", backgroundColor, texture );
             }
         }
     }

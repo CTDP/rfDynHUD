@@ -8,6 +8,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -22,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import net.ctdp.rfdynhud.gamedata.FuelUsageRecorder;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.ResourceManager;
@@ -172,6 +176,31 @@ public class StrategyTool
         frame.setVisible( false );
     }
     
+    private static float getInitialFuelUsage()
+    {
+        try
+        {
+            File f = FuelUsageRecorder.FUEL_USAGE_FILE;
+            
+            if ( f.exists() )
+            {
+                BufferedReader br = new BufferedReader( new FileReader( f ) );
+                String l = br.readLine();
+                br.close();
+                
+                if ( l != null )
+                {
+                    return ( Float.parseFloat( l.trim() ) );
+                }
+            }
+        }
+        catch ( Throwable t )
+        {
+        }
+        
+        return ( 3.123f );
+    }
+    
     private StrategyTool( JFrame owner )
     {
         this.frame = new JDialog( owner, "Strategy Calculator" );
@@ -276,7 +305,7 @@ public class StrategyTool
         JLabel lblAverageFuelUsage = new JLabel( "Average fuel usage:" );
         table.add( lblAverageFuelUsage );
         
-        txtAverageFuelUsage = new JTextField( "3.123" );
+        txtAverageFuelUsage = new JTextField( String.valueOf( getInitialFuelUsage() ) );
         table.add( txtAverageFuelUsage );
         
         JLabel lblNumPitstops = new JLabel( "Number of pitstops:" );

@@ -10,17 +10,17 @@ import java.io.PrintWriter;
 
 public class Logger
 {
-    private static final File LOG_FOLDER = RFactorTools.LOG_FOLDER;
-    private static File LOG_FILE = new File( LOG_FOLDER, "rfdynhud.log" ).getAbsoluteFile();
+    public static final File FOLDER = RFactorTools.LOG_FOLDER;
+    private static File FILE = new File( FOLDER, "rfdynhud.log" ).getAbsoluteFile();
     
     static void setEditorMode()
     {
-        LOG_FILE = new File( LOG_FOLDER, "rfdynhud_editor.log" ).getAbsoluteFile();
+        FILE = new File( FOLDER, "rfdynhud_editor.log" ).getAbsoluteFile();
     }
     
     private static void logException( Throwable t )
     {
-        if ( !LOG_FOLDER.exists() )
+        if ( !FOLDER.exists() )
         {
             t.printStackTrace();
             return;
@@ -31,7 +31,7 @@ public class Logger
         {
             if ( ResourceManager.isJarMode() )
             {
-                pw = new PrintWriter( new FileOutputStream( LOG_FILE, true ) );
+                pw = new PrintWriter( new FileOutputStream( FILE, true ) );
                 
                 t.printStackTrace( pw );
             }
@@ -66,7 +66,7 @@ public class Logger
             return;
         }
         
-        if ( !LOG_FOLDER.exists() )
+        if ( !FOLDER.exists() )
         {
             if ( newLine )
                 System.out.println( message );
@@ -79,7 +79,7 @@ public class Logger
         {
             if ( ResourceManager.isJarMode() )
             {
-                BufferedWriter bw = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( LOG_FILE, true ) ) );
+                BufferedWriter bw = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( FILE, true ) ) );
                 
                 bw.write( String.valueOf( message ) );
                 if ( newLine )

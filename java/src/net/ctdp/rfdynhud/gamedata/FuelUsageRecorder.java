@@ -1,12 +1,19 @@
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputActionConsumer;
 import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
+import net.ctdp.rfdynhud.util.Logger;
 
 public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
+    public static final File FUEL_USAGE_FILE = new File( Logger.FOLDER, "fuel_consumption" );
+    
     private static final class MasterFuelUsageRecorder extends FuelUsageRecorder implements InputActionConsumer
     {
         private long firstResetStrokeTime = -1L;
@@ -141,5 +148,21 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         }
     }
     
-    public void onRealtimeExited( LiveGameData gameData ) {}
+    public void onRealtimeExited( LiveGameData gameData )
+    {
+        float avgUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getAverage();
+        
+        if ( avgUsage > 0f )
+        {
+            try
+            {
+                Writer w = new FileWriter( FUEL_USAGE_FILE );
+                w.write( String.valueOf( avgUsage ) );
+                w.close();
+            }
+            catch ( Throwable t )
+            {
+            }
+        }
+    }
 }
