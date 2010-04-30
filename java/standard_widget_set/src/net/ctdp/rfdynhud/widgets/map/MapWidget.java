@@ -3,7 +3,6 @@ package net.ctdp.rfdynhud.widgets.map;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -43,7 +42,7 @@ public class MapWidget extends Widget
     private TextureImage2D texture2 = null;
     private Track track = null;
     private float scale = 1f;
-    private int baseItemRadius = 7;
+    private int baseItemRadius = 9;
     private int itemRadius = baseItemRadius;
     
     private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
@@ -314,7 +313,6 @@ public class MapWidget extends Widget
             
             final Font font = getFont();
             final boolean posNumberFontAntiAliased = isFontAntiAliased();
-            FontMetrics metrics = texture.getTextureCanvas().getFontMetrics( font );
             
             boolean normal = false;
             int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles.getIntValue() );
@@ -331,34 +329,35 @@ public class MapWidget extends Widget
                     
                     if ( track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, position ) )
                     {
+                        Color color = null;
                         if ( vsi.getPlace() == 1 )
                         {
                             itemState |= 1 << 16;
-                            tt.getTextureCanvas().setColor( markColorLeader.getColor() );
+                            color = markColorLeader.getColor();
                             normal = false;
                         }
                         else if ( vsi.isPlayer() )
                         {
                             itemState |= 2 << 16;
-                            tt.getTextureCanvas().setColor( markColorMe.getColor() );
+                            color = markColorMe.getColor();
                             normal = false;
                         }
                         else if ( vsi.getPlace() == ownPlace + 1 )
                         {
                             itemState |= 3 << 16;
-                            tt.getTextureCanvas().setColor( markColorNextInFront.getColor() );
+                            color = markColorNextInFront.getColor();
                             normal = false;
                         }
                         else if ( vsi.getPlace() == ownPlace - 1 )
                         {
                             itemState |= 4 << 16;
-                            tt.getTextureCanvas().setColor( markColorNextBehind.getColor() );
+                            color = markColorNextBehind.getColor();
                             normal = false;
                         }
                         else if ( !normal )
                         {
                             itemState |= 5 << 16;
-                            tt.getTextureCanvas().setColor( markColorNormal.getColor() );
+                            color = markColorNormal.getColor();
                             normal = true;
                         }
                         
@@ -368,20 +367,7 @@ public class MapWidget extends Widget
                         {
                             itemStates[i] = itemState;
                             
-                            tt.getTexture().clear( true, null );
-                            
-                            tt.getTextureCanvas().setAntialiazingEnabled( true );
-                            tt.getTextureCanvas().fillArc( 0, 0, itemRadius + itemRadius, itemRadius + itemRadius, 0, 360 );
-                            
-                            if ( displayPositionNumbers.getBooleanValue() )
-                            {
-                                String posStr = String.valueOf( vsi.getPlace() );
-                                Rectangle2D bounds = metrics.getStringBounds( posStr, tt.getTextureCanvas() );
-                                float fw = (float)bounds.getWidth();
-                                float fh = (float)( metrics.getAscent() - metrics.getDescent() );
-                                
-                                tt.getTexture().drawString( posStr, itemRadius - (int)( fw / 2 ), itemRadius + (int)( fh / 2 ), bounds, font, posNumberFontAntiAliased, getFontColor(), false, null );
-                            }
+                            StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace(), color, true, font, posNumberFontAntiAliased, getFontColor() );
                         }
                     }
                 }

@@ -1,5 +1,14 @@
 package net.ctdp.rfdynhud.widgets._util;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Stroke;
+import java.awt.geom.Rectangle2D;
+
+import net.ctdp.rfdynhud.render.Texture2DCanvas;
+import net.ctdp.rfdynhud.render.TextureImage2D;
+
 public class StandardWidgetSet
 {
     public static final String WIDGET_PACKAGE = "";
@@ -39,8 +48,47 @@ public class StandardWidgetSet
     public static String getDefaultNamedFontValue( String name )
     {
         if ( name.equals( POSITION_ITEM_FONT_NAME ) )
-            return ( "Monospaced-PLAIN-9va" );
+            return ( "Verdana-BOLD-9va" );
         
         return ( null );
+    }
+    
+    public static void drawPositionItem( TextureImage2D texture, int offsetX, int offsetY, int radius, int place, Color backgroundColor, boolean blackBorder, Font font, boolean fontAntialiased, Color fontColor )
+    {
+        int width = radius + radius;
+        int height = radius + radius;
+        
+        texture.clear( offsetX, offsetY, width, height, true, null );
+        
+        Texture2DCanvas texCanvas = texture.getTextureCanvas();
+        
+        if ( backgroundColor != null )
+        {
+            texCanvas.setColor( backgroundColor );
+        }
+        
+        texCanvas.setAntialiazingEnabled( true );
+        texCanvas.fillArc( 0, 0, width, height, 0, 360 );
+        
+        if ( blackBorder )
+        {
+            Stroke oldStroke = texCanvas.getStroke();
+            texCanvas.setStroke( new BasicStroke( 2 ) );
+            
+            texCanvas.setColor( Color.BLACK );
+            texCanvas.drawArc( 0, 0, width - 1, height - 1, 0, 360 );
+            
+            texCanvas.setStroke( oldStroke );
+        }
+        
+        if ( place > 0 )
+        {
+            String posStr = String.valueOf( place );
+            Rectangle2D bounds = texture.getStringBounds( posStr, font, fontAntialiased );
+            float fw = (float)bounds.getWidth();
+            float fh = (float)( texture.getFontAscent( font ) - texture.getFontDescent( font ) );
+            
+            texture.drawString( posStr, radius - (int)( fw / 2 ), radius + (int)( fh / 2 ), bounds, font, fontAntialiased, fontColor, false, null );
+        }
     }
 }

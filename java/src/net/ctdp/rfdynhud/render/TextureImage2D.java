@@ -2019,6 +2019,18 @@ public class TextureImage2D
         return ( fontMetrics.getStringBounds( s, textGraphics ) );
     }
     
+    public final int getFontAscent( java.awt.Font font )
+    {
+        if ( !textGraphics.getFont().equals( font ) )
+        {
+            textGraphics.setFont( font );
+            
+            fontMetrics = textGraphics.getFontMetrics();
+        }
+        
+        return ( fontMetrics.getAscent() );
+    }
+    
     public final int getFontDescent( java.awt.Font font )
     {
         if ( !textGraphics.getFont().equals( font ) )
