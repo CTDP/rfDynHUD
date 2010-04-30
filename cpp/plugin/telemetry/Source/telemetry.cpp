@@ -216,12 +216,15 @@ void RFDynHUDPlugin::UpdateTelemetry( const TelemInfoV2 &info )
         handshake->jvmConn.telemFuncs.copyTelemetryBuffer( (void*)&info, sizeof( TelemInfoV2 ) );
         //logg( "updateTelemetry1()" );
         
-        enterRealtimePending |= 2;
-        if ( enterRealtimePending == 7 )
+        if ( ( enterRealtimePending & 1 ) != 0 )
         {
-            handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
-            handshake->onRealtimeEntered();
-            enterRealtimePending = 0;
+            enterRealtimePending |= 2;
+            if ( enterRealtimePending == 7 )
+            {
+                handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
+                handshake->onRealtimeEntered();
+                enterRealtimePending = 0;
+            }
         }
     }
 }
@@ -242,12 +245,15 @@ void RFDynHUDPlugin::UpdateScoring( const ScoringInfoV2 &info )
         }
         //logg( "updateScoring2()" );
         
-        enterRealtimePending |= 4;
-        if ( enterRealtimePending == 7 )
+        if ( ( enterRealtimePending & 1 ) != 0 )
         {
-            handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
-            handshake->onRealtimeEntered();
-            enterRealtimePending = 0;
+            enterRealtimePending |= 4;
+            if ( enterRealtimePending == 7 )
+            {
+                handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
+                handshake->onRealtimeEntered();
+                enterRealtimePending = 0;
+            }
         }
     }
 }
