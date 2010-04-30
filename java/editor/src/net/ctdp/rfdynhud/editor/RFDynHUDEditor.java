@@ -1714,7 +1714,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private JMenuItem createWidgetMenuItem( final Class<?> clazz )
     {
         //JMenuItem widgetMenuItem = new JMenuItem( clazz.getName() );
-        JMenuItem widgetMenuItem = new JMenuItem( clazz.getSimpleName() );
+        JMenuItem widgetMenuItem = new JCheckBoxMenuItem( clazz.getSimpleName() );
+        widgetMenuItem.setName( clazz.getName() );
         widgetMenuItem.addActionListener( new ActionListener()
         {
             private final Class<?> widgetClazz = clazz;
@@ -1906,6 +1907,56 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 Logger.log( t );
             }
         }
+        
+        menu.addMenuListener( new MenuListener()
+        {
+            private void checkWidgetUsed( JMenuItem item )
+            {
+                if ( item instanceof JMenu )
+                {
+                    for ( Component mi : ( (JMenu)item ).getMenuComponents() )
+                    {
+                        if ( mi instanceof JMenuItem )
+                            checkWidgetUsed( (JMenuItem)mi );
+                    }
+                }
+                
+                item.setSelected( false );
+                
+                WidgetsConfiguration widgetsConfig = getEditorPanel().getWidgetsDrawingManager();
+                int n = widgetsConfig.getNumWidgets();
+                for ( int i = 0; i < n; i++ )
+                {
+                    if ( widgetsConfig.getWidget( i ).getClass().getName().equals( item.getName() ) )
+                    {
+                        item.setSelected( true );
+                        break;
+                    }
+                }
+            }
+            
+            @Override
+            public void menuSelected( MenuEvent e )
+            {
+                JMenu menu = (JMenu)e.getSource();
+                
+                for ( Component mi : menu.getMenuComponents() )
+                {
+                    if ( mi instanceof JMenuItem )
+                        checkWidgetUsed( (JMenuItem)mi );
+                }
+            }
+            
+            @Override
+            public void menuDeselected( MenuEvent e )
+            {
+            }
+            
+            @Override
+            public void menuCanceled( MenuEvent e )
+            {
+            }
+        } );
         
         return ( menu );
     }
