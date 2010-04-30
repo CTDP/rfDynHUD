@@ -64,11 +64,19 @@ public class EnumValue<E extends Enum<E>>
         update( value, true );
     }
     
-    public final EnumValue<E> reset()
+    public final EnumValue<E> reset( boolean resetOldValue )
     {
         this.value = resetValue;
         
+        if ( resetOldValue )
+            oldValue = resetValue;
+        
         return ( this );
+    }
+    
+    public final EnumValue<E> reset()
+    {
+        return ( reset( false ) );
     }
     
     public final boolean isValid()

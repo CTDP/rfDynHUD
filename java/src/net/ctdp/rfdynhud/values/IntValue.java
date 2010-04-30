@@ -80,13 +80,21 @@ public class IntValue
         update( value, true );
     }
     
-    public final IntValue reset()
+    public final IntValue reset( boolean resetOldValue )
     {
         this.value = resetValue;
+        
+        if ( resetOldValue )
+            oldValue = resetValue;
         
         this.oldValidity = false;
         
         return ( this );
+    }
+    
+    public final IntValue reset()
+    {
+        return ( reset( false ) );
     }
     
     public final boolean isValid()

@@ -65,11 +65,19 @@ public class StringValue
         update( value, true );
     }
     
-    public final StringValue reset()
+    public final StringValue reset( boolean resetOldValue )
     {
         this.value = resetValue;
         
+        if ( resetOldValue )
+            oldValue = resetValue;
+        
         return ( this );
+    }
+    
+    public final StringValue reset()
+    {
+        return ( reset( false ) );
     }
     
     public final boolean isValid()

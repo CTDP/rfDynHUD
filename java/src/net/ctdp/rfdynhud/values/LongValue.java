@@ -80,13 +80,21 @@ public class LongValue
         update( value, true );
     }
     
-    public final LongValue reset()
+    public final LongValue reset( boolean resetOldValue )
     {
         this.value = resetValue;
+        
+        if ( resetOldValue )
+            oldValue = resetValue;
         
         this.oldValidity = false;
         
         return ( this );
+    }
+    
+    public final LongValue reset()
+    {
+        return ( reset( false ) );
     }
     
     public final boolean isValid()

@@ -68,13 +68,21 @@ public class BoolValue
         update( value, true );
     }
     
-    public final BoolValue reset()
+    public final BoolValue reset( boolean resetOldValue )
     {
         this.value = resetValue;
+        
+        if ( resetOldValue )
+            oldValue = resetValue;
         
         this.oldValidity = false;
         
         return ( this );
+    }
+    
+    public final BoolValue reset()
+    {
+        return ( reset( false ) );
     }
     
     public final boolean isValid()

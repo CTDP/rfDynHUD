@@ -34,6 +34,8 @@ import net.ctdp.rfdynhud.values.Size;
  */
 public class ETVTimeCompareWidget extends ETVTimingWidgetBase
 {
+    private static final int NUM_DISPLAYED_LAPS = 3;
+    
     private final IntProperty displayEveryXLaps = new IntProperty( this, "displayEveryXLaps", 3, 1, 20 );
     private final FloatProperty visibleTime = new FloatProperty( this, "visibleTime", 8.0f, 1.0f, 60.0f );
     
@@ -64,9 +66,8 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     
     private final IntValue laps = new IntValue();
     private VehicleScoringInfo relVSI = null;
-    private int relLapsOffset = 0;
     
-    private int decision = 0;
+    private boolean waitingForNextBehind = false;
     private short decisionPlace = 0;
     private float hideTime = -1f;
     
@@ -93,7 +94,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     {
         super.onSessionStarted( sessionType, gameData, editorPresets );
         
-        laps.reset();
+        laps.reset( true );
     }
     
     /**
@@ -104,7 +105,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     {
         super.onRealtimeEntered( gameData, editorPresets );
         
-        decision = 0;
+        waitingForNextBehind = false;
         hideTime = -1f;
     }
     
@@ -122,8 +123,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         if ( editorPresets != null )
         {
             relVSI = scoringInfo.getVehicleScoringInfo( vsi.getPlace() - 2 ); // next in front
-            relLapsOffset = vsi.getLapsBehindNextInFront();
-            decision = 0;
+            waitingForNextBehind = false;
             return;
         }
         
@@ -137,41 +137,46 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         laps.update( vsi.getLapsCompleted() );
         
+        /*
+        if ( laps.getValue() >= NUM_DISPLAYED_LAPS )
+        {
+            Logger.log( laps.hasChanged( false ) );
+        }
+        */
+        
         if ( laps.hasChanged() )
         {
-            if ( laps.getValue() < 3 )
+            if ( laps.getValue() < NUM_DISPLAYED_LAPS )
             {
-                decision = 0;
                 setVisible( false );
             }
             else if ( ( laps.getValue() % displayEveryXLaps.getIntValue() ) == 0 )
             {
-                if ( ( decision != 0 ) && ( decisionPlace != vsi.getPlace() ) )
+                if ( waitingForNextBehind && ( decisionPlace != vsi.getPlace() ) )
                 {
-                    //Logger.log( "x" );
-                    decision = 0;
+                    waitingForNextBehind = false;
                 }
                 
-                if ( decision == -1 )
-                {
-                }
-                else if ( decision == +1 )
+                if ( waitingForNextBehind )
                 {
                     VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
                     if ( !vsi_nb.getFinishStatus().isNone() )
                     {
-                        //Logger.log( "y" );
-                        decision = 0;
-                        laps.reset();
+                        waitingForNextBehind = false;
                         setVisible( false );
                     }
-                    else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() >= laps.getValue() )
+                    else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
                     {
-                        //Logger.log( "z" );
-                        decision = 0;
+                        laps.reset( true );
+                        setVisible( false );
+                    }
+                    else
+                    {
+                        waitingForNextBehind = false;
                         relVSI = vsi_nb;
-                        relLapsOffset = vsi_nb.getLapsBehindNextInFront();
                         setVisible( true );
+                        hideTime = scoringInfo.getSessionTime() + visibleTime.getFloatValue();
+                        forceCompleteRedraw();
                     }
                 }
                 else
@@ -184,28 +189,26 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                     }
                     else if ( vsi.getPlace() == 1 )
                     {
-                        VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( 1 ); // 2nd
+                        VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( 1 ); // next behind (2nd)
                         if ( vsi_nb.getFinishStatus().isNone()  )
                         {
                             if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
                             {
-                                //Logger.log( "a" );
-                                decision = +1;
+                                waitingForNextBehind = true;
                                 decisionPlace = vsi.getPlace();
+                                laps.reset( true );
                                 b = false;
-                                laps.reset();
                             }
                             else
                             {
-                                decision = 0;
+                                waitingForNextBehind = false;
                                 relVSI = vsi_nb;
-                                relLapsOffset = vsi_nb.getLapsBehindNextInFront();
                                 b = true;
                             }
                         }
                         else
                         {
-                            decision = 0;
+                            waitingForNextBehind = false;
                             b = false;
                         }
                     }
@@ -214,12 +217,11 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                         VehicleScoringInfo vsi_nif = scoringInfo.getVehicleScoringInfo( scoringInfo.getNumVehicles() - 2 ); // next in front
                         b = vsi_nif.getFinishStatus().isNone();
                         
-                        decision = 0;
+                        waitingForNextBehind = false;
                         
                         if ( b )
                         {
                             relVSI = vsi_nif;
-                            relLapsOffset = vsi.getLapsBehindNextInFront();
                         }
                     }
                     else
@@ -227,15 +229,14 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                         // There are at least 3 vehicles in the race.
                         
                         VehicleScoringInfo vsi_nif = scoringInfo.getVehicleScoringInfo( vsi.getPlace() - 2 ); // next in front
-                        if ( vsi_nif.getFinishStatus().isNone() && ( vsi_nif.getLapsCompleted() + vsi.getLapsBehindNextInFront() >= 3 ) )
+                        if ( vsi_nif.getFinishStatus().isNone() && ( vsi_nif.getLapsCompleted() + vsi.getLapsBehindNextInFront() >= NUM_DISPLAYED_LAPS ) )
                         {
                             VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
                             
-                            if ( preferNextInFront.getBooleanValue() || !vsi_nb.getFinishStatus().isNone() || ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() >= 3 ) )
+                            if ( preferNextInFront.getBooleanValue() || !vsi_nb.getFinishStatus().isNone() || ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < NUM_DISPLAYED_LAPS - 1 ) )
                             {
-                                decision = 0;
+                                waitingForNextBehind = false;
                                 relVSI = vsi_nif;
-                                relLapsOffset = vsi.getLapsBehindNextInFront();
                                 b = true;
                             }
                             else
@@ -245,24 +246,21 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                                 
                                 if ( gapToNextInFront < gapToNextBehind )
                                 {
-                                    decision = 0;
+                                    waitingForNextBehind = false;
                                     relVSI = vsi_nif;
-                                    relLapsOffset = vsi.getLapsBehindNextInFront();
                                     b = true;
                                 }
                                 else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
                                 {
-                                    //Logger.log( "b" );
-                                    decision = +1;
+                                    waitingForNextBehind = true;
                                     decisionPlace = vsi.getPlace();
+                                    laps.reset( true );
                                     b = false;
-                                    laps.reset();
                                 }
                                 else
                                 {
-                                    decision = 0;
+                                    waitingForNextBehind = false;
                                     relVSI = vsi_nb;
-                                    relLapsOffset = vsi_nb.getLapsBehindNextInFront();
                                     b = true;
                                 }
                             }
@@ -270,27 +268,25 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                         else
                         {
                             VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
-                            if ( vsi_nb.getFinishStatus().isNone() && ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() >= 3 ) )
+                            if ( vsi_nb.getFinishStatus().isNone() && ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() >= NUM_DISPLAYED_LAPS - 1 ) )
                             {
                                 if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
                                 {
-                                    //Logger.log( "c" );
-                                    decision = +1;
+                                    waitingForNextBehind = false;
                                     decisionPlace = vsi.getPlace();
+                                    laps.reset( true );
                                     b = false;
-                                    laps.reset();
                                 }
                                 else
                                 {
-                                    decision = 0;
+                                    waitingForNextBehind = false;
                                     relVSI = vsi_nb;
-                                    relLapsOffset = vsi_nb.getLapsBehindNextInFront();
                                     b = true;
                                 }
                             }
                             else
                             {
-                                decision = 0;
+                                waitingForNextBehind = false;
                                 b = false;
                             }
                         }
@@ -307,7 +303,6 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             }
             else
             {
-                decision = 0;
                 setVisible( false );
                 hideTime = -1f;
             }
@@ -318,7 +313,6 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         }
         else
         {
-            decision = 0;
             setVisible( false );
             hideTime = -1f;
         }
@@ -469,6 +463,8 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         }
         else
         {
+            int relLapsOffset = ( relVSI.getPlace() < vsi.getPlace() ) ? vsi.getLapsBehindNextInFront() : relVSI.getLapsBehindNextInFront();
+            
             float rlt1 = getLaptime( relVSI, relVSI.getLapsCompleted() - 2 + relLapsOffset );
             float rlt2 = getLaptime( relVSI, relVSI.getLapsCompleted() - 1 + relLapsOffset );
             float rlt3 = getLaptime( relVSI, relVSI.getLapsCompleted() - 0 + relLapsOffset );

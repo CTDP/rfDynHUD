@@ -90,14 +90,22 @@ public class FloatValue
         update( value, true );
     }
     
-    public final FloatValue reset()
+    public final FloatValue reset( boolean resetOldValue )
     {
         this.value = resetValue;
         this.isResetValue = true;
         
+        if ( resetOldValue )
+            oldValue = resetValue;
+        
         this.oldValidity = false;
         
         return ( this );
+    }
+    
+    public final FloatValue reset()
+    {
+        return ( reset( false ) );
     }
     
     public final boolean isValid()
