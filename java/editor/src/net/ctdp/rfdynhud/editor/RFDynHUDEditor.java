@@ -1366,7 +1366,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    if ( ( kev.getKeyCode() == KeyEvent.VK_ESCAPE ) || ( kev.getKeyCode() == KeyEvent.VK_F4 ) )
+                    if ( ( kev.getKeyCode() == KeyEvent.VK_ESCAPE ) || ( kev.getKeyCode() == KeyEvent.VK_F11 ) )
                     {
                         Toolkit.getDefaultToolkit().removeAWTEventListener( this );
                         java.awt.Window w = null;
@@ -2122,7 +2122,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         menu.setDisplayedMnemonicIndex( 0 );
         
         JMenuItem previewItem = new JMenuItem( "Show fullscreen preview..." );
-        previewItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F4, 0 ) );
+        previewItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F11, 0 ) );
         previewItem.addActionListener( new ActionListener()
         {
             private long lastWhen = -1L;
