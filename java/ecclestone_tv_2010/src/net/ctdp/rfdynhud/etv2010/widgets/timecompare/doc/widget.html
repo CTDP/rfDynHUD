@@ -1,5 +1,21 @@
 <p>
-The <strong>SessionStateWidget</strong> from the &quot;Ecclestone TV&quote; Widgets Set displays the
-current state of the session. For timed sessions this is the remaining session time and for lap-limited
-races this is the current lap (or completed laps) and the total number of laps.
+The <strong>TimeCompareWidget</strong> from the &quot;Ecclestone TV&quot; Widgets Set displays the
+last three laptimes and compares them to the ones of the next car in front or behind.
+</p>
+
+<p>
+Times are compared to the car (next in front or behind) being closer to you. You can influence this decision
+with the <strong>preferNextInFront</strong> property. To make an early decision, the gap to next behind
+at the beginning of sector 3 is compared to the gap to next in front at S/F line.
+</p>
+
+<p>
+This Widget is only displayed every few laps depending on the <strong>displayEveryXLaps</strong> property.
+When you pass the S/F line and the car next in front is closer than the car next behind, the Widget is
+displayed immediately. If next behind is closer, it is displayed when that car crosses the S/F line.
+</p>
+
+<p>
+The Widget is displayed for the amount of seconds defined in the <strong>visibleTime</strong> property.
+All the rest of the time this Widget is invisible.
 </p>
