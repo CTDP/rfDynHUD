@@ -822,6 +822,8 @@ public class FontChooser extends JPanel
         
         private void init( final FontChooser fontChooser, final String startFont, final WidgetsConfiguration widgetsConfig )
         {
+            fontChooser.setSelectedFont( fontChooser.composeSelectedFont(), widgetsConfig.getGameResY() );
+            
             this.setContentPane( fontChooser );
             this.pack();
             
