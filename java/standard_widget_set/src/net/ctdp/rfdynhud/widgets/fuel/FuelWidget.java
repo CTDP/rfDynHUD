@@ -259,7 +259,7 @@ public class FuelWidget extends Widget
         fuelLoadString3 = new DrawnString( null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null );
         
         int rightLeft = left + fuelBarLeftOffset.getIntValue() + fuelBarWidth + 2;
-        int lastToAvgSpacing = 70; // 85
+        int lastToAvgSpacing = 75; // 85
         
         fuelUsageHeaderString = new DrawnString( null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Usage:", null );
         fuelUsageLastLapHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Last lap", null );

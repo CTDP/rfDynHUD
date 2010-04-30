@@ -686,7 +686,7 @@ public class TimingWidget extends Widget
                             s[1][3] = "(" + TimingUtil.getTimeAsGapString( gapOFSec2 ) + ")";
                         }
                         else
-                            s[1][32] = "--.---";
+                            s[1][3] = "--.---";
                         
                         if ( dispAbsFastest )
                         {
