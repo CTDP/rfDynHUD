@@ -5,6 +5,7 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class StringProperty extends Property
 {
+    private final boolean forceTrimOnSet;
     private String value;
     
     protected void onValueChanged( String oldValue, String newValue )
@@ -13,6 +14,9 @@ public class StringProperty extends Property
     
     public void setStringValue( String value )
     {
+        if ( forceTrimOnSet && ( value != null ) )
+            value = value.trim();
+        
         if ( ( ( value == null ) && ( this.value == null ) ) || ( ( value != null ) && value.equals( this.value ) ) )
             return;
         
@@ -63,16 +67,17 @@ public class StringProperty extends Property
         return ( false );
     }
     
-    protected StringProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly, PropertyEditorType propEdType )
+    protected StringProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean forceTrimOnSet, boolean readonly, PropertyEditorType propEdType )
     {
         super( widget, propertyName, nameForDisplay, readonly, propEdType, null, null );
         
+        this.forceTrimOnSet = forceTrimOnSet;
         this.value = defaultValue;
     }
     
     public StringProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        this( widget, propertyName, nameForDisplay, defaultValue, readonly, PropertyEditorType.STRING );
+        this( widget, propertyName, nameForDisplay, defaultValue, false, readonly, PropertyEditorType.STRING );
     }
     
     public StringProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue )

@@ -503,7 +503,7 @@ public class StandingsWidget extends Widget
         if ( t > 0f )
         {
             if ( place == firstVisiblePlace )
-                ss[2] = "(" + TimingUtil.getTimeAsString( t, false, false, true ) + ")";
+                ss[2] = "(" + TimingUtil.getTimeAsLaptimeString( t ) + ")";
             else
                 ss[2] = "(" + TimingUtil.getTimeAsGapString( t - bestTime ) + ")";
         }
@@ -557,7 +557,7 @@ public class StandingsWidget extends Widget
         if ( t > 0f )
         {
             if ( place == ownPlace )
-                ss[2] = "(" + TimingUtil.getTimeAsString( t, false, false, true ) + ")";
+                ss[2] = "(" + TimingUtil.getTimeAsLaptimeString( t ) + ")";
             else
                 ss[2] = "(" + TimingUtil.getTimeAsGapString( t - ownTime ) + ")";
         }
@@ -610,7 +610,7 @@ public class StandingsWidget extends Widget
         
         if ( t > 0f )
         {
-            ss[2] = TimingUtil.getTimeAsString( t, false, false, true );
+            ss[2] = TimingUtil.getTimeAsLaptimeString( t );
         }
         else
         {

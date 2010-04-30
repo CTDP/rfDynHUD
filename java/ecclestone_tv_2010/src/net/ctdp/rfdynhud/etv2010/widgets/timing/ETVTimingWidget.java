@@ -379,7 +379,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         if ( needsCompleteRedraw || ( clock1 && ownLaptime.hasChanged() ) )
         {
             if ( ownLaptime.isValid() )
-                laptimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( ownLaptime.getValue(), false, false, true ), cacheTexture, offsetX, offsetY, texture );
+                laptimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( ownLaptime.getValue() ), cacheTexture, texture );
             else
                 laptimeString.draw( offsetX, offsetY, "", cacheTexture, offsetX, offsetY, texture );
         }
@@ -458,7 +458,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
                 }
                 else if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
                 {
-                    relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( relLaptime.getValue(), false, false, true ), cacheTexture, offsetX, offsetY, texture );
+                    relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( relLaptime.getValue() ), cacheTexture, offsetX, offsetY, texture );
                 }
             }
             else

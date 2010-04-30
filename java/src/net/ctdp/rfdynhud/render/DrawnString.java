@@ -514,6 +514,33 @@ public class DrawnString
         draw( offsetX, offsetY, str, null, clearBackground, clearOffsetX, clearOffsetY, null, texture );
     }
     
+    /**
+     * Draws the specified String as configured in this class instance.
+     * 
+     * @param offsetX
+     * @param offsetY
+     * @param str the string to draw
+     * @param clearBackground the image to use for clearing (null to skip clearing)
+     * @param texture the texture to draw on
+     */
+    public void draw( int offsetX, int offsetY, String str, TextureImage2D clearBackground, TextureImage2D texture )
+    {
+        draw( offsetX, offsetY, str, clearBackground, offsetX, offsetY, texture );
+    }
+    
+    /**
+     * Draws the specified String as configured in this class instance. This method doesn't clear the area before!
+     * 
+     * @param offsetX
+     * @param offsetY
+     * @param str the string to draw
+     * @param texture the texture to draw on
+     */
+    public void draw( int offsetX, int offsetY, String str, TextureImage2D texture )
+    {
+        draw( offsetX, offsetY, str, null, null, 0, 0, null, texture );
+    }
+    
     private int drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, java.awt.Color clearColor, TextureImage2D clearBackground, int clearOffsetX, int clearOffsetY, java.awt.Color fontColor, java.awt.Color[] fontColors, TextureImage2D texture )
     {
         Rect2i dirtyRect = Rect2i.fromPool();

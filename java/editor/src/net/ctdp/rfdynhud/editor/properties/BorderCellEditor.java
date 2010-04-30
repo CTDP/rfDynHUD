@@ -16,7 +16,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.editor.util.BorderSelector;
 import net.ctdp.rfdynhud.properties.BorderProperty;
-import net.ctdp.rfdynhud.util.TextureLoader;
+import net.ctdp.rfdynhud.util.TextureManager;
 
 /**
  * 
@@ -129,7 +129,7 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
             {
                 if ( prop != null )
                 {
-                    BorderSelector bs = new BorderSelector( new File( TextureLoader.IMAGES_FOLDER, "borders" ) );
+                    BorderSelector bs = new BorderSelector( new File( TextureManager.IMAGES_FOLDER, "borders" ) );
                     JFrame frame = (JFrame)button.getRootPane().getParent();
                     String selBorder = bs.showDialog( frame, prop.getWidget().getConfiguration(), (String)prop.getValue() );
                     

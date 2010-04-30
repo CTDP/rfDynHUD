@@ -15,7 +15,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.editor.util.ImageSelector;
 import net.ctdp.rfdynhud.properties.ImageProperty;
-import net.ctdp.rfdynhud.util.TextureLoader;
+import net.ctdp.rfdynhud.util.TextureManager;
 
 /**
  * 
@@ -121,7 +121,7 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
                 if ( prop != null )
                 {
                     //model.setSelectedItem( prop.getValue() );
-                    ImageSelector is = new ImageSelector( TextureLoader.IMAGES_FOLDER );
+                    ImageSelector is = new ImageSelector( TextureManager.IMAGES_FOLDER );
                     String selFile = is.showDialog( (JFrame)button.getRootPane().getParent(), (String)prop.getValue(), prop.getNoImageAllowed() );
                     
                     if ( selFile != null )

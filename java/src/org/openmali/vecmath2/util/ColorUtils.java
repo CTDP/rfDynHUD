@@ -42,6 +42,7 @@ import java.awt.Color;
  */
 public final class ColorUtils
 {
+    public static final java.awt.Color BLACK_TRANSPARENT = new java.awt.Color( 0, 0, 0, 0 );
     public static final int ALPHA_OPAQUE = 255;
     
     /**

@@ -317,13 +317,13 @@ public class TimingWidget extends Widget
                     
                     s[0][0] = null;
                     if ( sec1 > 0f )
-                        s[0][1] = TimingUtil.getTimeAsString( sec1, false, false, true );
+                        s[0][1] = TimingUtil.getTimeAsLaptimeString( sec1 );
                     else
                         s[0][1] = "-:--.---";
                     
                     s[1][0] = null;
                     if ( sec2 > 0f )
-                        s[1][1] = TimingUtil.getTimeAsString( sec2, false, false, true );
+                        s[1][1] = TimingUtil.getTimeAsLaptimeString( sec2 );
                     else
                         s[1][1] = "-:--.---";
                     
@@ -331,7 +331,7 @@ public class TimingWidget extends Widget
                     {
                         s[2][0] = null;
                         if ( sec3 > 0f )
-                            s[2][1] = TimingUtil.getTimeAsString( sec3, false, false, true );
+                            s[2][1] = TimingUtil.getTimeAsLaptimeString( sec3 );
                         else
                             s[2][1] = "-:--.---";
                     }
@@ -342,7 +342,7 @@ public class TimingWidget extends Widget
                     }
                     
                     s[3][0] = null;
-                    s[3][1] = TimingUtil.getTimeAsString( lap, false, false, true );
+                    s[3][1] = TimingUtil.getTimeAsLaptimeString( lap );
                     
                     absSector1String.getMaxColWidths( s[0], aligns, padding, texture, colWidths );
                     absSector2String.getMaxColWidths( s[1], aligns, padding, texture, colWidths );
@@ -420,7 +420,7 @@ public class TimingWidget extends Widget
                     
                     s[0][0] = null;
                     if ( sec1 > 0f )
-                        s[0][1] = TimingUtil.getTimeAsString( sec1, false, false, true );
+                        s[0][1] = TimingUtil.getTimeAsLaptimeString( sec1 );
                     else
                         s[0][1] = "-:--.---";
                     if ( dispGapToAbs )
@@ -428,14 +428,14 @@ public class TimingWidget extends Widget
                         if ( afSec1 < 0f )
                             s[0][2] = null;
                         else if ( sec1 > 0f )
-                            s[0][2] = "(" + ( sec1 - afSec1 >= 0f ? "+" : "" ) + TimingUtil.getTimeAsString( sec1 - afSec1, false, false, true ) + ")";
+                            s[0][2] = "(" + ( sec1 - afSec1 >= 0f ? "+" : "" ) + TimingUtil.getTimeAsLaptimeString( sec1 - afSec1 ) + ")";
                         else
                             s[0][2] = null;
                     }
                     
                     s[1][0] = null;
                     if ( sec2 > 0f )
-                        s[1][1] = TimingUtil.getTimeAsString( sec2, false, false, true );
+                        s[1][1] = TimingUtil.getTimeAsLaptimeString( sec2 );
                     else
                         s[1][1] = "-:--.---";
                     if ( dispGapToAbs )
@@ -443,7 +443,7 @@ public class TimingWidget extends Widget
                         if ( afSec2 < 0f )
                             s[1][2] = null;
                         else if ( sec2 > 0f )
-                            s[1][2] = "(" + ( sec2 - afSec2 >= 0f ? "+" : "" ) + TimingUtil.getTimeAsString( sec2 - afSec2, false, false, true ) + ")";
+                            s[1][2] = "(" + ( sec2 - afSec2 >= 0f ? "+" : "" ) + TimingUtil.getTimeAsLaptimeString( sec2 - afSec2 ) + ")";
                         else
                             s[1][2] = null;
                     }
@@ -452,7 +452,7 @@ public class TimingWidget extends Widget
                     {
                         s[2][0] = null;
                         if ( sec3 > 0f )
-                            s[2][1] = TimingUtil.getTimeAsString( sec3, false, false, true );
+                            s[2][1] = TimingUtil.getTimeAsLaptimeString( sec3 );
                         else
                             s[2][1] = "-:--.---";
                         if ( dispGapToAbs )
@@ -460,7 +460,7 @@ public class TimingWidget extends Widget
                             if ( afSec3 < 0f )
                                 s[2][2] = null;
                             else if ( sec3 > 0f )
-                                s[2][2] = "(" + ( sec3 - afSec3 >= 0f ? "+" : "" ) + TimingUtil.getTimeAsString( sec3 - afSec3, false, false, true ) + ")";
+                                s[2][2] = "(" + ( sec3 - afSec3 >= 0f ? "+" : "" ) + TimingUtil.getTimeAsLaptimeString( sec3 - afSec3 ) + ")";
                             else
                                 s[2][2] = null;
                         }
@@ -474,9 +474,9 @@ public class TimingWidget extends Widget
                     }
                     
                     s[3][0] = null;
-                    s[3][1] = TimingUtil.getTimeAsString( lap, false, false, true );
+                    s[3][1] = TimingUtil.getTimeAsLaptimeString( lap );
                     if ( dispGapToAbs )
-                        s[3][2] = "(" + ( lap - afLap >= 0f ? "+" : "" ) + TimingUtil.getTimeAsString( lap - afLap, false, false, true ) + ")";
+                        s[3][2] = "(" + ( lap - afLap >= 0f ? "+" : "" ) + TimingUtil.getTimeAsLaptimeString( lap - afLap ) + ")";
                     
                     ownSector1String.getMaxColWidths( s[0], aligns, padding, texture, colWidths );
                     ownSector2String.getMaxColWidths( s[1], aligns, padding, texture, colWidths );
@@ -610,7 +610,7 @@ public class TimingWidget extends Widget
                 s[0][0] = null;
                 if ( sec1 > 0f )
                 {
-                    s[0][1] = TimingUtil.getTimeAsString( sec1, false, false, true );
+                    s[0][1] = TimingUtil.getTimeAsLaptimeString( sec1 );
                     if ( !isEditorMode && ( sector == 1 ) && !isDelaying )
                     {
                         if ( cols >= 3 )
@@ -657,7 +657,7 @@ public class TimingWidget extends Widget
                 s[1][0] = null;
                 if ( sec2 > 0f )
                 {
-                    s[1][1] = TimingUtil.getTimeAsString( sec2, false, false, true );
+                    s[1][1] = TimingUtil.getTimeAsLaptimeString( sec2 );
                     if ( !isEditorMode && ( sector == 2 ) && !isDelaying )
                     {
                         if ( cols >= 3 )
@@ -707,7 +707,7 @@ public class TimingWidget extends Widget
                     s[2][0] = null;
                     if ( sec3 > 0f )
                     {
-                        s[2][1] = TimingUtil.getTimeAsString( sec3, false, false, true );
+                        s[2][1] = TimingUtil.getTimeAsLaptimeString( sec3 );
                         if ( !isEditorMode && ( sector == 3 ) && !isDelaying )
                         {
                             if ( cols >= 3 )
@@ -763,7 +763,7 @@ public class TimingWidget extends Widget
                 s[3][0] = null;
                 if ( isEditorMode || ( ( lap > 0f ) && ( vsi.getLapsCompleted() >= vsi.getStintStartLap() ) ) )
                 {
-                    s[3][1] = TimingUtil.getTimeAsString( lap, false, false, true );
+                    s[3][1] = TimingUtil.getTimeAsLaptimeString( lap );
                     if ( isDelaying )
                     {
                         if ( ofValid )
@@ -808,7 +808,7 @@ public class TimingWidget extends Widget
                     currSector3String.getMaxColWidths( s[2], aligns, padding, texture, colWidths );
                 
                 String s31 = s[3][1];
-                s[3][1] = TimingUtil.getTimeAsString( 90.0f, false, false, true );
+                s[3][1] = TimingUtil.getTimeAsLaptimeString( 90.0f );
                 currLapString.getMaxColWidths( s[3], aligns, padding, texture, colWidths );
                 s[3][1] = s31;
                 

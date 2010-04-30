@@ -1,7 +1,7 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.render.ImageTemplate;
-import net.ctdp.rfdynhud.util.TextureLoader;
+import net.ctdp.rfdynhud.util.TextureManager;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class ImageProperty extends StringProperty
@@ -23,14 +23,22 @@ public class ImageProperty extends StringProperty
         return ( getStringValue() );
     }
     
+    public final boolean isNoImage()
+    {
+        return ( ( getStringValue() == null ) || ( getStringValue().equals( "" ) ) );
+    }
+    
     public final ImageTemplate getImage()
     {
-        return ( TextureLoader.getImage( getImageName() ) );
+        if ( isNoImage() )
+            return ( null );
+        
+        return ( TextureManager.getImage( getImageName() ) );
     }
     
     public ImageProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
-        super( widget, propertyName, nameForDisplay, defaultValue, readonly, PropertyEditorType.IMAGE );
+        super( widget, propertyName, nameForDisplay, defaultValue, true, readonly, PropertyEditorType.IMAGE );
         
         this.noImageAllowed = noImageAllowed;
     }

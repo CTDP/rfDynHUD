@@ -115,6 +115,18 @@ public class TimingUtil
         return ( getTimeAsString( seconds, false, showMillis ) );
     }
     
+    /**
+     * Gets a formatted String from the given seconds.
+     * 
+     * @param seconds
+     * 
+     * @return a formatted String from the given seconds.
+     */
+    public static String getTimeAsLaptimeString( float seconds )
+    {
+        return ( getTimeAsString( seconds, false, false, true ) );
+    }
+    
     public static String getTimeAsGapString( float seconds )
     {
         if ( seconds >= 0f )

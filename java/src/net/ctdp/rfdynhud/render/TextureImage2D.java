@@ -49,6 +49,7 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 
 import org.jagatoo.image.DirectBufferedImage;
 import org.openmali.types.twodee.Rect2i;
+import org.openmali.vecmath2.util.ColorUtils;
 
 /**
  * This class provides a direct interface to draw on a Texture.
@@ -1906,8 +1907,6 @@ public class TextureImage2D
         clear( color, 0, 0, getUsedWidth(), getUsedHeight(), markDirty, dirtyRect );
     }
     
-    private static final java.awt.Color BLACK_TRANSPARENT = new java.awt.Color( 0, 0, 0, 0 );
-    
     /**
      * Clears the given rectangle with a black-transparent color.
      * 
@@ -1920,7 +1919,7 @@ public class TextureImage2D
      */
     public final void clear( int offsetX, int offsetY, int width, int height, boolean markDirty, Rect2i dirtyRect )
     {
-        clear( BLACK_TRANSPARENT, offsetX, offsetY, width, height, markDirty, dirtyRect );
+        clear( ColorUtils.BLACK_TRANSPARENT, offsetX, offsetY, width, height, markDirty, dirtyRect );
     }
     
     /**
@@ -1931,7 +1930,7 @@ public class TextureImage2D
      */
     public final void clear( boolean markDirty, Rect2i dirtyRect )
     {
-        clear( BLACK_TRANSPARENT, 0, 0, getUsedWidth(), getUsedHeight(), markDirty, dirtyRect );
+        clear( ColorUtils.BLACK_TRANSPARENT, 0, 0, getUsedWidth(), getUsedHeight(), markDirty, dirtyRect );
     }
     
     /**
@@ -1993,10 +1992,10 @@ public class TextureImage2D
         {
             clearLine = new byte[ textImageLineByteLength ];
             
-            clearLine[0] = (byte)BLACK_TRANSPARENT.getAlpha();
-            clearLine[1] = (byte)BLACK_TRANSPARENT.getBlue();
-            clearLine[2] = (byte)BLACK_TRANSPARENT.getGreen();
-            clearLine[3] = (byte)BLACK_TRANSPARENT.getRed();
+            clearLine[0] = (byte)ColorUtils.BLACK_TRANSPARENT.getAlpha();
+            clearLine[1] = (byte)ColorUtils.BLACK_TRANSPARENT.getBlue();
+            clearLine[2] = (byte)ColorUtils.BLACK_TRANSPARENT.getGreen();
+            clearLine[3] = (byte)ColorUtils.BLACK_TRANSPARENT.getRed();
             for ( int i = 4; i < textImageLineByteLength; i += 4 )
             {
                 System.arraycopy( clearLine, 0, clearLine, i, 4 );

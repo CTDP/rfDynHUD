@@ -94,6 +94,7 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.TextureManager;
 import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
@@ -1222,32 +1223,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     private static BufferedImage createFallbackImage( int width, int height, String message )
     {
-        BufferedImage bi = new BufferedImage( width, height, BufferedImage.TYPE_3BYTE_BGR );
+        BufferedImage bi = TextureManager.createMissingImage( width, height );
         
         Graphics2D g = bi.createGraphics();
-        
-        for ( int y = 0; y < height; y += 5 )
-        {
-            for ( int x = 0; x < width; x += 5 )
-            {
-                if ( ( y % 10 ) == 0 )
-                {
-                    if ( ( x % 10 ) == 0 )
-                        g.setColor( Color.LIGHT_GRAY );
-                    else
-                        g.setColor( Color.WHITE );
-                }
-                else
-                {
-                    if ( ( x % 10 ) == 0 )
-                        g.setColor( Color.WHITE );
-                    else
-                        g.setColor( Color.LIGHT_GRAY );
-                }
-                
-                g.fillRect( x, y, 5, 5 );
-            }
-        }
         
         g.setColor( Color.RED );
         g.setFont( new java.awt.Font( "Verdana", java.awt.Font.BOLD, 14 ) );

@@ -3,7 +3,7 @@ package net.ctdp.rfdynhud.render;
 import java.io.File;
 import java.util.HashMap;
 
-import net.ctdp.rfdynhud.util.TextureLoader;
+import net.ctdp.rfdynhud.util.TextureManager;
 
 /**
  * The {@link BorderCache} is used to load borders only once.
@@ -29,7 +29,7 @@ public class BorderCache
         if ( border != null )
             return ( border );
         
-        TextureImage2D texture = TextureLoader.getImage( "borders" + File.separator + textureName, false ).getTextureImage();
+        TextureImage2D texture = TextureManager.getImage( "borders" + File.separator + textureName, false ).getTextureImage();
         
         if ( texture == null )
             return ( null );
