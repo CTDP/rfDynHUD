@@ -13,6 +13,7 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.TimingUtil;
@@ -78,7 +79,7 @@ public class TimingWidget extends Widget
     private boolean gapAFSec3Valid = false;
     private float gapAFLap = 0f;
     
-    private final java.awt.Color[] fontColors = new java.awt.Color[ 4 ];
+    private final java.awt.Color[] fontColors = new java.awt.Color[ 5 ];
     
     private Laptime delayedAbsFastestLap = null;
     private Laptime delayedOwnFastestLap = null;
@@ -157,7 +158,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -172,13 +173,13 @@ public class TimingWidget extends Widget
         
         if ( displayAbsFastest.getBooleanValue() )
         {
-            absFastestLapHeaderString = new DrawnString( left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            absFastestLapDriverString = new DrawnString( null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Driver: ", null );
-            absSector1String = new DrawnString( null, absFastestLapDriverString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            absSector2String = new DrawnString( null, absSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            absFastestLapHeaderString = dsf.newDrawnString( "absFastestLapHeaderString", left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            absFastestLapDriverString = dsf.newDrawnString( "absFastestLapDriverString", null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Driver: ", null );
+            absSector1String = dsf.newDrawnString( "absSector1String", null, absFastestLapDriverString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            absSector2String = dsf.newDrawnString( "absSector2String", null, absSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             if ( !cumulativeSectors.getBooleanValue() )
             {
-                absSector3String = new DrawnString( null, absSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                absSector3String = dsf.newDrawnString( "absSector3String", null, absSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
                 yRel = absSector3String;
             }
             else
@@ -186,7 +187,7 @@ public class TimingWidget extends Widget
                 absSector3String = null;
                 yRel = absSector2String;
             }
-            absFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            absFastestLapString = dsf.newDrawnString( "absFastestLapString", null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             yRel = absFastestLapString;
             top = sectionGap;
         }
@@ -201,12 +202,12 @@ public class TimingWidget extends Widget
             yRel = null;
         }
         
-        ownFastestLapHeaderString = new DrawnString( null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        ownSector1String = new DrawnString( null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        ownSector2String = new DrawnString( null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        ownFastestLapHeaderString = dsf.newDrawnString( "ownFastestLapHeaderString", null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        ownSector1String = dsf.newDrawnString( "ownSector1String", null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        ownSector2String = dsf.newDrawnString( "ownSector2String", null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         if ( !cumulativeSectors.getBooleanValue() )
         {
-            ownSector3String = new DrawnString( null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            ownSector3String = dsf.newDrawnString( "ownSector3String", null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             yRel = ownSector3String;
         }
         else
@@ -214,14 +215,14 @@ public class TimingWidget extends Widget
             ownSector3String = null;
             yRel = ownSector2String;
         }
-        ownFastestLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        ownFastestLapString = dsf.newDrawnString( "ownFastestLapString", null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
-        currLapHeaderString = new DrawnString( null, ownFastestLapString, left1, sectionGap, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        currSector1String = new DrawnString( null, currLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        currSector2String = new DrawnString( null, currSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        currLapHeaderString = dsf.newDrawnString( "currLapHeaderString", null, ownFastestLapString, left1, sectionGap, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        currSector1String = dsf.newDrawnString( "currSector1String", null, currLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        currSector2String = dsf.newDrawnString( "currSector2String", null, currSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         if ( !cumulativeSectors.getBooleanValue() && !forceCurrentCumulSectors.getBooleanValue() )
         {
-            currSector3String = new DrawnString( null, currSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            currSector3String = dsf.newDrawnString( "currSector3String", null, currSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             yRel = currSector3String;
         }
         else
@@ -229,12 +230,13 @@ public class TimingWidget extends Widget
             currSector3String = null;
             yRel = currSector2String;
         }
-        currLapString = new DrawnString( null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        currLapString = dsf.newDrawnString( "currLapString", null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
         fontColors[0] = getFontColor();
         fontColors[1] = getFontColor();
         fontColors[2] = getFontColor();
         fontColors[3] = getFontColor();
+        fontColors[4] = getFontColor();
     }
     
     /**
@@ -826,24 +828,24 @@ public class TimingWidget extends Widget
                 currLapString.getMaxColWidths( s[3], aligns, padding, texture, colWidths );
                 s[3][2] = s31;
                 
-                fontColors[2] = sfColor1a;
-                fontColors[3] = sfColor1b;
+                fontColors[3] = sfColor1a;
+                fontColors[4] = sfColor1b;
                 currSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, backgroundColor, fontColors, texture );
                 
-                fontColors[2] = sfColor2a;
-                fontColors[3] = sfColor2b;
+                fontColors[3] = sfColor2a;
+                fontColors[4] = sfColor2b;
                 currSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, backgroundColor, fontColors, texture );
                 
                 if ( !displayCumul )
                 {
-                    fontColors[2] = sfColor3a;
-                    fontColors[3] = sfColor3b;
+                    fontColors[3] = sfColor3a;
+                    fontColors[4] = sfColor3b;
                     currSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, backgroundColor, fontColors, texture );
                 }
                 
                 
-                fontColors[2] = sfColorLa;
-                fontColors[3] = sfColorLb;
+                fontColors[3] = sfColorLa;
+                fontColors[4] = sfColorLb;
                 currLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, backgroundColor, fontColors, texture );
             }
         }

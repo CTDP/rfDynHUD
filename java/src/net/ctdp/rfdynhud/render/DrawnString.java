@@ -2,7 +2,6 @@ package net.ctdp.rfdynhud.render;
 
 import java.awt.geom.Rectangle2D;
 
-
 import org.openmali.types.twodee.Rect2i;
 
 /**
@@ -389,19 +388,40 @@ public class DrawnString
         if ( ( clearColor == null ) && ( clearBackground == null ) )
             return;
         
-        int x = clearRect.getLeft();
-        int y = clearRect.getTop();
-        int width = clearRect.getWidth();
-        //int height = clearRect.getHeight() - fontDescent;
-        int height = clearRect.getHeight();
+        final int x = clearRect.getLeft();
+        final int y = clearRect.getTop();
+        final int width = clearRect.getWidth();
+        //final int height = clearRect.getHeight() - fontDescent;
+        final int height = clearRect.getHeight();
         
         texture.getTextureCanvas().pushClip( x, y, width, height, true );
         try
         {
             if ( clearColor != null )
+            {
                 texture.clear( clearColor, x, y, width, height, true, dirtyRect );
+            }
+            
             if ( clearBackground != null )
-                texture.clear( clearBackground, x - clearOffsetX, y - clearOffsetY, width, height, x, y, width, height, true, dirtyRect );
+            {
+                int x1_ = x - clearOffsetX;
+                int y1_ = y - clearOffsetY;
+                int x2_ = x1_ + width - 1;
+                int y2_ = y1_ + height - 1;
+                
+                x1_ = Math.max( x1_, 0 );
+                y1_ = Math.max( y1_, 0 );
+                x2_ = Math.min( x2_, width - 1 );
+                y2_ = Math.min( y2_, height - 1 );
+                
+                int w_ = x2_ - x1_ + 1;
+                int h_ = y2_ - y1_ + 1;
+                
+                int x_ = x + ( x1_ - x + clearOffsetX );
+                int y_ = y + ( y1_ - y + clearOffsetY );
+                
+                texture.clear( clearBackground, x1_, y1_, w_, h_, x_, y_, w_, h_, true, dirtyRect );
+            }
         }
         finally
         {
@@ -822,7 +842,7 @@ public class DrawnString
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
+    DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
         this.xRelativeTo = xRelativeTo;
         this.yRelativeTo = yRelativeTo;
@@ -839,121 +859,5 @@ public class DrawnString
         
         this.prefix = prefix;
         this.postfix = postfix;
-    }
-    
-    /**
-     * Creates a new {@link DrawnString} with {@link Alignment#LEFT} and y_at_baseline = true.
-     * 
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
-     * @param x the x-location
-     * @param y the y-location
-     * @param font the used font
-     * @param fontAntiAliased
-     * @param fontColor the used font color
-     * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
-     * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
-     */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
-    {
-        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, prefix, postfix );
-    }
-    
-    /**
-     * Creates a new {@link DrawnString}.
-     * 
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
-     * @param x the x-location
-     * @param y the y-location
-     * @param alignment the alignment
-     * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
-     * @param font the used font
-     * @param fontAntiAliased
-     * @param fontColor the used font color
-     */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
-    {
-        this( xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, null, null );
-    }
-    
-    /**
-     * Creates a new {@link DrawnString} with {@link Alignment#LEFT} and y_at_baseline = true.
-     * 
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
-     * @param x the x-location
-     * @param y the y-location
-     * @param font the used font
-     * @param fontAntiAliased
-     * @param fontColor the used font color
-     */
-    public DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
-    {
-        this( xRelativeTo, yRelativeTo, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor );
-    }
-    
-    /**
-     * Creates a new {@link DrawnString}.
-     * 
-     * @param x the x-location
-     * @param y the y-location
-     * @param alignment the alignment
-     * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
-     * @param font the used font
-     * @param fontAntiAliased
-     * @param fontColor the used font color
-     * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
-     * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
-     */
-    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
-    {
-        this( null, null, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
-    }
-    
-    /**
-     * Creates a new {@link DrawnString} with {@link Alignment#LEFT} and y_at_baseline = true.
-     * 
-     * @param x the x-location
-     * @param y the y-location
-     * @param font the used font
-     * @param fontAntiAliased
-     * @param fontColor the used font color
-     * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
-     * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
-     */
-    public DrawnString( int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
-    {
-        this( x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor, prefix, postfix );
-    }
-    
-    /**
-     * Creates a new {@link DrawnString}.
-     * 
-     * @param x the x-location
-     * @param y the y-location
-     * @param alignment the alignment
-     * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
-     * @param font the used font
-     * @param fontAntiAliased
-     * @param fontColor the used font color
-     */
-    public DrawnString( int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
-    {
-        this( x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, null, null );
-    }
-    
-    /**
-     * Creates a new {@link DrawnString} with {@link Alignment#LEFT} and y_at_baseline = true.
-     * 
-     * @param x the x-location
-     * @param y the y-location
-     * @param font the used font
-     * @param fontAntiAliased
-     * @param fontColor the used font color
-     */
-    public DrawnString( int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
-    {
-        this( x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor );
     }
 }

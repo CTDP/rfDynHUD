@@ -13,9 +13,17 @@ public class Logger
     public static final File FOLDER = RFactorTools.LOG_FOLDER;
     private static File FILE = new File( FOLDER, "rfdynhud.log" ).getAbsoluteFile();
     
+    private static boolean isEditorMode = false;
+    
     static void setEditorMode()
     {
+        isEditorMode = true;
         FILE = new File( FOLDER, "rfdynhud_editor.log" ).getAbsoluteFile();
+    }
+    
+    static final boolean isEditorMode()
+    {
+        return ( isEditorMode );
     }
     
     private static void logException( Throwable t )

@@ -19,6 +19,7 @@ import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
@@ -327,7 +328,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         updateRowHeight( height );
         
@@ -347,19 +348,19 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         int vMiddle = ETVUtils.getLabeledDataVMiddle( rowHeight, posBounds );
         
-        positionString1 = new DrawnString( 2 * ETVUtils.TRIANGLE_WIDTH + positionWidth / 2, 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-        positionString2 = new DrawnString( 1 * ETVUtils.TRIANGLE_WIDTH + positionWidth / 2, 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-        drivernameString1 = new DrawnString( 3 * ETVUtils.TRIANGLE_WIDTH + positionWidth, 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        drivernameString2 = new DrawnString( 2 * ETVUtils.TRIANGLE_WIDTH + positionWidth, 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        lapCaptionString1 = new DrawnString( namesWidth + 1 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH * 3 / 2 + dataWidthTimes / 2 + 0 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 0 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-        lapCaptionString2 = new DrawnString( namesWidth + 2 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH * 3 / 2 + dataWidthTimes / 2 + 1 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 0 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-        lapCaptionString3 = new DrawnString( namesWidth + 3 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH * 3 / 2 + dataWidthTimes / 2 + 2 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 0 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-        laptimeString1 = new DrawnString( namesWidth + 1 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 0 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
-        laptimeString2 = new DrawnString( namesWidth + 2 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 1 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
-        laptimeString3 = new DrawnString( namesWidth + 3 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 2 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
-        gapString1 = new DrawnString( namesWidth + 1 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 0 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
-        gapString2 = new DrawnString( namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 1 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
-        gapString3 = new DrawnString( namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 2 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        positionString1 = dsf.newDrawnString( "positionString1", 2 * ETVUtils.TRIANGLE_WIDTH + positionWidth / 2, 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        positionString2 = dsf.newDrawnString( "positionString2", 1 * ETVUtils.TRIANGLE_WIDTH + positionWidth / 2, 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        drivernameString1 = dsf.newDrawnString( "drivernameString1", 3 * ETVUtils.TRIANGLE_WIDTH + positionWidth, 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        drivernameString2 = dsf.newDrawnString( "drivernameString2", 2 * ETVUtils.TRIANGLE_WIDTH + positionWidth, 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        lapCaptionString1 = dsf.newDrawnString( "lapCaptionString1", namesWidth + 1 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH * 3 / 2 + dataWidthTimes / 2 + 0 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 0 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        lapCaptionString2 = dsf.newDrawnString( "lapCaptionString2", namesWidth + 2 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH * 3 / 2 + dataWidthTimes / 2 + 1 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 0 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        lapCaptionString3 = dsf.newDrawnString( "lapCaptionString3", namesWidth + 3 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH * 3 / 2 + dataWidthTimes / 2 + 2 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 0 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        laptimeString1 = dsf.newDrawnString( "laptimeString1", namesWidth + 1 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 0 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        laptimeString2 = dsf.newDrawnString( "laptimeString2", namesWidth + 2 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 1 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        laptimeString3 = dsf.newDrawnString( "laptimeString3", namesWidth + 3 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 2 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        gapString1 = dsf.newDrawnString( "gapString1", namesWidth + 1 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 0 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        gapString2 = dsf.newDrawnString( "gapString2", namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 1 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        gapString3 = dsf.newDrawnString( "gapString3", namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 2 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         forceCompleteRedraw();
     }

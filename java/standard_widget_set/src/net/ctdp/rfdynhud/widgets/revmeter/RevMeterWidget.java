@@ -27,6 +27,7 @@ import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -70,7 +71,7 @@ public class RevMeterWidget extends Widget
             forceAndSetDirty();
         }
     };
-    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "default_rev_meter_needle.png" )
+    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "default_rev_meter_needle.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -277,6 +278,12 @@ public class RevMeterWidget extends Widget
     
     private int loadNeedleTexture( boolean isEditorMode )
     {
+        if ( needleImageName.isNoImage() )
+        {
+            needleTexture = null;
+            return ( 0 );
+        }
+        
         if ( ( needleTexture == null ) || isEditorMode )
         {
             try
@@ -500,7 +507,7 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
         final Texture2DCanvas texCanvas = texture.getTextureCanvas();
@@ -540,10 +547,13 @@ public class RevMeterWidget extends Widget
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
             shiftLights[s].loadTextures( isEditorMode, backgroundImageName );
         
-        needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
-        needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
-        //needleTexture.setRotation( 0f );
-        //needleTexture.setScale( 1f, 1f );
+        if ( needleTexture != null )
+        {
+            needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
+            needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
+            //needleTexture.setRotation( 0f );
+            //needleTexture.setScale( 1f, 1f );
+        }
         
         FontMetrics metrics = texCanvas.getFontMetrics( gearFont.getFont() );
         Rectangle2D bounds = metrics.getStringBounds( "X", texCanvas );
@@ -570,7 +580,7 @@ public class RevMeterWidget extends Widget
             fy = gearBackgroundTexture.getHeight() / 2;
         }
         
-        gearString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor() );
+        gearString = dsf.newDrawnString( "gearString", fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor() );
         
         metrics = texCanvas.getFontMetrics( boostNumberFont.getFont() );
         bounds = metrics.getStringBounds( "0", texCanvas );
@@ -596,7 +606,7 @@ public class RevMeterWidget extends Widget
             fy = boostNumberBackgroundTexture.getHeight() / 2;
         }
         
-        boostString = new DrawnString( fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor() );
+        boostString = dsf.newDrawnString( "boostString", fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor() );
         
         metrics = velocityFont.getMetrics();
         bounds = metrics.getStringBounds( "000", texCanvas );
@@ -622,17 +632,10 @@ public class RevMeterWidget extends Widget
             fy = velocityBackgroundTexture.getHeight() / 2;
         }
         
-        velocityString = new DrawnString( fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor() );
+        velocityString = dsf.newDrawnString( "velocityString", fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor() );
         
-        if ( displayRPMString1.getBooleanValue() )
-            rpmString1 = new DrawnString( width - Math.round( rpmPosX1.getIntValue() * backgroundScaleX ), Math.round( rpmPosY1.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
-        else
-            rpmString1 = null;
-        
-        if ( displayRPMString2.getBooleanValue() )
-            rpmString2 = new DrawnString( width - Math.round( rpmPosX2.getIntValue() * backgroundScaleX ), Math.round( rpmPosY2.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
-        else
-            rpmString2 = null;
+        rpmString1 = dsf.newDrawnStringIf( displayRPMString1.getBooleanValue(), "rpmString1", width - Math.round( rpmPosX1.getIntValue() * backgroundScaleX ), Math.round( rpmPosY1.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
+        rpmString2 = dsf.newDrawnStringIf( displayRPMString2.getBooleanValue(), "rpmString2", width - Math.round( rpmPosX2.getIntValue() * backgroundScaleX ), Math.round( rpmPosY2.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
     }
     
     private Color interpolateColor( Color c0, Color c1, float alpha )

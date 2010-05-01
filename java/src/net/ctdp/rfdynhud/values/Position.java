@@ -3,6 +3,7 @@ package net.ctdp.rfdynhud.values;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -151,8 +152,8 @@ public class Position
             this.x = x;
             this.y = y;
             
-            //widget.forceAndSetDirty();
-            widget.forceCompleteRedraw();
+            if ( !__UtilPrivilegedAccess.isLoggerEditorMode() )
+                widget.forceCompleteRedraw();
             widget.setDirtyFlag();
             
             __WPrivilegedAccess.onPositionChanged( oldPositioning, oldX, oldY, positioning, x, y, widget );

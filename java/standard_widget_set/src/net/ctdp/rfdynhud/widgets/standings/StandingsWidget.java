@@ -18,6 +18,7 @@ import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
@@ -670,7 +671,7 @@ public class StandingsWidget extends Widget
         if ( !useAutoWidth.getBooleanValue() )
             return ( super.getMaxWidth( gameData, texCanvas ) );
         
-        DrawnString ds = new DrawnString( 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        DrawnString ds = getDrawnStringFactory().newDrawnString( null, 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         String[] strs = { "99.", ( nameDisplayType.getEnumValue() == NameDisplayType.THREE_LETTER_CODE ) ? "AAAA" : ( ( nameDisplayType.getEnumValue() == NameDisplayType.SHORT_FORM ) ? "G. Fisichella___" : "Giancarlo Fisichella___" ), "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
         
@@ -681,6 +682,8 @@ public class StandingsWidget extends Widget
     
     private void initPositionStrings( LiveGameData gameData )
     {
+        DrawnStringFactory dsf = getDrawnStringFactory();
+        
         int n = gameData.getScoringInfo().getNumVehicles();
         
         positionStrings = new DrawnString[ n ];
@@ -688,9 +691,9 @@ public class StandingsWidget extends Widget
         for ( int i = 0; i < n; i++ )
         {
             if ( i == 0 )
-                positionStrings[i] = new DrawnString( 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+                positionStrings[i] = dsf.newDrawnString( "positionStrings" + i, 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
             else
-                positionStrings[i] = new DrawnString( null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+                positionStrings[i] = dsf.newDrawnString( "positionStrings" + i, null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         }
     }
     
@@ -781,7 +784,7 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         initPositionStrings( gameData );
         

@@ -18,6 +18,7 @@ import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
@@ -235,7 +236,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -249,28 +250,28 @@ public class FuelWidget extends Widget
         int left = 2;
         int top = -2;
         
-        fuelHeaderString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fuel: (", ")" );
+        fuelHeaderString = dsf.newDrawnString( "fuelHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fuel: (", ")" );
         
         int fuelBarWidth = this.fuelBarWidth.getEffectiveWidth();
         int fuelBarCenter = left + fuelBarLeftOffset.getIntValue() + ( fuelBarWidth / 2 );
         
-        fuelLoadString1 = new DrawnString( fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "L" );
-        fuelLoadString2 = new DrawnString( null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "kg" );
-        fuelLoadString3 = new DrawnString( null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null );
+        fuelLoadString1 = dsf.newDrawnString( "fuelLoadString1", fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "L" );
+        fuelLoadString2 = dsf.newDrawnString( "fuelLoadString2", null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "kg" );
+        fuelLoadString3 = dsf.newDrawnString( "fuelLoadString3", null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null );
         
         int rightLeft = left + fuelBarLeftOffset.getIntValue() + fuelBarWidth + 2;
         int lastToAvgSpacing = 75; // 85
         
-        fuelUsageHeaderString = new DrawnString( null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Usage:", null );
-        fuelUsageLastLapHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Last lap", null );
-        fuelUsageAvgHeaderString = new DrawnString( null, fuelUsageHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, String.valueOf( (char)216 ), null );
+        fuelUsageHeaderString = dsf.newDrawnString( "fuelUsageHeaderString", null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Usage:", null );
+        fuelUsageLastLapHeaderString = dsf.newDrawnString( "fuelUsageLastLapHeaderString", null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Last lap", null );
+        fuelUsageAvgHeaderString = dsf.newDrawnString( "fuelUsageAvgHeaderString", null, fuelUsageHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, String.valueOf( (char)216 ), null );
         
-        fuelUsageOneLapString = new DrawnString( null, fuelUsageLastLapHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
-        fuelUsageAvgString = new DrawnString( null, fuelUsageAvgHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
+        fuelUsageOneLapString = dsf.newDrawnString( "fuelUsageOneLapString", null, fuelUsageLastLapHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
+        fuelUsageAvgString = dsf.newDrawnString( "fuelUsageAvgString", null, fuelUsageAvgHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
         
-        nextPitstopHeaderString = new DrawnString( null, fuelUsageOneLapString, rightLeft, 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Next Pitstop:", null );
-        nextPitstopLapString = new DrawnString( null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Lap: ", null );
-        nextPitstopFuelString = new DrawnString( null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Fuel: ", null );
+        nextPitstopHeaderString = dsf.newDrawnString( "nextPitstopHeaderString", null, fuelUsageOneLapString, rightLeft, 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Next Pitstop:", null );
+        nextPitstopLapString = dsf.newDrawnString( "nextPitstopLapString", null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Lap: ", null );
+        nextPitstopFuelString = dsf.newDrawnString( "nextPitstopFuelString", null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Fuel: ", null );
     }
     
     private void drawFuel( float fuel, int tankSize, TextureImage2D texture, int x, int y, int height )

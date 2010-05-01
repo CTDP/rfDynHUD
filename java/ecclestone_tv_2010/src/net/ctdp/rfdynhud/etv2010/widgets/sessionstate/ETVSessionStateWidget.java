@@ -19,6 +19,7 @@ import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
@@ -254,7 +255,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setFont( getFont() );
@@ -265,8 +266,8 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         int dataAreaCenter = ETVUtils.getLabeledDataDataCenter( width, capBounds );
         int vMiddle = ETVUtils.getLabeledDataVMiddle( height, capBounds );
         
-        captionString = new DrawnString( ETVUtils.TRIANGLE_WIDTH, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-        stateString = new DrawnString( dataAreaCenter, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        captionString = dsf.newDrawnString( "captionString", ETVUtils.TRIANGLE_WIDTH, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        stateString = dsf.newDrawnString( "stateString", dataAreaCenter, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         if ( sessionLimit == SessionLimit.LAPS )
             stateString.getMinColWidths( new String[] { "00", "/", "00" }, colAligns, colPadding, texture, colWidths );

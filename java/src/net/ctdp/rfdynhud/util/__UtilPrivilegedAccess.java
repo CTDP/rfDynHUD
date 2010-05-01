@@ -6,4 +6,9 @@ public class __UtilPrivilegedAccess
     {
         Logger.setEditorMode();
     }
+    
+    public static final boolean isLoggerEditorMode()
+    {
+        return ( Logger.isEditorMode() );
+    }
 }

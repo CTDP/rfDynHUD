@@ -18,10 +18,12 @@ import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TexturedBorder;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
@@ -69,6 +71,8 @@ public abstract class Widget implements Documented
     private boolean initialized = false;
     
     private TransformableTexture[] subTextures = null;
+    
+    private final DrawnStringFactory drawnStringFactory = new DrawnStringFactory();
     
     /**
      * 
@@ -603,6 +607,16 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * Gets the {@link Widget}'s {@link DrawnStringFactory}.
+     * 
+     * @return the {@link Widget}'s {@link DrawnStringFactory}.
+     */
+    protected final DrawnStringFactory getDrawnStringFactory()
+    {
+        return ( drawnStringFactory );
+    }
+    
+    /**
      * This event is fired right after the {@link WidgetsConfiguration} has been (re-)loaded.
      * 
      * @param widgetsConfig
@@ -807,13 +821,14 @@ public abstract class Widget implements Documented
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData the live game data
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param drawnStringFactory
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
+    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method must contain the actual drawing code for this Widget.
@@ -904,7 +919,7 @@ public abstract class Widget implements Documented
         
         if ( !initialized )
         {
-            initialize( clock1, clock2, gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );
+            initialize( clock1, clock2, gameData, editorPresets, drawnStringFactory, texture, offsetX2, offsetY2, width2, height2 );
             
             initialized = true;
         }
@@ -930,11 +945,10 @@ public abstract class Widget implements Documented
         
         if ( completeRedrawForced )
         {
+            __RenderPrivilegedAccess.onWidgetCleared( drawnStringFactory );
+            
             drawBorder( ( editorPresets != null ), getBorder().getBorder(), texture, offsetX, offsetY, width, height );
-        }
-        
-        if ( completeRedrawForced )
-        {
+            
             texture.markDirty( offsetX, offsetY, width, height );
             
             clearBackground( gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );

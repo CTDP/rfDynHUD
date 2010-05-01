@@ -16,6 +16,7 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
@@ -188,7 +189,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         int itemHeight = this.itemHeight.getEffectiveHeight();
         maxNumItems = ( height + ETVUtils.ITEM_GAP ) / ( itemHeight + ETVUtils.ITEM_GAP );
@@ -228,9 +229,9 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         for ( int i = 0; i < maxNumItems; i++ )
         {
-            captionStrings[i] = new DrawnString( ETVUtils.TRIANGLE_WIDTH + capWidth, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-            nameStrings[i] = new DrawnString( dataAreaLeft, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-            gapStrings[i] = new DrawnString( dataAreaRight, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
+            captionStrings[i] = dsf.newDrawnString( "captionStrings" + i, ETVUtils.TRIANGLE_WIDTH + capWidth, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+            nameStrings[i] = dsf.newDrawnString( "nameStrings" + i, dataAreaLeft, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+            gapStrings[i] = dsf.newDrawnString( "gapStrings" + i, dataAreaRight, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
             
             positions[i] = new IntValue();
             driverNames[i] = new StringValue();
@@ -250,7 +251,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                 ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), getBackgroundColor(), flagTextures[i].getTexture(), true );
                 
                 laptimes[i] = new FloatValue();
-                laptimeStrings[i] = new DrawnString( flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+                laptimeStrings[i] = dsf.newDrawnString( "laptimeStrings" + i, flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
             }
         }
         
@@ -355,28 +356,12 @@ public class ETVStandingsWidget extends ETVWidgetBase
             positions[i].update( vsi.getPlace() );
             
             if ( ( needsCompleteRedraw || visibilityChanged || positions[i].hasChanged() ) && visible )
-            {
-                try
-                {
-                    captionStrings[i].draw( offsetX, offsetY + offsetY2, positions[i].getValueAsString(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
-                }
-                catch ( Throwable t )
-                {
-                }
-            }
+                captionStrings[i].draw( offsetX, offsetY + offsetY2, positions[i].getValueAsString(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
             
             driverNames[i].update( vsi.getDriverNameTLC() );
             
             if ( ( needsCompleteRedraw || visibilityChanged || driverNames[i].hasChanged() ) && visible )
-            {
-                try
-                {
-                    nameStrings[i].draw( offsetX, offsetY + offsetY2, driverNames[i].getValue(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
-                }
-                catch ( Throwable t )
-                {
-                }
-            }
+                nameStrings[i].draw( offsetX, offsetY + offsetY2, driverNames[i].getValue(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
             
             if ( vsi.getPlace() > 1 )
             {
@@ -393,13 +378,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                     else
                         s = ( gaps[i].getValue() < -10000f ) ? "+" + ( (int)-( gaps[i].getValue() + 10000.0f ) ) + "Lap(s)" : TimingUtil.getTimeAsGapString( gaps[i].getValue() );
                     
-                    try
-                    {
-                        gapStrings[i].draw( offsetX, offsetY + offsetY2, s, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
-                    }
-                    catch ( Throwable t )
-                    {
-                    }
+                    gapStrings[i].draw( offsetX, offsetY + offsetY2, s, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
                 }
             }
             

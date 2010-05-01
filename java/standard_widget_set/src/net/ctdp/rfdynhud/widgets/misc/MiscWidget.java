@@ -14,6 +14,7 @@ import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
@@ -158,7 +159,7 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -169,64 +170,53 @@ public class MiscWidget extends Widget
         final int right = width - 2;
         final int top = -2;
         
-        if ( displayScoring.getBooleanValue() )
         {
-            scoringString1 = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            scoringString2 = new DrawnString( null, scoringString1, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            scoringString3 = new DrawnString( null, scoringString2, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        }
-        else
-        {
-            scoringString1 = null;
-            scoringString2 = null;
-            scoringString3 = null;
+            boolean b = displayScoring.getBooleanValue();
+            
+            scoringString1 = dsf.newDrawnStringIf( b, "scoringString1", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            scoringString2 = dsf.newDrawnStringIf( b, "scoringString2", null, scoringString1, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            scoringString3 = dsf.newDrawnStringIf( b, "scoringString3", null, scoringString2, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         }
         
-        if ( displayTiming.getBooleanValue() )
         {
+            boolean b = displayTiming.getBooleanValue();
             if ( ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() ) || ( !displayScoring.getBooleanValue() && !displayVelocity.getBooleanValue() ) )
             {
                 if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Lap: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Lap: ", null );
                 else
-                    lapString = new DrawnString( center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Laps: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Laps: ", null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
-                sessionTimeString = new DrawnString( lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
+                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
             }
             else if ( !displayScoring.getBooleanValue() )
             {
                 if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Lap: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Lap: ", null );
                 else
-                    lapString = new DrawnString( left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Laps: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Laps: ", null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
-                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
+                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
             }
             else if ( !displayVelocity.getBooleanValue() )
             {
                 if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Lap: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Lap: ", null );
                 else
-                    lapString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Laps: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Laps: ", null );
                 
-                stintString = new DrawnString( lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
-                sessionTimeString = new DrawnString( lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
+                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
             }
-        }
-        else
-        {
-            sessionTimeString = null;
-            lapString = null;
-            stintString = null;
         }
         
         if ( displayVelocity.getBooleanValue() )
         {
-            absTopspeedString = new DrawnString( right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
-            relTopspeedString = new DrawnString( null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
-            velocityString = new DrawnString( null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+            absTopspeedString = dsf.newDrawnString( "absTopspeedString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+            relTopspeedString = dsf.newDrawnString( "relTopspeedString", null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+            velocityString = dsf.newDrawnString( "velocityString", null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
             
             velocityColWidths[0] = 0;
             velocityColWidths[1] = 0;

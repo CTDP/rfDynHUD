@@ -10,6 +10,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.TimingUtil;
@@ -139,7 +140,7 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -147,7 +148,7 @@ public class TimeCompareWidget extends Widget
         
         LocalStore store = (LocalStore)getLocalStore();
         
-        headerString = new DrawnString( 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        headerString = dsf.newDrawnString( "headerString", 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
         int rowHeight = headerString.getMaxHeight( texture, false );
@@ -162,11 +163,11 @@ public class TimeCompareWidget extends Widget
         DrawnString relY = headerString;
         for ( int j = 0; j < numDisplayedLaps; j++ )
         {
-            timeStrings[j] = new DrawnString( null, relY, 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            timeStrings[j] = dsf.newDrawnString( "timeStrings" + j, null, relY, 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             relY = timeStrings[j];
         }
         
-        timeStrings[numDisplayedLaps] = new DrawnString( null, relY, 0, 5, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        timeStrings[numDisplayedLaps] = dsf.newDrawnString( "timeStrings" + numDisplayedLaps, null, relY, 0, 5, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
         if ( displaySectors.getBooleanValue() )
         {

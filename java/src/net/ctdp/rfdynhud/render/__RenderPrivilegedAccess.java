@@ -7,6 +7,11 @@ public class __RenderPrivilegedAccess
         return ( TransformableTexture.createMainTexture( width, height ) );
     }
     
+    public static final void onWidgetCleared( DrawnStringFactory dsf )
+    {
+        dsf.onWidgetCleared();
+    }
+    
     public static final void setLastModified( long lastModified, ImageTemplate it )
     {
         it.lastModified = lastModified;
