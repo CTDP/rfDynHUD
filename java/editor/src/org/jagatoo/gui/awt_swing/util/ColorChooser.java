@@ -335,7 +335,6 @@ public class ColorChooser extends JPanel
                             __WPrivilegedAccess.onPropertyChanged( colorProp, colorKey, colorKey, widget );
                             
                             propFound = true;
-                            break;
                         }
                     }
                 }

@@ -323,7 +323,6 @@ public class FontChooser extends JPanel
                             __WPrivilegedAccess.onPropertyChanged( fontProp, fontName, fontName, widget );
                             
                             propFound = true;
-                            break;
                         }
                     }
                 }

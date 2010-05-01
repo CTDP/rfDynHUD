@@ -8,7 +8,6 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class BorderProperty extends Property
 {
-    //public static final String DEFAULT_BORDER_NAME = "yellow_border.png";
     public static final String DEFAULT_BORDER_NAME = "StandardBorder";
     
     private final WidgetsConfiguration widgetsConf;
@@ -18,6 +17,11 @@ public class BorderProperty extends Property
     
     protected void onValueChanged( String oldValue, String newValue )
     {
+    }
+    
+    public void refresh()
+    {
+        this.border = null;
     }
     
     public void setBorder( String borderName )
@@ -49,7 +53,7 @@ public class BorderProperty extends Property
         {
             if ( ( borderName == null ) || borderName.equals( "" ) )
             {
-                border = new BorderWrapper( null );
+                border = new BorderWrapper( null, null );
             }
             else
             {
@@ -58,9 +62,9 @@ public class BorderProperty extends Property
                 String borderName_ = widgetsConf.getBorderName( borderName );
                 
                 if ( borderName_ == null )
-                    border = new BorderWrapper( BorderCache.getTexturedBorder( borderName ) );
+                    border = BorderCache.getBorder( borderName );
                 else
-                    border = new BorderWrapper( BorderCache.getTexturedBorder( borderName_ ) );
+                    border = BorderCache.getBorder( borderName_ );
             }
         }
         
@@ -151,16 +155,16 @@ public class BorderProperty extends Property
         {
             if ( ( borderName == null ) || borderName.equals( "" ) )
             {
-                border = new BorderWrapper( null );
+                border = new BorderWrapper( null, null );
             }
             else
             {
                 String borderName_ = widgetsConfig.getBorderName( borderName );
                 
                 if ( borderName_ == null )
-                    border = new BorderWrapper( BorderCache.getTexturedBorder( borderName ) );
+                    border = BorderCache.getBorder( borderName );
                 else
-                    border = new BorderWrapper( BorderCache.getTexturedBorder( borderName_ ) );
+                    border = BorderCache.getBorder( borderName_ );
             }
         }
         

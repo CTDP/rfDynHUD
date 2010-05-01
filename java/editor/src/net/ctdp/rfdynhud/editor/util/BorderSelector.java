@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.editor.util;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
@@ -45,9 +46,16 @@ import javax.swing.table.TableColumn;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.render.BackgroundColorBorderRenderer;
+import net.ctdp.rfdynhud.render.BorderCache;
+import net.ctdp.rfdynhud.render.BorderRenderer;
+import net.ctdp.rfdynhud.render.BorderWrapper;
+import net.ctdp.rfdynhud.render.ImageBorderRenderer;
+import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link BorderSelector} provides a dialog to select border images from a certain
@@ -58,6 +66,8 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 public class BorderSelector extends DefaultTableModel
 {
     private static final long serialVersionUID = -8119644203101916467L;
+    
+    private static final Color STANDARD_BACKGROUND_COLOR = new Color( 0, 0, 0, 150 );
     
     private JDialog dialog = null;
     private final File folder;
@@ -83,9 +93,52 @@ public class BorderSelector extends DefaultTableModel
         return ( somethingChanged );
     }
     
+    private static void applyBorder( String borderKey, WidgetsConfiguration widgetsConfig )
+    {
+        FlatWidgetPropertiesContainer wpc = new FlatWidgetPropertiesContainer();
+        
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+        {
+            Widget widget = widgetsConfig.getWidget( i );
+            
+            wpc.clear();
+            widget.getProperties( wpc, true );
+            
+            boolean propFound = false;
+            
+            for ( Property prop : wpc.getList() )
+            {
+                if ( prop instanceof BorderProperty )
+                {
+                    BorderProperty borderProp = (BorderProperty)prop;
+                    
+                    if ( borderKey.equals( borderProp.getBorderName() ) )
+                    {
+                        borderProp.refresh();
+                        __WPrivilegedAccess.onPropertyChanged( borderProp, borderKey, borderKey, widget );
+                        
+                        propFound = true;
+                    }
+                }
+            }
+            
+            if ( propFound )
+            {
+                widget.forceAndSetDirty();
+            }
+        }
+    }
+    
+    private static boolean verifyIniFile( String name )
+    {
+        BorderWrapper bw = BorderCache.getBorder( name );
+        
+        return ( bw.hasBorder() );
+    }
+    
     private void readFilenames( File folder, String prefix, List<String> filenames )
     {
-        for ( File f : folder.listFiles( ImageFileFilter.INSTANCE ) )
+        for ( File f : folder.listFiles( IniFileFilter.INSTANCE ) )
         {
             if ( f.isDirectory() )
             {
@@ -96,15 +149,19 @@ public class BorderSelector extends DefaultTableModel
             }
             else
             {
+                String name;
                 if ( prefix == null )
-                    filenames.add( f.getName() );
+                    name = f.getName();
                 else
-                    filenames.add( prefix + "/" + f.getName() );
+                    name = prefix + "/" + f.getName();
+                
+                if ( verifyIniFile( name ) )
+                    filenames.add( name );
             }
         }
     }
     
-    private final HashMap<URL, ImageIcon> cache = new HashMap<URL, ImageIcon>();
+    private final HashMap<String, ImageIcon> cache = new HashMap<String, ImageIcon>();
     
     private class BorderEntryCellRenderer extends JPanel implements ListCellRenderer
     {
@@ -126,22 +183,43 @@ public class BorderSelector extends DefaultTableModel
             
             String filename = (String)value;
             
-            try
+            BorderWrapper bw = BorderCache.getBorder( filename );
+            BorderRenderer br = bw.getRenderer();
+            
+            if ( br instanceof ImageBorderRenderer )
             {
-                URL url = new File( folder, filename ).toURI().toURL();
+                String imageFilename = ( (ImageBorderRenderer)br ).getImageFilename();
                 
-                ImageIcon icon = cache.get( url );
+                try
+                {
+                    URL url = new File( folder, imageFilename ).toURI().toURL();
+                    
+                    ImageIcon icon = cache.get( url );
+                    if ( icon == null )
+                    {
+                        icon = new ImageIcon( url );
+                        cache.put( url.toString(), icon );
+                    }
+                    
+                    imageLabel.setIcon( icon );
+                }
+                catch ( IOException e )
+                {
+                    Logger.log( e );
+                }
+            }
+            else if ( br instanceof BackgroundColorBorderRenderer )
+            {
+                TextureImage2D ti = ( (BackgroundColorBorderRenderer)br ).getImage( STANDARD_BACKGROUND_COLOR );
+                
+                ImageIcon icon = cache.get( "___BACKGROUND___" );
                 if ( icon == null )
                 {
-                    icon = new ImageIcon( url );
-                    cache.put( url, icon );
+                    icon = new ImageIcon( ti.getBufferedImage() );
+                    cache.put( "___BACKGROUND___", icon );
                 }
                 
                 imageLabel.setIcon( icon );
-            }
-            catch ( IOException e )
-            {
-                Logger.log( e );
             }
             
             this.filenameLabel.setText( filename );
@@ -519,6 +597,9 @@ public class BorderSelector extends DefaultTableModel
             public void actionPerformed( ActionEvent e )
             {
                 somethingChanged = somethingChanged || !valueTextField.getText().equals( initialValue );
+                
+                applyBorder( valueTextField.getText(), widgetsConfig );
+                
                 dialog.setVisible( false );
             }
         } );

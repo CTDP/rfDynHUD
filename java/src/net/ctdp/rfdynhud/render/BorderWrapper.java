@@ -33,6 +33,8 @@
  */
 package net.ctdp.rfdynhud.render;
 
+import java.awt.Color;
+
 
 /**
  * A ColoredBorder is a Border implementation with no Textures but only a
@@ -42,173 +44,198 @@ package net.ctdp.rfdynhud.render;
  */
 public class BorderWrapper
 {
-    private final TexturedBorder border;
+    private final BorderRenderer renderer;
+    private final BorderMeasures measures;
+    
+    public final BorderRenderer getRenderer()
+    {
+        return ( renderer );
+    }
     
     /**
-     * Returns the border.
+     * Returns whether this border has something to draw.
      * 
-     * @return the border.
+     * @return whether this border has something to draw.
      */
-    public final TexturedBorder getBorder()
+    public final boolean hasBorder()
     {
-        return ( border );
+        return ( renderer != null );
     }
     
     public final int getBottomHeight()
     {
-        return ( border != null ? border.getBottomHeight() : 0 );
+        return ( measures != null ? measures.getBottomHeight() : 0 );
     }
     
     public final int getRightWidth()
     {
-        return ( border != null ? border.getRightWidth() : 0 );
+        return ( measures != null ? measures.getRightWidth() : 0 );
     }
     
     public final int getTopHeight()
     {
-        return ( border != null ? border.getTopHeight() : 0 );
+        return ( measures != null ? measures.getTopHeight() : 0 );
     }
     
     public final int getLeftWidth()
     {
-        return ( border != null ? border.getLeftWidth() : 0 );
+        return ( measures != null ? measures.getLeftWidth() : 0 );
     }
     
     public final int getOpaqueBottomHeight()
     {
-        return ( border != null ? border.getOpaqueBottomHeight() : 0 );
+        return ( measures != null ? measures.getOpaqueBottomHeight() : 0 );
     }
     
     public final int getOpaqueRightWidth()
     {
-        return ( border != null ? border.getOpaqueRightWidth() : 0 );
+        return ( measures != null ? measures.getOpaqueRightWidth() : 0 );
     }
     
     public final int getOpaqueTopHeight()
     {
-        return ( border != null ? border.getOpaqueTopHeight() : 0 );
+        return ( measures != null ? measures.getOpaqueTopHeight() : 0 );
     }
     
     public final int getOpaqueLeftWidth()
     {
-        return ( border != null ? border.getOpaqueLeftWidth() : 0 );
+        return ( measures != null ? measures.getOpaqueLeftWidth() : 0 );
     }
     
     public final int getInnerBottomHeight()
     {
-        return ( border != null ? border.getInnerBottomHeight() : 0 );
+        return ( measures != null ? measures.getInnerBottomHeight() : 0 );
     }
     
     public final int getInnerRightWidth()
     {
-        return ( border != null ? border.getInnerRightWidth() : 0 );
+        return ( measures != null ? measures.getInnerRightWidth() : 0 );
     }
     
     public final int getInnerTopHeight()
     {
-        return ( border != null ? border.getInnerTopHeight() : 0 );
+        return ( measures != null ? measures.getInnerTopHeight() : 0 );
     }
     
     public final int getInnerLeftWidth()
     {
-        return ( border != null ? border.getInnerLeftWidth() : 0 );
+        return ( measures != null ? measures.getInnerLeftWidth() : 0 );
     }
     
     public final int getPaddingLeft()
     {
-        if ( border == null )
+        if ( measures == null )
             return ( 0 );
         
-        return ( border.getLeftWidth() - border.getOpaqueLeftWidth() );
+        return ( measures.getLeftWidth() - measures.getOpaqueLeftWidth() );
     }
     
     public final int getPaddingTop()
     {
-        if ( border == null )
+        if ( measures == null )
             return ( 0 );
         
-        return ( border.getTopHeight() - border.getOpaqueTopHeight() );
+        return ( measures.getTopHeight() - measures.getOpaqueTopHeight() );
     }
     
     public final int getPaddingBottom()
     {
-        if ( border == null )
+        if ( measures == null )
             return ( 0 );
         
-        return ( border.getBottomHeight() - border.getOpaqueBottomHeight() );
+        return ( measures.getBottomHeight() - measures.getOpaqueBottomHeight() );
     }
     
     public final int getPaddingRight()
     {
-        if ( border == null )
+        if ( measures == null )
             return ( 0 );
         
-        return ( border.getRightWidth() - border.getOpaqueRightWidth() );
+        return ( measures.getRightWidth() - measures.getOpaqueRightWidth() );
     }
     
     public final int getWidgetWidth( int widthWithoutInner )
     {
-        if ( border == null )
+        if ( measures == null )
             return ( widthWithoutInner );
         
-        return ( widthWithoutInner + border.getInnerLeftWidth() + border.getInnerRightWidth() );
+        return ( widthWithoutInner + measures.getInnerLeftWidth() + measures.getInnerRightWidth() );
     }
     
     public final int getWidgetHeight( int heightWithoutInner )
     {
-        if ( border == null )
+        if ( measures == null )
             return ( heightWithoutInner );
         
-        return ( heightWithoutInner + border.getInnerTopHeight() + border.getInnerBottomHeight() );
+        return ( heightWithoutInner + measures.getInnerTopHeight() + measures.getInnerBottomHeight() );
     }
     
     public final int getLLupperHeight()
     {
-        return ( border != null ? border.getLLupperHeight() : 0 );
+        return ( measures != null ? measures.getLLupperHeight() : 0 );
     }
     
     public final int getLLrightWidth()
     {
-        return ( border != null ? border.getLLrightWidth() : 0 );
+        return ( measures != null ? measures.getLLrightWidth() : 0 );
     }
     
     public final int getLRleftWidth()
     {
-        return ( border != null ? border.getLRleftWidth() : 0 );
+        return ( measures != null ? measures.getLRleftWidth() : 0 );
     }
     
     public final int getLRupperHeight()
     {
-        return ( border != null ? border.getLRupperHeight() : 0 );
+        return ( measures != null ? measures.getLRupperHeight() : 0 );
     }
     
     public final int getURlowerHeight()
     {
-        return ( border != null ? border.getURlowerHeight() : 0 );
+        return ( measures != null ? measures.getURlowerHeight() : 0 );
     }
     
     public final int getURleftWidth()
     {
-        return ( border != null ? border.getURleftWidth() : 0 );
+        return ( measures != null ? measures.getURleftWidth() : 0 );
     }
     
     public final int getULrightWidth()
     {
-        return ( border != null ? border.getULrightWidth() : 0 );
+        return ( measures != null ? measures.getULrightWidth() : 0 );
     }
     
     public final int getULlowerHeight()
     {
-        return ( border != null ? border.getULlowerHeight() : 0 );
+        return ( measures != null ? measures.getULlowerHeight() : 0 );
+    }
+    
+    public void drawBorder( Color backgroundColor, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        if ( !hasBorder() )
+            return;
+        
+        texture.getTextureCanvas().pushClip( offsetX, offsetY, width, height );
+        
+        try
+        {
+            renderer.drawBorder( backgroundColor, measures, texture, offsetX, offsetY, width, height );
+        }
+        finally
+        {
+            texture.getTextureCanvas().popClip();
+        }
     }
     
     /**
      * Creates a new BorderWrapper encapsulating the given border.
      * 
-     * @param border
+     * @param renderer
+     * @param measures
      */
-    public BorderWrapper( TexturedBorder border )
+    public BorderWrapper( BorderRenderer renderer, BorderMeasures measures )
     {
-        this.border = border;
+        this.renderer = renderer;
+        this.measures = measures;
     }
 }

@@ -21,7 +21,7 @@ import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.TexturedBorder;
+import net.ctdp.rfdynhud.render.ImageBorderRenderer;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Documented;
@@ -528,7 +528,7 @@ public abstract class Widget implements Documented
      */
     public final boolean hasBorder()
     {
-        return ( getBorder().getBorder() != null );
+        return ( getBorder().hasBorder() );
     }
     
     /**
@@ -793,7 +793,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, TexturedBorder, TextureImage2D, int, int, int, int)}
+     * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, ImageBorderRenderer, TextureImage2D, int, int, int, int)}
      * and {@link #clearBackground(boolean, LiveGameData, TextureImage2D, int, int, int, int)} are (re-)invoked.<br />
      * The original method is just an empty stub returning false.
      * 
@@ -856,13 +856,11 @@ public abstract class Widget implements Documented
      * @param width
      * @param height
      */
-    protected void drawBorder( boolean isEditorMode, TexturedBorder border, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawBorder( boolean isEditorMode, BorderWrapper border, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( border != null )
+        if ( border.hasBorder() )
         {
-            Texture2DCanvas texCanvas = texture.getTextureCanvas();
-            texCanvas.setClip( offsetX, offsetY, width, height );
-            border.drawBorder( texCanvas, offsetX, offsetY, width, height );
+            border.drawBorder( getBackgroundColor(), texture, offsetX, offsetY, width, height );
         }
     }
     
@@ -947,7 +945,7 @@ public abstract class Widget implements Documented
         {
             __RenderPrivilegedAccess.onWidgetCleared( drawnStringFactory );
             
-            drawBorder( ( editorPresets != null ), getBorder().getBorder(), texture, offsetX, offsetY, width, height );
+            drawBorder( ( editorPresets != null ), getBorder(), texture, offsetX, offsetY, width, height );
             
             texture.markDirty( offsetX, offsetY, width, height );
             
