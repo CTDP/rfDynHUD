@@ -157,7 +157,7 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
     private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
-    private ShiftLight[] shiftLights = { null, null, null, null, null };
+    private final ShiftLight[] shiftLights = { null, null, null, null, null };
     
     private void initShiftLights( int oldNumber, int newNumber )
     {
@@ -1079,7 +1079,6 @@ public class RevMeterWidget extends Widget
         else if ( needleRotationForMaxRPM.loadProperty( key, value ) );
         else if ( numShiftLights.loadProperty( key, value ) )
         {
-            this.shiftLights = new ShiftLight[ numShiftLights.getIntValue() ];
             for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
                 shiftLights[i] = new ShiftLight( this, i + 1 );
         }
