@@ -157,27 +157,33 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
     private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
-    private ShiftLight[] shiftLights = { new ShiftLight( this, 1 ) };
+    private ShiftLight[] shiftLights = { null, null, null, null, null };
     
     private void initShiftLights( int oldNumber, int newNumber )
     {
-        if ( newNumber > oldNumber )
+        for ( int i = oldNumber; i < newNumber; i++ )
         {
-            ShiftLight[] newArray = new ShiftLight[ newNumber ];
-            
-            System.arraycopy( shiftLights, 0, newArray, 0, oldNumber );
-            
-            for ( int i = oldNumber; i < newNumber; i++ )
-                newArray[i] = new ShiftLight( RevMeterWidget.this, i + 1 );
-            
-            shiftLights = newArray;
+            if ( shiftLights[i] == null )
+            {
+                shiftLights[i] = new ShiftLight( this, i + 1 );
+                
+                if ( ( i == 0 ) && ( oldNumber == 0 ) && ( newNumber == 1 ) )
+                {
+                    shiftLights[0].activationRPM.setValue( -500 );
+                }
+                else if ( ( i == 0 ) && ( oldNumber == 0 ) && ( newNumber == 2 ) )
+                {
+                    shiftLights[0].activationRPM.setValue( -200 );
+                }
+                else if ( ( i == 1 ) && ( oldNumber < 2 ) && ( newNumber == 2 ) )
+                {
+                    shiftLights[1].activationRPM.setValue( -600 );
+                }
+            }
         }
-        
-        if ( ( oldNumber < 1 ) && ( newNumber == 1 ) )
-            shiftLights[0].activationRPM.setValue( -500 );
     }
     
-    private final IntProperty numShiftLights = new IntProperty( this, "numShiftLights", 1, 0, 5 )
+    private final IntProperty numShiftLights = new IntProperty( this, "numShiftLights", 0, 0, 5 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -1254,6 +1260,6 @@ public class RevMeterWidget extends Widget
         
         getBackgroundColorProperty().setColor( (String)null );
         
-        initShiftLights( 0, 1 );
+        numShiftLights.setIntValue( 2 );
     }
 }
