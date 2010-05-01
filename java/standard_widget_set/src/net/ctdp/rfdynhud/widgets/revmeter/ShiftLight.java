@@ -13,6 +13,15 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
 public class ShiftLight
 {
+    private static final String[] default_shift_light_on_images =
+    {
+        "shiftlight_on_red.png",
+        "shiftlight_on_orange.png",
+        "shiftlight_on_yellow.png",
+        "shiftlight_on_lightgreen.png",
+        "shiftlight_on_green.png",
+    };
+    
     public static final ShiftLight DEFAULT_SHIFT_LIGHT1 = new ShiftLight( null, 1 );
     public static final ShiftLight DEFAULT_SHIFT_LIGHT2 = new ShiftLight( null, 2 );
     public static final ShiftLight DEFAULT_SHIFT_LIGHT3 = new ShiftLight( null, 3 );
@@ -241,7 +250,7 @@ public class ShiftLight
                 textureOff = null;
             }
         };
-        this.imageNameOn = new ImageProperty( widget, "shiftLightImageNameOn" + indexOneBased, "imageNameOn", "shiftlight_on.png" )
+        this.imageNameOn = new ImageProperty( widget, "shiftLightImageNameOn" + indexOneBased, "imageNameOn", default_shift_light_on_images[indexOneBased - 1] )
         {
             @Override
             protected void onValueChanged( String oldValue, String newValue )
@@ -265,6 +274,6 @@ public class ShiftLight
                 resetTextures();
             }
         };
-        this.activationRPM = new IntProperty( widget, "shiftLightRPM" + indexOneBased, "activationRPM", -100 * indexOneBased, -5000, 0, false );
+        this.activationRPM = new IntProperty( widget, "shiftLightRPM" + indexOneBased, "activationRPM", 100 - 250 * indexOneBased, -5000, 0, false );
     }
 }

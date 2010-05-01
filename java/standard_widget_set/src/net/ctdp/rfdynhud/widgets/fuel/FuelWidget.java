@@ -49,7 +49,7 @@ public class FuelWidget extends Widget
     private final IntProperty fuelBarLeftOffset = new IntProperty( this, "fuelBarLeftOffset", 4 );
     private final Size fuelBarWidth;
     
-    private final ColorProperty fuelFontColor = new ColorProperty( this, "fuelFontColor", "#2828FF" );
+    private final ColorProperty fuelFontColor = new ColorProperty( this, "fuelFontColor", "#FFFFFFCD" );
     
     private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( this, "roundUpRemainingLaps", false );
     private final IntProperty fuelSafetyPlanning = new IntProperty( this, "fuelSafetyPlanning", 2);
