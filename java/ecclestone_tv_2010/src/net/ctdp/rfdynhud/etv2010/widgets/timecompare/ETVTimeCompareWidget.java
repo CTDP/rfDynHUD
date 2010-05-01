@@ -424,7 +424,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             laptimeString1.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime1 ), texture );
         }
         
-        float laptime2 = isEditorMode ? editorPresets.getLastLaptime() : getLaptime( vsi, vsi.getLapsCompleted() - 1 );
+        float laptime2 = isEditorMode ? editorPresets.getLastLapTime() : getLaptime( vsi, vsi.getLapsCompleted() - 1 );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
         if ( laptime2 > 0f )
@@ -432,7 +432,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             laptimeString2.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime2 ), texture );
         }
         
-        float laptime3 = isEditorMode ? editorPresets.getCurrentLaptime() : getLaptime( vsi, vsi.getLapsCompleted() - 0 );
+        float laptime3 = isEditorMode ? editorPresets.getCurrentLapTime() : getLaptime( vsi, vsi.getLapsCompleted() - 0 );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
         if ( laptime3 > 0f )

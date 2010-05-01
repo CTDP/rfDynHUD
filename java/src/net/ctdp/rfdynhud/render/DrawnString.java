@@ -411,16 +411,20 @@ public class DrawnString
                 
                 x1_ = Math.max( x1_, 0 );
                 y1_ = Math.max( y1_, 0 );
-                x2_ = Math.min( x2_, width - 1 );
-                y2_ = Math.min( y2_, height - 1 );
+                x2_ = Math.min( x2_, clearBackground.getWidth() - 1 );
+                y2_ = Math.min( y2_, clearBackground.getHeight() - 1 );
                 
                 int w_ = x2_ - x1_ + 1;
                 int h_ = y2_ - y1_ + 1;
                 
-                int x_ = x + ( x1_ - x + clearOffsetX );
-                int y_ = y + ( y1_ - y + clearOffsetY );
-                
-                texture.clear( clearBackground, x1_, y1_, w_, h_, x_, y_, w_, h_, true, dirtyRect );
+                if ( ( w_ > 0 ) && ( h_ > 0 ) )
+                {
+                    int x_ = x + ( x1_ - x + clearOffsetX );
+                    int y_ = y + ( y1_ - y + clearOffsetY );
+                    
+                    texture.clear( clearBackground, x1_, y1_, w_, h_, x_, y_, w_, h_, true, dirtyRect );
+                }
+                //texture.clear( clearBackground, x1_, y1_, width, height, x, y, width, height, true, dirtyRect );
             }
         }
         finally

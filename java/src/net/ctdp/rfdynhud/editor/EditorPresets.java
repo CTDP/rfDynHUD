@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.editor;
 
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
@@ -53,12 +54,17 @@ public class EditorPresets
         return ( lastSector3Time.getFloatValue() );
     }
     
-    public final float getLastLaptime()
+    public final float getLastLapTime()
     {
         if ( ( lastSector1Time.getFloatValue() < 0f ) || ( lastSector2Time.getFloatValue() < 0f ) || ( lastSector3Time.getFloatValue() < 0f ) )
             return ( -1f );
         
         return ( lastSector1Time.getFloatValue() + lastSector2Time.getFloatValue() + lastSector3Time.getFloatValue() );
+    }
+    
+    public final Laptime getLastLaptime()
+    {
+        return ( new Laptime( 23, lastSector1Time.getFloatValue(), lastSector2Time.getFloatValue(), lastSector3Time.getFloatValue(), false, false, true ) );
     }
     
     public final float getCurrentSector1Time()
@@ -84,12 +90,17 @@ public class EditorPresets
         return ( currentSector3Time.getFloatValue() );
     }
     
-    public final float getCurrentLaptime()
+    public final float getCurrentLapTime()
     {
         if ( ( currentSector1Time.getFloatValue() < 0f ) || ( currentSector2Time.getFloatValue() < 0f ) || ( currentSector3Time.getFloatValue() < 0f ) )
             return ( -1f );
         
         return ( currentSector1Time.getFloatValue() + currentSector2Time.getFloatValue() + currentSector3Time.getFloatValue() );
+    }
+    
+    public final Laptime getCurrentLaptime()
+    {
+        return ( new Laptime( 24, currentSector1Time.getFloatValue(), currentSector2Time.getFloatValue(), currentSector3Time.getFloatValue(), false, false, true ) );
     }
     
     public final int getEngineBoost()
