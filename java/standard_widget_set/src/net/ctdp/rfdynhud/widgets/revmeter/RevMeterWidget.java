@@ -36,6 +36,7 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -241,6 +242,7 @@ public class RevMeterWidget extends Widget
     private DrawnString boostString = null;
     private DrawnString velocityString = null;
     
+    private final FloatValue maxRPMCheck = new FloatValue();
     private final IntValue gear = new IntValue();
     private final IntValue boost = new IntValue();
     private final IntValue velocity = new IntValue();
@@ -266,15 +268,6 @@ public class RevMeterWidget extends Widget
             return ( "Monospaced-BOLD-26va" );
         
         return ( null );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object createLocalStore()
-    {
-        return ( new LocalStore() );
     }
     
     private void fixSmallStep()
@@ -498,15 +491,13 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
         super.onRealtimeEntered( gameData, editorPresets );
         
+        maxRPMCheck.reset();
         gear.reset();
         velocity.reset();
-        
-        LocalStore store = (LocalStore)getLocalStore();
-        store.storedBaseMaxRPM = 1f;
     }
     
     /**
@@ -644,6 +635,19 @@ public class RevMeterWidget extends Widget
         rpmString2 = dsf.newDrawnStringIf( displayRPMString2.getBooleanValue(), "rpmString2", width - Math.round( rpmPosX2.getIntValue() * backgroundScaleX ), Math.round( rpmPosY2.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        maxRPMCheck.update( gameData.getTelemetryData().getEngineMaxRPM() );
+        if ( maxRPMCheck.hasChanged() )
+            return ( true );
+        
+        return ( false );
+    }
+    
     private Color interpolateColor( Color c0, Color c1, float alpha )
     {
         return ( new Color( Math.max( 0, Math.min( Math.round( c0.getRed() + ( c1.getRed() - c0.getRed() ) * alpha ), 255 ) ),
@@ -657,12 +661,8 @@ public class RevMeterWidget extends Widget
         if ( !displayRevMarkers.getBooleanValue() && !fillHighBackground.getBooleanValue() )
             return;
         
-        LocalStore store = (LocalStore)getLocalStore();
-        
+        float baseMaxRPM = gameData.getTelemetryData().getEngineBaseMaxRPM();
         float maxRPM = gameData.getTelemetryData().getEngineMaxRPM();
-        if ( maxRPM > 100f )
-            store.storedBaseMaxRPM = maxRPM;
-        maxRPM = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM );
         
         VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
         PhysicsSetting boostRange = engine.getBoostRange();
@@ -671,8 +671,8 @@ public class RevMeterWidget extends Widget
         //int maxBoost = ( engine.getRPMIncreasePerBoostLevel() > 0f ) ? (int)boostRange.getMaxValue() : (int)boostRange.getMinValue();
         int mediumBoost = Math.round( boostRange.getMinValue() + ( boostRange.getMaxValue() - boostRange.getMinValue() ) / 2f );
         
-        float lowRPM = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM, minBoost );
-        float mediumRPM = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM, mediumBoost );
+        float lowRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, minBoost );
+        float mediumRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, mediumBoost );
         
         float centerX = offsetX + width / 2;
         float centerY = offsetY + height / 2;
@@ -924,14 +924,8 @@ public class RevMeterWidget extends Widget
             }
         }
         
-        LocalStore store = (LocalStore)getLocalStore();
-        
         float rpm = isEditorMode ? editorPresets.getEngineRPM() : telemData.getEngineRPM();
-        //if ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleControl() == VehicleControl.LOCAL_PLAYER )
         float maxRPM = telemData.getEngineMaxRPM();
-        if ( maxRPM > 100f )
-            store.storedBaseMaxRPM = Math.max( maxRPM, store.storedBaseMaxRPM );
-        maxRPM = gameData.getPhysics().getEngine().getMaxRPM( store.storedBaseMaxRPM );
         
         if ( displayRPMString1.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
         {
@@ -965,8 +959,9 @@ public class RevMeterWidget extends Widget
                 rpmString2.draw( offsetX, offsetY, string, backgroundTexture, texture );
         }
         
+        float baseMaxRPM = telemData.getEngineBaseMaxRPM();
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            shiftLights[s].updateTextures( gameData, store.storedBaseMaxRPM, rpm, boost.getValue(), backgroundScaleX, backgroundScaleY );
+            shiftLights[s].updateTextures( gameData, rpm, baseMaxRPM, boost.getValue(), backgroundScaleX, backgroundScaleY );
         
         if ( needleTexture != null )
         {

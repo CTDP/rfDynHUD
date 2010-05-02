@@ -42,6 +42,8 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     public static final FuelUsageRecorder MASTER_FUEL_USAGE_RECORDER = new MasterFuelUsageRecorder();
     static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = __InpPrivilegedAccess.createInputAction( "ResetFuelConsumption", true, false, (InputActionConsumer)MASTER_FUEL_USAGE_RECORDER, FuelUsageRecorder.class.getClassLoader().getResource( FuelUsageRecorder.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetFuelConsumption.html" ) );
     
+    private boolean setByEditor = false;
+    
     private float lastLap = -1f;
     private float average = -1f;
     
@@ -68,6 +70,9 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     
     public void reset()
     {
+        if ( setByEditor )
+            return;
+        
         lastLap = -1f;
         average = -1f;
         
@@ -83,6 +88,9 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
      */
     public void liveReset()
     {
+        if ( setByEditor )
+            return;
+        
         oldLapsCompleted = -1;
         
         lastLap = -1f;
@@ -90,6 +98,23 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         
         fuelRelevantLaps = 0;
         relevantFuel = 0f;
+    }
+    
+    void applyEditorPresets( EditorPresets editorPresets )
+    {
+        if ( editorPresets == null )
+            return;
+        
+        lastLap = 3.456f;
+        average = 3.397f;
+        
+        oldLapsCompleted = -1;
+        lapStartFuel = -1f;
+        
+        fuelRelevantLaps = 4;
+        relevantFuel = fuelRelevantLaps * average;
+        
+        setByEditor = true;
     }
     
     public void onSessionStarted( LiveGameData gameData )

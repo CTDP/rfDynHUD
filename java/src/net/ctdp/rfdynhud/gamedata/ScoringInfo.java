@@ -186,8 +186,8 @@ public class ScoringInfo
         }
     }
     
-    private final HashMap<String, Short> stintStartLaps = new HashMap<String, Short>();
-    private final HashMap<String, Integer> pitStates = new HashMap<String, Integer>();
+    private final HashMap<Integer, Short> stintStartLaps = new HashMap<Integer, Short>();
+    private final HashMap<Integer, Integer> pitStates = new HashMap<Integer, Integer>();
     
     void resetStintLengths()
     {
@@ -200,7 +200,8 @@ public class ScoringInfo
         for ( int i = 0; i < n; i++ )
         {
             VehicleScoringInfo vsi = getVehicleScoringInfo( i );
-            Short stintStartLap = stintStartLaps.get( vsi.getDriverName() );
+            Integer driverID = vsi.getDriverID();
+            Short stintStartLap = stintStartLaps.get( driverID );
             short currentLap = (short)( vsi.getLapsCompleted() + 1 ); // Don't use getCurrentLap(), since it depends on stint length!
             boolean isInPits = vsi.isInPits();
             boolean isStanding = ( vsi.getScalarVelocity() < 0.1f );
@@ -209,37 +210,37 @@ public class ScoringInfo
             if ( ( stintStartLap == null ) || ( isInPits && ( stintStartLap.shortValue() != currentLap ) && isStanding ) || ( stintStartLap.shortValue() > currentLap ) )
             {
                 stintStartLap = currentLap;
-                stintStartLaps.put( vsi.getDriverName(), stintStartLap );
+                stintStartLaps.put( driverID, stintStartLap );
             }
             
-            Integer oldPitState = pitStates.get( vsi.getDriverName() );
+            Integer oldPitState = pitStates.get( driverID );
             if ( oldPitState == null )
             {
                 if ( isInPits && isStanding )
-                    pitStates.put( vsi.getDriverName(), 2 );
+                    pitStates.put( driverID, 2 );
                 else if ( isInPits )
-                    pitStates.put( vsi.getDriverName(), 1 );
+                    pitStates.put( driverID, 1 );
                 else
-                    pitStates.put( vsi.getDriverName(), 0 );
+                    pitStates.put( driverID, 0 );
             }
             else
             {
                 if ( ( oldPitState == 2 ) && !isInPits )
                 {
                     stintStartLap = currentLap;
-                    stintStartLaps.put( vsi.getDriverName(), stintStartLap );
+                    stintStartLaps.put( driverID, stintStartLap );
                 }
                 
                 if ( isInPits )
                 {
                     if ( isStanding && ( oldPitState != 2 ) )
-                        pitStates.put( vsi.getDriverName(), 2 );
+                        pitStates.put( driverID, 2 );
                     else if ( oldPitState == 0 )
-                        pitStates.put( vsi.getDriverName(), 1 );
+                        pitStates.put( driverID, 1 );
                 }
                 else if ( oldPitState != 0 )
                 {
-                    pitStates.put( vsi.getDriverName(), 0 );
+                    pitStates.put( driverID, 0 );
                 }
             }
             
@@ -361,7 +362,10 @@ public class ScoringInfo
         if ( editorPresets == null )
             return;
         
-        getPlayersVehicleScoringInfo().setDriverName( editorPresets.getDriverName() );
+        for ( int i = 0; i < getNumVehicles(); i++ )
+            getVehicleScoringInfo( i ).applyEditorPresets( editorPresets );
+        
+        FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.applyEditorPresets( editorPresets );
     }
     
     void onDataUpdated( EditorPresets editorPresets )

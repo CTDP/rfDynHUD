@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 
 /**
@@ -67,6 +69,9 @@ public class VehicleScoringInfo
     private final ScoringInfo scoringInfo;
     
     private String name = null;
+    private static int nextId = 1;
+    private int id = 0;
+    private Integer id2 = null;
     
     private int stintStartLap = -1;
     private float stintLength = 0f;
@@ -76,9 +81,41 @@ public class VehicleScoringInfo
     
     float topspeed = 0f;
     
+    private static final HashMap<String, Integer> nameToIDMap = new HashMap<String, Integer>();
+    
+    private void updateID()
+    {
+        String name = getDriverName();
+        
+        Integer id = nameToIDMap.get( name );
+        if ( id == null )
+        {
+            id = nextId++;
+            nameToIDMap.put( name, id );
+        }
+        
+        this.id = id.intValue();
+        this.id2 = id;
+    }
+    
+    void applyEditorPresets( EditorPresets editorPresets )
+    {
+        if ( editorPresets == null )
+            return;
+        
+        if ( isPlayer() )
+            name = editorPresets.getDriverName();
+        
+        updateID();
+        
+        topspeed = editorPresets.getTopSpeed( getPlace() - 1 );
+    }
+    
     void onDataUpdated()
     {
         name = null;
+        id = 0;
+        id2 = null;
     }
     
     void loadFromStream( InputStream in ) throws IOException
@@ -106,17 +143,14 @@ public class VehicleScoringInfo
      * ################################
      */
     
-    void setDriverName( String driverName )
-    {
-        this.name = driverName;
-    }
-    
     public final String getDriverName()
     {
         // char mDriverName[32]
         
         if ( name == null )
+        {
             name = ByteUtil.readString( buffer, OFFSET_DRIVER_NAME, 32 );
+        }
         
         return ( name );
     }
@@ -137,13 +171,33 @@ public class VehicleScoringInfo
         return ( ThreeLetterCodeManager.getShortForm( getDriverName() ) );
     }
     
+    public final int getDriverId()
+    {
+        if ( id <= 0 )
+        {
+            updateID();
+        }
+        
+        return ( id );
+    }
+    
+    public final Integer getDriverID()
+    {
+        if ( id2 == null )
+        {
+            updateID();
+        }
+        
+        return ( id2 );
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public int hashCode()
     {
-        return ( getDriverName().hashCode() );
+        return ( getDriverId() );
     }
     
     /**
@@ -155,9 +209,7 @@ public class VehicleScoringInfo
         if ( !( o instanceof VehicleScoringInfo ) )
             return ( false );
         
-        VehicleScoringInfo vsi2 = (VehicleScoringInfo)o;
-        
-        return ( this.getDriverName().equals( vsi2.getDriverName() ) );
+        return ( this.getDriverId() == ( (VehicleScoringInfo)o ).getDriverId() );
     }
     
     /**

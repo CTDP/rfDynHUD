@@ -153,10 +153,10 @@ public class ShiftLight
         return ( offset );
     }
     
-    public void updateTextures( LiveGameData gameData, float storedBaseMaxRPM, float rpm, int boost, float backgroundScaleX, float backgroundScaleY )
+    public void updateTextures( LiveGameData gameData, float rpm, float baseMaxRPM, int boost, float backgroundScaleX, float backgroundScaleY )
     {
-        float maxRPM_boost = gameData.getPhysics().getEngine().getMaxRPM( storedBaseMaxRPM, boost );
-        boolean isOn = ( rpm >= maxRPM_boost + activationRPM.getIntValue() );
+        float maxRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, boost );
+        boolean isOn = ( rpm >= maxRPM + activationRPM.getIntValue() );
         
         if ( isOffStatePartOfBackground() )
         {

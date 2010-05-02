@@ -18,6 +18,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -56,7 +57,7 @@ public class TimingWidget extends Widget
     private DrawnString currSector3String = null;
     private DrawnString currLapString = null;
     
-    private String oldLeader = null;
+    private final IntValue leaderID = new IntValue();
     private int oldAbsFastestLap = -1;
     private boolean absFLValid = false;
     private int oldOwnFastestLap = -1;
@@ -102,7 +103,7 @@ public class TimingWidget extends Widget
     {
         super.onSessionStarted( sessionType, gameData, editorPresets );
         
-        oldLeader = null;
+        leaderID.reset();
         
         oldAbsFastestLap = -1;
         oldOwnFastestLap = -1;
@@ -278,18 +279,16 @@ public class TimingWidget extends Widget
             
             float lap = afVSI.getBestLapTime();
             boolean lv = ( lap > 0f );
-            String leader = lv ? afVSI.getDriverName() : "";
-            String testLeader = lv ? scoringInfo.getFastestLapVSI().getDriverName() : "";
+            String leaderName = lv ? afVSI.getDriverName() : "";
+            leaderID.update( lv ? scoringInfo.getFastestLapVSI().getDriverId() : -1 );
             
-            if ( needsCompleteRedraw || !testLeader.equals( oldLeader ) )
+            if ( needsCompleteRedraw || leaderID.hasChanged() )
             {
-                oldLeader = testLeader;
-                
                 if ( absFastestIsSecond )
                     absFastestLapHeaderString.draw( offsetX, offsetY, "Abs. second fastest Lap:", backgroundColor, texture );
                 else
                     absFastestLapHeaderString.draw( offsetX, offsetY, "Abs. fastest Lap:", backgroundColor, texture );
-                absFastestLapDriverString.draw( offsetX, offsetY, leader, backgroundColor, texture );
+                absFastestLapDriverString.draw( offsetX, offsetY, leaderName, backgroundColor, texture );
             }
             
             int lap_ = Math.round( lap * 10000f );

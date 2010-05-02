@@ -16,7 +16,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.BevelBorder;
 
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorTools;
@@ -47,7 +46,7 @@ public class HelpWindow extends JDialog
         }
         
         JEditorPane p = new JEditorPane( "text/html", s );
-        p.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
+        //p.setBorder( new javax.swing.border.BevelBorder( javax.swing.border.BevelBorder.LOWERED ) );
         p.setEditable( false );
         
         sp = new JScrollPane( p );

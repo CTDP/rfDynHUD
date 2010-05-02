@@ -24,7 +24,7 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 0, 0, null, 68 );
+    public static final Version VERSION = new Version( 1, 0, 1, null, 69 );
     
     public static final int FLAG_CONFIGURATION_RELOADED = 0;
     

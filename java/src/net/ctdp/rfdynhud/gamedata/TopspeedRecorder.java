@@ -42,7 +42,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
         public float value = 0f;
     }
     
-    private final HashMap<String, FloatContainer> store = new HashMap<String, FloatContainer>();
+    private final HashMap<Integer, FloatContainer> store = new HashMap<Integer, FloatContainer>();
     
     private long firstValidTime = Long.MAX_VALUE;
     
@@ -86,13 +86,13 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
         
         float velocity = gameData.getTelemetryData().getScalarVelocityKPH();
         
-        String driverName = vsi.getDriverName();
-        FloatContainer fc = store.get( driverName );
+        Integer driverID = vsi.getDriverID();
+        FloatContainer fc = store.get( driverID );
         if ( fc == null )
         {
             fc = new FloatContainer();
             fc.value = velocity;
-            store.put( driverName, fc );
+            store.put( driverID, fc );
         }
         else if ( velocity > fc.value )
         {
@@ -120,13 +120,13 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
             
             float velocity = vsi.getScalarVelocityKPH();
             
-            String driverName = vsi.getDriverName();
-            FloatContainer fc = store.get( driverName );
+            Integer driverID = vsi.getDriverID();
+            FloatContainer fc = store.get( driverID );
             if ( fc == null )
             {
                 fc = new FloatContainer();
                 fc.value = velocity;
-                store.put( driverName, fc );
+                store.put( driverID, fc );
             }
             else if ( velocity > fc.value )
             {

@@ -24,7 +24,6 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.StandingsTools;
-import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.NameDisplayType;
@@ -260,16 +259,16 @@ public class StandingsWidget extends Widget
         }
     }
     
-    private final String getDisplayedDriverName( String driverName )
+    private final String getDisplayedDriverName( VehicleScoringInfo vsi )
     {
         switch ( nameDisplayType.getEnumValue() )
         {
             case FULL_NAME:
-                return ( driverName );
+                return ( vsi.getDriverName() );
             case SHORT_FORM:
-                return ( ThreeLetterCodeManager.getShortForm( driverName ) );
+                return ( vsi.getDriverNameShort() );
             case THREE_LETTER_CODE:
-                return ( ThreeLetterCodeManager.getThreeLetterCode( driverName ) );
+                return ( vsi.getDriverNameTLC() );
         }
         
         // Unreachable code!
@@ -284,7 +283,7 @@ public class StandingsWidget extends Widget
         
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
+        ss[1] = getDisplayedDriverName( vsi );
         
         FinishStatus finishStatus = vsi.getFinishStatus();
         if ( finishStatus == FinishStatus.NONE )
@@ -362,7 +361,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 7 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
+        ss[1] = getDisplayedDriverName( vsi );
         
         FinishStatus finishStatus = vsi.getFinishStatus();
         if ( finishStatus == FinishStatus.NONE )
@@ -497,7 +496,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 7 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
         
-        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
+        ss[1] = getDisplayedDriverName( vsi );
         
         float t = vsi.getBestLapTime();
         
@@ -551,7 +550,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 7 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
-        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
+        ss[1] = getDisplayedDriverName( vsi );
         
         float t = vsi.getBestLapTime();
         
@@ -605,7 +604,7 @@ public class StandingsWidget extends Widget
         String[] ss = new String[ 4 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
-        ss[1] = getDisplayedDriverName( vsi.getDriverName() );
+        ss[1] = getDisplayedDriverName( vsi );
         
         float t = vsi.getBestLapTime();
         

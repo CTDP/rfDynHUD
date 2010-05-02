@@ -397,7 +397,7 @@ public class VehiclePhysics
         /**
          * Gets the maximum RPM at the given boost level.
          * 
-         * @param baseMaxRPM maxRPM coming from {@link TelemetryData#getEngineMaxRPM()}
+         * @param baseMaxRPM maxRPM coming from {@link TelemetryData#getEngineBaseMaxRPM()}
          * @param boostLevel coming from {@link TelemetryData#getEngineBoostMapping()}
          * 
          * @return the maximum RPM at the given boost level.
@@ -416,7 +416,7 @@ public class VehiclePhysics
         /**
          * Gets the maximum RPM at the highest (valued) boost mapping.
          * 
-         * @param baseMaxRPM maxRPM coming from {@link TelemetryData#getEngineMaxRPM()}
+         * @param baseMaxRPM maxRPM coming from {@link TelemetryData#getEngineBaseMaxRPM()}
          * 
          * @return the maximum RPM at the highest (valued) boost mapping.
          */

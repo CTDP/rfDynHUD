@@ -97,6 +97,9 @@ public class TelemetryData
     
     private final RFactorEventsManager eventsManager;
     
+    private float engineBaseMaxRPM = 1000.12345f;
+    private float engineMaxRPM = 1000.12345f;
+    
     private int engineBoostMapping = 5;
     private boolean tempBoostFlag = false;
     private int editorBoost = -1;
@@ -184,6 +187,13 @@ public class TelemetryData
     {
         this.updateID++;
         
+        float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
+        if ( ( bmr > 10f ) && ( bmr != engineBaseMaxRPM ) )
+        {
+            // the car is controlled by the player but not the AI
+            this.engineBaseMaxRPM = bmr;
+        }
+        
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
@@ -250,6 +260,7 @@ public class TelemetryData
     {
         this.engineBoostMapping = boost;
         this.tempBoostFlag = false;
+        this.engineMaxRPM = gameData.getPhysics().getEngine().getMaxRPM( engineBaseMaxRPM );
     }
     
     void incEngineBoostMapping( Engine engine )
@@ -701,13 +712,21 @@ public class TelemetryData
     }
     
     /**
-     * rev limit
+     * rev limit (base as reported by plugin interface)
      */
-    public final float getEngineMaxRPM()
+    public final float getEngineBaseMaxRPM()
     {
         // float mEngineMaxRPM
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM ) );
+        return ( engineBaseMaxRPM );
+    }
+    
+    /**
+     * rev limit with max boost
+     */
+    public final float getEngineMaxRPM()
+    {
+        return ( engineMaxRPM );
     }
     
     /**

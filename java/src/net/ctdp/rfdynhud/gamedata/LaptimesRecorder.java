@@ -5,9 +5,9 @@ import java.util.HashMap;
 
 public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
-    private final HashMap<String, Integer> lapsCompletedMap = new HashMap<String, Integer>();
-    private final HashMap<String, ArrayList<Laptime>> laptimesMap = new HashMap<String, ArrayList<Laptime>>();
-    private final HashMap<String, Laptime> fastestLaptimesMap = new HashMap<String, Laptime>();
+    private final HashMap<Integer, Integer> lapsCompletedMap = new HashMap<Integer, Integer>();
+    private final HashMap<Integer, ArrayList<Laptime>> laptimesMap = new HashMap<Integer, ArrayList<Laptime>>();
+    private final HashMap<Integer, Laptime> fastestLaptimesMap = new HashMap<Integer, Laptime>();
     
     //private Laptime absFastestLaptime = null;
     
@@ -26,13 +26,13 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     
     public void onRealtimeEntered( LiveGameData gameData ) {}
     
-    private ArrayList<Laptime> addLaptime( String driverName, int lapsCompleted, Laptime laptime )
+    private ArrayList<Laptime> addLaptime( Integer driverID, int lapsCompleted, Laptime laptime )
     {
-        ArrayList<Laptime> laps = laptimesMap.get( driverName );
+        ArrayList<Laptime> laps = laptimesMap.get( driverID );
         if ( laps == null )
         {
             laps = new ArrayList<Laptime>();
-            laptimesMap.put( driverName, laps );
+            laptimesMap.put( driverID, laps );
         }
         
         for ( int i = laps.size(); i < lapsCompleted; i++ )
@@ -54,24 +54,24 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             if ( vsi.getFinishStatus() != FinishStatus.NONE )
                 continue;
             
-            String driverName = vsi.getDriverName();
+            Integer driverID = vsi.getDriverID();
             int lapsCompleted = vsi.getLapsCompleted();
             
             ArrayList<Laptime> laps;
-            Integer lastLapsCompleted = lapsCompletedMap.get( driverName );
+            Integer lastLapsCompleted = lapsCompletedMap.get( driverID );
             if ( lastLapsCompleted == null )
             {
-                lapsCompletedMap.put( driverName, lapsCompleted );
+                lapsCompletedMap.put( driverID, lapsCompleted );
                 Laptime laptime = new Laptime( lapsCompleted + 1 );
-                laps = addLaptime( driverName, lapsCompleted, laptime );
+                laps = addLaptime( driverID, lapsCompleted, laptime );
             }
             else if ( lastLapsCompleted.intValue() < lapsCompleted )
             {
-                lapsCompletedMap.put( driverName, lapsCompleted );
+                lapsCompletedMap.put( driverID, lapsCompleted );
                 Laptime laptime = new Laptime( lapsCompleted + 1 );
-                laps = addLaptime( driverName, lapsCompleted, laptime );
+                laps = addLaptime( driverID, lapsCompleted, laptime );
                 
-                Laptime last = laptimesMap.get( driverName ).get( lapsCompleted - 1 );
+                Laptime last = laptimesMap.get( driverID ).get( lapsCompleted - 1 );
                 
                 if ( last != null )
                 {
@@ -89,10 +89,10 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                     }
                     else
                     {
-                        Laptime fastestLaptime = fastestLaptimesMap.get( driverName );
+                        Laptime fastestLaptime = fastestLaptimesMap.get( driverID );
                         if ( ( fastestLaptime == null ) || ( fastestLaptime.getLapTime() < 0f ) || ( last.getLapTime() < fastestLaptime.getLapTime() ) )
                         {
-                            fastestLaptimesMap.put( driverName, last );
+                            fastestLaptimesMap.put( driverID, last );
                         }
                         
                         /*
@@ -108,13 +108,13 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             }
             else
             {
-                laps = laptimesMap.get( driverName );
+                laps = laptimesMap.get( driverID );
                 Laptime laptime = laps.get( lapsCompleted );
                 
                 if ( laptime == null )
                 {
                     laptime = new Laptime( lapsCompleted + 1 );
-                    addLaptime( driverName, lapsCompleted, laptime );
+                    addLaptime( driverID, lapsCompleted, laptime );
                 }
                 
                 switch ( vsi.getSector() )
@@ -141,7 +141,7 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             }
             
             vsi.laptimes = laps;
-            vsi.fastestLaptime = fastestLaptimesMap.get( driverName );
+            vsi.fastestLaptime = fastestLaptimesMap.get( driverID );
             
             if ( vsi.isInPits() )
             {
@@ -152,7 +152,7 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                 if ( laptime == null )
                 {
                     laptime = new Laptime( lapsCompleted + 1 );
-                    addLaptime( driverName, lapsCompleted, laptime );
+                    addLaptime( driverID, lapsCompleted, laptime );
                 }
                 
                 if ( trackPos > 0.5f )

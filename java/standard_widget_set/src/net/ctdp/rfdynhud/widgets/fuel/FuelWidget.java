@@ -352,9 +352,9 @@ public class FuelWidget extends Widget
         stintLength.update( (int)vsi.getStintLength() );
         int fuelRelevantLaps = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getFuelRelevantLaps();
         
-        if ( isEditorMode || ( fuelRelevantLaps == 0 ) )
+        if ( fuelRelevantLaps == 0 )
         {
-            if ( isEditorMode || ( fuelRelevantLaps != oldFuelRelevantLaps ) )
+            if ( fuelRelevantLaps != oldFuelRelevantLaps )
             {
                 fuelUsageOneLapString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
                 fuelUsageAvgString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
@@ -420,8 +420,16 @@ public class FuelWidget extends Widget
                 pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
             }
         }
+        else if ( isEditorMode )
+        {
+            nextPitstopLap = 31;
+            pitstopLaps = (int)( 72 / avgFuelUsage );
+        }
         
-        pitstopFuel.update( pitstopFuel_ );
+        if ( isEditorMode )
+            pitstopFuel.update( 72 );
+        else
+            pitstopFuel.update( pitstopFuel_ );
         
         int tmp = ( ( nextPitstopLapCorrection + Short.MAX_VALUE / 2 ) << 16 ) | ( nextPitstopFuelLapsCorrection + Short.MAX_VALUE / 2 );
         

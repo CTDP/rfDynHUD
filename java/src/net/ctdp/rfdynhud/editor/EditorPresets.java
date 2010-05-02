@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.editor;
 
 import java.io.IOException;
+import java.util.Random;
 
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.properties.FloatProperty;
@@ -25,6 +26,8 @@ public class EditorPresets
     private final FloatProperty brakeDiscThicknessFR = new FloatProperty( null, "brakeDiscThicknessFR", 0.0145f, 0f, Float.MAX_VALUE );
     private final FloatProperty brakeDiscThicknessRL = new FloatProperty( null, "brakeDiscThicknessRL", 0.018f, 0f, Float.MAX_VALUE );
     private final FloatProperty brakeDiscThicknessRR = new FloatProperty( null, "brakeDiscThicknessRR", 0.022f, 0f, Float.MAX_VALUE );
+    
+    private final float[] topSpeeds = new float[ 22 ];
     
     public final String getDriverName()
     {
@@ -138,6 +141,11 @@ public class EditorPresets
         return ( brakeDiscThicknessRR.getFloatValue() );
     }
     
+    public final float getTopSpeed( int index )
+    {
+        return ( topSpeeds[index] );
+    }
+    
     void getProperties( WidgetPropertiesContainer propsCont )
     {
         propsCont.addGroup( "Driver" );
@@ -201,5 +209,15 @@ public class EditorPresets
         else if ( brakeDiscThicknessFR.loadProperty( key, value ) );
         else if ( brakeDiscThicknessRL.loadProperty( key, value ) );
         else if ( brakeDiscThicknessRR.loadProperty( key, value ) );
+    }
+    
+    public EditorPresets()
+    {
+        Random rnd = new Random( System.nanoTime() );
+        
+        for ( int i = 0; i < topSpeeds.length; i++ )
+        {
+            topSpeeds[i] = 250f + rnd.nextFloat() * 55f;
+        }
     }
 }

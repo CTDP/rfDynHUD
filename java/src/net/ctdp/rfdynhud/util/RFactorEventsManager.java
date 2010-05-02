@@ -6,6 +6,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
@@ -175,16 +176,15 @@ public class RFactorEventsManager implements ConfigurationClearListener
         try
         {
             final ScoringInfo scoringInfo = gameData.getScoringInfo();
+            final TelemetryData telemData = gameData.getTelemetryData();
             final VehicleScoringInfo pvsi = scoringInfo.getPlayersVehicleScoringInfo();
             
             ThreeLetterCodeManager.updateThreeLetterCodes();
             
-            __GDPrivilegedAccess.onRealtimeEntered( gameData );
-            
-            gameData.getTelemetryData().getPosition( garageStartLocation );
-            gameData.getTelemetryData().getOrientationX( garageStartOrientationX );
-            gameData.getTelemetryData().getOrientationY( garageStartOrientationY );
-            gameData.getTelemetryData().getOrientationZ( garageStartOrientationZ );
+            telemData.getPosition( garageStartLocation );
+            telemData.getOrientationX( garageStartOrientationX );
+            telemData.getOrientationY( garageStartOrientationY );
+            telemData.getOrientationZ( garageStartOrientationZ );
             this.isInPits = pvsi.isInPits();
             this.isInGarage = isInPits;
             
@@ -197,7 +197,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
             {
                 __GDPrivilegedAccess.loadFromPhysicsFiles( gameData );
                 VehicleSetup.loadSetup( gameData );
-                __GDPrivilegedAccess.setEngineBoostMapping( gameData.getSetup().getEngine().getBoostMapping(), gameData.getTelemetryData() );
+                __GDPrivilegedAccess.setEngineBoostMapping( gameData.getSetup().getEngine().getBoostMapping(), telemData );
             }
             
             physicsLoadedOnce = true;
@@ -216,6 +216,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 }
             }
             
+            __GDPrivilegedAccess.onRealtimeEntered( gameData );
             widgetsManager.fireOnRealtimeEntered( gameData, editorPresets );
             
             TextureDirtyRectsManager.forceCompleteRedraw();

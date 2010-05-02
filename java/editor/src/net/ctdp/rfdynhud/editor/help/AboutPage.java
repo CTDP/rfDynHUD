@@ -17,7 +17,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.BevelBorder;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 
@@ -54,7 +53,7 @@ public class AboutPage extends JDialog
         sb.append( "</body>\n</html>\n" );
         
         JEditorPane p = new JEditorPane( "text/html", sb.toString() );
-        p.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
+        //p.setBorder( new javax.swing.border.BevelBorder( javax.swing.border.BevelBorder.LOWERED ) );
         p.setEditable( false );
         
         JScrollPane sp = new JScrollPane( p );

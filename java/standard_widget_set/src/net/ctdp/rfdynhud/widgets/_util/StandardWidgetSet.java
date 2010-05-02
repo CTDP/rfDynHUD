@@ -73,11 +73,14 @@ public class StandardWidgetSet
         if ( blackBorder )
         {
             Stroke oldStroke = texCanvas.getStroke();
-            texCanvas.setStroke( new BasicStroke( 2 ) );
+            Color oldColor = texCanvas.getColor();
             
+            texCanvas.setStroke( new BasicStroke( 2 ) );
             texCanvas.setColor( Color.BLACK );
+            
             texCanvas.drawArc( 0, 0, width - 1, height - 1, 0, 360 );
             
+            texCanvas.setColor( oldColor );
             texCanvas.setStroke( oldStroke );
         }
         

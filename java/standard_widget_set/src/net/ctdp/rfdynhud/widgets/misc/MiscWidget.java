@@ -18,14 +18,12 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Size;
-import net.ctdp.rfdynhud.values.StringValue;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -64,7 +62,7 @@ public class MiscWidget extends Widget
     private DrawnString velocityString = null;
     
     private int oldStintLength = -1;
-    private final StringValue leader = new StringValue();
+    private final IntValue leaderID = new IntValue();
     private boolean leaderValid = false;
     private final IntValue place = new IntValue( ValidityTest.GREATER_THAN, 0 );
     private final FloatValue fastestLap = new FloatValue( ValidityTest.GREATER_THAN, 0f );
@@ -133,7 +131,7 @@ public class MiscWidget extends Widget
         
         oldStintLength = -1;
         
-        leader.reset();
+        leaderID.reset();
         leaderValid = false;
         
         place.reset();
@@ -234,21 +232,19 @@ public class MiscWidget extends Widget
         }
     }
     
-    private void updateScoringColWidths( ScoringInfo scoringInfo, TextureImage2D texture )
+    private void updateScoringColWidths( ScoringInfo scoringInfo, String leaderName, TextureImage2D texture )
     {
-        String fastestLapper = scoringInfo.getFastestLapVSI().getDriverName();
-        
         scoringColWidths[0] = 0;
         scoringColWidths[1] = 0;
         
-        scoringString1.getMaxColWidths( new String[] { "Leader:", leader.getValue() }, scoringAlignment, padding, texture, scoringColWidths );
+        scoringString1.getMaxColWidths( new String[] { "Leader:", leaderName }, scoringAlignment, padding, texture, scoringColWidths );
         if ( place.isValid() )
             scoringString2.getMaxColWidths( new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, texture, scoringColWidths );
         else
             scoringString2.getMaxColWidths( new String[] { "Place:", "N/A" }, scoringAlignment, padding, texture, scoringColWidths );
         
         if ( fastestLap.isValid() )
-            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort() + ")" }, scoringAlignment, padding, texture, scoringColWidths );
         else
             scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", "--:--.---" }, scoringAlignment, padding, texture, scoringColWidths );
     }
@@ -267,29 +263,30 @@ public class MiscWidget extends Widget
         if ( displayScoring.getBooleanValue() )
         {
             VehicleScoringInfo leaderVSI = scoringInfo.getVehicleScoringInfo( 0 );
-            leader.update( leaderVSI.getDriverName() );
+            leaderID.update( leaderVSI.getDriverId() );
+            String leaderName = leaderVSI.getDriverNameShort();
             place.update( scoringInfo.getOwnPlace() );
             VehicleScoringInfo fastestLapVSI = scoringInfo.getFastestLapVSI();
-            String fastestLapper = fastestLapVSI.getDriverName();
+            String fastestLapper = fastestLapVSI.getDriverNameShort();
             fastestLap.update( fastestLapVSI.getBestLapTime() );
             
             boolean colWidthsUpdated = false;
             
-            boolean lv = ( leaderVSI.getBestLapTime() > 0f );
-            if ( needsCompleteRedraw || leader.hasChanged() || ( lv != leaderValid ) )
+            boolean lv = scoringInfo.getSessionType().isRace() || ( leaderVSI.getBestLapTime() > 0f );
+            if ( needsCompleteRedraw || leaderID.hasChanged() || ( lv != leaderValid ) )
             {
                 leaderValid = lv;
                 
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, texture );
+                    updateScoringColWidths( scoringInfo, leaderName, texture );
                     colWidthsUpdated = true;
                 }
                 
                 if ( scoringInfo.getSessionType().isRace() )
                 {
                     if ( leaderValid )
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", ThreeLetterCodeManager.getShortForm( leader.getValue() ) }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", leaderName }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                     else
                         scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 }
@@ -303,7 +300,7 @@ public class MiscWidget extends Widget
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, texture );
+                    updateScoringColWidths( scoringInfo, leaderName, texture );
                     colWidthsUpdated = true;
                 }
                 
@@ -317,12 +314,12 @@ public class MiscWidget extends Widget
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, texture );
+                    updateScoringColWidths( scoringInfo, leaderName, texture );
                     colWidthsUpdated = true;
                 }
                 
                 if ( fastestLap.isValid() )
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsLaptimeString( fastestLap.getValue() ) + " (" + ThreeLetterCodeManager.getShortForm( fastestLapper ) + ")" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsLaptimeString( fastestLap.getValue() ) + " (" + fastestLapper + ")" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 else
                     scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", "--:--.---" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
             }
@@ -441,6 +438,13 @@ public class MiscWidget extends Widget
                 forceUpdateAbs = true;
             }
             
+            if ( editorPresets != null )
+            {
+                topspeed = 301.7f;
+                ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = topspeed;
+                relTopspeed = 274.3f;
+            }
+                
             if ( needsCompleteRedraw || ( ( clock1 || forceUpdateAbs ) && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
             {
                 if ( !needsCompleteRedraw )

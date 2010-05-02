@@ -689,10 +689,10 @@ public class TextureImage2D
         return ( bi.createGraphics() );
     }
     
-    private void clampClipRect( int texWidth, int texHeight )
+    private void clampClipRect()
     {
         clipRect.set( userClipRect );
-        clipRect.clamp( 0, 0, texWidth, texHeight );
+        clipRect.clamp( 0, 0, getWidth(), getHeight() );
     }
     
     /**
@@ -707,7 +707,7 @@ public class TextureImage2D
     {
         userClipRect.set( x, y, width, height );
         
-        clampClipRect( getWidth(), getHeight() );
+        clampClipRect();
     }
     
     /**
