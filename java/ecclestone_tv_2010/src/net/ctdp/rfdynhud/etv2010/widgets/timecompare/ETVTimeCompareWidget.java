@@ -604,6 +604,6 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     
     public ETVTimeCompareWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.407f, Size.PERCENT_OFFSET + 0.08496094f );
+        super( name, Size.getPercent( 40.7f ), Size.getPercent( 8.496094f ) );
     }
 }

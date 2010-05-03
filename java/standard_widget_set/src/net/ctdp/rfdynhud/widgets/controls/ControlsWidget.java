@@ -254,6 +254,6 @@ public class ControlsWidget extends Widget
     
     public ControlsWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.099f, Size.PERCENT_OFFSET + 0.165f );
+        super( name, Size.getPercent( 9.9f ), Size.getPercent( 16.5f ) );
     }
 }

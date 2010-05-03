@@ -137,9 +137,10 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
                 if ( prop != null )
                 {
                     //model.setSelectedItem( prop.getValue() );
-                    JFrame frame = (JFrame)button.getRootPane().getParent();
+                    //JFrame frame = (JFrame)button.getRootPane().getParent();
+                    JFrame frame = (JFrame)table.getRootPane().getParent();
                     ColorChooserDialog d = ColorChooser.getAsDialog( frame, (String)prop.getValue(), prop.getWidget().getConfiguration() );
-                    d.setLocationRelativeTo( (JFrame)button.getRootPane().getParent() );
+                    d.setLocationRelativeTo( frame );
                     d.setVisible( true );
                     
                     String selColor = d.getSelectedColor();

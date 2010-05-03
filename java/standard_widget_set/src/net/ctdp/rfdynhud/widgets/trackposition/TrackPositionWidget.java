@@ -303,7 +303,7 @@ public class TrackPositionWidget extends Widget
     
     public TrackPositionWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.35f, Size.PERCENT_OFFSET + 0.05859375f );
+        super( name, Size.getPercent( 35.0f ), Size.getPercent( 5.859375f ) );
         
         getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
         getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );

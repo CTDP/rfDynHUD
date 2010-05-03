@@ -388,6 +388,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     
     public ETVSessionStateWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.12f, Size.PERCENT_OFFSET + 0.0254f );
+        super( name, Size.getPercent( 12.0f ), Size.getPercent( 2.54f ) );
     }
 }

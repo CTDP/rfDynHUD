@@ -122,7 +122,9 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
                 {
                     //model.setSelectedItem( prop.getValue() );
                     ImageSelector is = new ImageSelector( TextureManager.IMAGES_FOLDER );
-                    String selFile = is.showDialog( (JFrame)button.getRootPane().getParent(), (String)prop.getValue(), prop.getNoImageAllowed() );
+                    //JFrame frame = (JFrame)button.getRootPane().getParent();
+                    JFrame frame = (JFrame)table.getRootPane().getParent();
+                    String selFile = is.showDialog( frame, (String)prop.getValue(), prop.getNoImageAllowed() );
                     
                     if ( selFile != null )
                     {

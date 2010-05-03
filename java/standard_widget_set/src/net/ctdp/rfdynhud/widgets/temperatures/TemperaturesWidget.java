@@ -801,10 +801,10 @@ public class TemperaturesWidget extends Widget
     
     public TemperaturesWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.178125f, Size.PERCENT_OFFSET + 0.30416667f );
+        super( name, Size.getPercent( 17.8125f ), Size.getPercent( 30.416667f ) );
         
-        this.engineHeight = new Size( Size.PERCENT_OFFSET + 0, Size.PERCENT_OFFSET + 0.1f, this );
-        this.tireSize = new Size( Size.PERCENT_OFFSET + 0.1f, Size.PERCENT_OFFSET + 0.1f, this );
-        this.brakeSize = new Size( Size.PERCENT_OFFSET + 0.07f, Size.PERCENT_OFFSET + 0.2f, this );
+        this.engineHeight = new Size( Size.getPercent( 0f ), Size.getPercent( 10.0f ), this );
+        this.tireSize = new Size( Size.getPercent( 10.0f ), Size.getPercent( 10.0f ), this );
+        this.brakeSize = new Size( Size.getPercent( 7.0f ), Size.getPercent( 20.0f ), this );
     }
 }

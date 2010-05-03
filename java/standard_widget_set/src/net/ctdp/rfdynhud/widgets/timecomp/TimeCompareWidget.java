@@ -304,6 +304,6 @@ public class TimeCompareWidget extends Widget
     
     public TimeCompareWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.240625f, Size.PERCENT_OFFSET + 0.13916667f );
+        super( name, Size.getPercent( 24.0625f ), Size.getPercent( 13.916667f ) );
     }
 }

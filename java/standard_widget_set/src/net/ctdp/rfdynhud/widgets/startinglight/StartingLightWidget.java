@@ -252,18 +252,8 @@ public class StartingLightWidget extends Widget
         return ( false );
     }
     
-    /*
-    @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    */
-    
     public StartingLightWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.11328125f, Size.PERCENT_OFFSET + 0.083984375f );
-        
-        //getBackgroundColorProperty().setColor( (String)null );
+        super( name, Size.getPercent( 11.328125f ), Size.getPercent( 8.3984375f ) );
     }
 }

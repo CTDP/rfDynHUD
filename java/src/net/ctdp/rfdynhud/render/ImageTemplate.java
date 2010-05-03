@@ -22,6 +22,11 @@ public class ImageTemplate
         return ( bufferedImage.getHeight() );
     }
     
+    public final float getBaseAspect()
+    {
+        return ( getBaseWidth() / (float)getBaseHeight() );
+    }
+    
     private void copyPixels( TextureImage2D texture )
     {
         ByteInterleavedRaster raster = (ByteInterleavedRaster)bufferedImage.getData();

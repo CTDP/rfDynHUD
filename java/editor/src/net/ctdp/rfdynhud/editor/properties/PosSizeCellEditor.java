@@ -47,7 +47,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
         button2.setVisible( prop.isSizeProp() );
         
         float fv = (Float)value;
-        boolean isPerc = ( Math.abs( fv ) > Size.PERCENT_OFFSET_CHECK_POSITIVE );
+        boolean isPerc = Size.isPercent( fv );
         
         button1.setVisible( true );
         button1.setText( prop.getButton1Text( isPerc ) );
@@ -113,7 +113,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
     protected void applyOldValue( Object oldValue )
     {
         float fv = (Float)oldValue;
-        boolean isPerc = ( Math.abs( fv ) > Size.PERCENT_OFFSET_CHECK_POSITIVE );
+        boolean isPerc = Size.isPercent( fv );
         
         if ( isPerc )
         {
@@ -155,7 +155,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
                     prop.onButtonClicked( button1 );
                     
                     float value = (Float)prop.getValue();
-                    if ( Math.abs( value ) > Size.PERCENT_OFFSET_CHECK_POSITIVE )
+                    if ( Size.isPercent( value ) )
                     {
                         if ( prop.isSizeProp() )
                             textfield.setText( Size.unparseValue( value ) );
@@ -181,7 +181,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
                     prop.onButton2Clicked( button2 );
                     
                     float value = (Float)prop.getValue();
-                    if ( Math.abs( value ) > Size.PERCENT_OFFSET_CHECK_POSITIVE )
+                    if ( Size.isPercent( value ) )
                     {
                         if ( prop.isSizeProp() )
                             textfield.setText( Size.unparseValue( value ) );

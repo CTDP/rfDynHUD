@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
+import net.ctdp.rfdynhud.values.__ValPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
@@ -1138,7 +1139,7 @@ public abstract class Widget implements Documented
     {
         this.name.setStringValue( name );
         this.size = new Size( width, height, this, true );
-        this.position = new Position( positioning, x, y, size, this, true );
+        this.position = __ValPrivilegedAccess.newWidgetPosition( positioning, x, y, size, this );
         
         if ( !canHaveBorder() )
             border.setBorder( null );
@@ -1167,6 +1168,6 @@ public abstract class Widget implements Documented
      */
     protected Widget( String name, float width, float height )
     {
-        this( name, Position.PERCENT_OFFSET + 0f, Position.PERCENT_OFFSET + 0f, width, height );
+        this( name, Position.getPercent( 0f ), Position.getPercent( 0f ), width, height );
     }
 }

@@ -32,7 +32,7 @@ public class BoolValue
         return ( value );
     }
     
-    private final boolean hasChanged( boolean setUnchanged )
+    public final boolean hasChanged( boolean setUnchanged )
     {
         boolean result = ( value != oldValue );
         

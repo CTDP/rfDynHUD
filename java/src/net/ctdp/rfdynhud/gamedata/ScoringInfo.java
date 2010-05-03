@@ -629,6 +629,9 @@ public class ScoringInfo
      */
     public final float getSessionTime()
     {
+        if ( getGamePhase() == GamePhase.SESSION_OVER )
+            return ( 0f );
+        
         // float mCurrentET
         
         //return ( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) );

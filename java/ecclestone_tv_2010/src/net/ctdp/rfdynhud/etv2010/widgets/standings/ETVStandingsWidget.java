@@ -57,7 +57,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     
     private Boolean[] itemsVisible = null;
     
-    private final Size itemHeight = new Size( 0, Size.PERCENT_OFFSET + 0.025f, this, true );
+    private final Size itemHeight = new Size( 0, Size.getPercent( 2.5f ), this, true );
     
     private TextureImage2D itemClearImage = null;
     
@@ -470,6 +470,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
     
     public ETVStandingsWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.14f, Size.PERCENT_OFFSET + ( 0.025f * 10f ) );
+        super( name, Size.getPercent( 14.0f ), Size.getPercent( 10f * 2.5f ) );
     }
 }

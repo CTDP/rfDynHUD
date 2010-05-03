@@ -124,7 +124,7 @@ public class ImageWidget extends Widget
     
     public ImageWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.17f, Size.PERCENT_OFFSET + 0.086f );
+        super( name, Size.getPercent( 17.0f ), Size.getPercent( 8.6f ) );
         
         getBackgroundColorProperty().setColor( (String)null );
     }

@@ -6,9 +6,9 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class Size
 {
-    public static final float PERCENT_OFFSET = 10000f;
-    public static final float PERCENT_OFFSET_CHECK_POSITIVE = +PERCENT_OFFSET - 0.001f;
-    public static final float PERCENT_OFFSET_CHECK_NEGATIVE = -PERCENT_OFFSET + 0.001f;
+    private static final float PERCENT_OFFSET = 10000f;
+    private static final float PERCENT_OFFSET_CHECK_POSITIVE = +PERCENT_OFFSET - 0.001f;
+    private static final float PERCENT_OFFSET_CHECK_NEGATIVE = -PERCENT_OFFSET + 0.001f;
     
     private float width;
     private float height;
@@ -18,6 +18,21 @@ public class Size
     
     private final Widget widget;
     private final boolean isWidgetSize;
+    
+    public static final float getPercent( float percent )
+    {
+        return ( PERCENT_OFFSET + percent * 0.01f );
+    }
+    
+    public static final boolean isPercent( float value )
+    {
+        return ( Math.abs( value ) > PERCENT_OFFSET_CHECK_POSITIVE );
+    }
+    
+    public static final float getAbsolute( float value )
+    {
+        return ( value );
+    }
     
     /*
     public final Widget getWidget()

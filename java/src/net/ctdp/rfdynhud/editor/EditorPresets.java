@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import net.ctdp.rfdynhud.gamedata.Laptime;
+import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
@@ -12,6 +13,20 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
 public class EditorPresets
 {
+    private static enum EngineBoostMapping
+    {
+        B1,
+        B2,
+        B3,
+        B4,
+        B5,
+        B6,
+        B7,
+        B8,
+        B9,
+        ;
+    }
+    
     private final StringProperty driverName = new StringProperty( null, "driverName", "Mike Self" );
     private final FloatProperty lastSector1Time = new FloatProperty( null, "lastSector1Time", 28.829182f, 0f, Float.MAX_VALUE );
     private final FloatProperty lastSector2Time = new FloatProperty( null, "lastSector2Time", 29.413128f, 0f, Float.MAX_VALUE );
@@ -19,7 +34,7 @@ public class EditorPresets
     private final FloatProperty currentSector1Time = new FloatProperty( null, "currentSector1Time", 29.138f, 0f, Float.MAX_VALUE );
     private final FloatProperty currentSector2Time = new FloatProperty( null, "currentSector2Time", 27.988f, 0f, Float.MAX_VALUE );
     private final FloatProperty currentSector3Time = new FloatProperty( null, "currentSector3Time", 26.440f, 0f, Float.MAX_VALUE );
-    private final IntProperty engineBoost = new IntProperty( null, "engineBoost", 5, 1, 9 );
+    private final EnumProperty<EngineBoostMapping> engineBoost = new EnumProperty<EngineBoostMapping>( null, "engineBoost", EngineBoostMapping.B5 );
     private final IntProperty engineRPM = new IntProperty( null, "engineRPM", 3750, 0, 20000 );
     private final IntProperty engineLifetime = new IntProperty( null, "engineLifetime", 1000, 0, Integer.MAX_VALUE );
     private final FloatProperty brakeDiscThicknessFL = new FloatProperty( null, "brakeDiscThicknessFL", 0.021f, 0f, Float.MAX_VALUE );
@@ -108,7 +123,7 @@ public class EditorPresets
     
     public final int getEngineBoost()
     {
-        return ( engineBoost.getIntValue() );
+        return ( engineBoost.getEnumValue().ordinal() + 1 );
     }
     
     public final int getEngineRPM()

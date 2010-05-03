@@ -9,9 +9,9 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class Position
 {
-    public static final float PERCENT_OFFSET = Size.PERCENT_OFFSET;
-    public static final float PERCENT_OFFSET_CHECK_POSITIVE = Size.PERCENT_OFFSET_CHECK_POSITIVE;
-    public static final float PERCENT_OFFSET_CHECK_NEGATIVE = Size.PERCENT_OFFSET_CHECK_NEGATIVE;
+    private static final float PERCENT_OFFSET = 10000f;
+    private static final float PERCENT_OFFSET_CHECK_POSITIVE = +PERCENT_OFFSET - 0.001f;
+    private static final float PERCENT_OFFSET_CHECK_NEGATIVE = -PERCENT_OFFSET + 0.001f;
     
     private RelativePositioning positioning;
     private float x;
@@ -23,6 +23,21 @@ public class Position
     private final Size size;
     private final Widget widget;
     private final boolean isWidgetPosition;
+    
+    public static final float getPercent( float percent )
+    {
+        return ( PERCENT_OFFSET + percent * 0.01f );
+    }
+    
+    public static final boolean isPercent( float value )
+    {
+        return ( Math.abs( value ) > PERCENT_OFFSET_CHECK_POSITIVE );
+    }
+    
+    public static final float getAbsolute( float pixels )
+    {
+        return ( pixels );
+    }
     
     public final Widget getWidget()
     {
@@ -629,7 +644,7 @@ public class Position
         return ( prop );
     }
     
-    public Position( RelativePositioning positioning, float x, float y, Size size, Widget widget, boolean isWidgetPosition )
+    Position( RelativePositioning positioning, float x, float y, Size size, Widget widget, boolean isWidgetPosition )
     {
         this.positioning = positioning;
         this.x = x;

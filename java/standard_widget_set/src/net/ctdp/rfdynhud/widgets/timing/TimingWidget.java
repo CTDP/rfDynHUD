@@ -903,6 +903,6 @@ public class TimingWidget extends Widget
     
     public TimingWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.240625f, Size.PERCENT_OFFSET + 0.30083334f );
+        super( name, Size.getPercent( 24.0625f ), Size.getPercent( 30.083334f ) );
     }
 }

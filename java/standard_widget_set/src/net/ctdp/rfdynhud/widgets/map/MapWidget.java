@@ -456,7 +456,7 @@ public class MapWidget extends Widget
     
     public MapWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.145f, Size.PERCENT_OFFSET + 0.103f );
+        super( name, Size.getPercent( 14.5f ), Size.getPercent( 10.3f ) );
         
         getBackgroundColorProperty().setColor( (String)null );
         

@@ -1250,7 +1250,7 @@ public class RevMeterWidget extends Widget
     
     public RevMeterWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.163125f, Size.PERCENT_OFFSET + 0.2175f );
+        super( name, Size.getPercent( 16.3125f ), Size.getPercent( 21.75f ) );
         
         getBackgroundColorProperty().setColor( (String)null );
         

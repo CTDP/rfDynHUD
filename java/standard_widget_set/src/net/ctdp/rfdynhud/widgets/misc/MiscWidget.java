@@ -534,6 +534,6 @@ public class MiscWidget extends Widget
     
     public MiscWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.6625f, Size.PERCENT_OFFSET + 0.0583f );
+        super( name, Size.getPercent( 66.25f ), Size.getPercent( 5.83f ) );
     }
 }

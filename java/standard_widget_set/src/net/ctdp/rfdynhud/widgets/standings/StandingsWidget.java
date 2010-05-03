@@ -1016,7 +1016,7 @@ public class StandingsWidget extends Widget
     
     public StandingsWidget( String name )
     {
-        super( name, Size.PERCENT_OFFSET + 0.2825f, Size.PERCENT_OFFSET + 0.14916667f );
+        super( name, Size.getPercent( 36.328125f ), Size.getPercent( 14.916667f ) );
         
         getFontProperty().setFont( "BiggerFont" );
     }
