@@ -38,9 +38,8 @@ public class EditorTable extends HierarchicalTable
         return ( editor );
     }
     
-    /*
-    private final KeyCellRenderer keyRenderer = new KeyCellRenderer();
-    private final ReadonlyCellEditor readonlyEditor = new ReadonlyCellEditor();
+    //private final KeyCellRenderer keyRenderer = new KeyCellRenderer();
+    //private final ReadonlyCellEditor readonlyEditor = new ReadonlyCellEditor();
     private final BooleanCellEditor booleanEditor = new BooleanCellEditor();
     private final IntegerCellEditor integerEditor = new IntegerCellEditor();
     private final FloatCellEditor floatEditor = new FloatCellEditor();
@@ -53,7 +52,6 @@ public class EditorTable extends HierarchicalTable
     private final ColorCellEditor colorEditor = new ColorCellEditor();
     private final ImageNameCellEditor imageEditor = new ImageNameCellEditor();
     private final BorderCellEditor borderEditor = new BorderCellEditor();
-    */
     
     public void addPropertySelectionListener( PropertySelectionListener l )
     {
@@ -84,41 +82,41 @@ public class EditorTable extends HierarchicalTable
         switch ( editorType )
         {
             case BOOLEAN:
-                //return ( booleanEditor );
-                return ( new BooleanCellEditor() );
+                return ( booleanEditor );
+                //return ( new BooleanCellEditor() );
             case INTEGER:
-                //return ( integerEditor );
-                return ( new IntegerCellEditor() );
+                return ( integerEditor );
+                //return ( new IntegerCellEditor() );
             case FLOAT:
-                //return ( floatEditor );
-                return ( new FloatCellEditor() );
+                return ( floatEditor );
+                //return ( new FloatCellEditor() );
             case POS_SIZE:
-                //return ( posSizeEditor );
-                return ( new PosSizeCellEditor() );
+                return ( posSizeEditor );
+                //return ( new PosSizeCellEditor() );
             case STRING:
-                //return ( stringEditor );
-                return ( new StringCellEditor() );
+                return ( stringEditor );
+                //return ( new StringCellEditor() );
             case ENUM:
-                //return ( enumEditor );
-                return ( new EnumCellEditor() );
+                return ( enumEditor );
+                //return ( new EnumCellEditor() );
             case ARRAY:
-                //return ( arrayEditor );
-                return ( new ArrayCellEditor() );
+                return ( arrayEditor );
+                //return ( new ArrayCellEditor() );
             case LIST:
-                //return ( listEditor );
-                return ( new ListCellEditor() );
+                return ( listEditor );
+                //return ( new ListCellEditor() );
             case FONT:
-                //return ( fontEditor );
-                return ( new FontCellEditor() );
+                return ( fontEditor );
+                //return ( new FontCellEditor() );
             case COLOR:
-                //return ( colorEditor );
-                return ( new ColorCellEditor() );
+                return ( colorEditor );
+                //return ( new ColorCellEditor() );
             case IMAGE:
-                //return ( imageEditor );
-                return ( new ImageNameCellEditor() );
+                return ( imageEditor );
+                //return ( new ImageNameCellEditor() );
             case BORDER:
-                //return ( borderEditor );
-                return ( new BorderCellEditor() );
+                return ( borderEditor );
+                //return ( new BorderCellEditor() );
         }
         
         return ( super.getCellRenderer( row, column ) );

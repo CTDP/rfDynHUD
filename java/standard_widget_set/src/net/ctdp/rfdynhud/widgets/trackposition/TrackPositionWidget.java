@@ -170,7 +170,6 @@ public class TrackPositionWidget extends Widget
         final Font font = getFont();
         final boolean posNumberFontAntiAliased = isFontAntiAliased();
         
-        boolean normal = false;
         int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles.getIntValue() );
         for ( int i = 0; i < n; i++ )
         {
@@ -190,31 +189,26 @@ public class TrackPositionWidget extends Widget
                 {
                     itemState |= 1 << 16;
                     color = markColorLeader.getColor();
-                    normal = false;
                 }
                 else if ( vsi.isPlayer() )
                 {
                     itemState |= 2 << 16;
                     color = markColorMe.getColor();
-                    normal = false;
-                }
-                else if ( vsi.getPlace() == ownPlace + 1 )
-                {
-                    itemState |= 3 << 16;
-                    color = markColorNextInFront.getColor();
-                    normal = false;
                 }
                 else if ( vsi.getPlace() == ownPlace - 1 )
                 {
+                    itemState |= 3 << 16;
+                    color = markColorNextInFront.getColor();
+                }
+                else if ( vsi.getPlace() == ownPlace + 1 )
+                {
                     itemState |= 4 << 16;
                     color = markColorNextBehind.getColor();
-                    normal = false;
                 }
-                else if ( !normal )
+                else
                 {
                     itemState |= 5 << 16;
                     color = markColorNormal.getColor();
-                    normal = true;
                 }
                 
                 tt.setTranslation( LINE_PADDING + off2 + lapDistance * lineLength - itemRadius, off2 + height / 2 - itemRadius );

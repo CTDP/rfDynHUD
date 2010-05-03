@@ -249,21 +249,24 @@ public class DrawnString
             }
             else
             {
-                if ( strs[i] == null )
-                    str = "";
-                else
-                    str = strs[i];
+                str = strs[i];
             }
             
-            int pad = padding;
-            if ( ( i == 0 ) && ( align == Alignment.LEFT ) )
-                pad = 0;
-            else if ( ( i == strs.length - 1 ) && ( align == Alignment.RIGHT ) )
-                pad = 0;
+            w = 0;
             
-            w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
+            if ( str != null )
+            {
+                int pad = padding;
+                if ( ( i == 0 ) && ( align == Alignment.LEFT ) )
+                    pad = 0;
+                else if ( ( i == strs.length - 1 ) && ( align == Alignment.RIGHT ) )
+                    pad = 0;
+                
+                w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
+                
+                total += w;
+            }
             
-            total += w;
             if ( colWidths != null )
                 colWidths[i] = w;
         }
@@ -308,21 +311,22 @@ public class DrawnString
             }
             else
             {
-                if ( strs[i] == null )
-                    str = "";
-                else
-                    str = strs[i];
+                str = strs[i];
             }
             
-            int pad = padding;
-            if ( ( i == 0 ) && ( align == Alignment.LEFT ) )
-                pad = 0;
-            else if ( ( i == strs.length - 1 ) && ( align == Alignment.RIGHT ) )
-                pad = 0;
+            if ( str != null )
+            {
+                int pad = padding;
+                if ( ( i == 0 ) && ( align == Alignment.LEFT ) )
+                    pad = 0;
+                else if ( ( i == strs.length - 1 ) && ( align == Alignment.RIGHT ) )
+                    pad = 0;
+                
+                w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
+                
+                colWidths[i] = Math.max( colWidths[i], w );
+            }
             
-            w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
-            
-            colWidths[i] = Math.max( colWidths[i], w );
             total += colWidths[i];
         }
         

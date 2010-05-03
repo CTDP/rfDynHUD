@@ -41,7 +41,7 @@ public class StandingsWidget extends Widget
 {
     private static final InputAction INPUT_ACTION_CYCLE_VIEW = new InputAction( "CycleStandingsViewAction" );
     
-    private final ColorProperty fontColor_me = new ColorProperty( this, "fontColor_me", "#7A7727" );
+    private final ColorProperty fontColor_me = new ColorProperty( this, "fontColor_me", "#367727" );
     private final ColorProperty fontColor_out = new ColorProperty( this, "fontColor_out", "#646464" );
     private final ColorProperty fontColor_finished = new ColorProperty( this, "fontColor_finished", "#00FF00" );
     
@@ -54,7 +54,9 @@ public class StandingsWidget extends Widget
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
     private final EnumProperty<NameDisplayType> nameDisplayType = new EnumProperty<NameDisplayType>( this, "nameDisplayType", NameDisplayType.FULL_NAME );
     private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
-    private final BooleanProperty showTopspeeds = new BooleanProperty( this, "showTopspeeds", false );
+    
+    private final BooleanProperty showLapsOrStops = new BooleanProperty( this, "showLapsOrStops", true );
+    private final BooleanProperty showTopspeeds = new BooleanProperty( this, "showTopspeeds", true );
     
     private DrawnString[] positionStrings = null;
     private int maxDisplayedDrivers = 100;
@@ -288,7 +290,11 @@ public class StandingsWidget extends Widget
         FinishStatus finishStatus = vsi.getFinishStatus();
         if ( finishStatus == FinishStatus.NONE )
         {
-            if ( ( gamePhase != GamePhase.FORMATION_LAP ) && ( gamePhase != GamePhase.RECONNAISSANCE_LAPS ) && ( place > 1 ) )
+            if ( ( gamePhase == GamePhase.RECONNAISSANCE_LAPS ) || ( gamePhase == GamePhase.FORMATION_LAP ) || ( place <= 1 ) )
+            {
+                ss[2] = null;
+            }
+            else
             {
                 int lbl = vsi.getLapsBehindLeader();
                 if ( lbl > 0 )
@@ -301,26 +307,30 @@ public class StandingsWidget extends Widget
                     ss[2] = "(" + TimingUtil.getTimeAsGapString( sbl ) + ")";
                 }
             }
-            else
-            {
-                ss[2] = null;
-            }
             
-            int stops = vsi.getNumPitstopsMade();
-            if ( abbreviate.getBooleanValue() )
+            if ( showLapsOrStops.getBooleanValue() )
             {
-                ss[3] = String.valueOf( stops ) + "S";
-                ss[4] = null;
-            }
-            else if ( stops == 1 )
-            {
-                ss[3] = String.valueOf( stops );
-                ss[4] = "Stop";
+                int stops = vsi.getNumPitstopsMade();
+                if ( abbreviate.getBooleanValue() )
+                {
+                    ss[3] = String.valueOf( stops ) + "S";
+                    ss[4] = null;
+                }
+                else if ( stops == 1 )
+                {
+                    ss[3] = String.valueOf( stops );
+                    ss[4] = "Stop";
+                }
+                else
+                {
+                    ss[3] = String.valueOf( stops );
+                    ss[4] = "Stops";
+                }
             }
             else
             {
-                ss[3] = String.valueOf( stops );
-                ss[4] = "Stops";
+                ss[3] = null;
+                ss[4] = null;
             }
             
             if ( showTopspeeds.getBooleanValue() )
@@ -398,21 +408,29 @@ public class StandingsWidget extends Widget
                 ss[2] = null;
             }
             
-            int stops = vsi.getNumPitstopsMade();
-            if ( abbreviate.getBooleanValue() )
+            if ( showLapsOrStops.getBooleanValue() )
             {
-                ss[3] = String.valueOf( stops ) + "S";
-                ss[4] = null;
-            }
-            else if ( stops == 1 )
-            {
-                ss[3] = String.valueOf( stops );
-                ss[4] = "Stop";
+                int stops = vsi.getNumPitstopsMade();
+                if ( abbreviate.getBooleanValue() )
+                {
+                    ss[3] = String.valueOf( stops ) + "S";
+                    ss[4] = null;
+                }
+                else if ( stops == 1 )
+                {
+                    ss[3] = String.valueOf( stops );
+                    ss[4] = "Stop";
+                }
+                else
+                {
+                    ss[3] = String.valueOf( stops );
+                    ss[4] = "Stops";
+                }
             }
             else
             {
-                ss[3] = String.valueOf( stops );
-                ss[4] = "Stops";
+                ss[3] = null;
+                ss[4] = null;
             }
             
             if ( showTopspeeds.getBooleanValue() )
@@ -512,21 +530,29 @@ public class StandingsWidget extends Widget
             ss[2] = null;
         }
         
-        int lapsCompleted = vsi.getLapsCompleted();
-        if ( abbreviate.getBooleanValue() )
+        if ( showLapsOrStops.getBooleanValue() )
         {
-            ss[3] = String.valueOf( lapsCompleted ) + "L";
-            ss[4] = null;
-        }
-        else if ( lapsCompleted == 1 )
-        {
-            ss[3] = String.valueOf( lapsCompleted );
-            ss[4] = "Lap";
-        }
+            int lapsCompleted = vsi.getLapsCompleted();
+            if ( abbreviate.getBooleanValue() )
+            {
+                ss[3] = String.valueOf( lapsCompleted ) + "L";
+                ss[4] = null;
+            }
+            else if ( lapsCompleted == 1 )
+            {
+                ss[3] = String.valueOf( lapsCompleted );
+                ss[4] = "Lap";
+            }
+            else
+            {
+                ss[3] = String.valueOf( lapsCompleted );
+                ss[4] = "Laps";
+            }
+        }        
         else
         {
-            ss[3] = String.valueOf( lapsCompleted );
-            ss[4] = "Laps";
+            ss[3] = null;
+            ss[4] = null;
         }
         
         if ( showTopspeeds.getBooleanValue() )
@@ -566,21 +592,29 @@ public class StandingsWidget extends Widget
             ss[2] = null;
         }
         
-        int lapsCompleted = vsi.getLapsCompleted();
-        if ( abbreviate.getBooleanValue() )
+        if ( showLapsOrStops.getBooleanValue() )
         {
-            ss[3] = String.valueOf( lapsCompleted ) + "L";
-            ss[4] = null;
-        }
-        else if ( lapsCompleted == 1 )
-        {
-            ss[3] = String.valueOf( lapsCompleted );
-            ss[4] = "Lap";
-        }
+            int lapsCompleted = vsi.getLapsCompleted();
+            if ( abbreviate.getBooleanValue() )
+            {
+                ss[3] = String.valueOf( lapsCompleted ) + "L";
+                ss[4] = null;
+            }
+            else if ( lapsCompleted == 1 )
+            {
+                ss[3] = String.valueOf( lapsCompleted );
+                ss[4] = "Lap";
+            }
+            else
+            {
+                ss[3] = String.valueOf( lapsCompleted );
+                ss[4] = "Laps";
+            }
+        }        
         else
         {
-            ss[3] = String.valueOf( lapsCompleted );
-            ss[4] = "Laps";
+            ss[3] = null;
+            ss[4] = null;
         }
         
         if ( showTopspeeds.getBooleanValue() )
@@ -601,7 +635,7 @@ public class StandingsWidget extends Widget
     {
         short place = vsi.getPlace();
         
-        String[] ss = new String[ 4 ];
+        String[] ss = new String[ 7 ];
         ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
         
         ss[1] = getDisplayedDriverName( vsi );
@@ -617,12 +651,41 @@ public class StandingsWidget extends Widget
             ss[2] = null;
         }
         
-        if ( abbreviate.getBooleanValue() )
-            ss[3] = vsi.getLapsCompleted() + "L";
-        else if ( vsi.getLapsCompleted() == 1 )
-            ss[3] = vsi.getLapsCompleted() + " Lap";
+        if ( showLapsOrStops.getBooleanValue() )
+        {
+            int lapsCompleted = vsi.getLapsCompleted();
+            if ( abbreviate.getBooleanValue() )
+            {
+                ss[3] = String.valueOf( lapsCompleted ) + "L";
+                ss[4] = null;
+            }
+            else if ( lapsCompleted == 1 )
+            {
+                ss[3] = String.valueOf( lapsCompleted );
+                ss[4] = "Lap";
+            }
+            else
+            {
+                ss[3] = String.valueOf( lapsCompleted );
+                ss[4] = "Laps";
+            }
+        }
         else
-            ss[3] = vsi.getLapsCompleted() + " Laps";
+        {
+            ss[3] = null;
+            ss[4] = null;
+        }
+        
+        if ( showTopspeeds.getBooleanValue() )
+        {
+            ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
+            ss[6] = "km/h";
+        }
+        else
+        {
+            ss[5] = null;
+            ss[6] = null;
+        }
         
         return ( ss );
     }
@@ -871,6 +934,7 @@ public class StandingsWidget extends Widget
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
         writer.writeProperty( nameDisplayType, "How to display driver names." );
         writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
+        writer.writeProperty( showLapsOrStops, "Whether to show the number of laps or stops done or not." );
         writer.writeProperty( showTopspeeds, "Whether to show a topspeeds column or not." );
     }
     
@@ -903,6 +967,7 @@ public class StandingsWidget extends Widget
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
         else if ( nameDisplayType.loadProperty( key, value ) );
         else if ( abbreviate.loadProperty( key, value ) );
+        else if ( showLapsOrStops.loadProperty( key, value ) );
         else if ( showTopspeeds.loadProperty( key, value ) );
     }
     
@@ -945,6 +1010,7 @@ public class StandingsWidget extends Widget
         propsCont.addProperty( forceLeaderDisplayed );
         propsCont.addProperty( nameDisplayType );
         propsCont.addProperty( abbreviate );
+        propsCont.addProperty( showLapsOrStops );
         propsCont.addProperty( showTopspeeds );
     }
     
