@@ -4,7 +4,7 @@ import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
-public class Size
+public class Size implements AbstractSize
 {
     private static final float PERCENT_OFFSET = 10000f;
     private static final float PERCENT_OFFSET_CHECK_POSITIVE = +PERCENT_OFFSET - 0.001f;
@@ -51,7 +51,7 @@ public class Size
      * 
      * @return this Widget's width.
      */
-    public final float getWidth()
+    private final float getWidth()
     {
         return ( width );
     }
@@ -61,9 +61,39 @@ public class Size
      * 
      * @return this Widget's height.
      */
-    public final float getHeight()
+    private final float getHeight()
     {
         return ( height );
+    }
+    
+    public final boolean isNegativeWidth()
+    {
+        return ( width <= 0f );
+    }
+    
+    public final boolean isNegativeHeight()
+    {
+        return ( height <= 0f );
+    }
+    
+    /**
+     * Gets the current width for a property.
+     * 
+     * @return the current width for a property.
+     */
+    public final String getWidthForProperty()
+    {
+        return ( unparseValue( width ) );
+    }
+    
+    /**
+     * Gets the current height for a property.
+     * 
+     * @return the current height for a property.
+     */
+    public final String getHeightForProperty()
+    {
+        return ( unparseValue( height ) );
     }
     
     public final boolean isPercentageWidth()
@@ -109,7 +139,7 @@ public class Size
         if ( isWidgetSize )
             return ( widget.getConfiguration().getGameResX() );
         
-        return ( widget.getSize().getEffectiveWidth() - widget.getBorder().getOpaqueLeftWidth() - widget.getBorder().getOpaqueRightWidth() );
+        return ( widget.getEffectiveInnerWidth() );
     }
     
     private final float getScaleHeight()
@@ -117,7 +147,7 @@ public class Size
         if ( isWidgetSize )
             return ( widget.getConfiguration().getGameResY() );
         
-        return ( widget.getSize().getEffectiveHeight() - widget.getBorder().getOpaqueTopHeight() - widget.getBorder().getOpaqueBottomHeight() );
+        return ( widget.getEffectiveInnerHeight() );
     }
     
     private final float getHundretPercentWidth()
@@ -125,7 +155,7 @@ public class Size
         if ( isWidgetSize )
             return ( widget.getConfiguration().getGameResY() * 4 / 3 );
         
-        return ( widget.getSize().getEffectiveWidth() );
+        return ( widget.getEffectiveInnerWidth() );
     }
     
     private void applyLimits()
@@ -160,7 +190,7 @@ public class Size
      * @param width
      * @param height
      */
-    public boolean set( float width, float height )
+    private boolean set( float width, float height )
     {
         if ( widget.getConfiguration() != null )
         {
@@ -213,7 +243,7 @@ public class Size
      * 
      * @param width
      */
-    public boolean setWidth( float width )
+    private boolean setWidth( float width )
     {
         return ( set( width, getHeight() ) );
     }
@@ -223,9 +253,29 @@ public class Size
      * 
      * @param height
      */
-    public boolean setHeight( float height )
+    private boolean setHeight( float height )
     {
         return ( set( getWidth(), height ) );
+    }
+    
+    /**
+     * Sets the current width from a property.
+     * 
+     * @param widthStr
+     */
+    public void setWidthFromProperty( String widthStr )
+    {
+        setWidth( parseValue( widthStr ) );
+    }
+    
+    /**
+     * Sets the current height from a property.
+     * 
+     * @param heightStr
+     */
+    public void setHeightFromProperty( String heightStr )
+    {
+        setHeight( parseValue( heightStr ) );
     }
     
     /**
@@ -472,22 +522,31 @@ public class Size
             return ( +PERCENT_OFFSET + ( f / 100f ) );
         }
         
+        if ( value.endsWith( "px" ) )
+        {
+            float f = Float.parseFloat( value.substring( 0, value.length() - 2 ) );
+            
+            return ( f );
+        }
+        
         return ( Float.parseFloat( value ) );
     }
     
-    public float parseWidth( String value )
+    /*
+    private float parseWidth( String value )
     {
         setWidth( parseValue( value ) );
         
         return ( getWidth() );
     }
     
-    public float parseHeight( String value )
+    private float parseHeight( String value )
     {
         setHeight( parseValue( value ) );
         
         return ( getHeight() );
     }
+    */
     
     public static String unparseValue( float value )
     {
@@ -497,31 +556,33 @@ public class Size
         if ( value < PERCENT_OFFSET_CHECK_NEGATIVE )
             return ( String.valueOf( ( value + PERCENT_OFFSET ) * 100f ) + "%" );
         
-        return ( String.valueOf( (int)value ) );
+        return ( String.valueOf( (int)value ) + "px" );
     }
     
-    public String unparseWidth()
+    /*
+    private String unparseWidth()
     {
         return ( unparseValue( getWidth() ) );
     }
     
-    public String unparseHeight()
+    private String unparseHeight()
     {
         return ( unparseValue( getHeight() ) );
     }
+    */
     
     public boolean loadProperty( String key, String value, String widthKey, String heightKey )
     {
         if ( key.equals( widthKey ) )
         {
-            setWidth( Size.parseValue( value ) );
+            setWidthFromProperty( value );
             
             return ( true );
         }
         
         if ( key.equals( heightKey ) )
         {
-            setHeight( Size.parseValue( value ) );
+            setHeightFromProperty( value );
             
             return ( true );
         }
@@ -613,7 +674,7 @@ public class Size
         return ( prop );
     }
     
-    public Size( float width, float height, Widget widget, boolean isWidgetSize )
+    Size( float width, float height, Widget widget, boolean isWidgetSize )
     {
         this.width = width;
         this.height = height;

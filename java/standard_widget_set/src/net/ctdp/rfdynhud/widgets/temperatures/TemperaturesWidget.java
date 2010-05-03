@@ -731,13 +731,13 @@ public class TemperaturesWidget extends Widget
         writer.writeProperty( font2, "The used (smaller) font." );
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
         writer.writeProperty( displayWaterTemp, "Display water temperature?" );
-        writer.writeProperty( "engineHeight", Size.unparseValue( engineHeight.getHeight() ), "The height of the engine bar." );
+        writer.writeProperty( "engineHeight", engineHeight.getHeightForProperty(), "The height of the engine bar." );
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
-        writer.writeProperty( "tireWidth", Size.unparseValue( tireSize.getWidth() ), "The width of a tire image." );
-        writer.writeProperty( "tireHeight", Size.unparseValue( tireSize.getHeight() ), "The height of a tire image." );
+        writer.writeProperty( "tireWidth", tireSize.getWidthForProperty(), "The width of a tire image." );
+        writer.writeProperty( "tireHeight", tireSize.getHeightForProperty(), "The height of a tire image." );
         writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
-        writer.writeProperty( "brakeWidth", Size.unparseValue( brakeSize.getWidth() ), "The width of a brake image." );
-        writer.writeProperty( "brakeHeight", Size.unparseValue( brakeSize.getHeight() ), "The height of a brake image." );
+        writer.writeProperty( "brakeWidth", brakeSize.getWidthForProperty(), "The width of a brake image." );
+        writer.writeProperty( "brakeHeight", brakeSize.getHeightForProperty(), "The height of a brake image." );
         writer.writeProperty( "brakeTempsPeekDelay", getBrakeTempsPeekDelay(), "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
     }
     

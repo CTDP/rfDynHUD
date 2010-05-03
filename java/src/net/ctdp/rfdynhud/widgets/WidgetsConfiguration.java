@@ -361,8 +361,8 @@ public class WidgetsConfiguration
                 }
             }
             
-            w.getPosition().set( w.getPosition().getPositioning(), w.getPosition().getX(), w.getPosition().getY() );
-            w.getSize().set( w.getSize().getWidth(), w.getSize().getHeight() );
+            //w.getPosition().set( w.getPosition().getPositioning(), w.getPosition().getX(), w.getPosition().getY() );
+            //w.getSize().set( w.getSize().getWidth(), w.getSize().getHeight() );
             
             if ( !isEditorMode )
             {

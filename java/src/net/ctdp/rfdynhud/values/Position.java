@@ -20,7 +20,7 @@ public class Position
     private int bakedX = -1;
     private int bakedY = -1;
     
-    private final Size size;
+    private final AbstractSize size;
     private final Widget widget;
     private final boolean isWidgetPosition;
     
@@ -61,7 +61,7 @@ public class Position
      * 
      * @return the current x-location of this Widget.
      */
-    public final float getX()
+    private final float getX()
     {
         return ( x );
     }
@@ -73,9 +73,29 @@ public class Position
      * 
      * @return the current y-location of this Widget.
      */
-    public final float getY()
+    private final float getY()
     {
         return ( y );
+    }
+    
+    /**
+     * Gets the current x-location for a property saving.
+     * 
+     * @return the current x-location of this Widget.
+     */
+    public final String getXForProperty()
+    {
+        return ( unparseValue( x ) );
+    }
+    
+    /**
+     * Gets the current y-location for a property saving.
+     * 
+     * @return the current y-location of this Widget.
+     */
+    public final String getYForProperty()
+    {
+        return ( unparseValue( y ) );
     }
     
     private final float getScaleWidth()
@@ -83,7 +103,7 @@ public class Position
         if ( isWidgetPosition )
             return ( widget.getConfiguration().getGameResX() );
         
-        return ( widget.getSize().getEffectiveWidth() );
+        return ( widget.getEffectiveInnerWidth() );
     }
     
     private final float getScaleHeight()
@@ -91,7 +111,7 @@ public class Position
         if ( isWidgetPosition )
             return ( widget.getConfiguration().getGameResY() );
         
-        return ( widget.getSize().getEffectiveHeight() );
+        return ( widget.getEffectiveInnerHeight() );
     }
     
     private final float getHundretPercentWidth()
@@ -99,7 +119,7 @@ public class Position
         if ( isWidgetPosition )
             return ( widget.getConfiguration().getGameResY() * 4 / 3 );
         
-        return ( widget.getSize().getEffectiveWidth() );
+        return ( widget.getEffectiveInnerWidth() );
     }
     
     /**
@@ -109,7 +129,7 @@ public class Position
      * @param x
      * @param y
      */
-    public boolean set( RelativePositioning positioning, float x, float y )
+    private boolean set( RelativePositioning positioning, float x, float y )
     {
         if ( widget.getConfiguration() != null )
         {
@@ -185,7 +205,7 @@ public class Position
      * @param x
      * @param y
      */
-    public final boolean set( float x, float y )
+    private final boolean set( float x, float y )
     {
         return ( set( getPositioning(), x, y ) );
     }
@@ -195,7 +215,7 @@ public class Position
      * 
      * @param x
      */
-    public final boolean setX( float x )
+    private final boolean setX( float x )
     {
         return ( set( getPositioning(), x, getY() ) );
     }
@@ -205,9 +225,29 @@ public class Position
      * 
      * @param y
      */
-    public final boolean setY( float y )
+    private final boolean setY( float y )
     {
         return ( set( getPositioning(), getX(), y ) );
+    }
+    
+    /**
+     * Sets the current x from a property.
+     * 
+     * @param xStr
+     */
+    public void setXFromProperty( String xStr )
+    {
+        setX( parseValue( xStr ) );
+    }
+    
+    /**
+     * Sets the current y from a property.
+     * 
+     * @param yStr
+     */
+    public void setYFromProperty( String yStr )
+    {
+        setY( parseValue( yStr ) );
     }
     
     /**
@@ -480,22 +520,31 @@ public class Position
             return ( +PERCENT_OFFSET + ( f / 100f ) );
         }
         
+        if ( value.endsWith( "px" ) )
+        {
+            float f = Float.parseFloat( value.substring( 0, value.length() - 2 ) );
+            
+            return ( f );
+        }
+        
         return ( Float.parseFloat( value ) );
     }
     
-    public float parseX( String value )
+    /*
+    private float parseX( String value )
     {
         setX( parseValue( value ) );
         
         return ( getX() );
     }
     
-    public float parseY( String value )
+    private float parseY( String value )
     {
         setY( parseValue( value ) );
         
         return ( getY() );
     }
+    */
     
     public static String unparseValue( float value )
     {
@@ -505,18 +554,20 @@ public class Position
         if ( value < PERCENT_OFFSET_CHECK_NEGATIVE )
             return ( String.valueOf( ( value + PERCENT_OFFSET ) * 100f ) + "%" );
         
-        return ( String.valueOf( (int)value ) );
+        return ( String.valueOf( (int)value ) + "px" );
     }
     
-    public String unparseX()
+    /*
+    private String unparseX()
     {
         return ( unparseValue( getX() ) );
     }
     
-    public String unparseY()
+    private String unparseY()
     {
         return ( unparseValue( getY() ) );
     }
+    */
     
     public boolean loadProperty( String key, String value, String positioningKey, String xKey, String yKey )
     {
@@ -644,7 +695,7 @@ public class Position
         return ( prop );
     }
     
-    Position( RelativePositioning positioning, float x, float y, Size size, Widget widget, boolean isWidgetPosition )
+    Position( RelativePositioning positioning, float x, float y, AbstractSize size, Widget widget, boolean isWidgetPosition )
     {
         this.positioning = positioning;
         this.x = x;
@@ -657,7 +708,7 @@ public class Position
         this.isWidgetPosition = isWidgetPosition;
     }
     
-    public Position( RelativePositioning positioning, float x, float y, Size size, Widget widget )
+    public Position( RelativePositioning positioning, float x, float y, AbstractSize size, Widget widget )
     {
         this( positioning, x, y, size, widget, false );
     }

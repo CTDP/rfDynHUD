@@ -861,16 +861,16 @@ public class WearWidget extends Widget
         
         writer.writeProperty( font2, "The used (smaller) font." );
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
-        writer.writeProperty( "engineHeight", Size.unparseValue( engineHeight.getHeight() ), "The height of the engine bar." );
+        writer.writeProperty( "engineHeight", engineHeight.getHeightForProperty(), "The height of the engine bar." );
         writer.writeProperty( hundredPercentBase, "The value range to be used as 100% base." );
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
         writer.writeProperty( displayWearPercent, "Display wear in percentage numbers?" );
         writer.writeProperty( displayCompoundName, "Display the tire compound name in the header?" );
-        writer.writeProperty( "tireWidth", Size.unparseValue( tireSize.getWidth() ), "The width of a tire image." );
-        writer.writeProperty( "tireHeight", Size.unparseValue( tireSize.getHeight() ), "The height of a tire image." );
+        writer.writeProperty( "tireWidth", tireSize.getWidthForProperty(), "The width of a tire image." );
+        writer.writeProperty( "tireHeight", tireSize.getHeightForProperty(), "The height of a tire image." );
         writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
-        writer.writeProperty( "brakeWidth", Size.unparseValue( brakeSize.getWidth() ), "The width of a brake image." );
-        writer.writeProperty( "brakeHeight", Size.unparseValue( brakeSize.getHeight() ), "The height of a brake image." );
+        writer.writeProperty( "brakeWidth", brakeSize.getWidthForProperty(), "The width of a brake image." );
+        writer.writeProperty( "brakeHeight", brakeSize.getHeightForProperty(), "The height of a brake image." );
     }
     
     /**
@@ -883,8 +883,7 @@ public class WearWidget extends Widget
         
         if ( font2.loadProperty( key, value ) );
         else if ( displayEngine.loadProperty( key, value ) );
-        else if ( key.equals( "engineHeight" ) )
-            this.engineHeight.setHeight( Size.parseValue( value ) );
+        else if ( engineHeight.loadProperty( key, value, "sdfsdfsdf", "engineHeight" ) );
         else if ( hundredPercentBase.loadProperty( key, value ) );
         else if ( displayTires.loadProperty( key, value ) );
         else if ( displayWearPercent.loadProperty( key, value ) );

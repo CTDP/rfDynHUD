@@ -367,6 +367,26 @@ public abstract class Widget implements Documented
         return ( size );
     }
     
+    public final int getEffectiveWidth()
+    {
+        return ( size.getEffectiveWidth() );
+    }
+    
+    public final int getEffectiveInnerWidth()
+    {
+        return ( size.getEffectiveWidth() - getBorder().getInnerLeftWidth() - getBorder().getInnerRightWidth() );
+    }
+    
+    public final int getEffectiveHeight()
+    {
+        return ( size.getEffectiveHeight() );
+    }
+    
+    public final int getEffectiveInnerHeight()
+    {
+        return ( size.getEffectiveHeight() - getBorder().getInnerTopHeight() - getBorder().getInnerBottomHeight() );
+    }
+    
     /**
      * Gets the minimum width for this {@link Widget} in pixels.
      * 
@@ -984,10 +1004,10 @@ public abstract class Widget implements Documented
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
         writer.writeProperty( "positioning", position.getPositioning(), "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT." );
-        writer.writeProperty( "x", Position.unparseValue( position.getX() ), false, "The x-coordinate for the position." );
-        writer.writeProperty( "y", Position.unparseValue( position.getY() ), false, "The y-coordinate for the position." );
-        writer.writeProperty( "width", Size.unparseValue( size.getWidth() ), false, "The width. Use negative values to make the Widget be sized relative to screen size." );
-        writer.writeProperty( "height", Size.unparseValue( size.getHeight() ), false, "The height. Use negative values to make the Widget be sized relative to screen size." );
+        writer.writeProperty( "x", position.getXForProperty(), false, "The x-coordinate for the position." );
+        writer.writeProperty( "y", position.getYForProperty(), false, "The y-coordinate for the position." );
+        writer.writeProperty( "width", size.getWidthForProperty(), false, "The width. Use negative values to make the Widget be sized relative to screen size." );
+        writer.writeProperty( "height", size.getHeightForProperty(), false, "The height. Use negative values to make the Widget be sized relative to screen size." );
         writer.writeProperty( border, "The widget's border." );
         writer.writeProperty( visible, "The initial visibility." );
         
@@ -1138,7 +1158,7 @@ public abstract class Widget implements Documented
     protected Widget( String name, RelativePositioning positioning, float x, float y, float width, float height )
     {
         this.name.setStringValue( name );
-        this.size = new Size( width, height, this, true );
+        this.size = __ValPrivilegedAccess.newWidgetSize( width, height, this );
         this.position = __ValPrivilegedAccess.newWidgetPosition( positioning, x, y, size, this );
         
         if ( !canHaveBorder() )

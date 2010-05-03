@@ -8,4 +8,9 @@ public class __ValPrivilegedAccess
     {
         return ( new Position( positioning, x, y, size, widget, true ) );
     }
+    
+    public static final Size newWidgetSize( float w, float h, Widget widget )
+    {
+        return ( new Size( w, h, widget, true ) );
+    }
 }

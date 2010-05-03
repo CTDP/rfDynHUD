@@ -290,14 +290,14 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 int gameResY = selectedWidget.getConfiguration().getGameResY();
                 int hundretPercentWidth = gameResY * 4 / 3;
                 
-                if ( ( selectedWidget.getSize().getWidth() > 0f ) && ( w > (int)( hundretPercentWidth * 0.95f ) ) )
+                if ( !selectedWidget.getSize().isNegativeWidth() && ( w > (int)( hundretPercentWidth * 0.95f ) ) )
                     selectedWidget.getSize().flipWidthSign();
-                else if ( ( selectedWidget.getSize().getWidth() <= 0f ) && ( w < gameResX * 5 / 10 ) )
+                else if ( selectedWidget.getSize().isNegativeWidth() && ( w < gameResX * 5 / 10 ) )
                     selectedWidget.getSize().flipWidthSign();
                 
-                if ( ( selectedWidget.getSize().getHeight() > 0f ) && ( h > gameResY * 9 / 10 ) )
+                if ( !selectedWidget.getSize().isNegativeHeight() && ( h > gameResY * 9 / 10 ) )
                     selectedWidget.getSize().flipHeightSign();
-                else if ( ( selectedWidget.getSize().getHeight() <= 0f ) && ( h < gameResY * 5 / 10 ) )
+                else if ( selectedWidget.getSize().isNegativeHeight() && ( h < gameResY * 5 / 10 ) )
                     selectedWidget.getSize().flipHeightSign();
                 
                 w = Math.min( w, gameResX - x );

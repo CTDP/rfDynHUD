@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
@@ -79,7 +80,32 @@ public class FuelWidget extends Widget
     };
     private TransformableTexture lowFuelWarningImageOn = null;
     
-    private final Position lowFuelWarningImagePosition = new Position( RelativePositioning.TOP_RIGHT, Position.getAbsolute( 4.0f ), Position.getAbsolute( 4.0f ), getSize(), this )
+    private final AbstractSize lowFuelWarnImgSize = new AbstractSize()
+    {
+        @Override
+        public int getEffectiveWidth()
+        {
+            loadLowFuelWarningImages( getEffectiveInnerWidth(), getEffectiveInnerHeight() );
+            
+            if ( lowFuelWarningImageOn == null )
+                return ( 0 );
+            
+            return ( lowFuelWarningImageOn.getWidth() );
+        }
+        
+        @Override
+        public int getEffectiveHeight()
+        {
+            loadLowFuelWarningImages( getEffectiveInnerWidth(), getEffectiveInnerHeight() );
+            
+            if ( lowFuelWarningImageOn == null )
+                return ( 0 );
+            
+            return ( lowFuelWarningImageOn.getHeight() );
+        }
+    };
+    
+    private final Position lowFuelWarningImagePosition = new Position( RelativePositioning.TOP_RIGHT, Position.getAbsolute( 4.0f ), Position.getAbsolute( 4.0f ), lowFuelWarnImgSize, this )
     {
         @Override
         protected void onPositioningPropertySet( RelativePositioning positioning )
@@ -87,12 +113,29 @@ public class FuelWidget extends Widget
             forceReinitialization();
         }
         
+        @Override
         protected void onXPropertySet( float x )
         {
             forceReinitialization();
         }
         
+        @Override
         protected void onYPropertySet( float y )
+        {
+            forceReinitialization();
+        }
+    };
+    
+    private final Size lowFuelWarningImageSize = new Size( Size.getPercent( 10.0f ), Size.getAbsolute( 10.0f ), this )
+    {
+        @Override
+        protected void onWidthPropertySet( float width )
+        {
+            forceReinitialization();
+        }
+        
+        @Override
+        protected void onHeightPropertySet( float height )
         {
             forceReinitialization();
         }
@@ -231,40 +274,81 @@ public class FuelWidget extends Widget
         this.oldFuelRelevantLaps = -1;
     }
     
-    private void resetBlink()
+    private void resetBlink( boolean isEditorMode )
     {
         this.nextBlinkTime = -1L;
         this.blinkState = false;
         
-        // FIXME: Fix Position.getEffective()!
-        
-        int widgetInnerWidth = getSize().getEffectiveWidth() - getBorder().getLeftWidth() - getBorder().getRightWidth();
-        //int widgetInnerHeight = getSize().getEffectiveWidth() - getBorder().getTopHeight() - getBorder().getBottomHeight();
-        /*
-        int x = lowFuelWarningImagePosition.getEffectiveX();
-        Logger.log( "x: " + x );
-        if ( x < 0 )
-            x = widgetInnerWidth + x;
-        int y = lowFuelWarningImagePosition.getEffectiveY();
-        Logger.log( "y: " + y );
-        if ( y < 0 )
-            y = widgetInnerHeight + y;
-        //System.out.println( lowFuelWarningImagePosition.getX() + ", " + lowFuelWarningImagePosition.getEffectiveX() + ", " + ( scaleWidth - (int)( ( lowFuelWarningImagePosition.getX() - 10000.0f ) * scaleWidth ) - scaleWidth ) );
-        */
-        
-        int x = widgetInnerWidth - 4;
-        int y = 4;
-        
         if ( lowFuelWarningImageOff != null )
         {
-            lowFuelWarningImageOff.setTranslation( x, y );
+            lowFuelWarningImageOff.setTranslation( lowFuelWarningImagePosition.getEffectiveX(), lowFuelWarningImagePosition.getEffectiveY() );
             lowFuelWarningImageOff.setVisible( false );
         }
         
         if ( lowFuelWarningImageOn != null )
         {
-            lowFuelWarningImageOn.setTranslation( x, y );
-            lowFuelWarningImageOn.setVisible( false );
+            lowFuelWarningImageOn.setTranslation( lowFuelWarningImagePosition.getEffectiveX(), lowFuelWarningImagePosition.getEffectiveY() );
+            lowFuelWarningImageOn.setVisible( isEditorMode );
+        }
+    }
+    
+    private void loadLowFuelWarningImages( int widgetInnerWidth, int widgetInnerHeight )
+    {
+        if ( ( lowFuelBlinkTime.getIntValue() == 0 ) || ( lowFuelWarningImageNameOff.isNoImage() && lowFuelWarningImageNameOn.isNoImage() ) )
+        {
+            lowFuelWarningImageOff = null;
+            lowFuelWarningImageOn = null;
+            
+            return;
+        }
+        
+        boolean offVisible = ( lowFuelWarningImageOff == null ) ? false : lowFuelWarningImageOff.isVisible();
+        boolean onVisible = ( lowFuelWarningImageOn == null ) ? false : lowFuelWarningImageOn.isVisible();
+        
+        boolean offReloaded = false;
+        
+        if ( !lowFuelWarningImageNameOff.isNoImage() )
+        {
+            ImageTemplate it = lowFuelWarningImageNameOff.getImage();
+            
+            int h = lowFuelWarningImageSize.getEffectiveHeight();
+            int w = Math.round( h * it.getBaseAspect() );
+            
+            if ( ( lowFuelWarningImageOff == null ) || ( lowFuelWarningImageOff.getWidth() != w ) || ( lowFuelWarningImageOff.getHeight() != h ) )
+            {
+                lowFuelWarningImageOff = it.getScaledTransformableTexture( w, h );
+                
+                offReloaded = true;
+            }
+        }
+        
+        boolean onReloaded = false;
+        
+        if ( !lowFuelWarningImageNameOn.isNoImage() )
+        {
+            ImageTemplate it = lowFuelWarningImageNameOn.getImage();
+            
+            int h = lowFuelWarningImageSize.getEffectiveHeight();
+            int w = Math.round( h * it.getBaseAspect() );
+            
+            if ( ( lowFuelWarningImageOn == null ) || ( lowFuelWarningImageOn.getWidth() != w ) || ( lowFuelWarningImageOn.getHeight() != h ) )
+            {
+                lowFuelWarningImageOn = it.getScaledTransformableTexture( w, h );
+                
+                onReloaded = true;
+            }
+        }
+        
+        if ( offReloaded && ( lowFuelWarningImageOff != null ) )
+        {
+            lowFuelWarningImageOff.setTranslation( lowFuelWarningImagePosition.getEffectiveX(), lowFuelWarningImagePosition.getEffectiveY() );
+            lowFuelWarningImageOff.setVisible( offVisible );
+        }
+        
+        if ( onReloaded && ( lowFuelWarningImageOn != null ) )
+        {
+            lowFuelWarningImageOn.setTranslation( lowFuelWarningImagePosition.getEffectiveX(), lowFuelWarningImagePosition.getEffectiveY() );
+            lowFuelWarningImageOn.setVisible( onVisible );
         }
     }
     
@@ -276,10 +360,8 @@ public class FuelWidget extends Widget
     {
         super.onRealtimeEntered( gameData, editorPresets );
         
-        int widgetInnerWidth = getSize().getEffectiveWidth() - getBorder().getLeftWidth() - getBorder().getRightWidth();
-        int widgetInnerHeight = getSize().getEffectiveWidth() - getBorder().getTopHeight() - getBorder().getBottomHeight();
-        loadLowFuelWarningImages( widgetInnerWidth, widgetInnerHeight );
-        resetBlink();
+        loadLowFuelWarningImages( getEffectiveInnerWidth(), getEffectiveInnerHeight() );
+        resetBlink( editorPresets != null );
         
         this.nextPitstopLapCorrection = 0;
         this.nextPitstopFuelLapsCorrection = 0;
@@ -343,43 +425,6 @@ public class FuelWidget extends Widget
         }
     }
     
-    private void loadLowFuelWarningImages( int widgetInnerWidth, int widgetInnerHeight )
-    {
-        if ( ( lowFuelBlinkTime.getIntValue() == 0 ) || ( lowFuelWarningImageNameOff.isNoImage() && lowFuelWarningImageNameOn.isNoImage() ) )
-        {
-            lowFuelWarningImageOff = null;
-            lowFuelWarningImageOn = null;
-            
-            return;
-        }
-        
-        if ( !lowFuelWarningImageNameOff.isNoImage() )
-        {
-            ImageTemplate it = lowFuelWarningImageNameOff.getImage();
-            
-            int h = Math.round( widgetInnerHeight * 0.1f );
-            int w = Math.round( h * it.getBaseAspect() );
-            
-            if ( ( lowFuelWarningImageOff == null ) || ( lowFuelWarningImageOff.getWidth() != w ) || ( lowFuelWarningImageOff.getHeight() != h ) )
-            {
-                lowFuelWarningImageOff = it.getScaledTransformableTexture( w, h );
-            }
-        }
-        
-        if ( !lowFuelWarningImageNameOn.isNoImage() )
-        {
-            ImageTemplate it = lowFuelWarningImageNameOn.getImage();
-            
-            int h = Math.round( widgetInnerHeight * 0.1f );
-            int w = Math.round( h * it.getBaseAspect() );
-            
-            if ( ( lowFuelWarningImageOn == null ) || ( lowFuelWarningImageOn.getWidth() != w ) || ( lowFuelWarningImageOn.getHeight() != h ) )
-            {
-                lowFuelWarningImageOn = it.getScaledTransformableTexture( w, h );
-            }
-        }
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -399,12 +444,12 @@ public class FuelWidget extends Widget
         
         int i = 0;
         
-        if ( !lowFuelWarningImageNameOff.isNoImage() )
+        if ( lowFuelWarningImageOff != null )
         {
             tts[i++] = lowFuelWarningImageOff;
         }
         
-        if ( !lowFuelWarningImageNameOn.isNoImage() )
+        if ( lowFuelWarningImageOn != null )
         {
             tts[i++] = lowFuelWarningImageOn;
         }
@@ -454,7 +499,7 @@ public class FuelWidget extends Widget
         nextPitstopFuelString = dsf.newDrawnString( "nextPitstopFuelString", null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Fuel: ", null );
         
         loadLowFuelWarningImages( width, height );
-        resetBlink();
+        resetBlink( editorPresets != null );
     }
     
     private void drawFuel( float fuel, int tankSize, TextureImage2D texture, int x, int y, int height )
@@ -703,8 +748,10 @@ public class FuelWidget extends Widget
         writer.writeProperty( fuelFontColor, "The color to use for fuel load in the format #RRGGBB (hex)." );
         writer.writeProperty( roundUpRemainingLaps, "Round up remaining fuel laps to include the current lap?" );
         writer.writeProperty( "lowFuelWarningImagePositioning", lowFuelWarningImagePosition.getPositioning(), "Positioning type for the low-fuel-warning image." );
-        writer.writeProperty( "lowFuelWarningImagePositionX", Position.unparseValue( lowFuelWarningImagePosition.getX() ), "X-position for the low-fuel-warning image." );
-        writer.writeProperty( "lowFuelWarningImagePositionY", Position.unparseValue( lowFuelWarningImagePosition.getY() ), "Y-position for the low-fuel-warning image." );
+        writer.writeProperty( "lowFuelWarningImagePositionX", lowFuelWarningImagePosition.getXForProperty(), "X-position for the low-fuel-warning image." );
+        writer.writeProperty( "lowFuelWarningImagePositionY", lowFuelWarningImagePosition.getYForProperty(), "Y-position for the low-fuel-warning image." );
+        //writer.writeProperty( "lowFuelWarningImageWidth", lowFuelWarningImageSize.getWidthForProperty(), "Width for the low-fuel-warning image." );
+        writer.writeProperty( "lowFuelWarningImageHeight", lowFuelWarningImageSize.getHeightForProperty(), "Width for the low-fuel-warning image." );
         writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
     }
     
@@ -723,6 +770,7 @@ public class FuelWidget extends Widget
         else if ( lowFuelWarningImageNameOff.loadProperty( key, value ) );
         else if ( lowFuelWarningImageNameOn.loadProperty( key, value ) );
         else if ( lowFuelWarningImagePosition.loadProperty( key, value, "lowFuelWarningImagePositioning", "lowFuelWarningImagePositionX", "lowFuelWarningImagePositionY" ) );
+        else if ( lowFuelWarningImageSize.loadProperty( key, value, "lowFuelWarningImageWidth", "lowFuelWarningImageHeight" ) );
         else if ( lowFuelBlinkTime.loadProperty( key, value ) );
     }
     
@@ -749,6 +797,8 @@ public class FuelWidget extends Widget
         propsCont.addProperty( lowFuelWarningImagePosition.createPositioningProperty( "imagePositioning" ) );
         propsCont.addProperty( lowFuelWarningImagePosition.createXProperty( "imagePosX" ) );
         propsCont.addProperty( lowFuelWarningImagePosition.createYProperty( "imagePosY" ) );
+        //propsCont.addProperty( lowFuelWarningImageSize.createWidthProperty( "imageWidth" ) );
+        propsCont.addProperty( lowFuelWarningImageSize.createHeightProperty( "imageHeight" ) );
         propsCont.addProperty( lowFuelBlinkTime );
     }
     
