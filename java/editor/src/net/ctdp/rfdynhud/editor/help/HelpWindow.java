@@ -38,7 +38,7 @@ public class HelpWindow extends JDialog
         String s = "Unable to load readme";
         try
         {
-            s = StringUtil.loadString( new File( RFactorTools.CONFIG_PATH, "readme.html" ).toURI().toURL() );
+            s = StringUtil.loadString( new File( RFactorTools.PLUGIN_FOLDER, "readme.html" ).toURI().toURL() );
         }
         catch ( Throwable t )
         {
