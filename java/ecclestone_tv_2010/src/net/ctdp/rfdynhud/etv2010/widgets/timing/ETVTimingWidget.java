@@ -29,7 +29,6 @@ import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LapState;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.ValidityTest;
 
 /**
@@ -609,6 +608,6 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     
     public ETVTimingWidget( String name )
     {
-        super( name, Size.getPercent( 20.0f ), Size.getPercent( 8.496094f ) );
+        super( name, 20.0f, 8.496094f );
     }
 }

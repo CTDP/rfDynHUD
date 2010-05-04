@@ -16,7 +16,6 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -304,6 +303,6 @@ public class TimeCompareWidget extends Widget
     
     public TimeCompareWidget( String name )
     {
-        super( name, Size.getPercent( 24.0625f ), Size.getPercent( 13.916667f ) );
+        super( name, 24.0625f, 13.916667f );
     }
 }

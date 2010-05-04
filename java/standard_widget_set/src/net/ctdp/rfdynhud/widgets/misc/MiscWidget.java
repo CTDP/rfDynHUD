@@ -23,7 +23,6 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -534,6 +533,6 @@ public class MiscWidget extends Widget
     
     public MiscWidget( String name )
     {
-        super( name, Size.getPercent( 66.25f ), Size.getPercent( 5.83f ) );
+        super( name, 66.25f, 5.83f );
     }
 }

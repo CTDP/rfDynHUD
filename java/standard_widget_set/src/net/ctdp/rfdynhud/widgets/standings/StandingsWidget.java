@@ -27,7 +27,6 @@ import net.ctdp.rfdynhud.util.StandingsTools;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.NameDisplayType;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.StandingsView;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -1016,7 +1015,7 @@ public class StandingsWidget extends Widget
     
     public StandingsWidget( String name )
     {
-        super( name, Size.getPercent( 36.328125f ), Size.getPercent( 14.916667f ) );
+        super( name, 36.328125f, 14.916667f );
         
         getFontProperty().setFont( "BiggerFont" );
     }

@@ -29,7 +29,6 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.Track;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -456,7 +455,7 @@ public class MapWidget extends Widget
     
     public MapWidget( String name )
     {
-        super( name, Size.getPercent( 14.5f ), Size.getPercent( 10.3f ) );
+        super( name, 14.5f, 10.3f );
         
         getBackgroundColorProperty().setColor( (String)null );
         

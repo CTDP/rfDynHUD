@@ -46,7 +46,7 @@ public class FuelWidget extends Widget
     private static final InputAction INPUT_ACTION_INC_PITSTOP = new InputAction( "IncPitstopAction" );
     private static final InputAction INPUT_ACTION_DEC_PITSTOP = new InputAction( "DecPitstopAction" );
     
-    private final FontProperty font2 = new FontProperty( this, "font2", FontProperty.SMALLER_FONT3_NAME );
+    private final FontProperty font2 = new FontProperty( this, "font2", FontProperty.STANDARD_FONT3_NAME );
     
     private final FontProperty fuelFont = new FontProperty( this, "fuelFont", FontProperty.STANDARD_FONT_NAME );
     
@@ -105,7 +105,7 @@ public class FuelWidget extends Widget
         }
     };
     
-    private final Position lowFuelWarningImagePosition = new Position( RelativePositioning.TOP_RIGHT, Position.getAbsolute( 4.0f ), Position.getAbsolute( 4.0f ), lowFuelWarnImgSize, this )
+    private final Position lowFuelWarningImagePosition = new Position( RelativePositioning.TOP_RIGHT, 4.0f, false, 4.0f, false, lowFuelWarnImgSize, this )
     {
         @Override
         protected void onPositioningPropertySet( RelativePositioning positioning )
@@ -126,7 +126,7 @@ public class FuelWidget extends Widget
         }
     };
     
-    private final Size lowFuelWarningImageSize = new Size( Size.getPercent( 10.0f ), Size.getAbsolute( 10.0f ), this )
+    private final Size lowFuelWarningImageSize = new Size( 20.0f, true, 20.0f, true, this )
     {
         @Override
         protected void onWidthPropertySet( float width )
@@ -274,6 +274,11 @@ public class FuelWidget extends Widget
         this.oldFuelRelevantLaps = -1;
     }
     
+    private final boolean isLowFuelWaningUsed()
+    {
+        return ( ( lowFuelBlinkTime.getIntValue() > 0 ) && !lowFuelWarningImageNameOn.isNoImage() );
+    }
+    
     private void resetBlink( boolean isEditorMode )
     {
         this.nextBlinkTime = -1L;
@@ -294,7 +299,7 @@ public class FuelWidget extends Widget
     
     private void loadLowFuelWarningImages( int widgetInnerWidth, int widgetInnerHeight )
     {
-        if ( ( lowFuelBlinkTime.getIntValue() == 0 ) || ( lowFuelWarningImageNameOff.isNoImage() && lowFuelWarningImageNameOn.isNoImage() ) )
+        if ( !isLowFuelWaningUsed() )
         {
             lowFuelWarningImageOff = null;
             lowFuelWarningImageOn = null;
@@ -431,7 +436,7 @@ public class FuelWidget extends Widget
     @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
-        if ( ( lowFuelBlinkTime.getIntValue() == 0 ) || ( lowFuelWarningImageNameOff.isNoImage() && lowFuelWarningImageNameOn.isNoImage() ) )
+        if ( !isLowFuelWaningUsed() )
             return ( null );
         
         loadLowFuelWarningImages( widgetInnerWidth, widgetInnerHeight );
@@ -561,14 +566,17 @@ public class FuelWidget extends Widget
             }
             else if ( lowFuelWarningImageOff != null )
             {
-                lowFuelWarningImageOff.setVisible( true );
+                lowFuelWarningImageOff.setVisible( false );
             }
         }
         else if ( ( this.lowFuelBlinkNanos > 0L ) && ( lowFuelWarningImageOn != null ) )
         {
-            float restStintLength = 1.0f - ( vsi.getStintLength() % 1f );
+            float lapsForFuel = ( fuel - 1.0f ) / avgFuelUsage;
+            float restLapLength = 1.0f - ( vsi.getStintLength() % 1f );
             
-            if ( ( avgFuelUsage > 0f ) && ( ( ( fuel - 1.0f ) / avgFuelUsage ) - restStintLength < 1.0f ) )
+            int lapsRemaining = scoringInfo.getMaxLaps() - vsi.getLapsCompleted() - 1;
+            
+            if ( ( avgFuelUsage > 0f ) && ( lapsForFuel - restLapLength < 1.0f ) && ( lapsRemaining > 0 ) )
             {
                 if ( nextBlinkTime < 0L )
                 {
@@ -639,12 +647,12 @@ public class FuelWidget extends Widget
             
             String string;
             if ( lastFuelUsage > 0f )
-                string = NumberUtil.formatFloat( lastFuelUsage, 3, true ) + "L";
+                string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + "L";
             else
                 string = "N/A";
             fuelUsageOneLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
             
-            string = NumberUtil.formatFloat( avgFuelUsage, 3, true ) + "L";
+            string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + "L";
             fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, texture );
         }
         
@@ -747,11 +755,11 @@ public class FuelWidget extends Widget
         writer.writeProperty( fuelFont, "The used font for fuel load." );
         writer.writeProperty( fuelFontColor, "The color to use for fuel load in the format #RRGGBB (hex)." );
         writer.writeProperty( roundUpRemainingLaps, "Round up remaining fuel laps to include the current lap?" );
-        writer.writeProperty( "lowFuelWarningImagePositioning", lowFuelWarningImagePosition.getPositioning(), "Positioning type for the low-fuel-warning image." );
-        writer.writeProperty( "lowFuelWarningImagePositionX", lowFuelWarningImagePosition.getXForProperty(), "X-position for the low-fuel-warning image." );
-        writer.writeProperty( "lowFuelWarningImagePositionY", lowFuelWarningImagePosition.getYForProperty(), "Y-position for the low-fuel-warning image." );
-        //writer.writeProperty( "lowFuelWarningImageWidth", lowFuelWarningImageSize.getWidthForProperty(), "Width for the low-fuel-warning image." );
-        writer.writeProperty( "lowFuelWarningImageHeight", lowFuelWarningImageSize.getHeightForProperty(), "Width for the low-fuel-warning image." );
+        lowFuelWarningImagePosition.savePositioningProperty( "lowFuelWarningImagePositioning", "Positioning type for the low-fuel-warning image.", writer );
+        lowFuelWarningImagePosition.saveXProperty( "lowFuelWarningImagePositionX", "X-position for the low-fuel-warning image.", writer );
+        lowFuelWarningImagePosition.saveYProperty( "lowFuelWarningImagePositionY", "Y-position for the low-fuel-warning image.", writer );
+        //lowFuelWarningImageSize.saveWidthProperty( "lowFuelWarningImageWidth", "Width for the low-fuel-warning image.", writer );
+        lowFuelWarningImageSize.saveHeightProperty( "lowFuelWarningImageHeight", "Height for the low-fuel-warning image.", writer );
         writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
     }
     
@@ -794,18 +802,20 @@ public class FuelWidget extends Widget
         
         propsCont.addProperty( lowFuelWarningImageNameOff );
         propsCont.addProperty( lowFuelWarningImageNameOn );
-        propsCont.addProperty( lowFuelWarningImagePosition.createPositioningProperty( "imagePositioning" ) );
-        propsCont.addProperty( lowFuelWarningImagePosition.createXProperty( "imagePosX" ) );
-        propsCont.addProperty( lowFuelWarningImagePosition.createYProperty( "imagePosY" ) );
-        //propsCont.addProperty( lowFuelWarningImageSize.createWidthProperty( "imageWidth" ) );
-        propsCont.addProperty( lowFuelWarningImageSize.createHeightProperty( "imageHeight" ) );
+        propsCont.addProperty( lowFuelWarningImagePosition.createPositioningProperty( "lowFuelWarningImagePositioning", "imagePositioning" ) );
+        propsCont.addProperty( lowFuelWarningImagePosition.createXProperty( "lowFuelWarningImagePositionX", "imagePosX" ) );
+        propsCont.addProperty( lowFuelWarningImagePosition.createYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) );
+        //propsCont.addProperty( lowFuelWarningImageSize.createWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) );
+        propsCont.addProperty( lowFuelWarningImageSize.createHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) );
         propsCont.addProperty( lowFuelBlinkTime );
     }
     
     public FuelWidget( String name )
     {
-        super( name, Size.getPercent( 17.8f ), Size.getPercent( 13.5f ) );
+        super( name, 17.8f, true, 13.5f, true );
         
-        this.fuelBarWidth = new Size( Size.getPercent( 26.f ), 0, this );
+        this.fuelBarWidth = new Size( 26.f, true, 0f, true, this );
+        
+        getFontProperty().setFont( "StandardFont2" );
     }
 }

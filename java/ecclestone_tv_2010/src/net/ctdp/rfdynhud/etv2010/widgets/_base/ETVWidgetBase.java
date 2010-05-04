@@ -101,7 +101,7 @@ public abstract class ETVWidgetBase extends Widget
     
     public ETVWidgetBase( String name, float width, float height )
     {
-        super( name, width, height );
+        super( name, width, true, height, true );
         
         getBackgroundColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
         getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );

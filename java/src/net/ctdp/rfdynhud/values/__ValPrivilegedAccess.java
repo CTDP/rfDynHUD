@@ -4,13 +4,13 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class __ValPrivilegedAccess
 {
-    public static final Position newWidgetPosition( RelativePositioning positioning, float x, float y, Size size, Widget widget )
+    public static final Position newWidgetPosition( RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, Size size, Widget widget )
     {
-        return ( new Position( positioning, x, y, size, widget, true ) );
+        return ( new Position( positioning, x, xPercent, y, yPercent, size, widget, true ) );
     }
     
-    public static final Size newWidgetSize( float w, float h, Widget widget )
+    public static final Size newWidgetSize( float width, boolean widthPercent, float height, boolean heightPercent, Widget widget )
     {
-        return ( new Size( w, h, widget, true ) );
+        return ( new Size( width, widthPercent, height, heightPercent, widget, true ) );
     }
 }

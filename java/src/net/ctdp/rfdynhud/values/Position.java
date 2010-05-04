@@ -1,8 +1,11 @@
 package net.ctdp.rfdynhud.values;
 
+import java.io.IOException;
+
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
@@ -23,21 +26,6 @@ public class Position
     private final AbstractSize size;
     private final Widget widget;
     private final boolean isWidgetPosition;
-    
-    public static final float getPercent( float percent )
-    {
-        return ( PERCENT_OFFSET + percent * 0.01f );
-    }
-    
-    public static final boolean isPercent( float value )
-    {
-        return ( Math.abs( value ) > PERCENT_OFFSET_CHECK_POSITIVE );
-    }
-    
-    public static final float getAbsolute( float pixels )
-    {
-        return ( pixels );
-    }
     
     public final Widget getWidget()
     {
@@ -76,26 +64,6 @@ public class Position
     private final float getY()
     {
         return ( y );
-    }
-    
-    /**
-     * Gets the current x-location for a property saving.
-     * 
-     * @return the current x-location of this Widget.
-     */
-    public final String getXForProperty()
-    {
-        return ( unparseValue( x ) );
-    }
-    
-    /**
-     * Gets the current y-location for a property saving.
-     * 
-     * @return the current y-location of this Widget.
-     */
-    public final String getYForProperty()
-    {
-        return ( unparseValue( y ) );
     }
     
     private final float getScaleWidth()
@@ -228,26 +196,6 @@ public class Position
     private final boolean setY( float y )
     {
         return ( set( getPositioning(), getX(), y ) );
-    }
-    
-    /**
-     * Sets the current x from a property.
-     * 
-     * @param xStr
-     */
-    public void setXFromProperty( String xStr )
-    {
-        setX( parseValue( xStr ) );
-    }
-    
-    /**
-     * Sets the current y from a property.
-     * 
-     * @param yStr
-     */
-    public void setYFromProperty( String yStr )
-    {
-        setY( parseValue( yStr ) );
     }
     
     /**
@@ -509,9 +457,26 @@ public class Position
         return ( this );
     }
     
-    public static float parseValue( String value )
+    public static float parseValue( String value, boolean defaultPerc )
     {
-        if ( value.endsWith( "%" ) )
+        boolean isPerc = value.endsWith( "%" );
+        boolean isPx = value.endsWith( "px" );
+        
+        if ( !isPerc && !isPx )
+        {
+            if ( defaultPerc )
+            {
+                value += "%";
+                isPerc = true;
+            }
+            else
+            {
+                value += "px";
+                isPx = true;
+            }
+        }
+        
+        if ( isPerc )
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 1 ) );
             if ( f < 0f )
@@ -520,13 +485,14 @@ public class Position
             return ( +PERCENT_OFFSET + ( f / 100f ) );
         }
         
-        if ( value.endsWith( "px" ) )
+        if ( isPx )
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 2 ) );
             
             return ( f );
         }
         
+        // Unreachable!
         return ( Float.parseFloat( value ) );
     }
     
@@ -569,6 +535,33 @@ public class Position
     }
     */
     
+    public void savePositioningProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( key, getPositioning(), comment );
+    }
+    
+    public void saveXProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( key, unparseValue( getX() ), false, comment );
+    }
+    
+    public void saveYProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( key, unparseValue( getY() ), false, comment );
+    }
+    
+    public void saveProperty( String positioningKey, String positioningComment, String xKey, String xComment, String yKey, String yComment, WidgetsConfigurationWriter writer ) throws IOException
+    {
+        if ( positioningKey != null )
+            savePositioningProperty( positioningKey, positioningComment, writer );
+        
+        if ( xKey != null )
+            saveXProperty( xKey, xComment, writer );
+        
+        if ( yKey != null )
+            saveYProperty( yKey, yComment, writer );
+    }
+    
     public boolean loadProperty( String key, String value, String positioningKey, String xKey, String yKey )
     {
         if ( key.equals( positioningKey ) )
@@ -580,14 +573,20 @@ public class Position
         
         if ( key.equals( xKey ) )
         {
-            setX( Position.parseValue( value ) );
+            if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
+                value += "px";
+            
+            setX( parseValue( value, isXPercentageValue() ) );
             
             return ( true );
         }
         
         if ( key.equals( yKey ) )
         {
-            setY( Position.parseValue( value ) );
+            if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
+                value += "px";
+            
+            setY( parseValue( value, isYPercentageValue() ) );
             
             return ( true );
         }
@@ -599,9 +598,9 @@ public class Position
     {
     }
     
-    public Property createPositioningProperty( String name )
+    public Property createPositioningProperty( String name, String nameForDisplay )
     {
-        Property prop = new Property( widget, name, PropertyEditorType.ENUM )
+        Property prop = new Property( widget, name, nameForDisplay, PropertyEditorType.ENUM )
         {
             @Override
             public void setValue( Object value )
@@ -627,14 +626,25 @@ public class Position
         return ( prop );
     }
     
+    public Property createPositioningProperty( String name )
+    {
+        return ( createPositioningProperty( name, name ) );
+    }
+    
     protected void onXPropertySet( float x )
     {
     }
     
-    public PosSizeProperty createXProperty( String name )
+    public PosSizeProperty createXProperty( String name, String nameForDisplay )
     {
-        PosSizeProperty prop = new PosSizeProperty( widget, name, false, false )
+        PosSizeProperty prop = new PosSizeProperty( widget, name, nameForDisplay, false, false )
         {
+            @Override
+            public boolean isPercentage()
+            {
+                return ( isXPercentageValue() );
+            }
+            
             @Override
             public void setValue( Object value )
             {
@@ -661,14 +671,25 @@ public class Position
         return ( prop );
     }
     
+    public PosSizeProperty createXProperty( String name )
+    {
+        return ( createXProperty( name, name ) );
+    }
+    
     protected void onYPropertySet( float y )
     {
     }
     
-    public PosSizeProperty createYProperty( String name )
+    public PosSizeProperty createYProperty( String name, String nameFordisplay )
     {
-        PosSizeProperty prop = new PosSizeProperty( widget, name, false, false )
+        PosSizeProperty prop = new PosSizeProperty( widget, name, nameFordisplay, false, false )
         {
+            @Override
+            public boolean isPercentage()
+            {
+                return ( isYPercentageValue() );
+            }
+            
             @Override
             public void setValue( Object value )
             {
@@ -695,11 +716,16 @@ public class Position
         return ( prop );
     }
     
-    Position( RelativePositioning positioning, float x, float y, AbstractSize size, Widget widget, boolean isWidgetPosition )
+    public PosSizeProperty createYProperty( String name )
+    {
+        return ( createYProperty( name, name ) );
+    }
+    
+    Position( RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size, Widget widget, boolean isWidgetPosition )
     {
         this.positioning = positioning;
-        this.x = x;
-        this.y = y;
+        this.x = xPercent ? ( PERCENT_OFFSET + x * 0.01f ) : x;
+        this.y = yPercent ? ( PERCENT_OFFSET + y * 0.01f ) : y;
         
         this.size = size;
         
@@ -708,8 +734,8 @@ public class Position
         this.isWidgetPosition = isWidgetPosition;
     }
     
-    public Position( RelativePositioning positioning, float x, float y, AbstractSize size, Widget widget )
+    public Position( RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size, Widget widget )
     {
-        this( positioning, x, y, size, widget, false );
+        this( positioning, x, xPercent, y, yPercent, size, widget, false );
     }
 }

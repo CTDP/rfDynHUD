@@ -57,7 +57,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     
     private Boolean[] itemsVisible = null;
     
-    private final Size itemHeight = new Size( 0, Size.getPercent( 10.25f ), this );
+    private final Size itemHeight = new Size( 0f, true, 10.25f, true, this );
     
     private TextureImage2D itemClearImage = null;
     
@@ -430,7 +430,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
         writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
-        writer.writeProperty( "itemHeight", itemHeight.getHeightForProperty(), "The height of one item." );
+        itemHeight.saveHeightProperty( "itemHeight", "The height of one item.", writer );
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
         writer.writeProperty( showFastestLapsInRace, "Display fastest lap flags in race session?" );
     }
@@ -445,7 +445,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         if ( captionBackgroundColor1st.loadProperty( key, value ) );
         else if ( dataBackgroundColor1st.loadProperty( key, value ) );
-        else if ( itemHeight.loadProperty( key, value, "sdfsdfsdfsdf", "itemHeight" ) );
+        else if ( itemHeight.loadProperty( key, value, null, "itemHeight" ) );
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
         else if ( showFastestLapsInRace.loadProperty( key, value ) );
     }
@@ -470,6 +470,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
     
     public ETVStandingsWidget( String name )
     {
-        super( name, Size.getPercent( 14.0f ), Size.getPercent( 10f * 2.5f ) );
+        super( name, 14.0f, 10f * 2.5f );
     }
 }

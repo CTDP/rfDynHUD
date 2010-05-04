@@ -731,13 +731,13 @@ public class TemperaturesWidget extends Widget
         writer.writeProperty( font2, "The used (smaller) font." );
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
         writer.writeProperty( displayWaterTemp, "Display water temperature?" );
-        writer.writeProperty( "engineHeight", engineHeight.getHeightForProperty(), "The height of the engine bar." );
+        engineHeight.saveHeightProperty( "engineHeight", "The height of the engine bar.", writer );
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
-        writer.writeProperty( "tireWidth", tireSize.getWidthForProperty(), "The width of a tire image." );
-        writer.writeProperty( "tireHeight", tireSize.getHeightForProperty(), "The height of a tire image." );
+        tireSize.saveWidthProperty( "tireWidth", "The width of a tire image.", writer );
+        tireSize.saveHeightProperty( "tireHeight", "The height of a tire image.", writer );
         writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
-        writer.writeProperty( "brakeWidth", brakeSize.getWidthForProperty(), "The width of a brake image." );
-        writer.writeProperty( "brakeHeight", brakeSize.getHeightForProperty(), "The height of a brake image." );
+        brakeSize.saveWidthProperty( "brakeWidth", "The width of a brake image.", writer );
+        brakeSize.saveHeightProperty( "brakeHeight", "The height of a brake image.", writer );
         writer.writeProperty( "brakeTempsPeekDelay", getBrakeTempsPeekDelay(), "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
     }
     
@@ -801,10 +801,10 @@ public class TemperaturesWidget extends Widget
     
     public TemperaturesWidget( String name )
     {
-        super( name, Size.getPercent( 17.8125f ), Size.getPercent( 30.416667f ) );
+        super( name, 17.8125f, 30.416667f );
         
-        this.engineHeight = new Size( Size.getPercent( 0f ), Size.getPercent( 10.0f ), this );
-        this.tireSize = new Size( Size.getPercent( 10.0f ), Size.getPercent( 10.0f ), this );
-        this.brakeSize = new Size( Size.getPercent( 7.0f ), Size.getPercent( 20.0f ), this );
+        this.engineHeight = new Size( 0f, true, 10.0f, true, this );
+        this.tireSize = new Size( 10.0f, true, 10.0f, true, this );
+        this.brakeSize = new Size( 7.0f, true, 20.0f, true, this );
     }
 }

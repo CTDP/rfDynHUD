@@ -19,7 +19,6 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -903,6 +902,6 @@ public class TimingWidget extends Widget
     
     public TimingWidget( String name )
     {
-        super( name, Size.getPercent( 24.0625f ), Size.getPercent( 30.083334f ) );
+        super( name, 24.0625f, 30.083334f );
     }
 }

@@ -14,7 +14,6 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -254,6 +253,6 @@ public class ControlsWidget extends Widget
     
     public ControlsWidget( String name )
     {
-        super( name, Size.getPercent( 9.9f ), Size.getPercent( 16.5f ) );
+        super( name, 9.9f, 16.5f );
     }
 }

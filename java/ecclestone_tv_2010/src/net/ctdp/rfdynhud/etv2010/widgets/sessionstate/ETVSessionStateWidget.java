@@ -29,7 +29,6 @@ import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**
@@ -388,6 +387,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     
     public ETVSessionStateWidget( String name )
     {
-        super( name, Size.getPercent( 12.0f ), Size.getPercent( 2.54f ) );
+        super( name, 12.0f, 2.54f );
     }
 }

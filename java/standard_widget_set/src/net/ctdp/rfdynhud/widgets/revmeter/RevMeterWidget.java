@@ -38,7 +38,6 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -1250,7 +1249,7 @@ public class RevMeterWidget extends Widget
     
     public RevMeterWidget( String name )
     {
-        super( name, Size.getPercent( 16.3125f ), Size.getPercent( 21.75f ) );
+        super( name, 16.3125f, 21.75f );
         
         getBackgroundColorProperty().setColor( (String)null );
         

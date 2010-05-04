@@ -11,7 +11,6 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -124,7 +123,7 @@ public class ImageWidget extends Widget
     
     public ImageWidget( String name )
     {
-        super( name, Size.getPercent( 17.0f ), Size.getPercent( 8.6f ) );
+        super( name, 17.0f, 8.6f );
         
         getBackgroundColorProperty().setColor( (String)null );
     }

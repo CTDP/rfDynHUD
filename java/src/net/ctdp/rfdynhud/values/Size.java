@@ -1,6 +1,9 @@
 package net.ctdp.rfdynhud.values;
 
+import java.io.IOException;
+
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -18,21 +21,6 @@ public class Size implements AbstractSize
     
     private final Widget widget;
     private final boolean isWidgetSize;
-    
-    public static final float getPercent( float percent )
-    {
-        return ( PERCENT_OFFSET + percent * 0.01f );
-    }
-    
-    public static final boolean isPercent( float value )
-    {
-        return ( Math.abs( value ) > PERCENT_OFFSET_CHECK_POSITIVE );
-    }
-    
-    public static final float getAbsolute( float value )
-    {
-        return ( value );
-    }
     
     /*
     public final Widget getWidget()
@@ -74,26 +62,6 @@ public class Size implements AbstractSize
     public final boolean isNegativeHeight()
     {
         return ( height <= 0f );
-    }
-    
-    /**
-     * Gets the current width for a property.
-     * 
-     * @return the current width for a property.
-     */
-    public final String getWidthForProperty()
-    {
-        return ( unparseValue( width ) );
-    }
-    
-    /**
-     * Gets the current height for a property.
-     * 
-     * @return the current height for a property.
-     */
-    public final String getHeightForProperty()
-    {
-        return ( unparseValue( height ) );
     }
     
     public final boolean isPercentageWidth()
@@ -256,26 +224,6 @@ public class Size implements AbstractSize
     private boolean setHeight( float height )
     {
         return ( set( getWidth(), height ) );
-    }
-    
-    /**
-     * Sets the current width from a property.
-     * 
-     * @param widthStr
-     */
-    public void setWidthFromProperty( String widthStr )
-    {
-        setWidth( parseValue( widthStr ) );
-    }
-    
-    /**
-     * Sets the current height from a property.
-     * 
-     * @param heightStr
-     */
-    public void setHeightFromProperty( String heightStr )
-    {
-        setHeight( parseValue( heightStr ) );
     }
     
     /**
@@ -511,9 +459,26 @@ public class Size implements AbstractSize
         return ( this );
     }
     
-    public static float parseValue( String value )
+    public static float parseValue( String value, boolean defaultPerc )
     {
-        if ( value.endsWith( "%" ) )
+        boolean isPerc = value.endsWith( "%" );
+        boolean isPx = value.endsWith( "px" );
+        
+        if ( !isPerc && !isPx )
+        {
+            if ( defaultPerc )
+            {
+                value += "%";
+                isPerc = true;
+            }
+            else
+            {
+                value += "px";
+                isPx = true;
+            }
+        }
+        
+        if ( isPerc )
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 1 ) );
             if ( f < 0f )
@@ -522,13 +487,14 @@ public class Size implements AbstractSize
             return ( +PERCENT_OFFSET + ( f / 100f ) );
         }
         
-        if ( value.endsWith( "px" ) )
+        if ( isPx )
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 2 ) );
             
             return ( f );
         }
         
+        // Unreachable!
         return ( Float.parseFloat( value ) );
     }
     
@@ -571,18 +537,43 @@ public class Size implements AbstractSize
     }
     */
     
+    public void saveWidthProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( key, unparseValue( getWidth() ), false, comment );
+    }
+    
+    public void saveHeightProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( key, unparseValue( getHeight() ), false, comment );
+    }
+    
+    public void saveProperty( String widthKey, String widthComment, String heightKey, String heightComment, WidgetsConfigurationWriter writer ) throws IOException
+    {
+        if ( widthKey != null )
+            saveWidthProperty( widthKey, widthComment, writer );
+        
+        if ( heightKey != null )
+            saveHeightProperty( heightKey, heightComment, writer );
+    }
+    
     public boolean loadProperty( String key, String value, String widthKey, String heightKey )
     {
         if ( key.equals( widthKey ) )
         {
-            setWidthFromProperty( value );
+            if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
+                value += "px";
+            
+            setWidth( parseValue( value, isWidthPercentageValue() ) );
             
             return ( true );
         }
         
         if ( key.equals( heightKey ) )
         {
-            setHeightFromProperty( value );
+            if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
+                value += "px";
+            
+            setHeight( parseValue( value, isHeightPercentageValue() ) );
             
             return ( true );
         }
@@ -594,12 +585,18 @@ public class Size implements AbstractSize
     {
     }
     
-    public PosSizeProperty createWidthProperty( String name )
+    public PosSizeProperty createWidthProperty( String name, String nameForDisplay )
     {
         boolean ro = isWidgetSize ? widget.hasFixedSize() : false;
         
-        PosSizeProperty prop = new PosSizeProperty( widget, name, ro, true )
+        PosSizeProperty prop = new PosSizeProperty( widget, name, nameForDisplay, ro, true )
         {
+            @Override
+            public boolean isPercentage()
+            {
+                return ( isWidthPercentageValue() );
+            }
+            
             @Override
             public void setValue( Object value )
             {
@@ -632,16 +629,27 @@ public class Size implements AbstractSize
         return ( prop );
     }
     
+    public PosSizeProperty createWidthProperty( String name )
+    {
+        return ( createWidthProperty( name, name ) );
+    }
+    
     protected void onHeightPropertySet( float height )
     {
     }
     
-    public PosSizeProperty createHeightProperty( String name )
+    public PosSizeProperty createHeightProperty( String name, String nameForDisplay )
     {
         boolean ro = isWidgetSize ? widget.hasFixedSize() : false;
         
-        PosSizeProperty prop = new PosSizeProperty( widget, name, ro, true )
+        PosSizeProperty prop = new PosSizeProperty( widget, name, nameForDisplay, ro, true )
         {
+            @Override
+            public boolean isPercentage()
+            {
+                return ( isHeightPercentageValue() );
+            }
+            
             @Override
             public void setValue( Object value )
             {
@@ -674,18 +682,23 @@ public class Size implements AbstractSize
         return ( prop );
     }
     
-    Size( float width, float height, Widget widget, boolean isWidgetSize )
+    public PosSizeProperty createHeightProperty( String name )
     {
-        this.width = width;
-        this.height = height;
+        return ( createHeightProperty( name, name ) );
+    }
+    
+    Size( float width, boolean widthPercent, float height, boolean heightPercent, Widget widget, boolean isWidgetSize )
+    {
+        this.width = widthPercent ? ( PERCENT_OFFSET + width * 0.01f ) : width;
+        this.height = heightPercent ? ( PERCENT_OFFSET + height * 0.01f ) : height;
         
         this.widget = widget;
         
         this.isWidgetSize = isWidgetSize;
     }
     
-    public Size( float width, float height, Widget widget )
+    public Size( float width, boolean widthPercent, float height, boolean heightPercent, Widget widget )
     {
-        this( width, height, widget, false );
+        this( width, widthPercent, height, heightPercent, widget, false );
     }
 }

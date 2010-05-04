@@ -19,7 +19,6 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -303,7 +302,7 @@ public class TrackPositionWidget extends Widget
     
     public TrackPositionWidget( String name )
     {
-        super( name, Size.getPercent( 35.0f ), Size.getPercent( 5.859375f ) );
+        super( name, 35.0f, 5.859375f );
         
         getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
         getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );

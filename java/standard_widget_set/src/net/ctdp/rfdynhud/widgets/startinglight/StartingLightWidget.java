@@ -17,7 +17,6 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -254,6 +253,6 @@ public class StartingLightWidget extends Widget
     
     public StartingLightWidget( String name )
     {
-        super( name, Size.getPercent( 11.328125f ), Size.getPercent( 8.3984375f ) );
+        super( name, 11.328125f, true, 8.3984375f, true );
     }
 }

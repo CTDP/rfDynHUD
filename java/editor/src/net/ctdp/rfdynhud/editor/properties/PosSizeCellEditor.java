@@ -47,7 +47,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
         button2.setVisible( prop.isSizeProp() );
         
         float fv = (Float)value;
-        boolean isPerc = Size.isPercent( fv );
+        boolean isPerc = prop.isPercentage();
         
         button1.setVisible( true );
         button1.setText( prop.getButton1Text( isPerc ) );
@@ -71,17 +71,10 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
         textfield.setFont( table.getFont() );
         textfield.setBorder( null );
         
-        if ( isPerc )
-        {
-            if ( prop.isSizeProp() )
-                textfield.setText( Size.unparseValue( fv ) );
-            else
-                textfield.setText( Position.unparseValue( fv ) );
-        }
+        if ( prop.isSizeProp() )
+            textfield.setText( Size.unparseValue( fv ) );
         else
-        {
-            textfield.setText( String.valueOf( (int)fv ) );
-        }
+            textfield.setText( Position.unparseValue( fv ) );
         
         this.table = table;
         
@@ -104,28 +97,20 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
     protected Object getCellEditorValueImpl() throws Throwable
     {
         if ( prop.isSizeProp() )
-            return ( Size.parseValue( textfield.getText() ) );
+            return ( Size.parseValue( textfield.getText(), prop.isPercentage() ) );
         
-        return ( Position.parseValue( textfield.getText() ) );
+        return ( Position.parseValue( textfield.getText(), prop.isPercentage() ) );
     }
     
     @Override
     protected void applyOldValue( Object oldValue )
     {
         float fv = (Float)oldValue;
-        boolean isPerc = Size.isPercent( fv );
         
-        if ( isPerc )
-        {
-            if ( prop.isSizeProp() )
-                textfield.setText( Size.unparseValue( fv ) );
-            else
-                textfield.setText( Position.unparseValue( fv ) );
-        }
+        if ( prop.isSizeProp() )
+            textfield.setText( Size.unparseValue( fv ) );
         else
-        {
-            textfield.setText( String.valueOf( (int)fv ) );
-        }
+            textfield.setText( Position.unparseValue( fv ) );
     }
     
     public PosSizeCellEditor()
@@ -155,17 +140,10 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
                     prop.onButtonClicked( button1 );
                     
                     float value = (Float)prop.getValue();
-                    if ( Size.isPercent( value ) )
-                    {
-                        if ( prop.isSizeProp() )
-                            textfield.setText( Size.unparseValue( value ) );
-                        else
-                            textfield.setText( Position.unparseValue( value ) );
-                    }
+                    if ( prop.isSizeProp() )
+                        textfield.setText( Size.unparseValue( value ) );
                     else
-                    {
-                        textfield.setText( String.valueOf( (int)value ) );
-                    }
+                        textfield.setText( Position.unparseValue( value ) );
                 }
                 
                 finalizeEdit( table );
@@ -181,17 +159,10 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
                     prop.onButton2Clicked( button2 );
                     
                     float value = (Float)prop.getValue();
-                    if ( Size.isPercent( value ) )
-                    {
-                        if ( prop.isSizeProp() )
-                            textfield.setText( Size.unparseValue( value ) );
-                        else
-                            textfield.setText( Position.unparseValue( value ) );
-                    }
+                    if ( prop.isSizeProp() )
+                        textfield.setText( Size.unparseValue( value ) );
                     else
-                    {
-                        textfield.setText( String.valueOf( (int)value ) );
-                    }
+                        textfield.setText( Position.unparseValue( value ) );
                 }
                 
                 finalizeEdit( table );

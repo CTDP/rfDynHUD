@@ -26,7 +26,6 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.Size;
 
 /**
  * The {@link ETVTimeCompareWidget} displays lap time gaps in race sessions.
@@ -604,6 +603,6 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     
     public ETVTimeCompareWidget( String name )
     {
-        super( name, Size.getPercent( 40.7f ), Size.getPercent( 8.496094f ) );
+        super( name, 40.7f, 8.496094f );
     }
 }

@@ -20,6 +20,8 @@ public abstract class PosSizeProperty extends Property
         return ( isSizeProp );
     }
     
+    public abstract boolean isPercentage();
+    
     public String getButton1Text( boolean isPerc )
     {
         if ( isSizeProp )
@@ -62,15 +64,15 @@ public abstract class PosSizeProperty extends Property
     {
     }
     
-    public PosSizeProperty( Widget widget, String key, boolean readonly, boolean isSizeProp )
+    public PosSizeProperty( Widget widget, String name, String nameFordisplay, boolean readonly, boolean isSizeProp )
     {
-        super( widget, key, readonly, PropertyEditorType.POS_SIZE, null, null );
+        super( widget, name, nameFordisplay, readonly, PropertyEditorType.POS_SIZE, null, null );
         
         this.isSizeProp = isSizeProp;
     }
     
-    public PosSizeProperty( Widget widget, String key, boolean isSizeProp )
+    public PosSizeProperty( Widget widget, String name, String nameFordisplay, boolean isSizeProp )
     {
-        this( widget, key, false, isSizeProp );
+        this( widget, name, nameFordisplay, false, isSizeProp );
     }
 }

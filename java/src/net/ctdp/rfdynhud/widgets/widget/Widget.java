@@ -1003,11 +1003,11 @@ public abstract class Widget implements Documented
      */
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
-        writer.writeProperty( "positioning", position.getPositioning(), "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT." );
-        writer.writeProperty( "x", position.getXForProperty(), false, "The x-coordinate for the position." );
-        writer.writeProperty( "y", position.getYForProperty(), false, "The y-coordinate for the position." );
-        writer.writeProperty( "width", size.getWidthForProperty(), false, "The width. Use negative values to make the Widget be sized relative to screen size." );
-        writer.writeProperty( "height", size.getHeightForProperty(), false, "The height. Use negative values to make the Widget be sized relative to screen size." );
+        position.savePositioningProperty( "positioning", "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT.", writer );
+        position.saveXProperty( "x", "The x-coordinate for the position.", writer );
+        position.saveYProperty( "y", "The y-coordinate for the position.", writer );
+        size.saveWidthProperty( "width", "The width. Use negative values to make the Widget be sized relative to screen size.", writer );
+        size.saveHeightProperty( "height", "The height. Use negative values to make the Widget be sized relative to screen size.", writer );
         writer.writeProperty( border, "The widget's border." );
         writer.writeProperty( visible, "The initial visibility." );
         
@@ -1149,34 +1149,19 @@ public abstract class Widget implements Documented
      * Creates a new Widget.
      * 
      * @param name
-     * @param positioning
-     * @param x
-     * @param y
      * @param width negative numbers for (screen_width - width)
+     * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
+     * @param heightPercent height parameter treated as percents
      */
-    protected Widget( String name, RelativePositioning positioning, float x, float y, float width, float height )
+    protected Widget( String name, float width, boolean widthPercent, float height, boolean heightPercent )
     {
         this.name.setStringValue( name );
-        this.size = __ValPrivilegedAccess.newWidgetSize( width, height, this );
-        this.position = __ValPrivilegedAccess.newWidgetPosition( positioning, x, y, size, this );
+        this.size = __ValPrivilegedAccess.newWidgetSize( width, widthPercent, height, heightPercent, this );
+        this.position = __ValPrivilegedAccess.newWidgetPosition( RelativePositioning.TOP_LEFT, 0f, true, 0f, true, size, this );
         
         if ( !canHaveBorder() )
             border.setBorder( null );
-    }
-    
-    /**
-     * Creates a new Widget.
-     * 
-     * @param name
-     * @param x
-     * @param y
-     * @param width negative numbers for (screen_width - width)
-     * @param height negative numbers for (screen_height - height)
-     */
-    protected Widget( String name, float x, float y, float width, float height )
-    {
-        this( name, RelativePositioning.TOP_LEFT, x, y, width, height );
     }
     
     /**
@@ -1188,6 +1173,6 @@ public abstract class Widget implements Documented
      */
     protected Widget( String name, float width, float height )
     {
-        this( name, Position.getPercent( 0f ), Position.getPercent( 0f ), width, height );
+        this( name, width, true, height, true );
     }
 }
