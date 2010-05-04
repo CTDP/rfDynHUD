@@ -243,7 +243,7 @@ public class WearWidget extends Widget
     {
         super.onPlayerLapStarted( gameData, editorPresets );
         
-        if ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getStintLength() > 0.9f )
+        if ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getLapsCompleted() >= 1 )
         {
             if ( engineLifetimeAtLapStart < 0f )
             {
