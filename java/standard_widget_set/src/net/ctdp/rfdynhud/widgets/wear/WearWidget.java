@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
@@ -13,10 +14,12 @@ import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
+import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
@@ -54,6 +57,16 @@ public class WearWidget extends Widget
     private final BooleanProperty displayBrakes = new BooleanProperty( this, "displayBrakes", true );
     
     private final EnumProperty<HundredPercentBase> hundredPercentBase = new EnumProperty<HundredPercentBase>( this, "hundredPercentBase", HundredPercentBase.SAFE_RANGE );
+    
+    private final ImageProperty estimationImageName = new ImageProperty( this, "engineEstimationImage", "estimationImage", "start_finish.png", false, true )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            estimationTexture = null;
+        }
+    };
+    private TextureImage2D estimationTexture = null;
     
     private final BooleanProperty displayWearPercent = new BooleanProperty( this, "displayWearPercent", true );
     private final BooleanProperty displayCompoundName = new BooleanProperty( this, "displayCompoundName", true );
@@ -116,6 +129,9 @@ public class WearWidget extends Widget
     private static final Color GREEN2 = new Color( 152, 234, 13 );
     
     private int[] oldTireWear = { -1, -1, -1, -1 };
+    
+    private float engineLifetimeAtLapStart = -1f;
+    private float engineLifetimeLossPerLap = -1f;
     
     @Override
     public String getWidgetPackage()
@@ -213,7 +229,33 @@ public class WearWidget extends Widget
         for ( int i = 0; i < oldTireWear.length; i++ )
             oldTireWear[i] = -1;
         
+        engineLifetimeAtLapStart = -1f;
+        engineLifetimeLossPerLap = -1f;
+        
         //forceReinitialization();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onPlayerLapStarted( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onPlayerLapStarted( gameData, editorPresets );
+        
+        if ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getStintLength() > 0.9f )
+        {
+            if ( engineLifetimeAtLapStart < 0f )
+            {
+                engineLifetimeAtLapStart = gameData.getTelemetryData().getEngineLifetime();
+                engineLifetimeLossPerLap = -1f;
+            }
+            else
+            {
+                engineLifetimeLossPerLap = engineLifetimeAtLapStart - gameData.getTelemetryData().getEngineLifetime();
+                engineLifetimeAtLapStart = gameData.getTelemetryData().getEngineLifetime();
+            }
+        }
     }
     
     /**
@@ -325,7 +367,28 @@ public class WearWidget extends Widget
         result[ByteOrderManager.BLUE] = (byte)( (float)( color0[ByteOrderManager.BLUE] & 0xFF ) * beta + (float)( color1[ByteOrderManager.BLUE] & 0xFF ) * alpha );
     }
     
-    private void drawEngine( float lifetime, double raceLengthMultiplier, VehiclePhysics.Engine engine, TextureImage2D texture, int x, int y, int width )
+    private TextureImage2D loadExplodeImage( int height )
+    {
+        if ( estimationImageName.isNoImage() )
+        {
+            estimationTexture = null;
+            
+            return ( estimationTexture );
+        }
+        
+        if ( ( estimationTexture == null ) || ( estimationTexture.getHeight() != height ) )
+        {
+            ImageTemplate it = estimationImageName.getImage();
+            
+            int width = Math.round( height * it.getBaseAspect() );
+            
+            estimationTexture = it.getScaledTextureImage( width, height );
+        }
+        
+        return ( estimationTexture );
+    }
+    
+    private void drawEngine( ScoringInfo scoringInfo, boolean isEditorMode, float lifetime, double raceLengthMultiplier, VehiclePhysics.Engine engine, TextureImage2D texture, final int x, final int y, final int width )
     {
         final int w = width;
         final int h = engineHeight.getEffectiveHeight();
@@ -433,6 +496,24 @@ public class WearWidget extends Widget
             int w3 = w - w2;
             if ( w3 > 0 )
                 texture.clear( Color.BLACK, x + w2, y, w3, h, false, null );
+        }
+        
+        TextureImage2D explodeTexture = loadExplodeImage( h );
+        if ( explodeTexture != null )
+        {
+            if ( isEditorMode )
+            {
+                texture.drawImage( explodeTexture, x + 10, y, false, null );
+            }
+            else if ( scoringInfo.getSessionType().isRace() && ( engineLifetimeLossPerLap > 0f ) )
+            {
+                int lapsRemaining = scoringInfo.getMaxLaps() - scoringInfo.getPlayersVehicleScoringInfo().getLapsCompleted();
+                int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * w / maxLifetimeTotal );
+                x2 -= explodeTexture.getWidth() / 2;
+                x2 = Math.max( 0, x2 );
+                
+                texture.drawImage( explodeTexture, x + x2, y, false, null );
+            }
         }
         
         texture.markDirty( x, y, w, h );
@@ -631,7 +712,7 @@ public class WearWidget extends Widget
                     engineWidth = width - ( engineHeaderString.getAbsX() * 2 );
                 }
                 
-                drawEngine( lifetime, raceLengthPercentage, physics.getEngine(), texture, offsetX + engineHeaderString.getAbsX(), offsetY + engineHeaderString.getAbsY() + engineHeaderString.getMaxHeight( false ) + 3, engineWidth );
+                drawEngine( gameData.getScoringInfo(), isEditorMode, lifetime, raceLengthPercentage, physics.getEngine(), texture, offsetX + engineHeaderString.getAbsX(), offsetY + engineHeaderString.getAbsY() + engineHeaderString.getMaxHeight( false ) + 3, engineWidth );
             }
         }
         
@@ -863,6 +944,7 @@ public class WearWidget extends Widget
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
         engineHeight.saveHeightProperty( "engineHeight", "The height of the engine bar.", writer );
         writer.writeProperty( hundredPercentBase, "The value range to be used as 100% base." );
+        writer.writeProperty( estimationImageName, "Image to display where the engine is expected to explode." );
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
         writer.writeProperty( displayWearPercent, "Display wear in percentage numbers?" );
         writer.writeProperty( displayCompoundName, "Display the tire compound name in the header?" );
@@ -885,6 +967,7 @@ public class WearWidget extends Widget
         else if ( displayEngine.loadProperty( key, value ) );
         else if ( engineHeight.loadProperty( key, value, null, "engineHeight" ) );
         else if ( hundredPercentBase.loadProperty( key, value ) );
+        else if ( estimationImageName.loadProperty( key, value ) );
         else if ( displayTires.loadProperty( key, value ) );
         else if ( displayWearPercent.loadProperty( key, value ) );
         else if ( displayCompoundName.loadProperty( key, value ) );
@@ -908,6 +991,7 @@ public class WearWidget extends Widget
         propsCont.addProperty( displayEngine );
         propsCont.addProperty( engineHeight.createHeightProperty( "engineHeight" ) );
         propsCont.addProperty( hundredPercentBase );
+        propsCont.addProperty( estimationImageName );
         
         propsCont.addProperty( displayTires );
         propsCont.addProperty( displayWearPercent );
