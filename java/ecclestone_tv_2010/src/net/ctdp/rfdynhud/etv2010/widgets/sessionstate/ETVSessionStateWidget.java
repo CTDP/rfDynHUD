@@ -301,7 +301,9 @@ public class ETVSessionStateWidget extends ETVWidgetBase
                 sessionTime.setUnchanged();
                 gamePhase.setUnchanged();
                 
-                if ( scoringInfo.getSessionType().isRace() && ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
+                if ( gamePhase.getValue() == GamePhase.SESSION_OVER )
+                    stateString.draw( offsetX, offsetY, "00:00:00", dataBgColor, dataFontColor, texture );
+                else if ( scoringInfo.getSessionType().isRace() && ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
                     stateString.draw( offsetX, offsetY, "--:--:--", dataBgColor, dataFontColor, texture );
                 else if ( scoringInfo.getSessionType().isTestDay() || ( totalTime < 0f ) || ( totalTime > 3000000f ) )
                     stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), dataBgColor, dataFontColor, texture );

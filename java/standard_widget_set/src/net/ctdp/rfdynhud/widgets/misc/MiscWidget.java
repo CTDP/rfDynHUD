@@ -398,7 +398,9 @@ public class MiscWidget extends Widget
                 sessionTime.setUnchanged();
                 gamePhase2.setUnchanged();
                 
-                if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
+                if ( scoringInfo.getGamePhase() == GamePhase.SESSION_OVER )
+                    sessionTimeString.draw( offsetX, offsetY, "00:00:00", backgroundColor, texture );
+                else if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
                     sessionTimeString.draw( offsetX, offsetY, "--:--:--", backgroundColor, texture );
                 else if ( scoringInfo.getSessionType().isTestDay() || ( totalTime < 0f ) || ( totalTime > 3000000f ) )
                     sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), backgroundColor, texture );
