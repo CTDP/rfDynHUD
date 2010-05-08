@@ -6,6 +6,7 @@
 #include "d3dx9core.h"
 
 #include "overlay_texture.h"
+#include "logging.h"
 
 //#define D3DHOOK_TEXTURES // comment this to disable texture hooking
 

@@ -234,11 +234,14 @@ void logg( const char* message, bool newLine )
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s\n", message );
-        else
-            fprintf( f, "%s", message );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s\n", message );
+            else
+                fprintf( f, "%s", message );
+            fclose( f );
+        }
     }
 }
 
@@ -253,11 +256,14 @@ void logg2( const char* message1, const char* message2, bool newLine )
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s%s\n", message1, message2 );
-        else
-            fprintf( f, "%s%s", message1, message2 );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s%s\n", message1, message2 );
+            else
+                fprintf( f, "%s%s", message1, message2 );
+            fclose( f );
+        }
     }
 }
 
@@ -272,11 +278,14 @@ void logg3( const char* message1, const char* message2, const char* message3, bo
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s%s%s\n", message1, message2, message3 );
-        else
-            fprintf( f, "%s%s%s", message1, message2, message3 );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s%s%s\n", message1, message2, message3 );
+            else
+                fprintf( f, "%s%s%s", message1, message2, message3 );
+            fclose( f );
+        }
     }
 }
 
@@ -291,11 +300,14 @@ void loggf( const char* message, float value, bool newLine )
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s%f\n", message, value );
-        else
-            fprintf( f, "%s%f", message, value );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s%f\n", message, value );
+            else
+                fprintf( f, "%s%f", message, value );
+            fclose( f );
+        }
     }
 }
 
@@ -313,8 +325,11 @@ void loggv( const char* message, ... )
         
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        fprintf( f, "%s%d\n", message, value );
-        fclose( f );
+        if ( f )
+        {
+            fprintf( f, "%s%d\n", message, value );
+            fclose( f );
+        }
     }
 }
 */
@@ -325,11 +340,14 @@ void loggui( const char* message, unsigned int value, bool newLine )
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s%d\n", message, value );
-        else
-            fprintf( f, "%s%d", message, value );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s%d\n", message, value );
+            else
+                fprintf( f, "%s%d", message, value );
+            fclose( f );
+        }
     }
 }
 
@@ -344,11 +362,14 @@ void loggui2( const char* message, unsigned int value1, unsigned int value2, boo
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s%d, %d\n", message, value1, value2 );
-        else
-            fprintf( f, "%s%d, %d", message, value1, value2 );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s%d, %d\n", message, value1, value2 );
+            else
+                fprintf( f, "%s%d, %d", message, value1, value2 );
+            fclose( f );
+        }
     }
 }
 
@@ -363,11 +384,14 @@ void loggui3( const char* message, unsigned int value1, unsigned int value2, uns
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s%d, %d, %d\n", message, value1, value2, value3 );
-        else
-            fprintf( f, "%s%d, %d, %d", message, value1, value2, value3 );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s%d, %d, %d\n", message, value1, value2, value3 );
+            else
+                fprintf( f, "%s%d, %d, %d", message, value1, value2, value3 );
+            fclose( f );
+        }
     }
 }
 
@@ -382,11 +406,14 @@ void loggui4( const char* message, unsigned int value1, unsigned int value2, uns
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s%d, %d, %d, %d\n", message, value1, value2, value3, value4 );
-        else
-            fprintf( f, "%s%d, %d, %d, %d", message, value1, value2, value3, value4 );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s%d, %d, %d, %d\n", message, value1, value2, value3, value4 );
+            else
+                fprintf( f, "%s%d, %d, %d, %d", message, value1, value2, value3, value4 );
+            fclose( f );
+        }
     }
 }
 
@@ -401,11 +428,14 @@ void loggi( const char* message, int value, bool newLine )
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( newLine )
-            fprintf( f, "%s%d\n", message, value );
-        else
-            fprintf( f, "%s%d", message, value );
-        fclose( f );
+        if ( f )
+        {
+            if ( newLine )
+                fprintf( f, "%s%d\n", message, value );
+            else
+                fprintf( f, "%s%d", message, value );
+            fclose( f );
+        }
     }
 }
 
@@ -420,21 +450,24 @@ void loggb( const char* message, bool value, bool newLine )
     {
         FILE* f;
         fopen_s( &f, LOG_FILENAME, "a" );
-        if ( value )
+        if ( f )
         {
-            if ( newLine )
-                fprintf( f, "%strue\n", message );
+            if ( value )
+            {
+                if ( newLine )
+                    fprintf( f, "%strue\n", message );
+                else
+                    fprintf( f, "%strue", message );
+            }
             else
-                fprintf( f, "%strue", message );
+            {
+                if ( newLine )
+                    fprintf( f, "%sfalse\n", message );
+                else
+                    fprintf( f, "%sfalse", message );
+            }
+            fclose( f );
         }
-        else
-        {
-            if ( newLine )
-                fprintf( f, "%sfalse\n", message );
-            else
-                fprintf( f, "%sfalse", message );
-        }
-        fclose( f );
     }
 }
 

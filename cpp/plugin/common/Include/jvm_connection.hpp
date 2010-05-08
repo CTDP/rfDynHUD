@@ -162,6 +162,8 @@ private:
     jmethodID onSessionEnded;
     jmethodID onRealtimeEntered;
     jmethodID onRealtimeExited;
+    jmethodID onTelemetryDataUpdated;
+    jmethodID onScoringInfoUpdated;
     
     jclass LiveGameData_CPP_Adapter;
     jobject gameData_CPP_Adapter;
@@ -193,6 +195,10 @@ public:
     void call_onRealtimeEntered();
     
     void call_onRealtimeExited();
+    
+    void call_onTelemetryDataUpdated();
+    
+    void call_onScoringInfoUpdated();
     
     void copyTelemetryBuffer( void* info, unsigned int size );
     

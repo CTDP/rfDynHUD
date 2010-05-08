@@ -157,7 +157,6 @@ void RFDynHUDPlugin::StartSession()
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) )
     {
         handshake->isModSupported = isModSupported( PROFILE_PATH, PROFILE_NAME );
-        //logg( "startSession()" );
         
         handshake->jvmConn.telemFuncs.call_onSessionStarted();
     }
@@ -167,23 +166,18 @@ void RFDynHUDPlugin::EndSession()
 {
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) )
     {
-        //logg( "endSession()" );
         handshake->jvmConn.telemFuncs.call_onSessionEnded();
     }
 }
-
-unsigned char enterRealtimePending = 0;
 
 void RFDynHUDPlugin::EnterRealtime()
 {
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) )
     {
-        //logg( "enterRealtime()" );
-        //handshake->isInRealtime = true;
+        handshake->isInRealtime = true;
         
-        //handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
-        //handshake->onRealtimeEntered();
-        enterRealtimePending = 1;
+        handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
+        handshake->onRealtimeEntered();
     }
 }
 
@@ -191,19 +185,10 @@ void RFDynHUDPlugin::ExitRealtime()
 {
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) )
     {
-        //logg( "exitRealtime()" );
         handshake->isInRealtime = false;
         
-        //handshake->jvmConn.telemFuncs.call_onRealtimeExited();
-        //handshake->onRealtimeExited();
-        
-        if ( enterRealtimePending == 0 )
-        {
-            handshake->jvmConn.telemFuncs.call_onRealtimeExited();
-            handshake->onRealtimeExited();
-        }
-        
-        enterRealtimePending = 0;
+        handshake->jvmConn.telemFuncs.call_onRealtimeExited();
+        handshake->onRealtimeExited();
     }
 }
 
@@ -212,20 +197,8 @@ void RFDynHUDPlugin::UpdateTelemetry( const TelemInfoV2 &info )
 {
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
-        //logg( "updateTelemetry0()" );
         handshake->jvmConn.telemFuncs.copyTelemetryBuffer( (void*)&info, sizeof( TelemInfoV2 ) );
-        //logg( "updateTelemetry1()" );
-        
-        if ( ( enterRealtimePending & 1 ) != 0 )
-        {
-            enterRealtimePending |= 2;
-            if ( enterRealtimePending == 7 )
-            {
-                handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
-                handshake->onRealtimeEntered();
-                enterRealtimePending = 0;
-            }
-        }
+        handshake->jvmConn.telemFuncs.call_onTelemetryDataUpdated();
     }
 }
 
@@ -235,26 +208,14 @@ void RFDynHUDPlugin::UpdateScoring( const ScoringInfoV2 &info )
     {
         handshake->isInRealtime = info.mInRealtime;
         
-        //logg( "updateScoring0()" );
         handshake->jvmConn.telemFuncs.copyScoringInfoBuffer( (void*)&info, sizeof( ScoringInfoV2 ) );
-        //logg( "updateScoring1()" );
         
         for ( long i = 0; i < info.mNumVehicles; i++ )
         {
             handshake->jvmConn.telemFuncs.copyVehicleScoringInfoBuffer( i, (void*)&(info.mVehicle[i]), sizeof( VehicleScoringInfoV2 ), ( i == info.mNumVehicles - 1 ) );
         }
-        //logg( "updateScoring2()" );
         
-        if ( ( enterRealtimePending & 1 ) != 0 )
-        {
-            enterRealtimePending |= 4;
-            if ( enterRealtimePending == 7 )
-            {
-                handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
-                handshake->onRealtimeEntered();
-                enterRealtimePending = 0;
-            }
-        }
+        handshake->jvmConn.telemFuncs.call_onScoringInfoUpdated();
     }
 }
 
@@ -262,9 +223,7 @@ void RFDynHUDPlugin::UpdateGraphics( const GraphicsInfoV2 &info )
 {
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
-        //logg( "updateGraphics0()" );
         handshake->jvmConn.telemFuncs.copyGraphicsInfoBuffer( (void*)&info, sizeof( GraphicsInfoV2 ) );
-        //logg( "updateGraphics1()" );
     }
 }
 
@@ -273,9 +232,7 @@ bool RFDynHUDPlugin::RequestCommentary( CommentaryRequestInfo &info )
 {
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
-        //logg( "updateCommentary0()" );
         handshake->jvmConn.telemFuncs.copyCommentaryInfoBuffer( &info, sizeof( CommentaryRequestInfo ) );
-        //logg( "updateCommentary1()" );
     }
     
     return ( false );

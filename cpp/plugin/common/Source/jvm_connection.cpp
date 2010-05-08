@@ -502,6 +502,16 @@ void JVMTelemtryUpdateFunctions::call_onRealtimeExited()
     env->CallVoidMethod( eventsManager, onRealtimeExited );
 }
 
+void JVMTelemtryUpdateFunctions::call_onTelemetryDataUpdated()
+{
+    env->CallVoidMethod( eventsManager, onTelemetryDataUpdated );
+}
+
+void JVMTelemtryUpdateFunctions::call_onScoringInfoUpdated()
+{
+    env->CallVoidMethod( eventsManager, onScoringInfoUpdated );
+}
+
 void JVMTelemtryUpdateFunctions::copyTelemetryBuffer( void* info, unsigned int size )
 {
     env->CallVoidMethod( gameData_CPP_Adapter, prepareTelemetryDataUpdate );
@@ -635,15 +645,31 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    LiveGameData_CPP_Adapter = env->FindClass( "net/ctdp/rfdynhud/gamedata/LiveGameData_CPP_Adapter" );
+    onTelemetryDataUpdated = env->GetMethodID( RFactorEventsManager, "onTelemetryDataUpdated", "()V" );
     
-    if ( LiveGameData_CPP_Adapter == 0 )
+    if ( onTelemetryDataUpdated == 0 )
     {
-        logg( "ERROR: Failed to find the LiveGameData_CPP_Adapter class." );
+        logg( "ERROR: Failed to find the onTelemetryDataUpdated() method on RFactorEventsManager." );
         return ( false );
     }
     
-    mid = env->GetMethodID( rfdynhudClass, "getGameData_CPP_Adapter", "()Lnet/ctdp/rfdynhud/gamedata/LiveGameData_CPP_Adapter;" );
+    onScoringInfoUpdated = env->GetMethodID( RFactorEventsManager, "onScoringInfoUpdated", "()V" );
+    
+    if ( onScoringInfoUpdated == 0 )
+    {
+        logg( "ERROR: Failed to find the onScoringInfoUpdated() method on RFactorEventsManager." );
+        return ( false );
+    }
+    
+    LiveGameData_CPP_Adapter = env->FindClass( "net/ctdp/rfdynhud/gamedata/_LiveGameData_CPP_Adapter" );
+    
+    if ( LiveGameData_CPP_Adapter == 0 )
+    {
+        logg( "ERROR: Failed to find the _LiveGameData_CPP_Adapter class." );
+        return ( false );
+    }
+    
+    mid = env->GetMethodID( rfdynhudClass, "getGameData_CPP_Adapter", "()Lnet/ctdp/rfdynhud/gamedata/_LiveGameData_CPP_Adapter;" );
     
     if ( mid == 0 )
     {
@@ -655,7 +681,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
     
     if ( gameData_CPP_Adapter == NULL )
     {
-        logg( "ERROR: gameData_CPP_Adapter is null." );
+        logg( "ERROR: getGameData_CPP_Adapter returns null." );
         return ( false );
     }
     
