@@ -84,7 +84,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
         
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
         
-        float velocity = gameData.getTelemetryData().getScalarVelocityKPH();
+        float velocity = gameData.getTelemetryData().getScalarVelocity();
         
         Integer driverID = vsi.getDriverID();
         FloatContainer fc = store.get( driverID );
@@ -118,7 +118,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             
-            float velocity = vsi.getScalarVelocityKPH();
+            float velocity = vsi.getScalarVelocity();
             
             Integer driverID = vsi.getDriverID();
             FloatContainer fc = store.get( driverID );

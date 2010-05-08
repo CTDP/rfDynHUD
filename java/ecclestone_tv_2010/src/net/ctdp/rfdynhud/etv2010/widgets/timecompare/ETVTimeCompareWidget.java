@@ -118,7 +118,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         super.updateVisibility( clock1, clock2, gameData, editorPresets );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
-        VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
         if ( editorPresets != null )
         {
@@ -131,7 +131,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         if ( !scoringInfo.getSessionType().isRace() || !vsi.getFinishStatus().isNone() )
         {
-            setVisible( false );
+            setVisible2( false );
             return;
         }
         
@@ -148,7 +148,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         {
             if ( laps.getValue() < NUM_DISPLAYED_LAPS )
             {
-                setVisible( false );
+                setVisible2( false );
             }
             else if ( ( laps.getValue() % displayEveryXLaps.getIntValue() ) == 0 )
             {
@@ -163,18 +163,18 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                     if ( !vsi_nb.getFinishStatus().isNone() )
                     {
                         waitingForNextBehind = false;
-                        setVisible( false );
+                        setVisible2( false );
                     }
                     else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
                     {
                         laps.reset( true );
-                        setVisible( false );
+                        setVisible2( false );
                     }
                     else
                     {
                         waitingForNextBehind = false;
                         relVSI = vsi_nb;
-                        setVisible( true );
+                        setVisible2( true );
                         hideTime = scoringInfo.getSessionTime() + visibleTime.getFloatValue();
                         forceCompleteRedraw();
                     }
@@ -292,7 +292,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                         }
                     }
                     
-                    setVisible( b );
+                    setVisible2( b );
                     
                     if ( b )
                     {
@@ -303,17 +303,17 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             }
             else
             {
-                setVisible( false );
+                setVisible2( false );
                 hideTime = -1f;
             }
         }
         else if ( scoringInfo.getSessionTime() < hideTime )
         {
-            setVisible( true );
+            setVisible2( true );
         }
         else
         {
-            setVisible( false );
+            setVisible2( false );
             hideTime = -1f;
         }
     }
@@ -380,7 +380,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         final boolean isEditorMode = ( editorPresets != null );
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
         texture.clear( offsetX, offsetY, width, height, true, null );
         

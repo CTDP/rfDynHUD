@@ -360,27 +360,52 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 if ( positioning.isLeft() )
                 {
                     int gameResX = selectedWidget.getConfiguration().getGameResX();
-                    if ( x + effWidth / 2 >= gameResX / 2 + 50 )
+                    if ( x / (float)( gameResX - x - effWidth ) > 0.4f )
+                        positioning = positioning.deriveHCenter();
+                    else if ( x + effWidth / 2 >= gameResX / 2 + 50 )
                         positioning = positioning.deriveRight();
                 }
                 else if ( positioning.isRight() )
                 {
                     int gameResX = selectedWidget.getConfiguration().getGameResX();
-                    if ( x + effWidth / 2 < gameResX / 2 - 50 )
+                    if ( x / (float)( gameResX - x - effWidth ) < 2.5f )
+                        positioning = positioning.deriveHCenter();
+                    else if ( x + effWidth / 2 < gameResX / 2 - 50 )
                         positioning = positioning.deriveLeft();
+                }
+                else if ( positioning.isHCenter() )
+                {
+                    int gameResX = selectedWidget.getConfiguration().getGameResX();
+                    int centerWidth = gameResX * 5 / 6;
+                    if ( x < ( gameResX - centerWidth ) / 2 + 50 )
+                        positioning = positioning.deriveLeft();
+                    else if ( x + effWidth > gameResX - ( gameResX - centerWidth ) / 2 - 50 )
+                        positioning = positioning.deriveRight();
                 }
                 
                 if ( positioning.isTop() )
                 {
                     int gameResY = selectedWidget.getConfiguration().getGameResY();
-                    if ( y + effHeight / 2 >= gameResY * 8 / 10 )
-                        positioning = positioning.deriveBottom();
+                    if ( y / (float)( gameResY - y - effHeight ) > 0.4f )
+                        positioning = positioning.deriveVCenter();
+                    //else if ( y + effHeight / 2 >= gameResY * 8 / 10 )
+                    //    positioning = positioning.deriveBottom();
                 }
                 else if ( positioning.isBottom() )
                 {
                     int gameResY = selectedWidget.getConfiguration().getGameResY();
-                    if ( y + effHeight / 2 < gameResY * 8 / 10 )
+                    if ( y / (float)( gameResY - y - effHeight ) < 2.5f )
+                        positioning = positioning.deriveVCenter();
+                    //else if ( y + effHeight / 2 < gameResY * 8 / 10 )
+                    //    positioning = positioning.deriveTop();
+                }
+                else if ( positioning.isVCenter() )
+                {
+                    int gameResY = selectedWidget.getConfiguration().getGameResY();
+                    if ( y / (float)( gameResY - y - effHeight ) < 0.3f )
                         positioning = positioning.deriveTop();
+                    else if ( y / (float)( gameResY - y - effHeight ) > 3.333f )
+                        positioning = positioning.deriveBottom();
                 }
                 
                 if ( !isControlDown )

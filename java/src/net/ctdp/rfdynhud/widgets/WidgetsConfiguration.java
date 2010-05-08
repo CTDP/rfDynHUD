@@ -147,7 +147,7 @@ public class WidgetsConfiguration
         widgets.remove( widget );
         widgetsMap.remove( widget.getName() );
         localStores.put( getLocalStoreKey( widget ), widget.getLocalStore() );
-        visibilities.put( getLocalStoreKey( widget ), widget.isVisible() );
+        visibilities.put( getLocalStoreKey( widget ), widget.isVisible1() );
         __WPrivilegedAccess.setConfiguration( null, widget );
     }
     
@@ -173,7 +173,7 @@ public class WidgetsConfiguration
             Widget widget = widgets.get( i );
             
             localStores.put( getLocalStoreKey( widget ), widget.getLocalStore() );
-            visibilities.put( getLocalStoreKey( widget ), widget.isVisible() );
+            visibilities.put( getLocalStoreKey( widget ), widget.isVisible1() );
             
             __WPrivilegedAccess.setConfiguration( null, widget );
         }
@@ -260,7 +260,7 @@ public class WidgetsConfiguration
             Boolean visibility = visibilities.get( getLocalStoreKey( widget ) );
             if ( visibility != null )
             {
-                widget.setVisible( visibility );
+                widget.setVisible1( visibility );
             }
         }
         

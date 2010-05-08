@@ -123,13 +123,13 @@ public class Position
             if ( positioning.isVCenter() )
             {
                 if ( y < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    y = Math.max( -PERCENT_OFFSET - 0.5f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), x );
+                    y = Math.max( -PERCENT_OFFSET - 0.5f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
                 else if ( y > PERCENT_OFFSET_CHECK_POSITIVE )
-                    y = Math.min( PERCENT_OFFSET + 0.5f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), x );
+                    y = Math.min( PERCENT_OFFSET + 0.5f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
                 else if ( y < 0f )
-                    y = Math.max( -getScaleWidth() / 2f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), x );
+                    y = Math.max( -getScaleHeight() / 2f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
                 else if ( y > 0f )
-                    y = Math.min( getScaleWidth() / 2f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), x );
+                    y = Math.min( getScaleHeight() / 2f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
             }
             else
             {
@@ -221,7 +221,7 @@ public class Position
         }
         
         if ( positioning.isVCenter() )
-            y = y + (int)( size.getEffectiveHeight() - scaleH ) / 2;
+            y = y + ( size.getEffectiveHeight() - (int)scaleH ) / 2;
         else if ( positioning.isBottom() )
             y = (int)scaleH - y - (int)size.getEffectiveHeight();
         
@@ -344,7 +344,7 @@ public class Position
             case CENTER_CENTER:
             case CENTER_RIGHT:
                 if ( y > PERCENT_OFFSET_CHECK_POSITIVE )
-                    return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( y * scaleH ) );
+                    return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( ( y - PERCENT_OFFSET ) * scaleH ) );
                 
                 if ( y < PERCENT_OFFSET_CHECK_NEGATIVE )
                     return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( ( y + PERCENT_OFFSET ) * scaleH ) );

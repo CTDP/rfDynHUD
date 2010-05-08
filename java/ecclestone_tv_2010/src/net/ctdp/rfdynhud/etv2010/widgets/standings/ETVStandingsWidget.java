@@ -273,7 +273,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         final int itemHeight = this.itemHeight.getEffectiveHeight();
         
-        final int numDrivers = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, StandingsView.RELATIVE_TO_LEADER, forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        final int numDrivers = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, scoringInfo.getViewedVehicleScoringInfo(), StandingsView.RELATIVE_TO_LEADER, forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         int numDisplayedLaptimes = 0;
         
         if ( flagTextures != null )

@@ -14,6 +14,8 @@ import net.ctdp.rfdynhud.util.Track;
  */
 public class LiveGameData
 {
+    private boolean realtimeMode = false;
+    
     private final VehiclePhysics physics = new VehiclePhysics();
     private VehicleSetup setup = null;
     
@@ -21,6 +23,16 @@ public class LiveGameData
     private final ScoringInfo scoringInfo;
     private final GraphicsInfo graphicsInfo;
     private final CommentaryRequestInfo commentaryInfo;
+    
+    void setRealtimeMode( boolean realtimeMode )
+    {
+        this.realtimeMode = realtimeMode;
+    }
+    
+    public final boolean isInRealtimeMode()
+    {
+        return ( realtimeMode );
+    }
     
     public final VehiclePhysics getPhysics()
     {

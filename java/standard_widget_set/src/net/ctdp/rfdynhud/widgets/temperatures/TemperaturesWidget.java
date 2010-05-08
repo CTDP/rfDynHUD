@@ -7,6 +7,7 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.WheelPart;
@@ -26,6 +27,7 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.Size;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -172,6 +174,22 @@ public class TemperaturesWidget extends Widget
         return ( (int)( brakeTempsPeekDelay / 1000000L ) );
     }
     
+    private void setControlVisibility( VehicleScoringInfo viewedVSI )
+    {
+        setVisible2( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        
+        setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -192,6 +210,17 @@ public class TemperaturesWidget extends Widget
         lastBrakeTempTime = -1L;
         
         //forceReinitialization();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        
+        setControlVisibility( viewedVSI );
     }
     
     /**

@@ -57,7 +57,7 @@ public class ScoringInfo
     
     private final LiveGameData gameData;
     
-    private long updateID = 0L;
+    private long updateId = 0L;
     private long updateTimestamp = -1L;
     private int sessionID = 0;
     
@@ -136,7 +136,12 @@ public class ScoringInfo
     
     private VehicleScoringInfo[] vehicleScoringInfo = null;
     private int numVehicles = -1;
-    private short ownPlace = -1;
+    private VehicleScoringInfo playerVSI = null;
+    private VehicleScoringInfo viewedVSI = null;
+    
+    private String playerName = null;
+    private String playerFilename = null;
+    private String trackName = null;
     
     private VehicleScoringInfo fastestLapVSI = null;
     private VehicleScoringInfo secondFastestLapVSI = null;
@@ -148,7 +153,11 @@ public class ScoringInfo
     
     private void resetDerivateData()
     {
-        ownPlace = -1;
+        playerName = null;
+        playerFilename = null;
+        trackName = null;
+        playerVSI = null;
+        viewedVSI = null;
         
         fastestLapVSI = null;
         secondFastestLapVSI = null;
@@ -204,7 +213,7 @@ public class ScoringInfo
             Short stintStartLap = stintStartLaps.get( driverID );
             short currentLap = (short)( vsi.getLapsCompleted() + 1 ); // Don't use getCurrentLap(), since it depends on stint length!
             boolean isInPits = vsi.isInPits();
-            boolean isStanding = ( vsi.getScalarVelocity() < 0.1f );
+            boolean isStanding = ( vsi.getScalarVelocityMPS() < 0.1f );
             float trackPos = ( vsi.getLapDistance() / getTrackLength() );
             
             if ( ( stintStartLap == null ) || ( isInPits && ( stintStartLap.shortValue() != currentLap ) && isStanding ) || ( stintStartLap.shortValue() > currentLap ) )
@@ -370,7 +379,7 @@ public class ScoringInfo
     
     void onDataUpdated( EditorPresets editorPresets )
     {
-        this.updateID++;
+        this.updateId++;
         updateTimestamp = System.nanoTime();
         
         //checkDriverNames();
@@ -543,9 +552,9 @@ public class ScoringInfo
      * 
      * @return an ID, that in incremented every time, this {@link ScoringInfo} object is filled with new data from the game.
      */
-    public final long getUpdateID()
+    public final long getUpdateId()
     {
-        return ( updateID );
+        return ( updateId );
     }
     
     /**
@@ -609,7 +618,12 @@ public class ScoringInfo
     {
         // char mTrackName[64]
         
-        return ( ByteUtil.readString( buffer, OFFSET_TRACK_NAME, 64 ) );
+        if ( trackName == null )
+        {
+            trackName = ByteUtil.readString( buffer, OFFSET_TRACK_NAME, 64 );
+        }
+        
+        return ( trackName );
     }
     
     /**
@@ -830,7 +844,12 @@ public class ScoringInfo
     {
         // char mPlayerName[32]
         
-        return ( ByteUtil.readString( buffer, OFFSET_PLAYER_NAME, 32 ) );
+        if ( playerName == null )
+        {
+            playerName = ByteUtil.readString( buffer, OFFSET_PLAYER_NAME, 32 );
+        }
+        
+        return ( playerName );
     }
     
     /**
@@ -840,30 +859,12 @@ public class ScoringInfo
     {
         // char mPlrFileName[64]
         
-        return ( ByteUtil.readString( buffer, OFFSET_PLAYER_FILENAME, 64 ) );
-    }
-    
-    /**
-     * Gets the position of the player.
-     * 
-     * @return the position of the player.
-     */
-    public final short getOwnPlace()
-    {
-        if ( ownPlace < 0 )
+        if ( playerFilename == null )
         {
-            int n = getNumVehicles();
-            for ( short i = 0; i < n; i++ )
-            {
-                if ( vehicleScoringInfo[i].isPlayer() )
-                {
-                    ownPlace = vehicleScoringInfo[i].getPlace();
-                    break;
-                }
-            }
+            playerFilename = ByteUtil.readString( buffer, OFFSET_PLAYER_FILENAME, 64 );
         }
         
-        return ( ownPlace );
+        return ( playerFilename );
     }
     
     // weather
@@ -965,7 +966,70 @@ public class ScoringInfo
      */
     public final VehicleScoringInfo getPlayersVehicleScoringInfo()
     {
-        return ( getVehicleScoringInfo( getOwnPlace() - 1 ) );
+        if ( playerVSI == null )
+        {
+            int n = getNumVehicles();
+            for ( short i = 0; i < n; i++ )
+            {
+                if ( vehicleScoringInfo[i].isPlayer() )
+                {
+                    playerVSI = vehicleScoringInfo[i];
+                    break;
+                }
+            }
+        }
+        
+        return ( playerVSI );
+    }
+    
+    private final TelemVect3 camPos = new TelemVect3();
+    private final TelemVect3 carPos = new TelemVect3();
+    
+    /**
+     * the viewed's VehicleScroingInfo (this is just a guess, but should be correct).
+     */
+    public final VehicleScoringInfo getViewedVehicleScoringInfo()
+    {
+        GraphicsInfo gi = gameData.getGraphicsInfo();
+        
+        if ( !gi.isDataValid() )
+            return ( getPlayersVehicleScoringInfo() );
+        
+        if ( viewedVSI == null )
+        {
+            gi.getCameraPosition( camPos );
+            camPos.x *= -1f;
+            camPos.y *= -1f;
+            camPos.z *= -1f;
+            
+            float closestDist = Float.MAX_VALUE;
+            
+            int n = getNumVehicles();
+            for ( short i = 0; i < n; i++ )
+            {
+                vehicleScoringInfo[i].getWorldPosition( carPos );
+                
+                float dist = carPos.getDistanceToSquared( camPos );
+                
+                if ( dist < closestDist )
+                {
+                    closestDist = dist;
+                    viewedVSI = vehicleScoringInfo[i];
+                }
+            }
+        }
+        
+        return ( viewedVSI );
+    }
+    
+    /**
+     * Gets the position of the player.
+     * 
+     * @return the position of the player.
+     */
+    public final short getOwnPlace()
+    {
+        return ( playerVSI.getPlace() );
     }
     
     /**

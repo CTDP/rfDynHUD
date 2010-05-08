@@ -97,7 +97,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
             if ( ( endTime > 0f ) && ( endTime < 999999f ) )
             {
                 int timeLaps = (int)( endTime / 95.0f ) * 2;
-                Laptime fastestLap = scoringInfo.getPlayersVehicleScoringInfo().getFastestLaptime();
+                Laptime fastestLap = scoringInfo.getViewedVehicleScoringInfo().getFastestLaptime();
                 if ( fastestLap != null )
                     timeLaps = (int)( endTime / ( fastestLap.getLapTime() * 1.033f ) );
                 
@@ -214,7 +214,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         
         gamePhase.update( scoringInfo.getGamePhase() );
         yellowFlagState.update( scoringInfo.getYellowFlagState() );
-        sectorYellowFlag.update( scoringInfo.getSectorYellowFlag( scoringInfo.getPlayersVehicleScoringInfo().getSector() ) );
+        sectorYellowFlag.update( scoringInfo.getSectorYellowFlag( scoringInfo.getViewedVehicleScoringInfo().getSector() ) );
         
         boolean changed = false;
         if ( gamePhase.hasChanged() )
@@ -285,7 +285,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        VehicleScoringInfo vsi = scoringInfo.getSessionType().isRace() ? scoringInfo.getVehicleScoringInfo( 0 ) : scoringInfo.getPlayersVehicleScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getSessionType().isRace() ? scoringInfo.getVehicleScoringInfo( 0 ) : scoringInfo.getViewedVehicleScoringInfo();
         
         if ( needsCompleteRedraw )
         {

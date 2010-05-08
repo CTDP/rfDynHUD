@@ -758,12 +758,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( resolution );
     }
     
-    private boolean loadUserSettings()
+    private Object[] loadUserSettings()
     {
+        final Object[] result = new Object[] { false, null };
+        
         File userSettingsFile = getEditorSettingsFile();
         
         if ( !userSettingsFile.exists() )
-            return ( false );
+            return ( result );
         
         try
         {
@@ -824,9 +826,10 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         {
                             File configFile = new File( value );
                             if ( !configFile.isAbsolute() )
-                                configFile = new File( RFactorTools.CONFIG_PATH, value );
+                                configFile = new File( RFactorTools.CONFIG_FOLDER, value );
                             if ( configFile.exists() )
-                                openConfig( configFile );
+                                //openConfig( configFile );
+                                result[1] = configFile;
                         }
                         else if ( key.equals( "alwaysShowHelpOnStartup" ) )
                         {
@@ -936,7 +939,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             Logger.log( t );
         }
         
-        return ( true );
+        result[0] = true;
+        
+        return ( result );
     }
     
     private File loadTemplateConfig( File templateConfigFile ) throws IOException
@@ -1017,8 +1022,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
             else
             {
-                fc.setCurrentDirectory( new File( RFactorTools.CONFIG_PATH ) );
-                fc.setSelectedFile( new File( RFactorTools.CONFIG_PATH, "overlay.ini" ) );
+                fc.setCurrentDirectory( RFactorTools.CONFIG_FOLDER );
+                fc.setSelectedFile( new File( RFactorTools.CONFIG_FOLDER, "overlay.ini" ) );
             }
             
             fc.setMultiSelectionEnabled( false );
@@ -1075,8 +1080,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
         else
         {
-            fc.setCurrentDirectory( new File( RFactorTools.CONFIG_PATH ) );
-            fc.setSelectedFile( new File( RFactorTools.CONFIG_PATH, "overlay.ini" ) );
+            fc.setCurrentDirectory( RFactorTools.CONFIG_FOLDER );
+            fc.setSelectedFile( new File( RFactorTools.CONFIG_FOLDER, "overlay.ini" ) );
         }
         
         fc.setMultiSelectionEnabled( false );
@@ -2177,7 +2182,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         menu.addSeparator();
         
-        JMenuItem optionsItem = new JMenuItem( "Options..." );
+        JMenuItem optionsItem = new JMenuItem( "Editor Presets..." );
         optionsItem.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent e )
@@ -2384,25 +2389,30 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             editor.getMainWindow().setSize( dm.getWidth(), dm.getHeight() );
             editor.getMainWindow().setExtendedState( JFrame.MAXIMIZED_BOTH );
             
-            if ( !editor.loadUserSettings() )
+            Object[] result = editor.loadUserSettings();
+            
+            if ( !(Boolean)result[0] )
             {
                 if ( editor.checkResolution( dm.getWidth(), dm.getHeight() ) )
                     editor.switchToGameResolution( dm.getWidth(), dm.getHeight() );
             }
             
+            __GDPrivilegedAccess.loadEditorDefaults( editor.gameData.getPhysics() );
+            VehicleSetup.loadEditorDefaults( editor.gameData );
+            
+            __GDPrivilegedAccess.setRealtimeMode( true, editor.gameData );
+            initTestGameData( editor.gameData, editor.presets );
+            
             if ( editor.currentConfigFile == null )
             {
-                File configFile = new File( RFactorTools.CONFIG_PATH, "overlay.ini" );
+                File configFile = (File)result[1];
+                if ( configFile == null )
+                    configFile = new File( RFactorTools.CONFIG_FOLDER, "overlay.ini" );
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else
                     ConfigurationLoader.loadFactoryDefaults( editor.getEditorPanel().getWidgetsDrawingManager(), editor.gameData, editor.presets, null );
             }
-            
-            __GDPrivilegedAccess.loadEditorDefaults( editor.gameData.getPhysics() );
-            VehicleSetup.loadEditorDefaults( editor.gameData );
-            
-            initTestGameData( editor.gameData, editor.presets );
             
             editor.eventsManager.onSessionStarted( editor.presets );
             editor.eventsManager.onRealtimeEntered( editor.presets );

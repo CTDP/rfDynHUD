@@ -137,13 +137,15 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
             {
                 if ( prop != null )
                 {
+                    //Float oldValue = (Float)prop.getValue();
+                    prop.onButtonClicked( button1 );
+                    Float newValue = (Float)prop.getValue();
                     prop.onButtonClicked( button1 );
                     
-                    float value = (Float)prop.getValue();
                     if ( prop.isSizeProp() )
-                        textfield.setText( Size.unparseValue( value ) );
+                        textfield.setText( Size.unparseValue( newValue ) );
                     else
-                        textfield.setText( Position.unparseValue( value ) );
+                        textfield.setText( Position.unparseValue( newValue ) );
                 }
                 
                 finalizeEdit( table );
@@ -156,13 +158,15 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
             {
                 if ( prop != null )
                 {
+                    //Float oldValue = (Float)prop.getValue();
+                    prop.onButton2Clicked( button2 );
+                    Float newValue = (Float)prop.getValue();
                     prop.onButton2Clicked( button2 );
                     
-                    float value = (Float)prop.getValue();
                     if ( prop.isSizeProp() )
-                        textfield.setText( Size.unparseValue( value ) );
+                        textfield.setText( Size.unparseValue( newValue ) );
                     else
-                        textfield.setText( Position.unparseValue( value ) );
+                        textfield.setText( Position.unparseValue( newValue ) );
                 }
                 
                 finalizeEdit( table );

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
@@ -65,7 +66,8 @@ public abstract class Widget implements Documented
     
     private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME );
     
-    private final BooleanProperty visible = new BooleanProperty( this, "initialVisibility", true );
+    private boolean visible1 = true;
+    private final BooleanProperty visible2 = new BooleanProperty( this, "initialVisibility", true );
     private boolean needsCompleteRedraw = true;
     private boolean needsCompleteClear = false;
     
@@ -75,6 +77,14 @@ public abstract class Widget implements Documented
     
     private final DrawnStringFactory drawnStringFactory = new DrawnStringFactory();
     
+    protected void onVisibilityChanged( boolean visible )
+    {
+        if ( visible )
+            this.needsCompleteRedraw = true;
+        else
+            this.needsCompleteClear = true;
+    }
+    
     /**
      * 
      * @param property
@@ -83,12 +93,9 @@ public abstract class Widget implements Documented
      */
     protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
-        if ( property == visible )
+        if ( property == visible2 )
         {
-            if ( (Boolean)newValue )
-                this.needsCompleteRedraw = true;
-            else
-                this.needsCompleteClear = true;
+            onVisibilityChanged( (Boolean)newValue );
         }
     }
     
@@ -572,23 +579,58 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Sets this Widget's visibility flag.
+     * Sets this Widget's visibility flag 1. This is usually controlled be the ToggleWidgetVisibility InputAction.
      * 
      * @param visible
      */
-    public void setVisible( boolean visible )
+    public void setVisible1( boolean visible )
     {
-        this.visible.setBooleanValue( visible );
+        if ( visible == this.visible1 )
+            return;
+        
+        this.visible1 = visible;
+        
+        onVisibilityChanged( visible );
     }
     
     /**
-     * Gets this Widget's visibility flag.
+     * Gets this Widget's visibility flag 1. This is usually controlled be the ToggleWidgetVisibility InputAction.
+     * 
+     * @return this Widget's visibility flag.
+     */
+    public final boolean isVisible1()
+    {
+        return ( visible1 );
+    }
+    
+    /**
+     * Sets this Widget's visibility flag 2. This is the one, you should toggle in your widget code.
+     * 
+     * @param visible
+     */
+    public void setVisible2( boolean visible )
+    {
+        this.visible2.setBooleanValue( visible );
+    }
+    
+    /**
+     * Gets this Widget's visibility flag 2. This is the one, you should toggle in your widget code.
+     * 
+     * @return this Widget's visibility flag.
+     */
+    public final boolean isVisible2()
+    {
+        return ( visible2.getBooleanValue() );
+    }
+    
+    /**
+     * Gets this Widget's total visibility flag ({@link #isVisible1()} && {@link #isVisible2()}).
      * 
      * @return this Widget's visibility flag.
      */
     public final boolean isVisible()
     {
-        return ( visible.getBooleanValue() );
+        return ( visible1 && visible2.getBooleanValue() );
     }
     
     /**
@@ -618,7 +660,7 @@ public abstract class Widget implements Documented
      * 
      * @return whether this Widget has just been set invisible and its area hence needs to be cleared.
      */
-    public final boolean needsCompleteClear()
+    final boolean needsCompleteClear()
     {
         boolean result = needsCompleteClear;
         
@@ -742,22 +784,24 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * This method is called when a lap has been finished and new new one was started.
+     * This method is called when either the player's vehicle control has changed or another vehicle is being viewed.
      * 
+     * @param viewedVSI
      * @param gameData
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onLapStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
     /**
-     * This method is called when the driver has finished a lap and started a new one.
+     * This method is called when a lap has been finished and a new one was started.
      * 
+     * @param vsi the driver, who started the lap. If this is the leader and the session type is RACE, the whole race has moved on to the next lap.
      * @param gameData
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
-    public void onPlayerLapStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     
@@ -1009,7 +1053,7 @@ public abstract class Widget implements Documented
         size.saveWidthProperty( "width", "The width. Use negative values to make the Widget be sized relative to screen size.", writer );
         size.saveHeightProperty( "height", "The height. Use negative values to make the Widget be sized relative to screen size.", writer );
         writer.writeProperty( border, "The widget's border." );
-        writer.writeProperty( visible, "The initial visibility." );
+        writer.writeProperty( visible2, "The initial visibility." );
         
         if ( hasBackgroundColor() )
         {
@@ -1035,7 +1079,7 @@ public abstract class Widget implements Documented
         else if ( position.loadProperty( key, value, "positioning", "x", "y" ) );
         else if ( size.loadProperty( key, value, "width", "height" ) );
         else if ( canHaveBorder() && border.loadProperty( key, value ) );
-        else if ( visible.loadProperty( key, value ) );
+        else if ( visible2.loadProperty( key, value ) );
         else if ( backgroundColor.loadProperty( key, value ) );
         else if ( font.loadProperty( key, value ) );
         else if ( fontColor.loadProperty( key, value ) );
@@ -1075,7 +1119,7 @@ public abstract class Widget implements Documented
         propsCont.addProperty( position.createYProperty( "y" ) );
         propsCont.addProperty( size.createWidthProperty( "width" ) );
         propsCont.addProperty( size.createHeightProperty( "height" ) );
-        propsCont.addProperty( visible );
+        propsCont.addProperty( visible2 );
         
         if ( canHaveBorder() )
         {

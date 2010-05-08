@@ -428,6 +428,22 @@ public class VehiclePhysics
             return ( baseMaxRPM + ( boostRange.getMaxValue() - boostRange.getBaseValue() ) * rpmIncreasePerBoostSetting );
         }
         
+        public final int getLowestBoostLevel()
+        {
+            if ( rpmIncreasePerBoostSetting <= 0f )
+                return ( (int)boostRange.getMaxValue() );
+            
+            return ( (int)boostRange.getMinValue() );
+        }
+        
+        public final int getHighestBoostLevel()
+        {
+            if ( rpmIncreasePerBoostSetting <= 0f )
+                return ( (int)boostRange.getMinValue() );
+            
+            return ( (int)boostRange.getMaxValue() );
+        }
+        
         Engine()
         {
         }
@@ -1505,7 +1521,7 @@ public class VehiclePhysics
 		}
     }
     
-    void loadFromPhysicsFiles( LiveGameData gameData )
+    void loadFromPhysicsFiles( String trackName )
     {
         File profileFolder = RFactorTools.getProfileFolder();
         File cchFile = RFactorTools.getCCHFile( profileFolder );
@@ -1515,7 +1531,7 @@ public class VehiclePhysics
     	{
     	    long t0 = System.currentTimeMillis();
     	    
-			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorTools.RFACTOR_FOLDER, playerVEHFile, gameData.getScoringInfo().getTrackName(), this );
+			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorTools.RFACTOR_FOLDER, playerVEHFile, trackName, this );
 			
 			Logger.log( "Successfully parsed physics files. (Took " + ( System.currentTimeMillis() - t0 ) + "ms.)" );
 			

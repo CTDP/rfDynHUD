@@ -22,7 +22,9 @@ public class GraphicsInfo
     
     private final LiveGameData gameData;
     
-    private long updateID = 0L;
+    private boolean valid = false;
+    
+    private long updateId = 0L;
     
     public static interface GraphicsInfoUpdateListener
     {
@@ -84,7 +86,8 @@ public class GraphicsInfo
     
     void onDataUpdated()
     {
-        this.updateID++;
+        this.valid = gameData.isInRealtimeMode();
+        this.updateId++;
         
         if ( updateListeners != null )
         {
@@ -93,9 +96,14 @@ public class GraphicsInfo
         }
     }
     
-    public final long getUpdateID()
+    public final boolean isDataValid()
     {
-        return ( updateID );
+        return ( valid );
+    }
+    
+    public final long getUpdateId()
+    {
+        return ( updateId );
     }
     
     void loadFromStream( InputStream in ) throws IOException
@@ -122,7 +130,7 @@ public class GraphicsInfo
     // GraphicsInfo
     
     /**
-     * camera position
+     * camera position in meters
      * 
      * @param position
      */
@@ -131,6 +139,36 @@ public class GraphicsInfo
         // TelemVect3 mCamPos
         
         ByteUtil.readVector( buffer, OFFSET_CAM_POS, position );
+    }
+    
+    /**
+     * camera position in meters
+     */
+    public final float getCameraPositionX()
+    {
+        // TelemVect3 mCamPos
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 0 * ByteUtil.SIZE_FLOAT ) );
+    }
+    
+    /**
+     * camera position in meters
+     */
+    public final float getCameraPositionY()
+    {
+        // TelemVect3 mCamPos
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 1 * ByteUtil.SIZE_FLOAT ) );
+    }
+    
+    /**
+     * camera position in meters
+     */
+    public final float getCameraPositionZ()
+    {
+        // TelemVect3 mCamPos
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_CAM_POS + 2 * ByteUtil.SIZE_FLOAT ) );
     }
     
     /**

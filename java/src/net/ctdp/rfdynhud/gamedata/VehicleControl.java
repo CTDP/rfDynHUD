@@ -12,4 +12,9 @@ public enum VehicleControl
     REMOTE, // 2
     REPLAY, // 3
     ;
+    
+    public final boolean isLocalPlayer()
+    {
+        return ( this == LOCAL_PLAYER );
+    }
 }

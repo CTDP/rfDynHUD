@@ -17,9 +17,9 @@ public class __GDPrivilegedAccess
         physics.loadEditorDefaults();
     }
     
-    public static final void loadFromPhysicsFiles( LiveGameData gameData )
+    public static final void loadFromPhysicsFiles( VehiclePhysics physics, String trackName )
     {
-        gameData.getPhysics().loadFromPhysicsFiles( gameData );
+        physics.loadFromPhysicsFiles( trackName );
     }
     
     public static final void applyEditorPresets( EditorPresets editorPresets, LiveGameData gameData )
@@ -73,6 +73,11 @@ public class __GDPrivilegedAccess
     {
         gameData.getTelemetryData().onRealtimeExited();
         gameData.getScoringInfo().onRealtimeExited();
+    }
+    
+    public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData )
+    {
+        gameData.setRealtimeMode( realtimeMode );
     }
     
     public static final void updateSessionTime( ScoringInfo scoringInfo, long timestamp )

@@ -8,6 +8,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
@@ -26,6 +27,7 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.Size;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -55,6 +57,8 @@ public class WearWidget extends Widget
     private final BooleanProperty displayEngine = new BooleanProperty( this, "displayEngine", true );
     private final BooleanProperty displayTires = new BooleanProperty( this, "displayTires", true );
     private final BooleanProperty displayBrakes = new BooleanProperty( this, "displayBrakes", true );
+    
+    private Boolean displayBrakes2 = null;
     
     private final EnumProperty<HundredPercentBase> hundredPercentBase = new EnumProperty<HundredPercentBase>( this, "hundredPercentBase", HundredPercentBase.SAFE_RANGE );
     
@@ -218,6 +222,26 @@ public class WearWidget extends Widget
         return ( true );
     }
     
+    private void setControlVisibility( VehicleScoringInfo viewedVSI )
+    {
+        setVisible2( viewedVSI.isPlayer() );
+        
+        displayBrakes2 = displayBrakes.getBooleanValue() && viewedVSI.getVehicleControl().isLocalPlayer();
+        forceReinitialization();
+        forceCompleteRedraw();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        
+        setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -233,17 +257,32 @@ public class WearWidget extends Widget
         engineLifetimeLossPerLap = -1f;
         
         //forceReinitialization();
+        
+        displayBrakes2 = null;
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void onPlayerLapStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onPlayerLapStarted( gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
         
-        if ( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getLapsCompleted() >= 1 )
+        setControlVisibility( viewedVSI );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onLapStarted( vsi, gameData, editorPresets );
+        
+        VehicleScoringInfo pvsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+        
+        if ( vsi.equals( pvsi ) && ( vsi.getLapsCompleted() >= 1 ) )
         {
             if ( engineLifetimeAtLapStart < 0f )
             {
@@ -298,7 +337,9 @@ public class WearWidget extends Widget
             top = engineHeight.getEffectiveHeight() + 10;
         }
         
-        int imgWidth = displayTires.getBooleanValue() && displayBrakes.getBooleanValue() ? Math.max( tireWidth, brakeWidth ) : ( displayTires.getBooleanValue() ? tireWidth : brakeWidth );
+        boolean db = ( displayBrakes2 == null ) ? displayBrakes.getBooleanValue() : displayBrakes2.booleanValue();
+        
+        int imgWidth = displayTires.getBooleanValue() && db ? Math.max( tireWidth, brakeWidth ) : ( displayTires.getBooleanValue() ? tireWidth : brakeWidth );
         
         if ( displayTires.getBooleanValue() )
         {
@@ -330,7 +371,7 @@ public class WearWidget extends Widget
             top = tireHeight * 2 + 15;
         }
         
-        if ( displayBrakes.getBooleanValue() )
+        if ( db )
         {
             brakesHeaderString = dsf.newDrawnString( "brakesHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             if ( getDisplayWearPercent_brakes() )
@@ -636,6 +677,8 @@ public class WearWidget extends Widget
         
         final boolean isEditorMode = ( editorPresets != null );
         
+        boolean db = ( displayBrakes2 == null ) ? displayBrakes.getBooleanValue() : displayBrakes2.booleanValue();
+        
         if ( needsCompleteRedraw )
         {
             if ( displayEngine.getBooleanValue() )
@@ -647,7 +690,7 @@ public class WearWidget extends Widget
                 else
                     tiresHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
             }
-            if ( displayBrakes.getBooleanValue() )
+            if ( db )
                 brakesHeaderString.draw( offsetX, offsetY, "Brakes:", backgroundColor, texture );
         }
         
@@ -825,7 +868,7 @@ public class WearWidget extends Widget
             }
         }
         
-        if ( displayBrakes.getBooleanValue() )
+        if ( db )
         {
             final int brakeWidth = brakeSize.getEffectiveWidth();
             

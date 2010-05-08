@@ -92,6 +92,8 @@ public class TransformableTexture
     private static final byte TRANSFORM_FLAG_ROTATION = 4;
     private static final byte TRANSFORM_FLAG_SCALE = 8;
     
+    private boolean isDynamic = false;
+    
     private final boolean isTransformed;
     private byte transformFlags = 0;
     
@@ -149,6 +151,16 @@ public class TransformableTexture
     protected final boolean isRectangleVisible( int index )
     {
         return ( usedRectangles[index].isVisible() );
+    }
+    
+    public void setDynamic( boolean dynamic )
+    {
+        this.isDynamic = dynamic;
+    }
+    
+    public final boolean isDynamic()
+    {
+        return ( isDynamic );
     }
     
     public final boolean isTransformed()
@@ -445,6 +457,7 @@ public class TransformableTexture
      */
     private TransformableTexture( String dummy, int width, int height )
     {
+        this.isDynamic = true;
         this.texture = createTexture( width, height );
         this.isTransformed = false;
         this.transformFlags = 0;

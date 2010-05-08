@@ -66,25 +66,16 @@ public class TimeCompareWidget extends Widget
         lap.reset();
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
-    {
-        super.onRealtimeEntered( gameData, editorPresets );
-    }
-    
     protected String getGapRowCaption()
     {
         return ( "g" );
     }
     
-    private void updateLaps( int lap, LiveGameData gameData )
+    private void updateLaps( VehicleScoringInfo vsi, LiveGameData gameData )
     {
         LocalStore store = (LocalStore)getLocalStore();
         
-        VehicleScoringInfo vsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+        int lap = vsi.getCurrentLap();
         
         int n = 0;
         float sumS1 = 0f;
@@ -124,15 +115,26 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onPlayerLapStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onPlayerLapStarted( gameData, editorPresets );
+        super.onLapStarted( vsi, gameData, editorPresets );
         
-        VehicleScoringInfo vsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+        if ( vsi == gameData.getScoringInfo().getViewedVehicleScoringInfo() )
+        {
+            updateLaps( vsi, gameData );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
         
-        lap.update( vsi.getCurrentLap() );
-        
-        updateLaps( lap.getValue(), gameData );
+        updateLaps( viewedVSI, gameData );
+        forceCompleteRedraw();
     }
     
     /**
@@ -182,9 +184,9 @@ public class TimeCompareWidget extends Widget
             timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, colAligns, colPadding, texture, colWidths );
         }
         
-        int currentLap = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getCurrentLap();
-        if ( currentLap > 0 )
-            updateLaps( currentLap, gameData );
+        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+        if ( vsi.getCurrentLap() > 0 )
+            updateLaps( vsi, gameData );
     }
     
     /**
@@ -213,6 +215,8 @@ public class TimeCompareWidget extends Widget
                 headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Lap" }, colAligns, padding, colWidths, backgroundColor, texture );
             }
         }
+        
+        lap.update( gameData.getScoringInfo().getViewedVehicleScoringInfo().getCurrentLap() );
         
         if ( needsCompleteRedraw || lap.hasChanged() )
         {

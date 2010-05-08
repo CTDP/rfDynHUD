@@ -192,7 +192,7 @@ public class OptionsWindow extends JDialog implements PropertyChangeListener
     
     public OptionsWindow( RFDynHUDEditor editor )
     {
-        super( editor.getMainWindow(), "rfDynHUD Editor Options", false );
+        super( editor.getMainWindow(), "rfDynHUD Editor Presets", false );
         
         this.editor = editor;
         setLocationRelativeTo( editor.getMainWindow() );

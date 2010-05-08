@@ -208,14 +208,17 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         lastOilTemperature = telemData.getEngineOilTemperature();
         lastEngineRevs = telemData.getEngineRPM();
         lastEngineBoost = telemData.getEffectiveEngineBoostMapping();
-        lastVelocity = telemData.getScalarVelocity();
+        lastVelocity = telemData.getScalarVelocityMPS();
         
         lastBrakeBias = gameData.getSetup().getControls().getRearBrakeBalance();
         lastBrakeApplication = telemData.getUnfilteredBrake();
-        lastBrakeTemperatureFL = telemData.getBrakeTemperatureKelvin( Wheel.FRONT_LEFT );
-        lastBrakeTemperatureFR = telemData.getBrakeTemperatureKelvin( Wheel.FRONT_RIGHT );
-        lastBrakeTemperatureRL = telemData.getBrakeTemperatureKelvin( Wheel.REAR_LEFT );
-        lastBrakeTemperatureRR = telemData.getBrakeTemperatureKelvin( Wheel.REAR_RIGHT );
+        if ( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() && gameData.getScoringInfo().getViewedVehicleScoringInfo().getVehicleControl().isLocalPlayer() )
+        {
+            lastBrakeTemperatureFL = telemData.getBrakeTemperatureKelvin( Wheel.FRONT_LEFT );
+            lastBrakeTemperatureFR = telemData.getBrakeTemperatureKelvin( Wheel.FRONT_RIGHT );
+            lastBrakeTemperatureRL = telemData.getBrakeTemperatureKelvin( Wheel.REAR_LEFT );
+            lastBrakeTemperatureRR = telemData.getBrakeTemperatureKelvin( Wheel.REAR_RIGHT );
+        }
         lastWheelRotationFL = telemData.getWheelRotation( Wheel.FRONT_LEFT );
         lastWheelRotationFR = telemData.getWheelRotation( Wheel.FRONT_RIGHT );
         lastWheelRotationRL = telemData.getWheelRotation( Wheel.REAR_LEFT );

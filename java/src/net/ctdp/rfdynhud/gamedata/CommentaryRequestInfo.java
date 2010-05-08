@@ -21,7 +21,7 @@ public class CommentaryRequestInfo
     
     private final LiveGameData gameData;
     
-    private long updateID = 0L;
+    private long updateId = 0L;
     
     public static interface CommentaryInfoUpdateListener
     {
@@ -83,7 +83,7 @@ public class CommentaryRequestInfo
     
     void onDataUpdated()
     {
-        this.updateID++;
+        this.updateId++;
         
         if ( updateListeners != null )
         {
@@ -92,9 +92,9 @@ public class CommentaryRequestInfo
         }
     }
     
-    public final long getUpdateID()
+    public final long getUpdateId()
     {
-        return ( updateID );
+        return ( updateId );
     }
     
     void loadFromStream( InputStream in ) throws IOException

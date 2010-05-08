@@ -5,15 +5,16 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -72,10 +73,26 @@ public class ControlsWidget extends Widget
         return ( StandardWidgetSet.WIDGET_PACKAGE );
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.onPropertyChanged( property, oldValue, newValue );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        
+        setVisible2( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        
+        setVisible2( viewedVSI.isPlayer() );
     }
     
     private int initSubTextures( int widgetInnerWidth, int widgetInnerHeight )
@@ -142,12 +159,6 @@ public class ControlsWidget extends Widget
             texs[i++] = texThrottle;
         
         return ( texs );
-    }
-    
-    @Override
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
-    {
-        super.onRealtimeExited( gameData, editorPresets );
     }
     
     /**

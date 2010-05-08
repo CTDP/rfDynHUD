@@ -63,73 +63,80 @@ public class ThreeLetterCodeManager
     
     public static void updateThreeLetterCodes()
     {
-        File ini = new File( RFactorTools.CONFIG_PATH, INI_FILENAME );
-        if ( !ini.exists() )
+        try
         {
-            Logger.log( "WARNING: No " + INI_FILENAME + " found." );
-            
-            if ( threeLetterCodes == null )
-                threeLetterCodes = new HashMap<String, String>();
-            else
-                threeLetterCodes.clear();
-            
-            if ( shortForms == null )
-                shortForms = new HashMap<String, String>();
-            else
-                shortForms.clear();
-            
-            return;
-        }
-        
-        if ( ini.lastModified() > lastModified )
-        {
-            lastModified = ini.lastModified();
-            
-            if ( threeLetterCodes == null )
-                threeLetterCodes = new HashMap<String, String>();
-            else
-                threeLetterCodes.clear();
-            
-            if ( shortForms == null )
-                shortForms = new HashMap<String, String>();
-            else
-                shortForms.clear();
-            
-            try
+            File ini = new File( RFactorTools.CONFIG_PATH, INI_FILENAME );
+            if ( !ini.exists() )
             {
-                new AbstractIniParser()
+                Logger.log( "WARNING: No " + INI_FILENAME + " found." );
+                
+                if ( threeLetterCodes == null )
+                    threeLetterCodes = new HashMap<String, String>();
+                else
+                    threeLetterCodes.clear();
+                
+                if ( shortForms == null )
+                    shortForms = new HashMap<String, String>();
+                else
+                    shortForms.clear();
+                
+                return;
+            }
+            
+            if ( ini.lastModified() > lastModified )
+            {
+                lastModified = ini.lastModified();
+                
+                if ( threeLetterCodes == null )
+                    threeLetterCodes = new HashMap<String, String>();
+                else
+                    threeLetterCodes.clear();
+                
+                if ( shortForms == null )
+                    shortForms = new HashMap<String, String>();
+                else
+                    shortForms.clear();
+                
+                try
                 {
-                    protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
+                    new AbstractIniParser()
                     {
-                        int idx = value.indexOf( ';' );
-                        if ( idx >= 0 )
+                        protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                         {
-                            threeLetterCodes.put( key, value.substring( 0, idx ) );
-                            
-                            if ( idx < value.length() - 1 )
+                            int idx = value.indexOf( ';' );
+                            if ( idx >= 0 )
                             {
-                                shortForms.put( key, value.substring( idx + 1 ) );
+                                threeLetterCodes.put( key, value.substring( 0, idx ) );
+                                
+                                if ( idx < value.length() - 1 )
+                                {
+                                    shortForms.put( key, value.substring( idx + 1 ) );
+                                }
+                                else
+                                {
+                                    generateShortForm( key );
+                                }
                             }
                             else
                             {
+                                threeLetterCodes.put( key, value );
+                                
                                 generateShortForm( key );
                             }
-                        }
-                        else
-                        {
-                            threeLetterCodes.put( key, value );
                             
-                            generateShortForm( key );
+                            return ( true );
                         }
-                        
-                        return ( true );
-                    }
-                }.parse( ini );
+                    }.parse( ini );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
             }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
         }
     }
     

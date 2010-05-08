@@ -25,6 +25,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.IntValue;
@@ -32,6 +33,7 @@ import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.ValidityTest;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -357,6 +359,22 @@ public class FuelWidget extends Widget
         }
     }
     
+    private void setControlVisibility( VehicleScoringInfo viewedVSI )
+    {
+        setVisible2( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        
+        setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -393,6 +411,17 @@ public class FuelWidget extends Widget
         }
         
         this.stintLength.reset();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        
+        setControlVisibility( viewedVSI );
     }
     
     /**
@@ -462,6 +491,18 @@ public class FuelWidget extends Widget
         return ( tts );
     }
     
+    private static final String getFuelUnits()
+    {
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( "Gal" );
+            case METRIC:
+            default:
+                return ( "L" );
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -485,7 +526,7 @@ public class FuelWidget extends Widget
         int fuelBarWidth = this.fuelBarWidth.getEffectiveWidth();
         int fuelBarCenter = left + fuelBarLeftOffset.getIntValue() + ( fuelBarWidth / 2 );
         
-        fuelLoadString1 = dsf.newDrawnString( "fuelLoadString1", fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "L" );
+        fuelLoadString1 = dsf.newDrawnString( "fuelLoadString1", fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, getFuelUnits() );
         fuelLoadString2 = dsf.newDrawnString( "fuelLoadString2", null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "kg" );
         fuelLoadString3 = dsf.newDrawnString( "fuelLoadString3", null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null );
         
@@ -551,6 +592,7 @@ public class FuelWidget extends Widget
         }
         
         float fuel = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuel();
+        float fuelL = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuelL();
         float avgFuelUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getAverage();
         
         if ( isEditorMode )
@@ -613,7 +655,7 @@ public class FuelWidget extends Widget
             
             String string = NumberUtil.formatFloat( fuel, 1, true );
             fuelLoadString1.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
-            string = NumberUtil.formatFloat( fuel * gameData.getPhysics().getWeightOfOneLiterOfFuel(), 1, true );
+            string = NumberUtil.formatFloat( fuelL * gameData.getPhysics().getWeightOfOneLiterOfFuel(), 1, true );
             fuelLoadString2.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
             
             if ( !isEditorMode && ( avgFuelUsage > 0f ) )
@@ -647,12 +689,12 @@ public class FuelWidget extends Widget
             
             String string;
             if ( lastFuelUsage > 0f )
-                string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + "L";
+                string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + getFuelUnits();
             else
                 string = "N/A";
             fuelUsageOneLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
             
-            string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + "L";
+            string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + getFuelUnits();
             fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, texture );
         }
         
@@ -725,7 +767,7 @@ public class FuelWidget extends Widget
                     String string = String.valueOf( nextPitstopLap ) + " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")";
                     nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
-                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + "L (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
+                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + getFuelUnits() + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
                     nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 }
                 else

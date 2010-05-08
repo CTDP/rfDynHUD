@@ -10,18 +10,19 @@ public class StandingsTools
      * Fills the target array with {@link VehicleScoringInfo}s for all visible drivers.
      * 
      * @param scoringInfo
+     * @param viewedVSI
      * @param standingsView
      * @param forceLeaderDisplayed
      * @param target
      * 
      * @return the actual number of displayed drivers.
      */
-    public static int getDisplayedVSIsForScoring( ScoringInfo scoringInfo, StandingsView standingsView, boolean forceLeaderDisplayed, VehicleScoringInfo[] target )
+    public static int getDisplayedVSIsForScoring( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, StandingsView standingsView, boolean forceLeaderDisplayed, VehicleScoringInfo[] target )
     {
         final int maxDisplayedDrivers = target.length;
         
         int numVehicles = scoringInfo.getNumVehicles();
-        int ownPlace = scoringInfo.getOwnPlace();
+        int ownPlace = viewedVSI.getPlace();
         
         int i0 = 0;
         int j = 0;
@@ -62,12 +63,13 @@ public class StandingsTools
      * Computes gaps for all drivers to the player.
      * 
      * @param scoringInfo
+     * @param viewedVSI
      * @param relTimes target array
      */
-    public static void computeRelativeTimesRace( ScoringInfo scoringInfo, float[] relTimes )
+    public static void computeRelativeTimesRace( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, float[] relTimes )
     {
         final int numVehicles = scoringInfo.getNumVehicles();
-        final int ownPlace = scoringInfo.getOwnPlace();
+        final int ownPlace = viewedVSI.getPlace();
         relTimes[ownPlace - 1] = 0f;
         
         for ( int i = ownPlace - 2; i >= 0; i-- )

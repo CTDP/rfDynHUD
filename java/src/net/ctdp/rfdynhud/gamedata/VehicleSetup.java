@@ -114,7 +114,7 @@ public class VehicleSetup
             return ( numPitstops );
         }
         
-        private void applyFuel( int fuel, int pitstop )
+        private void applyFuel( float fuel, int pitstop )
         {
             if ( this.fuel == null )
             {
@@ -131,18 +131,67 @@ public class VehicleSetup
         }
         
         /**
+         * Get fuel in liters.
+         * 
          * GENERAL::FuelSetting=94//100L (13laps)
          * GENERAL::Pitstop1Setting=71//75L (10laps)
          * GENERAL::Pitstop2Setting=60//64L (8laps)
          * GENERAL::Pitstop3Setting=48//N/A
          * 
-         * @return the fuel setting for the given pitstop number. (0 for starting fuel).
+         * @param pitstop pitstop number. (0 for starting fuel).
+         * 
+         * @return the fuel setting for the given pitstop number.
+         * 
+         * @see #getNumPitstops()
+         */
+        public final float getFuelL( int pitstop )
+        {
+            return ( fuel[pitstop] );
+        }
+        
+        /**
+         * Get fuel in galons.
+         * 
+         * GENERAL::FuelSetting=94//100L (13laps)
+         * GENERAL::Pitstop1Setting=71//75L (10laps)
+         * GENERAL::Pitstop2Setting=60//64L (8laps)
+         * GENERAL::Pitstop3Setting=48//N/A
+         * 
+         * @param pitstop pitstop number. (0 for starting fuel).
+         * 
+         * @return the fuel setting for the given pitstop number.
+         * 
+         * @see #getNumPitstops()
+         */
+        public final float getFuelGal( int pitstop )
+        {
+            return ( getFuelL( pitstop ) * TelemetryData.LITERS_TO_GALONS );
+        }
+        
+        /**
+         * Get fuel in the units selected in the PLR.
+         * 
+         * GENERAL::FuelSetting=94//100L (13laps)
+         * GENERAL::Pitstop1Setting=71//75L (10laps)
+         * GENERAL::Pitstop2Setting=60//64L (8laps)
+         * GENERAL::Pitstop3Setting=48//N/A
+         * 
+         * @param pitstop pitstop number. (0 for starting fuel).
+         * 
+         * @return the fuel setting for the given pitstop number.
          * 
          * @see #getNumPitstops()
          */
         public final float getFuel( int pitstop )
         {
-            return ( fuel[pitstop] );
+            switch ( RFactorTools.getMeasurementUnits() )
+            {
+                case IMPERIAL:
+                    return ( getFuelGal( pitstop ) );
+                case METRIC:
+                default:
+                    return ( getFuelL( pitstop ) );
+            }
         }
         
         /*
@@ -793,6 +842,8 @@ public class VehicleSetup
                 }
             }
             
+            private boolean numPitstopsFound = false;
+            
             @Override
             protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
             {
@@ -843,10 +894,8 @@ public class VehicleSetup
                     else if ( key.equals( "FuelSetting" ) )
                     {
                         //FuelSetting=94//100L (13laps)
-                        //int setting = Integer.parseInt( value );
-                        // TODO: Use setting and physics
-                        int data = Integer.parseInt( comment.substring( 0, comment.indexOf( 'L' ) ) );
-                        setup.general.applyFuel( data, 0 );
+                        int setting = Integer.parseInt( value );
+                        setup.general.applyFuel( physics.getFuelRange().getValueForSetting( setting ), 0 );
                     }
                     else if ( key.equals( "NumPitstopsSetting" ) )
                     {
@@ -854,19 +903,20 @@ public class VehicleSetup
                         int setting = Integer.parseInt( value );
                         //int data = Integer.parseInt( comment );
                         setup.general.numPitstops = setting;
+                        numPitstopsFound = true;
                     }
                     else if ( key.startsWith( "Pitstop" ) )
                     {
                         //Pitstop1Setting=71//75L (10laps)
                         int pitstop = Integer.parseInt( key.substring( 7, 8 ) );
-                        //int setting = Integer.parseInt( value );
-                        // TODO: Use setting and physics
-                        if ( ( comment.equals( "N/A" ) ) || ( comment.equals( "Nicht vorhanden" ) ) )
-                            setup.general.applyFuel( 0, pitstop );
+                        int setting = Integer.parseInt( value );
+                        float fuel = physics.getFuelRange().getValueForSetting( setting );
+                        if ( ( numPitstopsFound && pitstop > setup.general.numPitstops ) || ( comment.equals( "N/A" ) ) || ( comment.equals( "Nicht vorhanden" ) ) )
+                            setup.general.applyFuel( 0f, pitstop );
                         else if ( comment.startsWith( "+" ) )
-                            setup.general.applyFuel( -Integer.parseInt( comment.substring( 1, comment.indexOf( 'L' ) ) ), pitstop );
+                            setup.general.applyFuel( -fuel, pitstop );
                         else
-                            setup.general.applyFuel( Integer.parseInt( comment.substring( 0, comment.indexOf( 'L' ) ) ), pitstop );
+                            setup.general.applyFuel( fuel, pitstop );
                     }
                 }
                 else if ( group.equals( "LEFTFENDER" ) )

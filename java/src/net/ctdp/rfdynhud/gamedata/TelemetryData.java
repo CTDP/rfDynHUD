@@ -6,6 +6,7 @@ import java.io.InputStream;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
+import net.ctdp.rfdynhud.util.RFactorTools;
 
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
@@ -23,6 +24,9 @@ import net.ctdp.rfdynhud.util.RFactorEventsManager;
 public class TelemetryData
 {
     static final float ZERO_KELVIN = -273.15f;
+    static final float MPS_TO_MPH = 2.237f;
+    static final float MPS_TO_KPH = 3.6f; // 3600f / 1000f
+    static final float LITERS_TO_GALONS = 0.26417287f;
     
     private static final int OFFSET_DELTA_TIME = 0;
     private static final int OFFSET_LAP_NUMBER = OFFSET_DELTA_TIME + ByteUtil.SIZE_FLOAT;
@@ -91,7 +95,7 @@ public class TelemetryData
     
     final byte[] buffer = new byte[ BUFFER_SIZE ];
     
-    private long updateID = 0L;
+    private long updateId = 0L;
     
     private final LiveGameData gameData;
     
@@ -180,7 +184,7 @@ public class TelemetryData
     
     void onDataUpdated()
     {
-        this.updateID++;
+        this.updateId++;
         
         float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
         if ( ( bmr > 10f ) && ( bmr != engineBaseMaxRPM ) )
@@ -194,13 +198,11 @@ public class TelemetryData
             for ( int i = 0; i < updateListeners.length; i++ )
                 updateListeners[i].onTelemetryDataUpdated( gameData );
         }
-        
-        eventsManager.checkPosition( null );
     }
     
-    public final long getUpdateID()
+    public final long getUpdateId()
     {
-        return ( updateID );
+        return ( updateId );
     }
     
     void onSessionStarted()
@@ -447,7 +449,7 @@ public class TelemetryData
     /**
      * velocity (meters/sec)
      */
-    public final float getScalarVelocity()
+    public final float getScalarVelocityMPS()
     {
         float vecX = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 0 * ByteUtil.SIZE_FLOAT );
         float vecY = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 1 * ByteUtil.SIZE_FLOAT );
@@ -457,14 +459,38 @@ public class TelemetryData
     }
     
     /**
+     * velocity (mph)
+     */
+    public final float getScalarVelocityMPH()
+    {
+        float mps = getScalarVelocityMPS();
+        
+        return ( mps * MPS_TO_MPH );
+    }
+    
+    /**
      * velocity (km/h)
      */
     public final float getScalarVelocityKPH()
     {
-        float mps = getScalarVelocity();
+        float mps = getScalarVelocityMPS();
         
-        //return ( mps * 3600f / 1000f );
-        return ( mps * 3.6f );
+        return ( mps * MPS_TO_KPH );
+    }
+    
+    /**
+     * velocity in the units selected in the PLR.
+     */
+    public final float getScalarVelocity()
+    {
+        switch ( RFactorTools.getSpeedUnits() )
+        {
+            case MPH:
+                return ( getScalarVelocityMPH() );
+            case KPH:
+            default:
+                return ( getScalarVelocityKPH() );
+        }
     }
     
     /**
@@ -696,11 +722,34 @@ public class TelemetryData
     /**
      * amount of fuel (liters)
      */
-    public final float getFuel()
+    public final float getFuelL()
     {
         // float mFuel
         
         return ( ByteUtil.readFloat( buffer, OFFSET_FUEL ) );
+    }
+    
+    /**
+     * amount of fuel (galons)
+     */
+    public final float getFuelGal()
+    {
+        return ( getFuelL() * LITERS_TO_GALONS );
+    }
+    
+    /**
+     * amount of fuel in the units selected in the PLR.
+     */
+    public final float getFuel()
+    {
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( getFuelGal() );
+            case METRIC:
+            default:
+                return ( getFuelL() );
+        }
     }
     
     /**

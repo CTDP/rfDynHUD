@@ -18,6 +18,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.EnumValue;
@@ -156,6 +157,36 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        
+        oldRelTopspeed = -1f;
+        relTopspeed = -1f;
+        ( (LocalStore)getLocalStore() ).lastRelTopspeedTime = -1L;
+        ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = viewedVSI.getTopspeed();
+        oldAbsTopspeed = -1f;
+        oldVelocity = -1;
+        
+        updateAbs = true;
+    }
+    
+    private static final String getSpeedUnits()
+    {
+        switch ( RFactorTools.getSpeedUnits() )
+        {
+            case MPH:
+                return ( "mi/h" );
+            case KPH:
+            default:
+                return ( "km/h" );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
@@ -166,6 +197,8 @@ public class MiscWidget extends Widget
         final int center = width / 2;
         final int right = width - 2;
         final int top = -2;
+        
+        final String speedUnits = getSpeedUnits();
         
         {
             boolean b = displayScoring.getBooleanValue();
@@ -219,9 +252,9 @@ public class MiscWidget extends Widget
             velocityColWidths[1] = 0;
             velocityColWidths[2] = 0;
             
-            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", "km/h" }, velocityAlignment, padding, texture, velocityColWidths );
-            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", "km/h" }, velocityAlignment, padding, texture, velocityColWidths );
-            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", "km/h" }, velocityAlignment, padding, texture, velocityColWidths );
+            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
+            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
+            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
         }
         else
         {
@@ -257,7 +290,7 @@ public class MiscWidget extends Widget
         final java.awt.Color backgroundColor = getBackgroundColor();
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
-        VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
         if ( displayScoring.getBooleanValue() )
         {
@@ -411,7 +444,7 @@ public class MiscWidget extends Widget
         
         if ( displayVelocity.getBooleanValue() )
         {
-            float floatVelocity = gameData.getTelemetryData().getScalarVelocityKPH();
+            float floatVelocity = vsi.isPlayer() ? gameData.getTelemetryData().getScalarVelocity() : vsi.getScalarVelocity();
             int velocity = Math.round( floatVelocity );
             
             if ( floatVelocity >= relTopspeed )
@@ -445,7 +478,9 @@ public class MiscWidget extends Widget
                 ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = topspeed;
                 relTopspeed = 274.3f;
             }
-                
+            
+            final String speedUnits = getSpeedUnits();
+            
             if ( needsCompleteRedraw || ( ( clock1 || forceUpdateAbs ) && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
             {
                 if ( !needsCompleteRedraw )
@@ -453,19 +488,19 @@ public class MiscWidget extends Widget
                 
                 updateAbs = false;
                 oldAbsTopspeed = topspeed;
-                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( relTopspeed > oldRelTopspeed ) ) )
             {
                 oldRelTopspeed = relTopspeed;
-                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed2:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed2:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( velocity != oldVelocity ) ) )
             {
                 oldVelocity = velocity;
-                velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), "km/h" }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
         }
     }

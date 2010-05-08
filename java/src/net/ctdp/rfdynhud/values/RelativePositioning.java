@@ -55,6 +55,18 @@ public enum RelativePositioning
             return ( BOTTOM_LEFT );
     }
     
+    public final RelativePositioning deriveHCenter()
+    {
+        if ( isTop() )
+            return ( TOP_CENTER );
+        
+        if ( isVCenter() )
+            return ( CENTER_CENTER );
+        
+        //if ( isBottom() )
+            return ( BOTTOM_CENTER );
+    }
+    
     public final RelativePositioning deriveRight()
     {
         if ( isTop() )
@@ -77,6 +89,18 @@ public enum RelativePositioning
         
         //if ( isRight() )
             return ( TOP_RIGHT );
+    }
+    
+    public final RelativePositioning deriveVCenter()
+    {
+        if ( isLeft() )
+            return ( CENTER_LEFT );
+        
+        if ( isHCenter() )
+            return ( CENTER_CENTER );
+        
+        //if ( isRight() )
+            return ( CENTER_RIGHT );
     }
     
     public final RelativePositioning deriveBottom()

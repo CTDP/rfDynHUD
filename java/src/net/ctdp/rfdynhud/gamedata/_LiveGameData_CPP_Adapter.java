@@ -4,7 +4,7 @@ package net.ctdp.rfdynhud.gamedata;
 /**
  * @author Marvin Froehlich
  */
-public class LiveGameData_CPP_Adapter
+public class _LiveGameData_CPP_Adapter
 {
     private final LiveGameData gameData;
     
@@ -86,7 +86,7 @@ public class LiveGameData_CPP_Adapter
         gameData.getCommentaryRequestInfo().onDataUpdated();
     }
     
-    public LiveGameData_CPP_Adapter( LiveGameData gameData )
+    public _LiveGameData_CPP_Adapter( LiveGameData gameData )
     {
         this.gameData = gameData;
     }

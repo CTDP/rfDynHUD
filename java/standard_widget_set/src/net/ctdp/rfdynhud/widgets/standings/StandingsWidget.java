@@ -23,9 +23,11 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.StandingsTools;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.values.NameDisplayType;
 import net.ctdp.rfdynhud.values.StandingsView;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -56,6 +58,8 @@ public class StandingsWidget extends Widget
     
     private final BooleanProperty showLapsOrStops = new BooleanProperty( this, "showLapsOrStops", true );
     private final BooleanProperty showTopspeeds = new BooleanProperty( this, "showTopspeeds", true );
+    
+    private final LongValue lastScoringUpdateId = new LongValue();
     
     private DrawnString[] positionStrings = null;
     private int maxDisplayedDrivers = 100;
@@ -176,20 +180,20 @@ public class StandingsWidget extends Widget
         if ( includeVisibility )
         {
             //StandingsView oldView = getView();
-            if ( !isVisible() )
+            if ( !isVisible2() )
             {
                 for ( int i = 0; i < views.length; i++ )
                 {
                     if ( checkView( views[i], sessionType ) )
                     {
-                        setVisible( true );
+                        setVisible2( true );
                         setView( views[i] );
                         
                         return ( getView() );
                     }
                 }
                 
-                setVisible( true );
+                setVisible2( true );
                 return ( null );
             }
             
@@ -203,11 +207,11 @@ public class StandingsWidget extends Widget
                 }
             }
             
-            setVisible( false );
+            setVisible2( false );
             return ( null );
         }
         
-        setVisible( true );
+        setVisible2( true );
         
         int offset = ( (LocalStore)getLocalStore() ).view.ordinal();
         for ( int i = 1; i < views.length; i++ )
@@ -231,6 +235,8 @@ public class StandingsWidget extends Widget
     {
         super.onRealtimeEntered( gameData, editorPresets );
         
+        lastScoringUpdateId.reset();
+        
         lastKnownSessionType = gameData.getScoringInfo().getSessionType();
         
         if ( lastKnownSessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
@@ -246,6 +252,18 @@ public class StandingsWidget extends Widget
         Arrays.fill( oldColWidths, -1 );
         
         //forceReinitialization();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        
+        lastScoringUpdateId.reset();
+        forceCompleteRedraw();
     }
     
     /**
@@ -274,6 +292,18 @@ public class StandingsWidget extends Widget
         
         // Unreachable code!
         return ( null );
+    }
+    
+    private static final String getSpeedUnits()
+    {
+        switch ( RFactorTools.getSpeedUnits() )
+        {
+            case MPH:
+                return ( "mi/h" );
+            case KPH:
+            default:
+                return ( "km/h" );
+        }
     }
     
     private String[] getPositionStringRaceRelToLeader( int ownPlace, GamePhase gamePhase, VehicleScoringInfo vsi )
@@ -335,7 +365,7 @@ public class StandingsWidget extends Widget
             if ( showTopspeeds.getBooleanValue() )
             {
                 ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-                ss[6] = "km/h";
+                ss[6] = getSpeedUnits();
             }
             else
             {
@@ -435,7 +465,7 @@ public class StandingsWidget extends Widget
             if ( showTopspeeds.getBooleanValue() )
             {
                 ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-                ss[6] = "km/h";
+                ss[6] = getSpeedUnits();
             }
             else
             {
@@ -483,17 +513,17 @@ public class StandingsWidget extends Widget
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         GamePhase gamePhase = scoringInfo.getGamePhase();
+        VehicleScoringInfo myVSI = scoringInfo.getViewedVehicleScoringInfo();
         
-        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, myVSI, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         
-        VehicleScoringInfo myVSI = scoringInfo.getPlayersVehicleScoringInfo();
         int ownPlace = myVSI.getPlace();
         int ownLaps = myVSI.getLapsCompleted();
         float ownLapDistance = myVSI.getLapDistance();
         
         if ( getView() == StandingsView.RELATIVE_TO_ME )
         {
-            StandingsTools.computeRelativeTimesRace( scoringInfo, relTimes );
+            StandingsTools.computeRelativeTimesRace( scoringInfo, myVSI, relTimes );
         }
         
         currPosStrings = ensureCapacity( currPosStrings, numVehicles, false );
@@ -557,7 +587,7 @@ public class StandingsWidget extends Widget
         if ( showTopspeeds.getBooleanValue() )
         {
             ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-            ss[6] = "km/h";
+            ss[6] = getSpeedUnits();
         }
         else
         {
@@ -619,7 +649,7 @@ public class StandingsWidget extends Widget
         if ( showTopspeeds.getBooleanValue() )
         {
             ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-            ss[6] = "km/h";
+            ss[6] = getSpeedUnits();
         }
         else
         {
@@ -678,7 +708,7 @@ public class StandingsWidget extends Widget
         if ( showTopspeeds.getBooleanValue() )
         {
             ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-            ss[6] = "km/h";
+            ss[6] = getSpeedUnits();
         }
         else
         {
@@ -703,13 +733,14 @@ public class StandingsWidget extends Widget
     private int initPosStringsNonRace( LiveGameData gameData )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        VehicleScoringInfo ownVSI = scoringInfo.getViewedVehicleScoringInfo();
         
-        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, ownVSI, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         
         int firstVisiblePlace = vehicleScoringInfos[0].getPlace();
         float bestTime = vehicleScoringInfos[0].getBestLapTime();
-        int ownPlace = scoringInfo.getOwnPlace();
-        float ownTime = scoringInfo.getPlayersVehicleScoringInfo().getBestLapTime();
+        int ownPlace = ownVSI.getPlace();
+        float ownTime = ownVSI.getBestLapTime();
         
         currPosStrings = ensureCapacity( currPosStrings, numVehicles, false );
         
@@ -789,12 +820,38 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        lastScoringUpdateId.reset( true );
+        
+        initPositionStrings( gameData );
+        
+        int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
+        int rowHeight = positionStrings[0].getMaxHeight( texture, false );
+        maxDisplayedDrivers = Math.max( 1, h / rowHeight );
+        
+        vehicleScoringInfos = new VehicleScoringInfo[ maxDisplayedDrivers ];
+        
+        currPosStrings = null;
+        numVehicles = -1;
+        oldPosStirngs = null;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         final boolean isEditorMode = ( editorPresets != null );
         
-        if ( gameData.getScoringInfo().getSessionType() == SessionType.RACE )
+        lastScoringUpdateId.update( scoringInfo.getUpdateId() );
+        
+        if ( !lastScoringUpdateId.hasChanged() )
+            return ( false );
+        
+        if ( gameData.getScoringInfo().getSessionType().isRace() )
             initPosStringsRace( gameData );
         else
             initPosStringsNonRace( gameData );
@@ -841,26 +898,7 @@ public class StandingsWidget extends Widget
         return ( result );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
-    {
-        initPositionStrings( gameData );
-        
-        int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
-        int rowHeight = positionStrings[0].getMaxHeight( texture, false );
-        maxDisplayedDrivers = Math.max( 1, h / rowHeight );
-        
-        vehicleScoringInfos = new VehicleScoringInfo[ maxDisplayedDrivers ];
-        
-        currPosStrings = null;
-        numVehicles = -1;
-        oldPosStirngs = null;
-    }
-    
-    private void drawPosition( boolean clock2, int i, VehicleScoringInfo vsi, boolean needsCompleteRedraw, TextureImage2D texture, int offsetX, int offsetY, int width )
+    private void drawPosition( boolean clock2, int i, VehicleScoringInfo vsi, VehicleScoringInfo viewedVSI, boolean needsCompleteRedraw, TextureImage2D texture, int offsetX, int offsetY, int width )
     {
         //texture.getTextureCanvas().pushClip( offsetX + positionStrings[i].getAbsX(), clipRect.getTop(), width - positionStrings[i].getAbsX() - 13, clipRect.getHeight() );
         
@@ -873,8 +911,7 @@ public class StandingsWidget extends Widget
             switch ( vsi.getFinishStatus() )
             {
                 case NONE:
-                    //if ( playerPosStringIndex == i - i0 )
-                    if ( vsi.isPlayer() )
+                    if ( vsi.equals( viewedVSI ) )
                         fc = fontColor_me.getColor();
                     else
                         fc = null;
@@ -907,9 +944,11 @@ public class StandingsWidget extends Widget
             System.arraycopy( colWidths, 0, oldColWidths, 0, colWidths.length );
         }
         
+        VehicleScoringInfo viewedVSI = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+        
         for ( int i = 0; i < numVehicles; i++ )
         {
-            drawPosition( clock2, i, vehicleScoringInfos[i], needsCompleteRedraw, texture, offsetX, offsetY, width );
+            drawPosition( clock2, i, vehicleScoringInfos[i], viewedVSI, needsCompleteRedraw, texture, offsetX, offsetY, width );
         }
     }
     

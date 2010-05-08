@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 
 /**
@@ -686,7 +687,7 @@ public class VehicleScoringInfo
     /**
      * velocity (meters/sec) in local vehicle coordinates
      */
-    public final float getScalarVelocity()
+    public final float getScalarVelocityMPS()
     {
         float vecX = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 0 * ByteUtil.SIZE_FLOAT );
         float vecY = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 1 * ByteUtil.SIZE_FLOAT );
@@ -696,14 +697,38 @@ public class VehicleScoringInfo
     }
     
     /**
-     * velocity (km/h) in local vehicle coordinates
+     * velocity (mph)
+     */
+    public final float getScalarVelocityMPH()
+    {
+        float mps = getScalarVelocityMPS();
+        
+        return ( mps * TelemetryData.MPS_TO_MPH );
+    }
+    
+    /**
+     * velocity (km/h)
      */
     public final float getScalarVelocityKPH()
     {
-        float mps = getScalarVelocity();
+        float mps = getScalarVelocityMPS();
         
-        //return ( mps * 3600f / 1000f );
-        return ( mps * 3.6f );
+        return ( mps * TelemetryData.MPS_TO_KPH );
+    }
+    
+    /**
+     * velocity in the units selected in the PLR.
+     */
+    public final float getScalarVelocity()
+    {
+        switch ( RFactorTools.getSpeedUnits() )
+        {
+            case MPH:
+                return ( getScalarVelocityMPH() );
+            case KPH:
+            default:
+                return ( getScalarVelocityKPH() );
+        }
     }
     
     /**

@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputMapping;
@@ -14,6 +15,7 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link WidgetsDrawingManager} handles the drawing of all visible widgets.
@@ -28,7 +30,10 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     
     private long frameCounter = 0;
     
+    private boolean waitingForOREStep2 = false;
+    
     private long measureStart = -1L;
+    private long measureEnd = -1L;
     private long measureFrameCounter = 0;
     
     //private long nextClockTime1 = -1L;
@@ -81,23 +86,24 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * <br>
      * Calls {@link Widget#onRealtimeEntered(boolean, LiveGameData)} on each Widget.
      */
-    public void fireOnRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnRealtimeEntered( int step, LiveGameData gameData, EditorPresets editorPresets )
     {
-        measureStart = -1L;
-        frameCounter = 0;
+        if ( step == 1 )
+            waitingForOREStep2 = true;
+        else if ( step == 2 )
+            waitingForOREStep2 = false;
         
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
+        if ( step == 2 )
         {
-            getWidget( i ).onRealtimeEntered( gameData, editorPresets );
+            measureEnd = -1L;
+            frameCounter = 0;
+            
+            final int n = getNumWidgets();
+            for ( int i = 0; i < n; i++ )
+            {
+                getWidget( i ).onRealtimeEntered( gameData, editorPresets );
+            }
         }
-    }
-    
-    public void clearCompleteTexture()
-    {
-        TextureImage2D texture = textures[0].getTexture();
-        texture.getTextureCanvas().setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
-        texture.clear( true, null );
     }
     
     public int collectTextures( LiveGameData gameData, EditorPresets editorPresets )
@@ -154,6 +160,25 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         textureBuffer.flip();
         
         return ( textures.length );
+    }
+    
+    public void clearCompleteTexture()
+    {
+        for ( int i = 0; i < textures.length; i++ )
+        {
+            TextureImage2D texture = textures[i].getTexture();
+            if ( textures[i].isDynamic() )
+            {
+                texture.getTextureCanvas().setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
+                texture.clear( true, null );
+            }
+        }
+        
+        for ( int i = 0; i < getNumWidgets(); i++ )
+        {
+            getWidget( i ).forceCompleteRedraw();
+            getWidget( i ).forceReinitialization();
+        }
     }
     
     public void refreshSubTextureBuffer()
@@ -266,6 +291,8 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public void fireOnRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
     {
+        waitingForOREStep2 = true;
+        
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
@@ -274,31 +301,34 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     }
     
     /**
-     * This method is called when a lap has been finished and new new one was started.
+     * This method is called when either the player's vehicle control has changed or another vehicle is being viewed.
      * 
+     * @param viewedVSI
      * @param gameData
      * @param editorPresets
      */
-    public void fireOnLapStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onLapStarted( gameData, editorPresets );
+            getWidget( i ).onVehicleControlChanged( viewedVSI, gameData, editorPresets );
         }
     }
+    
     /**
-     * This method is called when the driver has finished a lap and started a new one.
+     * This method is called when a lap has been finished and a new one was started.
      * 
+     * @param vsi
      * @param gameData
      * @param editorPresets
      */
-    public void fireOnPlayerLapStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onPlayerLapStarted( gameData, editorPresets );
+            getWidget( i ).onLapStarted( vsi, gameData, editorPresets );
         }
     }
     
@@ -351,7 +381,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             return;
         
         if ( action == KnownInputActions.ToggleWidgetVisibility )
-            widget.setVisible( !widget.isVisible() );
+            widget.setVisible1( !widget.isVisible1() );
         else
             widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, editorPresets );
     }
@@ -366,6 +396,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public void drawWidgets( LiveGameData gameData, EditorPresets editorPresets, boolean completeRedrawForced, TextureImage2D texture )
     {
+        if ( waitingForOREStep2 )
+            return;
+        
         final boolean isEditorMode = ( editorPresets != null );
         
         texture.getTextureCanvas().setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
@@ -379,12 +412,13 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         long sessionNanos = gameData.getScoringInfo().getSessionNanos();
         
-        if ( measureStart == -1L )
+        if ( measureEnd == -1L )
         {
             measureStart = sessionNanos;
+            measureEnd = sessionNanos + 1000000000L;
             measureFrameCounter = 0;
         }
-        else if ( measureStart + 1000000000L < sessionNanos )
+        else if ( sessionNanos >= measureEnd )
         {
             long dt = sessionNanos - measureStart;
             clock1Frames = Math.max( 10L, measureFrameCounter * CLOCK_DELAY1 / dt );
@@ -393,6 +427,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             //Logger.log( "Clock2: " + clock2Frames + " ( " + measureFrameCounter + ", " + CLOCK_DELAY2 + ", " + dt + " )" );
             
             measureStart = sessionNanos;
+            measureEnd = sessionNanos + 1000000000L;
             measureFrameCounter = 0;
         }
         
@@ -446,7 +481,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                     {
                         widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture );
                     }
-                    else if ( widget.needsCompleteClear() )
+                    else if ( __WPrivilegedAccess.needsCompleteClear( widget ) )
                     {
                         widget.clearRegion( isEditorMode, texture );
                     }

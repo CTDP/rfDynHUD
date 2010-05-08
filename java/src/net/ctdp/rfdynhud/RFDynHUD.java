@@ -3,7 +3,7 @@ package net.ctdp.rfdynhud;
 import java.nio.ByteBuffer;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.LiveGameData_CPP_Adapter;
+import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
@@ -30,7 +30,7 @@ public class RFDynHUD
     
     private final WidgetsDrawingManager drawingManager;
     private final LiveGameData gameData;
-    private final LiveGameData_CPP_Adapter gameData_CPP_Adapter;
+    private final _LiveGameData_CPP_Adapter gameData_CPP_Adapter;
     private final RFactorEventsManager eventsManager;
     private final InputDeviceManager inputDeviceManager;
     private final InputMappingsManager inputMappingsManager;
@@ -69,7 +69,7 @@ public class RFDynHUD
         return ( gameData );
     }
     
-    public final LiveGameData_CPP_Adapter getGameData_CPP_Adapter()
+    public final _LiveGameData_CPP_Adapter getGameData_CPP_Adapter()
     {
         return ( gameData_CPP_Adapter );
     }
@@ -190,7 +190,7 @@ public class RFDynHUD
         this.eventsManager = new RFactorEventsManager( drawingManager, this );
         
         this.gameData = new LiveGameData( eventsManager );
-        this.gameData_CPP_Adapter = new LiveGameData_CPP_Adapter( gameData );
+        this.gameData_CPP_Adapter = new _LiveGameData_CPP_Adapter( gameData );
         
         eventsManager.setGameData( gameData );
         

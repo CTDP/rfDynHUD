@@ -160,6 +160,20 @@ public class RFactorTools
     private static File lastPLRFile = null;
     private static long lastPLRModified = -1L;
     
+    public static enum MeasurementUnits
+    {
+        METRIC,
+        IMPERIAL,
+        ;
+    }
+    
+    public static enum SpeedUnits
+    {
+        MPH,
+        KPH,
+        ;
+    }
+    
     private static String modName = null;
     private static String vehName = null;
     private static String lastUsedTrackFile = null;
@@ -167,6 +181,8 @@ public class RFactorTools
     private static Float multiRaceLength = null;
     private static Integer numReconLaps = null;
     private static Integer formationLapFlag = null;
+    private static MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+    private static SpeedUnits speedUnits = SpeedUnits.KPH;
     
     public static File getProfileFile( File profileFolder )
     {
@@ -249,6 +265,8 @@ public class RFactorTools
         multiRaceLength = null;
         numReconLaps = null;
         formationLapFlag = null;
+        measurementUnits = MeasurementUnits.METRIC;
+        speedUnits = SpeedUnits.KPH;
         
         try
         {
@@ -286,6 +304,34 @@ public class RFactorTools
                         if ( key.equalsIgnoreCase( "MULTI Race Length" ) )
                         {
                             multiRaceLength = Float.valueOf( value );
+                        }
+                        else if ( key.equalsIgnoreCase( "Measurement Units" ) )
+                        {
+                            try
+                            {
+                                int index = Integer.parseInt( value );
+                                
+                                measurementUnits = MeasurementUnits.values()[index];
+                            }
+                            catch ( Throwable t )
+                            {
+                                Logger.log( "Unable to parse \"Measurement Units\" from PLR file. Defaulting to METRIC." );
+                                measurementUnits = MeasurementUnits.METRIC;
+                            }
+                        }
+                        else if ( key.equalsIgnoreCase( "Speed Units" ) )
+                        {
+                            try
+                            {
+                                int index = Integer.parseInt( value );
+                                
+                                speedUnits = SpeedUnits.values()[index];
+                            }
+                            catch ( Throwable t )
+                            {
+                                Logger.log( "Unable to parse \"Speed Units\" from PLR file. Defaulting to KPH." );
+                                speedUnits = SpeedUnits.KPH;
+                            }
                         }
                     }
                     else if ( group.equalsIgnoreCase( "Race Conditions" ) )
@@ -408,6 +454,30 @@ public class RFactorTools
         updateProfileInformation( null, profileFolder );
         
         return ( getFormationLap() );
+    }
+    
+    public static MeasurementUnits getMeasurementUnits()
+    {
+        return ( measurementUnits );
+    }
+    
+    public static MeasurementUnits getMeasurementUnits( File profileFolder )
+    {
+        updateProfileInformation( null, profileFolder );
+        
+        return ( getMeasurementUnits() );
+    }
+    
+    public static SpeedUnits getSpeedUnits()
+    {
+        return ( speedUnits );
+    }
+    
+    public static SpeedUnits getSpeedUnits( File profileFolder )
+    {
+        updateProfileInformation( null, profileFolder );
+        
+        return ( getSpeedUnits() );
     }
     
     public static File getCCHFile( File profileFolder )

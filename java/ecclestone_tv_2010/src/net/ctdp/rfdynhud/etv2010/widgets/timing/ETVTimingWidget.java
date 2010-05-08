@@ -143,7 +143,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         super.updateVisibility( clock1, clock2, gameData, editorPresets );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
-        VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         VehicleScoringInfo refVSI = scoringInfo.getFastestLapVSI();
         Laptime relTime = refVSI.getFastestLaptime();
         
@@ -157,7 +157,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             referenceTimePers = editorPresets.getLastLaptime();
             referencePlace = 1;
             
-            setVisible( true );
+            setVisible2( true );
             return;
         }
         
@@ -170,35 +170,35 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         if ( scoringInfo.getSessionType().isRace() )
         {
-            setVisible( false );
+            setVisible2( false );
             return;
         }
         
         if ( displayType.getEnumValue() == DisplayType.ALWAYS )
         {
-            setVisible( true );
+            setVisible2( true );
             return;
         }
         
         if ( displayType.getEnumValue() == DisplayType.IF_LAP_VALID )
         {
-            setVisible( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
+            setVisible2( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
             return;
         }
         
         if ( relTime == null )
         {
-            setVisible( ls == LapState.BEFORE_SECTOR3_END );
+            setVisible2( ls == LapState.BEFORE_SECTOR3_END );
             return;
         }
         
         if ( ( ls == LapState.SOMEWHERE ) || ( ls == LapState.OUTLAP ) )
         {
-            setVisible( false );
+            setVisible2( false );
             return;
         }
         
-        setVisible( true );
+        setVisible2( true );
     }
     
     /**
@@ -272,7 +272,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
         cacheTexture.clear( true, null );
         
@@ -378,7 +378,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
         ownPlace.update( vsi.getPlace() );
         

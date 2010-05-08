@@ -174,7 +174,7 @@ public class Size implements AbstractSize
             if ( height > PERCENT_OFFSET_CHECK_POSITIVE )
                 height = +PERCENT_OFFSET + Math.max( height - PERCENT_OFFSET, getMinHeight() / getScaleHeight() );
             else if ( height < PERCENT_OFFSET_CHECK_NEGATIVE )
-                height = -PERCENT_OFFSET - Math.min( height + PERCENT_OFFSET, -( getMinHeight() / getScaleHeight() ) );
+                height = -PERCENT_OFFSET + Math.min( height + PERCENT_OFFSET, -( getMinHeight() / getScaleHeight() ) );
             else if ( height > 0f )
                 height = Math.max( height, getMinHeight() );
             else if ( height <= 0f )

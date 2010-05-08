@@ -17,6 +17,7 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.PhysicsSetting;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
@@ -223,7 +224,7 @@ public class RevMeterWidget extends Widget
     private final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
     private final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
     private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", "#C0BC3D" );
+    private final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
     private final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
     
     private final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
@@ -232,7 +233,7 @@ public class RevMeterWidget extends Widget
     private final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
     private final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
     private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", "#C0BC3D" );
+    private final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
     private final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
     
     private DrawnString rpmString1 = null;
@@ -336,6 +337,7 @@ public class RevMeterWidget extends Widget
                 if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != w ) || ( gearBackgroundTexture.getHeight() != h ) )
                 {
                     gearBackgroundTexture = it.getScaledTransformableTexture( w, h );
+                    gearBackgroundTexture.setDynamic( true );
                     
                     gearBackgroundTexture_bak = TextureImage2D.createOfflineTexture( gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), gearBackgroundTexture.getTexture().hasAlphaChannel() );
                     gearBackgroundTexture_bak.clear( gearBackgroundTexture.getTexture(), true, null );
@@ -381,6 +383,7 @@ public class RevMeterWidget extends Widget
                 if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != w ) || ( boostNumberBackgroundTexture.getHeight() != h ) )
                 {
                     boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h );
+                    boostNumberBackgroundTexture.setDynamic( true );
                     
                     boostNumberBackgroundTexture_bak = TextureImage2D.createOfflineTexture( boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), boostNumberBackgroundTexture.getTexture().hasAlphaChannel() );
                     boostNumberBackgroundTexture_bak.clear( boostNumberBackgroundTexture.getTexture(), true, null );
@@ -426,6 +429,7 @@ public class RevMeterWidget extends Widget
                 if ( ( velocityBackgroundTexture == null ) || ( velocityBackgroundTexture.getWidth() != w ) || ( velocityBackgroundTexture.getHeight() != h ) )
                 {
                     velocityBackgroundTexture = it.getScaledTransformableTexture( w, h );
+                    velocityBackgroundTexture.setDynamic( true );
                     
                     velocityBackgroundTexture_bak = TextureImage2D.createOfflineTexture( velocityBackgroundTexture.getWidth(), velocityBackgroundTexture.getHeight(), velocityBackgroundTexture.getTexture().hasAlphaChannel() );
                     velocityBackgroundTexture_bak.clear( velocityBackgroundTexture.getTexture(), true, null );
@@ -851,10 +855,16 @@ public class RevMeterWidget extends Widget
         
         TelemetryData telemData = gameData.getTelemetryData();
         
-        gear.update( telemData.getCurrentGear() );
+        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+        
+        gear.update( vsi.isPlayer() ? telemData.getCurrentGear() : -1000 );
         if ( needsCompleteRedraw || gear.hasChanged() )
         {
-            String string = gear.getValue() == -1 ? "R" : gear.getValue() == 0 ? "N" : String.valueOf( gear );
+            String string;
+            if ( vsi.isPlayer() )
+                string = gear.getValue() == -1 ? "R" : gear.getValue() == 0 ? "N" : String.valueOf( gear );
+            else
+                string = "";
             
             if ( gearBackgroundTexture == null )
             {
@@ -865,11 +875,14 @@ public class RevMeterWidget extends Widget
             }
             else
             {
+                if ( needsCompleteRedraw )
+                    gearBackgroundTexture.getTexture().clear( gearBackgroundTexture_bak, true, null );
+                
                 gearString.draw( 0, 0, string, gearBackgroundTexture_bak, 0, 0, gearBackgroundTexture.getTexture() );
             }
         }
         
-        boost.update( telemData.getEffectiveEngineBoostMapping() );
+        boost.update( vsi.isPlayer() ? telemData.getEffectiveEngineBoostMapping() : gameData.getPhysics().getEngine().getLowestBoostLevel() );
         if ( needsCompleteRedraw || boost.hasChanged() )
         {
             if ( displayBoostNumber.getBooleanValue() )
@@ -883,6 +896,9 @@ public class RevMeterWidget extends Widget
                 }
                 else
                 {
+                    if ( needsCompleteRedraw )
+                        boostNumberBackgroundTexture.getTexture().clear( boostNumberBackgroundTexture_bak, true, null );
+                    
                     boostString.draw( 0, 0, boost.getValueAsString(), boostNumberBackgroundTexture_bak, 0, 0, boostNumberBackgroundTexture.getTexture() );
                 }
             }
@@ -898,7 +914,7 @@ public class RevMeterWidget extends Widget
         
         if ( displayVelocity.getBooleanValue() )
         {
-            velocity.update( Math.round( telemData.getScalarVelocityKPH() ) );
+            velocity.update( Math.round( vsi.isPlayer() ? telemData.getScalarVelocity() : vsi.getScalarVelocity() ) );
             if ( needsCompleteRedraw || ( clock1 && velocity.hasChanged( false ) ) )
             {
                 velocity.setUnchanged();
@@ -918,6 +934,9 @@ public class RevMeterWidget extends Widget
                 }
                 else
                 {
+                    if ( needsCompleteRedraw )
+                        velocityBackgroundTexture.getTexture().clear( velocityBackgroundTexture_bak, true, null );
+                    
                     velocityString.draw( (int)( -fw / 2.0 ), 0, string, velocityBackgroundTexture_bak, 0, 0, velocityBackgroundTexture.getTexture() );
                 }
             }
@@ -929,12 +948,15 @@ public class RevMeterWidget extends Widget
         if ( displayRPMString1.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
         {
             String string = "";
-            if ( displayCurrRPM1.getBooleanValue() )
-                string = NumberUtil.formatFloat( rpm, 0, false );
-            if ( displayCurrRPM1.getBooleanValue() && displayMaxRPM1.getBooleanValue() )
-                string += rpmJoinString1.getStringValue();
-            if ( displayMaxRPM1.getBooleanValue() )
-                string += NumberUtil.formatFloat( maxRPM, 0, false );
+            if ( vsi.isPlayer() )
+            {
+                if ( displayCurrRPM1.getBooleanValue() )
+                    string = NumberUtil.formatFloat( rpm, 0, false );
+                if ( displayCurrRPM1.getBooleanValue() && displayMaxRPM1.getBooleanValue() )
+                    string += rpmJoinString1.getStringValue();
+                if ( displayMaxRPM1.getBooleanValue() )
+                    string += NumberUtil.formatFloat( maxRPM, 0, false );
+            }
             
             if ( backgroundTexture == null )
                 rpmString1.draw( offsetX, offsetY, string, ColorUtils.BLACK_TRANSPARENT, texture );
@@ -945,12 +967,15 @@ public class RevMeterWidget extends Widget
         if ( displayRPMString2.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
         {
             String string = "";
-            if ( displayCurrRPM2.getBooleanValue() )
-                string = NumberUtil.formatFloat( rpm, 0, false );
-            if ( displayCurrRPM2.getBooleanValue() && displayMaxRPM2.getBooleanValue() )
-                string += rpmJoinString2.getStringValue();
-            if ( displayMaxRPM2.getBooleanValue() )
-                string += NumberUtil.formatFloat( maxRPM, 0, false );
+            if ( vsi.isPlayer() )
+            {
+                if ( displayCurrRPM2.getBooleanValue() )
+                    string = NumberUtil.formatFloat( rpm, 0, false );
+                if ( displayCurrRPM2.getBooleanValue() && displayMaxRPM2.getBooleanValue() )
+                    string += rpmJoinString2.getStringValue();
+                if ( displayMaxRPM2.getBooleanValue() )
+                    string += NumberUtil.formatFloat( maxRPM, 0, false );
+            }
             
             if ( backgroundTexture == null )
                 rpmString2.draw( offsetX, offsetY, string, ColorUtils.BLACK_TRANSPARENT, texture );
@@ -958,16 +983,27 @@ public class RevMeterWidget extends Widget
                 rpmString2.draw( offsetX, offsetY, string, backgroundTexture, texture );
         }
         
-        float baseMaxRPM = telemData.getEngineBaseMaxRPM();
-        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            shiftLights[s].updateTextures( gameData, rpm, baseMaxRPM, boost.getValue(), backgroundScaleX, backgroundScaleY );
+        {
+            float rpm2 = vsi.isPlayer() ? rpm : 0f;
+            float baseMaxRPM = vsi.isPlayer() ? telemData.getEngineBaseMaxRPM() : 100000f;
+            for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
+                shiftLights[s].updateTextures( gameData, rpm2, baseMaxRPM, boost.getValue(), backgroundScaleX, backgroundScaleY );
+        }
         
         if ( needleTexture != null )
         {
-            float rot0 = needleRotationForZeroRPM.getFloatValue();
-            float rot = -( rpm / maxRPM ) * ( needleRotationForZeroRPM.getFloatValue() - needleRotationForMaxRPM.getFloatValue() );
-            
-            needleTexture.setRotation( -rot0 - rot );
+            if ( vsi.isPlayer() )
+            {
+                float rot0 = needleRotationForZeroRPM.getFloatValue();
+                float rot = -( rpm / maxRPM ) * ( needleRotationForZeroRPM.getFloatValue() - needleRotationForMaxRPM.getFloatValue() );
+                
+                needleTexture.setRotation( -rot0 - rot );
+                needleTexture.setVisible( true );
+            }
+            else
+            {
+                needleTexture.setVisible( false );
+            }
         }
         
         if ( gearBackgroundTexture != null )
