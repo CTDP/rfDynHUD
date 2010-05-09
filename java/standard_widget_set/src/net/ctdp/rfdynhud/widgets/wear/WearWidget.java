@@ -79,6 +79,8 @@ public class WearWidget extends Widget
     private DrawnString engineWearString = null;
     private DrawnString engineVarianceString = null;
     
+    private final BooleanProperty swapTireWearGripMeaning = new BooleanProperty( this, "swapTireWearGripMeaning", "swapTireWearGrip", false );
+    
     private DrawnString tiresHeaderString = null;
     private DrawnString tireWearFLString = null;
     private DrawnString tireWearFRString = null;
@@ -107,6 +109,9 @@ public class WearWidget extends Widget
     
     private static final float gripGood = 0.95f;
     private static final float gripBad = 0.85f;
+    
+    private static final float wearGood = 0.5f;
+    private static final float wearBad = 0.25f;
     
     private static final byte[] colorGood = new byte[ 4 ];
     private static final byte[] colorOk = new byte[ 4 ];
@@ -565,20 +570,41 @@ public class WearWidget extends Widget
         int w = tireSize.getEffectiveWidth();
         int h = tireSize.getEffectiveHeight();
         
-        final float minGrip = compoundWheel.getMinGrip();
-        float normGrip = ( grip - minGrip ) / ( 1.0f - minGrip );
-        float normGripGood = ( gripGood - minGrip ) / ( 1.0f - minGrip );
-        float normGripBad = ( gripBad - minGrip ) / ( 1.0f - minGrip );
+        float barValue;
+        float barGood;
+        float barBad;
+        float lineValue;
+        
+        if ( swapTireWearGripMeaning.getBooleanValue() )
+        {
+            barValue = wear;
+            barGood = wearGood;
+            barBad = wearBad;
+            
+            final float minGrip = compoundWheel.getMinGrip();
+            float barRange = 1.0f - minGrip;
+            lineValue = ( grip - minGrip ) / barRange;
+        }
+        else
+        {
+            final float minGrip = compoundWheel.getMinGrip();
+            float barRange = 1.0f - minGrip;
+            barValue = ( grip - minGrip ) / barRange;
+            barGood = ( gripGood - minGrip ) / barRange;
+            barBad = ( gripBad - minGrip ) / barRange;
+            
+            lineValue = wear;
+        }
         
         byte[] color = new byte[4];
         color[ByteOrderManager.ALPHA] = (byte)255;
-        if ( normGrip <= normGripBad )
+        if ( barValue <= barBad )
         {
             System.arraycopy( colorBad, 0, color, 0, 3 );
         }
-        else if ( normGrip < normGripGood )
+        else if ( barValue < barGood )
         {
-            float alpha = ( normGrip - normGripBad ) / ( normGripGood - normGripBad );
+            float alpha = ( barValue - barBad ) / ( barGood - barBad );
             interpolateColor( colorBad, colorOk, alpha, color );
         }
         else
@@ -588,9 +614,9 @@ public class WearWidget extends Widget
         
         Color awtColor = new Color( color[ByteOrderManager.RED] & 0xFF, color[ByteOrderManager.GREEN] & 0xFF, color[ByteOrderManager.BLUE] & 0xFF );
         
-        int barHeight = Math.min( (int)( h * normGrip ), h );
+        int barHeight = Math.min( (int)( h * barValue ), h );
         
-        if ( normGrip > 0.0f )
+        if ( barValue > 0.0f )
         {
             texture.clear( Color.BLACK, x, y, w, h - barHeight, false, null );
         }
@@ -603,7 +629,7 @@ public class WearWidget extends Widget
             System.arraycopy( colorBad, 0, pixels, i * 4, 4 );
         }
         
-        texture.clearPixelLine( pixels, x, y + h - (int)( h * wear ), w, false, null );
+        texture.clearPixelLine( pixels, x, y + h - (int)( h * lineValue ), w, false, null );
         
         texture.markDirty( x, y, w, h );
     }
@@ -984,15 +1010,19 @@ public class WearWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( font2, "The used (smaller) font." );
+        
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
         engineHeight.saveHeightProperty( "engineHeight", "The height of the engine bar.", writer );
         writer.writeProperty( hundredPercentBase, "The value range to be used as 100% base." );
-        writer.writeProperty( estimationImageName, "Image to display where the engine is expected to explode." );
-        writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
         writer.writeProperty( displayWearPercent, "Display wear in percentage numbers?" );
+        writer.writeProperty( estimationImageName, "Image to display where the engine is expected to explode." );
+        
+        writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
         writer.writeProperty( displayCompoundName, "Display the tire compound name in the header?" );
         tireSize.saveWidthProperty( "tireWidth", "The width of a tire image.", writer );
         tireSize.saveHeightProperty( "tireHeight", "The height of a tire image.", writer );
+        writer.writeProperty( swapTireWearGripMeaning, "Swap bar and line display for wear and grip?" );
+        
         writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
         brakeSize.saveWidthProperty( "brakeWidth", "The width of a brake image.", writer );
         brakeSize.saveHeightProperty( "brakeHeight", "The height of a brake image.", writer );
@@ -1007,14 +1037,18 @@ public class WearWidget extends Widget
         super.loadProperty( key, value );
         
         if ( font2.loadProperty( key, value ) );
+        
         else if ( displayEngine.loadProperty( key, value ) );
         else if ( engineHeight.loadProperty( key, value, null, "engineHeight" ) );
         else if ( hundredPercentBase.loadProperty( key, value ) );
-        else if ( estimationImageName.loadProperty( key, value ) );
-        else if ( displayTires.loadProperty( key, value ) );
         else if ( displayWearPercent.loadProperty( key, value ) );
+        else if ( estimationImageName.loadProperty( key, value ) );
+        
+        else if ( displayTires.loadProperty( key, value ) );
         else if ( displayCompoundName.loadProperty( key, value ) );
         else if ( tireSize.loadProperty( key, value, "tireWidth", "tireHeight" ) );
+        else if ( swapTireWearGripMeaning.loadProperty( key, value ) );
+        
         else if ( displayBrakes.loadProperty( key, value ) );
         else if ( brakeSize.loadProperty( key, value, "brakeWidth", "brakeHeight" ) );
     }
@@ -1029,18 +1063,23 @@ public class WearWidget extends Widget
         
         propsCont.addProperty( font2 );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Engine" );
         
         propsCont.addProperty( displayEngine );
         propsCont.addProperty( engineHeight.createHeightProperty( "engineHeight" ) );
         propsCont.addProperty( hundredPercentBase );
+        propsCont.addProperty( displayWearPercent );
         propsCont.addProperty( estimationImageName );
         
+        propsCont.addGroup( "Tires" );
+        
         propsCont.addProperty( displayTires );
-        propsCont.addProperty( displayWearPercent );
         propsCont.addProperty( displayCompoundName );
         propsCont.addProperty( tireSize.createWidthProperty( "tireWidth" ) );
         propsCont.addProperty( tireSize.createHeightProperty( "tireHeight" ) );
+        propsCont.addProperty( swapTireWearGripMeaning );
+        
+        propsCont.addGroup( "Brakes" );
         
         propsCont.addProperty( displayBrakes );
         propsCont.addProperty( brakeSize.createWidthProperty( "brakeWidth" ) );

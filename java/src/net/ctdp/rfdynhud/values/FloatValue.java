@@ -52,6 +52,19 @@ public class FloatValue
         return ( value );
     }
     
+    public final int getIntValue( boolean round )
+    {
+        if ( round )
+            return ( Math.round( value ) );
+        
+        return ( (int)value );
+    }
+    
+    public final int getIntValue()
+    {
+        return ( getIntValue( false ) );
+    }
+    
     public final boolean hasChanged( boolean setUnchanged )
     {
         boolean result = ( Math.abs( oldValue - value ) > comparePrecision );

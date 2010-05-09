@@ -38,6 +38,19 @@ public class FloatProperty extends Property
         return ( value );
     }
     
+    public final int getIntValue( boolean round )
+    {
+        if ( round )
+            return ( Math.round( value ) );
+        
+        return ( (int)value );
+    }
+    
+    public final int getIntValue()
+    {
+        return ( getIntValue( false ) );
+    }
+    
     /**
      * {@inheritDoc}
      */

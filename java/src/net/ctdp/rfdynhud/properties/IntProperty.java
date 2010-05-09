@@ -38,6 +38,11 @@ public class IntProperty extends Property
         return ( value );
     }
     
+    public final float getFloatValue()
+    {
+        return ( value );
+    }
+    
     /**
      * {@inheritDoc}
      */

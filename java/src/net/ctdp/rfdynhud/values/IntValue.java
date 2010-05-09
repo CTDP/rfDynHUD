@@ -44,6 +44,11 @@ public class IntValue
         return ( value );
     }
     
+    public final int getFloatValue()
+    {
+        return ( value );
+    }
+    
     public final boolean hasChanged( boolean setUnchanged )
     {
         boolean result = ( value != oldValue );

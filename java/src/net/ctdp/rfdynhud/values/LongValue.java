@@ -44,6 +44,16 @@ public class LongValue
         return ( value );
     }
     
+    public final int getIntValue()
+    {
+        return ( (int)value );
+    }
+    
+    public final float getFloatValue()
+    {
+        return ( (float)value );
+    }
+    
     public final boolean hasChanged( boolean setUnchanged )
     {
         boolean result = ( value != oldValue );
