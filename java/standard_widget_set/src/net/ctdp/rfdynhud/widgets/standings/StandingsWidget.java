@@ -14,8 +14,6 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
-import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -48,15 +46,22 @@ public class StandingsWidget extends Widget
     
     private final BooleanProperty useAutoWidth = new BooleanProperty( this, "useAutoWidth", false );
     
+    private final EnumProperty<StandingsView> initialView = new EnumProperty<StandingsView>( this, "initialView", StandingsView.RELATIVE_TO_ME )
+    {
+        @Override
+        protected void onValueChanged( StandingsView oldValue, StandingsView newValue )
+        {
+            ( (LocalStore)getLocalStore() ).view = null;
+        }
+    };
     private final BooleanProperty allowRelToLeaderView = new BooleanProperty( this, "allowRelToLeaderView", true );
     private final BooleanProperty allowRelToMeView = new BooleanProperty( this, "allowRelToMeView", true );
     private final BooleanProperty allowAbsTimesView = new BooleanProperty( this, "allowAbsTimesView", true );
     
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
     private final EnumProperty<NameDisplayType> nameDisplayType = new EnumProperty<NameDisplayType>( this, "nameDisplayType", NameDisplayType.FULL_NAME );
-    private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
-    
     private final BooleanProperty showLapsOrStops = new BooleanProperty( this, "showLapsOrStops", true );
+    private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
     private final BooleanProperty showTopspeeds = new BooleanProperty( this, "showTopspeeds", true );
     
     private final LongValue lastScoringUpdateId = new LongValue();
@@ -123,8 +128,7 @@ public class StandingsWidget extends Widget
     
     public void setView( StandingsView view )
     {
-        LocalStore store = (LocalStore)getLocalStore();
-        store.view = view;
+        ( (LocalStore)getLocalStore() ).view = view;
         
         forceCompleteRedraw();
         setDirtyFlag();
@@ -132,6 +136,11 @@ public class StandingsWidget extends Widget
     
     public final StandingsView getView()
     {
+        if ( ( (LocalStore)getLocalStore() ).view == null )
+        {
+            ( (LocalStore)getLocalStore() ).view = initialView.getEnumValue();
+        }
+        
         return ( ( (LocalStore)getLocalStore() ).view );
     }
     
@@ -152,12 +161,12 @@ public class StandingsWidget extends Widget
         return ( allowRelToMeView.getBooleanValue() );
     }
     
-    public final boolean isAbsTimesViewAllowed( SessionType sessionType )
+    public final boolean isAbsTimesViewAllowed( boolean isEditorMode, SessionType sessionType )
     {
-        return ( !sessionType.isRace() && allowAbsTimesView.getBooleanValue() );
+        return ( ( isEditorMode || !sessionType.isRace() ) && allowAbsTimesView.getBooleanValue() );
     }
     
-    private final boolean checkView( StandingsView view, SessionType sessionType )
+    private final boolean checkView( boolean isEditorMode, StandingsView view, SessionType sessionType )
     {
         switch ( view )
         {
@@ -166,14 +175,14 @@ public class StandingsWidget extends Widget
             case RELATIVE_TO_ME:
                 return ( isRelToMeViewAllowed() );
             case ABSOLUTE_TIMES:
-                return ( isAbsTimesViewAllowed( sessionType ) );
+                return ( isAbsTimesViewAllowed( isEditorMode, sessionType ) );
         }
         
         // Unreachable code!
         return ( true );
     }
     
-    public StandingsView cycleView( SessionType sessionType, boolean includeVisibility )
+    private StandingsView cycleView( boolean isEditorMode, SessionType sessionType, boolean includeVisibility )
     {
         final StandingsView[] views = StandingsView.values();
         
@@ -184,7 +193,7 @@ public class StandingsWidget extends Widget
             {
                 for ( int i = 0; i < views.length; i++ )
                 {
-                    if ( checkView( views[i], sessionType ) )
+                    if ( checkView( isEditorMode, views[i], sessionType ) )
                     {
                         setVisible2( true );
                         setView( views[i] );
@@ -197,9 +206,9 @@ public class StandingsWidget extends Widget
                 return ( null );
             }
             
-            for ( int i = ( (LocalStore)getLocalStore() ).view.ordinal() + 1; i < views.length; i++ )
+            for ( int i = getView().ordinal() + 1; i < views.length; i++ )
             {
-                if ( checkView( views[i], sessionType ) )
+                if ( checkView( isEditorMode, views[i], sessionType ) )
                 {
                     setView( views[i] );
                     
@@ -213,10 +222,10 @@ public class StandingsWidget extends Widget
         
         setVisible2( true );
         
-        int offset = ( (LocalStore)getLocalStore() ).view.ordinal();
+        int offset = getView().ordinal();
         for ( int i = 1; i < views.length; i++ )
         {
-            if ( checkView( views[( offset + i ) % views.length], sessionType ) )
+            if ( checkView( isEditorMode, views[( offset + i ) % views.length], sessionType ) )
             {
                 setView( views[( offset + i ) % views.length] );
                 
@@ -239,8 +248,8 @@ public class StandingsWidget extends Widget
         
         lastKnownSessionType = gameData.getScoringInfo().getSessionType();
         
-        if ( lastKnownSessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
-            cycleView( lastKnownSessionType, false );
+        if ( ( editorPresets == null ) && lastKnownSessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
+            cycleView( ( editorPresets != null ), lastKnownSessionType, false );
         
         oldNumVehicles = -1;
         if ( oldPosStirngs != null )
@@ -274,7 +283,7 @@ public class StandingsWidget extends Widget
     {
         if ( action == INPUT_ACTION_CYCLE_VIEW )
         {
-            cycleView( lastKnownSessionType, true );
+            cycleView( ( editorPresets != null ), lastKnownSessionType, true );
         }
     }
     
@@ -500,8 +509,9 @@ public class StandingsWidget extends Widget
             case RELATIVE_TO_LEADER:
                 return ( getPositionStringRaceRelToLeader( ownPlace, gamePhase, vsi ) );
             case RELATIVE_TO_ME:
-            case ABSOLUTE_TIMES:
                 return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace() - 1], gamePhase, vsi ) );
+            case ABSOLUTE_TIMES: // Only possible in the editor!
+                return ( getPositionStringNonRaceAbsTimes( vsi ) );
         }
         
         // unreachable code
@@ -965,14 +975,14 @@ public class StandingsWidget extends Widget
         writer.writeProperty( fontColor_out, "The font color used for retired drivers in the format #RRGGBB (hex)." );
         writer.writeProperty( fontColor_finished, "The font color used for finished drivers in the format #RRGGBB (hex)." );
         writer.writeProperty( useAutoWidth, "Automatically compute and display the width?" );
-        writer.writeProperty( "initialView", getView(), "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
+        writer.writeProperty( initialView, "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
         //writer.writeProperty( allowAbsTimesView, "" );
         //writer.writeProperty( allowRelToLeaderView, "" );
         //writer.writeProperty( allowRelToMeView, "" );
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
         writer.writeProperty( nameDisplayType, "How to display driver names." );
-        writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
         writer.writeProperty( showLapsOrStops, "Whether to show the number of laps or stops done or not." );
+        writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
         writer.writeProperty( showTopspeeds, "Whether to show a topspeeds column or not." );
     }
     
@@ -988,24 +998,14 @@ public class StandingsWidget extends Widget
         else if ( fontColor_out.loadProperty( key, value ) );
         else if ( fontColor_finished.loadProperty( key, value ) );
         else if ( useAutoWidth.loadProperty( key, value ) );
-        else if ( key.equals( "initialView" ) )
-        {
-            try
-            {
-                ( (LocalStore)getLocalStore() ).view = StandingsView.valueOf( value );
-            }
-            catch ( Throwable t )
-            {
-                // Ignore and keep default!
-            }
-        }
+        else if ( initialView.loadProperty( key, value ) );
         //else if ( allowAbsTimesView.loadProperty( key, value ) );
         //else if ( allowRelToLeaderView.loadProperty( key, value ) );
         //else if ( allowRelToMeView.loadProperty( key, value ) );
         else if ( forceLeaderDisplayed.loadProperty( key, value ) );
         else if ( nameDisplayType.loadProperty( key, value ) );
-        else if ( abbreviate.loadProperty( key, value ) );
         else if ( showLapsOrStops.loadProperty( key, value ) );
+        else if ( abbreviate.loadProperty( key, value ) );
         else if ( showTopspeeds.loadProperty( key, value ) );
     }
     
@@ -1023,32 +1023,17 @@ public class StandingsWidget extends Widget
         propsCont.addProperty( fontColor_out );
         propsCont.addProperty( fontColor_finished );
         propsCont.addProperty( useAutoWidth );
-        propsCont.addProperty( new Property( this, "initialView", PropertyEditorType.ENUM )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                if ( ( (LocalStore)getLocalStore() ).view == value )
-                    return;
-                
-                setView( (StandingsView)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getView() );
-            }
-        } );
         
+        propsCont.addProperty( initialView );
         //propsCont.addProperty( allowAbsTimesView );
         //propsCont.addProperty( allowRelToLeaderView );
         //propsCont.addProperty( allowRelToMeView );
         
         propsCont.addProperty( forceLeaderDisplayed );
         propsCont.addProperty( nameDisplayType );
-        propsCont.addProperty( abbreviate );
         propsCont.addProperty( showLapsOrStops );
+        if ( forceAll || showLapsOrStops.getBooleanValue() )
+            propsCont.addProperty( abbreviate );
         propsCont.addProperty( showTopspeeds );
     }
     

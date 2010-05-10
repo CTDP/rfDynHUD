@@ -4,5 +4,5 @@ import net.ctdp.rfdynhud.values.StandingsView;
 
 public class LocalStore
 {
-    StandingsView view = StandingsView.RELATIVE_TO_ME;
+    StandingsView view = null;
 }
