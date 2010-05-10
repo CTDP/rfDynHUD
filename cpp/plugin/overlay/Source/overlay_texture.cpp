@@ -311,6 +311,9 @@ const float ZERO_Z = 0.0f;
 
 void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed )
 {
+    if ( vertexBuffer == NULL )
+        return;
+    
     TLVERTEX* vertices;
     
     // Lock the vertex buffer
@@ -494,6 +497,9 @@ bool getCommonRect( const RECT* rect1, const RECT* rect2, RECT* commonRect )
 
 void TextureAtlas::copyDirtyRectsToTexture( const unsigned char texIndex, const unsigned short numDirtyRects, const unsigned short* dirtyRectsBuffer, const unsigned char* sourceBuffer, const unsigned int sourceTexPitch, unsigned int* destBuffer, const unsigned int trgPitch, IDirect3DTexture9* texture )
 {
+    if ( texture == NULL )
+        return;
+    
     unsigned char idx_t, idx_r, idx_sr;
     unsigned short i, j;
     const unsigned char* pSrc;
@@ -618,7 +624,7 @@ void OverlayTextureManagerImpl::copyDirtyRectsToTexture( const unsigned char num
     
     IDirect3DTexture9* texture = ( m_proxyTexture != NULL ) ? m_proxyTexture : m_overlayTexture;
     
-    if ( SUCCEEDED( texture->LockRect( 0, &lockedRect, &usedRect, D3DLOCK_NO_DIRTY_UPDATE ) ) )
+    if ( ( texture != NULL ) && ( SUCCEEDED( texture->LockRect( 0, &lockedRect, &usedRect, D3DLOCK_NO_DIRTY_UPDATE ) ) ) )
     {
         const unsigned short* dirtyRectsBuffer;
         unsigned short numDirtyRects;
@@ -721,6 +727,9 @@ static const unsigned char TRANSFORM_FLAG_SCALE       = 8;
 
 void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects )
 {
+    if ( ( overlayTexture == NULL ) || ( vertexBuffer == NULL ) )
+        return;
+    
     //IDirect3DSurface9* backBuffer;
     //device->GetBackBuffer( 0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer );
     //device->SetRenderTarget( 0, backBuffer );
@@ -908,14 +917,17 @@ void OverlayTextureManagerImpl::render( const unsigned char numTextures, unsigne
     
     m_completeTextureUpdateForced = false;
     
-    m_atlas->render( m_device, m_overlayTexture, m_vertexBuffer, visibleFlags, rectangleVisibleFlags, isTransformed, translations, rotCenters, rotations, scales, clipRects );
+    if ( m_overlayTexture != NULL )
+    {
+        m_atlas->render( m_device, m_overlayTexture, m_vertexBuffer, visibleFlags, rectangleVisibleFlags, isTransformed, translations, rotCenters, rotations, scales, clipRects );
+    }
 }
 
 void clearTexture( IDirect3DTexture9* texture, const unsigned short width, const unsigned short height )
 {
     D3DLOCKED_RECT lockedRect;
     
-    if ( SUCCEEDED( texture->LockRect( 0, &lockedRect, NULL, 0 ) ) )
+    if ( ( texture != NULL ) && ( SUCCEEDED( texture->LockRect( 0, &lockedRect, NULL, 0 ) ) ) )
     {
         //logg( "zeroing out texture" );
         unsigned int* pixels = (unsigned int*)lockedRect.pBits;
@@ -955,10 +967,10 @@ IDirect3DTexture9* createTexture( const LPDIRECT3DDEVICE9 device, const unsigned
             logg( "Texture creation failed (D3DERR_NOTAVAILABLE)", true );
             break;
         case D3DERR_OUTOFVIDEOMEMORY:
-            logg( "Texture creation failed (D3DERR_OUTOFVIDEOMEMORY)", true );
+            logg( "Texture creation failed (D3DERR_OUTOFVIDEOMEMORY). Choose less or smaller Widgets.", true );
             break;
         case E_OUTOFMEMORY:
-            logg( "Texture creation failed (E_OUTOFMEMORY)", true );
+            logg( "Texture creation failed (E_OUTOFMEMORY). Choose less or smaller Widgets.", true );
             break;
         default:
             logg( "Texture creation failed (Unknown return value)", true );
@@ -1013,30 +1025,41 @@ void OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, con
         m_completeTextureUpdateForced = true;
     }
     
-    if ( m_useProxyTexture )
+    if ( m_overlayTexture != NULL )
     {
-        if ( m_proxyTexture == NULL )
+        if ( m_useProxyTexture )
         {
-            m_proxyTexture = createTexture( m_device, m_texWidth, m_texHeight, false );
-            m_completeTextureUpdateForced = true;
+            if ( m_proxyTexture == NULL )
+            {
+                m_proxyTexture = createTexture( m_device, m_texWidth, m_texHeight, false );
+                m_completeTextureUpdateForced = true;
+            }
+        }
+        else if ( m_proxyTexture != NULL )
+        {
+            m_proxyTexture->Release();
+            m_proxyTexture = NULL;
+        }
+        
+        if ( ( m_overlayTexture != NULL ) && ( !m_useProxyTexture || ( m_proxyTexture != NULL ) ) )
+        {
+            if ( m_vertexBuffer == NULL )
+            {
+                m_vertexBuffer = createVertexBuffer( m_device, m_atlas );
+            }
+            
+            m_completeTextureUpdateForced = m_completeTextureUpdateForced || forceCompleteUpdate;
+            
+            if ( m_useProxyTexture )
+            {
+                m_device->UpdateTexture( m_proxyTexture, m_overlayTexture );
+            }
         }
     }
     else if ( m_proxyTexture != NULL )
     {
         m_proxyTexture->Release();
         m_proxyTexture = NULL;
-    }
-    
-    if ( m_vertexBuffer == NULL )
-    {
-        m_vertexBuffer = createVertexBuffer( m_device, m_atlas );
-    }
-    
-    m_completeTextureUpdateForced = m_completeTextureUpdateForced || forceCompleteUpdate;
-    
-    if ( m_useProxyTexture )
-    {
-        m_device->UpdateTexture( m_proxyTexture, m_overlayTexture );
     }
 }
 

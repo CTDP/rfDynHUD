@@ -1,7 +1,5 @@
 /*    Direct3D9 Interface */
 
-#include <windows.h>
-#include "main.h"
 #include "d3d9.h"
 
 HRESULT APIENTRY hkIDirect3D9::QueryInterface( REFIID riid,  void** ppvObj )
@@ -46,7 +44,7 @@ HRESULT APIENTRY hkIDirect3D9::CreateDevice( UINT Adapter, D3DDEVTYPE DeviceType
     if ( SUCCEEDED( hRet ) )
     {
         hkIDirect3DDevice9* ret = new hkIDirect3DDevice9( ppReturnedDeviceInterface, pPresentationParameters, this );
-        //add_log( "Hooked Direct3D9 device: 0x%x -> 0x%x", ret->m_pD3Ddev, ret );
+        //logg( "Hooked Direct3D9 device: 0x%x -> 0x%x", ret->m_pD3Ddev, ret );
     }
     
     return ( hRet );
