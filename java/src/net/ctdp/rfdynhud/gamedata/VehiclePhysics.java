@@ -512,7 +512,7 @@ public class VehiclePhysics
             return ( pressureRange );
         }
         
-        public class WheelBrake
+        public static class WheelBrake
         {
             public static final float DEFAULT_BRAKE_FADE_RANGE = Float.MAX_VALUE / 2f;
             
@@ -868,7 +868,7 @@ public class VehiclePhysics
          * 
          * @author Marvin Froehlich
          */
-        public class CompoundWheel
+        public static class CompoundWheel
         {
             private float dryLateralGrip;
             private float dryLongitudinalGrip;
@@ -879,6 +879,10 @@ public class VehiclePhysics
             private float optPressMult;
             private float offPressure;
             float[] gripFactorPerWear;
+            
+            //WearGrip1=(0.980,0.961,0.941,0.922,0.902,0.883,0.863,0.844) // Grip at 6/13/19/25/31/38/44/50% wear (defaults to 0.980->0.844), grip is 1.0 at 0% wear
+            //WearGrip2=(0.824,0.805,0.785,0.766,0.746,0.727,0.707,0.688) // Grip at 56/63/69/75/81/88/94/100% wear (defaults to 0.824->0.688), tire bursts at 100% wear
+            private static final float[] DEFAULT_WEAR_GRIP = { 1.0f, 0.980f, 0.961f, 0.941f, 0.922f, 0.902f, 0.883f, 0.863f, 0.844f, 0.824f, 0.805f, 0.785f, 0.766f, 0.746f, 0.727f, 0.707f, 0.688f };
             
             void setDryGrip( float laterial, float longitudinal )
             {
@@ -1111,10 +1115,7 @@ public class VehiclePhysics
              */
             public final float getWearGripFactor( float wear )
             {
-                if ( gripFactorPerWear == null )
-                    return ( 1.0f );
-                
-                final float[] w = gripFactorPerWear;
+                final float[] w = ( gripFactorPerWear == null ) ? DEFAULT_WEAR_GRIP : gripFactorPerWear;
                 
                 // w[0] will always be set to 1.0.
                 
@@ -1176,10 +1177,9 @@ public class VehiclePhysics
             
             public final float getMinGrip()
             {
-                if ( gripFactorPerWear == null )
-                    return ( 0.0f );
+                final float[] w = ( gripFactorPerWear == null ) ? DEFAULT_WEAR_GRIP : gripFactorPerWear;
                 
-                return ( gripFactorPerWear[gripFactorPerWear.length - 1] );
+                return ( w[w.length - 1] );
             }
             
             CompoundWheel()
@@ -1411,7 +1411,7 @@ public class VehiclePhysics
         return ( installedUpgrades );
     }
     
-    private static TireCompound createCompound( String name, int index, float optTemp )
+    private static TireCompound createDefaultCompound( String name, int index, float optTemp )
     {
         float optPress = 64.5f;
         float optPressMult = 0.018841f;
@@ -1508,26 +1508,26 @@ public class VehiclePhysics
 	        
 	        TireCompound[] tireCompounds = new TireCompound[ 20 ];
 	        
-	        tireCompounds[ 0] = createCompound( "01-Cold",  0, 90.00f );
-            tireCompounds[ 1] = createCompound( "01-Hot",   1, 93.00f );
-            tireCompounds[ 2] = createCompound( "02-Cold",  2, 90.67f );
-            tireCompounds[ 3] = createCompound( "02-Hot",   3, 93.67f );
-            tireCompounds[ 4] = createCompound( "03-Cold",  4, 91.33f );
-            tireCompounds[ 5] = createCompound( "03-Hot",   5, 94.33f );
-            tireCompounds[ 6] = createCompound( "04-Cold",  6, 92.00f );
-            tireCompounds[ 7] = createCompound( "04-Hot",   7, 95.00f );
-            tireCompounds[ 8] = createCompound( "05-Cold",  8, 92.67f );
-            tireCompounds[ 9] = createCompound( "05-Hot",   9, 95.67f );
-            tireCompounds[10] = createCompound( "06-Cold", 10, 93.33f );
-            tireCompounds[11] = createCompound( "06-Hot",  11, 96.33f );
-            tireCompounds[12] = createCompound( "07-Cold", 12, 94.00f );
-            tireCompounds[13] = createCompound( "07-Hot",  13, 97.00f );
-            tireCompounds[14] = createCompound( "08-Cold", 14, 94.67f );
-            tireCompounds[15] = createCompound( "08-Hot",  15, 97.67f );
-            tireCompounds[16] = createCompound( "09-Cold", 16, 95.33f );
-            tireCompounds[17] = createCompound( "09-Hot",  17, 98.33f );
-            tireCompounds[18] = createCompound( "10-Cold", 18, 96.00f );
-            tireCompounds[19] = createCompound( "10-Hot",  19, 99.00f );
+	        tireCompounds[ 0] = createDefaultCompound( "01-Cold",  0, 90.00f );
+            tireCompounds[ 1] = createDefaultCompound( "01-Hot",   1, 93.00f );
+            tireCompounds[ 2] = createDefaultCompound( "02-Cold",  2, 90.67f );
+            tireCompounds[ 3] = createDefaultCompound( "02-Hot",   3, 93.67f );
+            tireCompounds[ 4] = createDefaultCompound( "03-Cold",  4, 91.33f );
+            tireCompounds[ 5] = createDefaultCompound( "03-Hot",   5, 94.33f );
+            tireCompounds[ 6] = createDefaultCompound( "04-Cold",  6, 92.00f );
+            tireCompounds[ 7] = createDefaultCompound( "04-Hot",   7, 95.00f );
+            tireCompounds[ 8] = createDefaultCompound( "05-Cold",  8, 92.67f );
+            tireCompounds[ 9] = createDefaultCompound( "05-Hot",   9, 95.67f );
+            tireCompounds[10] = createDefaultCompound( "06-Cold", 10, 93.33f );
+            tireCompounds[11] = createDefaultCompound( "06-Hot",  11, 96.33f );
+            tireCompounds[12] = createDefaultCompound( "07-Cold", 12, 94.00f );
+            tireCompounds[13] = createDefaultCompound( "07-Hot",  13, 97.00f );
+            tireCompounds[14] = createDefaultCompound( "08-Cold", 14, 94.67f );
+            tireCompounds[15] = createDefaultCompound( "08-Hot",  15, 97.67f );
+            tireCompounds[16] = createDefaultCompound( "09-Cold", 16, 95.33f );
+            tireCompounds[17] = createDefaultCompound( "09-Hot",  17, 98.33f );
+            tireCompounds[18] = createDefaultCompound( "10-Cold", 18, 96.00f );
+            tireCompounds[19] = createDefaultCompound( "10-Hot",  19, 99.00f );
             
             setTireCompounds( tireCompounds );
 	        

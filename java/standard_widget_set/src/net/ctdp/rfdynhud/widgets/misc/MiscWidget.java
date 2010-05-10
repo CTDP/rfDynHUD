@@ -404,7 +404,7 @@ public class MiscWidget extends Widget
             }
             
             {
-                int stintLength = (int)( vsi.getStintLength() * 10f );
+                int stintLength = (int)( ( ( editorPresets == null ) ? vsi.getStintLength() : 5.2f ) * 10f );
                 if ( needsCompleteRedraw || ( stintLength != oldStintLength ) )
                 {
                     if ( vsi.isInPits() )

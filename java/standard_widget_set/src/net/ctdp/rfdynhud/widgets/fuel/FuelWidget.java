@@ -199,7 +199,7 @@ public class FuelWidget extends Widget
     private int nextPitstopLapCorrection = 0;
     private int nextPitstopFuelLapsCorrection = 0;
     private final IntValue pitstopFuel = new IntValue( ValidityTest.GREATER_THAN, 0 );
-    private final IntValue stintLength = new IntValue( ValidityTest.GREATER_THAN, 0 );
+    private final IntValue stintLengthV = new IntValue( ValidityTest.GREATER_THAN, 0 );
     
     private int oldFuel = -1;
     private float oldAverage = -1f;
@@ -391,7 +391,7 @@ public class FuelWidget extends Widget
         this.oldNextPitstopLapCorrection = ( ( nextPitstopLapCorrection + Short.MAX_VALUE / 2 ) << 16 ) | ( nextPitstopFuelLapsCorrection + Short.MAX_VALUE / 2 );
         this.pitstopFuel.reset();
         
-        this.stintLength.reset();
+        this.stintLengthV.reset();
         this.oldFuel = -1;
         this.oldAverage = -1f;
     }
@@ -404,13 +404,13 @@ public class FuelWidget extends Widget
     {
         super.onPitsExited( gameData, editorPresets );
         
-        if ( stintLength.getValue() < 1 )
+        if ( stintLengthV.getValue() < 1 )
         {
             this.nextPitstopLapCorrection = 0;
             this.nextPitstopFuelLapsCorrection = 0;
         }
         
-        this.stintLength.reset();
+        this.stintLengthV.reset();
     }
     
     /**
@@ -594,6 +594,7 @@ public class FuelWidget extends Widget
         float fuel = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuel();
         float fuelL = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuelL();
         float avgFuelUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getAverage();
+        float stintLength = ( editorPresets == null ) ? vsi.getStintLength() : 5.2f;
         
         if ( isEditorMode )
         {
@@ -614,7 +615,7 @@ public class FuelWidget extends Widget
         else if ( ( this.lowFuelBlinkNanos > 0L ) && ( lowFuelWarningImageOn != null ) )
         {
             float lapsForFuel = ( fuel - 1.0f ) / avgFuelUsage;
-            float restLapLength = 1.0f - ( vsi.getStintLength() % 1f );
+            float restLapLength = 1.0f - ( stintLength % 1f );
             
             int lapsRemaining = scoringInfo.getMaxLaps() - vsi.getLapsCompleted() - 1;
             
@@ -658,12 +659,12 @@ public class FuelWidget extends Widget
             string = NumberUtil.formatFloat( fuelL * gameData.getPhysics().getWeightOfOneLiterOfFuel(), 1, true );
             fuelLoadString2.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
             
-            if ( !isEditorMode && ( avgFuelUsage > 0f ) )
+            if ( avgFuelUsage > 0f )
             {
                 if ( roundUpRemainingLaps.getBooleanValue() )
-                    string = NumberUtil.formatFloat( (float)Math.floor( ( fuel / avgFuelUsage ) + ( vsi.getStintLength() - (int)vsi.getStintLength() ) ), 1, true ) + "Laps";
+                    string = NumberUtil.formatFloat( ( fuel / avgFuelUsage ) + ( stintLength - (int)stintLength ), 1, true ) + "Laps";
                 else
-                    string = NumberUtil.formatFloat( (float)Math.floor( fuel / avgFuelUsage ), 1, true ) + "Laps";
+                    string = NumberUtil.formatFloat( fuel / avgFuelUsage, 1, true ) + "Laps";
             }
             else
             {
@@ -672,7 +673,7 @@ public class FuelWidget extends Widget
             fuelLoadString3.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
         }
         
-        stintLength.update( (int)vsi.getStintLength() );
+        stintLengthV.update( (int)stintLength );
         int fuelRelevantLaps = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getFuelRelevantLaps();
         
         if ( fuelRelevantLaps == 0 )
@@ -683,7 +684,7 @@ public class FuelWidget extends Widget
                 fuelUsageAvgString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
             }
         }
-        else if ( needsCompleteRedraw || stintLength.hasChanged() )
+        else if ( needsCompleteRedraw || stintLengthV.hasChanged() )
         {
             float lastFuelUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getLastLap();
             
@@ -714,7 +715,7 @@ public class FuelWidget extends Widget
             boolean isRace = scoringInfo.getSessionType().isRace();
             int totalLaps = scoringInfo.getMaxLaps(); // compute for time based races
             
-            int remainingFuelLaps = (int)Math.floor( ( fuel / avgFuelUsage ) + ( vsi.getStintLength() - (int)vsi.getStintLength() ) );
+            int remainingFuelLaps = (int)Math.floor( ( fuel / avgFuelUsage ) + ( stintLength - (int)stintLength ) );
             nextPitstopLap = vsi.getLapsCompleted() + remainingFuelLaps + nextPitstopLapCorrection;
             
             if ( nextPitstopLap < currLap )

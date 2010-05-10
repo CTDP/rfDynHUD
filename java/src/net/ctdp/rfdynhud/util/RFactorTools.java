@@ -78,7 +78,7 @@ public class RFactorTools
         return ( pluginFolder.getParentFile().getAbsoluteFile() );
     }
     
-    private static File getRFConfigINIPath( File rFactorFolder, final String setting, String def )
+    private static File getPathFromRFConfigINI( File rFactorFolder, final String setting, String def )
     {
         File config = new File( rFactorFolder, "config.ini" );
         File fallback0 = new File( rFactorFolder, def ).getAbsoluteFile();
@@ -145,7 +145,6 @@ public class RFactorTools
     }
     
     public static final File PLUGIN_FOLDER = extractPluginFolder();
-    //public static final String PLUGIN_PATH = new File( getRFConfigINIPath( RFACTOR_FOLDER, "PluginsDir", "Plugins" ), "rfDynHUD" ).getAbsolutePath();
     public static final String PLUGIN_PATH = PLUGIN_FOLDER.getAbsolutePath();
     public static final File RFACTOR_FOLDER = findRFactorFolder( PLUGIN_FOLDER );
     public static final String RFACTOR_PATH = RFACTOR_FOLDER.getAbsolutePath();
@@ -196,7 +195,7 @@ public class RFactorTools
     
     public static File getUserDataFolder()
     {
-        return ( getRFConfigINIPath( RFACTOR_FOLDER, "SaveDir", "UserData" ) );
+        return ( getPathFromRFConfigINI( RFACTOR_FOLDER, "SaveDir", "UserData" ) );
     }
     
     public static File getUserScreenShotsFolder()
@@ -586,7 +585,7 @@ public class RFactorTools
      */
     public static File findTrackFolder( String trackname )
     {
-        File locationsFolder = getRFConfigINIPath( RFACTOR_FOLDER, "TracksDir", "GameData\\Locations\\" );
+        File locationsFolder = getPathFromRFConfigINI( RFACTOR_FOLDER, "TracksDir", "GameData\\Locations\\" );
         
         if ( ( locationsFolder == null ) || !locationsFolder.exists() )
             return ( null );
