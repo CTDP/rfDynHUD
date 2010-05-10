@@ -256,12 +256,12 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         }
     }
     
-    public void onWidgetSelected( Widget widget )
+    public void onWidgetSelected( Widget widget, boolean selectionChanged, boolean doubleClick )
     {
         int row = table.getSelectedRow();
         int column = table.getSelectedColumn();
         
-        if ( ( widget != null ) && ( column == 0 ) )
+        if ( ( widget != null ) && doubleClick && ( column == 0 ) )
         {
             InputAction action = getActionFromRow( row );
             

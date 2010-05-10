@@ -581,6 +581,10 @@ public class VehiclePhysicsParser
             {
                 engine.lifetimeVariance = Math.round( parseFloat( engine.lifetimeVariance, Float.parseFloat( value ), op ) );
             }
+            else if ( key.equals( "RevLimitRange" ) )
+            {
+                parsePhysicsSetting( value, engine.getRevLimitRange(), op );
+            }
             else if ( key.equals( "EngineBoostRange" ) )
             {
                 parsePhysicsSetting( value, engine.getBoostRange(), op );

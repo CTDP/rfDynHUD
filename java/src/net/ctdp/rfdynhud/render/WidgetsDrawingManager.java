@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.render;
 
 import java.nio.ByteBuffer;
+import java.util.WeakHashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -81,6 +82,8 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         }
     }
     
+    private final WeakHashMap<Widget, Boolean> onRealtimeEnteredEventCache = new WeakHashMap<Widget, Boolean>();
+    
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
@@ -89,20 +92,42 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     public void fireOnRealtimeEntered( int step, LiveGameData gameData, EditorPresets editorPresets )
     {
         if ( step == 1 )
-            waitingForOREStep2 = true;
-        else if ( step == 2 )
-            waitingForOREStep2 = false;
-        
-        if ( step == 2 )
         {
             measureEnd = -1L;
             frameCounter = 0;
             
+            waitingForOREStep2 = true;
+            onRealtimeEnteredEventCache.clear();
+            
             final int n = getNumWidgets();
             for ( int i = 0; i < n; i++ )
             {
-                getWidget( i ).onRealtimeEntered( gameData, editorPresets );
+                Widget widget = getWidget( i );
+                
+                if ( !widget.needsRealtimeGraphicsInfo() && !widget.needsRealtimeTelemetryData() && !widget.needsRealtimeScoringInfo() )
+                {
+                    widget.onRealtimeEntered( gameData, editorPresets );
+                    onRealtimeEnteredEventCache.put( widget, Boolean.TRUE );
+                }
             }
+        }
+        else if ( step == 2 )
+        {
+            waitingForOREStep2 = false;
+            
+            final int n = getNumWidgets();
+            for ( int i = 0; i < n; i++ )
+            {
+                Widget widget = getWidget( i );
+                
+                if ( widget.needsRealtimeGraphicsInfo() || widget.needsRealtimeTelemetryData() || widget.needsRealtimeScoringInfo() )
+                {
+                    if ( onRealtimeEnteredEventCache.get( widget ) != Boolean.TRUE )
+                        widget.onRealtimeEntered( gameData, editorPresets );
+                }
+            }
+            
+            onRealtimeEnteredEventCache.clear();
         }
     }
     
@@ -292,6 +317,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     public void fireOnRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
     {
         waitingForOREStep2 = true;
+        onRealtimeEnteredEventCache.clear();
         
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
@@ -396,14 +422,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public void drawWidgets( LiveGameData gameData, EditorPresets editorPresets, boolean completeRedrawForced, TextureImage2D texture )
     {
-        if ( waitingForOREStep2 )
-            return;
-        
         final boolean isEditorMode = ( editorPresets != null );
         
         texture.getTextureCanvas().setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
-        
-        Widget widget;
         
         checkFixAndBakeConfiguration( isEditorMode );
         
@@ -469,21 +490,35 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            widget = getWidget( i );
+            Widget widget = getWidget( i );
             
             try
             {
-                widget.updateVisibility( clock1, clock2, gameData, editorPresets );
-                
-                if ( !isEditorMode || widget.getDirtyFlag( true ) )
+                boolean renderIt = true;
+                if ( waitingForOREStep2 )
                 {
-                    if ( widget.isVisible() || isEditorMode )
+                    if ( widget.needsRealtimeGraphicsInfo() && !gameData.getGraphicsInfo().isUpdatedInRealtimeMode() )
+                        renderIt = false;
+                    else if ( widget.needsRealtimeTelemetryData() && !gameData.getTelemetryData().isUpdatedInRealtimeMode() )
+                        renderIt = false;
+                    else if ( widget.needsRealtimeScoringInfo() && !gameData.getScoringInfo().isUpdatedInRealtimeMode() )
+                        renderIt = false;
+                }
+                
+                if ( renderIt )
+                {
+                    widget.updateVisibility( clock1, clock2, gameData, editorPresets );
+                    
+                    if ( !isEditorMode || widget.getDirtyFlag( true ) )
                     {
-                        widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture );
-                    }
-                    else if ( __WPrivilegedAccess.needsCompleteClear( widget ) )
-                    {
-                        widget.clearRegion( isEditorMode, texture );
+                        if ( widget.isVisible() || isEditorMode )
+                        {
+                            widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture );
+                        }
+                        else if ( __WPrivilegedAccess.needsCompleteClear( widget ) )
+                        {
+                            widget.clearRegion( isEditorMode, texture );
+                        }
                     }
                 }
             }
@@ -497,12 +532,13 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * Creates a new {@link WidgetsDrawingManager}.
      * 
-     * @param overlayTT
+     * @param gameResX
+     * @param gameResY
      */
-    public WidgetsDrawingManager( TransformableTexture overlayTT )
+    public WidgetsDrawingManager( int gameResX, int gameResY )
     {
-        this.textures = new TransformableTexture[] { overlayTT };
+        this.textures = new TransformableTexture[] { __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY ) };
         
-        __WCPrivilegedAccess.setGameResolution( overlayTT.getWidth(), overlayTT.getHeight(), this );
+        __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
     }
 }

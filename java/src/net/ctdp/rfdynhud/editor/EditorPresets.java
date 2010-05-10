@@ -35,7 +35,7 @@ public class EditorPresets
     private final FloatProperty currentSector2Time = new FloatProperty( null, "currentSector2Time", 27.988f, 0f, Float.MAX_VALUE );
     private final FloatProperty currentSector3Time = new FloatProperty( null, "currentSector3Time", 26.440f, 0f, Float.MAX_VALUE );
     private final EnumProperty<EngineBoostMapping> engineBoost = new EnumProperty<EngineBoostMapping>( null, "engineBoost", EngineBoostMapping.B5 );
-    private final IntProperty engineRPM = new IntProperty( null, "engineRPM", 3750, 0, 20000 );
+    private final IntProperty engineRPM = new IntProperty( null, "engineRPM", 3750, 0, 22000 );
     private final IntProperty engineLifetime = new IntProperty( null, "engineLifetime", 1000, 0, Integer.MAX_VALUE );
     private final FloatProperty brakeDiscThicknessFL = new FloatProperty( null, "brakeDiscThicknessFL", 0.021f, 0f, Float.MAX_VALUE );
     private final FloatProperty brakeDiscThicknessFR = new FloatProperty( null, "brakeDiscThicknessFR", 0.0145f, 0f, Float.MAX_VALUE );

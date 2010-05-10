@@ -22,7 +22,7 @@ public class GraphicsInfo
     
     private final LiveGameData gameData;
     
-    private boolean valid = false;
+    private boolean updatedInRealtimeMode = false;
     
     private long updateId = 0L;
     
@@ -86,7 +86,7 @@ public class GraphicsInfo
     
     void onDataUpdated()
     {
-        this.valid = gameData.isInRealtimeMode();
+        this.updatedInRealtimeMode = gameData.isInRealtimeMode();
         this.updateId++;
         
         if ( updateListeners != null )
@@ -96,9 +96,13 @@ public class GraphicsInfo
         }
     }
     
-    public final boolean isDataValid()
+    /**
+     * Gets, whether the last update of these data hasbeen done while in realtime mode.
+     * @return whether the last update of these data hasbeen done while in realtime mode.
+     */
+    public final boolean isUpdatedInRealtimeMode()
     {
-        return ( valid );
+        return ( updatedInRealtimeMode );
     }
     
     public final long getUpdateId()

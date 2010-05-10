@@ -120,7 +120,7 @@ public class MapWidget extends Widget
     {
         final int maxDspVehicles = this.maxDisplayedVehicles.getIntValue();
         
-        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResY() / 960f );
+        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getResY() / 960f );
         
         if ( ( itemTextures != null ) && ( itemTextures.length == maxDspVehicles ) && ( itemTextures[0].getWidth() == itemRadius + itemRadius ) && ( itemTextures[0].getHeight() == itemRadius + itemRadius ) )
             return;
@@ -320,7 +320,7 @@ public class MapWidget extends Widget
                 VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
                 //if ( !vsi.isInPits() )
                 {
-                    float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocity() * scoringInfo.getExtrapolationTime() ) % track.getTrackLength();
+                    float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % track.getTrackLength();
                     
                     TransformableTexture tt = itemTextures[i];
                     itemTextures[i].setVisible( true );

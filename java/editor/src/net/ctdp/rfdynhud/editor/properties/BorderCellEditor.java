@@ -52,7 +52,7 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
         {
             //button.setVisible( false );
             button.setVisible( true );
-            button.setText( "Choose..." );
+            button.setText( "..." );
             button.setToolTipText( "Choose a Color" );
         }
         else

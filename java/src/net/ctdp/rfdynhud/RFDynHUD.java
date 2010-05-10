@@ -10,7 +10,6 @@ import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
-import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
@@ -182,10 +181,8 @@ public class RFDynHUD
         
         Logger.log( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "...", false );
         
-        this.drawingManager = new WidgetsDrawingManager( __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY ) );
+        this.drawingManager = new WidgetsDrawingManager( gameResX, gameResY );
         Logger.log( " done." );
-        
-        __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, drawingManager );
         
         this.eventsManager = new RFactorEventsManager( drawingManager, this );
         

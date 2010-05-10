@@ -101,7 +101,7 @@ public class TrackPositionWidget extends Widget
     {
         final int maxDspVehicles = this.maxDisplayedVehicles.getIntValue();
         
-        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResY() / 960f );
+        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getResY() / 960f );
         
         if ( ( itemTextures != null ) && ( itemTextures.length == maxDspVehicles ) && ( itemTextures[0].getWidth() == itemRadius + itemRadius ) && ( itemTextures[0].getHeight() == itemRadius + itemRadius ) )
             return;
@@ -175,7 +175,7 @@ public class TrackPositionWidget extends Widget
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             //if ( !vsi.isInPits() )
             {
-                float lapDistance = ( ( vsi.getLapDistance() + vsi.getScalarVelocity() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength() ) / scoringInfo.getTrackLength();
+                float lapDistance = ( ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength() ) / scoringInfo.getTrackLength();
                 if ( lapDistance < 0f )
                     lapDistance = 0f;
                 

@@ -473,18 +473,23 @@ public class VehicleSetup
     
     public class Engine
     {
-        //private int revLimit; // ENGINE::RevLimitSetting=0//20,000
+        private int revLimitSetting; // ENGINE::RevLimitSetting=0//20,000
+        private float revLimit; // ENGINE::RevLimitSetting=0//20,000
         private int boostMapping; // ENGINE::EngineBoostSetting=4//5
         //private int engineBrakeMap; // ENGINE::EngineBrakingMapSetting=4//4
         
-        /*
+        public final int getRevLimitSetting()
+        {
+            return ( revLimitSetting );
+        }
+        
+        /**
          * ENGINE::RevLimitSetting=0//20,000
-         *
-        public final int getRevLimit()
+         */
+        public final float getRevLimit()
         {
             return ( revLimit );
         }
-        */
         
         /**
          * ENGINE::EngineBoostSetting=4//5
@@ -1179,15 +1184,13 @@ public class VehicleSetup
                 }
                 else if ( group.equals( "ENGINE" ) )
                 {
-                    /*
                     if ( key.equals( "RevLimitSetting" ) )
                     {
                         //RevLimitSetting=0//20,000
-                        //int setting = Integer.parseInt( value );
-                        int data = Integer.parseInt( comment.replace( ",", "" ) );
-                        setup.engine.revLimit = data;
+                        setup.engine.revLimitSetting = Integer.parseInt( value );
+                        setup.engine.revLimit = physics.getEngine().getRevLimitRange().getValueForSetting( setup.engine.revLimitSetting );
                     }
-                    else */if ( key.equals( "EngineBoostSetting" ) )
+                    else if ( key.equals( "EngineBoostSetting" ) )
                     {
                         //EngineBoostSetting=4//5
                         int setting = Integer.parseInt( value );

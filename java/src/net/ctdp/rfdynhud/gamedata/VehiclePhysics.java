@@ -70,6 +70,15 @@ public class VehiclePhysics
             return ( baseValue + stepSize * setting );
         }
         
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString()
+        {
+            return ( getClass().getName() + " { baseOffset: " + baseOffset + ", baseValue: " + baseValue + ", stepSize: " + stepSize + ", numSteps: " + numSteps + " }" );
+        }
+        
         PhysicsSetting( float baseOffset )
         {
             this.baseOffset = baseOffset;
@@ -166,6 +175,7 @@ public class VehiclePhysics
         float wearIncreasePerDegree;
         float baseLifetimeRPM;
         float halfLifetimeRPMOffset;
+        private final PhysicsSetting revLimitRange = new PhysicsSetting();
         private final PhysicsSetting boostRange = new PhysicsSetting( 1f );
         float rpmIncreasePerBoostSetting;
         float fuelUsageIncreasePerBoostSetting;
@@ -362,6 +372,16 @@ public class VehiclePhysics
         public final float getHalfLifetimeRPMOffset()
         {
             return ( halfLifetimeRPMOffset );
+        }
+        
+        /**
+         * Gets the range of possible max revs.
+         * 
+         * @return the range of possible max revs.
+         */
+        public final PhysicsSetting getRevLimitRange()
+        {
+            return ( revLimitRange );
         }
         
         /**
@@ -1157,7 +1177,7 @@ public class VehiclePhysics
             public final float getMinGrip()
             {
                 if ( gripFactorPerWear == null )
-                    return ( 1.0f );
+                    return ( 0.0f );
                 
                 return ( gripFactorPerWear[gripFactorPerWear.length - 1] );
             }
@@ -1433,6 +1453,7 @@ public class VehiclePhysics
 	        fuelRange.set( 6.0f, 1.0f, 127 );
 	        frontWingRange.set( 14.0f, 0.25f, 65 );
 	        
+	        engine.revLimitRange.set( 20000.0f, 250f, 9 );
 	        engine.boostRange.set( 0f, 1.0f, 9 );
             engine.rpmIncreasePerBoostSetting = -200.0f;
             engine.fuelUsageIncreasePerBoostSetting = -0.001f;

@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import net.ctdp.rfdynhud.editor.EDPrivilegedAccess;
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
@@ -30,7 +30,7 @@ import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.Property;
 
-public class OptionsWindow extends JDialog implements PropertyChangeListener
+public class EditorPresetsWindow extends JDialog implements PropertyChangeListener
 {
     private static final long serialVersionUID = 2722252740556901190L;
     
@@ -101,7 +101,7 @@ public class OptionsWindow extends JDialog implements PropertyChangeListener
         
         props.add( general );
         
-        EDPrivilegedAccess.getEditorPresetsProperties( editor.getEditorPresets(), new DefaultWidgetPropertiesContainer( props ) );
+        __EDPrivilegedAccess.getEditorPresetsProperties( editor.getEditorPresets(), new DefaultWidgetPropertiesContainer( props ) );
     }
     
     private Component createPropertiesEditor()
@@ -190,7 +190,7 @@ public class OptionsWindow extends JDialog implements PropertyChangeListener
         setVisible( false );
     }
     
-    public OptionsWindow( RFDynHUDEditor editor )
+    public EditorPresetsWindow( RFDynHUDEditor editor )
     {
         super( editor.getMainWindow(), "rfDynHUD Editor Presets", false );
         

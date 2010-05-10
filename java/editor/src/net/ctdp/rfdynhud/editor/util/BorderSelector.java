@@ -38,6 +38,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -351,6 +353,56 @@ public class BorderSelector extends DefaultTableModel
             renderCombo.setRenderer( new BorderEntryCellRenderer( widgetsConfig ) );
             editCombo.setRenderer( new BorderEntryCellRenderer( widgetsConfig ) );
             
+            editCombo.addPopupMenuListener( new PopupMenuListener()
+            {
+                private Object oldValue = null;
+                
+                @Override
+                public void popupMenuWillBecomeVisible( PopupMenuEvent e )
+                {
+                    oldValue = ( (JComboBox)e.getSource() ).getSelectedItem();
+                }
+                
+                @Override
+                public void popupMenuWillBecomeInvisible( PopupMenuEvent e )
+                {
+                    if ( oldValue != null )
+                    {
+                        Object newValue = ( (JComboBox)e.getSource() ).getSelectedItem();
+                        
+                        //if ( !oldValue.equals( newValue ) )
+                        {
+                            if ( lastRow == 0 )
+                            {
+                                noAliasSelection = (String)newValue;
+                                
+                                //String test = widgetsConfig.getBorderName( valueTextField.getText() );
+                                //if ( test == null )
+                                    valueTextField.setText( noAliasSelection );
+                            }
+                            else if ( lastRow >= 0 )
+                            {
+                                String alias = (String)getValueAt( lastRow, 0 );
+                                String border = (String)newValue;
+                                widgetsConfig.addBorderAlias( alias, border );
+                                setAllWidgetsDirty( widgetsConfig );
+                                fireTableDataChanged();
+                                
+                                valueTextField.setText( alias );
+                            }
+                            
+                            stopCellEditing();
+                        }
+                    }
+                    
+                    oldValue = null;
+                }
+                
+                @Override
+                public void popupMenuCanceled( PopupMenuEvent e )
+                {
+                }
+            } );
             editCombo.addItemListener( new ItemListener()
             {
                 public void itemStateChanged( ItemEvent e )
@@ -379,6 +431,8 @@ public class BorderSelector extends DefaultTableModel
                                 setAllWidgetsDirty( widgetsConfig );
                                 fireTableDataChanged();
                             }
+                            
+                            stopCellEditing();
                             break;
                     }
                     
@@ -591,6 +645,21 @@ public class BorderSelector extends DefaultTableModel
         footer.add( valueWrapper, BorderLayout.CENTER );
         
         JPanel footer2 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 0 ) );
+        JButton no = new JButton( "No Border" );
+        no.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                valueTextField.setText( "" );
+                
+                somethingChanged = somethingChanged || !valueTextField.getText().equals( initialValue );
+                
+                applyBorder( valueTextField.getText(), widgetsConfig );
+                
+                dialog.setVisible( false );
+            }
+        } );
+        footer2.add( no );
         JButton ok = new JButton( "OK" );
         ok.addActionListener( new ActionListener()
         {

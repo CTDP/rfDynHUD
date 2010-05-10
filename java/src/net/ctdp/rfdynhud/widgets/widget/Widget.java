@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
@@ -670,6 +671,33 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * Gets, whether this {@link Widget} needs the {@link GraphicsInfo} to be updated in realtime mode to be drawn.
+     * @return whether this {@link Widget} needs the {@link GraphicsInfo} to be updated in realtime mode to be drawn.
+     */
+    public boolean needsRealtimeGraphicsInfo()
+    {
+        return ( false );
+    }
+    
+    /**
+     * Gets, whether this {@link Widget} needs the {@link TelemetryData} to be updated in realtime mode to be drawn.
+     * @return whether this {@link Widget} needs the {@link TelemetryData} to be updated in realtime mode to be drawn.
+     */
+    public boolean needsRealtimeTelemetryData()
+    {
+        return ( false );
+    }
+    
+    /**
+     * Gets, whether this {@link Widget} needs the {@link ScoringInfo} to be updated in realtime mode to be drawn.
+     * @return whether this {@link Widget} needs the {@link ScoringInfo} to be updated in realtime mode to be drawn.
+     */
+    public boolean needsRealtimeScoringInfo()
+    {
+        return ( false );
+    }
+    
+    /**
      * Gets the {@link Widget}'s {@link DrawnStringFactory}.
      * 
      * @return the {@link Widget}'s {@link DrawnStringFactory}.
@@ -858,6 +886,22 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * This method is called once to initialized {@link DrawnString}s used on this Widget.
+     * 
+     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
+     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
+     * @param gameData the live game data
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param drawnStringFactory
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
+     * @param width the width on the texture
+     * @param height the height on the texture
+     */
+    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
+    
+    /**
      * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, ImageBorderRenderer, TextureImage2D, int, int, int, int)}
      * and {@link #clearBackground(boolean, LiveGameData, TextureImage2D, int, int, int, int)} are (re-)invoked.<br />
      * The original method is just an empty stub returning false.
@@ -878,22 +922,6 @@ public abstract class Widget implements Documented
     {
         return ( false );
     }
-    
-    /**
-     * This method is called once to initialized {@link DrawnString}s used on this Widget.
-     * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
-     * @param gameData the live game data
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
-     * @param drawnStringFactory
-     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     * @param offsetX the x-offset on the texture
-     * @param offsetY the y-offset on the texture
-     * @param width the width on the texture
-     * @param height the height on the texture
-     */
-    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method must contain the actual drawing code for this Widget.

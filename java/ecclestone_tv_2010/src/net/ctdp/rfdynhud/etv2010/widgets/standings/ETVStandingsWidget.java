@@ -204,6 +204,13 @@ public class ETVStandingsWidget extends ETVWidgetBase
             ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
             ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), getBackgroundColor(), itemClearImage, true );
         }
+        else
+        {
+            itemClearImage.clear( false, null );
+        }
+        
+        ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
+        ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), getBackgroundColor(), itemClearImage, true );
         
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setFont( getFont() );
@@ -256,7 +263,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             }
         }
         
-        isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResX() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
+        isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResolution().getResX() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
     }
     
     @Override

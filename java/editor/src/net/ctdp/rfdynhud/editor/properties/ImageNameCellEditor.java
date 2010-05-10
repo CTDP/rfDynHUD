@@ -48,7 +48,7 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
         {
             //button.setVisible( false );
             button.setVisible( true );
-            button.setText( "Choose..." );
+            button.setText( "..." );
             button.setToolTipText( "Choose an image" );
         }
         else

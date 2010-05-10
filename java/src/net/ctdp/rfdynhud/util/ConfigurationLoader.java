@@ -96,7 +96,7 @@ public class ConfigurationLoader
                 }
                 else if ( group.equals( "NamedFonts" ) )
                 {
-                    java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResY(), false, false );
+                    java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResolution().getResY(), false, false );
                     
                     if ( ( font == FontUtils.FALLBACK_FONT ) || ( font == FontUtils.FALLBACK_VIRTUAL_FONT ) )
                     {

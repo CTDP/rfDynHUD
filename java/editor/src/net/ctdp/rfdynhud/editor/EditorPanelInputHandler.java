@@ -85,7 +85,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         //boolean widgetChanged = ( selectedWidget != editor.getEditorPanel().getSelectedWidget() );
         
         //if ( widgetChanged )
-            editor.onWidgetSelected( selectedWidget );
+            editor.onWidgetSelected( selectedWidget, false );
         
         if ( e.getButton() == MouseEvent.BUTTON1 )
         {
@@ -139,6 +139,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     
     public void mouseClicked( MouseEvent e )
     {
+        if ( ( e.getButton() == MouseEvent.BUTTON1 ) && ( editor.getEditorPanel().getSelectedWidget() != null ) )
+        {
+            editor.onWidgetSelected( editor.getEditorPanel().getSelectedWidget(), e.getClickCount() == 2 );
+        }
     }
     
     public void mouseEntered( MouseEvent e )
@@ -235,8 +239,11 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         {
             selectedWidget.clearRegion( true, editor.getOverlayTexture() );
             
-            int dx = ( e.getX() - mousePressedX );
-            int dy = ( e.getY() - mousePressedY );
+            final int gameResX = selectedWidget.getConfiguration().getGameResolution().getResX();
+            final int gameResY = selectedWidget.getConfiguration().getGameResolution().getResY();
+            
+            final int dx = ( e.getX() - mousePressedX );
+            final int dy = ( e.getY() - mousePressedY );
             
             boolean changed = false;
             
@@ -286,8 +293,6 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                         break;
                 }
                 
-                int gameResX = selectedWidget.getConfiguration().getGameResX();
-                int gameResY = selectedWidget.getConfiguration().getGameResY();
                 int hundretPercentWidth = gameResY * 4 / 3;
                 
                 if ( !selectedWidget.getSize().isNegativeWidth() && ( w > (int)( hundretPercentWidth * 0.95f ) ) )
@@ -351,15 +356,14 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 int effWidth = selectedWidget.getSize().getEffectiveWidth();
                 int effHeight = selectedWidget.getSize().getEffectiveHeight();
                 
-                x = Math.min( Math.max( 0, x ) + effWidth, editor.getGameResX() ) - effWidth;
-                y = Math.min( Math.max( 0, y ) + effHeight, editor.getGameResY() ) - effHeight;
+                x = Math.min( Math.max( 0, x ) + effWidth, gameResX ) - effWidth;
+                y = Math.min( Math.max( 0, y ) + effHeight, gameResY ) - effHeight;
                 
                 
                 RelativePositioning positioning = selectedWidget.getPosition().getPositioning();
                 
                 if ( positioning.isLeft() )
                 {
-                    int gameResX = selectedWidget.getConfiguration().getGameResX();
                     if ( x / (float)( gameResX - x - effWidth ) > 0.4f )
                         positioning = positioning.deriveHCenter();
                     else if ( x + effWidth / 2 >= gameResX / 2 + 50 )
@@ -367,7 +371,6 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 }
                 else if ( positioning.isRight() )
                 {
-                    int gameResX = selectedWidget.getConfiguration().getGameResX();
                     if ( x / (float)( gameResX - x - effWidth ) < 2.5f )
                         positioning = positioning.deriveHCenter();
                     else if ( x + effWidth / 2 < gameResX / 2 - 50 )
@@ -375,7 +378,6 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 }
                 else if ( positioning.isHCenter() )
                 {
-                    int gameResX = selectedWidget.getConfiguration().getGameResX();
                     int centerWidth = gameResX * 5 / 6;
                     if ( x < ( gameResX - centerWidth ) / 2 + 50 )
                         positioning = positioning.deriveLeft();
@@ -385,7 +387,6 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 
                 if ( positioning.isTop() )
                 {
-                    int gameResY = selectedWidget.getConfiguration().getGameResY();
                     if ( y / (float)( gameResY - y - effHeight ) > 0.4f )
                         positioning = positioning.deriveVCenter();
                     //else if ( y + effHeight / 2 >= gameResY * 8 / 10 )
@@ -393,7 +394,6 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 }
                 else if ( positioning.isBottom() )
                 {
-                    int gameResY = selectedWidget.getConfiguration().getGameResY();
                     if ( y / (float)( gameResY - y - effHeight ) < 2.5f )
                         positioning = positioning.deriveVCenter();
                     //else if ( y + effHeight / 2 < gameResY * 8 / 10 )
@@ -401,7 +401,6 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 }
                 else if ( positioning.isVCenter() )
                 {
-                    int gameResY = selectedWidget.getConfiguration().getGameResY();
                     if ( y / (float)( gameResY - y - effHeight ) < 0.3f )
                         positioning = positioning.deriveTop();
                     else if ( y / (float)( gameResY - y - effHeight ) > 3.333f )
@@ -429,7 +428,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         {
             case KeyEvent.VK_DELETE:
                 editor.getEditorPanel().removeSelectedWidget();
-                editor.onWidgetSelected( null );
+                editor.onWidgetSelected( null, false );
                 break;
         }
     }

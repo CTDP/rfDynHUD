@@ -51,7 +51,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         {
             //button.setVisible( false );
             button.setVisible( true );
-            button.setText( "Choose..." );
+            button.setText( "..." );
             button.setToolTipText( "Choose a Color" );
         }
         else
@@ -76,7 +76,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         
         Color color = prop.getColor();
         
-        if ( ( color.getRed() < 20 ) && ( color.getGreen() < 20 ) && ( color.getBlue() < 20 ) )
+        if ( ( color.getRed() < 50 ) && ( color.getGreen() < 50 ) && ( color.getBlue() < 50 ) )
             label.setForeground( Color.WHITE );
         else
             label.setForeground( Color.BLACK );

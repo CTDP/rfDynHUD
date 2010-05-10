@@ -44,7 +44,7 @@ public class ETVUtils
             return ( "#FFFFFF" );
         
         if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR_1ST ) )
-            return ( "#640000" );
+            return ( "#230000" );
         
         if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR ) )
             return ( "#000000" );

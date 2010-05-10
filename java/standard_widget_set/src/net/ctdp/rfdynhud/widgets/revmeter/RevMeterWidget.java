@@ -132,6 +132,7 @@ public class RevMeterWidget extends Widget
     
     private final BooleanProperty displayRevMarkers = new BooleanProperty( this, "displayRevMarkers", true );
     private final BooleanProperty displayRevMarkerNumbers = new BooleanProperty( this, "displayRevMarkerNumbers", true );
+    private final BooleanProperty useMaxRevLimit = new BooleanProperty( this, "useMaxRevLimit", true );
     private final IntProperty revMarkersInnerRadius = new IntProperty( this, "revMarkersInnerRadius", "innerRadius", 224 );
     private final IntProperty revMarkersLength = new IntProperty( this, "revMarkersLength", "length", 50, 4, Integer.MAX_VALUE, false );
     private final IntProperty revMarkersBigStep = new IntProperty( this, "revMarkersBigStep", "bigStep", 1000, 300, Integer.MAX_VALUE, false )
@@ -268,6 +269,15 @@ public class RevMeterWidget extends Widget
             return ( "Monospaced-BOLD-26va" );
         
         return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean needsRealtimeTelemetryData()
+    {
+        return ( true );
     }
     
     private void fixSmallStep()
@@ -667,6 +677,11 @@ public class RevMeterWidget extends Widget
         float baseMaxRPM = gameData.getTelemetryData().getEngineBaseMaxRPM();
         float maxRPM = gameData.getTelemetryData().getEngineMaxRPM();
         
+        if ( useMaxRevLimit.getBooleanValue() )
+        {
+            maxRPM = gameData.getPhysics().getEngine().getRevLimitRange().getMaxValue();
+        }
+        
         VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
         PhysicsSetting boostRange = engine.getBoostRange();
         
@@ -945,6 +960,11 @@ public class RevMeterWidget extends Widget
         float rpm = isEditorMode ? editorPresets.getEngineRPM() : telemData.getEngineRPM();
         float maxRPM = telemData.getEngineMaxRPM();
         
+        if ( useMaxRevLimit.getBooleanValue() )
+        {
+            maxRPM = gameData.getPhysics().getEngine().getRevLimitRange().getMaxValue();
+        }
+        
         if ( displayRPMString1.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
         {
             String string = "";
@@ -1031,6 +1051,7 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( needleRotationForMaxRPM, "The rotation for the needle image, that is has for maximum RPM (in degrees)." );
         writer.writeProperty( displayRevMarkers, "Display rev markers?" );
         writer.writeProperty( displayRevMarkerNumbers, "Display rev marker numbers?" );
+        writer.writeProperty( useMaxRevLimit, "Whether to use maximum possible (by setup) rev limit" );
         writer.writeProperty( revMarkersInnerRadius, "The inner radius of the rev markers (in background image space)" );
         writer.writeProperty( revMarkersLength, "The length of the rev markers (in background image space)" );
         writer.writeProperty( revMarkersBigStep, "Step size of bigger rev markers" );
@@ -1115,6 +1136,7 @@ public class RevMeterWidget extends Widget
         else if ( loadShiftLightProperty( key, value ) );
         else if ( displayRevMarkers.loadProperty( key, value ) );
         else if ( displayRevMarkerNumbers.loadProperty( key, value ) );
+        else if ( useMaxRevLimit.loadProperty( key, value ) );
         else if ( revMarkersInnerRadius.loadProperty( key, value ) );
         else if ( revMarkersLength.loadProperty( key, value ) );
         else if ( revMarkersBigStep.loadProperty( key, value ) );
@@ -1189,6 +1211,7 @@ public class RevMeterWidget extends Widget
         
         propsCont.addProperty( displayRevMarkers );
         propsCont.addProperty( displayRevMarkerNumbers );
+        propsCont.addProperty( useMaxRevLimit );
         propsCont.addProperty( revMarkersInnerRadius );
         propsCont.addProperty( revMarkersLength );
         propsCont.addProperty( revMarkersBigStep );

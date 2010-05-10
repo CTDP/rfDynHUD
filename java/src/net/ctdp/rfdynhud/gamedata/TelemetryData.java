@@ -95,6 +95,7 @@ public class TelemetryData
     
     final byte[] buffer = new byte[ BUFFER_SIZE ];
     
+    private boolean updatedInRealtimeMode = false;
     private long updateId = 0L;
     
     private final LiveGameData gameData;
@@ -184,6 +185,7 @@ public class TelemetryData
     
     void onDataUpdated()
     {
+        this.updatedInRealtimeMode = gameData.isInRealtimeMode();
         this.updateId++;
         
         float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
@@ -198,6 +200,15 @@ public class TelemetryData
             for ( int i = 0; i < updateListeners.length; i++ )
                 updateListeners[i].onTelemetryDataUpdated( gameData );
         }
+    }
+    
+    /**
+     * Gets, whether the last update of these data hasbeen done while in realtime mode.
+     * @return whether the last update of these data hasbeen done while in realtime mode.
+     */
+    public final boolean isUpdatedInRealtimeMode()
+    {
+        return ( updatedInRealtimeMode );
     }
     
     public final long getUpdateId()

@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.widgets.GameResolution;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -35,6 +36,20 @@ public class EditorPanel extends JPanel
     private static final long serialVersionUID = -4217992603083635127L;
     
     private final RFDynHUDEditor editor;
+    
+    private LiveGameData gameData;
+    
+    private TextureImage2D overlay;
+    private final WidgetsDrawingManager drawingManager;
+    private final GameResolution gameResolution;
+    private final ByteBuffer dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 1024 );
+    private final ArrayList<Boolean> dirtyFlags = new ArrayList<Boolean>();
+    private final HashMap<Widget, Rect2i> oldWidgetRects = new HashMap<Widget, Rect2i>();
+    
+    private Widget selectedWidget = null;
+    private static final java.awt.Color SELECTION_COLOR = new java.awt.Color( 255, 0, 0, 127 );
+    
+    private final ArrayList<WidgetSelectionListener> selectionListeners = new ArrayList<WidgetSelectionListener>();
     
     private BufferedImage backgroundImage;
     private BufferedImage cacheImage;
@@ -53,7 +68,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( boolean newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
         }
     };
     
@@ -63,7 +78,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
         }
     };
     
@@ -73,7 +88,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
         }
     };
     
@@ -83,7 +98,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
         }
     };
     
@@ -93,22 +108,9 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( drawingManager.getGameResX(), drawingManager.getGameResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
         }
     };
-    
-    private LiveGameData gameData;
-    
-    private TextureImage2D overlay;
-    private final WidgetsDrawingManager drawingManager;
-    private final ByteBuffer dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 1024 );
-    private final ArrayList<Boolean> dirtyFlags = new ArrayList<Boolean>();
-    private final HashMap<Widget, Rect2i> oldWidgetRects = new HashMap<Widget, Rect2i>();
-    
-    private Widget selectedWidget = null;
-    private static final java.awt.Color SELECTION_COLOR = new java.awt.Color( 255, 0, 0, 127 );
-    
-    private final ArrayList<WidgetSelectionListener> selectionListeners = new ArrayList<WidgetSelectionListener>();
     
     public void addWidgetSelectionListener( WidgetSelectionListener l )
     {
@@ -194,7 +196,7 @@ public class EditorPanel extends JPanel
         if ( !isGridUsed() )
             return ( x );
         
-        return ( gridOffsetX.getIntValue() + Math.min( Math.round( ( x - gridOffsetX.getIntValue() ) / (float)gridSizeX.getIntValue() ) * gridSizeX.getIntValue(), drawingManager.getGameResX() - 1 ) );
+        return ( gridOffsetX.getIntValue() + Math.min( Math.round( ( x - gridOffsetX.getIntValue() ) / (float)gridSizeX.getIntValue() ) * gridSizeX.getIntValue(), drawingManager.getGameResolution().getResX() - 1 ) );
     }
     
     public final int snapYToGrid( int y )
@@ -202,7 +204,7 @@ public class EditorPanel extends JPanel
         if ( !isGridUsed() )
             return ( y );
         
-        return ( gridOffsetY.getIntValue() + Math.min( Math.round( ( y - gridOffsetY.getIntValue() ) / (float)gridSizeY.getIntValue() ) * gridSizeY.getIntValue(), drawingManager.getGameResY() - 1 ) );
+        return ( gridOffsetY.getIntValue() + Math.min( Math.round( ( y - gridOffsetY.getIntValue() ) / (float)gridSizeY.getIntValue() ) * gridSizeY.getIntValue(), drawingManager.getGameResolution().getResY() - 1 ) );
     }
     
     public void snapWidgetToGrid( Widget widget )
@@ -247,8 +249,8 @@ public class EditorPanel extends JPanel
         final int gridOffsetY = this.gridOffsetY.getIntValue();
         final int gridSizeX = this.gridSizeX.getIntValue();
         final int gridSizeY = this.gridSizeY.getIntValue();
-        final int gameResX = drawingManager.getGameResX();
-        final int gameResY = drawingManager.getGameResY();
+        final int gameResX = drawingManager.getGameResolution().getResX();
+        final int gameResY = drawingManager.getGameResolution().getResY();
         
         for ( int x = gridSizeX - 1 + gridOffsetX; x < gameResX - gridOffsetX; x += gridSizeX )
         {
@@ -297,26 +299,31 @@ public class EditorPanel extends JPanel
         return ( drawingManager );
     }
     
-    public void setSelectedWidget( Widget widget )
+    public void setSelectedWidget( Widget widget, boolean doubleClick )
     {
-        if ( widget == this.selectedWidget )
-            return;
+        boolean selectionChanged = ( widget != this.selectedWidget );
         
-        if ( ( this.selectedWidget != null ) && ( this.selectedWidget.getConfiguration() != null ) )
+        if ( selectionChanged )
         {
-            //selectedWidget.clearRegion( true, overlay );
+            if ( ( this.selectedWidget != null ) && ( this.selectedWidget.getConfiguration() != null ) )
+            {
+                //selectedWidget.clearRegion( true, overlay );
+            }
+            
+            this.selectedWidget = widget;
+            
+            this.repaint();
         }
-        
-        this.selectedWidget = widget;
-        
-        this.repaint();
         
         for ( int i = 0; i < selectionListeners.size(); i++ )
         {
-            selectionListeners.get( i ).onWidgetSelected( selectedWidget );
+            selectionListeners.get( i ).onWidgetSelected( selectedWidget, selectionChanged, doubleClick );
         }
         
-        drawingManager.setAllDirtyFlags();
+        if ( selectionChanged )
+        {
+            drawingManager.setAllDirtyFlags();
+        }
     }
     
     public final Widget getSelectedWidget()
@@ -333,7 +340,7 @@ public class EditorPanel extends JPanel
         
         selectedWidget.clearRegion( true, overlay );
         drawingManager.removeWidget( selectedWidget );
-        setSelectedWidget( null );
+        setSelectedWidget( null, false );
         editor.setDirtyFlag();
     }
     
@@ -490,6 +497,7 @@ public class EditorPanel extends JPanel
         
         this.overlay = overlay;
         this.drawingManager = drawingManager;
+        this.gameResolution = drawingManager.getGameResolution();
         
         EditorPanelInputHandler inputHandler = new EditorPanelInputHandler( editor, drawingManager );
         this.addMouseListener( inputHandler );

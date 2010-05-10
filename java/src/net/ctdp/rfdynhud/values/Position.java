@@ -69,7 +69,7 @@ public class Position
     private final float getScaleWidth()
     {
         if ( isWidgetPosition )
-            return ( widget.getConfiguration().getGameResX() );
+            return ( widget.getConfiguration().getGameResolution().getResX() );
         
         return ( widget.getEffectiveInnerWidth() );
     }
@@ -77,7 +77,7 @@ public class Position
     private final float getScaleHeight()
     {
         if ( isWidgetPosition )
-            return ( widget.getConfiguration().getGameResY() );
+            return ( widget.getConfiguration().getGameResolution().getResY() );
         
         return ( widget.getEffectiveInnerHeight() );
     }
@@ -85,7 +85,7 @@ public class Position
     private final float getHundretPercentWidth()
     {
         if ( isWidgetPosition )
-            return ( widget.getConfiguration().getGameResY() * 4 / 3 );
+            return ( widget.getConfiguration().getGameResolution().getResY() * 4 / 3 );
         
         return ( widget.getEffectiveInnerWidth() );
     }

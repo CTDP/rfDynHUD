@@ -78,8 +78,7 @@ public class WidgetsConfiguration
     
     private boolean needsCheckFixAndBake = true;
     
-    private int gameResX = 1280;
-    private int gameResY = 1024;
+    private final GameResolution gameResolution = new GameResolution();
     
     private InputMappings inputMappings = null;
     
@@ -280,7 +279,7 @@ public class WidgetsConfiguration
             
             if ( virtual == Boolean.TRUE )
             {
-                fontMap.put( name, FontUtils.parseFont( fontStringMap.get( name ), gameResY, false, true ) );
+                fontMap.put( name, FontUtils.parseFont( fontStringMap.get( name ), gameResolution.getResY(), false, true ) );
             }
         }
         
@@ -289,20 +288,14 @@ public class WidgetsConfiguration
     
     void setGameResolution( int gameResX, int gameResY )
     {
-        this.gameResX = gameResX;
-        this.gameResY = gameResY;
+        gameResolution.set( gameResX, gameResY );
         
         fixVirtualNamedFonts();
     }
     
-    public final int getGameResX()
+    public final GameResolution getGameResolution()
     {
-        return ( gameResX );
-    }
-    
-    public final int getGameResY()
-    {
-        return ( gameResY );
+        return ( gameResolution );
     }
     
     /**
@@ -313,6 +306,9 @@ public class WidgetsConfiguration
     {
         if ( !needsCheckFixAndBake )
             return;
+        
+        final int gameResX = gameResolution.getResX();
+        final int gameResY = gameResolution.getResY();
         
         int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
@@ -520,7 +516,7 @@ public class WidgetsConfiguration
      */
     public boolean addNamedFont( String name, String fontStr )
     {
-        Font font = FontUtils.parseFont( fontStr, gameResY, false, true );
+        Font font = FontUtils.parseFont( fontStr, gameResolution.getResY(), false, true );
         boolean virtual = FontUtils.parseVirtualFlag( fontStr, false, true );
         
         Font oldFont = this.fontMap.put( name, font );

@@ -4,8 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
@@ -15,6 +20,58 @@ import org.jagatoo.util.ini.IniWriter;
 
 public class ConfigurationSaver
 {
+    private static HashSet<String> getUsedColorNames( WidgetsConfiguration widgetsConfig )
+    {
+        HashSet<String> result = new HashSet<String>();
+        
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+        {
+            propsCont.clear();
+            widgetsConfig.getWidget( i ).getProperties( propsCont, true );
+            
+            for ( Property prop : propsCont.getList() )
+            {
+                if ( prop instanceof ColorProperty )
+                {
+                    String colorKey = ( (ColorProperty)prop ).getColorKey();
+                    
+                    if ( widgetsConfig.getNamedColor( colorKey ) != null )
+                        result.add( colorKey );
+                }
+            }
+        }
+        
+        return ( result );
+    }
+    
+    private static HashSet<String> getUsedFontNames( WidgetsConfiguration widgetsConfig )
+    {
+        HashSet<String> result = new HashSet<String>();
+        
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+        {
+            propsCont.clear();
+            widgetsConfig.getWidget( i ).getProperties( propsCont, true );
+            
+            for ( Property prop : propsCont.getList() )
+            {
+                if ( prop instanceof FontProperty )
+                {
+                    String fontKey = ( (FontProperty)prop ).getFontKey();
+                    
+                    if ( widgetsConfig.getNamedFont( fontKey ) != null )
+                        result.add( fontKey );
+                }
+            }
+        }
+        
+        return ( result );
+    }
+    
     public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, File out ) throws IOException
     {
         final IniWriter writer = new IniWriter( out );
@@ -27,19 +84,23 @@ public class ConfigurationSaver
         writer.writeSetting( "Design_Grid", "(" + gridOffsetX + "," + gridOffsetY + ";" + gridSizeX + "," + gridSizeY + ")" );
         
         writer.writeGroup( "NamedColors" );
+        HashSet<String> usedColorNames = getUsedColorNames( widgetsConfig );
         ArrayList<String> colorNames = new ArrayList<String>( widgetsConfig.getColorNames() );
         Collections.sort( colorNames, String.CASE_INSENSITIVE_ORDER );
         for ( String name : colorNames )
         {
-            writer.writeSetting( name, widgetsConfig.getNamedColor( name ) );
+            if ( usedColorNames.contains( name ) )
+                writer.writeSetting( name, widgetsConfig.getNamedColor( name ) );
         }
         
         writer.writeGroup( "NamedFonts" );
+        HashSet<String> usedFontNames = getUsedFontNames( widgetsConfig );
         ArrayList<String> fontNames = new ArrayList<String>( widgetsConfig.getFontNames() );
         Collections.sort( fontNames, String.CASE_INSENSITIVE_ORDER );
         for ( String name : fontNames )
         {
-            writer.writeSetting( name, widgetsConfig.getNamedFontString( name ) );
+            if ( usedFontNames.contains( name ) )
+                writer.writeSetting( name, widgetsConfig.getNamedFontString( name ) );
         }
         
         writer.writeGroup( "BorderAliases" );

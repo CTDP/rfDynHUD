@@ -5,7 +5,7 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
-public class EDPrivilegedAccess
+public class __EDPrivilegedAccess
 {
     public static final void getEditorPresetsProperties( EditorPresets editorPresets, WidgetPropertiesContainer propsCont )
     {

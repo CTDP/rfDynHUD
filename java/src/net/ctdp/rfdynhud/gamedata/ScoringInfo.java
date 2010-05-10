@@ -57,6 +57,7 @@ public class ScoringInfo
     
     private final LiveGameData gameData;
     
+    private boolean updatedInRealtimeMode = false;
     private long updateId = 0L;
     private long updateTimestamp = -1L;
     private int sessionID = 0;
@@ -379,6 +380,7 @@ public class ScoringInfo
     
     void onDataUpdated( EditorPresets editorPresets )
     {
+        this.updatedInRealtimeMode = gameData.isInRealtimeMode();
         this.updateId++;
         updateTimestamp = System.nanoTime();
         
@@ -545,6 +547,15 @@ public class ScoringInfo
     public final int getRealtimeEntredID()
     {
         return ( realtimeEnteredID );
+    }
+    
+    /**
+     * Gets, whether the last update of these data hasbeen done while in realtime mode.
+     * @return whether the last update of these data hasbeen done while in realtime mode.
+     */
+    public final boolean isUpdatedInRealtimeMode()
+    {
+        return ( updatedInRealtimeMode );
     }
     
     /**
@@ -992,7 +1003,7 @@ public class ScoringInfo
     {
         GraphicsInfo gi = gameData.getGraphicsInfo();
         
-        if ( !gi.isDataValid() )
+        if ( !gi.isUpdatedInRealtimeMode() )
             return ( getPlayersVehicleScoringInfo() );
         
         if ( viewedVSI == null )

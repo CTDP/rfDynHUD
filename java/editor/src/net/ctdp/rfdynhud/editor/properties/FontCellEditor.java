@@ -50,7 +50,7 @@ public class FontCellEditor extends KeyValueCellRenderer<JPanel> implements Tabl
         {
             //button.setVisible( false );
             button.setVisible( true );
-            button.setText( "Choose..." );
+            button.setText( "..." );
             button.setToolTipText( "Choose a Font" );
         }
         else
