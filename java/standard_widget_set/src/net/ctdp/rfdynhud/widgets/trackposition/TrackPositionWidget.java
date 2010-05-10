@@ -38,6 +38,7 @@ public class TrackPositionWidget extends Widget
     private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
     private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
     private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
+    private final BooleanProperty useMyColorForMe1st = new BooleanProperty( this, "useMyColorForMe1st", false );
     private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
     private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
     
@@ -187,7 +188,10 @@ public class TrackPositionWidget extends Widget
                 if ( vsi.getPlace() == 1 )
                 {
                     itemState |= 1 << 16;
-                    color = markColorLeader.getColor();
+                    if ( vsi.isPlayer() && useMyColorForMe1st.getBooleanValue() )
+                        color = markColorMe.getColor();
+                    else
+                        color = markColorLeader.getColor();
                 }
                 else if ( vsi.isPlayer() )
                 {
@@ -238,6 +242,7 @@ public class TrackPositionWidget extends Widget
         writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
+        writer.writeProperty( useMyColorForMe1st, "Use 'markColorMe' for my item when I am at 1st place?" );
         writer.writeProperty( markColorNextInFront, "The color used for the car in front of you in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
         writer.writeProperty( maxDisplayedVehicles, "The maximum number of displayed vehicles." );
@@ -258,6 +263,7 @@ public class TrackPositionWidget extends Widget
         else if ( markColorNormal.loadProperty( key, value ) );
         else if ( markColorLeader.loadProperty( key, value ) );
         else if ( markColorMe.loadProperty( key, value ) );
+        else if ( useMyColorForMe1st.loadProperty( key, value ) );
         else if ( markColorNextInFront.loadProperty( key, value ) );
         else if ( markColorNextBehind.loadProperty( key, value ) );
         else if ( maxDisplayedVehicles.loadProperty( key, value ) );
@@ -292,6 +298,7 @@ public class TrackPositionWidget extends Widget
         propsCont.addProperty( markColorNormal );
         propsCont.addProperty( markColorLeader );
         propsCont.addProperty( markColorMe );
+        propsCont.addProperty( useMyColorForMe1st );
         propsCont.addProperty( markColorNextInFront );
         propsCont.addProperty( markColorNextBehind );
         
