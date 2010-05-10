@@ -7,6 +7,8 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
 public class __EDPrivilegedAccess
 {
+    public static boolean isEditorMode = false;
+    
     public static final void getEditorPresetsProperties( EditorPresets editorPresets, WidgetPropertiesContainer propsCont )
     {
         editorPresets.getProperties( propsCont );

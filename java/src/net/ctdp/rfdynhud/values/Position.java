@@ -2,11 +2,11 @@ package net.ctdp.rfdynhud.values;
 
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -155,7 +155,7 @@ public class Position
             this.x = x;
             this.y = y;
             
-            if ( !__UtilPrivilegedAccess.isLoggerEditorMode() )
+            if ( !__EDPrivilegedAccess.isEditorMode )
                 widget.forceCompleteRedraw();
             widget.setDirtyFlag();
             

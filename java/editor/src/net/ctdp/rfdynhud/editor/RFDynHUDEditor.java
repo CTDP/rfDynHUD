@@ -97,7 +97,6 @@ import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.TextureManager;
 import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.GameResolution;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
@@ -116,6 +115,11 @@ import org.jagatoo.util.ini.IniWriter;
  */
 public class RFDynHUDEditor implements Documented, PropertySelectionListener
 {
+    static
+    {
+        __EDPrivilegedAccess.isEditorMode = true;
+    }
+    
     public class EditorWindow extends JFrame
     {
         private static final long serialVersionUID = 1944993989958953367L;
@@ -614,7 +618,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         return ( f );
         */
-        return ( new File( RFactorTools.EDITOR_PATH ) );
+        //return ( RFactorTools.EDITOR_FOLDER );
+        return ( RFactorTools.CONFIG_FOLDER );
     }
     
     private static File getEditorSettingsFile()
@@ -2290,8 +2295,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         catch ( Throwable t )
         {
         }
-        
-        __UtilPrivilegedAccess.setLoggerEditorMode();
         
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );

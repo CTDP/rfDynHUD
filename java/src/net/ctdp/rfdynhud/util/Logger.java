@@ -8,23 +8,12 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
+
 public class Logger
 {
-    public static final File FOLDER = RFactorTools.LOG_FOLDER;
-    private static File FILE = new File( FOLDER, "rfdynhud.log" ).getAbsoluteFile();
-    
-    private static boolean isEditorMode = false;
-    
-    static void setEditorMode()
-    {
-        isEditorMode = true;
-        FILE = new File( FOLDER, "rfdynhud_editor.log" ).getAbsoluteFile();
-    }
-    
-    static final boolean isEditorMode()
-    {
-        return ( isEditorMode );
-    }
+    public static final File FOLDER = Helper.LOG_FOLDER;
+    private static File FILE = new File( FOLDER, __EDPrivilegedAccess.isEditorMode ? "rfdynhud_editor.log" : "rfdynhud.log" ).getAbsoluteFile();
     
     private static void logException( Throwable t )
     {
