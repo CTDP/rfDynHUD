@@ -27,6 +27,7 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.RFactorTools.MeasurementUnits;
 import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Position;
@@ -163,7 +164,7 @@ public class FuelWidget extends Widget
     private DrawnString fuelUsageLastLapHeaderString = null;
     private DrawnString fuelUsageAvgHeaderString = null;
     
-    private DrawnString fuelUsageOneLapString = null;
+    private DrawnString fuelUsageLastLapString = null;
     private DrawnString fuelUsageAvgString = null;
     
     private DrawnString nextPitstopHeaderString = null;
@@ -496,10 +497,10 @@ public class FuelWidget extends Widget
         switch ( RFactorTools.getMeasurementUnits() )
         {
             case IMPERIAL:
-                return ( "Gal" );
+                return ( Loc.fuel_units_IMPERIAL );
             case METRIC:
             default:
-                return ( "L" );
+                return ( Loc.fuel_units_METRIC );
         }
     }
     
@@ -521,28 +522,28 @@ public class FuelWidget extends Widget
         int left = 2;
         int top = -2;
         
-        fuelHeaderString = dsf.newDrawnString( "fuelHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Fuel: (", ")" );
+        fuelHeaderString = dsf.newDrawnString( "fuelHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.fuelHeader_prefix + ": (", ")" );
         
         int fuelBarWidth = this.fuelBarWidth.getEffectiveWidth();
         int fuelBarCenter = left + fuelBarLeftOffset.getIntValue() + ( fuelBarWidth / 2 );
         
         fuelLoadString1 = dsf.newDrawnString( "fuelLoadString1", fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, getFuelUnits() );
-        fuelLoadString2 = dsf.newDrawnString( "fuelLoadString2", null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, "kg" );
+        fuelLoadString2 = dsf.newDrawnString( "fuelLoadString2", null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, Loc.fuelLoad2_postfix );
         fuelLoadString3 = dsf.newDrawnString( "fuelLoadString3", null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null );
         
         int rightLeft = left + fuelBarLeftOffset.getIntValue() + fuelBarWidth + 2;
         int lastToAvgSpacing = 75; // 85
         
-        fuelUsageHeaderString = dsf.newDrawnString( "fuelUsageHeaderString", null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Usage:", null );
-        fuelUsageLastLapHeaderString = dsf.newDrawnString( "fuelUsageLastLapHeaderString", null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Last lap", null );
-        fuelUsageAvgHeaderString = dsf.newDrawnString( "fuelUsageAvgHeaderString", null, fuelUsageHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, String.valueOf( (char)216 ), null );
+        fuelUsageHeaderString = dsf.newDrawnString( "fuelUsageHeaderString", null, fuelHeaderString, rightLeft, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.fuelUsageHeader + ":", null );
+        fuelUsageLastLapHeaderString = dsf.newDrawnString( "fuelUsageLastLapHeaderString", null, fuelUsageHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.fuelUsageLastLapHeader, null );
+        fuelUsageAvgHeaderString = dsf.newDrawnString( "fuelUsageAvgHeaderString", null, fuelUsageHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.fuelUsageAvgHeader, null );
         
-        fuelUsageOneLapString = dsf.newDrawnString( "fuelUsageOneLapString", null, fuelUsageLastLapHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
+        fuelUsageLastLapString = dsf.newDrawnString( "fuelUsageOneLapString", null, fuelUsageLastLapHeaderString, rightLeft + 50, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
         fuelUsageAvgString = dsf.newDrawnString( "fuelUsageAvgString", null, fuelUsageAvgHeaderString, rightLeft + 50 + lastToAvgSpacing, 2, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
         
-        nextPitstopHeaderString = dsf.newDrawnString( "nextPitstopHeaderString", null, fuelUsageOneLapString, rightLeft, 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Next Pitstop:", null );
-        nextPitstopLapString = dsf.newDrawnString( "nextPitstopLapString", null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Lap: ", null );
-        nextPitstopFuelString = dsf.newDrawnString( "nextPitstopFuelString", null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "Fuel: ", null );
+        nextPitstopHeaderString = dsf.newDrawnString( "nextPitstopHeaderString", null, fuelUsageLastLapString, rightLeft, 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.nextPitstopHeader + ":", null );
+        nextPitstopLapString = dsf.newDrawnString( "nextPitstopLapString", null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, Loc.nextPitstopLap_prefix + ": ", null );
+        nextPitstopFuelString = dsf.newDrawnString( "nextPitstopFuelString", null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, Loc.nextPitstopFuel_prefix + ": ", null );
         
         loadLowFuelWarningImages( width, height );
         resetBlink( editorPresets != null );
@@ -584,7 +585,7 @@ public class FuelWidget extends Widget
         
         if ( needsCompleteRedraw )
         {
-            fuelHeaderString.draw( offsetX, offsetY, String.valueOf( tankSize ) + " Liters max", backgroundColor, texture );
+            fuelHeaderString.draw( offsetX, offsetY, String.valueOf( tankSize ) + " " + ( RFactorTools.getMeasurementUnits() == MeasurementUnits.IMPERIAL ? Loc.fuelHeader_postfix_IMPERIAL : Loc.fuelHeader_postfix_METRIC ), backgroundColor, texture );
             fuelUsageHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
             fuelUsageLastLapHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
             fuelUsageAvgHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
@@ -662,13 +663,13 @@ public class FuelWidget extends Widget
             if ( avgFuelUsage > 0f )
             {
                 if ( roundUpRemainingLaps.getBooleanValue() )
-                    string = NumberUtil.formatFloat( ( fuel / avgFuelUsage ) + ( stintLength - (int)stintLength ), 1, true ) + "Laps";
+                    string = NumberUtil.formatFloat( ( fuel / avgFuelUsage ) + ( stintLength - (int)stintLength ), 1, true ) + Loc.fuelLoad3_postfix;
                 else
-                    string = NumberUtil.formatFloat( fuel / avgFuelUsage, 1, true ) + "Laps";
+                    string = NumberUtil.formatFloat( fuel / avgFuelUsage, 1, true ) + Loc.fuelLoad3_postfix;
             }
             else
             {
-                string = "N/A";
+                string = Loc.fuelLoad3_na;
             }
             fuelLoadString3.draw( offsetX, offsetY + fuelY, string, (Color)null, texture );
         }
@@ -680,8 +681,8 @@ public class FuelWidget extends Widget
         {
             if ( fuelRelevantLaps != oldFuelRelevantLaps )
             {
-                fuelUsageOneLapString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
-                fuelUsageAvgString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
+                fuelUsageLastLapString.draw( offsetX, offsetY, Loc.fuelUsageLastLap_na, backgroundColor, texture );
+                fuelUsageAvgString.draw( offsetX, offsetY, Loc.fuelUsageAvg_na, backgroundColor, texture );
             }
         }
         else if ( needsCompleteRedraw || stintLengthV.hasChanged() )
@@ -692,8 +693,8 @@ public class FuelWidget extends Widget
             if ( lastFuelUsage > 0f )
                 string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + getFuelUnits();
             else
-                string = "N/A";
-            fuelUsageOneLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                string = Loc.fuelUsageLastLap_na;
+            fuelUsageLastLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
             
             string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + getFuelUnits();
             fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, texture );
@@ -768,19 +769,19 @@ public class FuelWidget extends Widget
                     String string = String.valueOf( nextPitstopLap ) + " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")";
                     nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
-                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + getFuelUnits() + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + "Laps," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
+                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + getFuelUnits() + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + Loc.nextPitstopFuel_laps + "," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
                     nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 }
                 else
                 {
-                    nextPitstopLapString.draw( offsetX, offsetY, "-", backgroundColor, texture );
-                    nextPitstopFuelString.draw( offsetX, offsetY, "-", backgroundColor, texture );
+                    nextPitstopLapString.draw( offsetX, offsetY, Loc.nextPitstopLap_enough, backgroundColor, texture );
+                    nextPitstopFuelString.draw( offsetX, offsetY, Loc.nextPitstopFuel_enough, backgroundColor, texture );
                 }
             }
             else
             {
-                nextPitstopLapString.draw( offsetX, offsetY, "N/A (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")", backgroundColor, texture );
-                nextPitstopFuelString.draw( offsetX, offsetY, "N/A (" + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + " Laps)", backgroundColor, texture );
+                nextPitstopLapString.draw( offsetX, offsetY, Loc.nextPitstopLap_na + " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")", backgroundColor, texture );
+                nextPitstopFuelString.draw( offsetX, offsetY, Loc.nextPitstopFuel_na + " (" + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + " " + Loc.nextPitstopFuel_laps + ")", backgroundColor, texture );
             }
         }
     }

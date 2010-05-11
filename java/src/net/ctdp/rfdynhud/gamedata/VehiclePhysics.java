@@ -20,6 +20,7 @@ public class VehiclePhysics
      */
     public static class PhysicsSetting
     {
+        private final float factor;
         private final float baseOffset;
         private float baseValue = 0f;
         private float stepSize = 1f;
@@ -34,12 +35,12 @@ public class VehiclePhysics
         
         public final float getBaseValue()
         {
-            return ( baseValue );
+            return ( baseValue * factor );
         }
         
         public final float getStepSize()
         {
-            return ( stepSize );
+            return ( stepSize * factor );
         }
         
         public final int getNumSteps()
@@ -50,24 +51,24 @@ public class VehiclePhysics
         public final float getMinValue()
         {
             if ( stepSize > 0f )
-                return ( baseValue );
+                return ( baseValue * factor );
             
-            return ( baseValue + ( numSteps - 1 ) * stepSize );
+            return ( ( baseValue + ( numSteps - 1 ) * stepSize ) * factor );
         }
         
         public final float getMaxValue()
         {
             if ( stepSize < 0f )
-                return ( baseValue );
+                return ( baseValue * factor );
             
-            return ( baseValue + ( numSteps - 1 ) * stepSize );
+            return ( ( baseValue + ( numSteps - 1 ) * stepSize ) * factor );
         }
         
         public final float getValueForSetting( int setting )
         {
             // There shuold be a range check. But since this cannot be used for cheating, it isn't necessary.
             
-            return ( baseValue + stepSize * setting );
+            return ( ( baseValue + stepSize * setting ) * factor );
         }
         
         /**
@@ -79,25 +80,49 @@ public class VehiclePhysics
             return ( getClass().getName() + " { baseOffset: " + baseOffset + ", baseValue: " + baseValue + ", stepSize: " + stepSize + ", numSteps: " + numSteps + " }" );
         }
         
-        PhysicsSetting( float baseOffset )
+        PhysicsSetting( float factor, float baseOffset )
         {
+            this.factor = factor;
             this.baseOffset = baseOffset;
         }
         
         PhysicsSetting()
         {
-            this( 0f );
+            this( 1f, 0f );
         }
     }
     
-    private final PhysicsSetting fuelRange = new PhysicsSetting();
+    private static final float getFuelFactor()
+    {
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( TelemetryData.LITERS_TO_GALONS );
+            case METRIC:
+            default:
+                return ( 1.0f );
+        }
+    }
+    
+    private final PhysicsSetting fuelRangeL = new PhysicsSetting( 1f, 0f );
+    private final PhysicsSetting fuelRange = new PhysicsSetting( getFuelFactor(), 0f );
     private float weightOfOneLiter = 0.742f; // weight of one liter of fuel in kg
     private final PhysicsSetting frontWingRange = new PhysicsSetting();
     
     /**
-     * Gets the phyiscs setting for fule range.
+     * Gets the phyiscs setting for fule range in liters.
      * 
-     * @return the phyiscs setting for fule range.
+     * @return the phyiscs setting for fule range in liters.
+     */
+    public final PhysicsSetting getFuelRangeL()
+    {
+        return ( fuelRangeL );
+    }
+    
+    /**
+     * Gets the phyiscs setting for fule range in the selected units.
+     * 
+     * @return the phyiscs setting for fule range in the selected units.
      */
     public final PhysicsSetting getFuelRange()
     {
@@ -176,7 +201,7 @@ public class VehiclePhysics
         float baseLifetimeRPM;
         float halfLifetimeRPMOffset;
         private final PhysicsSetting revLimitRange = new PhysicsSetting();
-        private final PhysicsSetting boostRange = new PhysicsSetting( 1f );
+        private final PhysicsSetting boostRange = new PhysicsSetting( 1f, 1f );
         float rpmIncreasePerBoostSetting;
         float fuelUsageIncreasePerBoostSetting;
         float wearIncreasePerBoostSetting;

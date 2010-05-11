@@ -672,7 +672,10 @@ public class VehiclePhysicsParser
                     TBCParser.parseTBCFile( path, value, physics );
                 }
                 else if ( key.equals( "FuelRange" ) )
+                {
+                    parsePhysicsSetting( value, physics.getFuelRangeL(), op );
                     parsePhysicsSetting( value, physics.getFuelRange(), op );
+                }
             }
             else if ( group.equals( "FRONTWING" ) )
             {
@@ -977,6 +980,7 @@ public class VehiclePhysicsParser
                 }
                 else if ( key.equals( "FuelRange" ) )
                 {
+                    parsePhysicsSetting( value, physics.getFuelRangeL(), op );
                     parsePhysicsSetting( value, physics.getFuelRange(), op );
                 }
             }

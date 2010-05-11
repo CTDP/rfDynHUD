@@ -404,7 +404,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                         
                         if ( laptimes[tti].hasChanged() )
                         {
-                            laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsString( laptimes[tti].getValue(), true ), getBackgroundColor(), tt.getTexture() );
+                            laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), getBackgroundColor(), tt.getTexture() );
                         }
                         
                         if ( isOnLeftSide )
