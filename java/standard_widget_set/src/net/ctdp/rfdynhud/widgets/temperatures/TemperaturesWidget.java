@@ -223,6 +223,11 @@ public class TemperaturesWidget extends Widget
         setControlVisibility( viewedVSI );
     }
     
+    private static final String getTempUnits()
+    {
+        return ( Loc.temperature_units_METRIC );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -247,16 +252,16 @@ public class TemperaturesWidget extends Widget
         
         if ( displayEngine.getBooleanValue() )
         {
-            engineHeaderString = dsf.newDrawnString( "engineHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Engine: ", null );
+            engineHeaderString = dsf.newDrawnString( "engineHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.engine_header_prefix + ": ", null );
             if ( displayWaterTemp.getBooleanValue() )
             {
-                engineWaterTempString = dsf.newDrawnString( "engineWaterTempString", null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(W:", "°C)" );
-                engineOilTempString = dsf.newDrawnString( "engineOilTempString", null, engineWaterTempString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, font2AntiAliased, fontColor, null, "°C" );
+                engineWaterTempString = dsf.newDrawnString( "engineWaterTempString", null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(" + Loc.engine_watertemp_prefix + ":", getTempUnits() + ")" );
+                engineOilTempString = dsf.newDrawnString( "engineOilTempString", null, engineWaterTempString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, font2AntiAliased, fontColor, null, getTempUnits() );
             }
             else
             {
                 engineWaterTempString = null;
-                engineOilTempString = dsf.newDrawnString( "engineOilTempString", null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
+                engineOilTempString = dsf.newDrawnString( "engineOilTempString", null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
             }
             
             relY = engineHeaderString;
@@ -268,14 +273,14 @@ public class TemperaturesWidget extends Widget
         if ( displayTires.getBooleanValue() )
         {
             tiresHeaderString = dsf.newDrawnString( "tiresHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tires: ", null );
-            tireTempFLString = dsf.newDrawnString( "tireTempFLString", null, tiresHeaderString, center - 7 - imgWidth, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
-            tireTempFRString = dsf.newDrawnString( "tireTempFRString", null, tiresHeaderString, center + 7 + imgWidth, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "°C" );
-            tireTempRLString = dsf.newDrawnString( "tireTempRLString", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
-            tireTempRRString = dsf.newDrawnString( "tireTempRRString", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "°C" );
-            tireTempFLString2 = dsf.newDrawnString( "tireTempFLString2", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "°C)" );
-            tireTempFRString2 = dsf.newDrawnString( "tireTempFRString2", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "°C)" );
-            tireTempRLString2 = dsf.newDrawnString( "tireTempRLString2", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "°C)" );
-            tireTempRRString2 = dsf.newDrawnString( "tireTempRRString2", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "°C)" );
+            tireTempFLString = dsf.newDrawnString( "tireTempFLString", null, tiresHeaderString, center - 7 - imgWidth, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
+            tireTempFRString = dsf.newDrawnString( "tireTempFRString", null, tiresHeaderString, center + 7 + imgWidth, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
+            tireTempRLString = dsf.newDrawnString( "tireTempRLString", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
+            tireTempRRString = dsf.newDrawnString( "tireTempRRString", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
+            tireTempFLString2 = dsf.newDrawnString( "tireTempFLString2", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits() + ")" );
+            tireTempFRString2 = dsf.newDrawnString( "tireTempFRString2", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits() + ")" );
+            tireTempRLString2 = dsf.newDrawnString( "tireTempRLString2", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits() + ")" );
+            tireTempRRString2 = dsf.newDrawnString( "tireTempRRString2", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits() + ")" );
             
             relY = tiresHeaderString;
             top = tireHeight * 2 + 15;
@@ -284,10 +289,10 @@ public class TemperaturesWidget extends Widget
         if ( displayBrakes.getBooleanValue() )
         {
             brakesHeaderString = dsf.newDrawnString( "brakesHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            brakeTempFLString = dsf.newDrawnString( "brakeTempFLString", null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
-            brakeTempFRString = dsf.newDrawnString( "brakeTempFRString", null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "°C" );
-            brakeTempRLString = dsf.newDrawnString( "brakeTempRLString", null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "°C" );
-            brakeTempRRString = dsf.newDrawnString( "brakeTempRRString", null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "°C" );
+            brakeTempFLString = dsf.newDrawnString( "brakeTempFLString", null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
+            brakeTempFRString = dsf.newDrawnString( "brakeTempFRString", null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
+            brakeTempRLString = dsf.newDrawnString( "brakeTempRLString", null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
+            brakeTempRRString = dsf.newDrawnString( "brakeTempRRString", null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
         }
     }
     
@@ -570,12 +575,12 @@ public class TemperaturesWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displayEngine.getBooleanValue() )
-                engineHeaderString.draw( offsetX, offsetY, "(" + NumberUtil.formatFloat( gameData.getPhysics().getEngine().getOptimumOilTemperature(), 1, true ) + "°C)", backgroundColor, texture );
+                engineHeaderString.draw( offsetX, offsetY, "(" + NumberUtil.formatFloat( gameData.getPhysics().getEngine().getOptimumOilTemperature(), 1, true ) + getTempUnits() + ")", backgroundColor, texture );
             TireCompound tireCompound = setup.getGeneral().getFrontTireCompound();
             if ( displayTires.getBooleanValue() )
-                tiresHeaderString.draw( offsetX, offsetY, tireCompound.getName() + " (" + NumberUtil.formatFloat( tireCompound.getWheel( Wheel.FRONT_LEFT ).getOptimumTemperature(), 1, true ) + "°C)", backgroundColor, texture );
+                tiresHeaderString.draw( offsetX, offsetY, tireCompound.getName() + " (" + NumberUtil.formatFloat( tireCompound.getWheel( Wheel.FRONT_LEFT ).getOptimumTemperature(), 1, true ) + getTempUnits() + ")", backgroundColor, texture );
             if ( displayBrakes.getBooleanValue() )
-                brakesHeaderString.draw( offsetX, offsetY, "Brakes:", backgroundColor, texture );
+                brakesHeaderString.draw( offsetX, offsetY, Loc.brakes_header_prefix + ":", backgroundColor, texture );
         }
         
         if ( displayEngine.getBooleanValue() )

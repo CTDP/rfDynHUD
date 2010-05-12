@@ -16,7 +16,6 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
 import net.ctdp.rfdynhud.properties.EnumProperty;
-import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -29,6 +28,7 @@ import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
+import net.ctdp.rfdynhud.values.LapDisplayType;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**
@@ -38,13 +38,6 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  */
 public class ETVSessionStateWidget extends ETVWidgetBase
 {
-    private static enum LapDisplayType
-    {
-        CURRENT_LAP,
-        LAPS_DONE,
-        ;
-    }
-    
     private final EnumProperty<LapDisplayType> lapDisplayType = new EnumProperty<LapDisplayType>( this, "lapDisplayType", LapDisplayType.CURRENT_LAP );
     
     private static enum SessionLimit
@@ -61,17 +54,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     private DrawnString captionString = null;
     private DrawnString stateString = null;
     
-    private final StringProperty testDayCaption = new StringProperty( this, "testDayCaption", "Lap" );
-    private final StringProperty practice1Caption = new StringProperty( this, "practice1Caption", "" );
-    private final StringProperty practice2Caption = new StringProperty( this, "practice2Caption", "Q1" );
-    private final StringProperty practice3Caption = new StringProperty( this, "practice3Caption", "Q2" );
-    private final StringProperty practice4Caption = new StringProperty( this, "practice4Caption", "Practice4" );
-    private final StringProperty qualifyingCaption = new StringProperty( this, "qualifyingCaption", "Q3" );
-    
-    private static final String LAPS_CAPTION = "Lap";
-    private static final String TIME_CAPTION = "Time";
-    
-    private String caption = LAPS_CAPTION;
+    private String caption = getCaption( SessionType.RACE, SessionLimit.LAPS );
     
     private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
     private final EnumValue<YellowFlagState> yellowFlagState = new EnumValue<YellowFlagState>( YellowFlagState.NONE );
@@ -117,43 +100,54 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         return ( SessionLimit.LAPS );
     }
     
-    private final String getCaption_( ScoringInfo scoringInfo )
+    private static final String getCaption( SessionType sessionType, SessionLimit sessionLimit )
     {
-        switch ( scoringInfo.getSessionType() )
+        switch ( sessionType )
         {
             case TEST_DAY:
-                return ( testDayCaption.getStringValue() );
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_TEST_DAY_time );
+                
+                return ( Loc.caption_TEST_DAY_laps );
             case PRACTICE1:
-                return ( practice1Caption.getStringValue() );
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_PRACTICE1_time );
+                
+                return ( Loc.caption_PRACTICE1_laps );
             case PRACTICE2:
-                return ( practice2Caption.getStringValue() );
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_PRACTICE2_time );
+                
+                return ( Loc.caption_PRACTICE2_laps );
             case PRACTICE3:
-                return ( practice3Caption.getStringValue() );
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_PRACTICE3_time );
+                
+                return ( Loc.caption_PRACTICE3_laps );
             case PRACTICE4:
-                return ( practice4Caption.getStringValue() );
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_PRACTICE4_time );
+                
+                return ( Loc.caption_PRACTICE4_laps );
             case QUALIFYING:
-                return ( qualifyingCaption.getStringValue() );
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_QUALIFYING_time );
+                
+                return ( Loc.caption_QUALIFYING_laps );
             case WARMUP:
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_WARMUP_time );
+                
+                return ( Loc.caption_WARMUP_laps );
             case RACE:
-                return ( "" );
+                if ( sessionLimit == SessionLimit.TIME )
+                    return ( Loc.caption_RACE_time );
+                
+                return ( Loc.caption_RACE_laps );
         }
         
+        // Unreachable code!
         return ( "N/A" );
-    }
-    
-    private final String getCaption( ScoringInfo scoringInfo, SessionLimit sessionLimit )
-    {
-        String caption = getCaption_( scoringInfo );
-        
-        if ( caption.equals( "" ) )
-        {
-            if ( sessionLimit == SessionLimit.TIME )
-                return ( TIME_CAPTION );
-            
-            return ( LAPS_CAPTION );
-        }
-        
-        return ( caption );
     }
     
     private boolean updateSessionLimit( LiveGameData gameData )
@@ -164,7 +158,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         String oldCaption = caption;
         
         sessionLimit = getSessionLimit( scoringInfo, sessionLimitPreference.getEnumValue() );
-        caption = getCaption( scoringInfo, sessionLimit );
+        caption = getCaption( scoringInfo.getSessionType(), sessionLimit );
         
         if ( ( sessionLimit != oldSessionLimit ) || !caption.equals( oldCaption ) )
         {
@@ -339,12 +333,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( testDayCaption, "The caption String (on the left) for the TEST_DAY session." );
-        writer.writeProperty( practice1Caption, "The caption String (on the left) for the PRACTICE1 session." );
-        writer.writeProperty( practice2Caption, "The caption String (on the left) for the PRACTICE2 session." );
-        writer.writeProperty( practice3Caption, "The caption String (on the left) for the PRACTICE3 session." );
-        writer.writeProperty( practice4Caption, "The caption String (on the left) for the PRACTICE4 session." );
-        writer.writeProperty( qualifyingCaption, "The caption String (on the left) for the QUALIFYING session." );
         writer.writeProperty( lapDisplayType, "The way the laps are displayed. Valid values: CURRENT_LAP, LAPS_DONE." );
         writer.writeProperty( sessionLimitPreference, "If a session is limited by both laps and time, this limit will be displayed." );
     }
@@ -357,13 +345,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     {
         super.loadProperty( key, value );
         
-        if ( testDayCaption.loadProperty( key, value ) );
-        else if ( practice1Caption.loadProperty( key, value ) );
-        else if ( practice2Caption.loadProperty( key, value ) );
-        else if ( practice3Caption.loadProperty( key, value ) );
-        else if ( practice4Caption.loadProperty( key, value ) );
-        else if ( qualifyingCaption.loadProperty( key, value ) );
-        else if ( lapDisplayType.loadProperty( key, value ) );
+        if ( lapDisplayType.loadProperty( key, value ) );
         else if ( sessionLimitPreference.loadProperty( key, value ) );
     }
     
@@ -377,12 +359,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( testDayCaption );
-        propsCont.addProperty( practice1Caption );
-        propsCont.addProperty( practice2Caption );
-        propsCont.addProperty( practice3Caption );
-        propsCont.addProperty( practice4Caption );
-        propsCont.addProperty( qualifyingCaption );
         propsCont.addProperty( lapDisplayType );
         propsCont.addProperty( sessionLimitPreference );
     }

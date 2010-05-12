@@ -195,7 +195,7 @@ public class TimingWidget extends Widget
         if ( displayAbsFastest.getBooleanValue() )
         {
             absFastestLapHeaderString = dsf.newDrawnString( "absFastestLapHeaderString", left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            absFastestLapDriverString = dsf.newDrawnString( "absFastestLapDriverString", null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Driver: ", null );
+            absFastestLapDriverString = dsf.newDrawnString( "absFastestLapDriverString", null, absFastestLapHeaderString, left2, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.abs_fastest_header_prefix + ": ", null );
             absSector1String = dsf.newDrawnString( "absSector1String", null, absFastestLapDriverString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             absSector2String = dsf.newDrawnString( "absSector2String", null, absSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             if ( !cumulativeSectors.getBooleanValue() )
@@ -310,9 +310,9 @@ public class TimingWidget extends Widget
             if ( needsCompleteRedraw || leaderID.hasChanged() )
             {
                 if ( absFastestIsSecond )
-                    absFastestLapHeaderString.draw( offsetX, offsetY, "Abs. second fastest Lap:", backgroundColor, texture );
+                    absFastestLapHeaderString.draw( offsetX, offsetY, Loc.abs_second_fastest_prefix + ":", backgroundColor, texture );
                 else
-                    absFastestLapHeaderString.draw( offsetX, offsetY, "Abs. fastest Lap:", backgroundColor, texture );
+                    absFastestLapHeaderString.draw( offsetX, offsetY, Loc.abs_fastest_prefix + ":", backgroundColor, texture );
                 absFastestLapDriverString.draw( offsetX, offsetY, leaderName, backgroundColor, texture );
             }
             
@@ -341,14 +341,14 @@ public class TimingWidget extends Widget
                     int[] colWidths = new int[cols];
                     final Alignment[] aligns = { Alignment.RIGHT, Alignment.LEFT, Alignment.RIGHT };
                     
-                    s[0][0] = "Sec1:";
+                    s[0][0] = Loc.timing_sector1_prefix + ":";
                     s[0][1] = null;
                     if ( sec1 > 0f )
                         s[0][2] = TimingUtil.getTimeAsLaptimeString( sec1 );
                     else
                         s[0][3] = "-:--.---";
                     
-                    s[1][0] = "Sec2:";
+                    s[1][0] = Loc.timing_sector2_prefix + ":";
                     s[1][1] = null;
                     if ( sec2 > 0f )
                         s[1][2] = TimingUtil.getTimeAsLaptimeString( sec2 );
@@ -357,7 +357,7 @@ public class TimingWidget extends Widget
                     
                     if ( !cumulativeSectors.getBooleanValue() )
                     {
-                        s[2][0] = "Sec3:";
+                        s[2][0] = Loc.timing_sector3_prefix + ":";
                         s[2][1] = null;
                         if ( sec3 > 0f )
                             s[2][2] = TimingUtil.getTimeAsLaptimeString( sec3 );
@@ -371,7 +371,7 @@ public class TimingWidget extends Widget
                         s[2][2] = "";
                     }
                     
-                    s[3][0] = "Lap:";
+                    s[3][0] = Loc.timing_lap_prefix + ":";
                     s[3][1] = null;
                     s[3][2] = TimingUtil.getTimeAsLaptimeString( lap );
                     
@@ -450,7 +450,7 @@ public class TimingWidget extends Widget
                     
                     java.awt.Color sfColor1 = getFontColor();
                     
-                    s[0][0] = "Sec1:";
+                    s[0][0] = Loc.timing_sector1_prefix + ":";
                     s[0][1] = null;
                     if ( sec1 > 0f )
                         s[0][2] = TimingUtil.getTimeAsLaptimeString( sec1 );
@@ -475,7 +475,7 @@ public class TimingWidget extends Widget
                     
                     java.awt.Color sfColor2 = getFontColor();
                     
-                    s[1][0] = "Sec2:";
+                    s[1][0] = Loc.timing_sector2_prefix + ":";
                     s[1][1] = null;
                     if ( sec2 > 0f )
                         s[1][2] = TimingUtil.getTimeAsLaptimeString( sec2 );
@@ -502,7 +502,7 @@ public class TimingWidget extends Widget
                     
                     if ( !displayCumul )
                     {
-                        s[2][0] = "Sec3:";
+                        s[2][0] = Loc.timing_sector3_prefix + ":";
                         s[2][1] = null;
                         if ( sec3 > 0f )
                             s[2][2] = TimingUtil.getTimeAsLaptimeString( sec3 );
@@ -536,7 +536,7 @@ public class TimingWidget extends Widget
                     
                     java.awt.Color sfColorL = getFontColor();
                     
-                    s[3][0] = "Lap:";
+                    s[3][0] = Loc.timing_lap_prefix + ":";
                     s[3][1] = null;
                     s[3][2] = TimingUtil.getTimeAsLaptimeString( lap );
                     if ( dispGapToAbs )
@@ -677,7 +677,7 @@ public class TimingWidget extends Widget
                 
                 java.awt.Color sfColor1a = getFontColor();
                 java.awt.Color sfColor1b = getFontColor();
-                s[0][0] = "Sec1:";
+                s[0][0] = Loc.timing_sector1_prefix + ":";
                 s[0][1] = null;
                 if ( sec1 > 0f )
                 {
@@ -725,7 +725,7 @@ public class TimingWidget extends Widget
                 
                 java.awt.Color sfColor2a = getFontColor();
                 java.awt.Color sfColor2b = getFontColor();
-                s[1][0] = "Sec2:";
+                s[1][0] = Loc.timing_sector2_prefix + ":";
                 s[1][1] = null;
                 if ( sec2 > 0f )
                 {
@@ -773,7 +773,7 @@ public class TimingWidget extends Widget
                 
                 java.awt.Color sfColor3a = getFontColor();
                 java.awt.Color sfColor3b = getFontColor();
-                s[2][0] = "Sec3:";
+                s[2][0] = Loc.timing_sector3_prefix + ":";
                 s[2][1] = null;
                 if ( !displayCumul )
                 {
@@ -832,7 +832,7 @@ public class TimingWidget extends Widget
                 
                 java.awt.Color sfColorLa = getFontColor();
                 java.awt.Color sfColorLb = getFontColor();
-                s[3][0] = "Lap:";
+                s[3][0] = Loc.timing_lap_prefix + ":";
                 s[3][1] = null;
                 if ( isEditorMode || ( ( lap > 0f ) && ( myVSI.getLapsCompleted() >= myVSI.getStintStartLap() ) ) )
                 {

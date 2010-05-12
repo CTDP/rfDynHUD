@@ -382,9 +382,22 @@ public class ETVStandingsWidget extends ETVWidgetBase
                 {
                     String s;
                     if ( vsi.getBestLapTime() < 0.0f )
+                    {
                         s = "";
+                    }
+                    else if ( gaps[i].getValue() < -10000f )
+                    {
+                        int l = ( (int)-( gaps[i].getValue() + 10000.0f ) );
+                        
+                        if ( l == 1 )
+                            s = "+" + l + Loc.gap_lap;
+                        else
+                            s = "+" + l + Loc.gap_laps;
+                    }
                     else
-                        s = ( gaps[i].getValue() < -10000f ) ? "+" + ( (int)-( gaps[i].getValue() + 10000.0f ) ) + "Lap(s)" : TimingUtil.getTimeAsGapString( gaps[i].getValue() );
+                    {
+                        s = TimingUtil.getTimeAsGapString( gaps[i].getValue() );
+                    }
                     
                     gapStrings[i].draw( offsetX, offsetY + offsetY2, s, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
                 }

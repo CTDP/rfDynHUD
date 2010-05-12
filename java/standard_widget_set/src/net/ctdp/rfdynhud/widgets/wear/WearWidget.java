@@ -348,7 +348,7 @@ public class WearWidget extends Widget
         
         if ( displayTires.getBooleanValue() )
         {
-            tiresHeaderString = dsf.newDrawnString( "tiresHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tire wear/grip", null );
+            tiresHeaderString = dsf.newDrawnString( "tiresHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.tires_header_prefix + ":", null );
             if ( getDisplayWearPercent_tires() )
             {
                 tireWearFLString = dsf.newDrawnString( "tireWearFLString", null, tiresHeaderString, center - 7 - tireWidth, 3, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
@@ -708,16 +708,16 @@ public class WearWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displayEngine.getBooleanValue() )
-                engineHeaderString.draw( offsetX, offsetY, "Engine:", backgroundColor, texture );
+                engineHeaderString.draw( offsetX, offsetY, Loc.engine_header_prefix + ":", backgroundColor, texture );
             if ( displayTires.getBooleanValue() )
             {
                 if ( displayCompoundName.getBooleanValue() )
-                    tiresHeaderString.draw( offsetX, offsetY, ": " + setup.getGeneral().getFrontTireCompound().getName(), backgroundColor, texture );
+                    tiresHeaderString.draw( offsetX, offsetY, " " + setup.getGeneral().getFrontTireCompound().getName(), backgroundColor, texture );
                 else
                     tiresHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
             }
             if ( db )
-                brakesHeaderString.draw( offsetX, offsetY, "Brakes:", backgroundColor, texture );
+                brakesHeaderString.draw( offsetX, offsetY, Loc.brakes_header_prefix + ":", backgroundColor, texture );
         }
         
         if ( displayEngine.getBooleanValue() )

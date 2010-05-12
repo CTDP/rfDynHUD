@@ -66,11 +66,6 @@ public class TimeCompareWidget extends Widget
         lap.reset();
     }
     
-    protected String getGapRowCaption()
-    {
-        return ( "g" );
-    }
-    
     private void updateLaps( VehicleScoringInfo vsi, LiveGameData gameData )
     {
         LocalStore store = (LocalStore)getLocalStore();
@@ -173,14 +168,17 @@ public class TimeCompareWidget extends Widget
         if ( displaySectors.getBooleanValue() )
         {
             if ( abbreviate.getBooleanValue() )
-                headerString.getMaxColWidths( new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, colAligns, colPadding, texture, colWidths );
+                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, colPadding, texture, colWidths );
             else
-                headerString.getMaxColWidths( new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, colAligns, colPadding, texture, colWidths );
+                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, colPadding, texture, colWidths );
             timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, colAligns, colPadding, texture, colWidths );
         }
         else
         {
-            headerString.getMaxColWidths( new String[] { "#", "Lap" }, colAligns, colPadding, texture, colWidths );
+            if ( abbreviate.getBooleanValue() )
+                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, colPadding, texture, colWidths );
+            else
+                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, colPadding, texture, colWidths );
             timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, colAligns, colPadding, texture, colWidths );
         }
         
@@ -206,13 +204,16 @@ public class TimeCompareWidget extends Widget
             if ( displaySectors.getBooleanValue() )
             {
                 if ( abbreviate.getBooleanValue() )
-                    headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sec1", "Sec2", "Sec3", "Lap" }, colAligns, padding, colWidths, backgroundColor, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, padding, colWidths, backgroundColor, texture );
                 else
-                    headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Sector1", "Sector2", "Sector3", "Lap" }, colAligns, padding, colWidths, backgroundColor, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, padding, colWidths, backgroundColor, texture );
             }
             else
             {
-                headerString.drawColumns( offsetX, offsetY, new String[] { "#", "Lap" }, colAligns, padding, colWidths, backgroundColor, texture );
+                if ( abbreviate.getBooleanValue() )
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, padding, colWidths, backgroundColor, texture );
+                else
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, padding, colWidths, backgroundColor, texture );
             }
         }
         
@@ -248,18 +249,18 @@ public class TimeCompareWidget extends Widget
             if ( last < 0 )
             {
                 if ( displaySectors.getBooleanValue() )
-                    s = new String[] { getGapRowCaption(), "--.---", "--.---", "--.---", "-:--.---" };
+                    s = new String[] { Loc.footer_gap, "--.---", "--.---", "--.---", "-:--.---" };
                 else
-                    s = new String[] { getGapRowCaption(), "-:--.---" };
+                    s = new String[] { Loc.footer_gap, "-:--.---" };
             }
             else
             {
                 Laptime lt = store.displayedLaps[last];
                 
                 if ( displaySectors.getBooleanValue() )
-                    s = new String[] { getGapRowCaption(), TimingUtil.getTimeAsGapString( lt.getSector1() - store.avgS1 ), TimingUtil.getTimeAsGapString( lt.getSector2() - store.avgS2 ), TimingUtil.getTimeAsGapString( lt.getSector3() - store.avgS3 ), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
+                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getSector1() - store.avgS1 ), TimingUtil.getTimeAsGapString( lt.getSector2() - store.avgS2 ), TimingUtil.getTimeAsGapString( lt.getSector3() - store.avgS3 ), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
                 else
-                    s = new String[] { getGapRowCaption(), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
+                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
             }
             
             timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, backgroundColor, texture );

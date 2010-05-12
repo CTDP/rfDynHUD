@@ -1,4 +1,4 @@
-package net.ctdp.rfdynhud.editor.options;
+package net.ctdp.rfdynhud.editor.presets;
 
 public enum ScaleType
 {

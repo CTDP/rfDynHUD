@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
+import net.ctdp.rfdynhud.values.LapDisplayType;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -35,13 +36,6 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class MiscWidget extends Widget
 {
-    public static enum LapDisplayType
-    {
-        CURRENT_LAP,
-        LAPS_DONE,
-        ;
-    }
-    
     private final EnumProperty<LapDisplayType> lapDisplayType = new EnumProperty<LapDisplayType>( this, "lapDisplayType", LapDisplayType.CURRENT_LAP );
     private long relTopspeedResetDelay = 10000000000L; // ten seconds
     
@@ -212,33 +206,33 @@ public class MiscWidget extends Widget
             boolean b = displayTiming.getBooleanValue();
             if ( ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() ) || ( !displayScoring.getBooleanValue() && !displayVelocity.getBooleanValue() ) )
             {
-                if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Lap: ", null );
+                if ( lapDisplayType.getEnumValue().isCurrentLap() )
+                    lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
                 else
-                    lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Laps: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
                 
-                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
-                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
+                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_stintlength_prefix + ": ", null );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_sessiontime_prefix + ": ", null );
             }
             else if ( !displayScoring.getBooleanValue() )
             {
-                if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Lap: ", null );
+                if ( lapDisplayType.getEnumValue().isCurrentLap() )
+                    lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
                 else
-                    lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Laps: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
                 
                 stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
                 sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
             }
             else if ( !displayVelocity.getBooleanValue() )
             {
-                if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
-                    lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Lap: ", null );
+                if ( lapDisplayType.getEnumValue().isCurrentLap() )
+                    lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
                 else
-                    lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, "Laps: ", null );
+                    lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
                 
-                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
-                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
+                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_stintlength_prefix + ": ", null );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_sessiontime_prefix + ": ", null );
             }
         }
         
@@ -252,9 +246,9 @@ public class MiscWidget extends Widget
             velocityColWidths[1] = 0;
             velocityColWidths[2] = 0;
             
-            absTopspeedString.getMaxColWidths( new String[] { "Topspeed1:", "000.0", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
-            relTopspeedString.getMaxColWidths( new String[] { "Topspeed2:", "000.0", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
-            velocityString.getMaxColWidths( new String[] { "Velocity:", "000", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
+            absTopspeedString.getMaxColWidths( new String[] { Loc.velocity_topspeed1_prefix + ":", "000.0", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
+            relTopspeedString.getMaxColWidths( new String[] { Loc.velocity_topspeed2_prefix + ":", "000.0", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
+            velocityString.getMaxColWidths( new String[] { Loc.velocity_velocity_prefix + ":", "000", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
         }
         else
         {
@@ -269,16 +263,16 @@ public class MiscWidget extends Widget
         scoringColWidths[0] = 0;
         scoringColWidths[1] = 0;
         
-        scoringString1.getMaxColWidths( new String[] { "Leader:", leaderName }, scoringAlignment, padding, texture, scoringColWidths );
+        scoringString1.getMaxColWidths( new String[] { Loc.scoring_leader_prefix + ":", leaderName }, scoringAlignment, padding, texture, scoringColWidths );
         if ( place.isValid() )
-            scoringString2.getMaxColWidths( new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString2.getMaxColWidths( new String[] { Loc.scoring_place_prefix + ":", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, texture, scoringColWidths );
         else
-            scoringString2.getMaxColWidths( new String[] { "Place:", "N/A" }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString2.getMaxColWidths( new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, texture, scoringColWidths );
         
         if ( fastestLap.isValid() )
-            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort() + ")" }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort() + ")" }, scoringAlignment, padding, texture, scoringColWidths );
         else
-            scoringString3.getMaxColWidths( new String[] { "Fst. Lap:", "--:--.---" }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, texture, scoringColWidths );
     }
     
     /**
@@ -318,9 +312,9 @@ public class MiscWidget extends Widget
                 if ( scoringInfo.getSessionType().isRace() )
                 {
                     if ( leaderValid )
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", leaderName }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_leader_prefix + ":", leaderName }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                     else
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { "Leader:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_leader_prefix + ":", Loc.scoring_leader_na }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 }
                 else
                 {
@@ -337,9 +331,9 @@ public class MiscWidget extends Widget
                 }
                 
                 if ( place.isValid() )
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Place:", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 else
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { "Place:", "N/A" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
             }
             
             if ( needsCompleteRedraw || fastestLap.hasValidityChanged() || fastestLap.hasChanged() )
@@ -353,7 +347,7 @@ public class MiscWidget extends Widget
                 if ( fastestLap.isValid() )
                     scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsLaptimeString( fastestLap.getValue() ) + " (" + fastestLapper + ")" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 else
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", "--:--.---" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
             }
         }
         
@@ -385,7 +379,7 @@ public class MiscWidget extends Widget
                     }
                     else
                     {
-                        if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
+                        if ( lapDisplayType.getEnumValue().isCurrentLap() )
                             string = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
                         else
                             string = lapsCompleted + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
@@ -396,7 +390,7 @@ public class MiscWidget extends Widget
             else if ( needsCompleteRedraw || lapsCompleted.hasChanged() )
             {
                 String string;
-                if ( lapDisplayType.getEnumValue() == LapDisplayType.CURRENT_LAP )
+                if ( lapDisplayType.getEnumValue().isCurrentLap() )
                     string = String.valueOf( lapsCompleted.getValue() + 1 );
                 else
                     string = String.valueOf( lapsCompleted );
@@ -410,7 +404,7 @@ public class MiscWidget extends Widget
                     if ( vsi.isInPits() )
                     {
                         if ( oldStintLength < 0 )
-                            stintString.draw( offsetX, offsetY, "N/A", backgroundColor, texture );
+                            stintString.draw( offsetX, offsetY, Loc.timing_stintlength_na, backgroundColor, texture );
                         else
                             stintString.draw( offsetX, offsetY, String.valueOf( Math.round( oldStintLength / 10f ) ), backgroundColor, texture );
                     }
@@ -488,19 +482,19 @@ public class MiscWidget extends Widget
                 
                 updateAbs = false;
                 oldAbsTopspeed = topspeed;
-                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed1:", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed1_prefix + ":", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( relTopspeed > oldRelTopspeed ) ) )
             {
                 oldRelTopspeed = relTopspeed;
-                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { "Topspeed2:", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed2_prefix + ":", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( velocity != oldVelocity ) ) )
             {
                 oldVelocity = velocity;
-                velocityString.drawColumns( offsetX, offsetY, new String[] { "Velocity:", String.valueOf( velocity ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                velocityString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_velocity_prefix + ":", String.valueOf( velocity ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
             }
         }
     }

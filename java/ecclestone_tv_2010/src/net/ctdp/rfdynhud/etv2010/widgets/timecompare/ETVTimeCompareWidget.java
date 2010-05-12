@@ -407,13 +407,13 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         drivernameString2.draw( offsetX, offsetY, relVSI.getDriverNameShort(), texture );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + 0 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
-        lapCaptionString1.draw( offsetX, offsetY, "Lap " + ( vsi.getLapsCompleted() - 2 ), texture );
+        lapCaptionString1.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 2 ), texture );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
-        lapCaptionString2.draw( offsetX, offsetY, "Lap " + ( vsi.getLapsCompleted() - 1 ), texture );
+        lapCaptionString2.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 1 ), texture );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
-        lapCaptionString3.draw( offsetX, offsetY, "Lap " + ( vsi.getLapsCompleted() - 0 ), texture );
+        lapCaptionString3.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 0 ), texture );
         
         float laptime1 = isEditorMode ? 84.567f : getLaptime( vsi, vsi.getLapsCompleted() - 2 );
         

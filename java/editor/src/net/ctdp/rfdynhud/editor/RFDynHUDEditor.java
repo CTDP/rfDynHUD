@@ -65,8 +65,8 @@ import net.ctdp.rfdynhud.editor.help.AboutPage;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
-import net.ctdp.rfdynhud.editor.options.EditorPresetsWindow;
-import net.ctdp.rfdynhud.editor.options.ScaleType;
+import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
+import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.EditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
@@ -158,8 +158,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private static final String doc_header = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
     private static final String doc_footer = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
     
-    private boolean optionsWindowVisible = false;
-    private final EditorPresetsWindow resetsWindow;
+    private boolean presetsWindowVisible = false;
+    private final EditorPresetsWindow presetsWindow;
     
     private boolean dirtyFlag = false;
     
@@ -659,18 +659,18 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             writer.writeSetting( "resolution", gameResolution.getResString() );
             getEditorPanel().saveProperties( confWriter );
             writer.writeSetting( "templatesConfig", getCurrentTemplateFileForProperty() );
-            writer.writeSetting( "defaultScaleType", resetsWindow.getDefaultScaleType() );
+            writer.writeSetting( "defaultScaleType", presetsWindow.getDefaultScaleType() );
             writeLastConfig( writer );
             writer.writeSetting( "alwaysShowHelpOnStartup", alwaysShowHelpOnStartup );
             writer.writeGroup( "MainWindow" );
             writer.writeSetting( "windowLocation", getMainWindow().getX() + "x" + getMainWindow().getY() );
             writer.writeSetting( "windowSize", getMainWindow().getWidth() + "x" + getMainWindow().getHeight() );
             writer.writeSetting( "windowState", extendedState );
-            writer.writeGroup( "OptionsWindow" );
-            writer.writeSetting( "windowLocation", resetsWindow.getX() + "x" + resetsWindow.getY() );
-            writer.writeSetting( "windowSize", resetsWindow.getWidth() + "x" + resetsWindow.getHeight() );
-            writer.writeSetting( "windowVisible", optionsWindowVisible );
-            writer.writeSetting( "autoApply", resetsWindow.getAutoApply() );
+            writer.writeGroup( "PresetsWindow" );
+            writer.writeSetting( "windowLocation", presetsWindow.getX() + "x" + presetsWindow.getY() );
+            writer.writeSetting( "windowSize", presetsWindow.getWidth() + "x" + presetsWindow.getHeight() );
+            writer.writeSetting( "windowVisible", presetsWindowVisible );
+            writer.writeSetting( "autoApply", presetsWindow.getAutoApply() );
             writer.writeGroup( "EditorPresets" );
             
             __EDPrivilegedAccess.saveProperties( presets, confWriter );
@@ -810,7 +810,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         {
                             try
                             {
-                                resetsWindow.setDefaultScaleType( ScaleType.valueOf( value ) );
+                                presetsWindow.setDefaultScaleType( ScaleType.valueOf( value ) );
                             }
                             catch ( Throwable t )
                             {
@@ -869,7 +869,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                             }
                         }
                     }
-                    else if ( group.equals( "OptionsWindow" ) )
+                    else if ( group.equals( "PresetsWindow" ) )
                     {
                         if ( key.equals( "windowLocation" ) )
                         {
@@ -877,7 +877,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                             {
                                 //optionsWindow.setLocationRelativeTo( null );
                                 String[] ss = value.split( "x" );
-                                resetsWindow.setLocation( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                                presetsWindow.setLocation( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
                             }
                             catch ( Throwable t )
                             {
@@ -889,8 +889,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                             try
                             {
                                 String[] ss = value.split( "x" );
-                                resetsWindow.setSize( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
-                                resetsWindow.setDontSetWindowSize();
+                                presetsWindow.setSize( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                                presetsWindow.setDontSetWindowSize();
                             }
                             catch ( Throwable t )
                             {
@@ -901,7 +901,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         {
                             try
                             {
-                                optionsWindowVisible = Boolean.parseBoolean( value );
+                                presetsWindowVisible = Boolean.parseBoolean( value );
                             }
                             catch ( Throwable t )
                             {
@@ -912,7 +912,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         {
                             try
                             {
-                                resetsWindow.setAutoApply( Boolean.parseBoolean( value ) );
+                                presetsWindow.setAutoApply( Boolean.parseBoolean( value ) );
                             }
                             catch ( Throwable t )
                             {
@@ -1128,15 +1128,15 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
         }
         
-        optionsWindowVisible = resetsWindow.isVisible();
-        resetsWindow.setVisible( false );
+        presetsWindowVisible = presetsWindow.isVisible();
+        presetsWindow.setVisible( false );
         
         getMainWindow().setVisible( false );
         int extendedState = getMainWindow().getExtendedState();
         getMainWindow().setExtendedState( JFrame.NORMAL );
         saveUserSettings( extendedState );
         
-        resetsWindow.dispose();
+        presetsWindow.dispose();
         getMainWindow().dispose();
         System.exit( 0 );
     }
@@ -1204,9 +1204,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             widget = createWidgetInstance( widgetClazz, getEditorPanel().getWidgetsDrawingManager() );
             copyPropertiesFromTemplate( widget );
             getEditorPanel().getWidgetsDrawingManager().addWidget( widget );
-            if ( resetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
+            if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
                 widget.setAllPosAndSizeToPercents();
-            else if ( resetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
+            else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
                 widget.setAllPosAndSizeToPixels();
             onWidgetSelected( widget, false );
             getEditorPanel().repaint();
@@ -2180,7 +2180,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         {
             public void actionPerformed( ActionEvent e )
             {
-                resetsWindow.setVisible( true );
+                presetsWindow.setVisible( true );
             }
         } );
         menu.add( optionsItem );
@@ -2353,7 +2353,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         split.add( split2 );
         contentPane.add( split );
         
-        this.resetsWindow = new EditorPresetsWindow( this );
+        this.presetsWindow = new EditorPresetsWindow( this );
         
         window.addWindowListener( new WindowAdapter()
         {
@@ -2430,8 +2430,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             
             editor.getMainWindow().setVisible( true );
             
-            if ( editor.optionsWindowVisible )
-                editor.resetsWindow.setVisible( true );
+            if ( editor.presetsWindowVisible )
+                editor.presetsWindow.setVisible( true );
             
             while ( editor.getMainWindow().isVisible() )
             {

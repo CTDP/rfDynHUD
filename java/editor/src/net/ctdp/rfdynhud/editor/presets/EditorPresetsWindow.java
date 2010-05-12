@@ -1,4 +1,4 @@
-package net.ctdp.rfdynhud.editor.options;
+package net.ctdp.rfdynhud.editor.presets;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

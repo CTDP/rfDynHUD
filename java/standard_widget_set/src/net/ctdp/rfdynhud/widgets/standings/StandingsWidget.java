@@ -308,10 +308,10 @@ public class StandingsWidget extends Widget
         switch ( RFactorTools.getSpeedUnits() )
         {
             case MPH:
-                return ( "mi/h" );
+                return ( Loc.column_topspeed_units_IMPERIAL );
             case KPH:
             default:
-                return ( "km/h" );
+                return ( Loc.column_topspeed_units_METRIC );
         }
     }
     
@@ -321,12 +321,12 @@ public class StandingsWidget extends Widget
         
         String[] ss = new String[ 7 ];
         
-        ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
+        ss[0] = place + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
         FinishStatus finishStatus = vsi.getFinishStatus();
-        if ( finishStatus == FinishStatus.NONE )
+        if ( finishStatus.isNone() )
         {
             if ( ( gamePhase == GamePhase.RECONNAISSANCE_LAPS ) || ( gamePhase == GamePhase.FORMATION_LAP ) || ( place <= 1 ) )
             {
@@ -337,7 +337,7 @@ public class StandingsWidget extends Widget
                 int lbl = vsi.getLapsBehindLeader();
                 if ( lbl > 0 )
                 {
-                    ss[2] = "(+" + vsi.getLapsBehindLeader() + ( ( lbl == 1 ) ? " Lap)" : " Laps)" );
+                    ss[2] = "(+" + vsi.getLapsBehindLeader() + ( abbreviate.getBooleanValue() ? Loc.column_time_gap_laps_short : ( ( lbl == 1 ) ? " " + Loc.column_time_gap_laps_singular + ")" : " " + Loc.column_time_gap_laps_plural + ")" ) );
                 }
                 else
                 {
@@ -351,18 +351,18 @@ public class StandingsWidget extends Widget
                 int stops = vsi.getNumPitstopsMade();
                 if ( abbreviate.getBooleanValue() )
                 {
-                    ss[3] = String.valueOf( stops ) + "S";
+                    ss[3] = String.valueOf( stops ) + Loc.column_stops_short;
                     ss[4] = null;
                 }
                 else if ( stops == 1 )
                 {
                     ss[3] = String.valueOf( stops );
-                    ss[4] = "Stop";
+                    ss[4] = Loc.column_stops_singular;
                 }
                 else
                 {
                     ss[3] = String.valueOf( stops );
-                    ss[4] = "Stops";
+                    ss[4] = Loc.column_stops_plural;
                 }
             }
             else
@@ -384,7 +384,7 @@ public class StandingsWidget extends Widget
         }
         else if ( finishStatus == FinishStatus.FINISHED )
         {
-            ss[2] = "(" + finishStatus.toString() + ")";
+            ss[2] = "(" + Loc.finishsstatus_FINISHED + ")";
             ss[3] = null;
             ss[4] = null;
             ss[5] = null;
@@ -392,7 +392,16 @@ public class StandingsWidget extends Widget
         }
         else
         {
-            ss[2] = "Out! (" + finishStatus.toString() + ")";
+            switch ( finishStatus )
+            {
+                case DNF:
+                    ss[2] = Loc.out + " (" + Loc.finishsstatus_DNF + ")";
+                    break;
+                case DQ:
+                    ss[2] = Loc.out + " (" + Loc.finishsstatus_DQ + ")";
+                    break;
+            }
+            
             ss[3] = null;
             ss[4] = null;
             ss[5] = null;
@@ -407,12 +416,12 @@ public class StandingsWidget extends Widget
         short place = vsi.getPlace();
         
         String[] ss = new String[ 7 ];
-        ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
+        ss[0] = place + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
         FinishStatus finishStatus = vsi.getFinishStatus();
-        if ( finishStatus == FinishStatus.NONE )
+        if ( finishStatus.isNone() )
         {
             if ( ( gamePhase != GamePhase.FORMATION_LAP ) && ( gamePhase != GamePhase.RECONNAISSANCE_LAPS ) && ( place != ownPlace ) )
             {
@@ -425,16 +434,16 @@ public class StandingsWidget extends Widget
                 if ( lapDiff < 0 )
                 {
                     if ( abbreviate.getBooleanValue() )
-                        ss[2] = "(" + lapDiff + "L" + ")";
+                        ss[2] = "(" + lapDiff + Loc.column_time_gap_laps_short + ")";
                     else
-                        ss[2] = "(" + lapDiff + " Lap" + ( lapDiff < -1 ? "s" : "" ) + ")";
+                        ss[2] = "(" + lapDiff + " " + ( ( lapDiff < -1 ) ? Loc.column_time_gap_laps_plural : Loc.column_time_gap_laps_singular ) + ")";
                 }
                 else if ( lapDiff > 0 )
                 {
                     if ( abbreviate.getBooleanValue() )
-                        ss[2] = "(+" + lapDiff + "L" + ")";
+                        ss[2] = "(+" + lapDiff + Loc.column_time_gap_laps_short + ")";
                     else
-                        ss[2] = "(+" + lapDiff + " Lap" + ( lapDiff > 1 ? "s" : "" ) + ")";
+                        ss[2] = "(+" + lapDiff + " " + ( ( lapDiff > 1 ) ? Loc.column_time_gap_laps_plural : Loc.column_time_gap_laps_singular ) + ")";
                 }
                 else
                 {
@@ -451,18 +460,18 @@ public class StandingsWidget extends Widget
                 int stops = vsi.getNumPitstopsMade();
                 if ( abbreviate.getBooleanValue() )
                 {
-                    ss[3] = String.valueOf( stops ) + "S";
+                    ss[3] = String.valueOf( stops ) + Loc.column_stops_short;
                     ss[4] = null;
                 }
                 else if ( stops == 1 )
                 {
                     ss[3] = String.valueOf( stops );
-                    ss[4] = "Stop";
+                    ss[4] = Loc.column_stops_singular;
                 }
                 else
                 {
                     ss[3] = String.valueOf( stops );
-                    ss[4] = "Stops";
+                    ss[4] = Loc.column_stops_plural;
                 }
             }
             else
@@ -484,7 +493,7 @@ public class StandingsWidget extends Widget
         }
         else if ( finishStatus == FinishStatus.FINISHED )
         {
-            ss[2] = "(" + finishStatus.toString() + ")";
+            ss[2] = "(" + Loc.finishsstatus_FINISHED + ")";
             ss[3] = null;
             ss[4] = null;
             ss[5] = null;
@@ -492,7 +501,16 @@ public class StandingsWidget extends Widget
         }
         else
         {
-            ss[2] = "Out! (" + finishStatus.toString() + ")";
+            switch ( finishStatus )
+            {
+                case DNF:
+                    ss[2] = Loc.out + " (" + Loc.finishsstatus_DNF + ")";
+                    break;
+                case DQ:
+                    ss[2] = Loc.out + " (" + Loc.finishsstatus_DQ + ")";
+                    break;
+            }
+            
             ss[3] = null;
             ss[4] = null;
             ss[5] = null;
@@ -551,7 +569,7 @@ public class StandingsWidget extends Widget
         short place = vsi.getPlace();
         
         String[] ss = new String[ 7 ];
-        ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ".";
+        ss[0] = place + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
@@ -574,18 +592,18 @@ public class StandingsWidget extends Widget
             int lapsCompleted = vsi.getLapsCompleted();
             if ( abbreviate.getBooleanValue() )
             {
-                ss[3] = String.valueOf( lapsCompleted ) + "L";
+                ss[3] = String.valueOf( lapsCompleted ) + Loc.column_laps_short;
                 ss[4] = null;
             }
             else if ( lapsCompleted == 1 )
             {
                 ss[3] = String.valueOf( lapsCompleted );
-                ss[4] = "Lap";
+                ss[4] = Loc.column_laps_singular;
             }
             else
             {
                 ss[3] = String.valueOf( lapsCompleted );
-                ss[4] = "Laps";
+                ss[4] = Loc.column_laps_plural;
             }
         }        
         else
@@ -613,7 +631,7 @@ public class StandingsWidget extends Widget
         short place = vsi.getPlace();
         
         String[] ss = new String[ 7 ];
-        ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
+        ss[0] = place + ". ";
         
         ss[1] = getDisplayedDriverName( vsi );
         
@@ -636,18 +654,18 @@ public class StandingsWidget extends Widget
             int lapsCompleted = vsi.getLapsCompleted();
             if ( abbreviate.getBooleanValue() )
             {
-                ss[3] = String.valueOf( lapsCompleted ) + "L";
+                ss[3] = String.valueOf( lapsCompleted ) + Loc.column_laps_short;
                 ss[4] = null;
             }
             else if ( lapsCompleted == 1 )
             {
                 ss[3] = String.valueOf( lapsCompleted );
-                ss[4] = "Lap";
+                ss[4] = Loc.column_laps_singular;
             }
             else
             {
                 ss[3] = String.valueOf( lapsCompleted );
-                ss[4] = "Laps";
+                ss[4] = Loc.column_laps_plural;
             }
         }        
         else
@@ -675,7 +693,7 @@ public class StandingsWidget extends Widget
         short place = vsi.getPlace();
         
         String[] ss = new String[ 7 ];
-        ss[0] = ( ( place < 10 ) ? " " : "" ) + place + ". ";
+        ss[0] = place + ". ";
         
         ss[1] = getDisplayedDriverName( vsi );
         
@@ -695,18 +713,18 @@ public class StandingsWidget extends Widget
             int lapsCompleted = vsi.getLapsCompleted();
             if ( abbreviate.getBooleanValue() )
             {
-                ss[3] = String.valueOf( lapsCompleted ) + "L";
+                ss[3] = String.valueOf( lapsCompleted ) + Loc.column_laps_short;
                 ss[4] = null;
             }
             else if ( lapsCompleted == 1 )
             {
                 ss[3] = String.valueOf( lapsCompleted );
-                ss[4] = "Lap";
+                ss[4] = Loc.column_laps_singular;
             }
             else
             {
                 ss[3] = String.valueOf( lapsCompleted );
-                ss[4] = "Laps";
+                ss[4] = Loc.column_laps_plural;
             }
         }
         else
