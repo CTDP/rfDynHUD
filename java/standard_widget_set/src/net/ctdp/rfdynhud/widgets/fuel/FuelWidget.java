@@ -615,7 +615,7 @@ public class FuelWidget extends Widget
         }
         else if ( ( this.lowFuelBlinkNanos > 0L ) && ( lowFuelWarningImageOn != null ) )
         {
-            float lapsForFuel = ( fuel - 1.0f ) / avgFuelUsage;
+            float lapsForFuel = ( fuel - 0.5f ) / avgFuelUsage;
             float restLapLength = 1.0f - ( stintLength % 1f );
             
             int lapsRemaining = scoringInfo.getMaxLaps() - vsi.getLapsCompleted() - 1;

@@ -39,6 +39,7 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -52,6 +53,8 @@ import org.openmali.vecmath2.util.ColorUtils;
 public class RevMeterWidget extends Widget
 {
     public static final String DEFAULT_GEAR_FONT_NAME = "GearFont";
+    
+    private final BooleanProperty hideWhenViewingOtherCar = new BooleanProperty( this, "hideWhenViewingOtherCar", false );
     
     private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "backgroundImageName", "default_rev_meter_bg.png", false, true )
     {
@@ -278,6 +281,22 @@ public class RevMeterWidget extends Widget
     public boolean needsRealtimeTelemetryData()
     {
         return ( true );
+    }
+    
+    private void setControlVisibility( VehicleScoringInfo viewedVSI )
+    {
+        setVisible2( viewedVSI.isPlayer() || !hideWhenViewingOtherCar.getBooleanValue() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        
+        setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
     }
     
     private void fixSmallStep()
@@ -511,6 +530,17 @@ public class RevMeterWidget extends Widget
         maxRPMCheck.reset();
         gear.reset();
         velocity.reset();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        
+        setControlVisibility( viewedVSI );
     }
     
     /**
@@ -1044,6 +1074,7 @@ public class RevMeterWidget extends Widget
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( hideWhenViewingOtherCar, "Hide the Widget when another car is being observed?" );
         writer.writeProperty( backgroundImageName, "The name of the background image." );
         writer.writeProperty( needleImageName, "The name of the needle image." );
         writer.writeProperty( needleAxisBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
@@ -1123,7 +1154,8 @@ public class RevMeterWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( backgroundImageName.loadProperty( key, value ) );
+        if ( hideWhenViewingOtherCar.loadProperty( key, value ) );
+        else if ( backgroundImageName.loadProperty( key, value ) );
         else if ( needleImageName.loadProperty( key, value ) );
         else if ( needleAxisBottomOffset.loadProperty( key, value ) );
         else if ( needleRotationForZeroRPM.loadProperty( key, value ) );
@@ -1198,6 +1230,7 @@ public class RevMeterWidget extends Widget
         
         propsCont.addGroup( "Specific" );
         
+        propsCont.addProperty( hideWhenViewingOtherCar );
         propsCont.addProperty( backgroundImageName );
         
         propsCont.addGroup( "Needle" );
