@@ -583,11 +583,12 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Sets this Widget's visibility flag 1. This is usually controlled be the ToggleWidgetVisibility InputAction.
+     * Sets this Widget's visibility usually controlled by the ToggleWidgetVisibility InputAction.<br />
+     * This flag is also restored when a different configurations is loaded unlike the others.
      * 
      * @param visible
      */
-    void setInputVisible( boolean visible )
+    public void setInputVisible( boolean visible )
     {
         boolean wasVisible = isVisible();
         
@@ -598,7 +599,8 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Gets this Widget's visibility flag 1. This is usually controlled be the ToggleWidgetVisibility InputAction.
+     * Gets this Widget's visibility usually controlled by the ToggleWidgetVisibility InputAction.<br />
+     * This flag is also restored when a different configurations is loaded unlike the others.
      * 
      * @return this Widget's visibility flag.
      */
@@ -608,7 +610,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Sets this Widget's visibility flag 2. This is the one, you should toggle in your widget code.
+     * Sets this Widget's user visibility flag 1. This is the one, you should toggle in your widget code.
      * 
      * @param visible
      */
@@ -623,7 +625,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Gets this Widget's visibility flag 2. This is the one, you should toggle in your widget code.
+     * Gets this Widget's user visibility flag 1. This is the one, you should toggle in your widget code.
      * 
      * @return this Widget's visibility flag.
      */
@@ -633,7 +635,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Sets this Widget's visibility flag 2. This is the one, you should toggle in your widget code.
+     * Sets this Widget's user visibility flag 2. This is the one, you should toggle in your widget code.
      * 
      * @param visible
      */
@@ -648,7 +650,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Gets this Widget's visibility flag 2. This is the one, you should toggle in your widget code.
+     * Gets this Widget's user visibility flag 2. This is the one, you should toggle in your widget code.
      * 
      * @return this Widget's visibility flag.
      */

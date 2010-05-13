@@ -16,7 +16,6 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link WidgetsDrawingManager} handles the drawing of all visible widgets.
@@ -407,7 +406,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             return;
         
         if ( action == KnownInputActions.ToggleWidgetVisibility )
-            __WPrivilegedAccess.setInputVisible( !widget.isInputVisible(), widget );
+            widget.setInputVisible( !widget.isInputVisible() );
         else
             widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, editorPresets );
     }

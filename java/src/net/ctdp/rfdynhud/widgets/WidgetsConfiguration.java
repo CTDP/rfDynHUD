@@ -266,7 +266,7 @@ public class WidgetsConfiguration
                 Boolean visibility = visibilities.get( getLocalStoreKey( widget ) );
                 if ( visibility != null )
                 {
-                    __WPrivilegedAccess.setInputVisible( visibility, widget );
+                    widget.setInputVisible( visibility );
                 }
             }
         }

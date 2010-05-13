@@ -195,14 +195,14 @@ public class StandingsWidget extends Widget
                 {
                     if ( checkView( isEditorMode, views[i], sessionType ) )
                     {
-                        setUserVisible2( true );
+                        setInputVisible( true );
                         setView( views[i] );
                         
                         return ( getView() );
                     }
                 }
                 
-                setUserVisible2( true );
+                setInputVisible( true );
                 return ( null );
             }
             
@@ -216,11 +216,11 @@ public class StandingsWidget extends Widget
                 }
             }
             
-            setUserVisible2( false );
+            setInputVisible( false );
             return ( null );
         }
         
-        setUserVisible2( true );
+        setInputVisible( true );
         
         int offset = getView().ordinal();
         for ( int i = 1; i < views.length; i++ )
