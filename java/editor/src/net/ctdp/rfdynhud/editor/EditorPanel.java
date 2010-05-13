@@ -339,7 +339,7 @@ public class EditorPanel extends JPanel
         Logger.log( "Removing selected Widget of type \"" + selectedWidget.getClass().getName() + "\" and name \"" + selectedWidget.getName() + "\"..." );
         
         selectedWidget.clearRegion( true, overlay );
-        drawingManager.removeWidget( selectedWidget );
+        drawingManager.removeWidget( true, selectedWidget );
         setSelectedWidget( null, false );
         editor.setDirtyFlag();
     }

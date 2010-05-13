@@ -285,7 +285,7 @@ public class RevMeterWidget extends Widget
     
     private void setControlVisibility( VehicleScoringInfo viewedVSI )
     {
-        setVisible2( viewedVSI.isPlayer() || !hideWhenViewingOtherCar.getBooleanValue() );
+        setUserVisible1( viewedVSI.isPlayer() || !hideWhenViewingOtherCar.getBooleanValue() );
     }
     
     /**

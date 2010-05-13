@@ -176,7 +176,7 @@ public class TemperaturesWidget extends Widget
     
     private void setControlVisibility( VehicleScoringInfo viewedVSI )
     {
-        setVisible2( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
+        setUserVisible1( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
     }
     
     /**

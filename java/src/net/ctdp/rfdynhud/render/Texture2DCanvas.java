@@ -295,7 +295,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawImage( img, op, x, y );
         
-        markDirty( x, y, img.getWidth() - x, img.getHeight() - y );
+        markDirty( x, y, img.getWidth(), img.getHeight() );
     }
     
     @Override
@@ -303,7 +303,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         final boolean result = graphics.drawImage( img, x, y, imgOb );
         
-        markDirty( x, y, img.getWidth( null ) - x, img.getHeight( null ) - y );
+        markDirty( x, y, img.getWidth( null ), img.getHeight( null ) );
         
         return ( result );
     }
@@ -318,7 +318,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         final boolean result = graphics.drawImage( img, x, y, bgColor, imgOb );
         
-        markDirty( x, y, img.getWidth( null ) - x, img.getHeight( null ) - y );
+        markDirty( x, y, img.getWidth( null ), img.getHeight( null ) );
         
         return ( result );
     }

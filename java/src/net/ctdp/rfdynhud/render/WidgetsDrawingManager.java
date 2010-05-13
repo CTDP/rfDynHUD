@@ -407,7 +407,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             return;
         
         if ( action == KnownInputActions.ToggleWidgetVisibility )
-            widget.setVisible1( !widget.isVisible1() );
+            __WPrivilegedAccess.setInputVisible( !widget.isInputVisible(), widget );
         else
             widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, editorPresets );
     }
@@ -509,22 +509,56 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 {
                     widget.updateVisibility( clock1, clock2, gameData, editorPresets );
                     
-                    if ( !isEditorMode || widget.getDirtyFlag( true ) )
+                    if ( isEditorMode )
                     {
-                        if ( widget.isVisible() || isEditorMode )
+                        if ( widget.getDirtyFlag( true ) )
                         {
                             widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture );
                         }
-                        else if ( __WPrivilegedAccess.needsCompleteClear( widget ) )
-                        {
-                            widget.clearRegion( isEditorMode, texture );
-                        }
+                    }
+                    else if ( !widget.isVisible() && widget.visibilityChangedSinceLastDraw() )
+                    {
+                        widget.clearRegion( isEditorMode, texture );
                     }
                 }
             }
             catch ( Throwable t )
             {
                 Logger.log( t );
+            }
+        }
+        
+        if ( !isEditorMode )
+        {
+            for ( int i = 0; i < n; i++ )
+            {
+                Widget widget = getWidget( i );
+                
+                try
+                {
+                    boolean renderIt = true;
+                    if ( waitingForOREStep2 )
+                    {
+                        if ( widget.needsRealtimeGraphicsInfo() && !gameData.getGraphicsInfo().isUpdatedInRealtimeMode() )
+                            renderIt = false;
+                        else if ( widget.needsRealtimeTelemetryData() && !gameData.getTelemetryData().isUpdatedInRealtimeMode() )
+                            renderIt = false;
+                        else if ( widget.needsRealtimeScoringInfo() && !gameData.getScoringInfo().isUpdatedInRealtimeMode() )
+                            renderIt = false;
+                    }
+                    
+                    if ( renderIt )
+                    {
+                        if ( widget.isVisible() )
+                        {
+                            widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture );
+                        }
+                    }
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
             }
         }
     }

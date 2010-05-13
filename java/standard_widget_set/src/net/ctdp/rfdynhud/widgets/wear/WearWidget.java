@@ -229,7 +229,7 @@ public class WearWidget extends Widget
     
     private void setControlVisibility( VehicleScoringInfo viewedVSI )
     {
-        setVisible2( viewedVSI.isPlayer() );
+        setUserVisible1( viewedVSI.isPlayer() );
         
         displayBrakes2 = displayBrakes.getBooleanValue() && viewedVSI.getVehicleControl().isLocalPlayer();
         forceReinitialization();

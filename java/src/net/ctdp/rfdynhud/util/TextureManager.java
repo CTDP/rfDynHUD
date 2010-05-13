@@ -21,7 +21,7 @@ public class TextureManager
 {
     public static final File IMAGES_FOLDER = new File( RFactorTools.CONFIG_PATH + File.separator + "data" + File.separator + "images" );
     
-    private static BufferedImage MISSING_IMAGE = null;
+    private static ImageTemplate MISSING_IMAGE = null;
     
     public static BufferedImage createMissingImage( int width, int height )
     {
@@ -60,11 +60,11 @@ public class TextureManager
         return ( bi );
     }
     
-    private static final BufferedImage getMissingImage()
+    private static final ImageTemplate getMissingImage()
     {
         if ( MISSING_IMAGE == null )
         {
-            MISSING_IMAGE = createMissingImage( 128, 128 );
+            MISSING_IMAGE = new ImageTemplate( createMissingImage( 128, 128 ) );
         }
         
         return ( MISSING_IMAGE );
@@ -92,19 +92,54 @@ public class TextureManager
         
         File f = new File( IMAGES_FOLDER, name );
         
+        ImageTemplate template = null;
+        
         if ( !f.exists() )
         {
-            cache.remove( name );
-            Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
-            return ( new ImageTemplate( getMissingImage() ) );
+            if ( useCache )
+            {
+                template = cache.get( name );
+                
+                if ( template != getMissingImage() )
+                {
+                    Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
+                    //Logger.log( new Exception() );
+                    
+                    template = getMissingImage();
+                    
+                    cache.remove( name );
+                    cache.put( name, template );
+                }
+            }
+            else
+            {
+                Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
+                //Logger.log( new Exception() );
+                
+                template = getMissingImage();
+            }
+            
+            return ( template );
         }
         
-        ImageTemplate template = useCache ? cache.get( name ) : null;
+        template = useCache ? cache.get( name ) : null;
         
         //System.out.println( ( ( template != null ) ? "found in cache" : "not found in cache" ) );
         
-        if ( ( template != null ) && checkImage( f, template ) )
-            return ( template );
+        if ( template != null )
+        {
+            if ( template == getMissingImage() )
+            {
+                if ( useCache )
+                    cache.remove( name );
+                
+                template = null;
+            }
+            else if ( checkImage( f, template ) )
+            {
+                return ( template );
+            }
+        }
         
         BufferedImage image = null;
         
@@ -115,7 +150,7 @@ public class TextureManager
         catch ( IOException e )
         {
             Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
-            return ( new ImageTemplate( getMissingImage() ) );
+            return ( getMissingImage() );
         }
         
         template = new ImageTemplate( image );

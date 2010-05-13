@@ -36,6 +36,11 @@ public class __WPrivilegedAccess
         widget.onSizeChanged( oldWidth, oldHeight, newWidth, newHeight );
     }
     
+    public static final void setInputVisible( boolean visible, Widget widget )
+    {
+        widget.setInputVisible( visible );
+    }
+    
     public static final boolean needsCompleteClear( Widget widget )
     {
         return ( widget.needsCompleteClear() );

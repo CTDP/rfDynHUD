@@ -8,7 +8,9 @@ import java.util.HashMap;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
@@ -21,9 +23,9 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
+import net.ctdp.rfdynhud.render.ImageBorderRenderer;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.ImageBorderRenderer;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Documented;
@@ -67,8 +69,10 @@ public abstract class Widget implements Documented
     
     private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME );
     
-    private boolean visible1 = true;
-    private final BooleanProperty visible2 = new BooleanProperty( this, "initialVisibility", true );
+    private final BooleanProperty inputVisible = new BooleanProperty( this, "initialVisibility", true );
+    private boolean userVisible1 = true;
+    private boolean userVisible2 = true;
+    private boolean visibilityChangedSinceLastDraw = true;
     private boolean needsCompleteRedraw = true;
     private boolean needsCompleteClear = false;
     
@@ -84,6 +88,8 @@ public abstract class Widget implements Documented
             this.needsCompleteRedraw = true;
         else
             this.needsCompleteClear = true;
+        
+        this.visibilityChangedSinceLastDraw = true;
     }
     
     /**
@@ -94,10 +100,6 @@ public abstract class Widget implements Documented
      */
     protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
-        if ( property == visible2 )
-        {
-            onVisibilityChanged( (Boolean)newValue );
-        }
     }
     
     /**
@@ -566,6 +568,7 @@ public abstract class Widget implements Documented
     public void forceCompleteRedraw()
     {
         this.needsCompleteRedraw = true;
+        setDirtyFlag();
     }
     
     /**
@@ -584,14 +587,14 @@ public abstract class Widget implements Documented
      * 
      * @param visible
      */
-    public void setVisible1( boolean visible )
+    void setInputVisible( boolean visible )
     {
-        if ( visible == this.visible1 )
-            return;
+        boolean wasVisible = isVisible();
         
-        this.visible1 = visible;
+        this.inputVisible.setBooleanValue( visible );
         
-        onVisibilityChanged( visible );
+        if ( isVisible() != wasVisible )
+            onVisibilityChanged( visible );
     }
     
     /**
@@ -599,9 +602,9 @@ public abstract class Widget implements Documented
      * 
      * @return this Widget's visibility flag.
      */
-    public final boolean isVisible1()
+    public final boolean isInputVisible()
     {
-        return ( visible1 );
+        return ( inputVisible.getBooleanValue() );
     }
     
     /**
@@ -609,9 +612,14 @@ public abstract class Widget implements Documented
      * 
      * @param visible
      */
-    public void setVisible2( boolean visible )
+    public void setUserVisible1( boolean visible )
     {
-        this.visible2.setBooleanValue( visible );
+        boolean wasVisible = isVisible();
+        
+        this.userVisible1 = visible;
+        
+        if ( isVisible() != wasVisible )
+            onVisibilityChanged( visible );
     }
     
     /**
@@ -619,19 +627,49 @@ public abstract class Widget implements Documented
      * 
      * @return this Widget's visibility flag.
      */
-    public final boolean isVisible2()
+    public final boolean isUserVisible1()
     {
-        return ( visible2.getBooleanValue() );
+        return ( userVisible1 );
     }
     
     /**
-     * Gets this Widget's total visibility flag ({@link #isVisible1()} && {@link #isVisible2()}).
+     * Sets this Widget's visibility flag 2. This is the one, you should toggle in your widget code.
+     * 
+     * @param visible
+     */
+    public void setUserVisible2( boolean visible )
+    {
+        boolean wasVisible = isVisible();
+        
+        this.userVisible2 = visible;
+        
+        if ( isVisible() != wasVisible )
+            onVisibilityChanged( visible );
+    }
+    
+    /**
+     * Gets this Widget's visibility flag 2. This is the one, you should toggle in your widget code.
+     * 
+     * @return this Widget's visibility flag.
+     */
+    public final boolean isUserVisible2()
+    {
+        return ( userVisible2 );
+    }
+    
+    /**
+     * Gets this Widget's total visibility flag ({@link #isInputVisible()} && {@link #isUserVisible1() && {@link #isUserVisible2()}).
      * 
      * @return this Widget's visibility flag.
      */
     public final boolean isVisible()
     {
-        return ( visible1 && visible2.getBooleanValue() );
+        return ( inputVisible.getBooleanValue() && userVisible1 && userVisible2 );
+    }
+    
+    public final boolean visibilityChangedSinceLastDraw()
+    {
+        return ( visibilityChangedSinceLastDraw );
     }
     
     /**
@@ -883,6 +921,8 @@ public abstract class Widget implements Documented
         texture.clear( offsetX, offsetY, width, height, true, null );
         
         texture.getTextureCanvas().popClip();
+        
+        this.visibilityChangedSinceLastDraw = false;
     }
     
     /**
@@ -1065,6 +1105,8 @@ public abstract class Widget implements Documented
                 }
             }
         }
+        
+        this.visibilityChangedSinceLastDraw = false;
     }
     
     
@@ -1081,7 +1123,7 @@ public abstract class Widget implements Documented
         size.saveWidthProperty( "width", "The width. Use negative values to make the Widget be sized relative to screen size.", writer );
         size.saveHeightProperty( "height", "The height. Use negative values to make the Widget be sized relative to screen size.", writer );
         writer.writeProperty( border, "The widget's border." );
-        writer.writeProperty( visible2, "The initial visibility." );
+        writer.writeProperty( inputVisible, "The initial visibility." );
         
         if ( hasBackgroundColor() )
         {
@@ -1107,7 +1149,7 @@ public abstract class Widget implements Documented
         else if ( position.loadProperty( key, value, "positioning", "x", "y" ) );
         else if ( size.loadProperty( key, value, "width", "height" ) );
         else if ( canHaveBorder() && border.loadProperty( key, value ) );
-        else if ( visible2.loadProperty( key, value ) );
+        else if ( inputVisible.loadProperty( key, value ) );
         else if ( backgroundColor.loadProperty( key, value ) );
         else if ( font.loadProperty( key, value ) );
         else if ( fontColor.loadProperty( key, value ) );
@@ -1147,7 +1189,7 @@ public abstract class Widget implements Documented
         propsCont.addProperty( position.createYProperty( "y" ) );
         propsCont.addProperty( size.createWidthProperty( "width" ) );
         propsCont.addProperty( size.createHeightProperty( "height" ) );
-        propsCont.addProperty( visible2 );
+        propsCont.addProperty( inputVisible );
         
         if ( canHaveBorder() )
         {

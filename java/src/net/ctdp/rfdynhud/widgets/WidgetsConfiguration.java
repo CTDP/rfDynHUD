@@ -139,14 +139,16 @@ public class WidgetsConfiguration
     /**
      * Removes a {@link Widget} from the drawing process.
      * 
+     * @param isEditorMode
      * @param widget
      */
-    public void removeWidget( Widget widget )
+    public void removeWidget( boolean isEditorMode, Widget widget )
     {
         widgets.remove( widget );
         widgetsMap.remove( widget.getName() );
         localStores.put( getLocalStoreKey( widget ), widget.getLocalStore() );
-        visibilities.put( getLocalStoreKey( widget ), widget.isVisible1() );
+        if ( !isEditorMode )
+            visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
         __WPrivilegedAccess.setConfiguration( null, widget );
     }
     
@@ -167,14 +169,17 @@ public class WidgetsConfiguration
             widget.beforeConfigurationCleared( this, gameData, editorPresets );
         }
         
-        for ( int i = 0; i < widgets.size(); i++ )
+        if ( editorPresets == null )
         {
-            Widget widget = widgets.get( i );
-            
-            localStores.put( getLocalStoreKey( widget ), widget.getLocalStore() );
-            visibilities.put( getLocalStoreKey( widget ), widget.isVisible1() );
-            
-            __WPrivilegedAccess.setConfiguration( null, widget );
+            for ( int i = 0; i < widgets.size(); i++ )
+            {
+                Widget widget = widgets.get( i );
+                
+                localStores.put( getLocalStoreKey( widget ), widget.getLocalStore() );
+                visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
+                
+                __WPrivilegedAccess.setConfiguration( null, widget );
+            }
         }
         
         widgets.clear();
@@ -256,10 +261,13 @@ public class WidgetsConfiguration
                 __WPrivilegedAccess.setLocalStore( localStore, widget );
             }
             
-            Boolean visibility = visibilities.get( getLocalStoreKey( widget ) );
-            if ( visibility != null )
+            if ( editorPresets == null )
             {
-                widget.setVisible1( visibility );
+                Boolean visibility = visibilities.get( getLocalStoreKey( widget ) );
+                if ( visibility != null )
+                {
+                    __WPrivilegedAccess.setInputVisible( visibility, widget );
+                }
             }
         }
         

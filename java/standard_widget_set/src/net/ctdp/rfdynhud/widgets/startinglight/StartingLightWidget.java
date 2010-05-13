@@ -76,7 +76,7 @@ public class StartingLightWidget extends Widget
         numLights.reset();
         visibleTime = -1f;
         
-        setVisible2( false );
+        setUserVisible1( false );
     }
     
     @Override
@@ -88,7 +88,7 @@ public class StartingLightWidget extends Widget
         
         if ( !scoringInfo.getSessionType().isRace() )
         {
-            setVisible2( false );
+            setUserVisible1( false );
             return;
         }
         
@@ -120,7 +120,7 @@ public class StartingLightWidget extends Widget
         if ( sessionTime > visibleTime )
             visibleTime = -1f;
         
-        setVisible2( visible );
+        setUserVisible1( visible );
     }
     
     /**

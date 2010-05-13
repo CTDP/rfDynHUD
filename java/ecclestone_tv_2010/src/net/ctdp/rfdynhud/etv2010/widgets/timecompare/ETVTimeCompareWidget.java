@@ -131,7 +131,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         if ( !scoringInfo.getSessionType().isRace() || !vsi.getFinishStatus().isNone() )
         {
-            setVisible2( false );
+            setUserVisible1( false );
             return;
         }
         
@@ -148,7 +148,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         {
             if ( laps.getValue() < NUM_DISPLAYED_LAPS )
             {
-                setVisible2( false );
+                setUserVisible1( false );
             }
             else if ( ( laps.getValue() % displayEveryXLaps.getIntValue() ) == 0 )
             {
@@ -163,18 +163,18 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                     if ( !vsi_nb.getFinishStatus().isNone() )
                     {
                         waitingForNextBehind = false;
-                        setVisible2( false );
+                        setUserVisible1( false );
                     }
                     else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
                     {
                         laps.reset( true );
-                        setVisible2( false );
+                        setUserVisible1( false );
                     }
                     else
                     {
                         waitingForNextBehind = false;
                         relVSI = vsi_nb;
-                        setVisible2( true );
+                        setUserVisible1( true );
                         hideTime = scoringInfo.getSessionTime() + visibleTime.getFloatValue();
                         forceCompleteRedraw();
                     }
@@ -292,7 +292,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                         }
                     }
                     
-                    setVisible2( b );
+                    setUserVisible1( b );
                     
                     if ( b )
                     {
@@ -303,17 +303,17 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             }
             else
             {
-                setVisible2( false );
+                setUserVisible1( false );
                 hideTime = -1f;
             }
         }
         else if ( scoringInfo.getSessionTime() < hideTime )
         {
-            setVisible2( true );
+            setUserVisible1( true );
         }
         else
         {
-            setVisible2( false );
+            setUserVisible1( false );
             hideTime = -1f;
         }
     }

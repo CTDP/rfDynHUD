@@ -121,7 +121,7 @@ public class TextureDirtyRectsManager
         ArrayList<Rect2i> dirtyList = texture.getUpdateList();
         int numDirtyRects = dirtyList.size();
         
-        System.out.println( numDirtyRects );
+        //System.out.println( numDirtyRects );
         
         for ( int i = 0; i < numDirtyRects; i++ )
         {

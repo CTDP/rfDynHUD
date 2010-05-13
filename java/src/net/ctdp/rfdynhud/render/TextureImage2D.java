@@ -212,7 +212,7 @@ public class TextureImage2D
     
     private void addDirtyRect( Rect2i rect, int testListStart, int testListSize )
     {
-        for ( int i = testListStart; i < testListSize; i++ )
+        for ( int i = testListStart; i < Math.min( testListSize, updateList.size() ); i++ )
         {
             Rect2i r = updateList.get( i );
             

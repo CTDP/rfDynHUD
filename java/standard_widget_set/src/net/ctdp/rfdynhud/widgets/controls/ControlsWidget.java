@@ -81,7 +81,7 @@ public class ControlsWidget extends Widget
     {
         super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
         
-        setVisible2( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() );
+        setUserVisible1( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() );
     }
     
     /**
@@ -92,7 +92,7 @@ public class ControlsWidget extends Widget
     {
         super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
         
-        setVisible2( viewedVSI.isPlayer() );
+        setUserVisible1( viewedVSI.isPlayer() );
     }
     
     private int initSubTextures( int widgetInnerWidth, int widgetInnerHeight )

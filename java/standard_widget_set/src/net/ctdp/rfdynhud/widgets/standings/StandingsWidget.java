@@ -189,20 +189,20 @@ public class StandingsWidget extends Widget
         if ( includeVisibility )
         {
             //StandingsView oldView = getView();
-            if ( !isVisible2() )
+            if ( !isUserVisible2() )
             {
                 for ( int i = 0; i < views.length; i++ )
                 {
                     if ( checkView( isEditorMode, views[i], sessionType ) )
                     {
-                        setVisible2( true );
+                        setUserVisible2( true );
                         setView( views[i] );
                         
                         return ( getView() );
                     }
                 }
                 
-                setVisible2( true );
+                setUserVisible2( true );
                 return ( null );
             }
             
@@ -216,11 +216,11 @@ public class StandingsWidget extends Widget
                 }
             }
             
-            setVisible2( false );
+            setUserVisible2( false );
             return ( null );
         }
         
-        setVisible2( true );
+        setUserVisible2( true );
         
         int offset = getView().ordinal();
         for ( int i = 1; i < views.length; i++ )
