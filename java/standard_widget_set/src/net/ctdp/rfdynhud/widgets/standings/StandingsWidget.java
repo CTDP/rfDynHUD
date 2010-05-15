@@ -189,7 +189,7 @@ public class StandingsWidget extends Widget
         if ( includeVisibility )
         {
             //StandingsView oldView = getView();
-            if ( !isUserVisible2() )
+            if ( !isInputVisible() )
             {
                 for ( int i = 0; i < views.length; i++ )
                 {
@@ -631,7 +631,7 @@ public class StandingsWidget extends Widget
         short place = vsi.getPlace();
         
         String[] ss = new String[ 7 ];
-        ss[0] = place + ". ";
+        ss[0] = place + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
@@ -693,7 +693,7 @@ public class StandingsWidget extends Widget
         short place = vsi.getPlace();
         
         String[] ss = new String[ 7 ];
-        ss[0] = place + ". ";
+        ss[0] = place + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         

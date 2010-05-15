@@ -173,6 +173,7 @@ public class TimingWidget extends Widget
         
         lastLapDisplayTime = -1f;
         scoringInfoUpdateID.reset( true );
+        leaderID.reset();
     }
     
     /**
@@ -346,7 +347,7 @@ public class TimingWidget extends Widget
                     if ( sec1 > 0f )
                         s[0][2] = TimingUtil.getTimeAsLaptimeString( sec1 );
                     else
-                        s[0][3] = "-:--.---";
+                        s[0][2] = "-:--.---";
                     
                     s[1][0] = Loc.timing_sector2_prefix + ":";
                     s[1][1] = null;

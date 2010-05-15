@@ -147,8 +147,8 @@ public class WidgetsConfiguration
         widgets.remove( widget );
         widgetsMap.remove( widget.getName() );
         localStores.put( getLocalStoreKey( widget ), widget.getLocalStore() );
-        if ( !isEditorMode )
-            visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
+        //if ( !isEditorMode )
+        //    visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
         __WPrivilegedAccess.setConfiguration( null, widget );
     }
     

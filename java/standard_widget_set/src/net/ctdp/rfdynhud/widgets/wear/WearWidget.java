@@ -77,6 +77,7 @@ public class WearWidget extends Widget
     
     private DrawnString engineHeaderString = null;
     private DrawnString engineWearString = null;
+    private int engineWearStringMaxWidth = 0;
     private DrawnString engineVarianceString = null;
     
     private final BooleanProperty swapTireWearGripMeaning = new BooleanProperty( this, "swapTireWearGripMeaning", "swapTireWearGrip", false );
@@ -302,6 +303,38 @@ public class WearWidget extends Widget
         }
     }
     
+    private final float getHundredPercentBaseLifetime( VehiclePhysics.Engine engine, double raceLengthPercentage )
+    {
+        switch ( this.hundredPercentBase.getEnumValue() )
+        {
+            case SAFE_RANGE:
+            default:
+                return ( engine.getSafeLifetimeTotal( raceLengthPercentage ) );
+            case GOOD_RANGE:
+                return ( engine.getGoodLifetimeTotal( raceLengthPercentage ) );
+            case BAD_RANGE:
+                return ( engine.getBadLifetimeTotal( raceLengthPercentage ) );
+            case MAX_RANGE:
+                return ( engine.getMaxLifetimeTotal( raceLengthPercentage ) );
+        }
+    }
+    
+    private final float getEngineMinLifetimePercent( VehiclePhysics.Engine engine, double raceLengthPercentage, float hundredPercentBase )
+    {
+        switch ( this.hundredPercentBase.getEnumValue() )
+        {
+            case SAFE_RANGE:
+            default:
+                return ( ( engine.getMaxLifetimeTotal( raceLengthPercentage ) - engine.getSafeLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase );
+            case GOOD_RANGE:
+                return ( ( engine.getMaxLifetimeTotal( raceLengthPercentage ) - engine.getGoodLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase );
+            case BAD_RANGE:
+                return ( ( engine.getMaxLifetimeTotal( raceLengthPercentage ) - engine.getBadLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase );
+            case MAX_RANGE:
+                return ( 0.0f );
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -329,8 +362,14 @@ public class WearWidget extends Widget
             engineHeaderString = dsf.newDrawnString( "engineHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             if ( getDisplayWearPercent_engine() )
             {
-                engineWearString = dsf.newDrawnString( "engineWearString", null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
-                engineVarianceString = dsf.newDrawnString( "engineVarianceString", null, engineWearString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
+                engineWearString = dsf.newDrawnString( "engineWearString", null, engineHeaderString, width, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                engineVarianceString = dsf.newDrawnString( "engineVarianceString", null, engineWearString, width, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
+                final double raceLengthPercentage = gameData.getScoringInfo().getRaceLengthPercentage();
+                float minLifetime = Math.round( getEngineMinLifetimePercent( gameData.getPhysics().getEngine(), raceLengthPercentage, getHundredPercentBaseLifetime( gameData.getPhysics().getEngine(), raceLengthPercentage ) ) * 10f ) / 10f;
+                if ( gameData.getPhysics().getEngine().hasLifetimeVariance() )
+                    engineWearStringMaxWidth = Math.max( engineWearString.getWidth( "-" + NumberUtil.formatFloat( minLifetime, 1, true ) + "%", texture ), engineWearString.getWidth( "100%", texture ) );
+                else
+                    engineWearStringMaxWidth = engineWearString.getWidth( "100.0%", texture );
             }
             else
             {
@@ -536,7 +575,7 @@ public class WearWidget extends Widget
         }
         else
         {
-            int w2 = (int)( lifetime * w / minLifetime );
+            int w2 = (int)( lifetime * w / maxLifetimeTotal );
             texture.clear( Color.GREEN, x, y, w2, h, false, null );
             
             int w3 = w - w2;
@@ -753,28 +792,12 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_engine() )
                 {
                     engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( engineLifetime.getValue() * 100f, 1, true ), backgroundColor, texture );
-                    final float variancePercent;
-                    switch ( this.hundredPercentBase.getEnumValue() )
-                    {
-                        case SAFE_RANGE:
-                        default:
-                            variancePercent = ( physics.getEngine().getMaxLifetimeTotal( raceLengthPercentage ) - physics.getEngine().getSafeLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase;
-                            break;
-                        case GOOD_RANGE:
-                            variancePercent = ( physics.getEngine().getMaxLifetimeTotal( raceLengthPercentage ) - physics.getEngine().getGoodLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase;
-                            break;
-                        case BAD_RANGE:
-                            variancePercent = ( physics.getEngine().getMaxLifetimeTotal( raceLengthPercentage ) - physics.getEngine().getBadLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase;
-                            break;
-                        case MAX_RANGE:
-                            variancePercent = 0.0f;
-                            break;
-                    }
+                    final float variancePercent = getEngineMinLifetimePercent( physics.getEngine(), raceLengthPercentage, hundredPercentBase );
                     if ( variancePercent > 0.001f )
                         engineVarianceString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
                     
-                    engineWidth = Math.max( engineVarianceString.getLastWidth(), engineWearString.getLastWidth() );
-                    engineWidth = engineWearString.getAbsX() - engineWidth - 5;
+                    //engineWidth = width - engineHeaderString.getAbsX() - 5 - Math.max( engineVarianceString.getLastWidth(), engineWearString.getLastWidth() );
+                    engineWidth = width - engineHeaderString.getAbsX() - 0 - engineWearStringMaxWidth;
                 }
                 else
                 {

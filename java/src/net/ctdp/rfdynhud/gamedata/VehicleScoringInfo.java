@@ -529,23 +529,13 @@ public class VehicleScoringInfo
     {
         // signed char mControl
         
-        short control = ByteUtil.readByte( buffer, OFFSET_CONTROL );
+        byte control = ByteUtil.readByte( buffer, OFFSET_CONTROL );
+        VehicleControl vc = VehicleControl.getFromISIValue( control );
         
-        switch ( control )
-        {
-            case -1: // (shouldn't get this)
-                return ( VehicleControl.NOBODY );
-            case 0:
-                return ( VehicleControl.LOCAL_PLAYER );
-            case 1:
-                return ( VehicleControl.LOCAL_AI );
-            case 2:
-                return ( VehicleControl.REMOTE );
-            case 3: // (shouldn't get this)
-                return ( VehicleControl.REPLAY );
-        }
+        if ( vc == null )
+            throw new Error( "Unknown control id read (" + control + ")." );
         
-        throw new Error( "Unknown control id read (" + control + ")." );
+        return ( vc );
     }
     
     /**

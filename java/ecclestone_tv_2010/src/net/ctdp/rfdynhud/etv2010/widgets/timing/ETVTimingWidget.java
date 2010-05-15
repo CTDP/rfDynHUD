@@ -157,7 +157,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             referenceTimePers = editorPresets.getLastLaptime();
             referencePlace = 1;
             
-            setUserVisible1( true );
+            setUserVisible2( true );
             return;
         }
         
@@ -170,35 +170,35 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         if ( scoringInfo.getSessionType().isRace() )
         {
-            setUserVisible1( false );
+            setUserVisible2( false );
             return;
         }
         
         if ( displayType.getEnumValue() == DisplayType.ALWAYS )
         {
-            setUserVisible1( true );
+            setUserVisible2( true );
             return;
         }
         
         if ( displayType.getEnumValue() == DisplayType.IF_LAP_VALID )
         {
-            setUserVisible1( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
+            setUserVisible2( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
             return;
         }
         
         if ( relTime == null )
         {
-            setUserVisible1( ls == LapState.BEFORE_SECTOR3_END );
+            setUserVisible2( ls == LapState.BEFORE_SECTOR3_END );
             return;
         }
         
         if ( ( ls == LapState.SOMEWHERE ) || ( ls == LapState.OUTLAP ) )
         {
-            setUserVisible1( false );
+            setUserVisible2( false );
             return;
         }
         
-        setUserVisible1( true );
+        setUserVisible2( true );
     }
     
     /**

@@ -15,8 +15,7 @@ import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
-import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -50,7 +49,15 @@ public class TemperaturesWidget extends Widget
     private final Size tireSize;
     private final Size brakeSize;
     
-    private long brakeTempsPeekDelay = 3000000000L; // three seconds
+    private final IntProperty brakeTempsPeekDelayProp = new IntProperty( this, "brakeTempsPeekDelay", 7000, 0, 20000 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            brakeTempsPeekDelay = newValue * 1000000L;
+        }
+    };
+    private long brakeTempsPeekDelay = brakeTempsPeekDelayProp.getIntValue() * 1000000L;
     
     private DrawnString engineHeaderString = null;
     private DrawnString engineWaterTempString = null;
@@ -162,16 +169,6 @@ public class TemperaturesWidget extends Widget
         
         if ( brakeSize.isHeightPercentageValue() )
             brakeSize.flipHeightPercentagePx();
-    }
-    
-    public void setBrakeTempsPeekDelay( int delay )
-    {
-        this.brakeTempsPeekDelay = delay * 1000000L;
-    }
-    
-    public final int getBrakeTempsPeekDelay()
-    {
-        return ( (int)( brakeTempsPeekDelay / 1000000L ) );
     }
     
     private void setControlVisibility( VehicleScoringInfo viewedVSI )
@@ -772,7 +769,7 @@ public class TemperaturesWidget extends Widget
         writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
         brakeSize.saveWidthProperty( "brakeWidth", "The width of a brake image.", writer );
         brakeSize.saveHeightProperty( "brakeHeight", "The height of a brake image.", writer );
-        writer.writeProperty( "brakeTempsPeekDelay", getBrakeTempsPeekDelay(), "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
+        writer.writeProperty( brakeTempsPeekDelayProp, "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
     }
     
     /**
@@ -791,8 +788,7 @@ public class TemperaturesWidget extends Widget
         else if ( tireSize.loadProperty( key, value, "tireWidth", "tireHeight" ) );
         else if ( displayBrakes.loadProperty( key, value ) );
         else if ( brakeSize.loadProperty( key, value, "brakeWidth", "brakeHeight" ) );
-        else if ( key.equals( "brakeTempsPeekDelay" ) )
-            this.brakeTempsPeekDelay = Integer.parseInt( value ) * 1000000L;
+        else if ( brakeTempsPeekDelayProp.loadProperty( key, value ) );
     }
     
     /**
@@ -816,21 +812,7 @@ public class TemperaturesWidget extends Widget
         propsCont.addProperty( displayBrakes );
         propsCont.addProperty( brakeSize.createWidthProperty( "brakeWidth" ) );
         propsCont.addProperty( brakeSize.createHeightProperty( "brakeHeight" ) );
-        
-        propsCont.addProperty( new Property( this, "brakeTempsPeekDelay", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setBrakeTempsPeekDelay( ( (Number)value ).intValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getBrakeTempsPeekDelay() );
-            }
-        } );
+        propsCont.addProperty( brakeTempsPeekDelayProp );
     }
     
     public TemperaturesWidget( String name )
