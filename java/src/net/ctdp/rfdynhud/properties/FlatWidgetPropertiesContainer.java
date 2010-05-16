@@ -20,7 +20,12 @@ public class FlatWidgetPropertiesContainer extends WidgetPropertiesContainer
     }
     
     @Override
-    protected void addGroupImpl( String groupName, boolean initiallyExpanded )
+    protected void addGroupImpl( String groupName, boolean initiallyExpanded, boolean level2 )
+    {
+    }
+    
+    @Override
+    protected void popGroupL2Impl()
     {
     }
     

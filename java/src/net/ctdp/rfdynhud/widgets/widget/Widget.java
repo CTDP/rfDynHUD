@@ -17,6 +17,7 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -67,7 +68,12 @@ public abstract class Widget implements Documented
     private final ColorProperty backgroundColor = new ColorProperty( this, "backgroundColor", ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
     private final ColorProperty fontColor = new ColorProperty( this, "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
     
-    private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME );
+    private final IntProperty paddingTop = new IntProperty( this, "paddingTop", "top", 0, 0, 1000, false );
+    private final IntProperty paddingLeft = new IntProperty( this, "paddingLeft", "left", 0, 0, 1000, false );
+    private final IntProperty paddingRight = new IntProperty( this, "paddingRight", "right", 0, 0, 1000, false );
+    private final IntProperty paddingBottom = new IntProperty( this, "paddingBottom", "bottom", 0, 0, 1000, false );
+    
+    private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME, paddingTop, paddingLeft, paddingRight, paddingBottom );
     
     private final BooleanProperty inputVisible = new BooleanProperty( this, "initialVisibility", true );
     private boolean userVisible1 = true;
@@ -1084,7 +1090,7 @@ public abstract class Widget implements Documented
             
             texture.markDirty( offsetX, offsetY, width, height );
             
-            clearBackground( gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );
+            clearBackground( gameData, editorPresets, texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
         }
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
@@ -1125,6 +1131,10 @@ public abstract class Widget implements Documented
         size.saveWidthProperty( "width", "The width. Use negative values to make the Widget be sized relative to screen size.", writer );
         size.saveHeightProperty( "height", "The height. Use negative values to make the Widget be sized relative to screen size.", writer );
         writer.writeProperty( border, "The widget's border." );
+        writer.writeProperty( paddingTop, "top padding" );
+        writer.writeProperty( paddingLeft, "left padding" );
+        writer.writeProperty( paddingRight, "right padding" );
+        writer.writeProperty( paddingBottom, "bottom padding" );
         writer.writeProperty( inputVisible, "The initial visibility." );
         
         if ( hasBackgroundColor() )
@@ -1151,6 +1161,10 @@ public abstract class Widget implements Documented
         else if ( position.loadProperty( key, value, "positioning", "x", "y" ) );
         else if ( size.loadProperty( key, value, "width", "height" ) );
         else if ( canHaveBorder() && border.loadProperty( key, value ) );
+        else if ( paddingTop.loadProperty( key, value ) );
+        else if ( paddingLeft.loadProperty( key, value ) );
+        else if ( paddingRight.loadProperty( key, value ) );
+        else if ( paddingBottom.loadProperty( key, value ) );
         else if ( inputVisible.loadProperty( key, value ) );
         else if ( backgroundColor.loadProperty( key, value ) );
         else if ( font.loadProperty( key, value ) );
@@ -1184,14 +1198,23 @@ public abstract class Widget implements Documented
         propsCont.addGroup( "General" );
         
         propsCont.addProperty( type );
-        
         propsCont.addProperty( name );
+        
+        propsCont.addProperty( inputVisible );
         propsCont.addProperty( position.createPositioningProperty( "positioning" ) );
         propsCont.addProperty( position.createXProperty( "x" ) );
         propsCont.addProperty( position.createYProperty( "y" ) );
         propsCont.addProperty( size.createWidthProperty( "width" ) );
         propsCont.addProperty( size.createHeightProperty( "height" ) );
-        propsCont.addProperty( inputVisible );
+        
+        propsCont.addGroupL2( "Padding", false );
+        
+        propsCont.addProperty( paddingTop );
+        propsCont.addProperty( paddingLeft );
+        propsCont.addProperty( paddingRight );
+        propsCont.addProperty( paddingBottom );
+        
+        propsCont.popGroupL2();
         
         if ( canHaveBorder() )
         {

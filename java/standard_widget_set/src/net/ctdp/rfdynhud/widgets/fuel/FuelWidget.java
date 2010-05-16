@@ -799,6 +799,8 @@ public class FuelWidget extends Widget
         writer.writeProperty( fuelFont, "The used font for fuel load." );
         writer.writeProperty( fuelFontColor, "The color to use for fuel load in the format #RRGGBB (hex)." );
         writer.writeProperty( roundUpRemainingLaps, "Round up remaining fuel laps to include the current lap?" );
+        writer.writeProperty( lowFuelWarningImageNameOff, "Image name for the off-state of the low fuel warning." );
+        writer.writeProperty( lowFuelWarningImageNameOn, "Image name for the on-state of the low fuel warning." );
         lowFuelWarningImagePosition.savePositioningProperty( "lowFuelWarningImagePositioning", "Positioning type for the low-fuel-warning image.", writer );
         lowFuelWarningImagePosition.saveXProperty( "lowFuelWarningImagePositionX", "X-position for the low-fuel-warning image.", writer );
         lowFuelWarningImagePosition.saveYProperty( "lowFuelWarningImagePositionY", "Y-position for the low-fuel-warning image.", writer );

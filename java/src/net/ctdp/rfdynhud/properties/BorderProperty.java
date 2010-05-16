@@ -15,6 +15,11 @@ public class BorderProperty extends Property
     private String borderName;
     private BorderWrapper border = null;
     
+    private final IntProperty paddingTop;
+    private final IntProperty paddingLeft;
+    private final IntProperty paddingRight;
+    private final IntProperty paddingBottom;
+    
     protected void onValueChanged( String oldValue, String newValue )
     {
     }
@@ -53,7 +58,7 @@ public class BorderProperty extends Property
         {
             if ( ( borderName == null ) || borderName.equals( "" ) )
             {
-                border = new BorderWrapper( null, null );
+                border = new BorderWrapper( null, null, paddingTop, paddingLeft, paddingRight, paddingBottom );
             }
             else
             {
@@ -62,9 +67,9 @@ public class BorderProperty extends Property
                 String borderName_ = widgetsConf.getBorderName( borderName );
                 
                 if ( borderName_ == null )
-                    border = BorderCache.getBorder( borderName );
+                    border = BorderCache.getBorder( borderName, paddingTop, paddingLeft, paddingRight, paddingBottom );
                 else
-                    border = BorderCache.getBorder( borderName_ );
+                    border = BorderCache.getBorder( borderName_, paddingTop, paddingLeft, paddingRight, paddingBottom );
             }
         }
         
@@ -101,17 +106,22 @@ public class BorderProperty extends Property
         return ( false );
     }
     
-    private BorderProperty( WidgetsConfiguration widgetsConf, Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
+    private BorderProperty( WidgetsConfiguration widgetsConf, Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {
         super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.BORDER, null, null );
         
         this.widgetsConf = widgetsConf;
         this.borderName = defaultValue;
+        
+        this.paddingTop = paddingTop;
+        this.paddingLeft = paddingLeft;
+        this.paddingRight = paddingRight;
+        this.paddingBottom = paddingBottom;
     }
     
     public BorderProperty( WidgetsConfiguration widgetsConf, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        this( widgetsConf, null, propertyName, nameForDisplay, defaultValue, readonly );
+        this( widgetsConf, null, propertyName, nameForDisplay, defaultValue, readonly, null, null, null, null );
     }
     
     public BorderProperty( WidgetsConfiguration widgetsConf, String propertyName, String nameForDisplay, String defaultValue )
@@ -131,7 +141,7 @@ public class BorderProperty extends Property
     
     public BorderProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        this( null, widget, propertyName, nameForDisplay, defaultValue, readonly );
+        this( null, widget, propertyName, nameForDisplay, defaultValue, readonly, null, null, null, null );
     }
     
     public BorderProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue )
@@ -144,11 +154,17 @@ public class BorderProperty extends Property
         this( widget, propertyName, propertyName, defaultValue, readonly );
     }
     
+    public BorderProperty( Widget widget, String propertyName, String defaultValue, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
+    {
+        this( null, widget, propertyName, propertyName, defaultValue, false, paddingTop, paddingLeft, paddingRight, paddingBottom );
+    }
+    
     public BorderProperty( Widget widget, String propertyName, String defaultValue )
     {
         this( widget, propertyName, defaultValue, false );
     }
     
+    /*
     public static final BorderWrapper getBorderFromBorderName( String borderName, BorderWrapper border, WidgetsConfiguration widgetsConfig )
     {
         if ( border == null )
@@ -170,4 +186,5 @@ public class BorderProperty extends Property
         
         return ( border );
     }
+    */
 }

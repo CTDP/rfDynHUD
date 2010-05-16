@@ -544,6 +544,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             {
                 FlaggedList fl = (FlaggedList)list.get( i );
                 map.put( keyPrefix + fl.getName(), fl.getExpandFlag() );
+                
+                readExpandFlags( fl, keyPrefix, map );
             }
         }
     }
@@ -558,6 +560,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 Boolean b = map.get( keyPrefix + fl.getName() );
                 if ( b != null )
                     fl.setExpandFlag( b.booleanValue() );
+                
+                restoreExpandFlags( fl, keyPrefix, map );
             }
         }
     }

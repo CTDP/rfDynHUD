@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.TextureManager;
 
@@ -16,7 +17,7 @@ import net.ctdp.rfdynhud.util.TextureManager;
  */
 public class BorderCache
 {
-    private static final HashMap<String, BorderWrapper> CACHE = new HashMap<String, BorderWrapper>();
+    private static final HashMap<String, Object[]> CACHE = new HashMap<String, Object[]>();
     
     private static String parseTypeFromIni( File iniFile )
     {
@@ -178,9 +179,9 @@ public class BorderCache
         return ( measures );
     }
     
-    private static BorderWrapper getFallback( String iniFilename )
+    private static Object[] getFallback( String iniFilename )
     {
-        BorderWrapper bw = new BorderWrapper( null, null );
+        Object[] bw = { null, null };
         
         CACHE.put( iniFilename, bw );
         
@@ -192,15 +193,15 @@ public class BorderCache
      * 
      * @param texture
      */
-    public static BorderWrapper getBorder( String iniFilename )
+    public static BorderWrapper getBorder( String iniFilename, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {
         if ( iniFilename == null )
             return ( null );
         
-        BorderWrapper border = CACHE.get( iniFilename );
+        Object[] border = CACHE.get( iniFilename );
         
         if ( border != null )
-            return ( border );
+            return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
         
         if ( File.separatorChar != '/' )
             iniFilename = iniFilename.replace( '/', File.separatorChar );
@@ -213,7 +214,9 @@ public class BorderCache
         {
             Logger.log( "[Error] Border ini file invalid \"" + iniFilename + "\"." );
             
-            return ( getFallback( iniFilename ) );
+            border = getFallback( iniFilename );
+            
+            return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
         }
         
         String type = parseTypeFromIni( iniFile );
@@ -221,7 +224,9 @@ public class BorderCache
         {
             Logger.log( "[Error] No \"Type\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
             
-            return ( getFallback( iniFilename ) );
+            border = getFallback( iniFilename );
+            
+            return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
         }
         
         if ( type.equals( "Image" ) )
@@ -232,14 +237,18 @@ public class BorderCache
             {
                 Logger.log( "[Error] No \"Image\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
                 
-                return ( getFallback( iniFilename ) );
+                border = getFallback( iniFilename );
+                
+                return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
             }
             
             TextureImage2D texture = TextureManager.getImage( "borders" + File.separator + textureName, false ).getTextureImage();
             
-            BorderWrapper bw = new BorderWrapper( new ImageBorderRenderer( textureName, texture ), parseMeasuresFromIni( iniFile ) );
+            border = new Object[] { new ImageBorderRenderer( textureName, texture ), parseMeasuresFromIni( iniFile ) };
             
-            CACHE.put( iniFilename, bw );
+            BorderWrapper bw = new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom );
+            
+            CACHE.put( iniFilename, border );
             
             return ( bw );
         }
@@ -252,7 +261,9 @@ public class BorderCache
             {
                 Logger.log( "[Error] No \"RendererClass\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
                 
-                return ( getFallback( iniFilename ) );
+                border = getFallback( iniFilename );
+                
+                return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
             }
             
             Class<?> clazz = null;
@@ -264,14 +275,18 @@ public class BorderCache
             {
                 Logger.log( "[Error] Unable to load BorderRenderer class \"" + rendererClass + "\"." );
                 
-                return ( getFallback( iniFilename ) );
+                border = getFallback( iniFilename );
+                
+                return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
             }
             
             if ( !BorderRenderer.class.isAssignableFrom( clazz ) )
             {
                 Logger.log( "[Error] \"" + rendererClass + "\" is not a subclass of " + BorderRenderer.class.getName() + "." );
                 
-                return ( getFallback( iniFilename ) );
+                border = getFallback( iniFilename );
+                
+                return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
             }
             
             BorderRenderer br = null;
@@ -283,18 +298,24 @@ public class BorderCache
             {
                 Logger.log( "[Error] Unable to instantiate " + clazz.getName() + " using default constructor." );
                 
-                return ( getFallback( iniFilename ) );
+                border = getFallback( iniFilename );
+                
+                return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
             }
             
-            BorderWrapper bw = new BorderWrapper( br, parseMeasuresFromIni( iniFile ) );
+            border = new Object[] { br, parseMeasuresFromIni( iniFile ) };
             
-            CACHE.put( iniFilename, bw );
+            BorderWrapper bw = new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom );
+            
+            CACHE.put( iniFilename, border );
             
             return ( bw );
         }
         
         Logger.log( "[Error] Unknown border type \"" + type + "\" in border ini file \"" + iniFile.getAbsolutePath() + "\"." );
         
-        return ( getFallback( iniFilename ) );
+        border = getFallback( iniFilename );
+        
+        return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
     }
 }

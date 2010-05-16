@@ -8,9 +8,12 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -145,6 +148,32 @@ public class ImageSelector
         return ( bi );
     }
     
+    private class ItemCanvas extends JPanel
+    {
+        private static final long serialVersionUID = 1L;
+        
+        private final String value;
+        
+        @Override
+        public void paintComponent( Graphics g )
+        {
+            BufferedImage bi = getImageFromCache( value );
+            
+            if ( bi != null )
+            {
+                int height = getHeight();
+                int width = bi.getWidth() * height / bi.getHeight();
+                
+                g.drawImage( bi, getWidth() - width, 0, width, height, null );
+            }
+        }
+        
+        public ItemCanvas( String value )
+        {
+            this.value = value;
+        }
+    }
+    
     private class ListItem implements ListCellRenderer
     {
         private JPanel panel = null;
@@ -158,29 +187,12 @@ public class ImageSelector
             {
                 panel = new JPanel( new BorderLayout() );
                 label = new JLabel();
+                label.setHorizontalAlignment( JLabel.RIGHT );
                 label2 = new JLabel();
                 label2.setPreferredSize( new Dimension( 100, 24 ) );
                 label2.setMinimumSize( new Dimension( 100, 24 ) );
                 label2.setBorder( new EmptyBorder( 0, 10, 0, 10 ) );
-                label.setHorizontalAlignment( JLabel.RIGHT );
-                canvas = new JPanel()
-                {
-                    private static final long serialVersionUID = 1L;
-                    
-                    @Override
-                    public void paintComponent( Graphics g )
-                    {
-                        BufferedImage bi = getImageFromCache( String.valueOf( value ) );
-                        
-                        if ( bi != null )
-                        {
-                            int height = getHeight();
-                            int width = bi.getWidth() * height / bi.getHeight();
-                            
-                            g.drawImage( bi, getWidth() - width, 0, width, height, null );
-                        }
-                    }
-                };
+                canvas = new ItemCanvas( String.valueOf( value ) );
                 
                 panel.add( label, BorderLayout.WEST );
                 panel.add( canvas, BorderLayout.CENTER );
@@ -302,6 +314,28 @@ public class ImageSelector
                 }
             }
         } );
+        
+        list.addMouseListener( new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked( MouseEvent e )
+            {
+                if ( ( e.getButton() == MouseEvent.BUTTON1 ) && ( e.getClickCount() == 2 ) )
+                {
+                    for ( int i = 0; i < list.getModel().getSize(); i++ )
+                    {
+                        Rectangle r = list.getCellBounds( i, i );
+                        if ( r.contains( e.getPoint() ) )
+                        {
+                            selectedFile = (String)list.getSelectedValue();
+                            dialog.setVisible( false );
+                            break;
+                        }
+                    }
+                }
+            }
+        } );
+        
         dialog.setVisible( true );
         
         return ( selectedFile );

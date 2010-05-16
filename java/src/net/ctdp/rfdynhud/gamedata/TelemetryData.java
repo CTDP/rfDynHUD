@@ -189,7 +189,7 @@ public class TelemetryData
         this.updateId++;
         
         float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
-        if ( ( bmr > 10f ) && ( bmr != engineBaseMaxRPM ) )
+        if ( ( bmr > 500f ) && ( bmr != engineBaseMaxRPM ) )
         {
             // the car is controlled by the player but not the AI
             this.engineBaseMaxRPM = bmr;

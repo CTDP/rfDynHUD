@@ -130,6 +130,7 @@ public class StandingsWidget extends Widget
     {
         ( (LocalStore)getLocalStore() ).view = view;
         
+        lastScoringUpdateId.reset( true );
         forceCompleteRedraw();
         setDirtyFlag();
     }

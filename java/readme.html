@@ -180,6 +180,21 @@ menu. This will create a new image file in your &quot;UserData\ScreenShots&quot;
 </p>
 
 <p>
+<strong>Translations</strong><br />
+Every Widget set (folders under Plugins\rfDynHUD\widget_sets) keeps files named &quot;localizations_.ini&quot;. The * is usually something like &quot;en&quot; or &quot;de&quot;,
+but can be anything and only serves your recognition. These files are loaded in alphabetical order and settings from a file read later overwrite those from files read earlier.<br />
+Each of these files must begin with the following header:
+<pre>
+[GENERAL]
+codepage = UTF-8
+language = en
+</pre>
+The codepage must be exactly the one, with which the file has been saved. Otherwise special characters might be messed up when the file is loaded.<br />
+The language id must match exactly the value from the rfdynhud.ini (main plugin's folder) for the setting language.<br />
+All &quot;localization_*.ini&quot; files from these Widget set folders are read and all those with the selected language code are used, the others are ignored.
+</p>
+
+<p>
 <strong>Have fun! :-)</strong><br />
 </p>
 

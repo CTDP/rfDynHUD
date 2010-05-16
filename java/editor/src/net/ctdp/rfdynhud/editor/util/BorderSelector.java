@@ -133,7 +133,7 @@ public class BorderSelector extends DefaultTableModel
     
     private static boolean verifyIniFile( String name )
     {
-        BorderWrapper bw = BorderCache.getBorder( name );
+        BorderWrapper bw = BorderCache.getBorder( name, null, null, null, null );
         
         return ( bw.hasBorder() );
     }
@@ -185,7 +185,7 @@ public class BorderSelector extends DefaultTableModel
             
             String filename = (String)value;
             
-            BorderWrapper bw = BorderCache.getBorder( filename );
+            BorderWrapper bw = BorderCache.getBorder( filename, null, null, null, null );
             BorderRenderer br = bw.getRenderer();
             
             if ( br instanceof ImageBorderRenderer )

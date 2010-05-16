@@ -252,13 +252,13 @@ public class TemperaturesWidget extends Widget
             engineHeaderString = dsf.newDrawnString( "engineHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.engine_header_prefix + ": ", null );
             if ( displayWaterTemp.getBooleanValue() )
             {
-                engineWaterTempString = dsf.newDrawnString( "engineWaterTempString", null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(" + Loc.engine_watertemp_prefix + ":", getTempUnits() + ")" );
-                engineOilTempString = dsf.newDrawnString( "engineOilTempString", null, engineWaterTempString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, font2AntiAliased, fontColor, null, getTempUnits() );
+                engineWaterTempString = dsf.newDrawnString( "engineWaterTempString", null, engineHeaderString, width, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(" + Loc.engine_watertemp_prefix + ":", getTempUnits() + ")" );
+                engineOilTempString = dsf.newDrawnString( "engineOilTempString", null, engineWaterTempString, width, 2, Alignment.RIGHT, false, font, font2AntiAliased, fontColor, null, getTempUnits() );
             }
             else
             {
                 engineWaterTempString = null;
-                engineOilTempString = dsf.newDrawnString( "engineOilTempString", null, engineHeaderString, width - getBorder().getPaddingRight(), 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
+                engineOilTempString = dsf.newDrawnString( "engineOilTempString", null, engineHeaderString, width, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits() );
             }
             
             relY = engineHeaderString;
