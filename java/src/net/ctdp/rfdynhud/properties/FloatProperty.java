@@ -10,13 +10,32 @@ public class FloatProperty extends Property
     private final float minValue;
     private final float maxValue;
     
+    public final float getMinValue()
+    {
+        return ( minValue );
+    }
+    
+    public final float getMaxValue()
+    {
+        return ( maxValue );
+    }
+    
+    protected float fixValue( float value )
+    {
+        return ( Math.max( minValue, Math.min( value, maxValue ) ) );
+    }
+    
+    protected void onValueChanged( int oldValue, int newValue )
+    {
+    }
+    
     protected void onValueChanged( float oldValue, float newValue )
     {
     }
     
     public void setFloatValue( float value )
     {
-        value = Math.max( minValue, Math.min( value, maxValue ) );
+        value = fixValue( value );
         
         if ( value == this.value )
             return;

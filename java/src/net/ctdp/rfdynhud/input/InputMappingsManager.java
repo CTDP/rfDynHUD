@@ -67,7 +67,7 @@ public class InputMappingsManager
     {
         try
         {
-            File configFile = new File( RFactorTools.CONFIG_PATH + File.separator + "input_bindings.ini" );
+            File configFile = new File( RFactorTools.CONFIG_FOLDER, "input_bindings.ini" );
             
             if ( !configFile.exists() )
             {

@@ -148,6 +148,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     private final JFrame window;
     private final EditorPanel editorPanel;
+    private final JScrollPane editorScrollPane;
     
     private final PropertiesEditor propsEditor;
     private final EditorTable editorTable;
@@ -233,7 +234,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( dirtyFlag );
     }
     
-    private static final File BACKGROUNDS_FOLDER = new File( RFactorTools.EDITOR_PATH, "backgrounds" );
+    private static final File BACKGROUNDS_FOLDER = new File( RFactorTools.EDITOR_FOLDER, "backgrounds" );
     
     private File getScreenshotSetFolder()
     {
@@ -1212,6 +1213,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 widget.setAllPosAndSizeToPercents();
             else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
                 widget.setAllPosAndSizeToPixels();
+            
+            int vpw = Math.min( editorScrollPane.getViewport().getExtentSize().width, gameResolution.getResX() );
+            int vph = Math.min( editorScrollPane.getViewport().getExtentSize().height, gameResolution.getResY() );
+            int x = editorScrollPane.getHorizontalScrollBar().getValue() + ( vpw - widget.getSize().getEffectiveWidth() ) / 2;
+            int y = editorScrollPane.getVerticalScrollBar().getValue() + ( vph - widget.getSize().getEffectiveHeight() ) / 2;
+            
+            widget.getPosition().setEffectivePosition( x, y );
             onWidgetSelected( widget, false );
             getEditorPanel().repaint();
             
@@ -2315,15 +2323,15 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         this.editorPanel = createEditorPanel();
         this.gameResolution = editorPanel.getWidgetsDrawingManager().getGameResolution();
         
-        JScrollPane scrollPane = new JScrollPane( editorPanel );
-        scrollPane.getHorizontalScrollBar().setUnitIncrement( 20 );
-        scrollPane.getVerticalScrollBar().setUnitIncrement( 20 );
-        scrollPane.getViewport().setScrollMode( JViewport.SIMPLE_SCROLL_MODE );
-        scrollPane.setPreferredSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
+        editorScrollPane = new JScrollPane( editorPanel );
+        editorScrollPane.getHorizontalScrollBar().setUnitIncrement( 20 );
+        editorScrollPane.getVerticalScrollBar().setUnitIncrement( 20 );
+        editorScrollPane.getViewport().setScrollMode( JViewport.SIMPLE_SCROLL_MODE );
+        editorScrollPane.setPreferredSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
         
         JSplitPane split = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
         split.setResizeWeight( 1 );
-        split.add( scrollPane );
+        split.add( editorScrollPane );
         
         this.propsEditor = new PropertiesEditor();
         this.propsEditor.addChangeListener( new WidgetPropertyChangeListener( this ) );

@@ -45,16 +45,30 @@ public class MapWidget extends Widget
     private int baseItemRadius = 9;
     private int itemRadius = baseItemRadius;
     
-    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
-    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
-    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
-    private final BooleanProperty useMyColorForMe1st = new BooleanProperty( this, "useMyColorForMe1st", false );
-    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
-    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
+    private final ColorProperty roadColor = new ColorProperty( this, "roadColor", "color", "#000000" );
+    private final ColorProperty roadBoundaryColor = new ColorProperty( this, "roadBoundaryColor", "boundaryColor", "#FFFFFF" );
+    private final ColorProperty pitlaneColor = new ColorProperty( this, "pitlaneColor", "pitlaneColor", "#FFFF00" );
+    private final IntProperty roadWidth = new IntProperty( this, "roadWidth", "width", 4, 2, 20, false )
+    {
+        @Override
+        protected int fixValue( int value )
+        {
+            value = super.fixValue( value );
+            
+            return ( Math.round( value / 2f ) * 2 );
+        }
+    };
     
-    private final IntProperty maxDisplayedVehicles = new IntProperty( this, "maxDisplayedVehicles", 22, 1, 50 );
+    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", "colorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", "colorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
+    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", "colorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
+    private final BooleanProperty useMyColorForMe1st = new BooleanProperty( this, "useMyColorForMe1st", false );
+    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", "colorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
+    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", "colorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
     
     private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
+    
+    private int maxDisplayedVehicles = -1;
     
     private static final int ANTI_ALIAS_RADIUS_OFFSET = 1;
     
@@ -117,19 +131,27 @@ public class MapWidget extends Widget
         track = null;
     }
     
+    private void initMaxDisplayedVehicles( boolean isEditorMode )
+    {
+        if ( isEditorMode )
+            this.maxDisplayedVehicles = 23;
+        else
+            this.maxDisplayedVehicles = RFactorTools.getMaxOpponents() + 1;
+    }
+    
     private void initSubTextures( boolean isEditorMode )
     {
-        final int maxDspVehicles = this.maxDisplayedVehicles.getIntValue();
+        initMaxDisplayedVehicles( isEditorMode );
         
         itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getResY() / 960f );
         
-        if ( ( itemTextures != null ) && ( itemTextures.length == maxDspVehicles ) && ( itemTextures[0].getWidth() == itemRadius + itemRadius ) && ( itemTextures[0].getHeight() == itemRadius + itemRadius ) )
+        if ( ( itemTextures != null ) && ( itemTextures.length == maxDisplayedVehicles ) && ( itemTextures[0].getWidth() == itemRadius + itemRadius ) && ( itemTextures[0].getHeight() == itemRadius + itemRadius ) )
             return;
         
-        itemTextures = new TransformableTexture[ maxDspVehicles ];
-        itemStates = new int[ maxDspVehicles ];
+        itemTextures = new TransformableTexture[ maxDisplayedVehicles ];
+        itemStates = new int[ maxDisplayedVehicles ];
         
-        for ( int i = 0; i < maxDspVehicles; i++ )
+        for ( int i = 0; i < maxDisplayedVehicles; i++ )
         {
             itemTextures[i] = new TransformableTexture( itemRadius + itemRadius, itemRadius + itemRadius, isEditorMode );
             itemTextures[i].setVisible( false );
@@ -153,6 +175,8 @@ public class MapWidget extends Widget
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
+        
+        initMaxDisplayedVehicles( isEditorMode );
         
         if ( track == null )
         {
@@ -198,7 +222,7 @@ public class MapWidget extends Widget
             Texture2DCanvas tc = texture2.getTextureCanvas();
             tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             
-            tc.setColor( Color.BLACK );
+            tc.setColor( roadColor.getColor() );
             
             tc.drawArc( 3, 3, texture2.getWidth() - 6, texture2.getHeight() - 6, 0, 360 );
             
@@ -224,59 +248,117 @@ public class MapWidget extends Widget
             int x0 = off2 + itemRadius;// + ( ( width - dia - track.getXExtend( scale ) ) / 2 );
             int y0 = off2 + itemRadius;// + ( ( height - dia - track.getZExtend( scale ) ) / 2 );
             
-            int n = track.getNumWaypoints( false );
-            
             Stroke oldStroke = tc.getStroke();
             
-            tc.setColor( Color.WHITE );
-            tc.setStroke( new BasicStroke( 4 ) );
+            int n = track.getNumWaypoints( false );
             
-            track.getWaypointPosition( false, n - 1, scale, p0 );
-            for ( int i = 0; i < n - 1; i++ )
+            int[] xPoints = new int[ n ];
+            int[] yPoints = new int[ n ];
+            
+            track.getWaypointPosition( false, 0, scale, p0 );
+            xPoints[0] = x0 + p0.x;
+            yPoints[0] = y0 + p0.y;
+            
+            int j = 1;
+            for ( int i = 1; i < n; i++ )
             {
                 track.getWaypointPosition( false, i, scale, p1 );
                 
-                tc.drawLine( x0 + p0.x, y0 + p0.y, x0 + p1.x, y0 + p1.y );
+                double dsq = ( p0.getX() - p1.getX() ) * ( p0.getX() - p1.getX() ) + ( p0.getY() - p1.getY() ) * ( p0.getY() - p1.getY() );
                 
-                Point p = p1;
-                p1 = p0;
-                p0 = p;
+                if ( ( dsq >= 16.0 ) || ( i == n - 1 ) )
+                {
+                    xPoints[j] = x0 + p1.x;
+                    yPoints[j] = y0 + p1.y;
+                    
+                    j++;
+                    
+                    Point p = p1;
+                    p1 = p0;
+                    p0 = p;
+                }
             }
             
-            tc.setColor( Color.BLACK );
-            tc.setStroke( new BasicStroke( 2 ) );
+            tc.setColor( roadBoundaryColor.getColor() );
+            tc.setStroke( new BasicStroke( roadWidth.getIntValue() ) );
+            tc.setAntialiazingEnabled( true );
             
-            track.getWaypointPosition( false, n - 1, scale, p0 );
-            for ( int i = 0; i < n - 1; i++ )
-            {
-                track.getWaypointPosition( false, i, scale, p1 );
-                
-                tc.drawLine( x0 + p0.x, y0 + p0.y, x0 + p1.x, y0 + p1.y );
-                
-                Point p = p1;
-                p1 = p0;
-                p0 = p;
-            }
+            tc.drawPolygon( xPoints, yPoints, j );
+            
+            tc.setColor( roadColor.getColor() );
+            tc.setStroke( new BasicStroke( roadWidth.getIntValue() - 1.5f ) );
+            tc.setAntialiazingEnabled( true );
+            
+            tc.drawPolygon( xPoints, yPoints, j );
+            
+            tc.setColor( pitlaneColor.getColor() );
+            tc.setStroke( oldStroke );
+            tc.setAntialiazingEnabled( false );
             
             n = track.getNumWaypoints( true );
             
-            tc.setColor( Color.WHITE );
-            tc.setStroke( oldStroke );
+            xPoints = new int[ n + 1 ];
+            yPoints = new int[ n + 1 ];
             
-            track.getWaypointPosition( true, 0, scale, p0 );
-            byte s0 = track.getWaypointSector( true, 0 );
-            for ( int i = 1; i < n; i++ )
+            int k = 0;
+            track.getWaypointPosition( true, k, scale, p0 );
+            xPoints[0] = x0 + p0.x;
+            yPoints[0] = y0 + p0.y;
+            
+            j = 1;
+            for ( int i = k + 1; i < n; i++ )
             {
                 track.getWaypointPosition( true, i, scale, p1 );
-                byte s1 = track.getWaypointSector( true, i );
                 
-                if ( s0 == s1 )
-                    tc.drawLine( x0 + p0.x, y0 + p0.y, x0 + p1.x, y0 + p1.y );
+                double dsq = ( p0.getX() - p1.getX() ) * ( p0.getX() - p1.getX() ) + ( p0.getY() - p1.getY() ) * ( p0.getY() - p1.getY() );
                 
-                Point p = p1;
-                p1 = p0;
-                p0 = p;
+                if ( dsq > 50 * 50 )
+                {
+                    if ( k < i - 1 )
+                    {
+                        track.getWaypointPosition( true, i - 1, scale, p0 );
+                        
+                        xPoints[j - 1] = x0 + p0.x;
+                        yPoints[j - 1] = y0 + p0.y;
+                    }
+                    
+                    tc.drawPolyline( xPoints, yPoints, j );
+                    
+                    xPoints[0] = x0 + p1.x;
+                    yPoints[0] = y0 + p1.y;
+                    
+                    j = 1;
+                    
+                    Point p = p1;
+                    p1 = p0;
+                    p0 = p;
+                }
+                else if ( ( dsq >= 16.0 ) || ( i == n - 1 ) )
+                {
+                    xPoints[j] = x0 + p1.x;
+                    yPoints[j] = y0 + p1.y;
+                    
+                    j++;
+                    
+                    Point p = p1;
+                    p1 = p0;
+                    p0 = p;
+                    
+                    k = i;
+                }
             }
+            
+            track.getWaypointPosition( true, 0, scale, p0 );
+            track.getWaypointPosition( true, n - 1, scale, p1 );
+            double dsq = ( p0.getX() - p1.getX() ) * ( p0.getX() - p1.getX() ) + ( p0.getY() - p1.getY() ) * ( p0.getY() - p1.getY() );
+            if ( dsq <= 16.0 )
+            {
+                xPoints[j] = x0 + p0.x;
+                yPoints[j] = y0 + p0.y;
+                j++;
+            }
+            
+            tc.drawPolyline( xPoints, yPoints, j );
             
             tc.setStroke( oldStroke );
         }
@@ -286,7 +368,7 @@ public class MapWidget extends Widget
             texture2 = null;
         }
         
-        for ( int i = 0; i < maxDisplayedVehicles.getIntValue(); i++ )
+        for ( int i = 0; i < maxDisplayedVehicles; i++ )
         {
             itemStates[i] = -1;
         }
@@ -315,7 +397,7 @@ public class MapWidget extends Widget
             final Font font = getFont();
             final boolean posNumberFontAntiAliased = isFontAntiAliased();
             
-            int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles.getIntValue() );
+            int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles );
             for ( int i = 0; i < n; i++ )
             {
                 VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
@@ -365,13 +447,13 @@ public class MapWidget extends Widget
                         {
                             itemStates[i] = itemState;
                             
-                            StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace(), color, true, font, posNumberFontAntiAliased, getFontColor() );
+                            StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace(), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor() );
                         }
                     }
                 }
             }
             
-            for ( int i = n; i < maxDisplayedVehicles.getIntValue(); i++ )
+            for ( int i = n; i < maxDisplayedVehicles; i++ )
                 itemTextures[i].setVisible( false );
         }
     }
@@ -385,6 +467,10 @@ public class MapWidget extends Widget
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( roadColor, "The color used for the road in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadBoundaryColor, "The color used for the road boundary in #RRGGBBAA (hex)." );
+        writer.writeProperty( pitlaneColor, "The color used for the pitlane in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadWidth, "The width of the roadin absolute pixels." );
         writer.writeProperty( "itemRadius", baseItemRadius, "The abstract radius for any displayed driver item." );
         writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
@@ -392,7 +478,6 @@ public class MapWidget extends Widget
         writer.writeProperty( useMyColorForMe1st, "Use 'markColorMe' for my item when I am at 1st place?" );
         writer.writeProperty( markColorNextInFront, "The color used for the car in front of you in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
-        writer.writeProperty( maxDisplayedVehicles, "The maximum number of displayed vehicles." );
         writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
     }
     
@@ -404,16 +489,18 @@ public class MapWidget extends Widget
     {
         super.loadProperty( key, value );
         
+        if ( roadColor.loadProperty( key, value ) );
+        else if ( roadBoundaryColor.loadProperty( key, value ) );
+        else if ( pitlaneColor.loadProperty( key, value ) );
+        else if ( roadWidth.loadProperty( key, value ) );
         if ( key.equals( "itemRadius" ) )
             this.baseItemRadius = Integer.parseInt( value );
-        
         else if ( markColorNormal.loadProperty( key, value ) );
         else if ( markColorLeader.loadProperty( key, value ) );
         else if ( markColorMe.loadProperty( key, value ) );
         else if ( useMyColorForMe1st.loadProperty( key, value ) );
         else if ( markColorNextInFront.loadProperty( key, value ) );
         else if ( markColorNextBehind.loadProperty( key, value ) );
-        else if ( maxDisplayedVehicles.loadProperty( key, value ) );
         else if ( displayPositionNumbers.loadProperty( key, value ) );
     }
     
@@ -425,9 +512,16 @@ public class MapWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Road" );
         
-        propsCont.addProperty( new Property( this, "itemRadius", PropertyEditorType.INTEGER )
+        propsCont.addProperty( roadColor );
+        propsCont.addProperty( roadBoundaryColor );
+        propsCont.addProperty( pitlaneColor );
+        propsCont.addProperty( roadWidth );
+        
+        propsCont.addGroup( "Items" );
+        
+        propsCont.addProperty( new Property( this, "itemRadius", "radius", PropertyEditorType.INTEGER )
         {
             @Override
             public void setValue( Object value )
@@ -448,8 +542,6 @@ public class MapWidget extends Widget
         propsCont.addProperty( useMyColorForMe1st );
         propsCont.addProperty( markColorNextInFront );
         propsCont.addProperty( markColorNextBehind );
-        
-        propsCont.addProperty( maxDisplayedVehicles );
         
         propsCont.addProperty( displayPositionNumbers );
     }

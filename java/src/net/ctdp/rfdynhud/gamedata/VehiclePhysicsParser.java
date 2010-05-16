@@ -345,13 +345,13 @@ public class VehiclePhysicsParser
                     {
                         if ( isFrontLabel( currentLabel ) )
                         {
-                            currentCompound.getWheel( Wheel.FRONT_LEFT ).setOptimumTemperature( Float.parseFloat( value.substring( value.indexOf( "(" ) + 1, value.indexOf( "," ) ) ) );
-                            currentCompound.getWheel( Wheel.FRONT_RIGHT ).setOptimumTemperature( currentCompound.getWheel( Wheel.FRONT_LEFT ).getOptimumTemperature() );
+                            currentCompound.getWheel( Wheel.FRONT_LEFT ).setOptimumTemperatureC( Float.parseFloat( value.substring( value.indexOf( "(" ) + 1, value.indexOf( "," ) ) ) );
+                            currentCompound.getWheel( Wheel.FRONT_RIGHT ).setOptimumTemperatureC( currentCompound.getWheel( Wheel.FRONT_LEFT ).getOptimumTemperatureC() );
                         }
                         if ( isRearLabel( currentLabel ) )
                         {
-                            currentCompound.getWheel( Wheel.REAR_LEFT ).setOptimumTemperature( Float.parseFloat( value.substring( value.indexOf( "(" ) + 1, value.indexOf( "," ) ) ) );
-                            currentCompound.getWheel( Wheel.REAR_RIGHT ).setOptimumTemperature( currentCompound.getWheel( Wheel.REAR_LEFT ).getOptimumTemperature() );
+                            currentCompound.getWheel( Wheel.REAR_LEFT ).setOptimumTemperatureC( Float.parseFloat( value.substring( value.indexOf( "(" ) + 1, value.indexOf( "," ) ) ) );
+                            currentCompound.getWheel( Wheel.REAR_RIGHT ).setOptimumTemperatureC( currentCompound.getWheel( Wheel.REAR_LEFT ).getOptimumTemperatureC() );
                         }
                     }
                 }

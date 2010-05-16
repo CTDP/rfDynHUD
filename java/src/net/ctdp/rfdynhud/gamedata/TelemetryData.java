@@ -24,6 +24,8 @@ import net.ctdp.rfdynhud.util.RFactorTools;
 public class TelemetryData
 {
     static final float ZERO_KELVIN = -273.15f;
+    static final float FAHRENHEIT_OFFSET = 32.0f;
+    static final float FAHRENHEIT_FACTOR = 1.8f;
     static final float MPS_TO_MPH = 2.237f;
     static final float MPS_TO_KPH = 3.6f; // 3600f / 1000f
     static final float LITERS_TO_GALONS = 0.26417287f;
@@ -641,7 +643,7 @@ public class TelemetryData
     /**
      * Celsius
      */
-    public final float getEngineWaterTemperature()
+    public final float getEngineWaterTemperatureC()
     {
         // float mEngineWaterTemp
         
@@ -649,13 +651,59 @@ public class TelemetryData
     }
     
     /**
+     * Fahrenheit
+     */
+    public final float getEngineWaterTemperatureF()
+    {
+        return ( FAHRENHEIT_OFFSET + getEngineWaterTemperatureC() * FAHRENHEIT_FACTOR );
+    }
+    
+    /**
+     * Selected units
+     */
+    public final float getEngineWaterTemperature()
+    {
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( getEngineWaterTemperatureF() );
+            case METRIC:
+            default:
+                return ( getEngineWaterTemperatureC() );
+        }
+    }
+    
+    /**
      * Celsius
      */
-    public final float getEngineOilTemperature()
+    public final float getEngineOilTemperatureC()
     {
         // float mEngineOilTemp
         
         return ( ByteUtil.readFloat( buffer, OFFSET_ENGINE_OIL_TEMP ) );
+    }
+    
+    /**
+     * Fahrenheit
+     */
+    public final float getEngineOilTemperatureF()
+    {
+        return ( FAHRENHEIT_OFFSET + getEngineOilTemperatureC() * FAHRENHEIT_FACTOR );
+    }
+    
+    /**
+     * Selected units
+     */
+    public final float getEngineOilTemperature()
+    {
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( getEngineOilTemperatureF() );
+            case METRIC:
+            default:
+                return ( getEngineOilTemperatureC() );
+        }
     }
     
     /**
@@ -1013,7 +1061,7 @@ public class TelemetryData
     /**
      * Kelvin
      */
-    public final float getBrakeTemperatureKelvin( Wheel wheel )
+    public final float getBrakeTemperatureK( Wheel wheel )
     {
         // float mBrakeTemp
         
@@ -1036,11 +1084,36 @@ public class TelemetryData
     /**
      * Celsius
      */
-    public final float getBrakeTemperature( Wheel wheel )
+    public final float getBrakeTemperatureC( Wheel wheel )
     {
         // float mBrakeTemp
         
-        return ( getBrakeTemperatureKelvin( wheel ) + ZERO_KELVIN );
+        return ( getBrakeTemperatureK( wheel ) + ZERO_KELVIN );
+    }
+    
+    /**
+     * Fahrenheit
+     */
+    public final float getBrakeTemperatureF( Wheel wheel )
+    {
+        // float mBrakeTemp
+        
+        return ( FAHRENHEIT_OFFSET + getBrakeTemperatureC( wheel ) * FAHRENHEIT_FACTOR );
+    }
+    
+    /**
+     * Selected units
+     */
+    public final float getBrakeTemperature( Wheel wheel )
+    {
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( getBrakeTemperatureF( wheel ) );
+            case METRIC:
+            default:
+                return ( getBrakeTemperatureC( wheel ) );
+        }
     }
     
     /**

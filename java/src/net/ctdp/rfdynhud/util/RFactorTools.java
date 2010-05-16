@@ -24,8 +24,29 @@ public class RFactorTools
         return ( folder.getParent() == null );
     }
     
+    private static File readDevRFactorFolder()
+    {
+        try
+        {
+            BufferedReader br = new BufferedReader( new FileReader( new File( "rfactor_folder.txt" ) ) );
+            String line = br.readLine();
+            br.close();
+            
+            return ( new File( line ).getAbsoluteFile() );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+            
+            return ( null );
+        }
+    }
+    
     private static File findRFactorFolder( File pluginFolder )
     {
+        if ( !ResourceManager.isJarMode() )
+            return ( readDevRFactorFolder() );
+        
         File f = pluginFolder.getParentFile();
         
         while ( !new File( f, "rFactor.exe" ).exists() && !isRoot( f ) )
@@ -110,14 +131,12 @@ public class RFactorTools
     public static final String PLUGIN_PATH = PLUGIN_FOLDER.getAbsolutePath();
     public static final PluginINI PLUGIN_INI = new PluginINI();
     public static final File RFACTOR_FOLDER = findRFactorFolder( PLUGIN_FOLDER );
-    public static final String RFACTOR_PATH = RFACTOR_FOLDER.getAbsolutePath();
+    //public static final String RFACTOR_PATH = RFACTOR_FOLDER.getAbsolutePath();
     public static final File CONFIG_FOLDER = PLUGIN_INI.getGeneralConfigFolder();
     public static final String CONFIG_PATH = CONFIG_FOLDER.getAbsolutePath();
     public static final File IMAGES_FOLDER = new File( new File( CONFIG_FOLDER, "data" ), "images" ).getAbsoluteFile();
     public static final File EDITOR_FOLDER = ResourceManager.isJarMode() ? new File( PLUGIN_FOLDER, "editor" ).getAbsoluteFile() : new File( Helper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ).getAbsoluteFile();
     public static final String EDITOR_PATH = EDITOR_FOLDER.getAbsolutePath();
-    public static final File LOG_FOLDER = Helper.LOG_FOLDER;
-    public static final String LOG_PATH = LOG_FOLDER.getAbsolutePath();
     
     private static File lastPLRFile = null;
     private static long lastPLRModified = -1L;
@@ -145,6 +164,8 @@ public class RFactorTools
     private static Integer formationLapFlag = null;
     private static MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
     private static SpeedUnits speedUnits = SpeedUnits.KPH;
+    
+    private static int maxOpponents = -1;
     
     public static File getProfileFile( File profileFolder )
     {
@@ -251,7 +272,7 @@ public class RFactorTools
                     {
                         if ( key.equalsIgnoreCase( "Game Description" ) )
                         {
-                            if ( value.length() > 4 )
+                            if ( value.toLowerCase().endsWith( ".rfm" ) )
                                 modName = value.substring( 0, value.length() - 4 );
                             else
                                 modName = value;
@@ -440,6 +461,73 @@ public class RFactorTools
         updateProfileInformation( null, profileFolder );
         
         return ( getSpeedUnits() );
+    }
+    
+    public static int getMaxOpponents()
+    {
+        if ( maxOpponents < 0 )
+        {
+            maxOpponents = 0;
+            
+            String rfmName = getModName( null ) + ".rfm";
+            
+            BufferedReader br = null;
+            
+            try
+            {
+                br = new BufferedReader( new FileReader( new File( new File( RFACTOR_FOLDER, "rfm" ), rfmName ) ) );
+                
+                String line;
+                while ( ( line = br.readLine() ) != null )
+                {
+                    line = line.trim();
+                    
+                    if ( line.toLowerCase().startsWith( "max opponents" ) )
+                    {
+                        int p = line.indexOf( '=' );
+                        
+                        if ( p >= 0 )
+                        {
+                            String s = line.substring( p + 1 ).trim();
+                            
+                            p = s.indexOf( ' ' );
+                            
+                            if ( p > 0 )
+                                s = s.substring( 0, p ).trim();
+                            
+                            p = s.indexOf( '\t' );
+                            
+                            if ( p > 0 )
+                                s = s.substring( 0, p ).trim();
+                            
+                            try
+                            {
+                                int mo = Integer.parseInt( s );
+                                
+                                maxOpponents = Math.max( maxOpponents, mo );
+                            }
+                            catch ( NumberFormatException e )
+                            {
+                                Logger.log( e );
+                            }
+                        }
+                    }
+                }
+            }
+            catch ( IOException e )
+            {
+                Logger.log( e );
+                
+                return ( maxOpponents );
+            }
+            finally
+            {
+                if ( br != null )
+                    try { br.close(); } catch ( IOException e ) {}
+            }
+        }
+        
+        return ( maxOpponents );
     }
     
     public static File getCCHFile( File profileFolder )

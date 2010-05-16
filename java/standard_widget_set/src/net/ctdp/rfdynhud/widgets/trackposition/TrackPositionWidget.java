@@ -220,7 +220,7 @@ public class TrackPositionWidget extends Widget
                 {
                     itemStates[i] = itemState;
                     
-                    StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace(), color, true, font, posNumberFontAntiAliased, getFontColor() );
+                    StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace(), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor() );
                 }
             }
         }

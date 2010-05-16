@@ -10,13 +10,28 @@ public class IntProperty extends Property
     private final int minValue;
     private final int maxValue;
     
+    public final int getMinValue()
+    {
+        return ( minValue );
+    }
+    
+    public final int getMaxValue()
+    {
+        return ( maxValue );
+    }
+    
+    protected int fixValue( int value )
+    {
+        return ( Math.max( minValue, Math.min( value, maxValue ) ) );
+    }
+    
     protected void onValueChanged( int oldValue, int newValue )
     {
     }
     
     public void setIntValue( int value )
     {
-        value = Math.max( minValue, Math.min( value, maxValue ) );
+        value = fixValue( value );
         
         if ( value == this.value )
             return;

@@ -693,6 +693,7 @@ public class VehicleSetup
          */
         public final int getTirePressure()
         {
+            // TODO: Provide in IMPERIAL units, too.
             return ( tirePressure );
         }
         

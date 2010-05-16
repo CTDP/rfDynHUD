@@ -338,48 +338,165 @@ public class VehiclePhysics
             return ( (int)Math.round( ( lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
-        public final float getBaseLifetimeOilTemperature()
+        public final float getBaseLifetimeOilTemperatureC()
         {
             return ( baseLifetimeOilTemperature );
         }
         
-        public final float getHalfLifetimeOilTempOffset()
+        public final float getBaseLifetimeOilTemperatureF()
+        {
+            return ( TelemetryData.FAHRENHEIT_OFFSET + baseLifetimeOilTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+        }
+        
+        public final float getBaseLifetimeOilTemperature()
+        {
+            switch ( RFactorTools.getMeasurementUnits() )
+            {
+                case IMPERIAL:
+                    return ( getBaseLifetimeOilTemperatureF() );
+                case METRIC:
+                default:
+                    return ( getBaseLifetimeOilTemperatureC() );
+            }
+        }
+        
+        public final float getHalfLifetimeOilTempOffsetC()
         {
             return ( halfLifetimeOilTempOffset );
         }
         
+        public final float getHalfLifetimeOilTempOffsetF()
+        {
+            return ( TelemetryData.FAHRENHEIT_OFFSET + halfLifetimeOilTempOffset * TelemetryData.FAHRENHEIT_FACTOR );
+        }
+        
+        public final float getHalfLifetimeOilTempOffset()
+        {
+            switch ( RFactorTools.getMeasurementUnits() )
+            {
+                case IMPERIAL:
+                    return ( getHalfLifetimeOilTempOffsetF() );
+                case METRIC:
+                default:
+                    return ( getHalfLifetimeOilTempOffsetC() );
+            }
+        }
+        
         /**
-         * Gets the optimum oil temperature. Engine will operatate optimally at this value.
+         * Gets the optimum oil temperature in Celsius. Engine will operatate optimally at this value.
          * 
          * @return the optimum oil temperature.
          */
-        public final float getOptimumOilTemperature()
+        public final float getOptimumOilTemperatureC()
         {
             return ( optimumOilTemperature );
         }
         
         /**
-         * Gets the temperature value at which the engine starts to overheat.
+         * Gets the optimum oil temperature in Fahrenheit. Engine will operatate optimally at this value.
+         * 
+         * @return the optimum oil temperature.
+         */
+        public final float getOptimumOilTemperatureF()
+        {
+            return ( TelemetryData.FAHRENHEIT_OFFSET + optimumOilTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+        }
+        
+        /**
+         * Gets the optimum oil temperature in the selected units. Engine will operatate optimally at this value.
+         * 
+         * @return the optimum oil temperature.
+         */
+        public final float getOptimumOilTemperature()
+        {
+            switch ( RFactorTools.getMeasurementUnits() )
+            {
+                case IMPERIAL:
+                    return ( getOptimumOilTemperatureF() );
+                case METRIC:
+                default:
+                    return ( getOptimumOilTemperatureC() );
+            }
+        }
+        
+        /**
+         * Gets the temperature value in Celsius at which the engine starts to overheat.
+         * This value should serve as a peak level for temperatures during a race.
+         * 
+         * @return the temperature value at which the engine starts to overheat.
+         */
+        public final float getOverheatingOilTemperatureC()
+        {
+            return ( baseLifetimeOilTemperature );
+        }
+        
+        /**
+         * Gets the temperature value in Fahrenheit at which the engine starts to overheat.
+         * This value should serve as a peak level for temperatures during a race.
+         * 
+         * @return the temperature value at which the engine starts to overheat.
+         */
+        public final float getOverheatingOilTemperatureF()
+        {
+            return ( TelemetryData.FAHRENHEIT_OFFSET + baseLifetimeOilTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+        }
+        
+        /**
+         * Gets the temperature value in the selected units at which the engine starts to overheat.
          * This value should serve as a peak level for temperatures during a race.
          * 
          * @return the temperature value at which the engine starts to overheat.
          */
         public final float getOverheatingOilTemperature()
         {
-            return ( baseLifetimeOilTemperature );
+            switch ( RFactorTools.getMeasurementUnits() )
+            {
+                case IMPERIAL:
+                    return ( getOverheatingOilTemperatureF() );
+                case METRIC:
+                default:
+                    return ( getOverheatingOilTemperatureC() );
+            }
         }
         
         /**
-         * Gets a strong overheating engine temperature. At this level the engine will have half of its regular life time.
+         * Gets a strong overheating engine temperature in Celsius. At this level the engine will have half of its regular life time.
+         * 
+         * @return a strong overheating engine temperature.
+         */
+        public final float getStrongOverheatingOilTemperatureC()
+        {
+            return ( baseLifetimeOilTemperature + halfLifetimeOilTempOffset );
+        }
+        
+        /**
+         * Gets a strong overheating engine temperature in Fahrenheit. At this level the engine will have half of its regular life time.
+         * 
+         * @return a strong overheating engine temperature.
+         */
+        public final float getStrongOverheatingOilTemperatureF()
+        {
+            return ( TelemetryData.FAHRENHEIT_OFFSET + ( baseLifetimeOilTemperature + halfLifetimeOilTempOffset ) * TelemetryData.FAHRENHEIT_FACTOR );
+        }
+        
+        /**
+         * Gets a strong overheating engine temperature in the selected units. At this level the engine will have half of its regular life time.
          * 
          * @return a strong overheating engine temperature.
          */
         public final float getStrongOverheatingOilTemperature()
         {
-            return ( baseLifetimeOilTemperature + halfLifetimeOilTempOffset );
+            switch ( RFactorTools.getMeasurementUnits() )
+            {
+                case IMPERIAL:
+                    return ( getStrongOverheatingOilTemperatureF() );
+                case METRIC:
+                default:
+                    return ( getStrongOverheatingOilTemperatureC() );
+            }
         }
         
-        public final float getWearIncreasePerDegree()
+        public final float getWearIncreasePerDegreeC()
         {
             return ( wearIncreasePerDegree );
         }
@@ -534,6 +651,8 @@ public class VehiclePhysics
          */
         public final PhysicsSetting getPressureRange()
         {
+            // TODO: Provide in IMPERIAL units, too.
+            
             return ( pressureRange );
         }
         
@@ -545,8 +664,8 @@ public class VehiclePhysics
             private float optimumTemperaturesUpperBound;
             private float coldTemperature;
             private float overheatingTemperature;
-            private float wearincreasePerDegreeOverOptimum;
-            private float weardecreasePerDegreeBelowOptimum;
+            private float wearIncreasePerDegreeOverOptimum;
+            private float wearDecreasePerDegreeBelowOptimum;
             float brakeFadeRange = DEFAULT_BRAKE_FADE_RANGE;
             
             private final PhysicsSetting discRange = new PhysicsSetting();
@@ -556,53 +675,161 @@ public class VehiclePhysics
             float torque;
             
             /**
-             * Gets the lower bound of the temperature range, where brakes will operate optimally.
+             * Gets the lower bound of the temperature range in Celsius, where brakes will operate optimally.
              * 
              * @return the lower bound of the temperature range, where brakes will operate optimally.
              */
-            public final float getOptimumTemperaturesLowerBound()
+            public final float getOptimumTemperaturesLowerBoundC()
             {
                 return ( optimumTemperaturesLowerBound );
             }
             
             /**
-             * Gets the upper bound of the temperature range, where brakes will operate optimally.
+             * Gets the lower bound of the temperature range in Fahrenheit, where brakes will operate optimally.
+             * 
+             * @return the lower bound of the temperature range, where brakes will operate optimally.
+             */
+            public final float getOptimumTemperaturesLowerBoundF()
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + optimumTemperaturesLowerBound * TelemetryData.FAHRENHEIT_FACTOR );
+            }
+            
+            /**
+             * Gets the lower bound of the temperature range in the selected units, where brakes will operate optimally.
+             * 
+             * @return the lower bound of the temperature range, where brakes will operate optimally.
+             */
+            public final float getOptimumTemperaturesLowerBound()
+            {
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getOptimumTemperaturesLowerBoundF() );
+                    case METRIC:
+                    default:
+                        return ( getOptimumTemperaturesLowerBoundC() );
+                }
+            }
+            
+            /**
+             * Gets the upper bound of the temperature range in Celsius, where brakes will operate optimally.
              * 
              * @return the upper bound of the temperature range, where brakes will operate optimally.
              */
-            public final float getOptimumTemperaturesUpperBound()
+            public final float getOptimumTemperaturesUpperBoundC()
             {
                 return ( optimumTemperaturesUpperBound );
             }
             
             /**
-             * Gets the temperature level under and at which brakes are cold and won't work well.
+             * Gets the upper bound of the temperature range in Fahrenheit, where brakes will operate optimally.
+             * 
+             * @return the upper bound of the temperature range, where brakes will operate optimally.
+             */
+            public final float getOptimumTemperaturesUpperBoundF()
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + optimumTemperaturesUpperBound * TelemetryData.FAHRENHEIT_FACTOR );
+            }
+            
+            /**
+             * Gets the upper bound of the temperature range in the selected units, where brakes will operate optimally.
+             * 
+             * @return the upper bound of the temperature range, where brakes will operate optimally.
+             */
+            public final float getOptimumTemperaturesUpperBound()
+            {
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getOptimumTemperaturesUpperBoundF() );
+                    case METRIC:
+                    default:
+                        return ( getOptimumTemperaturesUpperBoundC() );
+                }
+            }
+            
+            /**
+             * Gets the temperature level in Celsius under and at which brakes are cold and won't work well.
              * 
              * @return the temperature level under and at which brakes are cold.
              */
-            public final float getColdTemperature()
+            public final float getColdTemperatureC()
             {
                 return ( coldTemperature );
             }
             
             /**
-             * Gets the temperature level above at at which brakes are overheating and won't work well and increase more than regularly.
+             * Gets the temperature level in Fahrenheit under and at which brakes are cold and won't work well.
+             * 
+             * @return the temperature level under and at which brakes are cold.
+             */
+            public final float getColdTemperatureF()
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + coldTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+            }
+            
+            /**
+             * Gets the temperature level in the selected units under and at which brakes are cold and won't work well.
+             * 
+             * @return the temperature level under and at which brakes are cold.
+             */
+            public final float getColdTemperature()
+            {
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getColdTemperatureF() );
+                    case METRIC:
+                    default:
+                        return ( getColdTemperatureC() );
+                }
+            }
+            
+            /**
+             * Gets the temperature level in Celsius above at at which brakes are overheating and won't work well and increase more than regularly.
+             * 
+             * @return the temperature level above at at which brakes are overheating.
+             */
+            public final float getOverheatingTemperatureC()
+            {
+                return ( overheatingTemperature );
+            }
+            
+            /**
+             * Gets the temperature level in Fahrenheit above at at which brakes are overheating and won't work well and increase more than regularly.
+             * 
+             * @return the temperature level above at at which brakes are overheating.
+             */
+            public final float getOverheatingTemperatureF()
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + overheatingTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+            }
+            
+            /**
+             * Gets the temperature level in the selected units above at at which brakes are overheating and won't work well and increase more than regularly.
              * 
              * @return the temperature level above at at which brakes are overheating.
              */
             public final float getOverheatingTemperature()
             {
-                return ( overheatingTemperature );
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getOverheatingTemperatureF() );
+                    case METRIC:
+                    default:
+                        return ( getOverheatingTemperatureC() );
+                }
             }
             
-            public final float getWearincreasePerDegreeOverOptimum()
+            public final float getWearincreasePerDegreeCOverOptimum()
             {
-                return ( wearincreasePerDegreeOverOptimum );
+                return ( wearIncreasePerDegreeOverOptimum );
             }
             
-            public final float getWeardecreasePerDegreeBelowOptimum()
+            public final float getWeardecreasePerDegreeCBelowOptimum()
             {
-                return ( weardecreasePerDegreeBelowOptimum );
+                return ( wearDecreasePerDegreeBelowOptimum );
             }
     		
             void setTemperatures( float coldTemperature, float optimumTemperaturesLowerBound, float optimumTemperaturesUpperBound, float overheatingTemperature )
@@ -613,17 +840,17 @@ public class VehiclePhysics
                 this.overheatingTemperature = overheatingTemperature;
             }
             
-            public final float getBrakeFadeRange()
+            public final float getBrakeFadeRangeC()
             {
                 return ( brakeFadeRange );
             }
             
-            public final float getBrakeFadeColdTemperature()
+            public final float getBrakeFadeColdTemperatureC()
             {
                 return ( optimumTemperaturesLowerBound - brakeFadeRange );
             }
             
-            public final float getBrakeFadeHotTemperature()
+            public final float getBrakeFadeHotTemperatureC()
             {
                 return ( optimumTemperaturesUpperBound + brakeFadeRange );
             }
@@ -937,31 +1164,58 @@ public class VehiclePhysics
                 return ( dryLongitudinalGrip );
             }
             
-            void setOptimumTemperature( float optTemp )
+            void setOptimumTemperatureC( float optTemp )
             {
                 this.optimumTemperature = optTemp;
             }
             
             /**
-             * Gets the temperature value (in celsius), at which the tire will operate optimally.
+             * Gets the temperature value (in Celsius), at which the tire will operate optimally.
              * 
-             * @return the temperature value (in celsius), at which the tire will operate optimally.
+             * @return the temperature value (in Celsius), at which the tire will operate optimally.
              */
-            public final float getOptimumTemperature()
+            public final float getOptimumTemperatureC()
             {
                 return ( optimumTemperature );
             }
             
             /**
-             * @param belowTemp TBC "GripTempPress" value 1
+             * Gets the temperature value (in Fahrenheit), at which the tire will operate optimally.
+             * 
+             * @return the temperature value (in Fahrenheit), at which the tire will operate optimally.
+             */
+            public final float getOptimumTemperatureF()
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + optimumTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+            }
+            
+            /**
+             * Gets the temperature value (in the selected units), at which the tire will operate optimally.
+             * 
+             * @return the temperature value (in the selected units), at which the tire will operate optimally.
+             */
+            public final float getOptimumTemperature()
+            {
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getOptimumTemperatureF() );
+                    case METRIC:
+                    default:
+                        return ( getOptimumTemperatureC() );
+                }
+            }
+            
+            /**
+             * @param belowTempC TBC "GripTempPress" value 1
              * @param aboveTemp TBC "GripTempPress" value 2
              * @param offPress TBC "GripTempPress" value 3
              */
-            void setAboveAndBelowTempsAndPressures( float belowTemp, float aboveTemp, float offPress )
+            void setAboveAndBelowTempsAndPressures( float belowTempC, float aboveTemp, float offPress )
             {
                 float recipOptimumTemperature = ( optimumTemperature != 0.0f ) ? ( 1.0f / optimumTemperature ) : 0.0f;
                 
-                this.gripLossPerDegreeBelowOptimum = belowTemp * recipOptimumTemperature;
+                this.gripLossPerDegreeBelowOptimum = belowTempC * recipOptimumTemperature;
                 this.gripLossPerDegreeAboveOptimum = aboveTemp * recipOptimumTemperature;
                 
                 this.offPressure = offPress;
@@ -972,9 +1226,56 @@ public class VehiclePhysics
              * 
              * @return the grip loss (fraction) per degree below {@link #getOptimumTemperature()}.
              */
-            public final float getGripLossPerDegreeBelowOptimum()
+            public final float getGripLossPerDegreeCBelowOptimum()
             {
                 return ( gripLossPerDegreeBelowOptimum );
+            }
+            
+            /**
+             * Gets the grip loss (fraction) per degree below {@link #getOptimumTemperature()}.
+             * 
+             * @return the grip loss (fraction) per degree below {@link #getOptimumTemperature()}.
+             */
+            public final float getGripLossPerDegreeFBelowOptimum()
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + gripLossPerDegreeBelowOptimum * TelemetryData.FAHRENHEIT_FACTOR );
+            }
+            
+            /**
+             * Gets the grip loss (fraction) per degree below {@link #getOptimumTemperature()}.
+             * 
+             * @return the grip loss (fraction) per degree below {@link #getOptimumTemperature()}.
+             */
+            public final float getGripLossPerDegreeBelowOptimum()
+            {
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getGripLossPerDegreeFBelowOptimum() );
+                    case METRIC:
+                    default:
+                        return ( getGripLossPerDegreeCBelowOptimum() );
+                }
+            }
+            
+            /**
+             * Gets the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
+             * 
+             * @return the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
+             */
+            public final float getGripLossPerDegreeCAboveOptimum()
+            {
+                return ( gripLossPerDegreeAboveOptimum );
+            }
+            
+            /**
+             * Gets the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
+             * 
+             * @return the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
+             */
+            public final float getGripLossPerDegreeFAboveOptimum()
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + gripLossPerDegreeAboveOptimum * TelemetryData.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -984,45 +1285,118 @@ public class VehiclePhysics
              */
             public final float getGripLossPerDegreeAboveOptimum()
             {
-                return ( gripLossPerDegreeAboveOptimum );
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getGripLossPerDegreeFAboveOptimum() );
+                    case METRIC:
+                    default:
+                        return ( getGripLossPerDegreeCAboveOptimum() );
+                }
             }
             
             /**
-             * Gets the temperature, that a tire will have at the given grip fraction value.
+             * Gets the temperature in Celsius, that a tire will have at the given grip fraction value.
              * This function will always return a value below {@link #getOptimumTemperature()}.
              * 
              * @param grip
              * 
-             * @return the temperature, that a tire will have at thegiven grip fraction value.
+             * @return the temperature, that a tire will have at the given grip fraction value.
              */
-            public final float getBelowTemperature( float grip )
+            public final float getBelowTemperatureC( float grip )
             {
                 return ( optimumTemperature - ( grip / gripLossPerDegreeBelowOptimum ) );
             }
             
             /**
-             * Gets the temperature, that a tire will have at the given grip fraction value.
+             * Gets the temperature in Fahrenheit, that a tire will have at the given grip fraction value.
+             * This function will always return a value below {@link #getOptimumTemperature()}.
+             * 
+             * @param grip
+             * 
+             * @return the temperature, that a tire will have at the given grip fraction value.
+             */
+            public final float getBelowTemperatureF( float grip )
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + getBelowTemperatureC( grip ) * TelemetryData.FAHRENHEIT_FACTOR );
+            }
+            
+            /**
+             * Gets the temperature in the selected units, that a tire will have at the given grip fraction value.
+             * This function will always return a value below {@link #getOptimumTemperature()}.
+             * 
+             * @param grip
+             * 
+             * @return the temperature, that a tire will have at the given grip fraction value.
+             */
+            public final float getBelowTemperature( float grip )
+            {
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getBelowTemperatureF( grip ) );
+                    case METRIC:
+                    default:
+                        return ( getBelowTemperatureC( grip ) );
+                }
+            }
+            
+            /**
+             * Gets the temperature in Celsius, that a tire will have at the given grip fraction value.
              * This function will always return a value above {@link #getOptimumTemperature()}.
              * 
              * @param grip
              * 
-             * @return the temperature, that a tire will have at thegiven grip fraction value.
+             * @return the temperature, that a tire will have at the given grip fraction value.
              */
-            public final float getAboveTemperature( float grip )
+            public final float getAboveTemperatureC( float grip )
             {
                 return ( optimumTemperature + ( grip / gripLossPerDegreeAboveOptimum ) );
             }
             
             /**
+             * Gets the temperature in Fahrenheit, that a tire will have at the given grip fraction value.
+             * This function will always return a value above {@link #getOptimumTemperature()}.
+             * 
+             * @param grip
+             * 
+             * @return the temperature, that a tire will have at the given grip fraction value.
+             */
+            public final float getAboveTemperatureF( float grip )
+            {
+                return ( TelemetryData.FAHRENHEIT_OFFSET + getAboveTemperatureC( grip ) * TelemetryData.FAHRENHEIT_FACTOR );
+            }
+            
+            /**
+             * Gets the temperature in the selected units, that a tire will have at the given grip fraction value.
+             * This function will always return a value above {@link #getOptimumTemperature()}.
+             * 
+             * @param grip
+             * 
+             * @return the temperature, that a tire will have at the given grip fraction value.
+             */
+            public final float getAboveTemperature( float grip )
+            {
+                switch ( RFactorTools.getMeasurementUnits() )
+                {
+                    case IMPERIAL:
+                        return ( getAboveTemperatureF( grip ) );
+                    case METRIC:
+                    default:
+                        return ( getAboveTemperatureC( grip ) );
+                }
+            }
+            
+            /**
              * Gets the grip fraction value of the tire at the given average temperature.
              * 
-             * @param avgTemperature average over outer, mittle and inner temperature
+             * @param avgTemperatureC average over outer, mittle and inner temperature
              * 
              * @return the grip fraction value of the tire at the given average temperature.
              */
-            public final float getGripFactorByTemperature( float avgTemperature )
+            public final float getGripFactorByTemperatureC( float avgTemperatureC )
             {
-                float diffTemp = avgTemperature - optimumTemperature;
+                float diffTemp = avgTemperatureC - optimumTemperature;
                 
                 return ( ( diffTemp < 0.0f ) ? ( gripLossPerDegreeBelowOptimum * -diffTemp ) : ( gripLossPerDegreeAboveOptimum * diffTemp ) );
             }
@@ -1095,18 +1469,18 @@ public class VehiclePhysics
              * Computes the fraction of maximum grip at the given wear, average temperature, pressure and load.
              * 
              * @param wear see {@link TelemetryData#getTireWear(Wheel)} and {@link #getWearGripFactor(float)}
-             * @param avgTemperature average over outer, mittle and inner temperature
+             * @param avgTemperatureC average over outer, mittle and inner temperature
              * @param pressure coming from {@link TelemetryData#getTirePressure(Wheel)}
              * @param load coming from {@link TelemetryData#getTireLoad(Wheel)}
              * 
              * @return the fraction of maximum grip at the given wear, average temperature, pressure and load.
              */
-            public final float getGripFraction( float wear, float avgTemperature, float pressure, float load )
+            public final float getGripFraction( float wear, float avgTemperatureC, float pressure, float load )
             {
                 if ( optPress <= 0.0f )
                     return ( 0.0f );
                 
-                float gfTemp = getGripFactorByTemperature( avgTemperature );
+                float gfTemp = getGripFactorByTemperatureC( avgTemperatureC );
                 float gfPress = getGripFactorByPressure( pressure, load );
                 float gfTotal = Math.min( gfTemp + gfPress, 1.0f );
                 
@@ -1242,12 +1616,12 @@ public class VehiclePhysics
             return ( null );
         }
         
-        void setOptimumTempForAll4( float optimumTemp )
+        void setOptimumTempForAll4( float optimumTempC )
         {
-            frontLeft.optimumTemperature = optimumTemp;
-            frontRight.optimumTemperature = optimumTemp;
-            rearLeft.optimumTemperature = optimumTemp;
-            rearRight.optimumTemperature = optimumTemp;
+            frontLeft.optimumTemperature = optimumTempC;
+            frontRight.optimumTemperature = optimumTempC;
+            rearLeft.optimumTemperature = optimumTempC;
+            rearRight.optimumTemperature = optimumTempC;
         }
         
         TireCompound()

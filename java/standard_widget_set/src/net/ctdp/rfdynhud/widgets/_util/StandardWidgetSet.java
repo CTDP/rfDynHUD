@@ -84,7 +84,7 @@ public class StandardWidgetSet
             texCanvas.setStroke( oldStroke );
         }
         
-        if ( place > 0 )
+        if ( ( place > 0 ) && ( font != null ) && ( fontColor != null ) )
         {
             String posStr = String.valueOf( place );
             Rectangle2D bounds = texture.getStringBounds( posStr, font, fontAntialiased );
