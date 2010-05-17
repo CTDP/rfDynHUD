@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -222,7 +223,14 @@ public class TemperaturesWidget extends Widget
     
     private static final String getTempUnits()
     {
-        return ( Loc.temperature_units_METRIC );
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( Loc.temperature_units_IMPERIAL );
+            case METRIC:
+            default:
+                return ( Loc.temperature_units_METRIC );
+        }
     }
     
     /**

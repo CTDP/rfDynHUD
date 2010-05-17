@@ -1142,7 +1142,7 @@ public class TelemetryData
     /**
      * Celsius
      */
-    public final float getTireTemperature( Wheel wheel, WheelPart part )
+    public final float getTireTemperatureC( Wheel wheel, WheelPart part )
     {
         // float mTemperature[3], left/center/right (not to be confused with inside/center/outside!)
         
@@ -1163,37 +1163,87 @@ public class TelemetryData
     }
     
     /**
-     * Celsius ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     * Fahrenheit
+     */
+    public final float getTireTemperatureF( Wheel wheel, WheelPart part )
+    {
+        return ( FAHRENHEIT_OFFSET + getTireTemperatureC( wheel, part ) * FAHRENHEIT_FACTOR );
+    }
+    
+    /**
+     * Selected units (Celsius or Fahrenheit)
+     */
+    public final float getTireTemperature( Wheel wheel, WheelPart part )
+    {
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( getTireTemperatureF( wheel, part ) );
+            case METRIC:
+            default:
+                return ( getTireTemperatureC( wheel, part ) );
+        }
+    }
+    
+    /**
+     * Celsius : ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     */
+    public final float getTireTemperatureC( Wheel wheel )
+    {
+        float inside = getTireTemperatureC( wheel, WheelPart.INSIDE );
+        float center = getTireTemperatureC( wheel, WheelPart.CENTER );
+        float outside = getTireTemperatureC( wheel, WheelPart.OUTSIDE );
+        
+        return ( ( inside + center + outside ) / 3f );
+    }
+    
+    /**
+     * Fahrenheit : ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     */
+    public final float getTireTemperatureF( Wheel wheel )
+    {
+        float inside = getTireTemperatureF( wheel, WheelPart.INSIDE );
+        float center = getTireTemperatureF( wheel, WheelPart.CENTER );
+        float outside = getTireTemperatureF( wheel, WheelPart.OUTSIDE );
+        
+        return ( ( inside + center + outside ) / 3f );
+    }
+    
+    /**
+     * Selected units (Celsius or Fahrenheit) : ( (INSIDE + CENTER + OUTSIDE) / 3 )
      */
     public final float getTireTemperature( Wheel wheel )
     {
-        float inside = getTireTemperature( wheel, WheelPart.INSIDE );
-        float center = getTireTemperature( wheel, WheelPart.CENTER );
-        float outside = getTireTemperature( wheel, WheelPart.OUTSIDE );
-        
-        return ( ( inside + center + outside ) / 3f );
+        switch ( RFactorTools.getMeasurementUnits() )
+        {
+            case IMPERIAL:
+                return ( getTireTemperatureF( wheel ) );
+            case METRIC:
+            default:
+                return ( getTireTemperatureC( wheel ) );
+        }
     }
     
     public final Wheel getHottestWheel()
     {
         Wheel wheel = Wheel.FRONT_LEFT;
-        float maxTemp = getTireTemperature( Wheel.FRONT_LEFT );
+        float maxTemp = getTireTemperatureC( Wheel.FRONT_LEFT );
         
-        float t = getTireTemperature( Wheel.FRONT_RIGHT );
+        float t = getTireTemperatureC( Wheel.FRONT_RIGHT );
         if ( t > maxTemp )
         {
             maxTemp = t;
             wheel = Wheel.FRONT_RIGHT;
         }
         
-        t = getTireTemperature( Wheel.REAR_LEFT );
+        t = getTireTemperatureC( Wheel.REAR_LEFT );
         if ( t > maxTemp )
         {
             maxTemp = t;
             wheel = Wheel.REAR_LEFT;
         }
         
-        t = getTireTemperature( Wheel.REAR_RIGHT );
+        t = getTireTemperatureC( Wheel.REAR_RIGHT );
         if ( t > maxTemp )
         {
             maxTemp = t;

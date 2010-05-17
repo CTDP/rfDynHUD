@@ -413,7 +413,8 @@ public class ScoringInfo
         
         if ( eventsManager != null )
         {
-            eventsManager.checkRaceRestart( updateTimestamp );
+            if ( getSessionType().isRace() )
+                eventsManager.checkRaceRestart( updateTimestamp );
             eventsManager.checkAndFireOnLapStarted( null );
         }
     }

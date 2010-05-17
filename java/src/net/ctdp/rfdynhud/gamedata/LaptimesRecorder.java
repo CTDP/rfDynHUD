@@ -50,10 +50,6 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
         for ( int i = 0; i < scoringInfo.getNumVehicles(); i++ )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
-            
-            if ( vsi.getFinishStatus() != FinishStatus.NONE )
-                continue;
-            
             Integer driverID = vsi.getDriverID();
             int lapsCompleted = vsi.getLapsCompleted();
             
@@ -109,34 +105,38 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             else
             {
                 laps = laptimesMap.get( driverID );
-                Laptime laptime = laps.get( lapsCompleted );
                 
-                if ( laptime == null )
+                if ( vsi.getFinishStatus() == FinishStatus.NONE )
                 {
-                    laptime = new Laptime( lapsCompleted + 1 );
-                    addLaptime( driverID, lapsCompleted, laptime );
-                }
-                
-                switch ( vsi.getSector() )
-                {
-                    case 1:
-                        laptime.sector1 = vsi.getCurrentSector1();
-                        laptime.sector2 = -1f;
-                        laptime.sector3 = -1f;
-                        break;
-                    case 2:
-                        laptime.sector1 = vsi.getLastSector1();
-                        laptime.sector2 = vsi.getCurrentSector2( false );
-                        laptime.sector3 = -1f;
-                        break;
-                    case 3:
-                        laptime.sector1 = vsi.getLastSector1();
-                        laptime.sector2 = vsi.getLastSector2( false );
-                        if ( !scoringInfo.getSessionType().isRace() && ( laptime.isInLap == Boolean.TRUE ) )
+                    Laptime laptime = laps.get( lapsCompleted );
+                    
+                    if ( laptime == null )
+                    {
+                        laptime = new Laptime( lapsCompleted + 1 );
+                        addLaptime( driverID, lapsCompleted, laptime );
+                    }
+                    
+                    switch ( vsi.getSector() )
+                    {
+                        case 1:
+                            laptime.sector1 = vsi.getCurrentSector1();
+                            laptime.sector2 = -1f;
                             laptime.sector3 = -1f;
-                        else
-                            laptime.sector3 = scoringInfo.getSessionTime() - vsi.getLapStartTime() - laptime.sector1 - laptime.sector2;
-                        break;
+                            break;
+                        case 2:
+                            laptime.sector1 = vsi.getLastSector1();
+                            laptime.sector2 = vsi.getCurrentSector2( false );
+                            laptime.sector3 = -1f;
+                            break;
+                        case 3:
+                            laptime.sector1 = vsi.getLastSector1();
+                            laptime.sector2 = vsi.getLastSector2( false );
+                            if ( !scoringInfo.getSessionType().isRace() && ( laptime.isInLap == Boolean.TRUE ) )
+                                laptime.sector3 = -1f;
+                            else
+                                laptime.sector3 = scoringInfo.getSessionTime() - vsi.getLapStartTime() - laptime.sector1 - laptime.sector2;
+                            break;
+                    }
                 }
             }
             

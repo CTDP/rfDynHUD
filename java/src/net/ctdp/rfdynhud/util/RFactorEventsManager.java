@@ -57,7 +57,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     private String lastTrackname = null;
     
-    private long lastSessionStartedTime = -1L;
+    private long lastSessionStartedTimestamp = -1L;
     private float lastSessionTime = 0f;
     
     public void setGameData( LiveGameData gameData )
@@ -97,7 +97,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         {
             this.isComingOutOfGarage = true;
             this.sessionRunning = true;
-            this.lastSessionStartedTime = System.nanoTime();
+            this.lastSessionStartedTimestamp = System.nanoTime();
             
             this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
             
@@ -210,11 +210,12 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         try
         {
+            modName = RFactorTools.getModName( null );
+            
             if ( ResourceManager.isJarMode() && ( editorPresets == null ) )
             {
                 final ScoringInfo scoringInfo = gameData.getScoringInfo();
                 
-                modName = RFactorTools.getModName( null );
                 String vehicleClass = scoringInfo.getPlayersVehicleScoringInfo().getVehicleClass();
                 SessionType sessionType = scoringInfo.getSessionType();
                 Logger.log( "Entered cockpit. (Mod: \"" + modName + "\", Car: \"" + vehicleClass + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
@@ -493,11 +494,13 @@ public class RFactorEventsManager implements ConfigurationClearListener
                     widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, null );
             }
         }
+        
+        this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
     }
     
     public final void checkRaceRestart( long updateTimestamp )
     {
-        if ( ( lastSessionStartedTime != -1L ) && ( updateTimestamp - lastSessionStartedTime > 3000000000L ) && ( lastSessionTime > gameData.getScoringInfo().getSessionTime() ) )
+        if ( ( lastSessionStartedTimestamp != -1L ) && ( updateTimestamp - lastSessionStartedTimestamp > 3000000000L ) && ( gameData.getScoringInfo().getSessionTime() > 0f ) && ( lastSessionTime > gameData.getScoringInfo().getSessionTime() ) )
         {
             onSessionStarted( null );
         }

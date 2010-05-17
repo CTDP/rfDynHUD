@@ -10,6 +10,7 @@ public class Loc
     }
     
     public static final String temperature_units_METRIC = l( "temperature.units.METRIC" );
+    public static final String temperature_units_IMPERIAL = l( "temperature.units.IMPERIAL" );
     public static final String engine_header_prefix = l( "engine.header.prefix" );
     public static final String engine_watertemp_prefix = l( "engine.watertemp.prefix" );
     public static final String brakes_header_prefix = l( "brakes.header.prefix" );
