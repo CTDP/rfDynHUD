@@ -53,10 +53,72 @@ public class StandardWidgetSet
         return ( null );
     }
     
-    public static void drawPositionItem( TextureImage2D texture, int offsetX, int offsetY, int radius, int place, Color backgroundColor, boolean blackBorder, Font font, boolean fontAntialiased, Color fontColor )
+    public static java.awt.Dimension getPositionItemSize( TextureImage2D texture, int radius, LabelPositioning namePositioning, Font nameFont, boolean nameFontAntialiased )
     {
         int width = radius + radius;
         int height = radius + radius;
+        
+        if ( ( namePositioning != null ) && ( nameFont != null ) )
+        {
+            Rectangle2D nameBounds = texture.getStringBounds( "WWW", nameFont, nameFontAntialiased );
+            
+            switch ( namePositioning )
+            {
+                case ABOVE:
+                case BELOW:
+                    width = Math.max( width, (int)nameBounds.getWidth() );
+                    height += nameBounds.getHeight();
+                    break;
+                case BELOW_RIGHT:
+                    int nxy = radius + (int)Math.sqrt( ( radius + 7 ) * ( radius + 7 ) / 2 );
+                    
+                    width += radius + radius - nxy + nameBounds.getWidth() + 2;
+                    height += radius + radius - nxy + nameBounds.getHeight();
+                    break;
+            }
+        }
+        
+        return ( new java.awt.Dimension( width, height ) );
+    }
+    
+    public static int drawPositionItem( TextureImage2D texture, int offsetX, int offsetY, int radius, int place, Color backgroundColor, boolean blackBorder, Font numberFont, boolean numberFontAntialiased, Color numberFontColor, LabelPositioning namePositioning, String driverName, Font nameFont, boolean nameFontAntialiased, Color nameFontColor )
+    {
+        int width = radius + radius;
+        int height = radius + radius;
+        
+        Rectangle2D nameBounds = null;
+        int nx = 0;
+        int ny = 0;
+        int circleOffsetX = 0;
+        int circleOffsetY = 0;
+        if ( ( namePositioning != null ) && ( driverName != null ) && ( nameFont != null ) && ( nameFontColor != null ) )
+        {
+            nameBounds = texture.getStringBounds( "WWW", nameFont, nameFontAntialiased );
+            switch ( namePositioning )
+            {
+                case ABOVE:
+                    circleOffsetX = Math.max( 0, ( (int)nameBounds.getWidth() - width ) / 2 );
+                    circleOffsetY = (int)nameBounds.getHeight();
+                    width = Math.max( width, (int)nameBounds.getWidth() );
+                    height += nameBounds.getHeight();
+                    ny = 0;
+                    break;
+                case BELOW:
+                    circleOffsetX = Math.max( 0, ( (int)nameBounds.getWidth() - width ) / 2 );
+                    circleOffsetY = 0;
+                    width = Math.max( width, (int)nameBounds.getWidth() );
+                    height += nameBounds.getHeight();
+                    ny = radius + radius + 0;
+                    break;
+                case BELOW_RIGHT:
+                    nx = radius + (int)Math.sqrt( ( radius + 7 ) * ( radius + 7 ) / 2 );
+                    ny = nx;
+                    
+                    width += radius + radius - nx + nameBounds.getWidth();
+                    height += radius + radius - ny + nameBounds.getHeight();
+                    break;
+            }
+        }
         
         texture.clear( offsetX, offsetY, width, height, true, null );
         
@@ -68,7 +130,7 @@ public class StandardWidgetSet
         }
         
         texCanvas.setAntialiazingEnabled( true );
-        texCanvas.fillArc( 0, 0, width, height, 0, 360 );
+        texCanvas.fillArc( circleOffsetX, circleOffsetY, radius + radius, radius + radius, 0, 360 );
         
         if ( blackBorder )
         {
@@ -78,20 +140,34 @@ public class StandardWidgetSet
             texCanvas.setStroke( new BasicStroke( 2 ) );
             texCanvas.setColor( Color.BLACK );
             
-            texCanvas.drawArc( 0, 0, width - 1, height - 1, 0, 360 );
+            texCanvas.drawArc( circleOffsetX, circleOffsetY, radius + radius - 1, radius + radius - 1, 0, 360 );
             
             texCanvas.setColor( oldColor );
             texCanvas.setStroke( oldStroke );
         }
         
-        if ( ( place > 0 ) && ( font != null ) && ( fontColor != null ) )
+        if ( ( place > 0 ) && ( numberFont != null ) && ( numberFontColor != null ) )
         {
             String posStr = String.valueOf( place );
-            Rectangle2D bounds = texture.getStringBounds( posStr, font, fontAntialiased );
+            Rectangle2D bounds = texture.getStringBounds( posStr, numberFont, numberFontAntialiased );
             float fw = (float)bounds.getWidth();
-            float fh = (float)( texture.getFontAscent( font ) - texture.getFontDescent( font ) );
+            float fh = (float)( texture.getFontAscent( numberFont ) - texture.getFontDescent( numberFont ) );
             
-            texture.drawString( posStr, radius - (int)( fw / 2 ), radius + (int)( fh / 2 ), bounds, font, fontAntialiased, fontColor, false, null );
+            texture.drawString( posStr, circleOffsetX + radius - (int)( fw / 2 ), circleOffsetY + radius + (int)( fh / 2 ), bounds, numberFont, numberFontAntialiased, numberFontColor, false, null );
         }
+        
+        if ( ( namePositioning != null ) && ( driverName != null ) && ( nameFont != null ) && ( nameFontColor != null ) )
+        {
+            if ( ( namePositioning == LabelPositioning.ABOVE ) || ( namePositioning == LabelPositioning.BELOW ) )
+            {
+                nameBounds = texture.getStringBounds( driverName, nameFont, nameFontAntialiased );
+                nx = ( width - (int)nameBounds.getWidth() ) / 2;
+                ny -= nameBounds.getY();
+            }
+            
+            texture.drawString( driverName, nx, ny, nameBounds, nameFont, nameFontAntialiased, nameFontColor, false, null );
+        }
+        
+        return ( circleOffsetY );
     }
 }

@@ -17,6 +17,8 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.EnumProperty;
+import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
@@ -29,6 +31,7 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.Track;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -67,6 +70,11 @@ public class MapWidget extends Widget
     private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", "colorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
     
     private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
+    
+    private final BooleanProperty displayNameLabels = new BooleanProperty( this, "displayNameLabels", false );
+    private final EnumProperty<LabelPositioning> nameLabelPos = new EnumProperty<LabelPositioning>( this, "nameLabelPos", LabelPositioning.BELOW_RIGHT );
+    private final FontProperty nameLabelFont = new FontProperty( this, "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT_NAME );
+    private final ColorProperty nameLabelFontColor = new ColorProperty( this, "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
     
     private int maxDisplayedVehicles = -1;
     
@@ -143,17 +151,27 @@ public class MapWidget extends Widget
     {
         initMaxDisplayedVehicles( isEditorMode );
         
+        if ( ( itemTextures == null ) || ( itemTextures.length != maxDisplayedVehicles ) )
+        {
+            itemTextures = new TransformableTexture[ maxDisplayedVehicles ];
+            itemStates = new int[ maxDisplayedVehicles ];
+        }
+        
         itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getResY() / 960f );
         
-        if ( ( itemTextures != null ) && ( itemTextures.length == maxDisplayedVehicles ) && ( itemTextures[0].getWidth() == itemRadius + itemRadius ) && ( itemTextures[0].getHeight() == itemRadius + itemRadius ) )
-            return;
+        if ( itemTextures[0] == null )
+            itemTextures[0] = new TransformableTexture( 1, 1, isEditorMode );
         
-        itemTextures = new TransformableTexture[ maxDisplayedVehicles ];
-        itemStates = new int[ maxDisplayedVehicles ];
+        java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( itemTextures[0].getTexture(), itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
+        int w = size.width;
+        int h = size.height;
+        
+        if ( ( itemTextures[0].getWidth() == w ) && ( itemTextures[0].getHeight() == h ) )
+            return;
         
         for ( int i = 0; i < maxDisplayedVehicles; i++ )
         {
-            itemTextures[i] = new TransformableTexture( itemRadius + itemRadius, itemRadius + itemRadius, isEditorMode );
+            itemTextures[i] = new TransformableTexture( w, h, isEditorMode );
             itemTextures[i].setVisible( false );
             
             itemStates[i] = -1;
@@ -292,8 +310,8 @@ public class MapWidget extends Widget
             tc.drawPolygon( xPoints, yPoints, j );
             
             tc.setColor( pitlaneColor.getColor() );
-            tc.setStroke( oldStroke );
-            tc.setAntialiazingEnabled( false );
+            tc.setStroke( new BasicStroke( 2f ) );
+            tc.setAntialiazingEnabled( true );
             
             n = track.getNumWaypoints( true );
             
@@ -407,14 +425,14 @@ public class MapWidget extends Widget
                     
                     TransformableTexture tt = itemTextures[i];
                     itemTextures[i].setVisible( true );
-                    int itemState = vsi.getPlace();
+                    int itemState = ( vsi.getPlace() << 0 ) | ( vsi.getDriverId() << 9 );
                     
                     if ( track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, position ) )
                     {
                         Color color = null;
                         if ( vsi.getPlace() == 1 )
                         {
-                            itemState |= 1 << 16;
+                            itemState |= 1 << 26;
                             if ( vsi.isPlayer() && useMyColorForMe1st.getBooleanValue() )
                                 color = markColorMe.getColor();
                             else
@@ -422,22 +440,22 @@ public class MapWidget extends Widget
                         }
                         else if ( vsi.isPlayer() )
                         {
-                            itemState |= 2 << 16;
+                            itemState |= 1 << 27;
                             color = markColorMe.getColor();
                         }
                         else if ( vsi.getPlace() == ownPlace - 1 )
                         {
-                            itemState |= 3 << 16;
+                            itemState |= 1 << 28;
                             color = markColorNextInFront.getColor();
                         }
                         else if ( vsi.getPlace() == ownPlace + 1 )
                         {
-                            itemState |= 4 << 16;
+                            itemState |= 1 << 29;
                             color = markColorNextBehind.getColor();
                         }
                         else
                         {
-                            itemState |= 5 << 16;
+                            itemState |= 1 << 30;
                             color = markColorNormal.getColor();
                         }
                         
@@ -447,7 +465,7 @@ public class MapWidget extends Widget
                         {
                             itemStates[i] = itemState;
                             
-                            StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace(), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor() );
+                            StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace(), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
                         }
                     }
                 }
@@ -479,6 +497,10 @@ public class MapWidget extends Widget
         writer.writeProperty( markColorNextInFront, "The color used for the car in front of you in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
         writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
+        writer.writeProperty( displayNameLabels, "Display name label near the position markers?" );
+        writer.writeProperty( nameLabelPos, "Positioning of the name labels." );
+        writer.writeProperty( nameLabelFont, "Font for the name labels." );
+        writer.writeProperty( nameLabelFontColor, "Font color for the name labels." );
     }
     
     /**
@@ -502,6 +524,10 @@ public class MapWidget extends Widget
         else if ( markColorNextInFront.loadProperty( key, value ) );
         else if ( markColorNextBehind.loadProperty( key, value ) );
         else if ( displayPositionNumbers.loadProperty( key, value ) );
+        else if ( displayNameLabels.loadProperty( key, value ) );
+        else if ( nameLabelPos.loadProperty( key, value ) );
+        else if ( nameLabelFont.loadProperty( key, value ) );
+        else if ( nameLabelFontColor.loadProperty( key, value ) );
     }
     
     /**
@@ -544,6 +570,14 @@ public class MapWidget extends Widget
         propsCont.addProperty( markColorNextBehind );
         
         propsCont.addProperty( displayPositionNumbers );
+        
+        propsCont.addProperty( displayNameLabels );
+        //if ( displayNameLabels.getBooleanValue() || forceAll )
+        {
+            //propsCont.addProperty( nameLabelPos );
+            propsCont.addProperty( nameLabelFont );
+            propsCont.addProperty( nameLabelFontColor );
+        }
     }
     
     @Override

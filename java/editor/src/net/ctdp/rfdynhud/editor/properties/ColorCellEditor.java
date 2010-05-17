@@ -76,7 +76,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         
         Color color = prop.getColor();
         
-        if ( ( color.getRed() < 50 ) && ( color.getGreen() < 50 ) && ( color.getBlue() < 50 ) )
+        if ( ( color.getRed() < 50 ) && ( color.getGreen() < 50 ) && ( color.getBlue() < 50 ) && ( color.getAlpha() > 50 ) )
             label.setForeground( Color.WHITE );
         else
             label.setForeground( Color.BLACK );
