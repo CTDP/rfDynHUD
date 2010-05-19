@@ -76,14 +76,13 @@ public class StandingsWidget extends Widget
     private final int colPadding = 8;
     //private int[] vsiIndices = null;
     private int numVehicles = -1;
+    private int maxNumVehicles = -1;
     private VehicleScoringInfo[] vehicleScoringInfos = null;
     
     private int oldNumVehicles = -1;
     private String[][] oldPosStirngs = null;
     
     private final float[] relTimes = new float[ 64 ];
-    
-    private SessionType lastKnownSessionType = SessionType.PRACTICE1;
     
     @Override
     public String getWidgetPackage()
@@ -247,10 +246,10 @@ public class StandingsWidget extends Widget
         
         lastScoringUpdateId.reset();
         
-        lastKnownSessionType = gameData.getScoringInfo().getSessionType();
+        SessionType sessionType = gameData.getScoringInfo().getSessionType();
         
-        if ( ( editorPresets == null ) && lastKnownSessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
-            cycleView( ( editorPresets != null ), lastKnownSessionType, false );
+        if ( ( editorPresets == null ) && sessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
+            cycleView( ( editorPresets != null ), sessionType, false );
         
         oldNumVehicles = -1;
         if ( oldPosStirngs != null )
@@ -260,6 +259,11 @@ public class StandingsWidget extends Widget
         }
         
         Arrays.fill( oldColWidths, -1 );
+        
+        if ( editorPresets != null )
+            this.maxNumVehicles = 23;
+        else
+            this.maxNumVehicles = RFactorTools.getMaxOpponents() + 1;
         
         //forceReinitialization();
     }
@@ -284,7 +288,7 @@ public class StandingsWidget extends Widget
     {
         if ( action == INPUT_ACTION_CYCLE_VIEW )
         {
-            cycleView( ( editorPresets != null ), lastKnownSessionType, true );
+            cycleView( ( editorPresets != null ), gameData.getScoringInfo().getSessionType(), true );
         }
     }
     
@@ -801,20 +805,21 @@ public class StandingsWidget extends Widget
         return ( total );
     }
     
-    private void initPositionStrings( LiveGameData gameData )
+    private void initPositionStrings( int numVehicles )
     {
         DrawnStringFactory dsf = getDrawnStringFactory();
         
-        int n = gameData.getScoringInfo().getNumVehicles();
-        
-        positionStrings = new DrawnString[ n ];
-        
-        for ( int i = 0; i < n; i++ )
+        if ( ( positionStrings == null ) || ( positionStrings.length < maxNumVehicles ) )
         {
-            if ( i == 0 )
-                positionStrings[i] = dsf.newDrawnString( "positionStrings" + i, 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-            else
-                positionStrings[i] = dsf.newDrawnString( "positionStrings" + i, null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+            positionStrings = new DrawnString[ numVehicles ];
+            
+            for ( int i = 0; i < numVehicles; i++ )
+            {
+                if ( i == 0 )
+                    positionStrings[i] = dsf.newDrawnString( "positionStrings" + i, 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+                else
+                    positionStrings[i] = dsf.newDrawnString( "positionStrings" + i, null, positionStrings[i - 1], 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+            }
         }
     }
     
@@ -853,7 +858,7 @@ public class StandingsWidget extends Widget
     {
         lastScoringUpdateId.reset( true );
         
-        initPositionStrings( gameData );
+        initPositionStrings( gameData.getScoringInfo().getNumVehicles() );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
         int rowHeight = positionStrings[0].getMaxHeight( texture, false );
@@ -884,20 +889,6 @@ public class StandingsWidget extends Widget
             initPosStringsRace( gameData );
         else
             initPosStringsNonRace( gameData );
-        
-        if ( ( positionStrings == null ) || ( numVehicles > positionStrings.length ) )
-            initPositionStrings( gameData );
-        
-        
-        lastKnownSessionType = scoringInfo.getSessionType();
-        
-        if ( currPosStrings == null )
-        {
-            if ( gameData.getScoringInfo().getSessionType().isRace() )
-                initPosStringsRace( gameData );
-            else
-                initPosStringsNonRace( gameData );
-        }
         
         boolean result = false;
         

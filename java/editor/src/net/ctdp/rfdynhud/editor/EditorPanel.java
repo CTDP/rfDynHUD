@@ -13,8 +13,6 @@ import java.util.HashMap;
 
 import javax.swing.JPanel;
 
-import org.openmali.types.twodee.Rect2i;
-
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
@@ -26,6 +24,8 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.GameResolution;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+
+import org.openmali.types.twodee.Rect2i;
 
 /**
  * 
