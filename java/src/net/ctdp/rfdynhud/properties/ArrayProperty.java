@@ -14,6 +14,11 @@ public class ArrayProperty<E extends Object> extends Property
         return ( array );
     }
     
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     protected void onValueChanged( E oldValue, E newValue )
     {
     }

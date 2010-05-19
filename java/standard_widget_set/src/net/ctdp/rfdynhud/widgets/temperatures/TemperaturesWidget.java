@@ -126,6 +126,7 @@ public class TemperaturesWidget extends Widget
         brakeSize.bake();
     }
     
+    @Override
     public void setAllPosAndSizeToPercents()
     {
         super.setAllPosAndSizeToPercents();
@@ -149,6 +150,7 @@ public class TemperaturesWidget extends Widget
             brakeSize.flipHeightPercentagePx();
     }
     
+    @Override
     public void setAllPosAndSizeToPixels()
     {
         super.setAllPosAndSizeToPixels();
@@ -495,7 +497,7 @@ public class TemperaturesWidget extends Widget
         texCanvas.setAntialiazingEnabled( wasAntialiasingEnabled );
     }
     
-    private void drawBrake( float temp, Wheel wheel, VehiclePhysics.Brakes.WheelBrake brake, TextureImage2D texture, int x, int y )
+    private void drawBrake( float temp, VehiclePhysics.Brakes.WheelBrake brake, TextureImage2D texture, int x, int y )
     {
         int w = brakeSize.getEffectiveWidth();
         int h = brakeSize.getEffectiveHeight();
@@ -723,7 +725,7 @@ public class TemperaturesWidget extends Widget
                 String string = String.valueOf( brakeTempFL );
                 brakeTempFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 
-                drawBrake( brakeTempFL, Wheel.FRONT_LEFT, physics.getBrakes().getBrake( Wheel.FRONT_LEFT ), texture, offsetX + brakeTempFLString.getAbsX() + 3, offsetY + brakeTempFLString.getAbsY() );
+                drawBrake( brakeTempFL, physics.getBrakes().getBrake( Wheel.FRONT_LEFT ), texture, offsetX + brakeTempFLString.getAbsX() + 3, offsetY + brakeTempFLString.getAbsY() );
             }
             
             if ( needsCompleteRedraw || ( clock1 && brakesUpdateAllowed && ( brakeTempFR != oldBrakeTemps[1] ) ) )
@@ -733,7 +735,7 @@ public class TemperaturesWidget extends Widget
                 String string = String.valueOf( brakeTempFR );
                 brakeTempFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 
-                drawBrake( brakeTempFR, Wheel.FRONT_RIGHT, physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ), texture, offsetX + brakeTempFRString.getAbsX() - brakeWidth - 3, offsetY + brakeTempFRString.getAbsY() );
+                drawBrake( brakeTempFR, physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ), texture, offsetX + brakeTempFRString.getAbsX() - brakeWidth - 3, offsetY + brakeTempFRString.getAbsY() );
             }
             
             if ( needsCompleteRedraw || ( clock1 && brakesUpdateAllowed && ( brakeTempRL != oldBrakeTemps[2] ) ) )
@@ -743,7 +745,7 @@ public class TemperaturesWidget extends Widget
                 String string = String.valueOf( brakeTempRL );
                 brakeTempRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 
-                drawBrake( brakeTempRL, Wheel.REAR_LEFT, physics.getBrakes().getBrake( Wheel.REAR_LEFT ), texture, offsetX + brakeTempRLString.getAbsX() + 3, offsetY + brakeTempRLString.getAbsY() );
+                drawBrake( brakeTempRL, physics.getBrakes().getBrake( Wheel.REAR_LEFT ), texture, offsetX + brakeTempRLString.getAbsX() + 3, offsetY + brakeTempRLString.getAbsY() );
             }
             
             if ( needsCompleteRedraw || ( clock1 && brakesUpdateAllowed && ( brakeTempRR != oldBrakeTemps[3] ) ) )
@@ -753,7 +755,7 @@ public class TemperaturesWidget extends Widget
                 String string = String.valueOf( brakeTempRR );
                 brakeTempRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 
-                drawBrake( brakeTempRR, Wheel.REAR_RIGHT, physics.getBrakes().getBrake( Wheel.REAR_RIGHT ), texture, offsetX + brakeTempRRString.getAbsX() - brakeWidth - 3, offsetY + brakeTempRRString.getAbsY() );
+                drawBrake( brakeTempRR, physics.getBrakes().getBrake( Wheel.REAR_RIGHT ), texture, offsetX + brakeTempRRString.getAbsX() - brakeWidth - 3, offsetY + brakeTempRRString.getAbsY() );
             }
         }
     }

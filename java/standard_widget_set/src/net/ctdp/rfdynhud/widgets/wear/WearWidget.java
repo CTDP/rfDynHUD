@@ -162,6 +162,7 @@ public class WearWidget extends Widget
         brakeSize.bake();
     }
     
+    @Override
     public void setAllPosAndSizeToPercents()
     {
         super.setAllPosAndSizeToPercents();
@@ -185,6 +186,7 @@ public class WearWidget extends Widget
             brakeSize.flipHeightPercentagePx();
     }
     
+    @Override
     public void setAllPosAndSizeToPixels()
     {
         super.setAllPosAndSizeToPixels();

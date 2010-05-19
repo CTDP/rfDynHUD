@@ -460,6 +460,7 @@ public class FontChooser extends JPanel
         } );
         combo.addFocusListener( new FocusAdapter()
         {
+            @Override
             public void focusLost( FocusEvent e )
             {
                 if ( lastNameComboSelectedIndex > 0 )
@@ -828,6 +829,7 @@ public class FontChooser extends JPanel
             
             this.addWindowListener( new WindowAdapter()
             {
+                @Override
                 public void windowClosing( WindowEvent e )
                 {
                     //d.getFontChooser().setSelectedFont( null );

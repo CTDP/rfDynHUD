@@ -7,6 +7,11 @@ public class EnumProperty<E extends Enum<E>> extends Property
 {
     private E value;
     
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     protected void onValueChanged( E oldValue, E newValue )
     {
     }

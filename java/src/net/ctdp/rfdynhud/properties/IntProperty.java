@@ -25,6 +25,11 @@ public class IntProperty extends Property
         return ( Math.max( minValue, Math.min( value, maxValue ) ) );
     }
     
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     protected void onValueChanged( int oldValue, int newValue )
     {
     }

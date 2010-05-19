@@ -101,6 +101,7 @@ public class ThreeLetterCodeManager
                 {
                     new AbstractIniParser()
                     {
+                        @Override
                         protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                         {
                             int idx = value.indexOf( ';' );

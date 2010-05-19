@@ -60,6 +60,10 @@ public abstract class PosSizeProperty extends Property
         return ( PERC_TOOLTIP );
     }
     
+    /**
+     * 
+     * @param button
+     */
     public void onButton2Clicked( Object button )
     {
     }

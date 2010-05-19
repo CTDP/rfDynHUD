@@ -89,6 +89,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         itemHeight.bake();
     }
     
+    @Override
     public void setAllPosAndSizeToPercents()
     {
         super.setAllPosAndSizeToPercents();
@@ -97,6 +98,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             itemHeight.flipHeightPercentagePx();
     }
     
+    @Override
     public void setAllPosAndSizeToPixels()
     {
         super.setAllPosAndSizeToPixels();
@@ -219,7 +221,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         Rectangle2D numBounds = metrics.getStringBounds( "00", texCanvas );
         
         int capWidth = (int)Math.ceil( numBounds.getWidth() );
-        int dataAreaLeft = ETVUtils.getLabeledDataDataLeft( width, numBounds );
+        int dataAreaLeft = ETVUtils.getLabeledDataDataLeft( numBounds );
         int dataAreaRight = ETVUtils.getLabeledDataDataRight( width );
         int vMiddle = ETVUtils.getLabeledDataVMiddle( itemHeight, numBounds );
         

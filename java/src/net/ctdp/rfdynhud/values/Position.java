@@ -594,6 +594,10 @@ public class Position
         return ( false );
     }
     
+    /**
+     * 
+     * @param positioning
+     */
     protected void onPositioningPropertySet( RelativePositioning positioning )
     {
     }
@@ -631,6 +635,10 @@ public class Position
         return ( createPositioningProperty( name, name ) );
     }
     
+    /**
+     * 
+     * @param x
+     */
     protected void onXPropertySet( float x )
     {
     }
@@ -676,6 +684,10 @@ public class Position
         return ( createXProperty( name, name ) );
     }
     
+    /**
+     * 
+     * @param y
+     */
     protected void onYPropertySet( float y )
     {
     }

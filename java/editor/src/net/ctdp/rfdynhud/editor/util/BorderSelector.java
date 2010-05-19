@@ -229,7 +229,7 @@ public class BorderSelector extends DefaultTableModel
             return ( this );
         }
         
-        public BorderEntryCellRenderer( final WidgetsConfiguration widgetsConfig )
+        public BorderEntryCellRenderer()
         {
             super( new BorderLayout( 5, 5 ) );
             
@@ -350,8 +350,8 @@ public class BorderSelector extends DefaultTableModel
         {
             super();
             
-            renderCombo.setRenderer( new BorderEntryCellRenderer( widgetsConfig ) );
-            editCombo.setRenderer( new BorderEntryCellRenderer( widgetsConfig ) );
+            renderCombo.setRenderer( new BorderEntryCellRenderer() );
+            editCombo.setRenderer( new BorderEntryCellRenderer() );
             
             editCombo.addPopupMenuListener( new PopupMenuListener()
             {
@@ -579,6 +579,7 @@ public class BorderSelector extends DefaultTableModel
         
         aliasesTable.addMouseListener( new MouseAdapter()
         {
+            @Override
             public void mouseClicked( MouseEvent e )
             {
                 if ( e.getClickCount() == 2 )

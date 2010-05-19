@@ -20,6 +20,11 @@ public class BorderProperty extends Property
     private final IntProperty paddingRight;
     private final IntProperty paddingBottom;
     
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     protected void onValueChanged( String oldValue, String newValue )
     {
     }

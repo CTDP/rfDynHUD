@@ -7,6 +7,10 @@ public class BooleanProperty extends Property
 {
     private boolean value;
     
+    /**
+     * 
+     * @param newValue
+     */
     protected void onValueChanged( boolean newValue )
     {
     }

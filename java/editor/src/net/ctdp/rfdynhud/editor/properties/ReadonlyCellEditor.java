@@ -5,7 +5,6 @@ import java.util.EventObject;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 
@@ -13,7 +12,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
  * 
  * @author Marvin Froehlich
  */
-public class ReadonlyCellEditor extends KeyValueCellRenderer<JLabel> implements TableCellRenderer, TableCellEditor
+public class ReadonlyCellEditor extends KeyValueCellRenderer<JLabel> implements TableCellEditor
 {
     private static final long serialVersionUID = 7979822630367678241L;
     

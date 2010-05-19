@@ -25,10 +25,11 @@ public class FloatProperty extends Property
         return ( Math.max( minValue, Math.min( value, maxValue ) ) );
     }
     
-    protected void onValueChanged( int oldValue, int newValue )
-    {
-    }
-    
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     protected void onValueChanged( float oldValue, float newValue )
     {
     }

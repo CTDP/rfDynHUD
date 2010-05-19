@@ -265,6 +265,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
         
         addWindowListener( new WindowAdapter()
         {
+            @Override
             public void windowOpened( WindowEvent e )
             {
                 if ( !setWindowSize )

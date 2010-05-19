@@ -226,6 +226,11 @@ public class ShiftLight
         return ( false );
     }
     
+    /**
+     * 
+     * @param propsCont
+     * @param forceAll
+     */
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "Shift Light " + indexOneBased );

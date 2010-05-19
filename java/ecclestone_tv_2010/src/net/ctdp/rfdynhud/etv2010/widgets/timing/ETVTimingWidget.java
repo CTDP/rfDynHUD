@@ -147,7 +147,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         VehicleScoringInfo refVSI = scoringInfo.getFastestLapVSI();
         Laptime relTime = refVSI.getFastestLaptime();
         
-        LapState ls = LapState.getLapState( scoringInfo, vsi, relTime, visibleTimeBeforeSector.getIntValue(), visibleTimeAfterSector.getIntValue(), true );
+        LapState ls = LapState.getLapState( vsi, relTime, visibleTimeBeforeSector.getIntValue(), visibleTimeAfterSector.getIntValue(), true );
         
         lapState.update( ls );
         

@@ -56,13 +56,9 @@ public class ResourceManager
         try
         {
             if ( isJarMode() )
-            {
                 return ( ResourceManager.class.getClassLoader().getResource( "data/" + name ) );
-            }
-            else
-            {
-                return ( new URL( getDataDirectory(), name ) );
-            }
+            
+            return ( new URL( getDataDirectory(), name ) );
         }
         catch ( IOException e )
         {

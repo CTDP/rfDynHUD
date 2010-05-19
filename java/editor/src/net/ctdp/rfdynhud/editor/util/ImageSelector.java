@@ -304,6 +304,7 @@ public class ImageSelector
         dialog.setModal( true );
         dialog.addWindowListener( new WindowAdapter()
         {
+            @Override
             public void windowOpened( WindowEvent e )
             {
                 int selIndex = ( selectedFile == null ) ? -1 : Collections.binarySearch( files, selectedFile );

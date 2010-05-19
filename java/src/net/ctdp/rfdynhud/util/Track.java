@@ -447,6 +447,7 @@ public class Track
                 wp.normalizedLapDistance = wp.lapDistance / pc.trackLength;
             }
             
+            @Override
             protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
             {
                 if ( !inWaypointsGroup )

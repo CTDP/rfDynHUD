@@ -1,7 +1,6 @@
 package net.ctdp.rfdynhud.values;
 
 import net.ctdp.rfdynhud.gamedata.Laptime;
-import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 
 public enum LapState
@@ -33,7 +32,7 @@ public enum LapState
         this.SHORT = SHORT;
     }
     
-    public static LapState getLapState( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, Laptime refTime, float beforeSectorTime, float afterSectorTime, boolean firstSec1StartIsSomewhere )
+    public static LapState getLapState( VehicleScoringInfo viewedVSI, Laptime refTime, float beforeSectorTime, float afterSectorTime, boolean firstSec1StartIsSomewhere )
     {
         if ( viewedVSI.getStintLength() < 1.0f )
             return ( OUTLAP );

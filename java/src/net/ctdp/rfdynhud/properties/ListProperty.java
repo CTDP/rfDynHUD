@@ -16,6 +16,11 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
         return ( list );
     }
     
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     protected void onValueChanged( E oldValue, E newValue )
     {
     }

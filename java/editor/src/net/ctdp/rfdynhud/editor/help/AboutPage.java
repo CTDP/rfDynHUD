@@ -102,6 +102,7 @@ public class AboutPage extends JDialog
         {
             private boolean shot = false;
             
+            @Override
             public void windowOpened( WindowEvent e )
             {
                 if ( shot )

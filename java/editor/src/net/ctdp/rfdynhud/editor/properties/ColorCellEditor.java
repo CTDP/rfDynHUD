@@ -10,7 +10,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
@@ -23,7 +22,7 @@ import org.jagatoo.gui.awt_swing.util.ColorChooser.ColorChooserDialog;
  * 
  * @author Marvin Froehlich
  */
-public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellRenderer, TableCellEditor
+public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {
     private static final long serialVersionUID = -7299720233662747237L;
     

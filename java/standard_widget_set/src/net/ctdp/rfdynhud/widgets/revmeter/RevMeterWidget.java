@@ -863,6 +863,18 @@ public class RevMeterWidget extends Widget
         drawMarks( gameData, texture.getTextureCanvas(), offsetX, offsetY, width, height );
     }
     
+    /**
+     * 
+     * @param boost
+     * @param maxBoost
+     * @param inverted
+     * @param tempBoost
+     * @param texCanvas
+     * @param offsetX
+     * @param offsetY
+     * @param width
+     * @param height
+     */
     private void drawBoostBar( int boost, int maxBoost, boolean inverted, boolean tempBoost, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         if ( inverted )

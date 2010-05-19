@@ -8,6 +8,11 @@ public class StringProperty extends Property
     private final boolean forceTrimOnSet;
     private String value;
     
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     protected void onValueChanged( String oldValue, String newValue )
     {
     }

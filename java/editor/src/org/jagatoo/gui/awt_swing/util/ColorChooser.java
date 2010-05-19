@@ -452,6 +452,7 @@ public class ColorChooser extends JPanel
         } );
         combo.addFocusListener( new FocusAdapter()
         {
+            @Override
             public void focusLost( FocusEvent e )
             {
                 if ( lastNameComboSelectedIndex > 0 )
@@ -565,6 +566,7 @@ public class ColorChooser extends JPanel
         return ( x * x );
     }
     
+    @SuppressWarnings( "unused" )
     private static final Color getColorForPoint( int px, int py, int width, int height, int length )
     {
         /*
@@ -605,6 +607,7 @@ public class ColorChooser extends JPanel
         return ( new Color( red, green, blue ) );
     }
     
+    @SuppressWarnings( "unused" )
     protected void drawColorTriangle( Color color, Graphics2D g2, int x0, int y0, int width, int height )
     {
         height = (int)Math.round( Math.sqrt( 0.75 * sq( width - x0 - x0 ) ) ) + y0 + y0;
@@ -641,6 +644,7 @@ public class ColorChooser extends JPanel
         */
     }
     
+    @SuppressWarnings( "unused" )
     protected JPanel createWestPanel( Color startColor )
     {
         JPanel panel = new JPanel( new BorderLayout() );
@@ -649,6 +653,7 @@ public class ColorChooser extends JPanel
         {
             private static final long serialVersionUID = 1L;
             
+            @Override
             protected void paintComponent( Graphics g )
             {
                 super.paintComponent( g );
@@ -821,6 +826,7 @@ public class ColorChooser extends JPanel
             
             this.addWindowListener( new WindowAdapter()
             {
+                @Override
                 public void windowClosing( WindowEvent e )
                 {
                     //d.getFontChooser().setSelectedFont( null );

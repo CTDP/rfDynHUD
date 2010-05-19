@@ -1189,16 +1189,36 @@ public abstract class Widget implements Documented
         else if ( fontColor.loadProperty( key, value ) );
     }
     
+    /**
+     * 
+     * @param property
+     * @param propsCont
+     * @param forceAll
+     */
     protected void addBorderPropertyToContainer( BorderProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( property );
     }
     
+    
+    /**
+     * 
+     * @param property
+     * @param propsCont
+     * @param forceAll
+     */
     protected void addBackgroundColorPropertyToContainer( ColorProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( property );
     }
     
+    
+    /**
+     * 
+     * @param property
+     * @param propsCont
+     * @param forceAll
+     */
     protected void addFontPropertiesToContainer( FontProperty font, ColorProperty fontColor, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( font );

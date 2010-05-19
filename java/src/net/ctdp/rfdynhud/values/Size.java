@@ -581,6 +581,10 @@ public class Size implements AbstractSize
         return ( false );
     }
     
+    /**
+     * 
+     * @param width
+     */
     protected void onWidthPropertySet( float width )
     {
     }
@@ -634,6 +638,10 @@ public class Size implements AbstractSize
         return ( createWidthProperty( name, name ) );
     }
     
+    /**
+     * 
+     * @param height
+     */
     protected void onHeightPropertySet( float height )
     {
     }

@@ -89,7 +89,7 @@ public class ETVUtils
         return ( dataAreaWidth );
     }
     
-    public static final int getLabeledDataDataLeft( int width, Rectangle2D captionBounds )
+    public static final int getLabeledDataDataLeft( Rectangle2D captionBounds )
     {
         int capWidth = (int)Math.ceil( captionBounds.getWidth() );
         

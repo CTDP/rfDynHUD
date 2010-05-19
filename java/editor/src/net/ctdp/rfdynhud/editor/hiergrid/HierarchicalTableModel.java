@@ -88,6 +88,11 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         }
     }
     
+    /**
+     * 
+     * @param changedPropertyName
+     * @param columnModel
+     */
     public void apply( String changedPropertyName, HierarchicalTableColumnModel columnModel )
     {
         boolean oldHEI = hasExpandableItems;

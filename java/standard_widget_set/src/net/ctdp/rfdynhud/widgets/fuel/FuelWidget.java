@@ -88,7 +88,7 @@ public class FuelWidget extends Widget
         @Override
         public int getEffectiveWidth()
         {
-            loadLowFuelWarningImages( getEffectiveInnerWidth(), getEffectiveInnerHeight() );
+            loadLowFuelWarningImages();
             
             if ( lowFuelWarningImageOn == null )
                 return ( 0 );
@@ -99,7 +99,7 @@ public class FuelWidget extends Widget
         @Override
         public int getEffectiveHeight()
         {
-            loadLowFuelWarningImages( getEffectiveInnerWidth(), getEffectiveInnerHeight() );
+            loadLowFuelWarningImages();
             
             if ( lowFuelWarningImageOn == null )
                 return ( 0 );
@@ -232,6 +232,7 @@ public class FuelWidget extends Widget
         fuelBarWidth.bake();
     }
     
+    @Override
     public void setAllPosAndSizeToPercents()
     {
         super.setAllPosAndSizeToPercents();
@@ -249,6 +250,7 @@ public class FuelWidget extends Widget
             fuelBarWidth.flipHeightPercentagePx();
     }
     
+    @Override
     public void setAllPosAndSizeToPixels()
     {
         super.setAllPosAndSizeToPixels();
@@ -300,7 +302,7 @@ public class FuelWidget extends Widget
         }
     }
     
-    private void loadLowFuelWarningImages( int widgetInnerWidth, int widgetInnerHeight )
+    private void loadLowFuelWarningImages()
     {
         if ( !isLowFuelWaningUsed() )
         {
@@ -384,7 +386,7 @@ public class FuelWidget extends Widget
     {
         super.onRealtimeEntered( gameData, editorPresets );
         
-        loadLowFuelWarningImages( getEffectiveInnerWidth(), getEffectiveInnerHeight() );
+        loadLowFuelWarningImages();
         resetBlink( editorPresets != null );
         
         this.nextPitstopLapCorrection = 0;
@@ -469,7 +471,7 @@ public class FuelWidget extends Widget
         if ( !isLowFuelWaningUsed() )
             return ( null );
         
-        loadLowFuelWarningImages( widgetInnerWidth, widgetInnerHeight );
+        loadLowFuelWarningImages();
         
         TransformableTexture[] tts;
         if ( lowFuelWarningImageNameOff.isNoImage() || lowFuelWarningImageNameOn.isNoImage() )
@@ -545,7 +547,7 @@ public class FuelWidget extends Widget
         nextPitstopLapString = dsf.newDrawnString( "nextPitstopLapString", null, nextPitstopHeaderString, rightLeft + 10, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, Loc.nextPitstopLap_prefix + ": ", null );
         nextPitstopFuelString = dsf.newDrawnString( "nextPitstopFuelString", null, nextPitstopLapString, rightLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, Loc.nextPitstopFuel_prefix + ": ", null );
         
-        loadLowFuelWarningImages( width, height );
+        loadLowFuelWarningImages();
         resetBlink( editorPresets != null );
     }
     

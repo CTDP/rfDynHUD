@@ -58,6 +58,10 @@ public abstract class Property
     
     public abstract Object getValue();
     
+    /**
+     * 
+     * @param button
+     */
     public void onButtonClicked( Object button )
     {
     }

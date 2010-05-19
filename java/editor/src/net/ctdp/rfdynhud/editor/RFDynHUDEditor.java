@@ -595,6 +595,10 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     //private long nextRedrawTime = -1L;
     
+    /**
+     * @param widget
+     * @param propertyName
+     */
     public void onWidgetChanged( Widget widget, String propertyName )
     {
         //if ( System.currentTimeMillis() >= nextRedrawTime )
@@ -706,6 +710,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             {
                 new AbstractIniParser()
                 {
+                    @Override
                     protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                     {
                         if ( group == null )
@@ -771,6 +776,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         {
             new AbstractIniParser()
             {
+                @Override
                 protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                 {
                     if ( group == null )
@@ -2369,6 +2375,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         window.addWindowListener( new WindowAdapter()
         {
+            @Override
             public void windowClosing( WindowEvent e )
             {
                 onCloseRequested();
@@ -2426,6 +2433,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             {
                 private boolean shot = false;
                 
+                @Override
                 public void windowOpened( WindowEvent e )
                 {
                     if ( shot )

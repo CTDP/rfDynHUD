@@ -66,7 +66,7 @@ public class TimeCompareWidget extends Widget
         lap.reset();
     }
     
-    private void updateLaps( VehicleScoringInfo vsi, LiveGameData gameData )
+    private void updateLaps( VehicleScoringInfo vsi )
     {
         LocalStore store = (LocalStore)getLocalStore();
         
@@ -116,7 +116,7 @@ public class TimeCompareWidget extends Widget
         
         if ( vsi == gameData.getScoringInfo().getViewedVehicleScoringInfo() )
         {
-            updateLaps( vsi, gameData );
+            updateLaps( vsi );
         }
     }
     
@@ -128,7 +128,7 @@ public class TimeCompareWidget extends Widget
     {
         super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
         
-        updateLaps( viewedVSI, gameData );
+        updateLaps( viewedVSI );
         forceCompleteRedraw();
     }
     
@@ -184,7 +184,7 @@ public class TimeCompareWidget extends Widget
         
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
         if ( vsi.getCurrentLap() > 0 )
-            updateLaps( vsi, gameData );
+            updateLaps( vsi );
     }
     
     /**

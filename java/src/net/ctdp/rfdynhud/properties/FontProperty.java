@@ -53,6 +53,11 @@ public class FontProperty extends Property
         return ( null );
     }
     
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     protected void onValueChanged( String oldValue, String newValue )
     {
     }
