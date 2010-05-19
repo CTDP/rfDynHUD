@@ -41,6 +41,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -69,6 +70,7 @@ public class Texture2DCanvas extends Graphics2D
     
     private Graphics2D graphics;
     private final AffineTransform baseAffineTransform;
+    private boolean isIdentityTransform = true;
     
     private Rect2i currentUpdateRect = null;
     private int currentlyAppliedUpdateRects = 0;
@@ -85,6 +87,20 @@ public class Texture2DCanvas extends Graphics2D
     {
         if ( texImg == null )
             return;
+        
+        if ( !isIdentityTransform )
+        {
+            Point p0 = new Point( x, y );
+            Point p1 = new Point( x + width - 1, y + height - 1 );
+            
+            getTransform().transform( p0, p0 );
+            getTransform().transform( p1, p1 );
+            
+            x = Math.min( p0.x, p1.x );
+            y = Math.min( p0.y, p1.y );
+            width = Math.abs( p1.x - p0.x );
+            height = Math.abs( p1.y - p0.y );
+        }
         
         if ( currentUpdateRect != null )
         {
@@ -757,18 +773,24 @@ public class Texture2DCanvas extends Graphics2D
     public final void rotate( double theta )
     {
         graphics.rotate( theta );
+        
+        this.isIdentityTransform = false;
     }
     
     @Override
     public final void rotate( double theta, double x, double y )
     {
         graphics.rotate( theta, x, y );
+        
+        this.isIdentityTransform = false;
     }
     
     @Override
     public final void scale( double sx, double sy )
     {
         graphics.scale( sx, sy );
+        
+        this.isIdentityTransform = false;
     }
     
     @Override
@@ -918,6 +940,8 @@ public class Texture2DCanvas extends Graphics2D
     public final void setTransform( java.awt.geom.AffineTransform Tx )
     {
         graphics.setTransform( Tx );
+        
+        this.isIdentityTransform = false;
     }
     
     @Override
@@ -930,24 +954,32 @@ public class Texture2DCanvas extends Graphics2D
     public final void shear( double shx, double shy )
     {
         graphics.shear( shx, shy );
+        
+        this.isIdentityTransform = false;
     }
     
     @Override
     public final void transform( java.awt.geom.AffineTransform Tx )
     {
         graphics.transform( Tx );
+        
+        this.isIdentityTransform = false;
     }
     
     @Override
     public final void translate( double tx, double ty )
     {
         graphics.translate( tx, ty );
+        
+        this.isIdentityTransform = false;
     }
     
     @Override
     public final void translate( int tx, int ty )
     {
         graphics.translate( tx, ty );
+        
+        this.isIdentityTransform = false;
     }
     
     private void updateAffineTransform()
@@ -963,6 +995,13 @@ public class Texture2DCanvas extends Graphics2D
         */
         
         this.graphics.setTransform( baseAffineTransform );
+        
+        this.isIdentityTransform = true;
+    }
+    
+    public void resetTransform()
+    {
+        updateAffineTransform();
     }
     
     /*

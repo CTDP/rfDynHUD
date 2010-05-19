@@ -20,6 +20,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.StandingsTools;
@@ -128,6 +129,7 @@ public class StandingsWidget extends Widget
     public void setView( StandingsView view )
     {
         ( (LocalStore)getLocalStore() ).view = view;
+        Logger.log( new Exception() );
         
         lastScoringUpdateId.reset( true );
         forceCompleteRedraw();
@@ -139,6 +141,7 @@ public class StandingsWidget extends Widget
         if ( ( (LocalStore)getLocalStore() ).view == null )
         {
             ( (LocalStore)getLocalStore() ).view = initialView.getEnumValue();
+            Logger.log( new Exception() );
         }
         
         return ( ( (LocalStore)getLocalStore() ).view );
@@ -171,10 +174,13 @@ public class StandingsWidget extends Widget
         switch ( view )
         {
             case RELATIVE_TO_LEADER:
+                Logger.log( "a: " + isRelToLeaderViewAllowed() );
                 return ( isRelToLeaderViewAllowed() );
             case RELATIVE_TO_ME:
+                Logger.log( "b: " + isRelToMeViewAllowed() );
                 return ( isRelToMeViewAllowed() );
             case ABSOLUTE_TIMES:
+                Logger.log( "c: " + isAbsTimesViewAllowed( isEditorMode, sessionType ) );
                 return ( isAbsTimesViewAllowed( isEditorMode, sessionType ) );
         }
         
@@ -206,11 +212,14 @@ public class StandingsWidget extends Widget
                 return ( null );
             }
             
-            for ( int i = getView().ordinal() + 1; i < views.length; i++ )
+            int v0 = getView().ordinal();
+            for ( int i = 1; i < views.length; i++ )
             {
-                if ( checkView( isEditorMode, views[i], sessionType ) )
+                StandingsView sv = views[( v0 + i ) % views.length];
+                Logger.log( "Cycling view. Trying: " + sv.name() );
+                if ( checkView( isEditorMode, sv, sessionType ) )
                 {
-                    setView( views[i] );
+                    setView( sv );
                     
                     return ( getView() );
                 }
@@ -249,7 +258,7 @@ public class StandingsWidget extends Widget
         SessionType sessionType = gameData.getScoringInfo().getSessionType();
         
         if ( ( editorPresets == null ) && sessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
-            cycleView( ( editorPresets != null ), sessionType, false );
+            cycleView( false, sessionType, false );
         
         oldNumVehicles = -1;
         if ( oldPosStirngs != null )
@@ -260,10 +269,13 @@ public class StandingsWidget extends Widget
         
         Arrays.fill( oldColWidths, -1 );
         
+        /*
         if ( editorPresets != null )
             this.maxNumVehicles = 23;
         else
             this.maxNumVehicles = RFactorTools.getMaxOpponents() + 1;
+        */
+        this.maxNumVehicles = 30; // TODO
         
         //forceReinitialization();
     }
@@ -320,7 +332,7 @@ public class StandingsWidget extends Widget
         }
     }
     
-    private String[] getPositionStringRaceRelToLeader( int ownPlace, GamePhase gamePhase, VehicleScoringInfo vsi )
+    private String[] getPositionStringRaceRelToLeader( GamePhase gamePhase, VehicleScoringInfo vsi )
     {
         short place = vsi.getPlace();
         
@@ -527,10 +539,11 @@ public class StandingsWidget extends Widget
     
     private String[] getPosStringRace( int ownPlace, int ownLaps, float ownLapDistance, GamePhase gamePhase, VehicleScoringInfo vsi )
     {
+        Logger.log( "View: " + getView().name() );
         switch ( getView() )
         {
             case RELATIVE_TO_LEADER:
-                return ( getPositionStringRaceRelToLeader( ownPlace, gamePhase, vsi ) );
+                return ( getPositionStringRaceRelToLeader( gamePhase, vsi ) );
             case RELATIVE_TO_ME:
                 return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace() - 1], gamePhase, vsi ) );
             case ABSOLUTE_TIMES: // Only possible in the editor!
@@ -561,9 +574,12 @@ public class StandingsWidget extends Widget
         
         currPosStrings = ensureCapacity( currPosStrings, numVehicles, false );
         
+        Logger.log( "########################################" );
+        Logger.log( "Regenerating position strings..." );
         for ( int i = 0; i < numVehicles; i++ )
         {
             currPosStrings[i] = getPosStringRace( ownPlace, ownLaps, ownLapDistance, gamePhase, vehicleScoringInfos[i] );
+            Logger.log( i + ", " + currPosStrings[i][0] + " " + currPosStrings[i][1] + " " + currPosStrings[i][2] + " " + currPosStrings[i][3] + " " + currPosStrings[i][4] + " " + currPosStrings[i][5] + " " + currPosStrings[i][6] + ", " + vehicleScoringInfos[i].getFinishStatus().name() );
         }
         
         return ( numVehicles );
@@ -752,7 +768,7 @@ public class StandingsWidget extends Widget
         return ( ss );
     }
     
-    private String[] getPosStringNonRace( int i, VehicleScoringInfo vsi, int firstVisiblePlace, int ownPlace, float ownTime, float bestTime )
+    private String[] getPosStringNonRace( VehicleScoringInfo vsi, int firstVisiblePlace, int ownPlace, float ownTime, float bestTime )
     {
         if ( getView() == StandingsView.ABSOLUTE_TIMES )
             return ( getPositionStringNonRaceAbsTimes( vsi ) );
@@ -781,7 +797,7 @@ public class StandingsWidget extends Widget
         {
             VehicleScoringInfo vsi = vehicleScoringInfos[i];
             
-            currPosStrings[i] = getPosStringNonRace( i, vsi, firstVisiblePlace, ownPlace, ownTime, bestTime );
+            currPosStrings[i] = getPosStringNonRace( vsi, firstVisiblePlace, ownPlace, ownTime, bestTime );
         }
         
         return ( numVehicles );
@@ -883,7 +899,10 @@ public class StandingsWidget extends Widget
         lastScoringUpdateId.update( scoringInfo.getUpdateId() );
         
         if ( !lastScoringUpdateId.hasChanged() )
+        {
+            Logger.log( "Not yet updated" );
             return ( false );
+        }
         
         if ( gameData.getScoringInfo().getSessionType().isRace() )
             initPosStringsRace( gameData );
@@ -918,7 +937,7 @@ public class StandingsWidget extends Widget
         return ( result );
     }
     
-    private void drawPosition( boolean clock2, int i, VehicleScoringInfo vsi, VehicleScoringInfo viewedVSI, boolean needsCompleteRedraw, TextureImage2D texture, int offsetX, int offsetY, int width )
+    private void drawPosition( boolean clock2, int i, VehicleScoringInfo vsi, VehicleScoringInfo viewedVSI, boolean needsCompleteRedraw, TextureImage2D texture, int offsetX, int offsetY )
     {
         //texture.getTextureCanvas().pushClip( offsetX + positionStrings[i].getAbsX(), clipRect.getTop(), width - positionStrings[i].getAbsX() - 13, clipRect.getHeight() );
         
@@ -933,8 +952,6 @@ public class StandingsWidget extends Widget
                 case NONE:
                     if ( vsi.equals( viewedVSI ) )
                         fc = fontColor_me.getColor();
-                    else
-                        fc = null;
                     break;
                 case DNF:
                 case DQ:
@@ -968,7 +985,7 @@ public class StandingsWidget extends Widget
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            drawPosition( clock2, i, vehicleScoringInfos[i], viewedVSI, needsCompleteRedraw, texture, offsetX, offsetY, width );
+            drawPosition( clock2, i, vehicleScoringInfos[i], viewedVSI, needsCompleteRedraw, texture, offsetX, offsetY );
         }
     }
     

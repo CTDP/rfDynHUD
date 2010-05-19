@@ -913,12 +913,28 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * Returns <code>true</code>, if this {@link Widget} draws on the main texture, <code>false</code> otherwise.<br />
+     * Default is <code>true</code>.
+     * 
+     * @param isEditorMode
+     * 
+     * @return <code>true</code>, if this {@link Widget} draws on the main texture, <code>false</code> otherwise.
+     */
+    public boolean hasMasterCanvas( boolean isEditorMode )
+    {
+        return ( true );
+    }
+    
+    /**
      * 
      * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      */
     public void clearRegion( boolean isEditorMode, TextureImage2D texture )
     {
+        if ( ( texture == null ) && !isEditorMode )
+            return;
+        
         int offsetX = position.getEffectiveX();
         int offsetY = position.getEffectiveY();
         int width = size.getEffectiveWidth();
@@ -999,7 +1015,7 @@ public abstract class Widget implements Documented
      */
     protected void drawBorder( boolean isEditorMode, BorderWrapper border, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( border.hasBorder() )
+        if ( border.hasBorder() && ( texture != null ) )
         {
             border.drawBorder( getBackgroundColor(), texture, offsetX, offsetY, width, height );
         }
@@ -1016,7 +1032,7 @@ public abstract class Widget implements Documented
      */
     protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( hasBackgroundColor() )
+        if ( hasBackgroundColor() && ( texture != null ) )
             texture.clear( getBackgroundColor(), offsetX, offsetY, width, height, true, null );
     }
     
@@ -1055,15 +1071,16 @@ public abstract class Widget implements Documented
         int height2 = height - borderTH - borderBH;
         
         final Texture2DCanvas texCanvas = texture.getTextureCanvas();
+        final TextureImage2D texture2 = hasMasterCanvas( editorPresets != null ) ? texture : null;
         
         if ( !initialized )
         {
-            initialize( clock1, clock2, gameData, editorPresets, drawnStringFactory, texture, offsetX2, offsetY2, width2, height2 );
+            initialize( clock1, clock2, gameData, editorPresets, drawnStringFactory, texture2, offsetX2, offsetY2, width2, height2 );
             
             initialized = true;
         }
         
-        if ( checkForChanges( clock1, clock2, gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 ) )
+        if ( checkForChanges( clock1, clock2, gameData, editorPresets, texture2, offsetX2, offsetY2, width2, height2 ) )
         {
             completeRedrawForced = true;
             
@@ -1086,16 +1103,17 @@ public abstract class Widget implements Documented
         {
             __RenderPrivilegedAccess.onWidgetCleared( drawnStringFactory );
             
-            drawBorder( ( editorPresets != null ), getBorder(), texture, offsetX, offsetY, width, height );
+            drawBorder( ( editorPresets != null ), getBorder(), texture2, offsetX, offsetY, width, height );
             
-            texture.markDirty( offsetX, offsetY, width, height );
+            if ( texture2 != null )
+                texture2.markDirty( offsetX, offsetY, width, height );
             
-            clearBackground( gameData, editorPresets, texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
+            clearBackground( gameData, editorPresets, ( editorPresets == null ) ? texture2 : texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
         }
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
-        drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );
+        drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture2, offsetX2, offsetY2, width2, height2 );
         
         if ( editorPresets != null )
         {

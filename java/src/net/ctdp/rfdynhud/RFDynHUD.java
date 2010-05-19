@@ -151,7 +151,7 @@ public class RFDynHUD
         {
             frameIndex++;
             
-            drawingManager.refreshSubTextureBuffer();
+            drawingManager.refreshSubTextureBuffer( false );
             
             drawingManager.drawWidgets( gameData, null, TextureDirtyRectsManager.isCompleteRedrawForced(), drawingManager.getTexture( 0 ).getTexture() );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );

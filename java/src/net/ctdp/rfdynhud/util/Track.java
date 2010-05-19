@@ -5,7 +5,9 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.TelemVect3;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -199,6 +201,92 @@ public class Track
         point.setLocation( ( -minXPos + wp0.posX + ( vecX * alpha ) ) * scale, ( -minZPos + wp0.posZ + ( vecZ * alpha ) ) * scale );
         
         return ( true );
+    }
+    
+    /**
+     * @param pitlane
+     * @param trackDistance
+     * @param vector
+     * @return success?
+     */
+    public final boolean getInterpolatedVector( boolean pitlane, float trackDistance, TelemVect3 vector )
+    {
+        if ( ( trackDistance < 0f ) || ( trackDistance > trackLength ) )
+            return ( false );
+        
+        Waypoint[] waypoints = pitlane ? waypointsPitlane : waypointsTrack;
+        
+        int waypointIndex = (int)( ( waypoints.length - 1 ) * trackDistance / trackLength );
+        
+        Waypoint wp0 = waypoints[waypointIndex];
+        while ( ( waypointIndex > 0 ) && ( wp0.lapDistance > trackDistance ) )
+        {
+            wp0 = waypoints[--waypointIndex];
+        }
+        while ( ( waypointIndex < waypoints.length - 1 ) && ( waypoints[waypointIndex + 1].lapDistance < trackDistance ) )
+        {
+            wp0 = waypoints[++waypointIndex];
+        }
+        
+        Waypoint wp1;
+        float alpha;
+        if ( wp0.lapDistance > trackDistance )
+        {
+            wp1 = waypoints[waypointIndex];
+            wp0 = waypoints[waypoints.length - 1];
+            float delta = wp0.lapDistance + ( trackLength - wp1.lapDistance );
+            alpha = ( ( trackLength - wp1.lapDistance ) + trackDistance ) / delta;
+        }
+        else if ( waypointIndex == waypoints.length - 1 )
+        {
+            wp1 = waypoints[0];
+            float delta = ( trackLength - wp0.lapDistance ) + wp1.lapDistance;
+            alpha = ( trackDistance - wp0.lapDistance ) / delta;
+        }
+        else
+        {
+            wp1 = waypoints[waypointIndex + 1];
+            float delta = wp1.lapDistance - wp0.lapDistance;
+            alpha = ( trackDistance - wp0.lapDistance ) / delta;
+        }
+        
+        float vecX = ( wp0.vecX * alpha ) + ( wp1.vecX * ( 1f - alpha ) );
+        float vecY = ( wp0.vecY * alpha ) + ( wp1.vecY * ( 1f - alpha ) );
+        float vecZ = ( wp0.vecZ * alpha ) + ( wp1.vecZ * ( 1f - alpha ) );
+        
+        System.out.println( waypoints[( waypointIndex - 0 + waypoints.length ) % waypoints.length].lapDistance + ", " + waypoints[( waypointIndex + 1 + waypoints.length ) % waypoints.length].lapDistance );
+        
+        System.out.println( vecX + ", " + vecZ + ", " + ( waypoints[waypointIndex + 30].posX - wp0.posX ) + ", " + ( waypoints[waypointIndex + 30].posY - wp0.posY ) );
+        
+        __GDPrivilegedAccess.setTelemVect3( vecX, vecY, vecZ, vector );
+        
+        return ( true );
+    }
+    
+    private final TelemVect3 vec1 = new TelemVect3();
+    
+    public final float getInterpolatedAngleToRoad( ScoringInfo scoringInfo )
+    {
+        VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
+        float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % getTrackLength();
+        
+        getInterpolatedVector( vsi.isInPits(), lapDistance, vec1 );
+        
+        if ( vec1.getX() == 0f )
+        {
+            if ( vec1.getY() >= 0f )
+                return ( 0f );
+            
+            return ( (float)Math.PI );
+        }
+        
+        float dot = vec1.getX() * 0f + vec1.getY() * 1f;
+        float angle = (float)Math.abs( Math.atan2( vec1.getX() * 1f - vec1.getY() * 0f, dot ) );
+        
+        if ( vec1.getX() < 0f )
+            return ( angle );
+        
+        return ( -angle );
     }
     
     private static final class ParseContainer
@@ -455,11 +543,21 @@ public class Track
             
             // mirror the x-coordinates
             wp.posX *= -1f;
+            wp.vecX *= -1f;
+            wp.normX *= -1f;
             
+            /*
             // rotate clockwisely by 90°
             float tmp = wp.posX;
             wp.posX = wp.posZ;
             wp.posZ = -tmp;
+            tmp = wp.vecX;
+            wp.vecX = wp.vecZ;
+            wp.vecZ = -tmp;
+            tmp = wp.normX;
+            wp.normX = wp.normZ;
+            wp.normZ = -tmp;
+            */
             
             if ( wp.posX < pc.minXPos )
                 pc.minXPos = wp.posX;

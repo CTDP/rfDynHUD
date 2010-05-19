@@ -25,7 +25,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 public class WidgetsDrawingManager extends WidgetsConfiguration
 {
     private TransformableTexture[] textures;
-    private TransformableTexture[][] widgetTextures = null;
+    private TransformableTexture[][] widgetSubTextures = null;
     private final ByteBuffer textureBuffer = TransformableTexture.createByteBuffer();
     
     private long frameCounter = 0;
@@ -132,9 +132,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     
     public int collectTextures( LiveGameData gameData, EditorPresets editorPresets )
     {
-        textures[0].generateSubRectangles( gameData, this );
+        textures[0].generateSubRectangles( gameData, editorPresets, this );
         
-        widgetTextures = new TransformableTexture[ getNumWidgets() ][];
+        widgetSubTextures = new TransformableTexture[ getNumWidgets() ][];
         
         final int numWidgets = getNumWidgets();
         int numTextures = 1;
@@ -144,7 +144,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             TransformableTexture[] subTextures = widget.getSubTextures( gameData, editorPresets, widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth(), widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight() );
             if ( ( subTextures != null ) && ( subTextures.length > 0 ) )
             {
-                widgetTextures[i] = subTextures;
+                widgetSubTextures[i] = subTextures;
                 
                 if ( textures.length < numTextures + subTextures.length )
                 {
@@ -158,7 +158,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             }
             else
             {
-                widgetTextures[i] = null;
+                widgetSubTextures[i] = null;
             }
         }
         
@@ -205,7 +205,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         }
     }
     
-    public void refreshSubTextureBuffer()
+    public void refreshSubTextureBuffer( boolean isEditorMode )
     {
         textureBuffer.position( 0 );
         textureBuffer.limit( textureBuffer.capacity() );
@@ -213,20 +213,24 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         textureBuffer.put( (byte)textures.length );
         
         final int n = getNumWidgets();
+        int j = 0;
         for ( int i = 0; i < n; i++ )
-            textures[0].setRectangleVisible( i, getWidget( i ).isVisible() );
+        {
+            if ( getWidget( i ).hasMasterCanvas( isEditorMode ) )
+                textures[0].setRectangleVisible( j++, getWidget( i ).isVisible() );
+        }
         
         int k = 0;
         
         int rectOffset = textures[0].fillBuffer( true, 0, 0, k++, 0, textureBuffer );
         
-        for ( int i = 0; i < widgetTextures.length; i++ )
+        for ( int i = 0; i < widgetSubTextures.length; i++ )
         {
             Widget widget = getWidget( i );
-            TransformableTexture[] textures = widgetTextures[i];
+            TransformableTexture[] textures = widgetSubTextures[i];
             if ( textures != null )
             {
-                for ( int j = 0; j < textures.length; j++ )
+                for ( j = 0; j < textures.length; j++ )
                 {
                     rectOffset = textures[j].fillBuffer( widget.isVisible(), widget.getPosition().getEffectiveX() + widget.getBorder().getInnerLeftWidth(), widget.getPosition().getEffectiveY() + widget.getBorder().getInnerTopHeight(), k++, rectOffset, textureBuffer );
                 }

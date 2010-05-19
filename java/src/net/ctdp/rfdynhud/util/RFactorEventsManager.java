@@ -35,6 +35,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     private boolean sessionRunning = false;
     
+    private static final boolean FIRE_ORE1_IMMEDIATELY = false;
     private int enterRealtimePending = 0;
     
     private boolean realtimeMode2 = false;
@@ -294,7 +295,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         enterRealtimePending = 1;
         
-        onRealtimeEntered1( null );
+        if ( FIRE_ORE1_IMMEDIATELY )
+            onRealtimeEntered1( null );
     }
     
     public void onRealtimeExited( EditorPresets editorPresets )
@@ -459,6 +461,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
             enterRealtimePending |= 2;
             if ( enterRealtimePending == 7 )
             {
+                if ( !FIRE_ORE1_IMMEDIATELY )
+                    onRealtimeEntered1( null );
                 onRealtimeEntered2( null );
                 enterRealtimePending = 0;
             }
@@ -475,6 +479,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
             enterRealtimePending |= 4;
             if ( enterRealtimePending == 7 )
             {
+                if ( !FIRE_ORE1_IMMEDIATELY )
+                    onRealtimeEntered1( null );
                 onRealtimeEntered2( null );
                 enterRealtimePending = 0;
             }

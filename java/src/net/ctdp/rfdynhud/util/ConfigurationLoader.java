@@ -356,7 +356,7 @@ public class ConfigurationLoader
      * 
      * @return the file, from which the configuration has been loaded.
      */
-    public static boolean reloadConfiguration( boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    public static boolean reloadConfiguration( boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
     {
         File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
         

@@ -4,6 +4,7 @@ import java.awt.geom.AffineTransform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -127,17 +128,22 @@ public class TransformableTexture
         return ( texture.getTextureCanvas() );
     }
     
-    protected void generateSubRectangles( LiveGameData gameData, WidgetsDrawingManager widgetsManager )
+    protected void generateSubRectangles( LiveGameData gameData, EditorPresets editorPresets, WidgetsDrawingManager widgetsManager )
     {
         final Texture2DCanvas texCanvas = widgetsManager.getMainTexture().getTextureCanvas();
         
         final int n = widgetsManager.getNumWidgets();
-        this.usedRectangles = new Rectangle[ n ];
+        Rectangle[] tmp = new Rectangle[ n ];
+        int m = 0;
         for ( int i = 0; i < n; i++ )
         {
             Widget w = widgetsManager.getWidget( i );
-            usedRectangles[i] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, texCanvas ), w.getMaxHeight( gameData, texCanvas ) );
+            if ( w.hasMasterCanvas( editorPresets != null ) )
+                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, texCanvas ), w.getMaxHeight( gameData, texCanvas ) );
         }
+        
+        this.usedRectangles = new Rectangle[ m ];
+        System.arraycopy( tmp, 0, usedRectangles, 0, m );
         
         this.dirty = true;
     }
@@ -403,11 +409,10 @@ public class TransformableTexture
             return;
         
         texCanvas.pushClip( -1, -1, Integer.MAX_VALUE, Integer.MAX_VALUE, false );
-        AffineTransform old = texCanvas.getTransform();
         
         try
         {
-            AffineTransform at = new AffineTransform( old );
+            AffineTransform at = new AffineTransform( texCanvas.getTransform() );
             
             AffineTransform atTrans = AffineTransform.getTranslateInstance( offsetX + getTransX(), offsetY + getTransY() );
             AffineTransform atRotCenter1 = AffineTransform.getTranslateInstance( +getRotCenterX(), +getRotCenterY() );
@@ -430,7 +435,7 @@ public class TransformableTexture
         }
         finally
         {
-            texCanvas.setTransform( old );
+            texCanvas.resetTransform();
             texCanvas.popClip();
         }
     }
