@@ -1269,7 +1269,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 Logger.log( "Unable to read background image file \"" + file.getAbsolutePath() + "\"" );
                 Logger.log( e );
                 
-                result = null;
+                //result = null;
             }
         }
         

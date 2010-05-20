@@ -221,7 +221,7 @@ public class TimingWidget extends Widget
             absSector2String = null;
             absSector3String = null;
             absFastestLapString = null;
-            yRel = null;
+            //yRel = null;
         }
         
         ownFastestLapHeaderString = dsf.newDrawnString( "ownFastestLapHeaderString", null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );

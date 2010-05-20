@@ -173,7 +173,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         {
             InputAction action = getActionFromRow( row );
             if ( action == null )
-                return ( action != null );
+                return ( false );
         }
         
         return ( true );
