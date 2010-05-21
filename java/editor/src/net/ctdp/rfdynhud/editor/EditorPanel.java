@@ -183,12 +183,9 @@ public class EditorPanel extends JPanel
         bgImageReloadSuppressed = false;
     }
     
-    private final boolean isGridUsed()
+    public final boolean isGridUsed()
     {
-        final int gridSizeX = this.gridSizeX.getIntValue();
-        final int gridSizeY = this.gridSizeY.getIntValue();
-        
-        return ( drawGrid.getBooleanValue() && ( gridSizeX > 1 ) && ( gridSizeY > 1 ) );
+        return ( drawGrid.getBooleanValue() && ( this.gridSizeX.getIntValue() > 1 ) && ( this.gridSizeY.getIntValue() > 1 ) );
     }
     
     public final int snapXToGrid( int x )

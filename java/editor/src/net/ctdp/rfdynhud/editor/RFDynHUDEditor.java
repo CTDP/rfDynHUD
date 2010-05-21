@@ -1683,8 +1683,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 boolean hasSelected = ( getEditorPanel().getSelectedWidget() != null );
                 boolean hasWidgets = ( getEditorPanel().getWidgetsDrawingManager().getNumWidgets() > 0 );
                 
-                snapSelWidgetToGrid.setEnabled( hasSelected );
-                snapAllWidgetsToGrid.setEnabled( hasWidgets );
+                snapSelWidgetToGrid.setEnabled( hasSelected && getEditorPanel().isGridUsed() );
+                snapAllWidgetsToGrid.setEnabled( hasWidgets && getEditorPanel().isGridUsed() );
                 removeItem.setEnabled( hasSelected );
                 makeAllPixels.setEnabled( hasWidgets );
                 makeAllPercents.setEnabled( hasWidgets );
@@ -1720,8 +1720,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         boolean hasSelected = ( getEditorPanel().getSelectedWidget() != null );
         boolean hasWidgets = ( getEditorPanel().getWidgetsDrawingManager().getNumWidgets() > 0 );
         
-        snapSelWidgetToGrid.setEnabled( hasSelected );
-        snapAllWidgetsToGrid.setEnabled( hasWidgets );
+        snapSelWidgetToGrid.setEnabled( hasSelected && getEditorPanel().isGridUsed() );
+        snapAllWidgetsToGrid.setEnabled( hasWidgets && getEditorPanel().isGridUsed() );
         removeItem.setEnabled( hasSelected );
         
         getEditorPanel().setComponentPopupMenu( menu );

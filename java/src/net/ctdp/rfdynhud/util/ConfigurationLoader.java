@@ -353,11 +353,21 @@ public class ConfigurationLoader
      * @param vehicleClass
      * @param sessionType
      * @param widgetsConfig
+     * @param gameData
+     * @param editorPresets
+     * @param clearListener
+     * @param force
      * 
      * @return the file, from which the configuration has been loaded.
      */
-    public static boolean reloadConfiguration( boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
+    public static boolean reloadConfiguration( boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener, boolean force )
     {
+        if ( force )
+        {
+            currentlyLoadedConfigFile = null;
+            lastModified = -1L;
+        }
+        
         File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
         
         try

@@ -76,7 +76,7 @@ public class StartingLightWidget extends Widget
         numLights.reset();
         visibleTime = -1f;
         
-        setUserVisible1( false );
+        setUserVisible2( false );
     }
     
     @Override

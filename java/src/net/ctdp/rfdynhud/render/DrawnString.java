@@ -39,7 +39,7 @@ public class DrawnString
     private int maxHeight = -1;
     private int fontDescent = 0;
     
-    private final Rect2i clearRect = new Rect2i( -1, -1, 0, 0 );
+    public final Rect2i clearRect = new Rect2i( -1, -1, 0, 0 );
     
     private final String prefix;
     private final String postfix;
@@ -430,6 +430,8 @@ public class DrawnString
                 }
                 //texture.clear( clearBackground, x1_, y1_, width, height, x, y, width, height, true, dirtyRect );
             }
+            
+            clearRect.setSize( 0, 0 );
         }
         finally
         {
@@ -471,7 +473,8 @@ public class DrawnString
         
         texture.drawString( totalString, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, clearRect );
         
-        texture.markDirty( clearRect );
+        if ( ( clearRect.getWidth() > 0 ) && ( clearRect.getHeight() > 0 ) )
+            texture.markDirty( clearRect );
         
         return ( (int)Math.round( bounds.getWidth() ) );
     }
@@ -575,15 +578,19 @@ public class DrawnString
         
         clear( clearColor, clearBackground, clearOffsetX, clearOffsetY, texture, null );
         
+        clearRect.setSize( 0, 0 );
+        
         Rectangle2D bounds = null;
+        int xOff = 0;
         maxWidth = 0;
         //maxHeight = 0;
+        int lastDrawnColWidth = -1;
         calcMaxHeight( font, fontAntiAliased, texture );
         
         final int ax = getAbsX();
         final int ay = getAbsY();
         
-        int yOff = 0;
+        //int yOff = 0;
         String str;
         
         int totalWidth = 0;
@@ -597,52 +604,75 @@ public class DrawnString
             Alignment align = aligns == null ? getAlignment() : ( aligns[i] == null ? getAlignment() : aligns[i] );
             
             if ( ( i == 0 ) && ( prefix != null ) )
+            {
                 if ( strs[i] == null )
                     str = prefix;
                 else
                     str = prefix + strs[i];
+            }
             else if ( ( i == strs.length - 1 ) && ( postfix != null ) )
+            {
                 if ( strs[i] == null )
                     str = postfix;
                 else
                     str = strs[i] + postfix;
-            else if ( strs[i] == null )
-                str = "";
+            }
             else
+            {
                 str = strs[i];
+            }
             
             //int cw = (int)Math.round( bounds.getWidth() );
             int cw = colWidths[i];
             
-            bounds = texture.getStringBounds( str, font, fontAntiAliased );
-            
-            int x = ( ( getAlignment() == Alignment.RIGHT ) ? -totalWidth : ( getAlignment() == Alignment.CENTER ) ? -totalWidth / 2 : 0 ); 
-            x += ax + maxWidth;
-            if ( align == Alignment.RIGHT )
-                x +=  cw - (int)bounds.getWidth() - ( ( i < strs.length - 1 ) ? padding : 0 );
-            else if ( align == Alignment.CENTER )
-                x += ( ( cw - ( ( i > 0 ) ? padding : 0 ) ) / 2 ) - (int)( bounds.getWidth() / 2.0 );
-            
-            int y = ay - ( isYAtBaseline() ? 0 : (int)bounds.getY() );
-            
-            fontColor = oneFCForAll ? fontColor : ( ( fontColors == null ) ? this.fontColor : ( ( i >= fontColors.length ) ? this.fontColor : ( ( fontColors[i] == null ) ? this.fontColor : fontColors[i] ) ) );
-            texture.drawString( str, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, dirtyRect );
-            
-            if ( i == 0 )
-                clearRect.set( dirtyRect );
+            if ( str != null )
+            {
+                bounds = texture.getStringBounds( str, font, fontAntiAliased );
+                
+                if ( str.length() > 0 )
+                {
+                    int x = ( ( getAlignment() == Alignment.RIGHT ) ? -totalWidth : ( getAlignment() == Alignment.CENTER ) ? -totalWidth / 2 : 0 ); 
+                    x += ax + xOff;
+                    if ( align == Alignment.RIGHT )
+                        x +=  cw - (int)bounds.getWidth() - ( ( i < strs.length - 1 ) ? padding : 0 );
+                    else if ( align == Alignment.CENTER )
+                        x += ( ( cw - ( ( i > 0 ) ? padding : 0 ) ) / 2 ) - (int)( bounds.getWidth() / 2.0 );
+                    
+                    int y = ay - ( isYAtBaseline() ? 0 : (int)bounds.getY() );
+                    
+                    fontColor = oneFCForAll ? fontColor : ( ( fontColors == null ) ? this.fontColor : ( ( i >= fontColors.length ) ? this.fontColor : ( ( fontColors[i] == null ) ? this.fontColor : fontColors[i] ) ) );
+                    texture.drawString( str, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, dirtyRect );
+                    
+                    if ( ( dirtyRect.getWidth() > 0 ) && ( dirtyRect.getHeight() > 0 ) )
+                    {
+                        if ( i == 0 )
+                            clearRect.set( dirtyRect );
+                        else
+                            clearRect.combine( dirtyRect );
+                    }
+                }
+                
+                maxWidth += cw;
+                xOff += cw;
+                //maxHeight = Math.max( maxHeight, (int)Math.round( bounds.getHeight() ) );
+                lastDrawnColWidth = cw;
+                //yOff = Math.min( yOff, (int)Math.round( bounds.getY() ) );
+            }
             else
-                clearRect.combine( dirtyRect );
-            
-            maxWidth += cw;
-            //maxHeight = Math.max( maxHeight, (int)Math.round( bounds.getHeight() ) );
-            yOff = Math.min( yOff, (int)Math.round( bounds.getY() ) );
+            {
+                xOff += cw;
+            }
         }
         
-        texture.markDirty( clearRect );
+        if ( ( clearRect.getWidth() > 0 ) && ( clearRect.getHeight() > 0 ) )
+            texture.markDirty( clearRect );
         
         Rect2i.toPool( dirtyRect );
         
-        return ( maxWidth - colWidths[colWidths.length - 1] + (int)bounds.getWidth() );
+        if ( bounds == null )
+            return ( maxWidth );
+        
+        return ( maxWidth - lastDrawnColWidth + (int)bounds.getWidth() );
     }
     
     /**

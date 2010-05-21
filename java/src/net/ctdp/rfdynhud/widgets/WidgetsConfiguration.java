@@ -153,7 +153,7 @@ public class WidgetsConfiguration
     }
     
     /**
-     * Removes all {@link Widget}s and clears all name- and aliass maps.
+     * Removes all {@link Widget}s and clears all name- and alias maps.
      */
     public void clear( LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
     {

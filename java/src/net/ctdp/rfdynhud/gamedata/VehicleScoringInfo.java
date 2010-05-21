@@ -70,9 +70,14 @@ public class VehicleScoringInfo
     private final ScoringInfo scoringInfo;
     
     private String name = null;
-    private static int nextId = 1;
-    private int id = 0;
-    private Integer id2 = null;
+    private static int nextNameId = 1;
+    private int nameId = 0;
+    private Integer nameId2 = null;
+    
+    private String vehClass = null;
+    private static int nextClassId = 1;
+    private int classId = 0;
+    private Integer classId2 = null;
     
     private int stintStartLap = -1;
     private float stintLength = 0f;
@@ -83,20 +88,36 @@ public class VehicleScoringInfo
     float topspeed = 0f;
     
     private static final HashMap<String, Integer> nameToIDMap = new HashMap<String, Integer>();
+    private static final HashMap<String, Integer> classToIDMap = new HashMap<String, Integer>();
     
-    private void updateID()
+    private void updateNameID()
     {
         String name = getDriverName();
         
         Integer id = nameToIDMap.get( name );
         if ( id == null )
         {
-            id = nextId++;
+            id = nextNameId++;
             nameToIDMap.put( name, id );
         }
         
-        this.id = id.intValue();
-        this.id2 = id;
+        this.nameId = id.intValue();
+        this.nameId2 = id;
+    }
+    
+    private void updateClassID()
+    {
+        String vehClass = getVehicleClass();
+        
+        Integer id = classToIDMap.get( vehClass );
+        if ( id == null )
+        {
+            id = nextClassId++;
+            classToIDMap.put( vehClass, id );
+        }
+        
+        this.classId = id.intValue();
+        this.classId2 = id;
     }
     
     void applyEditorPresets( EditorPresets editorPresets )
@@ -107,7 +128,7 @@ public class VehicleScoringInfo
         if ( isPlayer() )
             name = editorPresets.getDriverName();
         
-        updateID();
+        updateNameID();
         
         topspeed = editorPresets.getTopSpeed( getPlace() - 1 );
     }
@@ -115,8 +136,12 @@ public class VehicleScoringInfo
     void onDataUpdated()
     {
         name = null;
-        id = 0;
-        id2 = null;
+        nameId = 0;
+        nameId2 = null;
+        
+        vehClass = null;
+        classId = 0;
+        classId2 = null;
     }
     
     void loadFromStream( InputStream in ) throws IOException
@@ -161,7 +186,7 @@ public class VehicleScoringInfo
      */
     public final String getDriverNameTLC()
     {
-        return ( ThreeLetterCodeManager.getThreeLetterCode( getDriverName() ) );
+        return ( ThreeLetterCodeManager.getThreeLetterCode( getDriverName(), getDriverID() ) );
     }
     
     /**
@@ -169,27 +194,27 @@ public class VehicleScoringInfo
      */
     public final String getDriverNameShort()
     {
-        return ( ThreeLetterCodeManager.getShortForm( getDriverName() ) );
+        return ( ThreeLetterCodeManager.getShortForm( getDriverName(), getDriverID() ) );
     }
     
     public final int getDriverId()
     {
-        if ( id <= 0 )
+        if ( nameId <= 0 )
         {
-            updateID();
+            updateNameID();
         }
         
-        return ( id );
+        return ( nameId );
     }
     
     public final Integer getDriverID()
     {
-        if ( id2 == null )
+        if ( nameId2 == null )
         {
-            updateID();
+            updateNameID();
         }
         
-        return ( id2 );
+        return ( nameId2 );
     }
     
     /**
@@ -565,7 +590,32 @@ public class VehicleScoringInfo
     {
         // char mVehicleClass[32]
         
-        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_CLASS, 32 ) );
+        if ( vehClass == null )
+        {
+            vehClass = ByteUtil.readString( buffer, OFFSET_VEHICLE_CLASS, 32 );
+        }
+        
+        return ( vehClass );
+    }
+    
+    public final int getVehicleClassId()
+    {
+        if ( classId <= 0 )
+        {
+            updateClassID();
+        }
+        
+        return ( classId );
+    }
+    
+    public final Integer getVehicleClassID()
+    {
+        if ( classId2 == null )
+        {
+            updateClassID();
+        }
+        
+        return ( classId2 );
     }
     
     /**

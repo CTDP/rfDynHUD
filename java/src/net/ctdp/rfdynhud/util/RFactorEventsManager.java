@@ -1,5 +1,6 @@
 package net.ctdp.rfdynhud.util;
 
+import java.io.File;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.RFDynHUD;
@@ -34,13 +35,15 @@ public class RFactorEventsManager implements ConfigurationClearListener
     private boolean running = false;
     
     private boolean sessionRunning = false;
-    
-    private static final boolean FIRE_ORE1_IMMEDIATELY = false;
     private int enterRealtimePending = 0;
+    private byte telemDataCurrentForSession = 0;
+    private byte scoringInfoCurrentForSession = 0;
     
     private boolean realtimeMode2 = false;
     @SuppressWarnings( "unused" )
     private boolean isComingOutOfGarage = true;
+    
+    private boolean nextReloadForced = false;
     
     private boolean isInGarage = true;
     private boolean isInPits = true;
@@ -98,8 +101,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
         {
             this.isComingOutOfGarage = true;
             this.sessionRunning = true;
+            this.telemDataCurrentForSession = 0;
+            this.scoringInfoCurrentForSession = 0;
             this.lastSessionStartedTimestamp = System.nanoTime();
-            
             this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
             
             lastKnownLaps.clear();
@@ -148,6 +152,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
      */
     public void onSessionEnded( EditorPresets editorPresets )
     {
+        this.telemDataCurrentForSession = -1;
+        this.scoringInfoCurrentForSession = -1;
         //this.sessionStartTime = -1f;
         this.sessionRunning = false;
     }
@@ -220,11 +226,12 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 String vehicleClass = scoringInfo.getPlayersVehicleScoringInfo().getVehicleClass();
                 SessionType sessionType = scoringInfo.getSessionType();
                 Logger.log( "Entered cockpit. (Mod: \"" + modName + "\", Car: \"" + vehicleClass + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
-                if ( ConfigurationLoader.reloadConfiguration( isInGarage, modName, vehicleClass, sessionType, widgetsManager, gameData, editorPresets, null ) )
+                if ( ConfigurationLoader.reloadConfiguration( isInGarage, modName, vehicleClass, sessionType, widgetsManager, gameData, editorPresets, null, nextReloadForced ) )
                 {
                     TextureDirtyRectsManager.forceCompleteRedraw();
                     widgetsManager.collectTextures( gameData, editorPresets );
                     widgetsManager.clearCompleteTexture();
+                    nextReloadForced = false;
                 }
             }
         }
@@ -288,15 +295,38 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     /**
      * This method must be called when realtime mode has been entered (the user clicked on "Drive").
+     * 
+     * @return true, if textures need to be updated.
      */
-    public final void onRealtimeEntered()
+    public final byte onRealtimeEntered()
     {
         __GDPrivilegedAccess.setRealtimeMode( true, gameData );
         
         enterRealtimePending = 1;
         
-        if ( FIRE_ORE1_IMMEDIATELY )
+        if ( scoringInfoCurrentForSession == 1 )
+        {
+            isInGarage = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
+            
             onRealtimeEntered1( null );
+            
+            return ( 1 );
+        }
+        
+        File lastConfigFile = ConfigurationLoader.getCurrentlyLoadedConfigFile();
+        if ( ( lastConfigFile != null ) && lastConfigFile.getName().toLowerCase().contains( "_garage" ) )
+        {
+            widgetsManager.clear( gameData, null, this );
+            TextureDirtyRectsManager.forceCompleteRedraw();
+            widgetsManager.collectTextures( gameData, null );
+            widgetsManager.clearCompleteTexture();
+            
+            nextReloadForced = true;
+            
+            return ( -1 );
+        }
+        
+        return ( 0 );
     }
     
     public void onRealtimeExited( EditorPresets editorPresets )
@@ -342,7 +372,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
             VehicleScoringInfo viewedVSI = gameData.getScoringInfo().getViewedVehicleScoringInfo();
             String vehicleClass = viewedVSI.getVehicleClass();
             SessionType sessionType = gameData.getScoringInfo().getSessionType();
-            if ( ConfigurationLoader.reloadConfiguration( isInGarage && viewedVSI.isPlayer(), modName, vehicleClass, sessionType, widgetsManager, gameData, null, this ) )
+            if ( ConfigurationLoader.reloadConfiguration( isInGarage && viewedVSI.isPlayer(), modName, vehicleClass, sessionType, widgetsManager, gameData, null, this, false ) )
             {
                 //widgetsManager.clearCompleteTexture();
                 //TextureDirtyRectsManager.forceCompleteRedraw();
@@ -451,40 +481,68 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     /**
      * This method must be called when TelemetryData has been updated.
+     * 
+     * @return true, if textures need to be updated.
      */
-    public final void onTelemetryDataUpdated()
+    public final boolean onTelemetryDataUpdated()
     {
-        checkPosition( null );
+        boolean result = false;
+        
+        if ( scoringInfoCurrentForSession == 1 )
+            checkPosition( null );
         
         if ( ( enterRealtimePending & 1 ) != 0 )
         {
             enterRealtimePending |= 2;
             if ( enterRealtimePending == 7 )
             {
-                if ( !FIRE_ORE1_IMMEDIATELY )
+                if ( ( telemDataCurrentForSession == 0 ) && ( scoringInfoCurrentForSession == 1 ) )
+                {
                     onRealtimeEntered1( null );
+                    result = true;
+                }
                 onRealtimeEntered2( null );
                 enterRealtimePending = 0;
             }
         }
+        
+        if ( sessionRunning )
+            this.telemDataCurrentForSession = 1;
+        
+        return ( result );
     }
     
     /**
      * This method must be called when ScoringInfo has been updated.
+     * 
+     * @return true, if textures need to be updated.
      */
-    public final void onScoringInfoUpdated()
+    public final boolean onScoringInfoUpdated()
     {
+        boolean result = false;
+        
         if ( ( enterRealtimePending & 1 ) != 0 )
         {
+            if ( ( enterRealtimePending & 4 ) == 0 )
+            {
+                isInGarage = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
+            }
+            
             enterRealtimePending |= 4;
             if ( enterRealtimePending == 7 )
             {
-                if ( !FIRE_ORE1_IMMEDIATELY )
+                if ( ( telemDataCurrentForSession == 1 ) && ( scoringInfoCurrentForSession == 0 ) )
+                {
                     onRealtimeEntered1( null );
+                    result = true;
+                }
                 onRealtimeEntered2( null );
                 enterRealtimePending = 0;
             }
         }
+        
+        if ( sessionRunning )
+            this.scoringInfoCurrentForSession = 1;
         
         if ( realtimeMode2 )
         {
@@ -496,12 +554,14 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 lastControl = viewedVSI.getVehicleControl();
                 widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, null );
                 
-                if ( ( rfDynHUD != null ) && realtimeMode2 && reloadConfiguration() )
+                if ( ( rfDynHUD != null ) && reloadConfiguration() )
                     widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, null );
             }
         }
         
         this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
+        
+        return ( result );
     }
     
     public final void checkRaceRestart( long updateTimestamp )
