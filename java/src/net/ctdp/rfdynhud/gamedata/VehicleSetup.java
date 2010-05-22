@@ -8,9 +8,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorTools;
+import net.ctdp.rfdynhud.util.RFactorFileSystem;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -34,8 +35,10 @@ public class VehicleSetup
     }
     */
     
-    public class General
+    public static class General
     {
+        private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+        
         /*
         private float weightDistributionLeft; // GENERAL::CGRightSetting=8//50.0:50.0
         private float weightDistributionFront; // GENERAL::CGRearSetting=12//46.3:53.7
@@ -184,14 +187,10 @@ public class VehicleSetup
          */
         public final float getFuel( int pitstop )
         {
-            switch ( RFactorTools.getMeasurementUnits() )
-            {
-                case IMPERIAL:
-                    return ( getFuelGal( pitstop ) );
-                case METRIC:
-                default:
-                    return ( getFuelL( pitstop ) );
-            }
+            if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                return ( getFuelGal( pitstop ) );
+            
+            return ( getFuelL( pitstop ) );
         }
         
         /*
@@ -252,7 +251,7 @@ public class VehicleSetup
         return ( general );
     }
     
-    private class Suspension
+    private static class Suspension
     {
         private int frontAntiSwayBar; // SUSPENSION::FrontAntiSwaySetting=40//86 N/mm
         private int rearAntiSwayBar; // SUSPENSION::FrontAntiSwaySetting=40//86 N/mm
@@ -419,7 +418,7 @@ public class VehicleSetup
     }
     */
     
-    public class Controls
+    public static class Controls
     {
         //private float steeringLock; // CONTROLS::SteerLockSetting=23//17.5 deg
         private float rearBrakeBalance; // CONTROLS::RearBrakeSetting=85//55.0:45.0
@@ -471,7 +470,7 @@ public class VehicleSetup
         return ( controls );
     }
     
-    public class Engine
+    public static class Engine
     {
         private int revLimitSetting; // ENGINE::RevLimitSetting=0//20,000
         private float revLimit; // ENGINE::RevLimitSetting=0//20,000
@@ -519,7 +518,7 @@ public class VehicleSetup
         return ( engine );
     }
     
-    private class GearBox
+    private static class GearBox
     {
         private float finalDrive; // DRIVELINE::FinalDriveSetting=5//10/60 (bevel 18/20)
         private float reverseGear; // DRIVELINE::ReverseSetting=2//11/38 (23.030)
@@ -599,7 +598,7 @@ public class VehicleSetup
     }
     */
     
-    private class Differential
+    private static class Differential
     {
         private float pump; // DRIVELINE::DiffPumpSetting=30//30%
         private float power; // DRIVELINE::DiffPowerSetting=15//15%
@@ -659,7 +658,7 @@ public class VehicleSetup
     }
     */
     
-    public class WheelAndTire
+    public static class WheelAndTire
     {
         //private float camber; // FRONTLEFT::CamberSetting=24//-3.3 deg
         private int tirePressure; // FRONTLEFT::PressureSetting=25//120 kPa
@@ -805,6 +804,11 @@ public class VehicleSetup
     
     void applyEditorPresets( EditorPresets editorPresets )
     {
+    }
+    
+    void applyMeasurementUnits( MeasurementUnits measurementUnits )
+    {
+        this.general.measurementUnits = measurementUnits;
     }
     
     private VehicleSetup()
@@ -1678,7 +1682,7 @@ public class VehicleSetup
     
     public static final VehicleSetup loadSetup( LiveGameData gameData )
     {
-        return ( loadSetup( new File( RFactorTools.getProfileFolder(), "tempGarage.svm" ), gameData ) );
+        return ( loadSetup( new File( gameData.getProfileInfo().getProfileFolder(), "tempGarage.svm" ), gameData ) );
     }
     
     public static final VehicleSetup loadEditorDefaults( LiveGameData gameData )

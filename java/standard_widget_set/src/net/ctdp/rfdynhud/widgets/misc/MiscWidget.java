@@ -8,8 +8,8 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
-import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -18,13 +18,11 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.LapDisplayType;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -36,7 +34,6 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class MiscWidget extends Widget
 {
-    private final EnumProperty<LapDisplayType> lapDisplayType = new EnumProperty<LapDisplayType>( this, "lapDisplayType", LapDisplayType.CURRENT_LAP );
     private long relTopspeedResetDelay = 10000000000L; // ten seconds
     
     private final BooleanProperty displayScoring = new BooleanProperty( this, "displayScoring", true );
@@ -165,16 +162,12 @@ public class MiscWidget extends Widget
         updateAbs = true;
     }
     
-    private static final String getSpeedUnits()
+    private static final String getSpeedUnits( SpeedUnits speedUnits )
     {
-        switch ( RFactorTools.getSpeedUnits() )
-        {
-            case MPH:
-                return ( "mi/h" );
-            case KPH:
-            default:
-                return ( "km/h" );
-        }
+        if ( speedUnits == SpeedUnits.MPH )
+            return ( "mi/h" );
+        
+        return ( "km/h" );
     }
     
     /**
@@ -192,7 +185,8 @@ public class MiscWidget extends Widget
         final int right = width - 2;
         final int top = -2;
         
-        final String speedUnits = getSpeedUnits();
+        final String speedUnits = getSpeedUnits( gameData.getProfileInfo().getSpeedUnits() );
+        final boolean showCurrentLap = gameData.getProfileInfo().getShowCurrentLap();
         
         {
             boolean b = displayScoring.getBooleanValue();
@@ -206,7 +200,7 @@ public class MiscWidget extends Widget
             boolean b = displayTiming.getBooleanValue();
             if ( ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() ) || ( !displayScoring.getBooleanValue() && !displayVelocity.getBooleanValue() ) )
             {
-                if ( lapDisplayType.getEnumValue().isCurrentLap() )
+                if ( showCurrentLap )
                     lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
                 else
                     lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
@@ -216,7 +210,7 @@ public class MiscWidget extends Widget
             }
             else if ( !displayScoring.getBooleanValue() )
             {
-                if ( lapDisplayType.getEnumValue().isCurrentLap() )
+                if ( showCurrentLap )
                     lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
                 else
                     lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
@@ -226,7 +220,7 @@ public class MiscWidget extends Widget
             }
             else if ( !displayVelocity.getBooleanValue() )
             {
-                if ( lapDisplayType.getEnumValue().isCurrentLap() )
+                if ( showCurrentLap )
                     lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
                 else
                     lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
@@ -379,7 +373,7 @@ public class MiscWidget extends Widget
                     }
                     else
                     {
-                        if ( lapDisplayType.getEnumValue().isCurrentLap() )
+                        if ( gameData.getProfileInfo().getShowCurrentLap() )
                             string = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
                         else
                             string = lapsCompleted + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
@@ -390,7 +384,7 @@ public class MiscWidget extends Widget
             else if ( needsCompleteRedraw || lapsCompleted.hasChanged() )
             {
                 String string;
-                if ( lapDisplayType.getEnumValue().isCurrentLap() )
+                if ( gameData.getProfileInfo().getShowCurrentLap() )
                     string = String.valueOf( lapsCompleted.getValue() + 1 );
                 else
                     string = String.valueOf( lapsCompleted );
@@ -473,7 +467,7 @@ public class MiscWidget extends Widget
                 relTopspeed = 274.3f;
             }
             
-            final String speedUnits = getSpeedUnits();
+            final String speedUnits = getSpeedUnits( gameData.getProfileInfo().getSpeedUnits() );
             
             if ( needsCompleteRedraw || ( ( clock1 || forceUpdateAbs ) && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
             {
@@ -510,7 +504,6 @@ public class MiscWidget extends Widget
         
         writer.writeProperty( displayScoring, "Display the scoring part of the Widget?" );
         writer.writeProperty( displayTiming, "Display the timing part of the Widget?" );
-        writer.writeProperty( lapDisplayType, "The way the laps are displayed. Valid values: CURRENT_LAP, LAPS_DONE." );
         writer.writeProperty( displayVelocity, "Display the velocity and top speed part of the Widget?" );
         writer.writeProperty( "relTopspeedResetDelay", getRelTopspeedResetDelay(), "The delay after which the relative topspeed is resetted (in milliseconds)." );
     }
@@ -525,7 +518,6 @@ public class MiscWidget extends Widget
         
         if ( displayScoring.loadProperty( key, value ) );
         else if ( displayTiming.loadProperty( key, value ) );
-        else if ( lapDisplayType.loadProperty( key, value ) );
         else if ( displayVelocity.loadProperty( key, value ) );
         else if ( key.equals( "relTopspeedResetDelay" ) )
             this.relTopspeedResetDelay = Integer.parseInt( value ) * 1000000L;
@@ -543,7 +535,6 @@ public class MiscWidget extends Widget
         
         propsCont.addProperty( displayScoring );
         propsCont.addProperty( displayTiming );
-        propsCont.addProperty( lapDisplayType );
         propsCont.addProperty( displayVelocity );
         
         propsCont.addProperty( new Property( this, "relTopspeedResetDelay", PropertyEditorType.INTEGER )

@@ -19,7 +19,7 @@ import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
  */
 public class TextureManager
 {
-    public static final File IMAGES_FOLDER = new File( new File( RFactorTools.CONFIG_FOLDER, "data" ), "images" );
+    public static final File IMAGES_FOLDER = new File( new File( RFactorFileSystem.CONFIG_FOLDER, "data" ), "images" );
     
     private static ImageTemplate MISSING_IMAGE = null;
     

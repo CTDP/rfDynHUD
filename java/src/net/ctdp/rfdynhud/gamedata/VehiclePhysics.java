@@ -2,8 +2,9 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.File;
 
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorTools;
+import net.ctdp.rfdynhud.util.RFactorFileSystem;
 
 
 /**
@@ -92,20 +93,8 @@ public class VehiclePhysics
         }
     }
     
-    private static final float getFuelFactor()
-    {
-        switch ( RFactorTools.getMeasurementUnits() )
-        {
-            case IMPERIAL:
-                return ( TelemetryData.LITERS_TO_GALONS );
-            case METRIC:
-            default:
-                return ( 1.0f );
-        }
-    }
-    
     private final PhysicsSetting fuelRangeL = new PhysicsSetting( 1f, 0f );
-    private final PhysicsSetting fuelRange = new PhysicsSetting( getFuelFactor(), 0f );
+    private PhysicsSetting fuelRange = new PhysicsSetting( 1f, 0f );;
     private float weightOfOneLiter = 0.742f; // weight of one liter of fuel in kg
     private final PhysicsSetting frontWingRange = new PhysicsSetting();
     
@@ -206,6 +195,8 @@ public class VehiclePhysics
         float fuelUsageIncreasePerBoostSetting;
         float wearIncreasePerBoostSetting;
         float wearIncreasePerVelocity;
+        
+        private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
         
         /**
          * Gets the engine's name.
@@ -350,14 +341,10 @@ public class VehiclePhysics
         
         public final float getBaseLifetimeOilTemperature()
         {
-            switch ( RFactorTools.getMeasurementUnits() )
-            {
-                case IMPERIAL:
-                    return ( getBaseLifetimeOilTemperatureF() );
-                case METRIC:
-                default:
-                    return ( getBaseLifetimeOilTemperatureC() );
-            }
+            if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                return ( getBaseLifetimeOilTemperatureF() );
+            
+            return ( getBaseLifetimeOilTemperatureC() );
         }
         
         public final float getHalfLifetimeOilTempOffsetC()
@@ -372,14 +359,10 @@ public class VehiclePhysics
         
         public final float getHalfLifetimeOilTempOffset()
         {
-            switch ( RFactorTools.getMeasurementUnits() )
-            {
-                case IMPERIAL:
-                    return ( getHalfLifetimeOilTempOffsetF() );
-                case METRIC:
-                default:
-                    return ( getHalfLifetimeOilTempOffsetC() );
-            }
+            if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                return ( getHalfLifetimeOilTempOffsetF() );
+            
+            return ( getHalfLifetimeOilTempOffsetC() );
         }
         
         /**
@@ -409,14 +392,10 @@ public class VehiclePhysics
          */
         public final float getOptimumOilTemperature()
         {
-            switch ( RFactorTools.getMeasurementUnits() )
-            {
-                case IMPERIAL:
-                    return ( getOptimumOilTemperatureF() );
-                case METRIC:
-                default:
-                    return ( getOptimumOilTemperatureC() );
-            }
+            if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                return ( getOptimumOilTemperatureF() );
+            
+            return ( getOptimumOilTemperatureC() );
         }
         
         /**
@@ -449,14 +428,10 @@ public class VehiclePhysics
          */
         public final float getOverheatingOilTemperature()
         {
-            switch ( RFactorTools.getMeasurementUnits() )
-            {
-                case IMPERIAL:
-                    return ( getOverheatingOilTemperatureF() );
-                case METRIC:
-                default:
-                    return ( getOverheatingOilTemperatureC() );
-            }
+            if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                return ( getOverheatingOilTemperatureF() );
+            
+            return ( getOverheatingOilTemperatureC() );
         }
         
         /**
@@ -486,14 +461,10 @@ public class VehiclePhysics
          */
         public final float getStrongOverheatingOilTemperature()
         {
-            switch ( RFactorTools.getMeasurementUnits() )
-            {
-                case IMPERIAL:
-                    return ( getStrongOverheatingOilTemperatureF() );
-                case METRIC:
-                default:
-                    return ( getStrongOverheatingOilTemperatureC() );
-            }
+            if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                return ( getStrongOverheatingOilTemperatureF() );
+            
+            return ( getStrongOverheatingOilTemperatureC() );
         }
         
         public final float getWearIncreasePerDegreeC()
@@ -674,6 +645,8 @@ public class VehiclePhysics
             float discFailureVariance;
             float torque;
             
+            private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+            
             /**
              * Gets the lower bound of the temperature range in Celsius, where brakes will operate optimally.
              * 
@@ -701,14 +674,10 @@ public class VehiclePhysics
              */
             public final float getOptimumTemperaturesLowerBound()
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getOptimumTemperaturesLowerBoundF() );
-                    case METRIC:
-                    default:
-                        return ( getOptimumTemperaturesLowerBoundC() );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getOptimumTemperaturesLowerBoundF() );
+                
+                return ( getOptimumTemperaturesLowerBoundC() );
             }
             
             /**
@@ -738,14 +707,10 @@ public class VehiclePhysics
              */
             public final float getOptimumTemperaturesUpperBound()
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getOptimumTemperaturesUpperBoundF() );
-                    case METRIC:
-                    default:
-                        return ( getOptimumTemperaturesUpperBoundC() );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getOptimumTemperaturesUpperBoundF() );
+                
+                return ( getOptimumTemperaturesUpperBoundC() );
             }
             
             /**
@@ -775,14 +740,10 @@ public class VehiclePhysics
              */
             public final float getColdTemperature()
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getColdTemperatureF() );
-                    case METRIC:
-                    default:
-                        return ( getColdTemperatureC() );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getColdTemperatureF() );
+                
+                return ( getColdTemperatureC() );
             }
             
             /**
@@ -812,14 +773,10 @@ public class VehiclePhysics
              */
             public final float getOverheatingTemperature()
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getOverheatingTemperatureF() );
-                    case METRIC:
-                    default:
-                        return ( getOverheatingTemperatureC() );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getOverheatingTemperatureF() );
+                
+                return ( getOverheatingTemperatureC() );
             }
             
             public final float getWearincreasePerDegreeCOverOptimum()
@@ -1136,6 +1093,8 @@ public class VehiclePhysics
             //WearGrip2=(0.824,0.805,0.785,0.766,0.746,0.727,0.707,0.688) // Grip at 56/63/69/75/81/88/94/100% wear (defaults to 0.824->0.688), tire bursts at 100% wear
             private static final float[] DEFAULT_WEAR_GRIP = { 1.0f, 0.980f, 0.961f, 0.941f, 0.922f, 0.902f, 0.883f, 0.863f, 0.844f, 0.824f, 0.805f, 0.785f, 0.766f, 0.746f, 0.727f, 0.707f, 0.688f };
             
+            private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+            
             void setDryGrip( float laterial, float longitudinal )
             {
                 this.dryLateralGrip = laterial;
@@ -1196,14 +1155,10 @@ public class VehiclePhysics
              */
             public final float getOptimumTemperature()
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getOptimumTemperatureF() );
-                    case METRIC:
-                    default:
-                        return ( getOptimumTemperatureC() );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getOptimumTemperatureF() );
+                
+                return ( getOptimumTemperatureC() );
             }
             
             /**
@@ -1248,14 +1203,10 @@ public class VehiclePhysics
              */
             public final float getGripLossPerDegreeBelowOptimum()
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getGripLossPerDegreeFBelowOptimum() );
-                    case METRIC:
-                    default:
-                        return ( getGripLossPerDegreeCBelowOptimum() );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getGripLossPerDegreeFBelowOptimum() );
+                
+                return ( getGripLossPerDegreeCBelowOptimum() );
             }
             
             /**
@@ -1285,14 +1236,10 @@ public class VehiclePhysics
              */
             public final float getGripLossPerDegreeAboveOptimum()
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getGripLossPerDegreeFAboveOptimum() );
-                    case METRIC:
-                    default:
-                        return ( getGripLossPerDegreeCAboveOptimum() );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getGripLossPerDegreeFAboveOptimum() );
+                
+                return ( getGripLossPerDegreeCAboveOptimum() );
             }
             
             /**
@@ -1331,14 +1278,10 @@ public class VehiclePhysics
              */
             public final float getBelowTemperature( float grip )
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getBelowTemperatureF( grip ) );
-                    case METRIC:
-                    default:
-                        return ( getBelowTemperatureC( grip ) );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getBelowTemperatureF( grip ) );
+                
+                return ( getBelowTemperatureC( grip ) );
             }
             
             /**
@@ -1377,14 +1320,10 @@ public class VehiclePhysics
              */
             public final float getAboveTemperature( float grip )
             {
-                switch ( RFactorTools.getMeasurementUnits() )
-                {
-                    case IMPERIAL:
-                        return ( getAboveTemperatureF( grip ) );
-                    case METRIC:
-                    default:
-                        return ( getAboveTemperatureC( grip ) );
-                }
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getAboveTemperatureF( grip ) );
+                
+                return ( getAboveTemperatureC( grip ) );
             }
             
             /**
@@ -1843,6 +1782,28 @@ public class VehiclePhysics
         return ( tc );
     }
     
+    void applyMeasurementUnits( MeasurementUnits measurementUnits )
+    {
+        this.engine.measurementUnits = measurementUnits;
+        this.brakes.brakeFrontLeft.measurementUnits = measurementUnits;
+        this.brakes.brakeFrontRight.measurementUnits = measurementUnits;
+        this.brakes.brakeRearLeft.measurementUnits = measurementUnits;
+        this.brakes.brakeRearRight.measurementUnits = measurementUnits;
+        
+        if ( tireCompounds != null )
+        {
+            for ( int i = 0; i < tireCompounds.length; i++ )
+            {
+                tireCompounds[i].frontLeft.measurementUnits = measurementUnits;
+                tireCompounds[i].frontRight.measurementUnits = measurementUnits;
+                tireCompounds[i].rearLeft.measurementUnits = measurementUnits;
+                tireCompounds[i].rearRight.measurementUnits = measurementUnits;
+            }
+        }
+        
+        this.fuelRange = new PhysicsSetting( ( measurementUnits == MeasurementUnits.IMPERIAL ) ? TelemetryData.LITERS_TO_GALONS : 1f, 0f );
+    }
+    
     void loadEditorDefaults()
     {
     	try
@@ -1941,17 +1902,16 @@ public class VehiclePhysics
 		}
     }
     
-    void loadFromPhysicsFiles( String trackName )
+    void loadFromPhysicsFiles( ProfileInfo profileInfo, String trackName )
     {
-        File profileFolder = RFactorTools.getProfileFolder();
-        File cchFile = RFactorTools.getCCHFile( profileFolder );
-    	String playerVEHFile = RFactorTools.getPlayerVEHFile( profileFolder );
+        File cchFile = profileInfo.getCCHFile();
+    	String playerVEHFile = profileInfo.getPlayerVEHFile();
     	
     	try
     	{
     	    long t0 = System.currentTimeMillis();
     	    
-			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorTools.RFACTOR_FOLDER, playerVEHFile, trackName, this );
+			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorFileSystem.RFACTOR_FOLDER, playerVEHFile, trackName, this );
 			
 			Logger.log( "Successfully parsed physics files. (Took " + ( System.currentTimeMillis() - t0 ) + "ms.)" );
 			

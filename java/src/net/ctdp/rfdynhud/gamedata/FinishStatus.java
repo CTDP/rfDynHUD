@@ -16,4 +16,14 @@ public enum FinishStatus
     {
         return ( this == NONE );
     }
+    
+    public final boolean isOut()
+    {
+        return ( ( this == DNF ) || ( this == DQ ) );
+    }
+    
+    public final boolean isFinished()
+    {
+        return ( this == FINISHED );
+    }
 }

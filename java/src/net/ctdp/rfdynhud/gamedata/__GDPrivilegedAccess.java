@@ -12,14 +12,33 @@ public class __GDPrivilegedAccess
     public static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = FuelUsageRecorder.INPUT_ACTION_RESET_FUEL_CONSUMPTION;
     public static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = TopspeedRecorder.INPUT_ACTION_RESET_TOPSPEEDS;
     
+    public static final void updateProfileInfo( ProfileInfo profileInfo )
+    {
+        profileInfo.update();
+    }
+    
+    public static final void updateTrackInfo( TrackInfo trackInfo )
+    {
+        trackInfo.update();
+    }
+    
+    public static final void updateInfo( LiveGameData gameData )
+    {
+        gameData.getProfileInfo().update();
+        gameData.getModInfo().update();
+        gameData.getTrackInfo().update();
+        
+        gameData.getPhysics().applyMeasurementUnits( gameData.getProfileInfo().getMeasurementUnits() );
+    }
+    
     public static final void loadEditorDefaults( VehiclePhysics physics )
     {
         physics.loadEditorDefaults();
     }
     
-    public static final void loadFromPhysicsFiles( VehiclePhysics physics, String trackName )
+    public static final void loadFromPhysicsFiles( ProfileInfo profileInfo, VehiclePhysics physics, String trackName )
     {
-        physics.loadFromPhysicsFiles( trackName );
+        physics.loadFromPhysicsFiles( profileInfo, trackName );
     }
     
     public static final void applyEditorPresets( EditorPresets editorPresets, LiveGameData gameData )

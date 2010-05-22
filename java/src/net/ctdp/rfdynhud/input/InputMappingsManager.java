@@ -13,7 +13,7 @@ import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
-import net.ctdp.rfdynhud.util.RFactorTools;
+import net.ctdp.rfdynhud.util.RFactorFileSystem;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -67,7 +67,7 @@ public class InputMappingsManager
     {
         try
         {
-            File configFile = new File( RFactorTools.CONFIG_FOLDER, "input_bindings.ini" );
+            File configFile = new File( RFactorFileSystem.CONFIG_FOLDER, "input_bindings.ini" );
             
             if ( !configFile.exists() )
             {

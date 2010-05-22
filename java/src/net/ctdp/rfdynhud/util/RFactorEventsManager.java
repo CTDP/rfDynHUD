@@ -30,8 +30,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
     private final WidgetsDrawingManager widgetsManager;
     private final RFDynHUD rfDynHUD;
     
-    private String modName = null;
-    
     private boolean running = false;
     
     private boolean sessionRunning = false;
@@ -97,6 +95,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     public void onSessionStarted( EditorPresets editorPresets )
     {
+        __GDPrivilegedAccess.updateInfo( gameData );
+        
         try
         {
             this.isComingOutOfGarage = true;
@@ -116,7 +116,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
             if ( !physicsLoadedOnce )
             {
                 if ( editorPresets == null )
-                    __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getPhysics(), gameData.getScoringInfo().getTrackName() );
+                    __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getProfileInfo(), gameData.getPhysics(), gameData.getScoringInfo().getTrackName() );
                 else
                     __GDPrivilegedAccess.loadEditorDefaults( gameData.getPhysics() );
                 
@@ -198,7 +198,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         {
             if ( editorPresets == null )
             {
-                __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getPhysics(), trackName );
+                __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getProfileInfo(), gameData.getPhysics(), trackName );
                 VehicleSetup.loadSetup( gameData );
                 __GDPrivilegedAccess.setEngineBoostMapping( gameData.getSetup().getEngine().getBoostMapping(), gameData.getTelemetryData() );
             }
@@ -217,12 +217,11 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         try
         {
-            modName = RFactorTools.getModName( null );
-            
             if ( ResourceManager.isJarMode() && ( editorPresets == null ) )
             {
                 final ScoringInfo scoringInfo = gameData.getScoringInfo();
                 
+                String modName = gameData.getModInfo().getName();
                 String vehicleClass = scoringInfo.getPlayersVehicleScoringInfo().getVehicleClass();
                 SessionType sessionType = scoringInfo.getSessionType();
                 Logger.log( "Entered cockpit. (Mod: \"" + modName + "\", Car: \"" + vehicleClass + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
@@ -289,6 +288,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
     {
         // this method is only called from the editor.
         
+        __GDPrivilegedAccess.updateInfo( gameData );
+        
         onRealtimeEntered1( editorPresets );
         onRealtimeEntered2( editorPresets );
     }
@@ -300,6 +301,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
      */
     public final byte onRealtimeEntered()
     {
+        __GDPrivilegedAccess.updateInfo( gameData );
+        
         __GDPrivilegedAccess.setRealtimeMode( true, gameData );
         
         enterRealtimePending = 1;
@@ -370,6 +373,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         try
         {
             VehicleScoringInfo viewedVSI = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+            String modName = gameData.getModInfo().getName();
             String vehicleClass = viewedVSI.getVehicleClass();
             SessionType sessionType = gameData.getScoringInfo().getSessionType();
             if ( ConfigurationLoader.reloadConfiguration( isInGarage && viewedVSI.isPlayer(), modName, vehicleClass, sessionType, widgetsManager, gameData, null, this, false ) )

@@ -28,7 +28,6 @@ import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.LapDisplayType;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**
@@ -38,8 +37,6 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  */
 public class ETVSessionStateWidget extends ETVWidgetBase
 {
-    private final EnumProperty<LapDisplayType> lapDisplayType = new EnumProperty<LapDisplayType>( this, "lapDisplayType", LapDisplayType.CURRENT_LAP );
-    
     private static enum SessionLimit
     {
         LAPS,
@@ -309,9 +306,9 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         {
             if ( scoringInfo.getSessionType().isRace() && ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) )
                 lap.update( 0 );
-            else if ( lapDisplayType.getValue() == LapDisplayType.CURRENT_LAP )
+            else if ( gameData.getProfileInfo().getShowCurrentLap() )
                 lap.update( vsi.getCurrentLap() );
-            else if ( lapDisplayType.getValue() == LapDisplayType.LAPS_DONE )
+            else
                 lap.update( vsi.getLapsCompleted() );
             
             if ( needsCompleteRedraw || ( clock1 && lap.hasChanged() ) )
@@ -333,7 +330,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( lapDisplayType, "The way the laps are displayed. Valid values: CURRENT_LAP, LAPS_DONE." );
         writer.writeProperty( sessionLimitPreference, "If a session is limited by both laps and time, this limit will be displayed." );
     }
     
@@ -345,8 +341,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     {
         super.loadProperty( key, value );
         
-        if ( lapDisplayType.loadProperty( key, value ) );
-        else if ( sessionLimitPreference.loadProperty( key, value ) );
+        if ( sessionLimitPreference.loadProperty( key, value ) );
     }
     
     /**
@@ -359,7 +354,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( lapDisplayType );
         propsCont.addProperty( sessionLimitPreference );
     }
     

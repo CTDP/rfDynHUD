@@ -10,6 +10,7 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
@@ -25,9 +26,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.util.RFactorTools.MeasurementUnits;
 import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Position;
@@ -494,16 +493,12 @@ public class FuelWidget extends Widget
         return ( tts );
     }
     
-    private static final String getFuelUnits()
+    private static final String getFuelUnits( MeasurementUnits measurementUnits )
     {
-        switch ( RFactorTools.getMeasurementUnits() )
-        {
-            case IMPERIAL:
-                return ( Loc.fuel_units_IMPERIAL );
-            case METRIC:
-            default:
-                return ( Loc.fuel_units_METRIC );
-        }
+        if ( measurementUnits == MeasurementUnits.IMPERIAL )
+            return ( Loc.fuel_units_IMPERIAL );
+        
+        return ( Loc.fuel_units_METRIC );
     }
     
     /**
@@ -529,7 +524,7 @@ public class FuelWidget extends Widget
         int fuelBarWidth = this.fuelBarWidth.getEffectiveWidth();
         int fuelBarCenter = left + fuelBarLeftOffset.getIntValue() + ( fuelBarWidth / 2 );
         
-        fuelLoadString1 = dsf.newDrawnString( "fuelLoadString1", fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, getFuelUnits() );
+        fuelLoadString1 = dsf.newDrawnString( "fuelLoadString1", fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, getFuelUnits( gameData.getProfileInfo().getMeasurementUnits() ) );
         fuelLoadString2 = dsf.newDrawnString( "fuelLoadString2", null, fuelLoadString1, fuelBarCenter, 0, Alignment.CENTER, false, fuelFont, fuelFontAntiAliased, fuelFontColor, null, Loc.fuelLoad2_postfix );
         fuelLoadString3 = dsf.newDrawnString( "fuelLoadString3", null, fuelLoadString2, fuelBarCenter, 0, Alignment.CENTER, false, font2, font2AntiAliased, fuelFontColor, null, null );
         
@@ -582,12 +577,13 @@ public class FuelWidget extends Widget
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         TelemetryData telemData = gameData.getTelemetryData();
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
+        MeasurementUnits measurementUnits = gameData.getProfileInfo().getMeasurementUnits();
         
         final int tankSize = (int)gameData.getPhysics().getFuelRange().getMaxValue();
         
         if ( needsCompleteRedraw )
         {
-            fuelHeaderString.draw( offsetX, offsetY, String.valueOf( tankSize ) + " " + ( RFactorTools.getMeasurementUnits() == MeasurementUnits.IMPERIAL ? Loc.fuelHeader_postfix_IMPERIAL : Loc.fuelHeader_postfix_METRIC ), backgroundColor, texture );
+            fuelHeaderString.draw( offsetX, offsetY, String.valueOf( tankSize ) + " " + ( measurementUnits == MeasurementUnits.IMPERIAL ? Loc.fuelHeader_postfix_IMPERIAL : Loc.fuelHeader_postfix_METRIC ), backgroundColor, texture );
             fuelUsageHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
             fuelUsageLastLapHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
             fuelUsageAvgHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
@@ -693,12 +689,12 @@ public class FuelWidget extends Widget
             
             String string;
             if ( lastFuelUsage > 0f )
-                string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + getFuelUnits();
+                string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + getFuelUnits( measurementUnits );
             else
                 string = Loc.fuelUsageLastLap_na;
             fuelUsageLastLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
             
-            string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + getFuelUnits();
+            string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + getFuelUnits( measurementUnits );
             fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, texture );
         }
         
@@ -771,7 +767,7 @@ public class FuelWidget extends Widget
                     String string = String.valueOf( nextPitstopLap ) + " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")";
                     nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
-                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + getFuelUnits() + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + Loc.nextPitstopFuel_laps + "," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
+                    string = String.valueOf( pitstopFuel.getValue() + fuelSafetyPlanning.getIntValue() ) + getFuelUnits( measurementUnits ) + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + Loc.nextPitstopFuel_laps + "," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
                     nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 }
                 else

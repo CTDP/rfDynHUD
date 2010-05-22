@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.Logger;
@@ -74,6 +75,8 @@ public class ScoringInfo
     private float sessionTime = 0.0f;
     
     private double raceLengthPercentage = 1.0;
+    
+    private boolean classScoringCalculated = false;
     
     public static interface ScoringInfoUpdateListener
     {
@@ -165,6 +168,17 @@ public class ScoringInfo
         fastestSector1VSI = null;
         fastestSector2VSI = null;
         fastestSector3VSI = null;
+        
+        classScoringCalculated = false;
+        
+        if ( vehicleScoringInfo != null )
+        {
+            for ( int i = 0; i < vehicleScoringInfo.length; i++ )
+            {
+                if ( vehicleScoringInfo[i] != null )
+                    vehicleScoringInfo[i].classLeaderVSI = null;
+            }
+        }
     }
     
     void initVehicleScoringInfo()
@@ -189,7 +203,7 @@ public class ScoringInfo
             
             for ( int i = oldCount; i < numVehicles; i++ )
             {
-                tmp[i] = new VehicleScoringInfo( this );
+                tmp[i] = new VehicleScoringInfo( this, gameData.getProfileInfo() );
             }
             
             vehicleScoringInfo = tmp;
@@ -428,7 +442,7 @@ public class ScoringInfo
     {
         if ( getSessionType().isRace() )
         {
-            double trackRaceLaps = gameData.getTrackRaceLaps();
+            double trackRaceLaps = gameData.getTrackInfo().getRaceLaps();
             if ( trackRaceLaps < 0.0 )
             {
                 // We seem to be in editor mode
@@ -615,6 +629,65 @@ public class ScoringInfo
     public final double getRaceLengthPercentage()
     {
         return ( raceLengthPercentage );
+    }
+    
+    private final HashSet<Integer> handledClassIDs = new HashSet<Integer>();
+    
+    final void updateClassScoring()
+    {
+        if ( classScoringCalculated )
+            return;
+        
+        handledClassIDs.clear();
+        
+        final int n = getNumVehicles();
+        
+        for ( int i = 0; i < n; i++ )
+        {
+            VehicleScoringInfo vsi0 = getVehicleScoringInfo( i );
+            
+            if ( handledClassIDs.add( vsi0.getVehicleClassID() ) )
+            {
+                short p = 1;
+                float tbn = 0f;
+                int lbn = 0;
+                float tbl = 0f;
+                int lbl = 0;
+                
+                vsi0.placeByClass = p++;
+                vsi0.timeBehindNextByClass = tbn;
+                vsi0.lapsBehindNextByClass = lbn;
+                vsi0.timeBehindLeaderByClass = tbl;
+                vsi0.lapsBehindLeaderByClass = lbl;
+                vsi0.classLeaderVSI = vsi0;
+                
+                for ( int j = vsi0.getPlace() - 0; j < n; j++ )
+                {
+                    VehicleScoringInfo vsi1 = getVehicleScoringInfo( j );
+                    
+                    tbn += vsi1.getTimeBehindNextInFront();
+                    lbn += vsi1.getLapsBehindNextInFront();
+                    tbl += vsi1.getTimeBehindNextInFront();
+                    lbl += vsi1.getLapsBehindNextInFront();
+                    
+                    if ( vsi1.getVehicleClassId() == vsi0.getVehicleClassId() )
+                    {
+                        vsi1.placeByClass = p++;
+                        vsi1.timeBehindNextByClass = tbn;
+                        vsi1.lapsBehindNextByClass = lbn;
+                        vsi1.timeBehindLeaderByClass = tbl;
+                        vsi1.lapsBehindLeaderByClass = lbl;
+                        vsi1.classLeaderVSI = vsi0.classLeaderVSI;
+                        
+                        tbn = 0f;
+                        lbn = 0;
+                        vsi0 = vsi1;
+                    }
+                }
+            }
+        }
+        
+        classScoringCalculated = true;
     }
     
     /*

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
-import net.ctdp.rfdynhud.util.RFactorTools;
 
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
@@ -496,14 +496,10 @@ public class TelemetryData
      */
     public final float getScalarVelocity()
     {
-        switch ( RFactorTools.getSpeedUnits() )
-        {
-            case MPH:
-                return ( getScalarVelocityMPH() );
-            case KPH:
-            default:
-                return ( getScalarVelocityKPH() );
-        }
+        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
+            return ( getScalarVelocityMPH() );
+        
+        return ( getScalarVelocityKPH() );
     }
     
     /**
@@ -663,7 +659,7 @@ public class TelemetryData
      */
     public final float getEngineWaterTemperature()
     {
-        switch ( RFactorTools.getMeasurementUnits() )
+        switch ( gameData.getProfileInfo().getMeasurementUnits() )
         {
             case IMPERIAL:
                 return ( getEngineWaterTemperatureF() );
@@ -696,7 +692,7 @@ public class TelemetryData
      */
     public final float getEngineOilTemperature()
     {
-        switch ( RFactorTools.getMeasurementUnits() )
+        switch ( gameData.getProfileInfo().getMeasurementUnits() )
         {
             case IMPERIAL:
                 return ( getEngineOilTemperatureF() );
@@ -801,7 +797,7 @@ public class TelemetryData
      */
     public final float getFuel()
     {
-        switch ( RFactorTools.getMeasurementUnits() )
+        switch ( gameData.getProfileInfo().getMeasurementUnits() )
         {
             case IMPERIAL:
                 return ( getFuelGal() );
@@ -1106,7 +1102,7 @@ public class TelemetryData
      */
     public final float getBrakeTemperature( Wheel wheel )
     {
-        switch ( RFactorTools.getMeasurementUnits() )
+        switch ( gameData.getProfileInfo().getMeasurementUnits() )
         {
             case IMPERIAL:
                 return ( getBrakeTemperatureF( wheel ) );
@@ -1175,7 +1171,7 @@ public class TelemetryData
      */
     public final float getTireTemperature( Wheel wheel, WheelPart part )
     {
-        switch ( RFactorTools.getMeasurementUnits() )
+        switch ( gameData.getProfileInfo().getMeasurementUnits() )
         {
             case IMPERIAL:
                 return ( getTireTemperatureF( wheel, part ) );
@@ -1214,7 +1210,7 @@ public class TelemetryData
      */
     public final float getTireTemperature( Wheel wheel )
     {
-        switch ( RFactorTools.getMeasurementUnits() )
+        switch ( gameData.getProfileInfo().getMeasurementUnits() )
         {
             case IMPERIAL:
                 return ( getTireTemperatureF( wheel ) );

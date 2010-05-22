@@ -10,6 +10,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
@@ -21,7 +22,6 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.StandingsTools;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
@@ -45,6 +45,8 @@ public class StandingsWidget extends Widget
     private final ColorProperty fontColor_finished = new ColorProperty( this, "fontColor_finished", "#00FF00" );
     
     private final BooleanProperty useAutoWidth = new BooleanProperty( this, "useAutoWidth", false );
+    
+    private final BooleanProperty ignoreOtherClasses = new BooleanProperty( this, "ignoreOtherClasses", false );
     
     private final EnumProperty<StandingsView> initialView = new EnumProperty<StandingsView>( this, "initialView", StandingsView.RELATIVE_TO_ME )
     {
@@ -263,7 +265,7 @@ public class StandingsWidget extends Widget
         if ( editorPresets != null )
             this.maxNumVehicles = 23;
         else
-            this.maxNumVehicles = RFactorTools.getMaxOpponents() + 1;
+            this.maxNumVehicles = gameData.getModInfo().getMaxOpponents() + 1;
         
         //forceReinitialization();
     }
@@ -308,19 +310,15 @@ public class StandingsWidget extends Widget
         return ( null );
     }
     
-    private static final String getSpeedUnits()
+    private static final String getSpeedUnits( SpeedUnits speedUnits )
     {
-        switch ( RFactorTools.getSpeedUnits() )
-        {
-            case MPH:
-                return ( Loc.column_topspeed_units_IMPERIAL );
-            case KPH:
-            default:
-                return ( Loc.column_topspeed_units_METRIC );
-        }
+        if ( speedUnits == SpeedUnits.MPH )
+            return ( Loc.column_topspeed_units_IMPERIAL );
+        
+        return ( Loc.column_topspeed_units_METRIC );
     }
     
-    private String[] getPositionStringRaceRelToLeader( GamePhase gamePhase, VehicleScoringInfo vsi )
+    private String[] getPositionStringRaceRelToLeader( GamePhase gamePhase, VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         short place = vsi.getPlace();
         
@@ -379,7 +377,7 @@ public class StandingsWidget extends Widget
             if ( showTopspeeds.getBooleanValue() )
             {
                 ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-                ss[6] = getSpeedUnits();
+                ss[6] = getSpeedUnits( speedUnits );
             }
             else
             {
@@ -416,7 +414,7 @@ public class StandingsWidget extends Widget
         return ( ss );
     }
     
-    private String[] getPositionStringRaceRelToMe( int ownPlace, int ownLaps, float ownLapDistance, float relTime, GamePhase gamePhase, VehicleScoringInfo vsi )
+    private String[] getPositionStringRaceRelToMe( int ownPlace, int ownLaps, float ownLapDistance, float relTime, GamePhase gamePhase, VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         short place = vsi.getPlace();
         
@@ -488,7 +486,7 @@ public class StandingsWidget extends Widget
             if ( showTopspeeds.getBooleanValue() )
             {
                 ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-                ss[6] = getSpeedUnits();
+                ss[6] = getSpeedUnits( speedUnits );
             }
             else
             {
@@ -525,16 +523,16 @@ public class StandingsWidget extends Widget
         return ( ss );
     }
     
-    private String[] getPosStringRace( int ownPlace, int ownLaps, float ownLapDistance, GamePhase gamePhase, VehicleScoringInfo vsi )
+    private String[] getPosStringRace( int ownPlace, int ownLaps, float ownLapDistance, GamePhase gamePhase, VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         switch ( getView() )
         {
             case RELATIVE_TO_LEADER:
-                return ( getPositionStringRaceRelToLeader( gamePhase, vsi ) );
+                return ( getPositionStringRaceRelToLeader( gamePhase, vsi, speedUnits ) );
             case RELATIVE_TO_ME:
-                return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace() - 1], gamePhase, vsi ) );
+                return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace() - 1], gamePhase, vsi, speedUnits ) );
             case ABSOLUTE_TIMES: // Only possible in the editor!
-                return ( getPositionStringNonRaceAbsTimes( vsi ) );
+                return ( getPositionStringNonRaceAbsTimes( vsi, speedUnits ) );
         }
         
         // unreachable code
@@ -544,11 +542,11 @@ public class StandingsWidget extends Widget
     private int initPosStringsRace( LiveGameData gameData )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
-        
+        SpeedUnits speedUnits = gameData.getProfileInfo().getSpeedUnits();
         GamePhase gamePhase = scoringInfo.getGamePhase();
         VehicleScoringInfo myVSI = scoringInfo.getViewedVehicleScoringInfo();
         
-        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, myVSI, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, myVSI, ignoreOtherClasses.getBooleanValue(), getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         
         int ownPlace = myVSI.getPlace();
         int ownLaps = myVSI.getLapsCompleted();
@@ -556,20 +554,20 @@ public class StandingsWidget extends Widget
         
         if ( getView() == StandingsView.RELATIVE_TO_ME )
         {
-            StandingsTools.computeRelativeTimesRace( scoringInfo, myVSI, relTimes );
+            StandingsTools.computeRelativeTimesRace( scoringInfo, myVSI, ignoreOtherClasses.getBooleanValue(), relTimes );
         }
         
         currPosStrings = ensureCapacity( currPosStrings, numVehicles, false );
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            currPosStrings[i] = getPosStringRace( ownPlace, ownLaps, ownLapDistance, gamePhase, vehicleScoringInfos[i] );
+            currPosStrings[i] = getPosStringRace( ownPlace, ownLaps, ownLapDistance, gamePhase, vehicleScoringInfos[i], speedUnits );
         }
         
         return ( numVehicles );
     }
     
-    private String[] getPositionStringNonRaceRelToLeader( int firstVisiblePlace, float bestTime, VehicleScoringInfo vsi )
+    private String[] getPositionStringNonRaceRelToLeader( int firstVisiblePlace, float bestTime, VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         short place = vsi.getPlace();
         
@@ -620,7 +618,7 @@ public class StandingsWidget extends Widget
         if ( showTopspeeds.getBooleanValue() )
         {
             ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-            ss[6] = getSpeedUnits();
+            ss[6] = getSpeedUnits( speedUnits );
         }
         else
         {
@@ -631,7 +629,7 @@ public class StandingsWidget extends Widget
         return ( ss );
     }
     
-    private String[] getPositionStringNonRaceRelToMe( int ownPlace, float ownTime, VehicleScoringInfo vsi )
+    private String[] getPositionStringNonRaceRelToMe( int ownPlace, float ownTime, VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         short place = vsi.getPlace();
         
@@ -682,7 +680,7 @@ public class StandingsWidget extends Widget
         if ( showTopspeeds.getBooleanValue() )
         {
             ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-            ss[6] = getSpeedUnits();
+            ss[6] = getSpeedUnits( speedUnits );
         }
         else
         {
@@ -693,7 +691,7 @@ public class StandingsWidget extends Widget
         return ( ss );
     }
     
-    private String[] getPositionStringNonRaceAbsTimes( VehicleScoringInfo vsi )
+    private String[] getPositionStringNonRaceAbsTimes( VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         short place = vsi.getPlace();
         
@@ -741,7 +739,7 @@ public class StandingsWidget extends Widget
         if ( showTopspeeds.getBooleanValue() )
         {
             ss[5] = NumberUtil.formatFloat( vsi.getTopspeed(), 1, true );
-            ss[6] = getSpeedUnits();
+            ss[6] = getSpeedUnits( speedUnits );
         }
         else
         {
@@ -752,23 +750,24 @@ public class StandingsWidget extends Widget
         return ( ss );
     }
     
-    private String[] getPosStringNonRace( VehicleScoringInfo vsi, int firstVisiblePlace, int ownPlace, float ownTime, float bestTime )
+    private String[] getPosStringNonRace( VehicleScoringInfo vsi, int firstVisiblePlace, int ownPlace, float ownTime, float bestTime, SpeedUnits speedUnits )
     {
         if ( getView() == StandingsView.ABSOLUTE_TIMES )
-            return ( getPositionStringNonRaceAbsTimes( vsi ) );
+            return ( getPositionStringNonRaceAbsTimes( vsi, speedUnits ) );
         
         if ( ( getView() == StandingsView.RELATIVE_TO_LEADER ) || ( ownTime <= 0f ) )
-            return ( getPositionStringNonRaceRelToLeader( firstVisiblePlace, bestTime, vsi ) );
+            return ( getPositionStringNonRaceRelToLeader( firstVisiblePlace, bestTime, vsi, speedUnits ) );
         
-        return ( getPositionStringNonRaceRelToMe( ownPlace, ownTime, vsi ) );
+        return ( getPositionStringNonRaceRelToMe( ownPlace, ownTime, vsi, speedUnits ) );
     }
     
     private int initPosStringsNonRace( LiveGameData gameData )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        SpeedUnits speedUnits = gameData.getProfileInfo().getSpeedUnits();
         VehicleScoringInfo ownVSI = scoringInfo.getViewedVehicleScoringInfo();
         
-        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, ownVSI, getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, ownVSI, ignoreOtherClasses.getBooleanValue(), getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         
         int firstVisiblePlace = vehicleScoringInfos[0].getPlace();
         float bestTime = vehicleScoringInfos[0].getBestLapTime();
@@ -781,7 +780,7 @@ public class StandingsWidget extends Widget
         {
             VehicleScoringInfo vsi = vehicleScoringInfos[i];
             
-            currPosStrings[i] = getPosStringNonRace( vsi, firstVisiblePlace, ownPlace, ownTime, bestTime );
+            currPosStrings[i] = getPosStringNonRace( vsi, firstVisiblePlace, ownPlace, ownTime, bestTime, speedUnits );
         }
         
         return ( numVehicles );
@@ -972,6 +971,7 @@ public class StandingsWidget extends Widget
         writer.writeProperty( fontColor_out, "The font color used for retired drivers in the format #RRGGBB (hex)." );
         writer.writeProperty( fontColor_finished, "The font color used for finished drivers in the format #RRGGBB (hex)." );
         writer.writeProperty( useAutoWidth, "Automatically compute and display the width?" );
+        writer.writeProperty( ignoreOtherClasses, "Ignore vehicles from other classes than the viewed for stadings?" );
         writer.writeProperty( initialView, "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
         //writer.writeProperty( allowAbsTimesView, "" );
         //writer.writeProperty( allowRelToLeaderView, "" );
@@ -995,6 +995,7 @@ public class StandingsWidget extends Widget
         else if ( fontColor_out.loadProperty( key, value ) );
         else if ( fontColor_finished.loadProperty( key, value ) );
         else if ( useAutoWidth.loadProperty( key, value ) );
+        else if ( ignoreOtherClasses.loadProperty( key, value ) );
         else if ( initialView.loadProperty( key, value ) );
         //else if ( allowAbsTimesView.loadProperty( key, value ) );
         //else if ( allowRelToLeaderView.loadProperty( key, value ) );
@@ -1020,6 +1021,8 @@ public class StandingsWidget extends Widget
         propsCont.addProperty( fontColor_out );
         propsCont.addProperty( fontColor_finished );
         propsCont.addProperty( useAutoWidth );
+        
+        propsCont.addProperty( ignoreOtherClasses );
         
         propsCont.addProperty( initialView );
         //propsCont.addProperty( allowAbsTimesView );

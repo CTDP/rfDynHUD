@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
@@ -19,7 +20,6 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -109,17 +109,17 @@ public class TrackPositionWidget extends Widget
         forceAndSetDirty();
     }
     
-    private void initMaxDisplayedVehicles( boolean isEditorMode )
+    private void initMaxDisplayedVehicles( boolean isEditorMode, ModInfo modInfo )
     {
         if ( isEditorMode )
             this.maxDisplayedVehicles = 23;
         else
-            this.maxDisplayedVehicles = RFactorTools.getMaxOpponents() + 1;
+            this.maxDisplayedVehicles = modInfo.getMaxOpponents() + 1;
     }
     
-    private void initSubTextures( boolean isEditorMode )
+    private void initSubTextures( boolean isEditorMode, ModInfo modInfo )
     {
-        initMaxDisplayedVehicles( isEditorMode );
+        initMaxDisplayedVehicles( isEditorMode, modInfo );
         
         if ( ( itemTextures == null ) || ( itemTextures.length != maxDisplayedVehicles ) )
         {
@@ -151,7 +151,7 @@ public class TrackPositionWidget extends Widget
     @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
-        initSubTextures( editorPresets != null );
+        initSubTextures( editorPresets != null, gameData.getModInfo() );
         
         return ( itemTextures );
     }
@@ -164,9 +164,7 @@ public class TrackPositionWidget extends Widget
     {
         final boolean isEditorMode = ( editorPresets != null );
         
-        initMaxDisplayedVehicles( isEditorMode );
-        
-        initSubTextures( isEditorMode );
+        initSubTextures( isEditorMode, gameData.getModInfo() );
         
         for ( int i = 0; i < maxDisplayedVehicles; i++ )
         {
@@ -213,7 +211,7 @@ public class TrackPositionWidget extends Widget
         for ( int i = 0; i < n; i++ )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
-            //if ( !vsi.isInPits() )
+            if ( /*!vsi.isInPits() &&*/ ( vsi.getFinishStatus().isNone() || vsi.getFinishStatus().isFinished() ) )
             {
                 float lapDistance = ( ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength() ) / scoringInfo.getTrackLength();
                 if ( lapDistance < 0f )

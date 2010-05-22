@@ -121,7 +121,7 @@ public class ThreeLetterCodeManager
     {
         try
         {
-            File ini = new File( RFactorTools.CONFIG_FOLDER, INI_FILENAME );
+            File ini = new File( RFactorFileSystem.CONFIG_FOLDER, INI_FILENAME );
             if ( !ini.exists() )
             {
                 Logger.log( "WARNING: No " + INI_FILENAME + " found." );

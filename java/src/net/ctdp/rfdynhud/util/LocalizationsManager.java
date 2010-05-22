@@ -127,7 +127,7 @@ public class LocalizationsManager
     
     private void update( File baseFolder )
     {
-        String usedLanguage = RFactorTools.PLUGIN_INI.getGeneralLanguage();
+        String usedLanguage = RFactorFileSystem.PLUGIN_INI.getGeneralLanguage();
         ArrayList<File> files = new ArrayList<File>();
         
         for ( File f : baseFolder.listFiles() )
@@ -160,9 +160,9 @@ public class LocalizationsManager
             return;
         
         if ( ResourceManager.isJarMode() )
-            update( new File( RFactorTools.PLUGIN_FOLDER, "widget_sets" ) );
+            update( new File( RFactorFileSystem.PLUGIN_FOLDER, "widget_sets" ) );
         else
-            update( RFactorTools.PLUGIN_FOLDER );
+            update( RFactorFileSystem.PLUGIN_FOLDER );
     }
     
     public final String getLocalization( Class<? extends Widget> widgetClass, String key )

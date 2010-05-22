@@ -11,13 +11,14 @@ public class StandingsTools
      * 
      * @param scoringInfo
      * @param viewedVSI
+     * @param ignoreOtherClasses
      * @param standingsView
      * @param forceLeaderDisplayed
      * @param target
      * 
      * @return the actual number of displayed drivers.
      */
-    public static int getDisplayedVSIsForScoring( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, StandingsView standingsView, boolean forceLeaderDisplayed, VehicleScoringInfo[] target )
+    public static int getDisplayedVSIsForScoring( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, boolean ignoreOtherClasses, StandingsView standingsView, boolean forceLeaderDisplayed, VehicleScoringInfo[] target )
     {
         final int maxDisplayedDrivers = target.length;
         
@@ -46,7 +47,10 @@ public class StandingsTools
             {
                 i0++;
                 
-                target[j++] = scoringInfo.getVehicleScoringInfo( 0 );
+                if ( ignoreOtherClasses )
+                    target[j++] = viewedVSI.getClassLeaderVSI();
+                else
+                    target[j++] = scoringInfo.getVehicleScoringInfo( 0 );
             }
         }
         
@@ -64,9 +68,10 @@ public class StandingsTools
      * 
      * @param scoringInfo
      * @param viewedVSI
+     * @param ignoreOtherClasses
      * @param relTimes target array
      */
-    public static void computeRelativeTimesRace( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, float[] relTimes )
+    public static void computeRelativeTimesRace( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, boolean ignoreOtherClasses, float[] relTimes )
     {
         final int numVehicles = scoringInfo.getNumVehicles();
         final int ownPlace = viewedVSI.getPlace();

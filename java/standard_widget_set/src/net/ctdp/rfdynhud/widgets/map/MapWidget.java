@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
@@ -29,7 +30,6 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorTools;
 import net.ctdp.rfdynhud.util.Track;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
@@ -136,6 +136,15 @@ public class MapWidget extends Widget
         return ( !rotationEnabled.getBooleanValue() );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean needsRealtimeScoringInfo()
+    {
+        return ( true );
+    }
+    
     private void setItemRadius( int radius )
     {
         this.baseItemRadius = radius;
@@ -152,17 +161,17 @@ public class MapWidget extends Widget
         track = null;
     }
     
-    private void initMaxDisplayedVehicles( boolean isEditorMode )
+    private void initMaxDisplayedVehicles( boolean isEditorMode, ModInfo modInfo )
     {
         if ( isEditorMode )
             this.maxDisplayedVehicles = 23;
         else
-            this.maxDisplayedVehicles = RFactorTools.getMaxOpponents() + 1;
+            this.maxDisplayedVehicles = modInfo.getMaxOpponents() + 1;
     }
     
-    private void initSubTextures( boolean isEditorMode, int widgetWidth, int widgetHeight )
+    private void initSubTextures( boolean isEditorMode, ModInfo modInfo, int widgetWidth, int widgetHeight )
     {
-        initMaxDisplayedVehicles( isEditorMode );
+        initMaxDisplayedVehicles( isEditorMode, modInfo );
         
         int numTextures = maxDisplayedVehicles;
         int subTexOff = 0;
@@ -207,7 +216,7 @@ public class MapWidget extends Widget
     @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
-        initSubTextures( editorPresets != null, widgetInnerWidth, widgetInnerHeight );
+        initSubTextures( editorPresets != null, gameData.getModInfo(), widgetInnerWidth, widgetInnerHeight );
         
         return ( subTextures );
     }
@@ -220,39 +229,26 @@ public class MapWidget extends Widget
     {
         final boolean isEditorMode = ( editorPresets != null );
         
-        initMaxDisplayedVehicles( isEditorMode );
+        initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
         if ( track == null )
         {
-            Track track;
-            if ( isEditorMode )
+            File sceneFolder = gameData.getTrackInfo().getTrackFolder();
+            if ( sceneFolder == null )
             {
-                File sceneFolder = RFactorTools.getLastUsedTrackFile( null );
-                if ( sceneFolder == null )
-                {
-                    track = null;
-                    
-                    if ( RFactorTools.isLastUsedTrackFileValid() )
-                        Logger.log( "Warning: Couldn't read track data from file \"" + RFactorTools.getPlainLastUsedTrackFile() + "\"." );
-                    else
-                        Logger.log( "Warning: Unable to read last used track file from PLR file." );
-                }
+                if ( gameData.getTrackInfo().getSceneFile() == null )
+                    Logger.log( "Warning: Unable to read last used track file from PLR file." );
                 else
-                {
-                    track = gameData.getTrack( sceneFolder.getParentFile() );
-                }
+                    Logger.log( "Warning: Couldn't read track data from file \"" + gameData.getTrackInfo().getSceneFile() + "\"." );
             }
             else
             {
-                track = gameData.getTrack();
+                track = gameData.getTrackInfo().getTrack();
             }
             //track = Track.parseTrackFromAIW( new File( "D:\\Spiele\\rFactor\\GameData\\Locations\\4r2009FSone\\Northamptonshire\\NAS_BritishGP\\NAS_BritishGP.AIW" ) );
-            
-            if ( track != this.track )
-                this.track = track;
         }
         
-        initSubTextures( isEditorMode, width, height );
+        initSubTextures( isEditorMode, gameData.getModInfo(), width, height );
         
         if ( ( cacheTexture == null ) || ( cacheTexture.getUsedWidth() != width ) || ( cacheTexture.getUsedHeight() != height ) )
         {
@@ -489,7 +485,7 @@ public class MapWidget extends Widget
             for ( int i = 0; i < n; i++ )
             {
                 VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
-                //if ( !vsi.isInPits() )
+                if ( /*!vsi.isInPits() &&*/ ( vsi.getFinishStatus().isNone() || vsi.getFinishStatus().isFinished() ) )
                 {
                     float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % track.getTrackLength();
                     

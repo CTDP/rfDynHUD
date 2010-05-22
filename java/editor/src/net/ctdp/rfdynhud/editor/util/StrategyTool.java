@@ -26,9 +26,10 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.gamedata.FuelUsageRecorder;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo;
+import net.ctdp.rfdynhud.gamedata.TrackInfo;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorTools;
-import net.ctdp.rfdynhud.util.ResourceManager;
 
 public class StrategyTool
 {
@@ -203,6 +204,11 @@ public class StrategyTool
     
     private StrategyTool( JFrame owner )
     {
+        ProfileInfo profileInfo = new ProfileInfo();
+        __GDPrivilegedAccess.updateProfileInfo( profileInfo );
+        TrackInfo trackInfo = new TrackInfo( profileInfo );
+        __GDPrivilegedAccess.updateTrackInfo( trackInfo );
+        
         this.frame = new JDialog( owner, "Strategy Calculator" );
         frame.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
         frame.setModal( true );
@@ -224,7 +230,7 @@ public class StrategyTool
         table.add( lblReconnaissanceLaps );
         
         cbxNumReconnaissanceLaps = new JComboBox( new Integer[] { 0, 1, 2, 3, 4 } );
-        Integer numReconLaps = RFactorTools.getNumReconLaps( RFactorTools.getProfileFolder() );
+        Integer numReconLaps = profileInfo.getNumReconLaps();
         if ( numReconLaps == null )
             cbxNumReconnaissanceLaps.setSelectedIndex( 0 );
         else
@@ -234,7 +240,7 @@ public class StrategyTool
         JLabel lblFormationLap = new JLabel( "Formation lap:" );
         table.add( lblFormationLap );
         
-        Boolean formationLap = RFactorTools.getFormationLap();
+        Boolean formationLap = profileInfo.getFormationLap();
         if ( formationLap != Boolean.TRUE )
             chkFormationLap = new JCheckBox( "", false );
         else
@@ -244,19 +250,12 @@ public class StrategyTool
         JLabel lblRaceLength100 = new JLabel( "Race length (laps at 100%):" );
         table.add( lblRaceLength100 );
         
-        if ( !ResourceManager.isJarMode() )
-        {
+        int trackRaceLaps = trackInfo.getRaceLaps();
+        
+        if ( trackRaceLaps < 0 )
             txtRaceLength100 = new JTextField( "70" );
-        }
         else
-        {
-            int trackRaceLaps = RFactorTools.getTrackRaceLaps( RFactorTools.getLastUsedTrackFile().getParentFile() );
-            
-            if ( trackRaceLaps < 0 )
-                txtRaceLength100 = new JTextField( "70" );
-            else
-                txtRaceLength100 = new JTextField( String.valueOf( trackRaceLaps ) );
-        }
+            txtRaceLength100 = new JTextField( String.valueOf( trackRaceLaps ) );
         table.add( txtRaceLength100 );
         
         JLabel lblRaceLengthMulti = new JLabel( "Race length (%):" );
@@ -270,18 +269,11 @@ public class StrategyTool
         
         cbxRaceLengthMulti = new JComboBox( multis );
         
-        if ( !ResourceManager.isJarMode() )
-        {
+        Float raceLengthMulti = profileInfo.getRaceLengthMultiplier();
+        if ( raceLengthMulti == null )
             cbxRaceLengthMulti.setSelectedIndex( 99 );
-        }
         else
-        {
-            Float raceLengthMulti = RFactorTools.getRaceLengthMultiplier();
-            if ( raceLengthMulti == null )
-                cbxRaceLengthMulti.setSelectedIndex( 99 );
-            else
-                cbxRaceLengthMulti.setSelectedIndex( Math.round( raceLengthMulti.floatValue() * 100f ) - 1 );
-        }
+            cbxRaceLengthMulti.setSelectedIndex( Math.round( raceLengthMulti.floatValue() * 100f ) - 1 );
         table.add( cbxRaceLengthMulti );
         
         cbxRaceLengthMulti.addItemListener( new ItemListener()

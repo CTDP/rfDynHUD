@@ -12,7 +12,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class PluginINI
 {
-    public static final File INI_FILE = new File( RFactorTools.PLUGIN_FOLDER, "rfdynhud.ini" );
+    public static final File INI_FILE = new File( RFactorFileSystem.PLUGIN_FOLDER, "rfdynhud.ini" );
     
     private long lastModified = -1;
     
@@ -68,12 +68,12 @@ public class PluginINI
             return ( new File( new File( Helper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ), "config" ).getAbsoluteFile() );
         
         if ( configPath == null )
-            configPath = new File( RFactorTools.PLUGIN_FOLDER, "config" ).getAbsolutePath();
+            configPath = new File( RFactorFileSystem.PLUGIN_FOLDER, "config" ).getAbsolutePath();
         
         configPath = parsePath( configPath );
         File f = new File( configPath );
         if ( !f.isAbsolute() )
-            f = new File( RFactorTools.PLUGIN_FOLDER, configPath );
+            f = new File( RFactorFileSystem.PLUGIN_FOLDER, configPath );
         
         f = Helper.stripDotDots( f.getAbsolutePath() );
         

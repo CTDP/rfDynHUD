@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.util.RFactorTools;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 
 /**
@@ -68,6 +68,7 @@ public class VehicleScoringInfo
     final byte[] buffer = new byte[ BUFFER_SIZE ];
     
     private final ScoringInfo scoringInfo;
+    private final ProfileInfo profileInfo;
     
     private String name = null;
     private static int nextNameId = 1;
@@ -78,6 +79,13 @@ public class VehicleScoringInfo
     private static int nextClassId = 1;
     private int classId = 0;
     private Integer classId2 = null;
+    
+    short placeByClass = -1;
+    float timeBehindNextByClass = 0f;
+    int lapsBehindNextByClass = -1;
+    float timeBehindLeaderByClass = 0f;
+    int lapsBehindLeaderByClass = -1;
+    VehicleScoringInfo classLeaderVSI = null;
     
     private int stintStartLap = -1;
     private float stintLength = 0f;
@@ -584,6 +592,28 @@ public class VehicleScoringInfo
     }
     
     /**
+     * 1-based position in the same vehicle class
+     */
+    public final short getPlaceByClass()
+    {
+        scoringInfo.updateClassScoring();
+        
+        return ( placeByClass );
+    }
+    
+    /**
+     * Gets the {@link VehicleScoringInfo}, that leads the same vehicle class.
+     * 
+     * @return the {@link VehicleScoringInfo}, that leads the same vehicle class.
+     */
+    public final VehicleScoringInfo getClassLeaderVSI()
+    {
+        scoringInfo.updateClassScoring();
+        
+        return ( classLeaderVSI );
+    }
+    
+    /**
      * vehicle class
      */
     public final String getVehicleClass()
@@ -629,6 +659,16 @@ public class VehicleScoringInfo
     }
     
     /**
+     * time behind vehicle in next higher place ignoring those not in the same vehicle class
+     */
+    public final float getTimeBehindNextInFrontByClass()
+    {
+        scoringInfo.updateClassScoring();
+        
+        return ( timeBehindNextByClass );
+    }
+    
+    /**
      * laps behind vehicle in next higher place
      */
     public final int getLapsBehindNextInFront()
@@ -636,6 +676,16 @@ public class VehicleScoringInfo
         // long mLapsBehindNext
         
         return ( (int)ByteUtil.readLong( buffer, OFFSET_LAPS_BEHIND_NEXT ) );
+    }
+    
+    /**
+     * laps behind vehicle in next higher place ignoring those not in the same vehicle class
+     */
+    public final int getLapsBehindNextInFrontByClass()
+    {
+        scoringInfo.updateClassScoring();
+        
+        return ( lapsBehindNextByClass );
     }
     
     /**
@@ -649,6 +699,16 @@ public class VehicleScoringInfo
     }
     
     /**
+     * time behind leader of the same vehicle class
+     */
+    public final float getTimeBehindLeaderByClass()
+    {
+        scoringInfo.updateClassScoring();
+        
+        return ( timeBehindLeaderByClass );
+    }
+    
+    /**
      * laps behind leader
      */
     public final int getLapsBehindLeader()
@@ -656,6 +716,16 @@ public class VehicleScoringInfo
         // long mLapsBehindLeader
         
         return ( (int)ByteUtil.readLong( buffer, OFFSET_LAPS_BEHIND_LEADER ) );
+    }
+    
+    /**
+     * laps behind leader of the same vehicle class
+     */
+    public final int getLapsBehindLeaderByClass()
+    {
+        scoringInfo.updateClassScoring();
+        
+        return ( lapsBehindLeaderByClass );
     }
     
     /**
@@ -761,14 +831,10 @@ public class VehicleScoringInfo
      */
     public final float getScalarVelocity()
     {
-        switch ( RFactorTools.getSpeedUnits() )
-        {
-            case MPH:
-                return ( getScalarVelocityMPH() );
-            case KPH:
-            default:
-                return ( getScalarVelocityKPH() );
-        }
+        if ( profileInfo.getSpeedUnits() == SpeedUnits.MPH )
+            return ( getScalarVelocityMPH() );
+        
+        return ( getScalarVelocityKPH() );
     }
     
     /**
@@ -856,9 +922,10 @@ public class VehicleScoringInfo
     // Future use
     //unsigned char mExpansion[128];
     
-    VehicleScoringInfo( ScoringInfo scoringInfo )
+    VehicleScoringInfo( ScoringInfo scoringInfo, ProfileInfo profileInfo )
     {
         this.scoringInfo = scoringInfo;
+        this.profileInfo = profileInfo;
     }
     
     public static final class VSIPlaceComparator implements Comparator<VehicleScoringInfo>

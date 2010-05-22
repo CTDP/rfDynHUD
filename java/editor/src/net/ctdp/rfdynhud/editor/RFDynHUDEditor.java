@@ -92,7 +92,7 @@ import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.RFactorEventsManager;
-import net.ctdp.rfdynhud.util.RFactorTools;
+import net.ctdp.rfdynhud.util.RFactorFileSystem;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.TextureManager;
 import net.ctdp.rfdynhud.util.Tools;
@@ -234,7 +234,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( dirtyFlag );
     }
     
-    private static final File BACKGROUNDS_FOLDER = new File( RFactorTools.EDITOR_FOLDER, "backgrounds" );
+    private static final File BACKGROUNDS_FOLDER = new File( RFactorFileSystem.EDITOR_FOLDER, "backgrounds" );
     
     private File getScreenshotSetFolder()
     {
@@ -406,7 +406,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             if ( f.isFile() && f.getName().toLowerCase().endsWith( ".ini" ) )
             {
                 if ( checkConfigFile( f ) )
-                    list.add( f.getAbsolutePath().substring( RFactorTools.CONFIG_PATH.length() + 1 ) );
+                    list.add( f.getAbsolutePath().substring( RFactorFileSystem.CONFIG_PATH.length() + 1 ) );
             }
         }
         
@@ -425,7 +425,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         list.add( "<none>" );
         
-        fillConfigurationFiles( RFactorTools.CONFIG_FOLDER, list );
+        fillConfigurationFiles( RFactorFileSystem.CONFIG_FOLDER, list );
         
         return ( list );
     }
@@ -435,14 +435,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         if ( currentTemplateFile == null )
             return ( "<none>" );
         
-        return ( currentTemplateFile.getAbsolutePath().substring( RFactorTools.CONFIG_PATH.length() + 1 ) );
+        return ( currentTemplateFile.getAbsolutePath().substring( RFactorFileSystem.CONFIG_PATH.length() + 1 ) );
     }
     
     private ArrayList<String> getScreenshotSets()
     {
         ArrayList<String> list = new ArrayList<String>();
         
-        File root = new File( RFactorTools.EDITOR_FOLDER, "backgrounds" );
+        File root = new File( RFactorFileSystem.EDITOR_FOLDER, "backgrounds" );
         for ( File f : root.listFiles() )
         {
             if ( f.isDirectory() && !f.getName().toLowerCase().equals( ".svn" ) )
@@ -504,7 +504,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 {
                     try
                     {
-                        loadTemplateConfig( new File( RFactorTools.CONFIG_FOLDER, (String)value ) );
+                        loadTemplateConfig( new File( RFactorFileSystem.CONFIG_FOLDER, (String)value ) );
                     }
                     catch ( IOException e )
                     {
@@ -628,7 +628,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( f );
         */
         //return ( RFactorTools.EDITOR_FOLDER );
-        return ( RFactorTools.CONFIG_FOLDER );
+        return ( RFactorFileSystem.CONFIG_FOLDER );
     }
     
     private static File getEditorSettingsFile()
@@ -641,12 +641,12 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         if ( ( currentConfigFile != null ) && currentConfigFile.exists() )
         {
             String currentConfigFilename = currentConfigFile.getAbsolutePath();
-            if ( currentConfigFilename.startsWith( RFactorTools.CONFIG_PATH ) )
+            if ( currentConfigFilename.startsWith( RFactorFileSystem.CONFIG_PATH ) )
             {
-                if ( currentConfigFilename.charAt( RFactorTools.CONFIG_PATH.length() ) == File.separatorChar )
-                    currentConfigFilename = currentConfigFilename.substring( RFactorTools.CONFIG_PATH.length() + 1 );
+                if ( currentConfigFilename.charAt( RFactorFileSystem.CONFIG_PATH.length() ) == File.separatorChar )
+                    currentConfigFilename = currentConfigFilename.substring( RFactorFileSystem.CONFIG_PATH.length() + 1 );
                 else
-                    currentConfigFilename = currentConfigFilename.substring( RFactorTools.CONFIG_PATH.length() );
+                    currentConfigFilename = currentConfigFilename.substring( RFactorFileSystem.CONFIG_PATH.length() );
             }
             
             writer.writeSetting( "lastConfig", currentConfigFilename );
@@ -810,7 +810,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         {
                             try
                             {
-                                loadTemplateConfig( new File( RFactorTools.CONFIG_FOLDER, value ) );
+                                loadTemplateConfig( new File( RFactorFileSystem.CONFIG_FOLDER, value ) );
                             }
                             catch ( IOException e )
                             {
@@ -832,7 +832,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         {
                             File configFile = new File( value );
                             if ( !configFile.isAbsolute() )
-                                configFile = new File( RFactorTools.CONFIG_FOLDER, value );
+                                configFile = new File( RFactorFileSystem.CONFIG_FOLDER, value );
                             if ( configFile.exists() )
                                 //openConfig( configFile );
                                 result[1] = configFile;
@@ -1028,8 +1028,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
             else
             {
-                fc.setCurrentDirectory( RFactorTools.CONFIG_FOLDER );
-                fc.setSelectedFile( new File( RFactorTools.CONFIG_FOLDER, "overlay.ini" ) );
+                fc.setCurrentDirectory( RFactorFileSystem.CONFIG_FOLDER );
+                fc.setSelectedFile( new File( RFactorFileSystem.CONFIG_FOLDER, "overlay.ini" ) );
             }
             
             fc.setMultiSelectionEnabled( false );
@@ -1086,8 +1086,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
         else
         {
-            fc.setCurrentDirectory( RFactorTools.CONFIG_FOLDER );
-            fc.setSelectedFile( new File( RFactorTools.CONFIG_FOLDER, "overlay.ini" ) );
+            fc.setCurrentDirectory( RFactorFileSystem.CONFIG_FOLDER );
+            fc.setSelectedFile( new File( RFactorFileSystem.CONFIG_FOLDER, "overlay.ini" ) );
         }
         
         fc.setMultiSelectionEnabled( false );
@@ -1493,7 +1493,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         try
         {
-            File folder = RFactorTools.getUserScreenShotsFolder();
+            File folder = RFactorFileSystem.SCREENSHOTS_FOLDER;
             folder.mkdirs();
             
             String filenameBase = ( currentConfigFile == null ) ? "rfDynHUD_screenshot_" : "rfDynHUD_" + currentConfigFile.getName().replace( ".", "_" ) + "_";
@@ -2294,6 +2294,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         eventsManager = new RFactorEventsManager( drawingManager, null );
         this.gameData = new LiveGameData( eventsManager );
+        __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
         eventsManager.setGameData( gameData );
         
         EditorPanel editorPanel = new EditorPanel( this, gameData, drawingManager.getMainTexture(), drawingManager );
@@ -2415,7 +2416,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             {
                 File configFile = (File)result[1];
                 if ( configFile == null )
-                    configFile = new File( RFactorTools.CONFIG_FOLDER, "overlay.ini" );
+                    configFile = new File( RFactorFileSystem.CONFIG_FOLDER, "overlay.ini" );
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else
