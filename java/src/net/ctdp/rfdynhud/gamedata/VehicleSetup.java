@@ -2,8 +2,10 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
@@ -11,7 +13,6 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorFileSystem;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -24,6 +25,17 @@ import org.jagatoo.util.ini.AbstractIniParser;
 @SuppressWarnings( "unused" )
 public class VehicleSetup
 {
+    private boolean updatedInRealtimeMode = false;
+    
+    /**
+     * Gets, whether the last update of these data has been done while in realtime mode.
+     * @return whether the last update of these data has been done while in realtime mode.
+     */
+    public final boolean isUpdatedInRealtimeMode()
+    {
+        return ( updatedInRealtimeMode );
+    }
+    
     //private boolean symmetric; // GENERAL::Symmetric=1
     
     /*
@@ -1657,49 +1669,78 @@ public class VehicleSetup
         }.parse( reader );
     }
     
-    public static final VehicleSetup loadSetup( File file, LiveGameData gameData )
+    private static long lastProfileUpdateId = -1L;
+    private static File file = null;
+    private static long lastLastModified = -1L;
+    
+    private static final void loadSetup( String filename, Reader reader, LiveGameData gameData )
     {
         VehicleSetup setup = new VehicleSetup();
         
         try
         {
-            parseSetup( file.getAbsolutePath(), new BufferedReader( new FileReader( file ) ), gameData.getPhysics(), setup );
+            parseSetup( filename, reader, gameData.getPhysics(), setup );
         }
         catch ( IOException e )
         {
             Logger.log( e );
         }
         
-        gameData.setSetup( setup );
+        setup.updatedInRealtimeMode = gameData.isInRealtimeMode();
         
-        return ( setup );
+        gameData.setSetup( setup );
     }
     
-    public static final VehicleSetup loadSetup( String filename, LiveGameData gameData  )
+    static final boolean loadSetup( boolean isEditorMode, LiveGameData gameData )
     {
-        return ( loadSetup( new File( filename ), gameData ) );
-    }
-    
-    public static final VehicleSetup loadSetup( LiveGameData gameData )
-    {
-        return ( loadSetup( new File( gameData.getProfileInfo().getProfileFolder(), "tempGarage.svm" ), gameData ) );
-    }
-    
-    public static final VehicleSetup loadEditorDefaults( LiveGameData gameData )
-    {
-        VehicleSetup setup = new VehicleSetup();
+        if ( isEditorMode )
+        {
+            lastProfileUpdateId = -1L;
+            file = null;
+            lastLastModified = -1L;
+            
+            String resource = "/data/tempGarage.svm";
+            InputStream in = VehicleSetup.class.getResourceAsStream( resource );
+            if ( in == null )
+            {
+                Logger.log( "Error: Couldn't load editor default physics." );
+                return ( false );
+            }
+            loadSetup( "Resource: " + resource, new InputStreamReader( in ), gameData );
+            
+            return ( true );
+        }
+        
+        if ( lastProfileUpdateId < gameData.getProfileInfo().getUpdateId() )
+        {
+            file = new File( gameData.getProfileInfo().getProfileFolder(), "tempGarage.svm" );
+            lastLastModified = -1L;
+            lastProfileUpdateId = gameData.getProfileInfo().getUpdateId();
+        }
+        
+        if ( !file.exists() )
+        {
+            lastLastModified = -1L;
+            return ( false );
+        }
+        
+        if ( lastLastModified == file.lastModified() )
+        {
+            return ( false );
+        }
         
         try
         {
-            parseSetup( "Resource: /data/tempGarage.svm", new InputStreamReader( VehicleSetup.class.getResourceAsStream( "/data/tempGarage.svm" ) ), gameData.getPhysics(), setup );
+            loadSetup( file.getAbsolutePath(), new BufferedReader( new FileReader( file ) ), gameData );
+            
+            lastLastModified = file.lastModified();
+            
+            return ( true );
         }
-        catch ( IOException e )
+        catch ( FileNotFoundException e )
         {
-            Logger.log( e );
         }
         
-        gameData.setSetup( setup );
-        
-        return ( setup );
+        return ( true );
     }
 }

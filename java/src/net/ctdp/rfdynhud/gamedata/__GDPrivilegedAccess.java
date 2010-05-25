@@ -36,9 +36,14 @@ public class __GDPrivilegedAccess
         physics.loadEditorDefaults();
     }
     
-    public static final void loadFromPhysicsFiles( ProfileInfo profileInfo, VehiclePhysics physics, String trackName )
+    public static final void loadFromPhysicsFiles( ProfileInfo profileInfo, TrackInfo trackInfo, VehiclePhysics physics )
     {
-        physics.loadFromPhysicsFiles( profileInfo, trackName );
+        physics.loadFromPhysicsFiles( profileInfo, trackInfo );
+    }
+    
+    public static final boolean loadSetup( boolean isEditorMode, LiveGameData gameData )
+    {
+        return ( VehicleSetup.loadSetup( isEditorMode, gameData ) );
     }
     
     public static final void applyEditorPresets( EditorPresets editorPresets, LiveGameData gameData )
@@ -71,27 +76,10 @@ public class __GDPrivilegedAccess
         graphicsInfo.loadFromStream( in );
     }
     
-    public static final void resetStintLengths( ScoringInfo scoringInfo )
-    {
-        scoringInfo.resetStintLengths();
-    }
-    
     public static final void onSessionStarted( LiveGameData gameData )
     {
         gameData.getTelemetryData().onSessionStarted();
         gameData.getScoringInfo().onSessionStarted();
-    }
-    
-    public static final void onRealtimeEntered( LiveGameData gameData )
-    {
-        gameData.getTelemetryData().onRealtimeEntered();
-        gameData.getScoringInfo().onRealtimeEntered();
-    }
-    
-    public static final void onRealtimeExited( LiveGameData gameData )
-    {
-        gameData.getTelemetryData().onRealtimeExited();
-        gameData.getScoringInfo().onRealtimeExited();
     }
     
     public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData )

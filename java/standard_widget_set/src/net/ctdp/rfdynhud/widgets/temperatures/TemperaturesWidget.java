@@ -174,6 +174,12 @@ public class TemperaturesWidget extends Widget
             brakeSize.flipHeightPercentagePx();
     }
     
+    @Override
+    public int getNeededData()
+    {
+        return ( Widget.NEEDED_DATA_SCORING );
+    }
+    
     private void setControlVisibility( VehicleScoringInfo viewedVSI )
     {
         setUserVisible1( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );

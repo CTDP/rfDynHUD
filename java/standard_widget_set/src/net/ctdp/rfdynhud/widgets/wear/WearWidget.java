@@ -210,6 +210,12 @@ public class WearWidget extends Widget
             brakeSize.flipHeightPercentagePx();
     }
     
+    @Override
+    public int getNeededData()
+    {
+        return ( Widget.NEEDED_DATA_SCORING );
+    }
+    
     public final boolean getDisplayWearPercent()
     {
         return ( displayWearPercent.getBooleanValue() );

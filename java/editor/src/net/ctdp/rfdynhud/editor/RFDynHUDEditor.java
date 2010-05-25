@@ -76,7 +76,8 @@ import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.VehicleSetup;
+import net.ctdp.rfdynhud.gamedata.RFactorEventsManager;
+import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.ListProperty;
@@ -91,8 +92,6 @@ import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorEventsManager;
-import net.ctdp.rfdynhud.util.RFactorFileSystem;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.TextureManager;
 import net.ctdp.rfdynhud.util.Tools;
@@ -1300,12 +1299,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         onWidgetSelected( editorPanel.getSelectedWidget(), false );
         
-        int numWidgets = editorPanel.getWidgetsDrawingManager().getNumWidgets();
-        for ( int i = 0; i < numWidgets; i++ )
-        {
-            editorPanel.getWidgetsDrawingManager().getWidget( i ).forceReinitialization();
-        }
-        
         getMainWindow().validate();
         getEditorPanel().repaint();
     }
@@ -2407,7 +2400,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
             
             __GDPrivilegedAccess.loadEditorDefaults( editor.gameData.getPhysics() );
-            VehicleSetup.loadEditorDefaults( editor.gameData );
+            __GDPrivilegedAccess.loadSetup( true, editor.gameData );
             
             __GDPrivilegedAccess.setRealtimeMode( true, editor.gameData );
             initTestGameData( editor.gameData, editor.presets );
@@ -2423,6 +2416,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     ConfigurationLoader.loadFactoryDefaults( editor.getEditorPanel().getWidgetsDrawingManager(), editor.gameData, editor.presets, null );
             }
             
+            __GDPrivilegedAccess.updateInfo( editor.gameData );
             editor.eventsManager.onSessionStarted( editor.presets );
             editor.eventsManager.onRealtimeEntered( editor.presets );
             

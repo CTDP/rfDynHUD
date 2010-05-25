@@ -140,9 +140,9 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public boolean needsRealtimeScoringInfo()
+    public int getNeededData()
     {
-        return ( true );
+        return ( Widget.NEEDED_DATA_SCORING );
     }
     
     private void setItemRadius( int radius )
@@ -541,6 +541,12 @@ public class MapWidget extends Widget
                         tt.setTranslation( position.x, position.y );
                     }
                 }
+                else
+                {
+                    subTextures[subTexOff + i].setVisible( false );
+                }
+                
+                subTextures[subTexOff + i].setVisible( true );
             }
             
             for ( int i = n; i < maxDisplayedVehicles; i++ )

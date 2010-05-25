@@ -17,8 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorFileSystem;
 import net.ctdp.rfdynhud.util.StringUtil;
 
 public class HelpWindow extends JDialog

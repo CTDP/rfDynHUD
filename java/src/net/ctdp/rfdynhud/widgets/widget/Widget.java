@@ -6,11 +6,8 @@ import java.net.URL;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.gamedata.GraphicsInfo;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
-import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
@@ -49,6 +46,11 @@ import org.openmali.types.twodee.Rect2i;
  */
 public abstract class Widget implements Documented
 {
+    public static final int NEEDED_DATA_TELEMETRY = 1;
+    public static final int NEEDED_DATA_SCORING = 2;
+    public static final int NEEDED_DATA_SETUP = 4;
+    public static final int NEEDED_DATA_ALL = NEEDED_DATA_TELEMETRY | NEEDED_DATA_SCORING | NEEDED_DATA_SETUP;
+    
     private WidgetsConfiguration config = null;
     
     private static final HashMap<Class<? extends Widget>, Object> generalStores = new HashMap<Class<? extends Widget>, Object>();
@@ -717,30 +719,17 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Gets, whether this {@link Widget} needs the {@link GraphicsInfo} to be updated in realtime mode to be drawn.
-     * @return whether this {@link Widget} needs the {@link GraphicsInfo} to be updated in realtime mode to be drawn.
+     * Gets the data indicators for the data needed for this {@link Widget} to be drawn (bitmask).
+     * 
+     * @see NEEDED_DATA_TELEMETRY
+     * @see NEEDED_DATA_SCORING
+     * @see NEEDED_DATA_SCORING
+     * 
+     * @return the data indicators for the data needed for this {@link Widget} to be drawn.
      */
-    public boolean needsRealtimeGraphicsInfo()
+    public int getNeededData()
     {
-        return ( false );
-    }
-    
-    /**
-     * Gets, whether this {@link Widget} needs the {@link TelemetryData} to be updated in realtime mode to be drawn.
-     * @return whether this {@link Widget} needs the {@link TelemetryData} to be updated in realtime mode to be drawn.
-     */
-    public boolean needsRealtimeTelemetryData()
-    {
-        return ( false );
-    }
-    
-    /**
-     * Gets, whether this {@link Widget} needs the {@link ScoringInfo} to be updated in realtime mode to be drawn.
-     * @return whether this {@link Widget} needs the {@link ScoringInfo} to be updated in realtime mode to be drawn.
-     */
-    public boolean needsRealtimeScoringInfo()
-    {
-        return ( false );
+        return ( 0 );
     }
     
     /**
@@ -798,12 +787,23 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * This method is called when a the user entered realtime mode.
+     * This method is called when a the user entered realtime mode. If your {@link Widget} needs some data
+     * to be drawn correctly, consider using {@link #onNeededDataComplete(LiveGameData, EditorPresets)}.
      * 
      * @param gameData
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
     public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    {
+    }
+    
+    /**
+     * This method is called when the needed data is available in realtime mode.
+     * 
+     * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     */
+    public void onNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     

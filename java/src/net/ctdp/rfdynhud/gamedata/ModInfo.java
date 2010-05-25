@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorFileSystem;
 
 public class ModInfo
 {

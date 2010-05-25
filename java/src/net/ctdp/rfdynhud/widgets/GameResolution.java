@@ -5,10 +5,17 @@ public final class GameResolution
     private int resX = 1280;
     private int resY = 1024;
     
-    void set( int resX, int resY )
+    boolean set( int resX, int resY )
     {
-        this.resX = resX;
-        this.resY = resY;
+        if ( ( resX != this.resX ) || ( resY != this.resY ) )
+        {
+            this.resX = resX;
+            this.resY = resY;
+            
+            return ( true );
+        }
+        
+        return ( false );
     }
     
     public final int getResX()

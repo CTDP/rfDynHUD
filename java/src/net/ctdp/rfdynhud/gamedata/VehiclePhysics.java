@@ -4,7 +4,6 @@ import java.io.File;
 
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorFileSystem;
 
 
 /**
@@ -70,6 +69,11 @@ public class VehiclePhysics
             // There shuold be a range check. But since this cannot be used for cheating, it isn't necessary.
             
             return ( ( baseValue + stepSize * setting ) * factor );
+        }
+        
+        public final float limitValue( float value )
+        {
+            return ( Math.max( getMinValue(), Math.min( value, getMaxValue() ) ) );
         }
         
         /**
@@ -1902,7 +1906,7 @@ public class VehiclePhysics
 		}
     }
     
-    void loadFromPhysicsFiles( ProfileInfo profileInfo, String trackName )
+    void loadFromPhysicsFiles( ProfileInfo profileInfo, TrackInfo trackInfo )
     {
         File cchFile = profileInfo.getCCHFile();
     	String playerVEHFile = profileInfo.getPlayerVEHFile();
@@ -1911,7 +1915,7 @@ public class VehiclePhysics
     	{
     	    long t0 = System.currentTimeMillis();
     	    
-			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorFileSystem.RFACTOR_FOLDER, playerVEHFile, trackName, this );
+			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorFileSystem.RFACTOR_FOLDER, playerVEHFile, trackInfo.getTrackName(), this );
 			
 			Logger.log( "Successfully parsed physics files. (Took " + ( System.currentTimeMillis() - t0 ) + "ms.)" );
 			

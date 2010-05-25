@@ -1,7 +1,7 @@
 package net.ctdp.rfdynhud.render;
 
 import java.nio.ByteBuffer;
-import java.util.WeakHashMap;
+import java.util.ArrayList;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -29,8 +29,6 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     private final ByteBuffer textureBuffer = TransformableTexture.createByteBuffer();
     
     private long frameCounter = 0;
-    
-    private boolean waitingForOREStep2 = false;
     
     private long measureStart = -1L;
     private long measureEnd = -1L;
@@ -64,6 +62,8 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         }
     }
     
+    private final ArrayList<Widget> waitingWidgets = new ArrayList<Widget>();
+    
     /**
      * This method is called when a new session was started.<br>
      * <br>
@@ -74,59 +74,72 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         //nextClockTime1 = 0L;
         //nextClockTime2 = 0L;
         
+        waitingWidgets.clear();
+        
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onSessionStarted( sessionType, gameData, editorPresets );
+            Widget widget = getWidget( i );
+            
+            widget.onSessionStarted( sessionType, gameData, editorPresets );
+            waitingWidgets.add( widget );
         }
     }
-    
-    private final WeakHashMap<Widget, Boolean> onRealtimeEnteredEventCache = new WeakHashMap<Widget, Boolean>();
     
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
      * Calls {@link Widget#onRealtimeEntered(boolean, LiveGameData)} on each Widget.
      */
-    public void fireOnRealtimeEntered( int step, LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
-        if ( step == 1 )
+        measureEnd = -1L;
+        frameCounter = 0;
+        
+        waitingWidgets.clear();
+        
+        final int n = getNumWidgets();
+        for ( int i = 0; i < n; i++ )
         {
-            measureEnd = -1L;
-            frameCounter = 0;
+            Widget widget = getWidget( i );
             
-            waitingForOREStep2 = true;
-            onRealtimeEnteredEventCache.clear();
-            
-            final int n = getNumWidgets();
-            for ( int i = 0; i < n; i++ )
-            {
-                Widget widget = getWidget( i );
-                
-                if ( !widget.needsRealtimeGraphicsInfo() && !widget.needsRealtimeTelemetryData() && !widget.needsRealtimeScoringInfo() )
-                {
-                    widget.onRealtimeEntered( gameData, editorPresets );
-                    onRealtimeEnteredEventCache.put( widget, Boolean.TRUE );
-                }
-            }
+            widget.onRealtimeEntered( gameData, editorPresets );
+            waitingWidgets.add( widget );
         }
-        else if ( step == 2 )
+    }
+    
+    /**
+     * This method is called when a the user entered realtime mode.<br>
+     * <br>
+     * Calls {@link Widget#onRealtimeEntered(boolean, LiveGameData)} on each Widget.
+     */
+    public void checkAndFireOnNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        if ( waitingWidgets.size() == 0 )
+            return;
+        
+        for ( int i = waitingWidgets.size() - 1; i >= 0; i-- )
         {
-            waitingForOREStep2 = false;
+            Widget widget = waitingWidgets.get( i );
+            int neededData = ( widget.getNeededData() & Widget.NEEDED_DATA_ALL );
             
-            final int n = getNumWidgets();
-            for ( int i = 0; i < n; i++ )
+            if ( ( ( neededData & Widget.NEEDED_DATA_TELEMETRY ) != 0 ) && gameData.getTelemetryData().isUpdatedInRealtimeMode() )
+                neededData &= ~Widget.NEEDED_DATA_TELEMETRY;
+            
+            if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInRealtimeMode() )
+                neededData &= ~Widget.NEEDED_DATA_SCORING;
+            
+            if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInRealtimeMode() )
+                neededData &= ~Widget.NEEDED_DATA_SETUP;
+            
+            if ( neededData == 0 )
             {
-                Widget widget = getWidget( i );
+                widget.onNeededDataComplete( gameData, editorPresets );
+                waitingWidgets.remove( i );
                 
-                if ( widget.needsRealtimeGraphicsInfo() || widget.needsRealtimeTelemetryData() || widget.needsRealtimeScoringInfo() )
-                {
-                    if ( onRealtimeEnteredEventCache.get( widget ) != Boolean.TRUE )
-                        widget.onRealtimeEntered( gameData, editorPresets );
-                }
+                widget.forceReinitialization();
+                widget.forceCompleteRedraw();
             }
-            
-            onRealtimeEnteredEventCache.clear();
         }
     }
     
@@ -319,8 +332,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public void fireOnRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
     {
-        waitingForOREStep2 = true;
-        onRealtimeEnteredEventCache.clear();
+        waitingWidgets.clear();
         
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
@@ -415,6 +427,25 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, editorPresets );
     }
     
+    private final boolean isWidgetReady( Widget widget, LiveGameData gameData )
+    {
+        boolean ready = true;
+        
+        if ( !waitingWidgets.isEmpty() )
+        {
+            int neededData = widget.getNeededData();
+            
+            if ( ( ( neededData & Widget.NEEDED_DATA_TELEMETRY ) != 0 ) && !gameData.getTelemetryData().isUpdatedInRealtimeMode() )
+                ready = false;
+            else if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInRealtimeMode() )
+                ready = false;
+            else if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInRealtimeMode() )
+                ready = false;
+        }
+        
+        return ( ready );
+    }
+    
     /**
      * Draws all visible {@link Widget}s in the list.
      * 
@@ -497,18 +528,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             try
             {
-                boolean renderIt = true;
-                if ( waitingForOREStep2 )
-                {
-                    if ( widget.needsRealtimeGraphicsInfo() && !gameData.getGraphicsInfo().isUpdatedInRealtimeMode() )
-                        renderIt = false;
-                    else if ( widget.needsRealtimeTelemetryData() && !gameData.getTelemetryData().isUpdatedInRealtimeMode() )
-                        renderIt = false;
-                    else if ( widget.needsRealtimeScoringInfo() && !gameData.getScoringInfo().isUpdatedInRealtimeMode() )
-                        renderIt = false;
-                }
-                
-                if ( renderIt )
+                if ( isWidgetReady( widget, gameData ) )
                 {
                     widget.updateVisibility( clock1, clock2, gameData, editorPresets );
                     
@@ -539,18 +559,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 
                 try
                 {
-                    boolean renderIt = true;
-                    if ( waitingForOREStep2 )
-                    {
-                        if ( widget.needsRealtimeGraphicsInfo() && !gameData.getGraphicsInfo().isUpdatedInRealtimeMode() )
-                            renderIt = false;
-                        else if ( widget.needsRealtimeTelemetryData() && !gameData.getTelemetryData().isUpdatedInRealtimeMode() )
-                            renderIt = false;
-                        else if ( widget.needsRealtimeScoringInfo() && !gameData.getScoringInfo().isUpdatedInRealtimeMode() )
-                            renderIt = false;
-                    }
-                    
-                    if ( renderIt )
+                    if ( isWidgetReady( widget, gameData ) )
                     {
                         if ( widget.isVisible() )
                         {

@@ -2,6 +2,8 @@ package net.ctdp.rfdynhud.util;
 
 import java.io.File;
 
+import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
@@ -65,7 +67,7 @@ public class PluginINI
     private static File getConfigFolder( String configPath )
     {
         if ( !ResourceManager.isJarMode() )
-            return ( new File( new File( Helper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ), "config" ).getAbsoluteFile() );
+            return ( new File( new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ), "config" ).getAbsoluteFile() );
         
         if ( configPath == null )
             configPath = new File( RFactorFileSystem.PLUGIN_FOLDER, "config" ).getAbsolutePath();
@@ -75,7 +77,7 @@ public class PluginINI
         if ( !f.isAbsolute() )
             f = new File( RFactorFileSystem.PLUGIN_FOLDER, configPath );
         
-        f = Helper.stripDotDots( f.getAbsolutePath() );
+        f = __UtilHelper.stripDotDots( f.getAbsolutePath() );
         
         Logger.log( "Using config folder \"" + f.getAbsolutePath() + "\"." );
         

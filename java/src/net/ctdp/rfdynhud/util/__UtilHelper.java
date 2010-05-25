@@ -3,7 +3,7 @@ package net.ctdp.rfdynhud.util;
 import java.io.File;
 import java.io.IOException;
 
-class Helper
+public class __UtilHelper
 {
     public static final File stripDotDots( String pathname )
     {

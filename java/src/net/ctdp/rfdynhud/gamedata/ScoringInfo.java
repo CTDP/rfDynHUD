@@ -8,7 +8,6 @@ import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorEventsManager;
 
 /**
  * 
@@ -213,7 +212,7 @@ public class ScoringInfo
     private final HashMap<Integer, Short> stintStartLaps = new HashMap<Integer, Short>();
     private final HashMap<Integer, Integer> pitStates = new HashMap<Integer, Integer>();
     
-    void resetStintLengths()
+    private void resetStintLengths()
     {
         stintStartLaps.clear();
     }
@@ -463,6 +462,9 @@ public class ScoringInfo
         this.sessionID++;
         this.sessionStartTimestamp = System.nanoTime();
         
+        resetStintLengths();
+        updateRaceLengthPercentage();
+        
         if ( vehicleScoringInfo != null )
         {
             for ( int i = 0; i < vehicleScoringInfo.length; i++ )
@@ -489,8 +491,6 @@ public class ScoringInfo
                 }
             }
         }
-        
-        updateRaceLengthPercentage();
     }
     
     /**
@@ -565,8 +565,8 @@ public class ScoringInfo
     }
     
     /**
-     * Gets, whether the last update of these data hasbeen done while in realtime mode.
-     * @return whether the last update of these data hasbeen done while in realtime mode.
+     * Gets, whether the last update of these data has been done while in realtime mode.
+     * @return whether the last update of these data has been done while in realtime mode.
      */
     public final boolean isUpdatedInRealtimeMode()
     {
@@ -1077,8 +1077,8 @@ public class ScoringInfo
     {
         GraphicsInfo gi = gameData.getGraphicsInfo();
         
-        if ( !gi.isUpdatedInRealtimeMode() )
-            return ( getPlayersVehicleScoringInfo() );
+        //if ( !gi.isUpdatedInRealtimeMode() )
+        //    return ( getPlayersVehicleScoringInfo() );
         
         if ( viewedVSI == null )
         {

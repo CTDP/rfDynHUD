@@ -21,8 +21,8 @@ public class __WCPrivilegedAccess
         config.setJustLoaded( gameData, editorPresets );
     }
     
-    public static final void setGameResolution( int gameResX, int gameResY, WidgetsConfiguration widgetsConfig )
+    public static final boolean setGameResolution( int gameResX, int gameResY, WidgetsConfiguration widgetsConfig )
     {
-        widgetsConfig.setGameResolution( gameResX, gameResY );
+        return ( widgetsConfig.setGameResolution( gameResX, gameResY ) );
     }
 }

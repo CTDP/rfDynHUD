@@ -374,8 +374,15 @@ public class Position
     
     public void bake()
     {
+        boolean isSizeBasked = false;
+        if ( size instanceof Size )
+        {
+            isSizeBasked = ( (Size)size ).isBaked();
+            ( (Size)size ).unbake();
+        }
         unbake();
         
+        /*
         int tmpX = getEffectiveX();
         int tmpY = getEffectiveY();
         
@@ -385,6 +392,20 @@ public class Position
         
         bakedX = tmpX;
         bakedY = tmpY;
+        */
+        
+        bakedX = getEffectiveX();
+        bakedY = getEffectiveY();
+        
+        if ( isSizeBasked )
+        {
+            ( (Size)size ).bake();
+        }
+    }
+    
+    public final boolean isBaked()
+    {
+        return ( bakedX >= 0 );
     }
     
     public final boolean isXPercentageValue()

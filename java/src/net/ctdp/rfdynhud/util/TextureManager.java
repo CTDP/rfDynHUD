@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 

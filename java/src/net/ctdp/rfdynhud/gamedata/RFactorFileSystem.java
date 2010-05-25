@@ -1,9 +1,14 @@
-package net.ctdp.rfdynhud.util;
+package net.ctdp.rfdynhud.gamedata;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+
+import net.ctdp.rfdynhud.util.__UtilHelper;
+import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.PluginINI;
+import net.ctdp.rfdynhud.util.ResourceManager;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -52,7 +57,7 @@ public class RFactorFileSystem
         return ( pluginFolder.getParentFile().getAbsoluteFile() );
     }
     
-    public static final File PLUGIN_FOLDER = Helper.PLUGIN_FOLDER;
+    public static final File PLUGIN_FOLDER = __UtilHelper.PLUGIN_FOLDER;
     public static final String PLUGIN_PATH = PLUGIN_FOLDER.getAbsolutePath();
     public static final PluginINI PLUGIN_INI = new PluginINI();
     public static final File RFACTOR_FOLDER = findRFactorFolder( PLUGIN_FOLDER );
@@ -60,7 +65,7 @@ public class RFactorFileSystem
     public static final File CONFIG_FOLDER = PLUGIN_INI.getGeneralConfigFolder();
     public static final String CONFIG_PATH = CONFIG_FOLDER.getAbsolutePath();
     public static final File IMAGES_FOLDER = new File( new File( CONFIG_FOLDER, "data" ), "images" ).getAbsoluteFile();
-    public static final File EDITOR_FOLDER = ResourceManager.isJarMode() ? new File( PLUGIN_FOLDER, "editor" ).getAbsoluteFile() : new File( Helper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ).getAbsoluteFile();
+    public static final File EDITOR_FOLDER = ResourceManager.isJarMode() ? new File( PLUGIN_FOLDER, "editor" ).getAbsoluteFile() : new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ).getAbsoluteFile();
     public static final String EDITOR_PATH = EDITOR_FOLDER.getAbsolutePath();
     public static final File SCREENSHOTS_FOLDER = RFactorFileSystem.getPathFromRFConfigINI( RFactorFileSystem.RFACTOR_FOLDER, "ScreenShotsDir", "UserData" + File.separator + "ScreenShots" );
     

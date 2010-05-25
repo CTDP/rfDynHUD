@@ -97,8 +97,8 @@ public class GraphicsInfo
     }
     
     /**
-     * Gets, whether the last update of these data hasbeen done while in realtime mode.
-     * @return whether the last update of these data hasbeen done while in realtime mode.
+     * Gets, whether the last update of these data has been done while in realtime mode.
+     * @return whether the last update of these data has been done while in realtime mode.
      */
     public final boolean isUpdatedInRealtimeMode()
     {

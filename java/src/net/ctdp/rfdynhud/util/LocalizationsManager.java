@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
+import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class LocalizationsManager

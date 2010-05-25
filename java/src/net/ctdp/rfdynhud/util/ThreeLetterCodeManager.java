@@ -3,6 +3,8 @@ package net.ctdp.rfdynhud.util;
 import java.io.File;
 import java.util.HashMap;
 
+import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
@@ -14,6 +16,8 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class ThreeLetterCodeManager
 {
+    // TODO: Preserve generated when updating!
+    
     private static final String INI_FILENAME = "three_letter_codes.ini";
     
     private static HashMap<String, String> name2TLCMap = null;

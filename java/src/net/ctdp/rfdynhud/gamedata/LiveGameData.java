@@ -1,7 +1,6 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.util.RFactorEventsManager;
 
 /**
  * 
@@ -26,7 +25,20 @@ public class LiveGameData
     
     void setRealtimeMode( boolean realtimeMode )
     {
+        boolean was = this.realtimeMode;
+        
         this.realtimeMode = realtimeMode;
+        
+        if ( !was && realtimeMode )
+        {
+            getTelemetryData().onRealtimeEntered();
+            getScoringInfo().onRealtimeEntered();
+        }
+        else if ( was && !realtimeMode )
+        {
+            getTelemetryData().onRealtimeExited();
+            getScoringInfo().onRealtimeExited();
+        }
     }
     
     public final boolean isInRealtimeMode()

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileFilter;
 
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorFileSystem;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -38,6 +37,8 @@ public class ProfileInfo
     private File profileFolder = null;
     private File plrFile = null;
     private long plrLastModified = -1L;
+    
+    private long updateId = 0L;
     
     private String modName = null;
     private String vehName = null;
@@ -212,6 +213,13 @@ public class ProfileInfo
         {
             Logger.log( t );
         }
+        
+        updateId++;
+    }
+    
+    public final long getUpdateId()
+    {
+        return ( updateId );
     }
     
     public final File getProfileFolder()

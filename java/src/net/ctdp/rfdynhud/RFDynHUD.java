@@ -3,6 +3,7 @@ package net.ctdp.rfdynhud;
 import java.nio.ByteBuffer;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.RFactorEventsManager;
 import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMappings;
@@ -11,7 +12,6 @@ import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.RFactorEventsManager;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
 import org.jagatoo.util.versioning.Version;
@@ -25,28 +25,12 @@ public class RFDynHUD
 {
     public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 71 );
     
-    public static final int FLAG_CONFIGURATION_RELOADED = 0;
-    
     private final WidgetsDrawingManager drawingManager;
     private final LiveGameData gameData;
     private final _LiveGameData_CPP_Adapter gameData_CPP_Adapter;
     private final RFactorEventsManager eventsManager;
     private final InputDeviceManager inputDeviceManager;
     private final InputMappingsManager inputMappingsManager;
-    
-    private final ByteBuffer flagsBuffer = ByteBuffer.allocateDirect( 16 );
-    
-    public final ByteBuffer getFlagsBuffer()
-    {
-        return ( flagsBuffer );
-    }
-    
-    public void setFlag( int flag, boolean value )
-    {
-        flagsBuffer.position( flag );
-        flagsBuffer.put( value ? (byte)1 : (byte)0 );
-        flagsBuffer.position( 0 );
-    }
     
     public final ByteBuffer getTextureInfoBuffer()
     {
@@ -123,7 +107,7 @@ public class RFDynHUD
             {
                 Logger.log( "Plugin enabled" );
                 
-                if ( !eventsManager.reloadConfiguration() )
+                if ( !eventsManager.reloadConfiguration( false ) )
                 {
                     int numWidgets = drawingManager.getNumWidgets();
                     for ( int i = 0; i < numWidgets; i++ )
@@ -145,11 +129,35 @@ public class RFDynHUD
     
     private long frameIndex = 0;
     
-    public final void update()
+    /**
+     * Will and must be called any time, the game is redendered (called from the C++-Plugin).
+     * 
+     * @param viewportX
+     * @param viewportY
+     * @param viewportWidth
+     * @param viewportHeight
+     * 
+     * @return 0, if nothing shouldbe rendered anymore, 1 to render something, 2 to render and update texture info.
+     */
+    public final byte update( final short viewportX, final short viewportY, final short viewportWidth, final short viewportHeight )
     {
+        byte result = 1;
+        
         try
         {
             frameIndex++;
+            
+            //Logger.log( gameData.getScoringInfo().getViewedVehicleScoringInfo().getDriverName() );
+            
+            //Logger.log( "vp: " + viewportX + ", " + viewportY + ", " + viewportWidth + ", " + viewportHeight );
+            if ( __WCPrivilegedAccess.setGameResolution( viewportWidth, viewportHeight, drawingManager ) )
+            {
+                if ( eventsManager.reloadConfiguration( true ) )
+                    result = 2;
+                
+                //Logger.log( "Viewport changed: " + viewportWidth + "x" + viewportHeight );
+                //result = 2;
+            }
             
             drawingManager.refreshSubTextureBuffer( false );
             
@@ -166,6 +174,8 @@ public class RFDynHUD
         {
             Logger.log( t );
         }
+        
+        return ( result );
     }
     
     private RFDynHUD( int gameResX, int gameResY ) throws Throwable

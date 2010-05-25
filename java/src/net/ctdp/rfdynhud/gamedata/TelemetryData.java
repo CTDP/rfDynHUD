@@ -6,7 +6,6 @@ import java.io.InputStream;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
-import net.ctdp.rfdynhud.util.RFactorEventsManager;
 
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
@@ -191,7 +190,9 @@ public class TelemetryData
         this.updateId++;
         
         float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
-        if ( ( bmr > 500f ) && ( bmr != engineBaseMaxRPM ) )
+        bmr = gameData.getPhysics().getEngine().getRevLimitRange().limitValue( bmr );
+        
+        if ( bmr != engineBaseMaxRPM )
         {
             // the car is controlled by the player but not the AI
             this.engineBaseMaxRPM = bmr;
@@ -205,8 +206,8 @@ public class TelemetryData
     }
     
     /**
-     * Gets, whether the last update of these data hasbeen done while in realtime mode.
-     * @return whether the last update of these data hasbeen done while in realtime mode.
+     * Gets, whether the last update of these data has been done while in realtime mode.
+     * @return whether the last update of these data has been done while in realtime mode.
      */
     public final boolean isUpdatedInRealtimeMode()
     {

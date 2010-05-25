@@ -338,6 +338,7 @@ public class Size implements AbstractSize
     {
         unbake();
         
+        /*
         int tmpWidth = getEffectiveWidth();
         int tmpHeight = getEffectiveHeight();
         
@@ -347,6 +348,15 @@ public class Size implements AbstractSize
         
         bakedWidth = tmpWidth;
         bakedHeight = tmpHeight;
+        */
+        
+        bakedWidth = getEffectiveWidth();
+        bakedHeight = getEffectiveHeight();
+    }
+    
+    public boolean isBaked()
+    {
+        return ( bakedWidth >= 0 );
     }
     
     public Size flipWidthPercentagePx()

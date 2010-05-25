@@ -278,9 +278,9 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public boolean needsRealtimeTelemetryData()
+    public int getNeededData()
     {
-        return ( true );
+        return ( Widget.NEEDED_DATA_TELEMETRY );
     }
     
     private void setControlVisibility( VehicleScoringInfo viewedVSI )
@@ -487,17 +487,17 @@ public class RevMeterWidget extends Widget
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
             n += shiftLights[s].loadTextures( isEditorMode, backgroundImageName );
         
-        if ( !gearBackgroundImageName.getStringValue().equals( "" ) )
+        if ( !gearBackgroundImageName.isNoImage() )
             n += loadGearBackgroundTexture( isEditorMode );
         else
             gearBackgroundTexture = null;
         
-        if ( !boostNumberBackgroundImageName.getStringValue().equals( "" ) )
+        if ( !boostNumberBackgroundImageName.isNoImage() )
             n += loadBoostNumberBackgroundTexture( isEditorMode );
         else
             boostNumberBackgroundTexture = null;
         
-        if ( !velocityBackgroundImageName.getStringValue().equals( "" ) )
+        if ( !velocityBackgroundImageName.isNoImage() )
             n += loadVelocityBackgroundTexture( isEditorMode );
         else
             velocityBackgroundTexture = null;
@@ -526,6 +526,19 @@ public class RevMeterWidget extends Widget
     public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
         super.onRealtimeEntered( gameData, editorPresets );
+        
+        maxRPMCheck.reset();
+        gear.reset();
+        velocity.reset();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onNeededDataComplete( gameData, editorPresets );
         
         maxRPMCheck.reset();
         gear.reset();
@@ -601,7 +614,7 @@ public class RevMeterWidget extends Widget
         double fh = metrics.getAscent() - metrics.getDescent();
         int fx, fy;
         
-        if ( !gearBackgroundImageName.getStringValue().equals( "" ) )
+        if ( !gearBackgroundImageName.isNoImage() )
             loadGearBackgroundTexture( isEditorMode );
         else
             gearBackgroundTexture = null;
@@ -627,7 +640,7 @@ public class RevMeterWidget extends Widget
         fw = bounds.getWidth();
         fh = metrics.getAscent() - metrics.getDescent();
         
-        if ( !boostNumberBackgroundImageName.getStringValue().equals( "" ) )
+        if ( !boostNumberBackgroundImageName.isNoImage() )
             loadBoostNumberBackgroundTexture( isEditorMode );
         else
             boostNumberBackgroundTexture = null;
@@ -653,7 +666,7 @@ public class RevMeterWidget extends Widget
         fw = bounds.getWidth();
         fh = metrics.getAscent() - metrics.getDescent();
         
-        if ( !velocityBackgroundImageName.getStringValue().equals( "" ) )
+        if ( !velocityBackgroundImageName.isNoImage() )
             loadVelocityBackgroundTexture( isEditorMode );
         else
             velocityBackgroundTexture = null;

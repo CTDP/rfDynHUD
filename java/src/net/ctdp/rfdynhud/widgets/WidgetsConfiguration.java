@@ -294,11 +294,27 @@ public class WidgetsConfiguration
         resetAllFontProperties();
     }
     
-    void setGameResolution( int gameResX, int gameResY )
+    boolean setGameResolution( int gameResX, int gameResY )
     {
-        gameResolution.set( gameResX, gameResY );
+        if ( gameResolution.set( gameResX, gameResY ) )
+        {
+            int n = getNumWidgets();
+            for ( int i = 0; i < n; i++ )
+            {
+                Widget widget = getWidget( i );
+                
+                widget.forceReinitialization();
+                widget.forceCompleteRedraw();
+                if ( widget.getPosition().isBaked() )
+                    widget.bake();
+            }
+            
+            fixVirtualNamedFonts();
+            
+            return ( true );
+        }
         
-        fixVirtualNamedFonts();
+        return ( false );
     }
     
     public final GameResolution getGameResolution()
