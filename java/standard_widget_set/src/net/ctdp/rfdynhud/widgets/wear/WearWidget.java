@@ -167,23 +167,14 @@ public class WearWidget extends Widget
     {
         super.setAllPosAndSizeToPercents();
         
-        if ( !engineHeight.isWidthPercentageValue() )
-            engineHeight.flipWidthPercentagePx();
+        engineHeight.setWidthToPercents();
+        engineHeight.setHeightToPercents();
         
-        if ( !engineHeight.isHeightPercentageValue() )
-            engineHeight.flipHeightPercentagePx();
+        tireSize.setWidthToPercents();
+        tireSize.setHeightToPercents();
         
-        if ( !tireSize.isWidthPercentageValue() )
-            tireSize.flipWidthPercentagePx();
-        
-        if ( !tireSize.isHeightPercentageValue() )
-            tireSize.flipHeightPercentagePx();
-        
-        if ( !brakeSize.isWidthPercentageValue() )
-            brakeSize.flipWidthPercentagePx();
-        
-        if ( !brakeSize.isHeightPercentageValue() )
-            brakeSize.flipHeightPercentagePx();
+        brakeSize.setWidthToPercents();
+        brakeSize.setHeightToPercents();
     }
     
     @Override
@@ -191,23 +182,14 @@ public class WearWidget extends Widget
     {
         super.setAllPosAndSizeToPixels();
         
-        if ( engineHeight.isWidthPercentageValue() )
-            engineHeight.flipWidthPercentagePx();
+        engineHeight.setWidthToPixels();
+        engineHeight.setHeightToPixels();
         
-        if ( engineHeight.isHeightPercentageValue() )
-            engineHeight.flipHeightPercentagePx();
+        tireSize.setWidthToPixels();
+        tireSize.setHeightToPixels();
         
-        if ( tireSize.isWidthPercentageValue() )
-            tireSize.flipWidthPercentagePx();
-        
-        if ( tireSize.isHeightPercentageValue() )
-            tireSize.flipHeightPercentagePx();
-        
-        if ( brakeSize.isWidthPercentageValue() )
-            brakeSize.flipWidthPercentagePx();
-        
-        if ( brakeSize.isHeightPercentageValue() )
-            brakeSize.flipHeightPercentagePx();
+        brakeSize.setWidthToPixels();
+        brakeSize.setHeightToPixels();
     }
     
     @Override

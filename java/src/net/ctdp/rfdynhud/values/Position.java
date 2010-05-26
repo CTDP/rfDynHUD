@@ -12,9 +12,9 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class Position
 {
-    private static final float PERCENT_OFFSET = 10000f;
-    private static final float PERCENT_OFFSET_CHECK_POSITIVE = +PERCENT_OFFSET - 0.001f;
-    private static final float PERCENT_OFFSET_CHECK_NEGATIVE = -PERCENT_OFFSET + 0.001f;
+    private static final float PIXEL_OFFSET = 10f;
+    private static final float PIXEL_OFFSET_CHECK_POSITIVE = +PIXEL_OFFSET - 0.001f;
+    private static final float PIXEL_OFFSET_CHECK_NEGATIVE = -PIXEL_OFFSET + 0.001f;
     
     private RelativePositioning positioning;
     private float x;
@@ -66,6 +66,21 @@ public class Position
         return ( y );
     }
     
+    private static final boolean isNegPixelValue( float v )
+    {
+        return ( v < PIXEL_OFFSET_CHECK_NEGATIVE );
+    }
+    
+    private static final boolean isPosPixelValue( float v )
+    {
+        return ( v > PIXEL_OFFSET_CHECK_POSITIVE );
+    }
+    
+    private static final boolean isPixelValue( float v )
+    {
+        return ( ( v < PIXEL_OFFSET_CHECK_NEGATIVE ) || ( v > PIXEL_OFFSET_CHECK_POSITIVE ) );
+    }
+    
     private final float getScaleWidth()
     {
         if ( isWidgetPosition )
@@ -103,40 +118,42 @@ public class Position
         {
             if ( positioning.isHCenter() )
             {
-                if ( x < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    x = Math.max( -PERCENT_OFFSET - 0.5f + ( isWidgetPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
-                else if ( x > PERCENT_OFFSET_CHECK_POSITIVE )
-                    x = Math.min( PERCENT_OFFSET + 0.5f - ( isWidgetPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
+                if ( isNegPixelValue( x ) )
+                    x = Math.max( -PIXEL_OFFSET - getScaleWidth() / 2f + ( isWidgetPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
+                else if ( isPosPixelValue( x ) )
+                    x = Math.min( +PIXEL_OFFSET + getScaleWidth() / 2f - ( isWidgetPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
                 else if ( x < 0f )
-                    x = Math.max( -getScaleWidth() / 2f + ( isWidgetPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
+                    x = Math.max( -0.5f + ( isWidgetPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
                 else if ( x > 0f )
-                    x = Math.min( getScaleWidth() / 2f - ( isWidgetPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
+                    x = Math.min( +0.5f - ( isWidgetPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
+            }
+            else if ( isPixelValue( x ) )
+            {
+                x = Math.max( PIXEL_OFFSET, x );
             }
             else
             {
-                if ( Math.abs( x ) > PERCENT_OFFSET_CHECK_POSITIVE )
-                    x = Math.max( PERCENT_OFFSET, x );
-                else
-                    x = Math.max( 0f, x );
+                x = Math.max( 0f, x );
             }
             
             if ( positioning.isVCenter() )
             {
-                if ( y < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    y = Math.max( -PERCENT_OFFSET - 0.5f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
-                else if ( y > PERCENT_OFFSET_CHECK_POSITIVE )
-                    y = Math.min( PERCENT_OFFSET + 0.5f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
+                if ( isNegPixelValue( y ) )
+                    y = Math.max( -PIXEL_OFFSET - getScaleHeight() / 2f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
+                else if ( isPosPixelValue( y ) )
+                    y = Math.min( +PIXEL_OFFSET + getScaleHeight() / 2f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
                 else if ( y < 0f )
-                    y = Math.max( -getScaleHeight() / 2f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
+                    y = Math.max( -0.5f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
                 else if ( y > 0f )
-                    y = Math.min( getScaleHeight() / 2f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
+                    y = Math.min( +0.5f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
+            }
+            else if ( isPixelValue( y ) )
+            {
+                y = Math.max( PIXEL_OFFSET, y );
             }
             else
             {
-                if ( Math.abs( y ) > PERCENT_OFFSET_CHECK_POSITIVE )
-                    y = Math.max( PERCENT_OFFSET, y );
-                else
-                    y = Math.max( 0f, y );
+                y = Math.max( 0f, y );
             }
         }
         
@@ -147,8 +164,9 @@ public class Position
         if ( ( positioning != this.positioning ) || ( x != this.x ) || ( y != this.y ) )
         {
             RelativePositioning oldPositioning = this.positioning;
-            float oldX = this.x;
-            float oldY = this.y;
+            boolean b = ( widget.getConfiguration() != null );
+            int oldX = b ? getEffectiveX() : 0;
+            int oldY = b ? getEffectiveY() : 0;
             
             this.positioning = positioning;
             
@@ -159,7 +177,8 @@ public class Position
                 widget.forceCompleteRedraw();
             widget.setDirtyFlag();
             
-            __WPrivilegedAccess.onPositionChanged( oldPositioning, oldX, oldY, positioning, x, y, widget );
+            if ( b )
+                __WPrivilegedAccess.onPositionChanged( oldPositioning, oldX, oldY, positioning, getEffectiveX(), getEffectiveY(), widget );
             
             changed = true;
         }
@@ -212,7 +231,7 @@ public class Position
         float scaleW = getScaleWidth();
         float scaleH = getScaleHeight();
         
-        if ( isWidgetPosition && ( Math.abs( this.x ) > PERCENT_OFFSET_CHECK_POSITIVE ) )
+        if ( isWidgetPosition && !isPixelValue( this.x ) )
         {
             if ( positioning.isRight() )
                 x = (int)Math.max( scaleW - getHundretPercentWidth() - widget.getSize().getEffectiveWidth(), x );
@@ -230,27 +249,33 @@ public class Position
         else if ( positioning.isRight() )
             x = (int)scaleW - x - size.getEffectiveWidth();
         
-        boolean changed = false;
+        float newX, newY;
         
-        if ( Math.abs( this.x ) > PERCENT_OFFSET_CHECK_POSITIVE )
+        if ( isPixelValue( this.x ) )
         {
-            float hundretPercentW = getHundretPercentWidth();
-            
-            if ( Math.abs( this.y ) > PERCENT_OFFSET_CHECK_POSITIVE )
-                changed = set( positioning, ( x < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)x / hundretPercentW, ( y < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)y / scaleH );
+            if ( isPixelValue( this.y ) )
+            {
+                newX = ( x < 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + x;
+                newY = ( y < 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + y;
+            }
             else
-                changed = set( positioning, ( x < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)x / hundretPercentW, y );
+            {
+                newX = ( x < 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + x;
+                newY = (float)y / scaleH;
+            }
         }
-        else if ( Math.abs( this.y ) > PERCENT_OFFSET_CHECK_POSITIVE )
+        else if ( isPixelValue( this.y ) )
         {
-            changed = set( positioning, x, ( y < 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)y / scaleH );
+            newX = (float)x / getHundretPercentWidth();
+            newY = ( y < 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + y;
         }
         else
         {
-            changed = set( positioning, x, y );
+            newX = (float)x / getHundretPercentWidth();
+            newY = (float)y / scaleH;
         }
         
-        return ( changed );
+        return ( set( positioning, newX, newY ) );
     }
     
     /**
@@ -283,33 +308,33 @@ public class Position
             case TOP_LEFT:
             case CENTER_LEFT:
             case BOTTOM_LEFT:
-                if ( x > PERCENT_OFFSET_CHECK_POSITIVE )
-                    return ( (int)( ( x - PERCENT_OFFSET ) * getHundretPercentWidth() ) );
+                if ( isPosPixelValue( x ) )
+                    return ( (int)( x - PIXEL_OFFSET ) );
                 
-                if ( x < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    return ( (int)( ( x + PERCENT_OFFSET ) * getHundretPercentWidth() ) );
+                if ( isNegPixelValue( x ) )
+                    return ( (int)( x + PIXEL_OFFSET ) );
                 
-                return ( (int)x );
+                return ( (int)( x * getHundretPercentWidth() ) );
             case TOP_CENTER:
             case CENTER_CENTER:
             case BOTTOM_CENTER:
-                if ( x > PERCENT_OFFSET_CHECK_POSITIVE )
-                    return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + (int)( ( x - PERCENT_OFFSET ) * getHundretPercentWidth() ) );
+                if ( isPosPixelValue( x ) )
+                    return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + (int)( x - PIXEL_OFFSET ) );
                 
-                if ( x < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + (int)( ( x + PERCENT_OFFSET ) * getHundretPercentWidth() ) );
+                if ( isNegPixelValue( x ) )
+                    return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + (int)( x + PIXEL_OFFSET ) );
                 
-                return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + (int)x );
+                return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + (int)( x * getHundretPercentWidth() ) );
             case TOP_RIGHT:
             case CENTER_RIGHT:
             case BOTTOM_RIGHT:
-                if ( x > PERCENT_OFFSET_CHECK_POSITIVE )
-                    return ( (int)scaleW - (int)( ( x - PERCENT_OFFSET ) * getHundretPercentWidth() ) - size.getEffectiveWidth() );
+                if ( isPosPixelValue( x ) )
+                    return ( (int)scaleW - (int)( x - PIXEL_OFFSET ) - size.getEffectiveWidth() );
                 
-                if ( x < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    return ( (int)scaleW - (int)( ( x + PERCENT_OFFSET ) * getHundretPercentWidth() ) - size.getEffectiveWidth() );
+                if ( isNegPixelValue( x ) )
+                    return ( (int)scaleW - (int)( x + PIXEL_OFFSET ) - size.getEffectiveWidth() );
                 
-                return ( (int)scaleW - (int)x - size.getEffectiveWidth() );
+                return ( (int)scaleW - (int)( x * getHundretPercentWidth() ) - size.getEffectiveWidth() );
         }
         
         // Unreachable code!
@@ -333,33 +358,33 @@ public class Position
             case TOP_LEFT:
             case TOP_CENTER:
             case TOP_RIGHT:
-                if ( y > PERCENT_OFFSET_CHECK_POSITIVE )
-                    return ( (int)( ( y - PERCENT_OFFSET ) * scaleH ) );
+                if ( isPosPixelValue( y ) )
+                    return ( (int)( y - PIXEL_OFFSET ) );
                 
-                if ( y < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    return ( (int)( ( y + PERCENT_OFFSET ) * scaleH ) );
+                if ( isNegPixelValue( y ) )
+                    return ( (int)( y + PIXEL_OFFSET ) );
                 
-                return ( (int)y );
+                return ( (int)( y * scaleH ) );
             case CENTER_LEFT:
             case CENTER_CENTER:
             case CENTER_RIGHT:
-                if ( y > PERCENT_OFFSET_CHECK_POSITIVE )
-                    return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( ( y - PERCENT_OFFSET ) * scaleH ) );
+                if ( isPosPixelValue( y ) )
+                    return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( y - PIXEL_OFFSET ) );
                 
-                if ( y < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( ( y + PERCENT_OFFSET ) * scaleH ) );
+                if ( isNegPixelValue( y ) )
+                    return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( y + PIXEL_OFFSET ) );
                 
-                return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)y );
+                return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( y * scaleH ) );
             case BOTTOM_LEFT:
             case BOTTOM_CENTER:
             case BOTTOM_RIGHT:
-                if ( y > PERCENT_OFFSET_CHECK_POSITIVE )
-                    return ( (int)scaleH - (int)( ( y - PERCENT_OFFSET ) * (int)scaleH ) - size.getEffectiveHeight() );
+                if ( isPosPixelValue( y ) )
+                    return ( (int)scaleH - (int)( y - PIXEL_OFFSET ) - size.getEffectiveHeight() );
                 
-                if ( y < PERCENT_OFFSET_CHECK_NEGATIVE )
-                    return ( (int)scaleH - (int)( ( y + PERCENT_OFFSET ) * (int)scaleH ) - size.getEffectiveHeight() );
+                if ( isNegPixelValue( y ) )
+                    return ( (int)scaleH - (int)( y + PIXEL_OFFSET ) - size.getEffectiveHeight() );
                 
-                return ( (int)scaleH - (int)y - size.getEffectiveHeight() );
+                return ( (int)scaleH - (int)( y * (int)scaleH ) - size.getEffectiveHeight() );
         }
         
         // Unreachable code!
@@ -408,41 +433,83 @@ public class Position
         return ( bakedX >= 0 );
     }
     
-    public final boolean isXPercentageValue()
+    public Position setXToPercents()
     {
-        return ( ( x < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( x > PERCENT_OFFSET_CHECK_POSITIVE ) );
+        if ( isPixelValue( x ) )
+        {
+            int effX = getEffectiveX();
+            int effY = getEffectiveY();
+            
+            if ( x > 0f )
+                this.x = +PIXEL_OFFSET * 0.9f;
+            else
+                this.x = -PIXEL_OFFSET * 0.9f;
+            
+            setEffectivePosition( getPositioning(), effX, effY );
+        }
+        
+        return ( this );
     }
     
-    public final boolean isYPercentageValue()
+    public Position setXToPixels()
     {
-        return ( ( y < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( y > PERCENT_OFFSET_CHECK_POSITIVE ) );
+        if ( !isPixelValue( x ) )
+        {
+            int effX = getEffectiveX();
+            int effY = getEffectiveY();
+            
+            if ( x > 0f )
+                this.x = +PIXEL_OFFSET + 10000f;
+            else
+                this.x = -PIXEL_OFFSET - 10000f;
+            
+            setEffectivePosition( getPositioning(), effX, effY );
+        }
+        
+        return ( this );
     }
     
     public Position flipXPercentagePx()
     {
-        if ( Math.abs( x ) < PERCENT_OFFSET_CHECK_POSITIVE )
-        {
-            int effX = getEffectiveX();
-            int effY = getEffectiveY();
-            
-            if ( x > 0f )
-                this.x = +PERCENT_OFFSET + 0.5f;
-            else
-                this.x = -PERCENT_OFFSET - 0.5f;
-            
-            setEffectivePosition( effX, effY );
-        }
+        if ( isPixelValue( x ) )
+            setXToPercents();
         else
+            setXToPixels();
+        
+        return ( this );
+    }
+    
+    public Position setYToPercents()
+    {
+        if ( isPixelValue( y ) )
         {
             int effX = getEffectiveX();
             int effY = getEffectiveY();
             
-            if ( x > 0f )
-                this.x = +10f;
+            if ( y > 0f )
+                this.y = +PIXEL_OFFSET * 0.9f;
             else
-                this.x = -10f;
+                this.y = -PIXEL_OFFSET * 0.9f;
             
-            setEffectivePosition( effX, effY );
+            setEffectivePosition( getPositioning(), effX, effY );
+        }
+        
+        return ( this );
+    }
+    
+    public Position setYToPixels()
+    {
+        if ( !isPixelValue( y ) )
+        {
+            int effX = getEffectiveX();
+            int effY = getEffectiveY();
+            
+            if ( y > 0f )
+                this.y = +PIXEL_OFFSET + 10000f;
+            else
+                this.y = -PIXEL_OFFSET - 10000f;
+            
+            setEffectivePosition( getPositioning(), effX, effY );
         }
         
         return ( this );
@@ -450,30 +517,10 @@ public class Position
     
     public Position flipYPercentagePx()
     {
-        if ( Math.abs( y ) < PERCENT_OFFSET_CHECK_POSITIVE )
-        {
-            int effX = getEffectiveX();
-            int effY = getEffectiveY();
-            
-            if ( y > 0f )
-                this.y = +PERCENT_OFFSET + 0.5f;
-            else
-                this.y = -PERCENT_OFFSET - 0.5f;
-            
-            setEffectivePosition( effX, effY );
-        }
+        if ( isPixelValue( y ) )
+            setYToPercents();
         else
-        {
-            int effX = getEffectiveX();
-            int effY = getEffectiveY();
-            
-            if ( y > 0f )
-                this.y = +10f;
-            else
-                this.y = -10f;
-            
-            setEffectivePosition( effX, effY );
-        }
+            setYToPixels();
         
         return ( this );
     }
@@ -500,17 +547,18 @@ public class Position
         if ( isPerc )
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 1 ) );
-            if ( f < 0f )
-                return ( -PERCENT_OFFSET + ( f / 100f ) );
             
-            return ( +PERCENT_OFFSET + ( f / 100f ) );
+            return ( f / 100f );
         }
         
         if ( isPx )
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 2 ) );
             
-            return ( f );
+            if ( f < 0f )
+                return ( -PIXEL_OFFSET + f );
+            
+            return ( +PIXEL_OFFSET + f );
         }
         
         // Unreachable!
@@ -535,13 +583,13 @@ public class Position
     
     public static String unparseValue( float value )
     {
-        if ( value > PERCENT_OFFSET_CHECK_POSITIVE )
-            return ( String.valueOf( ( value - PERCENT_OFFSET ) * 100f ) + "%" );
+        if ( isPosPixelValue( value ) )
+            return ( String.valueOf( value - PIXEL_OFFSET ) + "px" );
         
-        if ( value < PERCENT_OFFSET_CHECK_NEGATIVE )
-            return ( String.valueOf( ( value + PERCENT_OFFSET ) * 100f ) + "%" );
+        if ( isNegPixelValue( value ) )
+            return ( String.valueOf( value + PIXEL_OFFSET ) + "px" );
         
-        return ( String.valueOf( (int)value ) + "px" );
+        return ( String.valueOf( (int)( value * 100f ) ) + "%" );
     }
     
     /*
@@ -597,7 +645,7 @@ public class Position
             if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                 value += "px";
             
-            setX( parseValue( value, isXPercentageValue() ) );
+            setX( parseValue( value, !isPixelValue( x ) ) );
             
             return ( true );
         }
@@ -607,7 +655,7 @@ public class Position
             if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                 value += "px";
             
-            setY( parseValue( value, isYPercentageValue() ) );
+            setY( parseValue( value, !isPixelValue( y ) ) );
             
             return ( true );
         }
@@ -671,7 +719,7 @@ public class Position
             @Override
             public boolean isPercentage()
             {
-                return ( isXPercentageValue() );
+                return ( !isPixelValue( x ) );
             }
             
             @Override
@@ -720,7 +768,7 @@ public class Position
             @Override
             public boolean isPercentage()
             {
-                return ( isYPercentageValue() );
+                return ( !isPixelValue( y ) );
             }
             
             @Override
@@ -757,8 +805,8 @@ public class Position
     Position( RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size, Widget widget, boolean isWidgetPosition )
     {
         this.positioning = positioning;
-        this.x = xPercent ? ( PERCENT_OFFSET + x * 0.01f ) : x;
-        this.y = yPercent ? ( PERCENT_OFFSET + y * 0.01f ) : y;
+        this.x = xPercent ? x : PIXEL_OFFSET + x;
+        this.y = yPercent ? y : PIXEL_OFFSET + y;
         
         this.size = size;
         

@@ -236,17 +236,11 @@ public class FuelWidget extends Widget
     {
         super.setAllPosAndSizeToPercents();
         
-        if ( !lowFuelWarningImagePosition.isXPercentageValue() )
-            lowFuelWarningImagePosition.flipXPercentagePx();
+        lowFuelWarningImagePosition.setXToPercents();
+        lowFuelWarningImagePosition.setYToPercents();
         
-        if ( !lowFuelWarningImagePosition.isYPercentageValue() )
-            lowFuelWarningImagePosition.flipYPercentagePx();
-        
-        if ( !fuelBarWidth.isWidthPercentageValue() )
-            fuelBarWidth.flipWidthPercentagePx();
-        
-        if ( !fuelBarWidth.isHeightPercentageValue() )
-            fuelBarWidth.flipHeightPercentagePx();
+        fuelBarWidth.setWidthToPercents();
+        fuelBarWidth.setHeightToPercents();
     }
     
     @Override
@@ -254,17 +248,11 @@ public class FuelWidget extends Widget
     {
         super.setAllPosAndSizeToPixels();
         
-        if ( lowFuelWarningImagePosition.isXPercentageValue() )
-            lowFuelWarningImagePosition.flipXPercentagePx();
+        lowFuelWarningImagePosition.setXToPixels();
+        lowFuelWarningImagePosition.setYToPixels();
         
-        if ( lowFuelWarningImagePosition.isYPercentageValue() )
-            lowFuelWarningImagePosition.flipYPercentagePx();
-        
-        if ( fuelBarWidth.isWidthPercentageValue() )
-            fuelBarWidth.flipWidthPercentagePx();
-        
-        if ( fuelBarWidth.isHeightPercentageValue() )
-            fuelBarWidth.flipHeightPercentagePx();
+        fuelBarWidth.setWidthToPixels();
+        fuelBarWidth.setHeightToPixels();
     }
     
     /**

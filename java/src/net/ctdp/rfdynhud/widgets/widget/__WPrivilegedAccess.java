@@ -26,7 +26,7 @@ public class __WPrivilegedAccess
         widget.onPropertyChanged( property, oldValue, newValue );
     }
     
-    public static final void onPositionChanged( RelativePositioning oldPositioning, float oldX, float oldY, RelativePositioning newPositioning, float newX, float newY, Widget widget )
+    public static final void onPositionChanged( RelativePositioning oldPositioning, int oldX, int oldY, RelativePositioning newPositioning, int newX, int newY, Widget widget )
     {
         widget.onPositionChanged( oldPositioning, oldX, oldY, newPositioning, newX, newY );
     }

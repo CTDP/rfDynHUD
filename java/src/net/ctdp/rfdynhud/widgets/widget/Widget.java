@@ -119,7 +119,7 @@ public abstract class Widget implements Documented
      * @param newX
      * @param newY
      */
-    protected void onPositionChanged( RelativePositioning oldPositioning, float oldX, float oldY, RelativePositioning newPositioning, float newX, float newY )
+    protected void onPositionChanged( RelativePositioning oldPositioning, int oldX, int oldY, RelativePositioning newPositioning, int newX, int newY )
     {
         WidgetsConfiguration wc = getConfiguration();
         
@@ -471,32 +471,20 @@ public abstract class Widget implements Documented
     
     public void setAllPosAndSizeToPercents()
     {
-        if ( !position.isXPercentageValue() )
-            position.flipXPercentagePx();
+        position.setXToPercents();
+        position.setYToPercents();
         
-        if ( !position.isYPercentageValue() )
-            position.flipYPercentagePx();
-        
-        if ( !size.isWidthPercentageValue() )
-            size.flipWidthPercentagePx();
-        
-        if ( !size.isHeightPercentageValue() )
-            size.flipHeightPercentagePx();
+        size.setWidthToPercents();
+        size.setHeightToPercents();
     }
     
     public void setAllPosAndSizeToPixels()
     {
-        if ( position.isXPercentageValue() )
-            position.flipXPercentagePx();
+        position.setXToPixels();
+        position.setYToPixels();
         
-        if ( position.isYPercentageValue() )
-            position.flipYPercentagePx();
-        
-        if ( size.isWidthPercentageValue() )
-            size.flipWidthPercentagePx();
-        
-        if ( size.isHeightPercentageValue() )
-            size.flipHeightPercentagePx();
+        size.setWidthToPixels();
+        size.setHeightToPixels();
     }
     
     protected final ColorProperty getBackgroundColorProperty()

@@ -64,26 +64,19 @@ public class Size implements AbstractSize
         return ( height <= 0f );
     }
     
-    public final boolean isPercentageWidth()
+    private static final boolean isNegPercentageValue( float v )
     {
-        if ( width > PERCENT_OFFSET_CHECK_POSITIVE )
-            return ( true );
-        
-        if ( width < PERCENT_OFFSET_CHECK_NEGATIVE )
-            return ( true );
-        
-        return ( false );
+        return ( v < PERCENT_OFFSET_CHECK_NEGATIVE );
     }
     
-    public final boolean isPercentageHeight()
+    private static final boolean isPosPercentageValue( float v )
     {
-        if ( height > PERCENT_OFFSET_CHECK_POSITIVE )
-            return ( true );
-        
-        if ( height < PERCENT_OFFSET_CHECK_NEGATIVE )
-            return ( true );
-        
-        return ( false );
+        return ( v > PERCENT_OFFSET_CHECK_POSITIVE );
+    }
+    
+    private static final boolean isPercentageValue( float v )
+    {
+        return ( ( v < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( v > PERCENT_OFFSET_CHECK_POSITIVE ) );
     }
     
     private final float getMinWidth()
@@ -359,9 +352,9 @@ public class Size implements AbstractSize
         return ( bakedWidth >= 0 );
     }
     
-    public Size flipWidthPercentagePx()
+    public Size setWidthToPercents()
     {
-        if ( Math.abs( width ) < PERCENT_OFFSET_CHECK_POSITIVE )
+        if ( !isPercentageValue( width ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();
@@ -373,7 +366,13 @@ public class Size implements AbstractSize
             
             setEffectiveSize( effW, effH );
         }
-        else
+        
+        return ( this );
+    }
+    
+    public Size setWidthToPixels()
+    {
+        if ( isPercentageValue( height ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();
@@ -389,9 +388,19 @@ public class Size implements AbstractSize
         return ( this );
     }
     
-    public Size flipHeightPercentagePx()
+    public Size flipWidthPercentagePx()
     {
-        if ( Math.abs( height ) < PERCENT_OFFSET_CHECK_POSITIVE )
+        if ( isPercentageValue( width ) )
+            setWidthToPixels();
+        else
+            setWidthToPercents();
+        
+        return ( this );
+    }
+    
+    public Size setHeightToPercents()
+    {
+        if ( !isPercentageValue( height ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();
@@ -403,7 +412,13 @@ public class Size implements AbstractSize
             
             setEffectiveSize( effW, effH );
         }
-        else
+        
+        return ( this );
+    }
+    
+    public Size setHeightToPixels()
+    {
+        if ( isPercentageValue( height ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();
@@ -419,14 +434,14 @@ public class Size implements AbstractSize
         return ( this );
     }
     
-    public final boolean isWidthPercentageValue()
+    public Size flipHeightPercentagePx()
     {
-        return ( ( width < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( width > PERCENT_OFFSET_CHECK_POSITIVE ) );
-    }
-    
-    public final boolean isHeightPercentageValue()
-    {
-        return ( ( height < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( height > PERCENT_OFFSET_CHECK_POSITIVE ) );
+        if ( isPercentageValue( height ) )
+            setHeightToPixels();
+        else
+            setHeightToPercents();
+        
+        return ( this );
     }
     
     public Size flipWidthSign()
@@ -573,7 +588,7 @@ public class Size implements AbstractSize
             if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                 value += "px";
             
-            setWidth( parseValue( value, isWidthPercentageValue() ) );
+            setWidth( parseValue( value, isPercentageValue( width ) ) );
             
             return ( true );
         }
@@ -583,7 +598,7 @@ public class Size implements AbstractSize
             if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                 value += "px";
             
-            setHeight( parseValue( value, isHeightPercentageValue() ) );
+            setHeight( parseValue( value, isPercentageValue( height ) ) );
             
             return ( true );
         }
@@ -608,7 +623,7 @@ public class Size implements AbstractSize
             @Override
             public boolean isPercentage()
             {
-                return ( isWidthPercentageValue() );
+                return ( isPercentageValue( width ) );
             }
             
             @Override
@@ -665,7 +680,7 @@ public class Size implements AbstractSize
             @Override
             public boolean isPercentage()
             {
-                return ( isHeightPercentageValue() );
+                return ( isPercentageValue( height ) );
             }
             
             @Override

@@ -94,8 +94,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     {
         super.setAllPosAndSizeToPercents();
         
-        if ( !itemHeight.isHeightPercentageValue() )
-            itemHeight.flipHeightPercentagePx();
+        itemHeight.setHeightToPercents();
     }
     
     @Override
@@ -103,8 +102,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     {
         super.setAllPosAndSizeToPixels();
         
-        if ( itemHeight.isHeightPercentageValue() )
-            itemHeight.flipHeightPercentagePx();
+        itemHeight.setHeightToPixels();
     }
     
     @Override
