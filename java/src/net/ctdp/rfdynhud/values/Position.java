@@ -178,7 +178,13 @@ public class Position
             widget.setDirtyFlag();
             
             if ( b )
-                __WPrivilegedAccess.onPositionChanged( oldPositioning, oldX, oldY, positioning, getEffectiveX(), getEffectiveY(), widget );
+            {
+                int newX = getEffectiveX();
+                int newY = getEffectiveY();
+                
+                if ( oldX != newX || oldY != newY )
+                    __WPrivilegedAccess.onPositionChanged( oldPositioning, oldX, oldY, positioning, newX, newY, widget );
+            }
             
             changed = true;
         }
@@ -406,18 +412,6 @@ public class Position
             ( (Size)size ).unbake();
         }
         unbake();
-        
-        /*
-        int tmpX = getEffectiveX();
-        int tmpY = getEffectiveY();
-        
-        x = 1;
-        y = 1;
-        setEffectivePosition( RelativePositioning.TOP_LEFT, tmpX, tmpY );
-        
-        bakedX = tmpX;
-        bakedY = tmpY;
-        */
         
         bakedX = getEffectiveX();
         bakedY = getEffectiveY();
@@ -805,8 +799,8 @@ public class Position
     Position( RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size, Widget widget, boolean isWidgetPosition )
     {
         this.positioning = positioning;
-        this.x = xPercent ? x : PIXEL_OFFSET + x;
-        this.y = yPercent ? y : PIXEL_OFFSET + y;
+        this.x = xPercent ? x * 0.01f : PIXEL_OFFSET + x;
+        this.y = yPercent ? y * 0.01f : PIXEL_OFFSET + y;
         
         this.size = size;
         

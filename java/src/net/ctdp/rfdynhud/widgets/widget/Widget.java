@@ -136,7 +136,7 @@ public abstract class Widget implements Documented
      * @param newWidth
      * @param newHeight
      */
-    protected void onSizeChanged( float oldWidth, float oldHeight, float newWidth, float newHeight )
+    protected void onSizeChanged( int oldWidth, int oldHeight, int newWidth, int newHeight )
     {
         WidgetsConfiguration wc = getConfiguration();
         

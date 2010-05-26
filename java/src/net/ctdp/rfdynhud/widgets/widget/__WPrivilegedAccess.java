@@ -31,7 +31,7 @@ public class __WPrivilegedAccess
         widget.onPositionChanged( oldPositioning, oldX, oldY, newPositioning, newX, newY );
     }
     
-    public static final void onSizeChanged( float oldWidth, float oldHeight, float newWidth, float newHeight, Widget widget )
+    public static final void onSizeChanged( int oldWidth, int oldHeight, int newWidth, int newHeight, Widget widget )
     {
         widget.onSizeChanged( oldWidth, oldHeight, newWidth, newHeight );
     }

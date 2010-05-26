@@ -9,9 +9,9 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 public class Size implements AbstractSize
 {
-    private static final float PERCENT_OFFSET = 10000f;
-    private static final float PERCENT_OFFSET_CHECK_POSITIVE = +PERCENT_OFFSET - 0.001f;
-    private static final float PERCENT_OFFSET_CHECK_NEGATIVE = -PERCENT_OFFSET + 0.001f;
+    private static final float PIXEL_OFFSET = 10f;
+    private static final float PIXEL_OFFSET_CHECK_POSITIVE = +PIXEL_OFFSET - 0.001f;
+    private static final float PIXEL_OFFSET_CHECK_NEGATIVE = -PIXEL_OFFSET + 0.001f;
     
     private float width;
     private float height;
@@ -64,19 +64,19 @@ public class Size implements AbstractSize
         return ( height <= 0f );
     }
     
-    private static final boolean isNegPercentageValue( float v )
+    private static final boolean isNegPixelValue( float v )
     {
-        return ( v < PERCENT_OFFSET_CHECK_NEGATIVE );
+        return ( v < PIXEL_OFFSET_CHECK_NEGATIVE );
     }
     
-    private static final boolean isPosPercentageValue( float v )
+    private static final boolean isPosPixelValue( float v )
     {
-        return ( v > PERCENT_OFFSET_CHECK_POSITIVE );
+        return ( v > PIXEL_OFFSET_CHECK_POSITIVE );
     }
     
-    private static final boolean isPercentageValue( float v )
+    private static final boolean isPixelValue( float v )
     {
-        return ( ( v < PERCENT_OFFSET_CHECK_NEGATIVE ) || ( v > PERCENT_OFFSET_CHECK_POSITIVE ) );
+        return ( ( v < PIXEL_OFFSET_CHECK_NEGATIVE ) || ( v > PIXEL_OFFSET_CHECK_POSITIVE ) );
     }
     
     private final float getMinWidth()
@@ -126,23 +126,23 @@ public class Size implements AbstractSize
         if ( widget.getConfiguration() == null )
             return;
         
-        if ( width > PERCENT_OFFSET_CHECK_POSITIVE )
-            width = Math.max( +PERCENT_OFFSET, Math.min( width, +PERCENT_OFFSET + 1.00f ) );
-        else if ( width < PERCENT_OFFSET_CHECK_NEGATIVE )
-            width = Math.min( -PERCENT_OFFSET, Math.max( width, -PERCENT_OFFSET - 1.00f ) );
+        if ( isPosPixelValue( width ) )
+            width = +PIXEL_OFFSET + Math.min( width - PIXEL_OFFSET, getScaleWidth() );
+        else if ( isNegPixelValue( width ) )
+            width = -PIXEL_OFFSET + Math.max( width + PIXEL_OFFSET, -getScaleWidth() );
         else if ( width > 0f )
-            width = Math.min( width, getScaleWidth() );
+            width = Math.max( 0f, Math.min( width, +1.0f ) );
         else if ( width <= 0f )
-            width = Math.max( width, -getScaleWidth() );
+            width = Math.min( 0f, Math.max( width, -1.0f ) );
         
-        if ( height > PERCENT_OFFSET_CHECK_POSITIVE )
-            height = Math.max( +PERCENT_OFFSET, Math.min( height, +PERCENT_OFFSET + 1.00f ) );
-        else if ( height < PERCENT_OFFSET_CHECK_NEGATIVE )
-            height = Math.min( -PERCENT_OFFSET, Math.max( height, -PERCENT_OFFSET - 1.00f ) );
+        if ( isPosPixelValue( height ) )
+            height = +PIXEL_OFFSET + Math.min( height - PIXEL_OFFSET, getScaleHeight() );
+        else if ( isNegPixelValue( height ) )
+            height = -PIXEL_OFFSET + Math.max( height + PIXEL_OFFSET, -getScaleHeight() );
         else if ( height > 0f )
-            height = Math.min( height, getScaleHeight() );
+            height = Math.max( 0f, Math.min( height, +1.0f ) );
         else if ( height <= 0f )
-            height = Math.max( height, -getScaleHeight() );
+            height = Math.min( 0f, Math.max( height, -1.0f ) );
     }
     
     /**
@@ -153,26 +153,28 @@ public class Size implements AbstractSize
      */
     private boolean set( float width, float height )
     {
+        /*
         if ( widget.getConfiguration() != null )
         {
-            if ( width > PERCENT_OFFSET_CHECK_POSITIVE )
-                width = +PERCENT_OFFSET + Math.max( width - PERCENT_OFFSET, getMinWidth() / getHundretPercentWidth() );
-            else if ( width < PERCENT_OFFSET_CHECK_NEGATIVE )
-                width = -PERCENT_OFFSET + Math.max( width + PERCENT_OFFSET, ( getMinWidth() / getScaleWidth() ) - 1.0f );
-            else if ( width > 0f )
+            if ( isPosPixelValue( width ) )
                 width = Math.max( width, getMinWidth() );
-            else if ( width <= 0f )
+            else if ( isNegPixelValue( width ) )
                 width = -Math.max( -width, -getMinWidth() );
+            else if ( width > 0f )
+                width = +PERCENT_OFFSET + Math.max( width - PERCENT_OFFSET, getMinWidth() / getHundretPercentWidth() );
+            else if ( width <= 0f )
+                width = -PERCENT_OFFSET + Math.max( width + PERCENT_OFFSET, ( getMinWidth() / getScaleWidth() ) - 1.0f );
             
-            if ( height > PERCENT_OFFSET_CHECK_POSITIVE )
-                height = +PERCENT_OFFSET + Math.max( height - PERCENT_OFFSET, getMinHeight() / getScaleHeight() );
-            else if ( height < PERCENT_OFFSET_CHECK_NEGATIVE )
-                height = -PERCENT_OFFSET + Math.min( height + PERCENT_OFFSET, -( getMinHeight() / getScaleHeight() ) );
-            else if ( height > 0f )
+            if ( isPosPixelValue( height ) )
                 height = Math.max( height, getMinHeight() );
-            else if ( height <= 0f )
+            else if ( isNegPixelValue( height ) )
                 height = -Math.max( -height, -getMinHeight() );
+            else if ( height > 0f )
+                height = +PERCENT_OFFSET + Math.max( height - PERCENT_OFFSET, getMinHeight() / getScaleHeight() );
+            else if ( height <= 0f )
+                height = -PERCENT_OFFSET + Math.min( height + PERCENT_OFFSET, -( getMinHeight() / getScaleHeight() ) );
         }
+        */
         
         unbake();
         
@@ -180,8 +182,9 @@ public class Size implements AbstractSize
         
         if ( ( width != this.width ) || ( height != this.height ) )
         {
-            float oldWidth = this.width;
-            float oldHeight = this.height;
+            boolean b = ( widget.getConfiguration() != null );
+            int oldW = b ? getEffectiveWidth() : 0;
+            int oldH = b ? getEffectiveHeight() : 0;
             
             this.width = width;
             this.height = height;
@@ -190,7 +193,14 @@ public class Size implements AbstractSize
             
             widget.forceAndSetDirty();
             
-            __WPrivilegedAccess.onSizeChanged( oldWidth, oldHeight, width, height, widget );
+            if ( b )
+            {
+                int newW = getEffectiveWidth();
+                int newH = getEffectiveHeight();
+                
+                if ( oldW != newW || oldH != newH )
+                    __WPrivilegedAccess.onSizeChanged( oldW, oldH, newW, newH, widget );
+            }
             
             changed = true;
         }
@@ -235,7 +245,7 @@ public class Size implements AbstractSize
         width = Math.max( width, (int)getMinWidth() );
         height = Math.max( height, (int)getMinHeight() );
         
-        if ( this.width > PERCENT_OFFSET_CHECK_POSITIVE )
+        if ( !isPixelValue( this.width ) )
         {
             width = Math.min( width, (int)getHundretPercentWidth() );
         }
@@ -246,25 +256,38 @@ public class Size implements AbstractSize
         if ( this.height <= 0f )
             height -= (int)scaleH;
         
-        boolean changed = false;
+        float newW, newH;
         
-        if ( Math.abs( this.width ) > PERCENT_OFFSET_CHECK_POSITIVE )
+        if ( isPixelValue( this.width ) )
         {
-            float hundretPercentW = ( this.width <= 0f ) ? scaleW : getHundretPercentWidth();
-            
-            if ( Math.abs( this.height ) > PERCENT_OFFSET_CHECK_POSITIVE )
-                changed = set( ( width <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)width / hundretPercentW, ( height <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)height / scaleH );
+            if ( isPixelValue( this.height ) )
+            {
+                newW = ( width <= 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + width;
+                newH = ( height <= 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + height;
+            }
             else
-                changed = set( ( width <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)width / hundretPercentW, height );
-        }
-        else if ( Math.abs( this.height ) > PERCENT_OFFSET_CHECK_POSITIVE )
-        {
-            changed = set( width, ( height <= 0 ? -PERCENT_OFFSET : +PERCENT_OFFSET ) + (float)height / scaleH );
+            {
+                newW = ( width <= 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + width;
+                newH = (float)height / scaleH;
+            }
         }
         else
         {
-            changed = set( width, height );
+            float hundretPercentW = ( this.width <= 0f ) ? scaleW : getHundretPercentWidth();
+            
+            if ( isPixelValue( this.height ) )
+            {
+                newW = (float)width / hundretPercentW;
+                newH = ( height <= 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + height;
+            }
+            else
+            {
+                newW = (float)width / hundretPercentW;
+                newH = (float)height / scaleH;
+            }
         }
+        
+        boolean changed = set( newW, newH );
         
         applyLimits();
         
@@ -284,16 +307,16 @@ public class Size implements AbstractSize
         
         float scaleW = getScaleWidth();
         
-        if ( width > PERCENT_OFFSET_CHECK_POSITIVE )
-            return ( (int)Math.max( getMinWidth(), ( width - PERCENT_OFFSET ) * getHundretPercentWidth() ) );
+        if ( isPosPixelValue( width ) )
+            return ( (int)Math.max( getMinWidth(), width - PIXEL_OFFSET ) );
         
-        if ( width < PERCENT_OFFSET_CHECK_NEGATIVE )
-            return ( (int)Math.max( getMinWidth(), scaleW + ( ( width + PERCENT_OFFSET ) * scaleW ) ) );
+        if ( isNegPixelValue( width ) )
+            return ( (int)Math.max( getMinWidth(), scaleW + width + PIXEL_OFFSET ) );
         
-        if ( width <= 0f )
-            return ( (int)Math.max( getMinWidth(), scaleW + width ) );
+        if ( width > 0f )
+            return ( (int)Math.max( getMinWidth(), width * getHundretPercentWidth() ) );
         
-        return ( (int)Math.max( getMinWidth(), width ) );
+        return ( (int)Math.max( getMinWidth(), scaleW + ( width * scaleW ) ) );
     }
     
     /**
@@ -309,16 +332,16 @@ public class Size implements AbstractSize
         
         float scaleH = getScaleHeight();
         
-        if ( height > PERCENT_OFFSET_CHECK_POSITIVE )
-            return ( (int)Math.max( getMinHeight(), ( height - PERCENT_OFFSET ) * scaleH ) );
+        if ( isPosPixelValue( height ) )
+            return ( (int)Math.max( getMinHeight(), height - PIXEL_OFFSET ) );
         
-        if ( height < PERCENT_OFFSET_CHECK_NEGATIVE )
-            return ( (int)Math.max( getMinHeight(), scaleH + ( ( height + PERCENT_OFFSET ) * scaleH ) ) );
+        if ( isNegPixelValue( height ) )
+            return ( (int)Math.max( getMinHeight(), scaleH + height + PIXEL_OFFSET ) );
         
-        if ( height <= 0f )
-            return ( (int)Math.max( getMinHeight(), scaleH + height ) );
+        if ( height > 0f )
+            return ( (int)Math.max( getMinHeight(), height * scaleH ) );
         
-        return ( (int)Math.max( getMinHeight(), height ) );
+        return ( (int)Math.max( getMinHeight(), scaleH + ( height * scaleH ) ) );
     }
     
     public void unbake()
@@ -331,18 +354,6 @@ public class Size implements AbstractSize
     {
         unbake();
         
-        /*
-        int tmpWidth = getEffectiveWidth();
-        int tmpHeight = getEffectiveHeight();
-        
-        width = 1;
-        height = 1;
-        setEffectiveSize( tmpWidth, tmpHeight );
-        
-        bakedWidth = tmpWidth;
-        bakedHeight = tmpHeight;
-        */
-        
         bakedWidth = getEffectiveWidth();
         bakedHeight = getEffectiveHeight();
     }
@@ -354,15 +365,15 @@ public class Size implements AbstractSize
     
     public Size setWidthToPercents()
     {
-        if ( !isPercentageValue( width ) )
+        if ( isPixelValue( width ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();
             
             if ( width > 0f )
-                this.width = +PERCENT_OFFSET + 0.5f;
+                this.width = +PIXEL_OFFSET * 0.9f;
             else
-                this.width = -PERCENT_OFFSET - 0.5f;
+                this.width = -PIXEL_OFFSET * 0.9f;
             
             setEffectiveSize( effW, effH );
         }
@@ -372,15 +383,15 @@ public class Size implements AbstractSize
     
     public Size setWidthToPixels()
     {
-        if ( isPercentageValue( height ) )
+        if ( !isPixelValue( height ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();
             
             if ( width > 0f )
-                this.width = +10f;
+                this.width = +PIXEL_OFFSET + 10000f;
             else
-                this.width = -10f;
+                this.width = -PIXEL_OFFSET - 10000f;
             
             setEffectiveSize( effW, effH );
         }
@@ -390,25 +401,25 @@ public class Size implements AbstractSize
     
     public Size flipWidthPercentagePx()
     {
-        if ( isPercentageValue( width ) )
-            setWidthToPixels();
-        else
+        if ( isPixelValue( width ) )
             setWidthToPercents();
+        else
+            setWidthToPixels();
         
         return ( this );
     }
     
     public Size setHeightToPercents()
     {
-        if ( !isPercentageValue( height ) )
+        if ( isPixelValue( height ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();
             
             if ( height > 0f )
-                this.height = +PERCENT_OFFSET + 0.5f;
+                this.height = +PIXEL_OFFSET * 0.9f;
             else
-                this.height = -PERCENT_OFFSET - 0.5f;
+                this.height = -PIXEL_OFFSET * 0.9f;
             
             setEffectiveSize( effW, effH );
         }
@@ -418,15 +429,15 @@ public class Size implements AbstractSize
     
     public Size setHeightToPixels()
     {
-        if ( isPercentageValue( height ) )
+        if ( !isPixelValue( height ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();
             
             if ( height > 0f )
-                this.height = +10f;
+                this.height = +PIXEL_OFFSET + 10000f;
             else
-                this.height = -10f;
+                this.height = -PIXEL_OFFSET - 10000f;
             
             setEffectiveSize( effW, effH );
         }
@@ -436,10 +447,10 @@ public class Size implements AbstractSize
     
     public Size flipHeightPercentagePx()
     {
-        if ( isPercentageValue( height ) )
-            setHeightToPixels();
-        else
+        if ( isPixelValue( height ) )
             setHeightToPercents();
+        else
+            setHeightToPixels();
         
         return ( this );
     }
@@ -448,14 +459,14 @@ public class Size implements AbstractSize
     {
         int gameResX = widget.getConfiguration().getGameResolution().getResX();
         
-        if ( width < PERCENT_OFFSET_CHECK_NEGATIVE )
-            width = PERCENT_OFFSET + ( 1.0f + ( width + PERCENT_OFFSET ) ) * ( getScaleWidth() / getHundretPercentWidth() );
-        else if ( width > PERCENT_OFFSET_CHECK_POSITIVE )
-            width = -PERCENT_OFFSET - 1.0f + ( ( width - PERCENT_OFFSET ) / ( getScaleWidth() / getHundretPercentWidth() ) );
+        if ( isNegPixelValue( width ) )
+            width = +PIXEL_OFFSET + gameResX + ( width + PIXEL_OFFSET );
+        else if ( isPosPixelValue( width ) )
+            width = -PIXEL_OFFSET + ( width - PIXEL_OFFSET ) - gameResX;
         else if ( width < 0f )
-            width = gameResX + width;
+            width = + ( 1.0f + width ) * ( getScaleWidth() / getHundretPercentWidth() );
         else if ( width > 0f )
-            width = width - gameResX;
+            width = - 1.0f + ( width / ( getScaleWidth() / getHundretPercentWidth() ) );
         
         applyLimits();
         
@@ -468,14 +479,14 @@ public class Size implements AbstractSize
     {
         int gameResY = widget.getConfiguration().getGameResolution().getResY();
         
-        if ( height < PERCENT_OFFSET_CHECK_NEGATIVE )
-            height = PERCENT_OFFSET + 1.0f + ( height + PERCENT_OFFSET );
-        else if ( height > PERCENT_OFFSET_CHECK_POSITIVE )
-            height = -PERCENT_OFFSET + ( height - PERCENT_OFFSET ) - 1.0f;
+        if ( isNegPixelValue( height ) )
+            height = +PIXEL_OFFSET + gameResY + ( height + PIXEL_OFFSET );
+        else if ( isPosPixelValue( height ) )
+            height = -PIXEL_OFFSET + ( height - PIXEL_OFFSET ) - gameResY;
         else if ( height < 0f )
-            height = gameResY + height;
+            height = 1.0f + height;
         else if ( height > 0f )
-            height = height - gameResY;
+            height = height - 1.0f;
         
         applyLimits();
         
@@ -506,17 +517,18 @@ public class Size implements AbstractSize
         if ( isPerc )
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 1 ) );
-            if ( f < 0f )
-                return ( -PERCENT_OFFSET + ( f / 100f ) );
             
-            return ( +PERCENT_OFFSET + ( f / 100f ) );
+            return ( f / 100f );
         }
         
         if ( isPx )
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 2 ) );
             
-            return ( f );
+            if ( f < 0f )
+                return ( -PIXEL_OFFSET + f );
+            
+            return ( +PIXEL_OFFSET + f );
         }
         
         // Unreachable!
@@ -541,13 +553,13 @@ public class Size implements AbstractSize
     
     public static String unparseValue( float value )
     {
-        if ( value > PERCENT_OFFSET_CHECK_POSITIVE )
-            return ( String.valueOf( ( value - PERCENT_OFFSET ) * 100f ) + "%" );
+        if ( isPosPixelValue( value ) )
+            return ( String.valueOf( (int)( value - PIXEL_OFFSET ) ) + "px" );
         
-        if ( value < PERCENT_OFFSET_CHECK_NEGATIVE )
-            return ( String.valueOf( ( value + PERCENT_OFFSET ) * 100f ) + "%" );
+        if ( isNegPixelValue( value ) )
+            return ( String.valueOf( (int)( value + PIXEL_OFFSET ) ) + "px" );
         
-        return ( String.valueOf( (int)value ) + "px" );
+        return ( String.valueOf( value * 100f ) + "%" );
     }
     
     /*
@@ -588,7 +600,7 @@ public class Size implements AbstractSize
             if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                 value += "px";
             
-            setWidth( parseValue( value, isPercentageValue( width ) ) );
+            setWidth( parseValue( value, !isPixelValue( width ) ) );
             
             return ( true );
         }
@@ -598,7 +610,7 @@ public class Size implements AbstractSize
             if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                 value += "px";
             
-            setHeight( parseValue( value, isPercentageValue( height ) ) );
+            setHeight( parseValue( value, !isPixelValue( height ) ) );
             
             return ( true );
         }
@@ -623,7 +635,7 @@ public class Size implements AbstractSize
             @Override
             public boolean isPercentage()
             {
-                return ( isPercentageValue( width ) );
+                return ( !isPixelValue( width ) );
             }
             
             @Override
@@ -680,7 +692,7 @@ public class Size implements AbstractSize
             @Override
             public boolean isPercentage()
             {
-                return ( isPercentageValue( height ) );
+                return ( !isPixelValue( height ) );
             }
             
             @Override
@@ -722,8 +734,8 @@ public class Size implements AbstractSize
     
     Size( float width, boolean widthPercent, float height, boolean heightPercent, Widget widget, boolean isWidgetSize )
     {
-        this.width = widthPercent ? ( PERCENT_OFFSET + width * 0.01f ) : width;
-        this.height = heightPercent ? ( PERCENT_OFFSET + height * 0.01f ) : height;
+        this.width = widthPercent ? width * 0.01f : PIXEL_OFFSET + width;
+        this.height = heightPercent ? height * 0.01f : PIXEL_OFFSET + height;
         
         this.widget = widget;
         
