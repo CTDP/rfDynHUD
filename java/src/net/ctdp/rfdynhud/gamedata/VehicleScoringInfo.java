@@ -628,6 +628,12 @@ public class VehicleScoringInfo
         return ( vehClass );
     }
     
+    void setVehClass( String vehClass )
+    {
+        //getVehicleClass();
+        this.vehClass = vehClass;
+    }
+    
     public final int getVehicleClassId()
     {
         if ( classId <= 0 )

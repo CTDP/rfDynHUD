@@ -619,6 +619,33 @@ public class ScoringInfo
         }
         
         onDataUpdated( editorPresets );
+        
+        // Add postfixes to some vehicle's classes to get valid class-scoring in the editor.
+        String classA = "F1 2006";
+        String classB = "F1 2006B";
+        vehicleScoringInfo[0].setVehClass( classA );
+        vehicleScoringInfo[1].setVehClass( classB );
+        vehicleScoringInfo[3].setVehClass( classA );
+        vehicleScoringInfo[3].setVehClass( classB );
+        vehicleScoringInfo[4].setVehClass( classA );
+        vehicleScoringInfo[5].setVehClass( classA );
+        vehicleScoringInfo[6].setVehClass( classB );
+        vehicleScoringInfo[7].setVehClass( classB );
+        vehicleScoringInfo[8].setVehClass( classA );
+        vehicleScoringInfo[9].setVehClass( classA );
+        vehicleScoringInfo[10].setVehClass( classA );
+        vehicleScoringInfo[11].setVehClass( classA );
+        vehicleScoringInfo[12].setVehClass( classA );
+        vehicleScoringInfo[13].setVehClass( classA );
+        vehicleScoringInfo[13].setVehClass( classB );
+        vehicleScoringInfo[14].setVehClass( classA );
+        vehicleScoringInfo[15].setVehClass( classA );
+        vehicleScoringInfo[16].setVehClass( classA );
+        vehicleScoringInfo[17].setVehClass( classA );
+        vehicleScoringInfo[18].setVehClass( classB );
+        vehicleScoringInfo[19].setVehClass( classA );
+        vehicleScoringInfo[20].setVehClass( classA );
+        vehicleScoringInfo[21].setVehClass( classA );
     }
     
     /**
