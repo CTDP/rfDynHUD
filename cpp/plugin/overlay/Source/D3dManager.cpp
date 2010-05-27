@@ -222,7 +222,7 @@ void D3DManager::preReset( void* d3dDev )
 void D3DManager::postReset( void* d3dDev, const unsigned short resX, const unsigned short resY, const unsigned char colorDepth, const bool windowed, const unsigned short fullscreenRefreshHz, const HWND deviceWindowHandle )
 {
     //logg( "postReset()" );
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isInRealtime && handshake->isModSupported )
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isInRenderMode/* && handshake->isInRealtime*/ && handshake->isModSupported )
     {
         logg( "postReset(). Updating Textures..." );
         
