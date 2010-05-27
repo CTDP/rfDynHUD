@@ -254,9 +254,9 @@ public class Track
         float vecY = ( wp0.vecY * alpha ) + ( wp1.vecY * ( 1f - alpha ) );
         float vecZ = ( wp0.vecZ * alpha ) + ( wp1.vecZ * ( 1f - alpha ) );
         
-        System.out.println( waypoints[( waypointIndex - 0 + waypoints.length ) % waypoints.length].lapDistance + ", " + waypoints[( waypointIndex + 1 + waypoints.length ) % waypoints.length].lapDistance );
+        //System.out.println( waypoints[( waypointIndex - 0 + waypoints.length ) % waypoints.length].lapDistance + ", " + waypoints[( waypointIndex + 1 + waypoints.length ) % waypoints.length].lapDistance );
         
-        System.out.println( vecX + ", " + vecZ + ", " + ( waypoints[waypointIndex + 30].posX - wp0.posX ) + ", " + ( waypoints[waypointIndex + 30].posY - wp0.posY ) );
+        //System.out.println( vecX + ", " + vecZ + ", " + ( waypoints[waypointIndex + 30].posX - wp0.posX ) + ", " + ( waypoints[waypointIndex + 30].posY - wp0.posY ) );
         
         __GDPrivilegedAccess.setTelemVect3( vecX, vecY, vecZ, vector );
         

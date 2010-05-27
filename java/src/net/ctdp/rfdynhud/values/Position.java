@@ -320,7 +320,7 @@ public class Position
                 if ( isNegPixelValue( x ) )
                     return ( (int)( x + PIXEL_OFFSET ) );
                 
-                return ( (int)( x * getHundretPercentWidth() ) );
+                return ( Math.round( x * getHundretPercentWidth() ) );
             case TOP_CENTER:
             case CENTER_CENTER:
             case BOTTOM_CENTER:
@@ -330,7 +330,7 @@ public class Position
                 if ( isNegPixelValue( x ) )
                     return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + (int)( x + PIXEL_OFFSET ) );
                 
-                return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + (int)( x * getHundretPercentWidth() ) );
+                return ( ( (int)scaleW - size.getEffectiveWidth() ) / 2 + Math.round( x * getHundretPercentWidth() ) );
             case TOP_RIGHT:
             case CENTER_RIGHT:
             case BOTTOM_RIGHT:
@@ -340,7 +340,7 @@ public class Position
                 if ( isNegPixelValue( x ) )
                     return ( (int)scaleW - (int)( x + PIXEL_OFFSET ) - size.getEffectiveWidth() );
                 
-                return ( (int)scaleW - (int)( x * getHundretPercentWidth() ) - size.getEffectiveWidth() );
+                return ( (int)scaleW - Math.round( x * getHundretPercentWidth() ) - size.getEffectiveWidth() );
         }
         
         // Unreachable code!
@@ -370,7 +370,7 @@ public class Position
                 if ( isNegPixelValue( y ) )
                     return ( (int)( y + PIXEL_OFFSET ) );
                 
-                return ( (int)( y * scaleH ) );
+                return ( Math.round( y * scaleH ) );
             case CENTER_LEFT:
             case CENTER_CENTER:
             case CENTER_RIGHT:
@@ -380,7 +380,7 @@ public class Position
                 if ( isNegPixelValue( y ) )
                     return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( y + PIXEL_OFFSET ) );
                 
-                return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + (int)( y * scaleH ) );
+                return ( ( (int)scaleH - size.getEffectiveHeight() ) / 2 + Math.round( y * scaleH ) );
             case BOTTOM_LEFT:
             case BOTTOM_CENTER:
             case BOTTOM_RIGHT:
@@ -390,7 +390,7 @@ public class Position
                 if ( isNegPixelValue( y ) )
                     return ( (int)scaleH - (int)( y + PIXEL_OFFSET ) - size.getEffectiveHeight() );
                 
-                return ( (int)scaleH - (int)( y * (int)scaleH ) - size.getEffectiveHeight() );
+                return ( Math.round( scaleH - ( y * scaleH ) - size.getEffectiveHeight() ) );
         }
         
         // Unreachable code!
@@ -578,12 +578,12 @@ public class Position
     public static String unparseValue( float value )
     {
         if ( isPosPixelValue( value ) )
-            return ( String.valueOf( value - PIXEL_OFFSET ) + "px" );
+            return ( String.valueOf( (int)( value - PIXEL_OFFSET ) ) + "px" );
         
         if ( isNegPixelValue( value ) )
-            return ( String.valueOf( value + PIXEL_OFFSET ) + "px" );
+            return ( String.valueOf( (int)( value + PIXEL_OFFSET ) ) + "px" );
         
-        return ( String.valueOf( (int)( value * 100f ) ) + "%" );
+        return ( String.valueOf( value * 100f ) + "%" );
     }
     
     /*

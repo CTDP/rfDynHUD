@@ -50,7 +50,7 @@ public class MapWidget extends Widget
     private int baseItemRadius = 9;
     private int itemRadius = baseItemRadius;
     
-    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", true );
+    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
     
     private final ColorProperty roadColor = new ColorProperty( this, "roadColor", "color", "#000000" );
     private final ColorProperty roadBoundaryColor = new ColorProperty( this, "roadBoundaryColor", "boundaryColor", "#FFFFFF" );
@@ -563,6 +563,7 @@ public class MapWidget extends Widget
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( rotationEnabled, "Map rotation enabled?" );
         writer.writeProperty( roadColor, "The color used for the road in #RRGGBBAA (hex)." );
         writer.writeProperty( roadBoundaryColor, "The color used for the road boundary in #RRGGBBAA (hex)." );
         writer.writeProperty( pitlaneColor, "The color used for the pitlane in #RRGGBBAA (hex)." );
@@ -589,7 +590,8 @@ public class MapWidget extends Widget
     {
         super.loadProperty( key, value );
         
-        if ( roadColor.loadProperty( key, value ) );
+        if ( rotationEnabled.loadProperty( key, value ) );
+        else if ( roadColor.loadProperty( key, value ) );
         else if ( roadBoundaryColor.loadProperty( key, value ) );
         else if ( pitlaneColor.loadProperty( key, value ) );
         else if ( roadWidth.loadProperty( key, value ) );

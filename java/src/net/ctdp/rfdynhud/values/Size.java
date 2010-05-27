@@ -314,9 +314,9 @@ public class Size implements AbstractSize
             return ( (int)Math.max( getMinWidth(), scaleW + width + PIXEL_OFFSET ) );
         
         if ( width > 0f )
-            return ( (int)Math.max( getMinWidth(), width * getHundretPercentWidth() ) );
+            return ( Math.round( Math.max( getMinWidth(), width * getHundretPercentWidth() ) ) );
         
-        return ( (int)Math.max( getMinWidth(), scaleW + ( width * scaleW ) ) );
+        return ( Math.round( Math.max( getMinWidth(), scaleW + ( width * scaleW ) ) ) );
     }
     
     /**
@@ -339,9 +339,9 @@ public class Size implements AbstractSize
             return ( (int)Math.max( getMinHeight(), scaleH + height + PIXEL_OFFSET ) );
         
         if ( height > 0f )
-            return ( (int)Math.max( getMinHeight(), height * scaleH ) );
+            return ( Math.round( Math.max( getMinHeight(), height * scaleH ) ) );
         
-        return ( (int)Math.max( getMinHeight(), scaleH + ( height * scaleH ) ) );
+        return ( Math.round( Math.max( getMinHeight(), scaleH + ( height * scaleH ) ) ) );
     }
     
     public void unbake()

@@ -16,6 +16,11 @@ public class __WCPrivilegedAccess
         config.sortWidgets();
     }
     
+    public static final void setValid( WidgetsConfiguration config, boolean valid )
+    {
+        config.setValid( valid );
+    }
+    
     public static final void setJustLoaded( WidgetsConfiguration config, LiveGameData gameData, EditorPresets editorPresets )
     {
         config.setJustLoaded( gameData, editorPresets );

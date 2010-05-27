@@ -93,7 +93,7 @@ public class RFDynHUD
         return ( inputMappingsManager.getBuffer() );
     }
     
-    public boolean updateInput( int modifierMask )
+    public byte updateInput( int modifierMask )
     {
         try
         {
@@ -102,12 +102,16 @@ public class RFDynHUD
             if ( pluginEnabled == -1 )
             {
                 Logger.log( "Plugin disabled" );
+                
+                return ( 0 );
             }
-            else if ( pluginEnabled == 2 )
+            
+            if ( pluginEnabled == +2 )
             {
                 Logger.log( "Plugin enabled" );
                 
-                if ( !eventsManager.reloadConfiguration( false ) )
+                byte result = eventsManager.reloadConfigAndSetupTexture( false );
+                if ( result != 0 )
                 {
                     int numWidgets = drawingManager.getNumWidgets();
                     for ( int i = 0; i < numWidgets; i++ )
@@ -115,16 +119,19 @@ public class RFDynHUD
                         drawingManager.getWidget( i ).forceCompleteRedraw();
                     }
                 }
+                
+                return ( result );
             }
-            
-            return ( pluginEnabled > 0 );
         }
         catch ( Throwable t )
         {
             Logger.log( t );
-            
-            return ( inputMappingsManager.isPluginEnabled() );
         }
+        
+        if ( inputMappingsManager.isPluginEnabled() && drawingManager.isValid() )
+            return ( 1 );
+        
+        return ( 0 );
     }
     
     private long frameIndex = 0;
@@ -132,32 +139,15 @@ public class RFDynHUD
     /**
      * Will and must be called any time, the game is redendered (called from the C++-Plugin).
      * 
-     * @param viewportX
-     * @param viewportY
-     * @param viewportWidth
-     * @param viewportHeight
-     * 
      * @return 0, if nothing shouldbe rendered anymore, 1 to render something, 2 to render and update texture info.
      */
-    public final byte update( final short viewportX, final short viewportY, final short viewportWidth, final short viewportHeight )
+    public final byte update()
     {
         byte result = 1;
         
         try
         {
             frameIndex++;
-            
-            //Logger.log( gameData.getScoringInfo().getViewedVehicleScoringInfo().getDriverName() );
-            
-            //Logger.log( "vp: " + viewportX + ", " + viewportY + ", " + viewportWidth + ", " + viewportHeight );
-            if ( __WCPrivilegedAccess.setGameResolution( viewportWidth, viewportHeight, drawingManager ) )
-            {
-                if ( eventsManager.reloadConfiguration( true ) )
-                    result = 2;
-                
-                //Logger.log( "Viewport changed: " + viewportWidth + "x" + viewportHeight );
-                //result = 2;
-            }
             
             drawingManager.refreshSubTextureBuffer( false );
             
@@ -194,7 +184,7 @@ public class RFDynHUD
         this.drawingManager = new WidgetsDrawingManager( gameResX, gameResY );
         Logger.log( " done." );
         
-        this.eventsManager = new RFactorEventsManager( drawingManager, this );
+        this.eventsManager = new RFactorEventsManager( drawingManager );
         
         this.gameData = new LiveGameData( eventsManager );
         this.gameData_CPP_Adapter = new _LiveGameData_CPP_Adapter( gameData );

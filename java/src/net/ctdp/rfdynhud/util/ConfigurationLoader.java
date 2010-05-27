@@ -10,7 +10,6 @@ import javax.swing.JOptionPane;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -213,7 +212,7 @@ public class ConfigurationLoader
     
     private static File currentlyLoadedConfigFile = null;
     private static long lastModified = -1L;
-    private static boolean isFirstLoadAttempty = true;
+    private static boolean isFirstLoadAttempt = true;
     
     public static final File getCurrentlyLoadedConfigFile()
     {
@@ -225,6 +224,8 @@ public class ConfigurationLoader
         Logger.log( "Loading configuration file from \"" + file.getAbsolutePath() + "\"" );
         
         __loadConfiguration( new FileReader( file ), widgetsConfig, gameData, editorPresets, clearListener );
+        
+        __WCPrivilegedAccess.setValid( widgetsConfig, true );
         
         currentlyLoadedConfigFile = file.getAbsoluteFile();
         lastModified = currentlyLoadedConfigFile.lastModified();
@@ -239,6 +240,8 @@ public class ConfigurationLoader
         
         if ( !configFile.equals( currentlyLoadedConfigFile ) || ( configFile.lastModified() > lastModified ) )
             return ( _loadConfiguration( configFile, widgetsConfig, gameData, editorPresets, clearListener ) );
+        
+        //__WCPrivilegedAccess.setValid( widgetsConfig, true );
         
         return ( currentlyLoadedConfigFile );
     }
@@ -335,6 +338,8 @@ public class ConfigurationLoader
         
         __loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, editorPresets, clearListener );
         
+        __WCPrivilegedAccess.setValid( widgetsConfig, true );
+        
         currentlyLoadedConfigFile = null;
         lastModified = -1L;
     }
@@ -348,6 +353,8 @@ public class ConfigurationLoader
      * </ul>
      * Then it checks, if that file is newer than the already loaded one.
      * 
+     * @param smallMonitor
+     * @param bigMonitor
      * @param isInGarage
      * @param currentlyLoadedConfigFile
      * @param modName
@@ -361,7 +368,7 @@ public class ConfigurationLoader
      * 
      * @return the file, from which the configuration has been loaded.
      */
-    public static boolean reloadConfiguration( boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener, boolean force )
+    public static Boolean reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener, boolean force )
     {
         if ( force )
         {
@@ -371,153 +378,45 @@ public class ConfigurationLoader
         
         File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
         
+        File f = null;
+        
         try
         {
-            boolean isPractice = sessionType.isPractice();
+            ConfigurationCandidatesIterator it = new ConfigurationCandidatesIterator( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, sessionType );
             
-            if ( isInGarage )
+            while ( it.hasNext() )
             {
-                File f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_garage_" + vehicleClass + "_" + sessionType.name() + ".ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
+                f = it.next();
                 
-                if ( isPractice )
+                if ( f.exists() )
                 {
-                    f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_garage_" + vehicleClass + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-                    if ( f.exists() )
-                    {
-                        return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                    }
+                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
                 }
+            }
+            
+            if ( smallMonitor || bigMonitor )
+            {
+                __WCPrivilegedAccess.setValid( widgetsConfig, false );
                 
-                f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_garage_" + sessionType.name() + ".ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
-                
-                if ( isPractice )
-                {
-                    f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_garage_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-                    if ( f.exists() )
-                    {
-                        return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                    }
-                }
-                
-                f = new File( RFactorFileSystem.CONFIG_FOLDER, "overlay_garage_" + sessionType.name() + ".ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
-                
-                if ( isPractice )
-                {
-                    f = new File( RFactorFileSystem.CONFIG_FOLDER, "overlay_garage_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-                    if ( f.exists() )
-                    {
-                        return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                    }
-                }
-                
-                f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_garage_" + vehicleClass + ".ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
-                
-                f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_garage.ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
-                
-                f = new File( RFactorFileSystem.CONFIG_FOLDER, "overlay_garage.ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
+                return ( null );
             }
             
-            File f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_" + vehicleClass + "_" + sessionType.name() + ".ini" );
-            if ( f.exists() )
-            {
-                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-            }
-            
-            if ( isPractice )
-            {
-                f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_" + vehicleClass + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
-            }
-            
-            f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_" + sessionType.name() + ".ini" );
-            if ( f.exists() )
-            {
-                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-            }
-            
-            if ( isPractice )
-            {
-                f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
-            }
-            
-            f = new File( RFactorFileSystem.CONFIG_FOLDER, "overlay_" + sessionType.name() + ".ini" );
-            if ( f.exists() )
-            {
-                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-            }
-            
-            if ( isPractice )
-            {
-                f = new File( RFactorFileSystem.CONFIG_FOLDER, "overlay_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-                if ( f.exists() )
-                {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-                }
-            }
-            
-            f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay_" + vehicleClass + ".ini" );
-            if ( f.exists() )
-            {
-                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-            }
-            
-            f = new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), "overlay.ini" );
-            if ( f.exists() )
-            {
-                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-            }
-            
-            f = new File( RFactorFileSystem.CONFIG_FOLDER, "overlay.ini" );
-            if ( f.exists() )
-            {
-                return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
-            }
-            
-            if ( ( currentlyLoadedConfigFile != null ) || isFirstLoadAttempty )
+            if ( ( currentlyLoadedConfigFile != null ) || isFirstLoadAttempt )
             {
                 loadFactoryDefaults( widgetsConfig, gameData, editorPresets, clearListener );
                 TextureDirtyRectsManager.forceCompleteRedraw();
             }
             
-            isFirstLoadAttempty = false;
+            isFirstLoadAttempt = false;
             
             return ( old_currentlyLoadedConfigFile != null );
         }
         catch ( Throwable t )
         {
-            Logger.log( "Error loading overlay config file." );
+            Logger.log( "Error loading overlay config file " + ( f != null ? f.getAbsolutePath() : "" ) + "." );
             Logger.log( t );
+            
+            __WCPrivilegedAccess.setValid( widgetsConfig, false );
             
             currentlyLoadedConfigFile = null;
             lastModified = -1L;

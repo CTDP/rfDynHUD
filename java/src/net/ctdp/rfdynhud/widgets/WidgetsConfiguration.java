@@ -82,6 +82,18 @@ public class WidgetsConfiguration
     
     private InputMappings inputMappings = null;
     
+    private boolean isValid = false;
+    
+    void setValid( boolean valid )
+    {
+        this.isValid = valid;
+    }
+    
+    public final boolean isValid()
+    {
+        return ( isValid );
+    }
+    
     private static String getLocalStoreKey( Widget widget )
     {
         return ( widget.getClass().getName() + "::" + widget.getName() );
