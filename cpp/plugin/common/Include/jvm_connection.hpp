@@ -108,9 +108,9 @@ public:
         usedRectangles = NULL;
     }
     
-    void call_update()
+    char call_update()
     {
-        env->CallVoidMethod( rfdynhudObject, updateMethod );
+        return ( env->CallByteMethod( rfdynhudObject, updateMethod ) );
     }
     
     unsigned char getNumTextures()
@@ -143,7 +143,7 @@ public:
     
     bool init( JNIEnv* _env, jclass rfdynhudClass, jobject _rfdynhudObject );
     
-    void updateInput( bool* isPluginEnabled );
+    char updateInput( bool* isPluginEnabled );
     
     void destroy();
 };
@@ -164,6 +164,7 @@ private:
     jmethodID onRealtimeExited;
     jmethodID onTelemetryDataUpdated;
     jmethodID onScoringInfoUpdated;
+    jmethodID onGraphicsInfoUpdated;
     
     jclass LiveGameData_CPP_Adapter;
     jobject gameData_CPP_Adapter;
@@ -188,17 +189,19 @@ public:
     
     void call_onShutdown();
     
-    void call_onSessionStarted();
+    char call_onSessionStarted();
     
     void call_onSessionEnded();
     
-    void call_onRealtimeEntered();
+    char call_onRealtimeEntered();
     
-    void call_onRealtimeExited();
+    char call_onRealtimeExited();
     
-    void call_onTelemetryDataUpdated();
+    char call_onTelemetryDataUpdated();
     
-    void call_onScoringInfoUpdated();
+    char call_onScoringInfoUpdated();
+
+    char call_onGraphicsInfoUpdated( const unsigned short viewportX, const unsigned short viewportY, const unsigned short viewportWidth, const unsigned short viewportHeight );
     
     void copyTelemetryBuffer( void* info, unsigned int size );
     
@@ -227,24 +230,12 @@ private:
     jclass rfdynhudClass;
     jobject rfdynhudObject;
     
-    char* flagsBuffer;
-    
 public:
     JVMD3DUpdateFunctions d3dFuncs;
     JVMInputFunctions inputFuncs;
     JVMTelemtryUpdateFunctions telemFuncs;
     
     bool init( const char* PLUGIN_PATH, const unsigned int resX, const unsigned int resY );
-    
-    bool getFlag_configurationReloaded()
-    {
-        return ( flagsBuffer[0] != 0 );
-    }
-    
-    void resetFlag_configurationReloaded()
-    {
-        flagsBuffer[0] = 0;
-    }
     
     void destroy();
 };

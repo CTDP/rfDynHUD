@@ -97,6 +97,26 @@ bool _initializePlugin()
     return ( true );
 }
 
+void _checkRenderModeResult( const char* source, const char result )
+{
+    //logg2( "Checking result from ", source, false );
+    //loggi( ": ", result, true );
+    
+    if ( result == 0 )
+    {
+        handshake->isInRenderMode = false;
+    }
+    else if ( result == 1 )
+    {
+        handshake->isInRenderMode = true;
+    }
+    else if ( result == 2 )
+    {
+        handshake->isInRenderMode = true;
+        handshake->onTextureRequested();
+    }
+}
+
 void RFDynHUDPlugin::Startup()
 {
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_ERROR ) )
@@ -158,36 +178,47 @@ void RFDynHUDPlugin::StartSession()
     {
         handshake->isModSupported = isModSupported( PROFILE_PATH, PROFILE_NAME );
         
-        handshake->jvmConn.telemFuncs.call_onSessionStarted();
+        handshake->isSessionRunning = true;
+        
+        if ( handshake->isModSupported )
+        {
+            char result = handshake->jvmConn.telemFuncs.call_onSessionStarted();
+            /*handshake->*/_checkRenderModeResult( "StartSession()", result );
+        }
     }
 }
 
 void RFDynHUDPlugin::EndSession()
 {
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) )
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
         handshake->jvmConn.telemFuncs.call_onSessionEnded();
+        
+        handshake->isSessionRunning = false;
+        handshake->isInRenderMode = false;
     }
 }
 
 void RFDynHUDPlugin::EnterRealtime()
 {
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) )
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
-        handshake->isInRealtime = true;
+        char result = handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
+        /*handshake->*/_checkRenderModeResult( "EnterRealtime()", result );
         
-        handshake->jvmConn.telemFuncs.call_onRealtimeEntered();
+        handshake->isInRealtime = true;
         handshake->onRealtimeEntered();
     }
 }
 
 void RFDynHUDPlugin::ExitRealtime()
 {
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) )
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
         handshake->isInRealtime = false;
         
         handshake->jvmConn.telemFuncs.call_onRealtimeExited();
+        //handshake->isInRenderMode = false;
         handshake->onRealtimeExited();
     }
 }
@@ -198,7 +229,8 @@ void RFDynHUDPlugin::UpdateTelemetry( const TelemInfoV2 &info )
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
         handshake->jvmConn.telemFuncs.copyTelemetryBuffer( (void*)&info, sizeof( TelemInfoV2 ) );
-        handshake->jvmConn.telemFuncs.call_onTelemetryDataUpdated();
+        char result = handshake->jvmConn.telemFuncs.call_onTelemetryDataUpdated();
+        /*handshake->*/_checkRenderModeResult( "UpdateTelemetry()", result );
     }
 }
 
@@ -215,7 +247,8 @@ void RFDynHUDPlugin::UpdateScoring( const ScoringInfoV2 &info )
             handshake->jvmConn.telemFuncs.copyVehicleScoringInfoBuffer( i, (void*)&(info.mVehicle[i]), sizeof( VehicleScoringInfoV2 ), ( i == info.mNumVehicles - 1 ) );
         }
         
-        handshake->jvmConn.telemFuncs.call_onScoringInfoUpdated();
+        char result = handshake->jvmConn.telemFuncs.call_onScoringInfoUpdated();
+        /*handshake->*/_checkRenderModeResult( "UpdateScoring()", result );
     }
 }
 
@@ -224,6 +257,12 @@ void RFDynHUDPlugin::UpdateGraphics( const GraphicsInfoV2 &info )
     if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
         handshake->jvmConn.telemFuncs.copyGraphicsInfoBuffer( (void*)&info, sizeof( GraphicsInfoV2 ) );
+        
+        //if ( handshake->viewportWidth > 0 )
+        //{
+        //    char result = handshake->jvmConn.telemFuncs.call_onGraphicsInfoUpdated( handshake->viewportX, handshake->viewportY, handshake->viewportWidth, handshake->viewportHeight );
+        //    /*handshake->*/_checkRenderModeResult( "onGraphicsInfoUpdated()", result );
+        //}
     }
 }
 

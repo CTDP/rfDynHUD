@@ -69,7 +69,7 @@ public:
      * @param scales two floats for each source texture (scale-x, scale-y)
      * @param clipRects four unsigned shorts for each source texture defining a clip-rect for the scaled image
      */
-    virtual void render( const unsigned char numTextures, unsigned short** dirtyRectsBuffers, PixelBufferCallback* pixBuffCallback, char* visibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects ) = 0;
+    virtual void render( const float postScaleX, const float postScaleY, const unsigned char numTextures, unsigned short** dirtyRectsBuffers, PixelBufferCallback* pixBuffCallback, char* visibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects ) = 0;
 };
 
 /**
@@ -106,10 +106,11 @@ public:
      * @param d3dDev the Direct3D device. Cast it to LPDIRECT3DDEVICE9 to use it.
      * @param resX the resolution width
      * @param resX the resolution height
+     * @param viewport the viewport
      * @param colorDepth the colorDepth
      * @param textureManager the TextureOverlayManager to render overlay textures
      */
-    virtual void renderOverlay( void* d3dDev, const unsigned short resX, const unsigned short resY, const unsigned char colorDepth, OverlayTextureManager* textureManager );
+    virtual void renderOverlay( void* d3dDev, const unsigned short resX, const unsigned short resY, const unsigned short* viewport, const unsigned char colorDepth, OverlayTextureManager* textureManager );
 	
     /**
      * This method is called at the beginning of the device's Reset() method.

@@ -17,6 +17,7 @@ private:
     const unsigned short m_resY;
     
     unsigned char m_numSourceTextures;
+    unsigned short m_totalNumRectangles;
     unsigned char* m_numRectangles;
     RECT** m_rectangles;
     unsigned char** m_numSubRects;
@@ -32,6 +33,7 @@ private:
     
     D3DXMATRIX m_projMatrix;
     D3DXMATRIX m_worldMatrix;
+    D3DXMATRIX m_postScaleMatrix;
     D3DXMATRIX m_texMatrix;
     
     void init();
@@ -76,6 +78,11 @@ public:
         return ( m_nettoHeight );
     }
     
+    unsigned short getTotalNumRectangles()
+    {
+        return ( m_totalNumRectangles );
+    }
+    
     unsigned short getTotalNumSubRects()
     {
         return ( m_totalNumSubRects );
@@ -87,7 +94,7 @@ public:
     
     void copyDirtyRectsToTexture( const unsigned char texIndex, const unsigned short numDirtyRects, const unsigned short* dirtyRectsBuffer, const unsigned char* sourceBuffer, const unsigned int sourceTexPitch, unsigned int* destBuffer, const unsigned int trgPitch, IDirect3DTexture9* texture );
     
-    void render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects );
+    void render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, const float postScaleX, const float postScaleY, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects );
 };
 
 class OverlayTextureManagerImpl : public OverlayTextureManager
@@ -131,7 +138,7 @@ public:
     
     void setupTextures( const unsigned char numTextures, const unsigned short* textureSizes, const unsigned char* numRectangles, const unsigned short* rectangles );
     
-    void render( const unsigned char numTextures, unsigned short** dirtyRectsBuffers, PixelBufferCallback* pixBuffCallback, char* visibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects );
+    void render( const float postScaleX, const float postScaleY, const unsigned char numTextures, unsigned short** dirtyRectsBuffers, PixelBufferCallback* pixBuffCallback, char* visibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects );
     
     /**
      * This method must be called internally when the device is resetted.

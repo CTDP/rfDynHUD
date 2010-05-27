@@ -21,6 +21,8 @@ class Handshake
 public:
     HandshakeState state;
     bool isModSupported;
+    bool isInRenderMode;
+    bool isSessionRunning;
     bool isInRealtime;
     JVMConnection jvmConn;
     
@@ -30,20 +32,33 @@ public:
     
     bool (*initializePlugin)( void );
     
+    unsigned short viewportX, viewportY, viewportWidth, viewportHeight;
+    
+    void (*onTextureRequested)( void );
     void (*onRealtimeEntered)( void );
     void (*onRealtimeExited)( void );
+    void (*checkRenderModeResult)( const char*, const int );
     
     Handshake()
     {
         state = HANDSHAKE_STATE_NONE;
         isModSupported = false;
+        isInRenderMode = false;
+        isSessionRunning = false;
         isInRealtime = false;
         
         initializeD3D = NULL;
         initializePlugin = NULL;
         
+        viewportX = 0;
+        viewportY = 0;
+        viewportWidth = 0;
+        viewportHeight = 0;
+        
+        onTextureRequested = NULL;
         onRealtimeEntered = NULL;
         onRealtimeExited = NULL;
+        checkRenderModeResult = NULL;
     }
     
     bool doSanityCheck( const char* RFACTOR_PATH, const char* PLUGIN_PATH, char* fileBuffer );

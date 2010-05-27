@@ -294,7 +294,7 @@ bool JVMD3DUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobject _r
         return ( false );
     }
     
-    updateMethod = env->GetMethodID( rfdynhudClass, "update", "()V" );
+    updateMethod = env->GetMethodID( rfdynhudClass, "update", "()B" );
     
     if ( updateMethod == 0 )
     {
@@ -442,7 +442,7 @@ bool JVMInputFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobject _rfdyn
         return ( false );
     }
     
-    updateInputMethod = env->GetMethodID( rfdynhudClass, "updateInput", "(I)Z" );
+    updateInputMethod = env->GetMethodID( rfdynhudClass, "updateInput", "(I)B" );
     
     if ( updateInputMethod == 0 )
     {
@@ -453,7 +453,7 @@ bool JVMInputFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobject _rfdyn
     return ( true );
 }
 
-void JVMInputFunctions::updateInput( bool* isPluginEnabled )
+char JVMInputFunctions::updateInput( bool* isPluginEnabled )
 {
     unsigned char modifierMask = 0;
     
@@ -478,7 +478,11 @@ void JVMInputFunctions::updateInput( bool* isPluginEnabled )
         }
     }
     
-    *isPluginEnabled = ( env->CallBooleanMethod( rfdynhudObject, updateInputMethod, (int)modifierMask ) == JNI_TRUE );
+    char result = env->CallByteMethod( rfdynhudObject, updateInputMethod, (int)modifierMask );
+    
+    *isPluginEnabled = ( result != 0 );
+    
+    return ( result );
 }
 
 void JVMInputFunctions::destroy()
@@ -499,9 +503,9 @@ void JVMTelemtryUpdateFunctions::call_onShutdown()
     env->CallVoidMethod( eventsManager, onShutdown );
 }
 
-void JVMTelemtryUpdateFunctions::call_onSessionStarted()
+char JVMTelemtryUpdateFunctions::call_onSessionStarted()
 {
-    env->CallVoidMethod( eventsManager, onSessionStarted );
+    return ( env->CallByteMethod( eventsManager, onSessionStarted ) );
 }
 
 void JVMTelemtryUpdateFunctions::call_onSessionEnded()
@@ -509,24 +513,31 @@ void JVMTelemtryUpdateFunctions::call_onSessionEnded()
     env->CallVoidMethod( eventsManager, onSessionEnded );
 }
 
-void JVMTelemtryUpdateFunctions::call_onRealtimeEntered()
+char JVMTelemtryUpdateFunctions::call_onRealtimeEntered()
 {
-    env->CallVoidMethod( eventsManager, onRealtimeEntered );
+    return ( env->CallByteMethod( eventsManager, onRealtimeEntered ) );
 }
 
-void JVMTelemtryUpdateFunctions::call_onRealtimeExited()
+char JVMTelemtryUpdateFunctions::call_onRealtimeExited()
 {
-    env->CallVoidMethod( eventsManager, onRealtimeExited );
+    return ( env->CallByteMethod( eventsManager, onRealtimeExited ) );
 }
 
-void JVMTelemtryUpdateFunctions::call_onTelemetryDataUpdated()
+char JVMTelemtryUpdateFunctions::call_onTelemetryDataUpdated()
 {
-    env->CallVoidMethod( eventsManager, onTelemetryDataUpdated );
+    //return ( env->CallBooleanMethod( eventsManager, onTelemetryDataUpdated ) == JNI_TRUE );
+    return ( env->CallByteMethod( eventsManager, onTelemetryDataUpdated ) );
 }
 
-void JVMTelemtryUpdateFunctions::call_onScoringInfoUpdated()
+char JVMTelemtryUpdateFunctions::call_onScoringInfoUpdated()
 {
-    env->CallVoidMethod( eventsManager, onScoringInfoUpdated );
+    //return ( env->CallBooleanMethod( eventsManager, onScoringInfoUpdated ) == JNI_TRUE );
+    return ( env->CallByteMethod( eventsManager, onScoringInfoUpdated ) );
+}
+
+char JVMTelemtryUpdateFunctions::call_onGraphicsInfoUpdated( const unsigned short viewportX, const unsigned short viewportY, const unsigned short viewportWidth, const unsigned short viewportHeight )
+{
+    return ( env->CallByteMethod( eventsManager, onGraphicsInfoUpdated, (jshort)viewportX, (jshort)viewportY, (jshort)viewportWidth, (jshort)viewportHeight ) );
 }
 
 void JVMTelemtryUpdateFunctions::copyTelemetryBuffer( void* info, unsigned int size )
@@ -590,7 +601,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
     env = _env;
     rfdynhudObject = _rfdynhudObject;
     
-    RFactorEventsManager = env->FindClass( "net/ctdp/rfdynhud/util/RFactorEventsManager" );
+    RFactorEventsManager = env->FindClass( "net/ctdp/rfdynhud/gamedata/RFactorEventsManager" );
     
     if ( RFactorEventsManager == 0 )
     {
@@ -598,7 +609,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    jmethodID mid = env->GetMethodID( rfdynhudClass, "getEventsManager", "()Lnet/ctdp/rfdynhud/util/RFactorEventsManager;" );
+    jmethodID mid = env->GetMethodID( rfdynhudClass, "getEventsManager", "()Lnet/ctdp/rfdynhud/gamedata/RFactorEventsManager;" );
     
     if ( mid == 0 )
     {
@@ -630,7 +641,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    onSessionStarted = env->GetMethodID( RFactorEventsManager, "onSessionStarted", "()V" );
+    onSessionStarted = env->GetMethodID( RFactorEventsManager, "onSessionStarted", "()B" );
     
     if ( onSessionStarted == 0 )
     {
@@ -646,7 +657,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    onRealtimeEntered = env->GetMethodID( RFactorEventsManager, "onRealtimeEntered", "()V" );
+    onRealtimeEntered = env->GetMethodID( RFactorEventsManager, "onRealtimeEntered", "()B" );
     
     if ( onRealtimeEntered == 0 )
     {
@@ -654,7 +665,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    onRealtimeExited = env->GetMethodID( RFactorEventsManager, "onRealtimeExited", "()V" );
+    onRealtimeExited = env->GetMethodID( RFactorEventsManager, "onRealtimeExited", "()B" );
     
     if ( onRealtimeExited == 0 )
     {
@@ -662,7 +673,7 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    onTelemetryDataUpdated = env->GetMethodID( RFactorEventsManager, "onTelemetryDataUpdated", "()V" );
+    onTelemetryDataUpdated = env->GetMethodID( RFactorEventsManager, "onTelemetryDataUpdated", "()B" );
     
     if ( onTelemetryDataUpdated == 0 )
     {
@@ -670,11 +681,19 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
         return ( false );
     }
     
-    onScoringInfoUpdated = env->GetMethodID( RFactorEventsManager, "onScoringInfoUpdated", "()V" );
+    onScoringInfoUpdated = env->GetMethodID( RFactorEventsManager, "onScoringInfoUpdated", "()B" );
     
     if ( onScoringInfoUpdated == 0 )
     {
         logg( "ERROR: Failed to find the onScoringInfoUpdated() method on RFactorEventsManager." );
+        return ( false );
+    }
+    
+    onGraphicsInfoUpdated = env->GetMethodID( RFactorEventsManager, "onGraphicsInfoUpdated", "(SSSS)B" );
+    
+    if ( onGraphicsInfoUpdated == 0 )
+    {
+        logg( "ERROR: Failed to find the onGraphicsInfoUpdated() method on RFactorEventsManager." );
         return ( false );
     }
     
@@ -910,24 +929,6 @@ bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, cons
         logg( "ERROR: Failed to create the object through the constructor." );
         return ( false );
     }
-    
-    mid = env->GetMethodID( rfdynhudClass, "getFlagsBuffer", "()Ljava/nio/ByteBuffer;" );
-    
-    if ( mid == 0 )
-    {
-        logg( "ERROR: Failed to find the getFlagsBuffer() method." );
-        return ( false );
-    }
-    
-    jobject bb = env->CallObjectMethod( rfdynhudObject, mid );
-    
-    if ( bb == NULL )
-    {
-        logg( "ERROR: Failed to get the flags buffer." );
-        return ( false );
-    }
-    
-    flagsBuffer = (char*)env->GetDirectBufferAddress( bb );
     
     if ( !d3dFuncs.init( env, rfdynhudClass, rfdynhudObject ) )
         return ( false );

@@ -5,7 +5,7 @@
 #include "logging.h"
 
 const float ZERO_Z_INDEX = 0.0f;
-const float Z_INDEX_UNIT = ZERO_Z_INDEX / 255.0f;
+const float ONE_Z_INDEX = -1.0f;
 
 //#define DEBUG_TEXTURE
 
@@ -29,6 +29,8 @@ void TextureAtlas::init()
         m_srcSubRects[i] = NULL;
         m_trgSubRects[i] = NULL;
     }
+    
+    m_totalNumRectangles = 0;
     
     for ( i = 0; i < MAX_SOURCE_TEXTURES; i++ )
     {
@@ -62,12 +64,14 @@ void TextureAtlas::buildAtlas( const unsigned char numSourceTextures, const unsi
     RECT* trg;
     
     m_numSourceTextures = numSourceTextures;
+    m_totalNumRectangles = 0;
     m_totalNumSubRects = 0;
     
     i = 0;
     j = 0;
     for ( idx_t = 0; idx_t < m_numSourceTextures; idx_t++ )
     {
+        m_totalNumRectangles += numRectangles[idx_t];
         m_numRectangles[idx_t] = numRectangles[idx_t];
         
         for ( idx_r = 0; idx_r < m_numRectangles[idx_t]; idx_r++ )
@@ -307,7 +311,6 @@ const float VERTEX_OFFSET_X = -0.5f;
 const float VERTEX_OFFSET_Y = -0.5f;
 const float TEX_COORD_PIXEL_OFFSET_LT = 0.0f;
 const float TEX_COORD_PIXEL_OFFSET_RB = 0.0f;
-const float ZERO_Z = 0.0f;
 
 void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed )
 {
@@ -328,6 +331,9 @@ void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, cha
     float px_v_off_l, px_v_off_t, px_v_off_r, px_v_off_b;
     float px_tc_off_l, px_tc_off_t, px_tc_off_r, px_tc_off_b;
     
+    const float zIndexUnit = ( ONE_Z_INDEX - ZERO_Z_INDEX ) / (float)getTotalNumRectangles();
+    float z;
+    
     r = 0;
     sr = 0;
     v = 0;
@@ -336,6 +342,8 @@ void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, cha
         texVis = ( idx_t > 0 ) || ( texVisibleFlags[idx_t] > 0 );
         for ( idx_r = 0; idx_r < m_numRectangles[idx_t]; idx_r++ )
         {
+            z = ZERO_Z_INDEX + ( (float)r * zIndexUnit );
+            
             if ( texVis && ( rectangleVisibleFlags[r] > 0 ) )
             {
                 rect = m_rectangles[r];
@@ -374,42 +382,42 @@ void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, cha
                     
                     vertices[v + 0].x = (float)srcRect->left + VERTEX_OFFSET_X + px_v_off_l;
                     vertices[v + 0].y = (float)srcRect->top + VERTEX_OFFSET_Y + px_v_off_t;
-                    vertices[v + 0].z = ZERO_Z;
+                    vertices[v + 0].z = z;
                     //vertices[v + 0].rhw = 1.0f;
                     vertices[v + 0].s = ( (float)trgRect->left + TEX_COORD_PIXEL_OFFSET_LT + px_tc_off_l ) / m_width;
                     vertices[v + 0].t = ( (float)trgRect->top + TEX_COORD_PIXEL_OFFSET_LT + px_tc_off_t ) / m_height;
                     
                     vertices[v + 1].x = (float)srcRect->left + VERTEX_OFFSET_X + px_v_off_l;
                     vertices[v + 1].y = (float)srcRect->bottom + VERTEX_OFFSET_Y + px_v_off_b;
-                    vertices[v + 1].z = ZERO_Z;
+                    vertices[v + 1].z = z;
                     //vertices[v + 1].rhw = 1.0f;
                     vertices[v + 1].s = ( (float)trgRect->left + TEX_COORD_PIXEL_OFFSET_LT + px_tc_off_l ) / m_width;
                     vertices[v + 1].t = ( (float)trgRect->bottom + TEX_COORD_PIXEL_OFFSET_RB + px_tc_off_b ) / m_height;
                     
                     vertices[v + 2].x = (float)srcRect->right + VERTEX_OFFSET_X + px_v_off_r;
                     vertices[v + 2].y = (float)srcRect->bottom + VERTEX_OFFSET_Y + px_v_off_b;
-                    vertices[v + 2].z = ZERO_Z;
+                    vertices[v + 2].z = z;
                     //vertices[v + 2].rhw = 1.0f;
                     vertices[v + 2].s = ( (float)trgRect->right + TEX_COORD_PIXEL_OFFSET_RB + px_tc_off_r ) / m_width;
                     vertices[v + 2].t = ( (float)trgRect->bottom + TEX_COORD_PIXEL_OFFSET_RB + px_tc_off_b ) / m_height;
                     
                     vertices[v + 3].x = (float)srcRect->left + VERTEX_OFFSET_X + px_v_off_l;
                     vertices[v + 3].y = (float)srcRect->top + VERTEX_OFFSET_Y + px_v_off_t;
-                    vertices[v + 3].z = ZERO_Z;
+                    vertices[v + 3].z = z;
                     //vertices[v + 3].rhw = 1.0f;
                     vertices[v + 3].s = ( (float)trgRect->left + TEX_COORD_PIXEL_OFFSET_LT + px_tc_off_l ) / m_width;
                     vertices[v + 3].t = ( (float)trgRect->top + TEX_COORD_PIXEL_OFFSET_LT + px_tc_off_t ) / m_height;
                     
                     vertices[v + 4].x = (float)srcRect->right + VERTEX_OFFSET_X + px_v_off_r;
                     vertices[v + 4].y = (float)srcRect->bottom + VERTEX_OFFSET_Y + px_v_off_b;
-                    vertices[v + 4].z = ZERO_Z;
+                    vertices[v + 4].z = z;
                     //vertices[v + 4].rhw = 1.0f;
                     vertices[v + 4].s = ( (float)trgRect->right + TEX_COORD_PIXEL_OFFSET_RB + px_tc_off_r ) / m_width;
                     vertices[v + 4].t = ( (float)trgRect->bottom + TEX_COORD_PIXEL_OFFSET_RB + px_tc_off_b ) / m_height;
                     
                     vertices[v + 5].x = (float)srcRect->right + VERTEX_OFFSET_X + px_v_off_r;
                     vertices[v + 5].y = (float)srcRect->top + VERTEX_OFFSET_Y + px_v_off_t;
-                    vertices[v + 5].z = ZERO_Z;
+                    vertices[v + 5].z = z;
                     //vertices[v + 5].rhw = 1.0f;
                     vertices[v + 5].s = ( (float)trgRect->right + TEX_COORD_PIXEL_OFFSET_RB + px_tc_off_r ) / m_width;
                     vertices[v + 5].t = ( (float)trgRect->top + TEX_COORD_PIXEL_OFFSET_LT + px_tc_off_t ) / m_height;
@@ -725,7 +733,7 @@ static const unsigned char TRANSFORM_FLAG_TRANSLATION = 2;
 static const unsigned char TRANSFORM_FLAG_ROTATION    = 4;
 static const unsigned char TRANSFORM_FLAG_SCALE       = 8;
 
-void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects )
+void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, const float postScaleX, const float postScaleY, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects )
 {
     if ( ( overlayTexture == NULL ) || ( vertexBuffer == NULL ) )
         return;
@@ -784,7 +792,6 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
         unsigned char idx_t, idx_r;
         unsigned short r, numSubRects, vertexOffset;
         bool texVis;
-        bool hasClipRect;
         
         r = 0;
         vertexOffset = 0;
@@ -794,8 +801,16 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
             {
                 texVis = true;
                 
-                D3DXMatrixIdentity( &m_worldMatrix );
-                device->SetTransform( D3DTS_WORLD, &m_worldMatrix );
+                if ( ( postScaleX == 0.0f ) && ( postScaleY == 0.0f ) )
+                {
+                    D3DXMatrixIdentity( &m_worldMatrix );
+                    device->SetTransform( D3DTS_WORLD, &m_worldMatrix );
+                }
+                else
+                {
+                    D3DXMatrixScaling( &m_postScaleMatrix, postScaleX, postScaleY, 1.0f );
+                    device->SetTransform( D3DTS_WORLD, &m_postScaleMatrix );
+                }
                 
                 //D3DXMatrixIdentity( &m_texMatrix );
                 //device->SetTransform( D3DTS_TEXTURE0, &m_texMatrix );
@@ -816,7 +831,7 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
                     const float ty = translations[idx_t * 2 + 1];
                     if ( ( isTransformed[idx_t] & TRANSFORM_FLAG_ROTATION ) != 0 )
                     {
-                        composeMatrix( tx, ty, ZERO_Z_INDEX - ( (float)idx_t * Z_INDEX_UNIT ),
+                        composeMatrix( tx, ty, 0.0f,
                                        (float)rotCenters[idx_t * 2 + 0], (float)rotCenters[idx_t * 2 + 1],
                                        rotations[idx_t],
                                        scales[idx_t * 2 + 0], scales[idx_t * 2 + 1],
@@ -825,23 +840,34 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
                     }
                     else
                     {
-                        composeMatrix( tx, ty, ZERO_Z_INDEX - ( (float)idx_t * Z_INDEX_UNIT ),
+                        composeMatrix( tx, ty, 0.0f,
                                        scales[idx_t * 2 + 0], scales[idx_t * 2 + 1],
                                        &m_worldMatrix
                                      );
                     }
                     
+                    if ( ( postScaleX != 0.0f ) || ( postScaleY != 0.0f ) )
+                    {
+                        D3DXMatrixScaling( &m_postScaleMatrix, postScaleX, postScaleY, 1.0f );
+                        device->SetTransform( D3DTS_WORLD, &m_postScaleMatrix );
+                        
+                        memcpy( &m_texMatrix, &m_worldMatrix, sizeof( D3DXMATRIX ) );
+                        //D3DXMatrixMultiply( &m_worldMatrix, &m_postScaleMatrix, &m_texMatrix );
+                        D3DXMatrixMultiply( &m_worldMatrix, &m_texMatrix, &m_postScaleMatrix );
+                    }
+                    
+                    device->SetTransform( D3DTS_WORLD, &m_worldMatrix );
+                    
                     clipRect.left = clipRects[idx_t * 4 + 0];
                     clipRect.top = clipRects[idx_t * 4 + 1];
                     clipRect.right = clipRect.left + clipRects[idx_t * 4 + 2];
                     clipRect.bottom = clipRect.top + clipRects[idx_t * 4 + 3];
-                    hasClipRect = ( clipRect.right - clipRect.left > 0 ) && ( clipRect.bottom - clipRect.top > 0 );
-                    if ( hasClipRect )
+                    if ( ( clipRect.right - clipRect.left > 0 ) && ( clipRect.bottom - clipRect.top > 0 ) )
                     {
-                        clipRect.left += (short)floor( tx );
-                        clipRect.right += (short)ceil( tx );
-                        clipRect.top += (short)floor( ty );
-                        clipRect.bottom += (short)ceil( ty );
+                        clipRect.left = (short)floor( ( clipRect.left + tx ) * postScaleX );
+                        clipRect.right = (short)ceil( ( clipRect.right + tx ) * postScaleX );
+                        clipRect.top = (short)floor( ( clipRect.top + ty ) * postScaleY );
+                        clipRect.bottom = (short)ceil( ( clipRect.bottom + ty ) * postScaleY );
                         device->SetScissorRect( &clipRect );
                         if ( !isClipping )
                             device->SetRenderState( D3DRS_SCISSORTESTENABLE, TRUE );
@@ -852,8 +878,6 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
                         device->SetRenderState( D3DRS_SCISSORTESTENABLE, FALSE );
                         isClipping = false;
                     }
-                    
-                    device->SetTransform( D3DTS_WORLD, &m_worldMatrix );
                 }
             }
             
@@ -889,7 +913,7 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
     }
 }
 
-void OverlayTextureManagerImpl::render( const unsigned char numTextures, unsigned short** dirtyRectsBuffers, PixelBufferCallback* pixBuffCallback, char* visibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects )
+void OverlayTextureManagerImpl::render( const float postScaleX, const float postScaleY, const unsigned char numTextures, unsigned short** dirtyRectsBuffers, PixelBufferCallback* pixBuffCallback, char* visibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects )
 {
     bool hasDirtyRects = false;
     
@@ -919,7 +943,7 @@ void OverlayTextureManagerImpl::render( const unsigned char numTextures, unsigne
     
     if ( m_overlayTexture != NULL )
     {
-        m_atlas->render( m_device, m_overlayTexture, m_vertexBuffer, visibleFlags, rectangleVisibleFlags, isTransformed, translations, rotCenters, rotations, scales, clipRects );
+        m_atlas->render( m_device, m_overlayTexture, m_vertexBuffer, postScaleX, postScaleY, visibleFlags, rectangleVisibleFlags, isTransformed, translations, rotCenters, rotations, scales, clipRects );
     }
 }
 
@@ -1088,6 +1112,9 @@ void OverlayTextureManagerImpl::setupTextures( const unsigned char numTextures, 
 
 void OverlayTextureManagerImpl::releaseInternal( const bool intern, const bool released )
 {
+    if ( ( m_proxyTexture == NULL ) && ( m_overlayTexture == NULL ) && ( m_vertexBuffer == NULL ) )
+        return;
+    
     if ( intern )
     {
         logg( "Releasing textures..." );

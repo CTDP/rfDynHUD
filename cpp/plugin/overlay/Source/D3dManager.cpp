@@ -1,16 +1,10 @@
 #include "extended_ISI_API.h"
-
 #include <Windows.h>
 #include "window_handle.h"
-#include "main.h"
 #include "handshake.hpp"
-#include "window_handle.h"
 #include "direct_input.h"
 #include "filesystem.h"
 #include "logging.h"
-#include <jni.h>
-#include "image_util.h"
-#include "util.h"
 
 static const char* RFACTOR_PATH = getRFactorPath();
 static const char* PLUGIN_PATH = getPluginPath();
@@ -44,11 +38,11 @@ void PixelBufferCallback::releasePixelBuffer( const unsigned char textureIndex, 
     handshake->jvmConn.d3dFuncs.releasePixelData( textureIndex, buffer );
 }
 
-void _onRealtimeEntered()
+void _onTextureRequested()
 {
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isInRealtime && handshake->isModSupported )
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && handshake->isModSupported )
     {
-        logg( "Entered realtime mode. Updating textures..." );
+        logg( "Texture requested. Updating textures..." );
         
         handshake->jvmConn.d3dFuncs.updateAllTextureInfos();
         textureManager->setupTextures( handshake->jvmConn.d3dFuncs.getNumTextures(), handshake->jvmConn.d3dFuncs.textureSizes, handshake->jvmConn.d3dFuncs.numUsedRectangles, handshake->jvmConn.d3dFuncs.usedRectangles );
@@ -57,36 +51,67 @@ void _onRealtimeEntered()
     }
 }
 
-void _onRealtimeExited()
+void _onRealtimeEntered()
 {
-    logg( "Exited realtime mode" );
+    //logg( "Entered realtime mode" );
 }
 
-void D3DManager::renderOverlay( void* d3dDev, const unsigned short resX, const unsigned short resY, const unsigned char colorDepth, OverlayTextureManager* textureManager )
+void _onRealtimeExited()
 {
-    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && window_activated && handshake->isInRealtime && handshake->isModSupported )
+    //logg( "Exited realtime mode" );
+}
+
+void _checkRenderModeResult( const char* source, const int result )
+{
+    //logg2( "Checking result from ", source, false );
+    //loggi( ": ", result, true );
+    
+    if ( result == 0 )
+    {
+        handshake->isInRenderMode = false;
+    }
+    else if ( result == 1 )
+    {
+        handshake->isInRenderMode = true;
+    }
+    else if ( result == 2 )
+    {
+        handshake->isInRenderMode = true;
+        handshake->onTextureRequested();
+    }
+}
+
+void D3DManager::renderOverlay( void* d3dDev, const unsigned short resX, const unsigned short resY, const unsigned short* viewport, const unsigned char colorDepth, OverlayTextureManager* textureManager )
+{
+    if ( ( handshake != NULL ) && ( handshake->state == HANDSHAKE_STATE_COMPLETE ) && window_activated && handshake->isModSupported && handshake->isSessionRunning )
     {
         //logg( "renderOverlay()" );
         
-        handshake->jvmConn.inputFuncs.updateInput( &handshake->isPluginEnabled );
+        handshake->viewportX = viewport[0];
+        handshake->viewportY = viewport[1];
+        handshake->viewportWidth = viewport[2];
+        handshake->viewportHeight = viewport[3];
+        char result = handshake->jvmConn.telemFuncs.call_onGraphicsInfoUpdated( handshake->viewportX, handshake->viewportY, handshake->viewportWidth, handshake->viewportHeight );
+        /*handshake->*/_checkRenderModeResult( "onGraphicsInfoUpdated()", result );
         
-        if ( handshake->isPluginEnabled )
+        if ( handshake->isInRenderMode/* && handshake->isInRealtime*/ )
         {
-            handshake->jvmConn.d3dFuncs.call_update();
+            result = handshake->jvmConn.inputFuncs.updateInput( &handshake->isPluginEnabled );
+            /*handshake->*/_checkRenderModeResult( "updateInput()", result );
             
-            if ( handshake->jvmConn.getFlag_configurationReloaded() )
+            if ( handshake->isInRenderMode && handshake->isPluginEnabled )
             {
-                logg( "Exited garage with new configuraiton. Updating textures..." );
+                result = handshake->jvmConn.d3dFuncs.call_update();
+                /*handshake->*/_checkRenderModeResult( "update()", result );
                 
-                handshake->jvmConn.d3dFuncs.updateAllTextureInfos();
-                textureManager->setupTextures( handshake->jvmConn.d3dFuncs.getNumTextures(), handshake->jvmConn.d3dFuncs.textureSizes, handshake->jvmConn.d3dFuncs.numUsedRectangles, handshake->jvmConn.d3dFuncs.usedRectangles );
-                
-                logg( "Textures successfully updated." );
-                
-                handshake->jvmConn.resetFlag_configurationReloaded();
+                if ( handshake->isInRenderMode )
+                {
+                    const float postScaleX = (float)resX / (float)viewport[2];
+                    const float postScaleY = (float)resY / (float)viewport[3];
+                    
+                    textureManager->render( postScaleX, postScaleY, handshake->jvmConn.d3dFuncs.getNumTextures(), handshake->jvmConn.d3dFuncs.dirtyRectsBuffers, pixBuffCallback, handshake->jvmConn.d3dFuncs.textureVisibleFlags, handshake->jvmConn.d3dFuncs.rectangleVisibleFlags, handshake->jvmConn.d3dFuncs.textureIsTransformedFlags, handshake->jvmConn.d3dFuncs.textureTranslations, handshake->jvmConn.d3dFuncs.textureRotationCenters, handshake->jvmConn.d3dFuncs.textureRotations, handshake->jvmConn.d3dFuncs.textureScales, handshake->jvmConn.d3dFuncs.textureClipRects );
+                }
             }
-            
-            textureManager->render( handshake->jvmConn.d3dFuncs.getNumTextures(), handshake->jvmConn.d3dFuncs.dirtyRectsBuffers, pixBuffCallback, handshake->jvmConn.d3dFuncs.textureVisibleFlags, handshake->jvmConn.d3dFuncs.rectangleVisibleFlags, handshake->jvmConn.d3dFuncs.textureIsTransformedFlags, handshake->jvmConn.d3dFuncs.textureTranslations, handshake->jvmConn.d3dFuncs.textureRotationCenters, handshake->jvmConn.d3dFuncs.textureRotations, handshake->jvmConn.d3dFuncs.textureScales, handshake->jvmConn.d3dFuncs.textureClipRects );
         }
     }
 }
@@ -176,8 +201,10 @@ void D3DManager::initialize( void* d3dDev, const unsigned short _resX, const uns
     
     if ( handshake != NULL )
     {
+        handshake->onTextureRequested = &_onTextureRequested;
         handshake->onRealtimeEntered = &_onRealtimeEntered;
         handshake->onRealtimeExited = &_onRealtimeExited;
+        handshake->checkRenderModeResult = &_checkRenderModeResult;
     }
 }
 

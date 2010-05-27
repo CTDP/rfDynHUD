@@ -15,6 +15,9 @@ D3DManager* manager = NULL;
 
 unsigned int device_count = 0;
 
+unsigned short* viewport0 = (unsigned short*)malloc( 4 * sizeof( unsigned short ) );
+unsigned short* viewport = (unsigned short*)malloc( 4 * sizeof( unsigned short ) );
+
 hkIDirect3DDevice9::hkIDirect3DDevice9( IDirect3DDevice9** ppReturnedDeviceInterface, D3DPRESENT_PARAMETERS* pPresentParam, IDirect3D9* pIDirect3D9 )
 {
     if ( ++device_count == 1 )
@@ -22,7 +25,12 @@ hkIDirect3DDevice9::hkIDirect3DDevice9( IDirect3DDevice9** ppReturnedDeviceInter
         resX = (unsigned short)pPresentParam->BackBufferWidth;
         resY = (unsigned short)pPresentParam->BackBufferHeight;
         
-	    m_pD3Ddev = *ppReturnedDeviceInterface; 
+	    viewport0[0] = 0;
+	    viewport0[1] = 0;
+	    viewport0[2] = resX;
+	    viewport0[3] = resY;
+        
+        m_pD3Ddev = *ppReturnedDeviceInterface; 
 	    *ppReturnedDeviceInterface = this;
 	    m_pD3Dint = pIDirect3D9;
         
@@ -54,9 +62,12 @@ hkIDirect3DDevice9::hkIDirect3DDevice9( IDirect3DDevice9** ppReturnedDeviceInter
 
 unsigned int lastNumScenes = 1;
 unsigned int currNumScenes = 0;
+bool viewportSet = false;
 
 HRESULT APIENTRY hkIDirect3DDevice9::BeginScene() 
 {
+    viewportSet = false;
+    
     return ( m_pD3Ddev->BeginScene() );
 }
 
@@ -65,7 +76,7 @@ HRESULT APIENTRY hkIDirect3DDevice9::EndScene()
     //if ( ++currNumScenes == lastNumScenes )
     if ( ++currNumScenes == 1 )
     {
-        manager->renderOverlay( m_pD3Ddev, resX, resY, colorDepth, overlayTextureManager );
+        manager->renderOverlay( m_pD3Ddev, resX, resY, viewportSet ? viewport : viewport0, colorDepth, overlayTextureManager );
     }
     
     return ( m_pD3Ddev->EndScene() );
@@ -718,6 +729,16 @@ HRESULT APIENTRY hkIDirect3DDevice9::SetVertexShaderConstantI( UINT StartRegiste
 
 HRESULT APIENTRY hkIDirect3DDevice9::SetViewport( CONST D3DVIEWPORT9* pViewport )
 {
+    if ( pViewport->X > 0 )
+    {
+	    viewport[0] = (unsigned short)pViewport->X;
+	    viewport[1] = (unsigned short)pViewport->Y;
+	    viewport[2] = (unsigned short)pViewport->Width;
+	    viewport[3] = (unsigned short)pViewport->Height;
+        
+        viewportSet = true;
+    }
+    
     return ( m_pD3Ddev->SetViewport( pViewport ) );
 }
 
