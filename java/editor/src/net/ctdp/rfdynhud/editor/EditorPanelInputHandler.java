@@ -283,7 +283,62 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
-    private boolean setWidgetPosition( Widget widget, RelativePositioning positioning, int x, int y )
+    private RelativePositioning fixPositioning( Widget widget, int x, int y, int w, int h )
+    {
+        final int gameResX = widget.getConfiguration().getGameResolution().getResX();
+        final int gameResY = widget.getConfiguration().getGameResolution().getResY();
+        
+        RelativePositioning positioning = selectedWidget.getPosition().getPositioning();
+        
+        if ( positioning.isLeft() )
+        {
+            if ( x / (float)( gameResX - x - w ) > 0.4f )
+                positioning = positioning.deriveHCenter();
+            else if ( x + w / 2 >= gameResX / 2 + 50 )
+                positioning = positioning.deriveRight();
+        }
+        else if ( positioning.isRight() )
+        {
+            if ( x / (float)( gameResX - x - w ) < 2.5f )
+                positioning = positioning.deriveHCenter();
+            else if ( x + w / 2 < gameResX / 2 - 50 )
+                positioning = positioning.deriveLeft();
+        }
+        else if ( positioning.isHCenter() )
+        {
+            int centerWidth = gameResX * 5 / 6;
+            if ( x < ( gameResX - centerWidth ) / 2 + 50 )
+                positioning = positioning.deriveLeft();
+            else if ( x + w > gameResX - ( gameResX - centerWidth ) / 2 - 50 )
+                positioning = positioning.deriveRight();
+        }
+        
+        if ( positioning.isTop() )
+        {
+            if ( y / (float)( gameResY - y - h ) > 0.4f )
+                positioning = positioning.deriveVCenter();
+            //else if ( y + effHeight / 2 >= gameResY * 8 / 10 )
+            //    positioning = positioning.deriveBottom();
+        }
+        else if ( positioning.isBottom() )
+        {
+            if ( y / (float)( gameResY - y - h ) < 2.5f )
+                positioning = positioning.deriveVCenter();
+            //else if ( y + effHeight / 2 < gameResY * 8 / 10 )
+            //    positioning = positioning.deriveTop();
+        }
+        else if ( positioning.isVCenter() )
+        {
+            if ( y / (float)( gameResY - y - h ) < 0.3f )
+                positioning = positioning.deriveTop();
+            else if ( y / (float)( gameResY - y - h ) > 3.333f )
+                positioning = positioning.deriveBottom();
+        }
+        
+        return ( positioning );
+    }
+    
+    private boolean setWidgetPosition( Widget widget, int x, int y )
     {
         Point p = new Point( x, y );
         
@@ -292,56 +347,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         x = p.x;
         y = p.y;
         
-        final int gameResX = widget.getConfiguration().getGameResolution().getResX();
-        final int gameResY = widget.getConfiguration().getGameResolution().getResY();
-        
         final int effWidth = widget.getSize().getEffectiveWidth();
         final int effHeight = widget.getSize().getEffectiveHeight();
         
-        if ( positioning.isLeft() )
-        {
-            if ( x / (float)( gameResX - x - effWidth ) > 0.4f )
-                positioning = positioning.deriveHCenter();
-            else if ( x + effWidth / 2 >= gameResX / 2 + 50 )
-                positioning = positioning.deriveRight();
-        }
-        else if ( positioning.isRight() )
-        {
-            if ( x / (float)( gameResX - x - effWidth ) < 2.5f )
-                positioning = positioning.deriveHCenter();
-            else if ( x + effWidth / 2 < gameResX / 2 - 50 )
-                positioning = positioning.deriveLeft();
-        }
-        else if ( positioning.isHCenter() )
-        {
-            int centerWidth = gameResX * 5 / 6;
-            if ( x < ( gameResX - centerWidth ) / 2 + 50 )
-                positioning = positioning.deriveLeft();
-            else if ( x + effWidth > gameResX - ( gameResX - centerWidth ) / 2 - 50 )
-                positioning = positioning.deriveRight();
-        }
-        
-        if ( positioning.isTop() )
-        {
-            if ( y / (float)( gameResY - y - effHeight ) > 0.4f )
-                positioning = positioning.deriveVCenter();
-            //else if ( y + effHeight / 2 >= gameResY * 8 / 10 )
-            //    positioning = positioning.deriveBottom();
-        }
-        else if ( positioning.isBottom() )
-        {
-            if ( y / (float)( gameResY - y - effHeight ) < 2.5f )
-                positioning = positioning.deriveVCenter();
-            //else if ( y + effHeight / 2 < gameResY * 8 / 10 )
-            //    positioning = positioning.deriveTop();
-        }
-        else if ( positioning.isVCenter() )
-        {
-            if ( y / (float)( gameResY - y - effHeight ) < 0.3f )
-                positioning = positioning.deriveTop();
-            else if ( y / (float)( gameResY - y - effHeight ) > 3.333f )
-                positioning = positioning.deriveBottom();
-        }
+        RelativePositioning positioning = fixPositioning( widget, x, y, effWidth, effHeight );
         
         return ( widget.getPosition().setEffectivePosition( positioning, x, y ) );
     }
@@ -456,8 +465,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 w = s.x + 1 - x;
                 h = s.y + 1 - y;
                 
+                RelativePositioning positioning = fixPositioning( selectedWidget, x, y, w, h );
+                
                 boolean b1 = selectedWidget.getSize().setEffectiveSize( w, h );
-                boolean b2 = selectedWidget.getPosition().setEffectivePosition( x, y );
+                boolean b2 = selectedWidget.getPosition().setEffectivePosition( positioning, x, y );
                 
                 changed = b1 || b2;
             }
@@ -472,10 +483,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 x = Math.min( Math.max( 0, x ) + effWidth, gameResX ) - effWidth;
                 y = Math.min( Math.max( 0, y ) + effHeight, gameResY ) - effHeight;
                 
-                
-                RelativePositioning positioning = selectedWidget.getPosition().getPositioning();
-                
-                changed = setWidgetPosition( selectedWidget, positioning, x, y );
+                changed = setWidgetPosition( selectedWidget, x, y );
             }
             
             if ( changed )
@@ -518,7 +526,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
                     w.clearRegion( true, editor.getOverlayTexture() );
-                    if ( setWidgetPosition( w, w.getPosition().getPositioning(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
+                    if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
                     {
                         editor.onWidgetChanged( w, "POSITIONAL" );
                         needsRedraw = true;
@@ -532,7 +540,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
                     w.clearRegion( true, editor.getOverlayTexture() );
-                    if ( setWidgetPosition( w, w.getPosition().getPositioning(), w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
+                    if ( setWidgetPosition( w, w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
                     {
                         editor.onWidgetChanged( w, "POSITIONAL" );
                         needsRedraw = true;
@@ -546,7 +554,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
                     w.clearRegion( true, editor.getOverlayTexture() );
-                    if ( setWidgetPosition( w, w.getPosition().getPositioning(), w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
+                    if ( setWidgetPosition( w, w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
                     {
                         editor.onWidgetChanged( w, "POSITIONAL" );
                         needsRedraw = true;
@@ -560,7 +568,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
                     w.clearRegion( true, editor.getOverlayTexture() );
-                    if ( setWidgetPosition( w, w.getPosition().getPositioning(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
+                    if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
                     {
                         editor.onWidgetChanged( w, "POSITIONAL" );
                         needsRedraw = true;
