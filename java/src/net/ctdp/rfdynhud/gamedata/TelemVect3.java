@@ -101,6 +101,15 @@ public class TelemVect3
         return ( (float)Math.sqrt( getDistanceXZToSquared( x, z ) ) );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        return ( this.getClass().getSimpleName() + "( " + getX() + ", " + getY() + ", " + getZ() + " )" );
+    }
+    
     public TelemVect3()
     {
     }

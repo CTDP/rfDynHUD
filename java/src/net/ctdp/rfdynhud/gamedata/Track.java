@@ -1,14 +1,11 @@
-package net.ctdp.rfdynhud.util;
+package net.ctdp.rfdynhud.gamedata;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.gamedata.ScoringInfo;
-import net.ctdp.rfdynhud.gamedata.TelemVect3;
-import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.util.Logger;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -253,10 +250,6 @@ public class Track
         float vecY = ( wp0.vecY * alpha ) + ( wp1.vecY * ( 1f - alpha ) );
         float vecZ = ( wp0.vecZ * alpha ) + ( wp1.vecZ * ( 1f - alpha ) );
         
-        //System.out.println( waypoints[( waypointIndex - 0 + waypoints.length ) % waypoints.length].lapDistance + ", " + waypoints[( waypointIndex + 1 + waypoints.length ) % waypoints.length].lapDistance );
-        
-        //System.out.println( vecX + ", " + vecZ + ", " + ( waypoints[waypointIndex + 30].posX - wp0.posX ) + ", " + ( waypoints[waypointIndex + 30].posY - wp0.posY ) );
-        
         __GDPrivilegedAccess.setTelemVect3( vecX, vecY, vecZ, vector );
         
         return ( true );
@@ -273,14 +266,14 @@ public class Track
         
         if ( vec1.getX() == 0f )
         {
-            if ( vec1.getY() >= 0f )
+            if ( vec1.getZ() < 0f )
                 return ( 0f );
             
             return ( (float)Math.PI );
         }
         
-        float dot = vec1.getX() * 0f + vec1.getY() * 1f;
-        float angle = (float)Math.abs( Math.atan2( vec1.getX() * 1f - vec1.getY() * 0f, dot ) );
+        float dot = vec1.getX() * 0f + vec1.getZ() * -1f;
+        float angle = (float)Math.abs( Math.atan2( vec1.getX() * -1f - vec1.getZ() * 0f, dot ) );
         
         if ( vec1.getX() < 0f )
             return ( angle );
@@ -543,10 +536,10 @@ public class Track
             
             // mirror the x-coordinates
             wp.posX *= -1f;
-            wp.vecX *= -1f;
-            wp.normX *= -1f;
+            wp.posZ *= -1f;
             
-            /*
+            //wp.normX *= -1f;
+            
             // rotate clockwisely by 90°
             float tmp = wp.posX;
             wp.posX = wp.posZ;
@@ -557,7 +550,10 @@ public class Track
             tmp = wp.normX;
             wp.normX = wp.normZ;
             wp.normZ = -tmp;
-            */
+            
+            // Fix vector to face into the direction of the road (but not backwards)
+            wp.vecX *= -1f;
+            wp.vecZ *= -1f;
             
             if ( wp.posX < pc.minXPos )
                 pc.minXPos = wp.posX;

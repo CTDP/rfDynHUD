@@ -24,6 +24,8 @@ Major:
 * Added a localizations system (translations).
 * Added support for imperial units.
 * Added MapWidget rotation according to the current vehicle's heading.
+* Added sector specific colors to MapWidget.
+* MapWidget/TrackPositionWidget: draw important positions last.
 * Added vehicle class relative scoring (configuration global option).
 * Improved early rendering of Widgets to reduce the gap when entering the cockpit.
 * Added padding properties.
@@ -52,8 +54,6 @@ TODO:
 * Save As: Construct filename
 * Make widget selection menues nicer
 * Improve viewed vehicle detection (use me if close)
-* MapWidget/TrackPositionWidget: draw important positions last
-* MapWidget: Sector colors
 * Add StandardBorder alias if missing
 * Select Widget in background
 * Draw sub textures in editor (clickable?)

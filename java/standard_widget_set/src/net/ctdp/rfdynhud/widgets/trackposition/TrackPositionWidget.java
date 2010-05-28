@@ -33,7 +33,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 public class TrackPositionWidget extends Widget
 {
     private static final int LINE_THICKNESS = 1;
-    private static final int LINE_PADDING = 30;
+    private static final int BASE_LINE_PADDING = 30;
     
     private int baseItemRadius = 9;
     private int itemRadius = baseItemRadius;
@@ -187,17 +187,20 @@ public class TrackPositionWidget extends Widget
         texCanvas.setAntialiazingEnabled( true );
         
         int lineHeight = LINE_THICKNESS;
-        lineLength = width - 2 * LINE_PADDING;
+        int linePadding = (int)( BASE_LINE_PADDING * getConfiguration().getGameResolution().getResY() / (float)1200 );
+        lineLength = width - 2 * linePadding;
         
         texCanvas.setColor( lineColor.getColor() );
         
-        texCanvas.fillRect( offsetX + LINE_PADDING, offsetY + ( height - lineHeight ) / 2, lineLength, lineHeight );
+        texCanvas.fillRect( offsetX + linePadding, offsetY + ( height - lineHeight ) / 2, lineLength, lineHeight );
     }
     
     @Override
     public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
+        
+        int linePadding = (int)( BASE_LINE_PADDING * getConfiguration().getGameResolution().getResX() / 1920f );
         
         int off2 = ( isFontAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
         
@@ -213,21 +216,35 @@ public class TrackPositionWidget extends Widget
             itemTextureOffsetsY = new int[ itemTextures.length ];
         }
         
+        int j = 0, k;
         for ( int i = 0; i < n; i++ )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
+            short place = vsi.getPlace( getUseClassScoring() );
+            
+            if ( vsi.isPlayer() )
+                k = n - 1;
+            else if ( place == ownPlace - 1 )
+                k = n - 2;
+            else if ( place == ownPlace + 1 )
+                k = n - 3;
+            else if ( place == 1 )
+                k = n - 4;
+            else
+                k = j++;
+            
             if ( /*!vsi.isInPits() &&*/ ( vsi.getFinishStatus().isNone() || vsi.getFinishStatus().isFinished() ) )
             {
                 float lapDistance = ( ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength() ) / scoringInfo.getTrackLength();
                 if ( lapDistance < 0f )
                     lapDistance = 0f;
                 
-                TransformableTexture tt = itemTextures[i];
-                itemTextures[i].setVisible( true );
-                int itemState = ( vsi.getPlace( getUseClassScoring() ) << 0 ) | ( vsi.getDriverId() << 9 );
+                TransformableTexture tt = itemTextures[k];
+                itemTextures[k].setVisible( true );
+                int itemState = ( place << 0 ) | ( vsi.getDriverId() << 9 );
                 
                 Color color = null;
-                if ( vsi.getPlace( getUseClassScoring() ) == 1 )
+                if ( place == 1 )
                 {
                     itemState |= 1 << 26;
                     if ( vsi.isPlayer() && useMyColorForMe1st.getBooleanValue() )
@@ -240,12 +257,12 @@ public class TrackPositionWidget extends Widget
                     itemState |= 1 << 27;
                     color = markColorMe.getColor();
                 }
-                else if ( vsi.getPlace( getUseClassScoring() ) == ownPlace - 1 )
+                else if ( place == ownPlace - 1 )
                 {
                     itemState |= 1 << 28;
                     color = markColorNextInFront.getColor();
                 }
-                else if ( vsi.getPlace( getUseClassScoring() ) == ownPlace + 1 )
+                else if ( place == ownPlace + 1 )
                 {
                     itemState |= 1 << 29;
                     color = markColorNextBehind.getColor();
@@ -256,14 +273,14 @@ public class TrackPositionWidget extends Widget
                     color = markColorNormal.getColor();
                 }
                 
-                if ( itemStates[i] != itemState )
+                if ( itemStates[k] != itemState )
                 {
-                    itemStates[i] = itemState;
+                    itemStates[k] = itemState;
                     
-                    itemTextureOffsetsY[i] = StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace( false ), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
+                    itemTextureOffsetsY[k] = StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace( false ), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
                 }
                 
-                tt.setTranslation( LINE_PADDING + off2 + lapDistance * lineLength - itemRadius, off2 + height / 2 - itemRadius - itemTextureOffsetsY[i] );
+                tt.setTranslation( linePadding + off2 + lapDistance * lineLength - itemRadius, off2 + height / 2 - itemRadius - itemTextureOffsetsY[k] );
             }
         }
         

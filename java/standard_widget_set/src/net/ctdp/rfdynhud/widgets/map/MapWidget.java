@@ -16,6 +16,7 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
+import net.ctdp.rfdynhud.gamedata.Track;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
@@ -30,7 +31,6 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.Track;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -52,8 +52,12 @@ public class MapWidget extends Widget
     
     private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
     
-    private final ColorProperty roadColor = new ColorProperty( this, "roadColor", "color", "#000000" );
-    private final ColorProperty roadBoundaryColor = new ColorProperty( this, "roadBoundaryColor", "boundaryColor", "#FFFFFF" );
+    private final ColorProperty roadColorSec1 = new ColorProperty( this, "roadColorSec1", "colorSec1", "#000000" );
+    private final ColorProperty roadBoundaryColorSec1 = new ColorProperty( this, "roadBoundaryColorSec1", "boundaryColorSec1", "#FFFFFF" );
+    private final ColorProperty roadColorSec2 = new ColorProperty( this, "roadColorSec2", "colorSec2", "#000000" );
+    private final ColorProperty roadBoundaryColorSec2 = new ColorProperty( this, "roadBoundaryColorSec2", "boundaryColorSec2", "#FFFFFF" );
+    private final ColorProperty roadColorSec3 = new ColorProperty( this, "roadColorSec3", "colorSec3", "#000000" );
+    private final ColorProperty roadBoundaryColorSec3 = new ColorProperty( this, "roadBoundaryColorSec3", "boundaryColorSec3", "#FFFFFF" );
     private final ColorProperty pitlaneColor = new ColorProperty( this, "pitlaneColor", "pitlaneColor", "#FFFF00" );
     private final IntProperty roadWidth = new IntProperty( this, "roadWidth", "width", 4, 2, 20, false )
     {
@@ -267,7 +271,7 @@ public class MapWidget extends Widget
             Texture2DCanvas tc = cacheTexture.getTextureCanvas();
             tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
             
-            tc.setColor( roadColor.getColor() );
+            tc.setColor( roadColorSec1.getColor() );
             
             tc.drawArc( 3, 3, cacheTexture.getWidth() - 6, cacheTexture.getHeight() - 6, 0, 360 );
             
@@ -286,9 +290,17 @@ public class MapWidget extends Widget
             int dia = itemRadius + itemRadius + off2 + off2;
             
             if ( rotationEnabled.getBooleanValue() )
-                scale = track.getScale( Math.min( width - dia + itemRadius + itemRadius - subTextures[1].getWidth(), height - dia ), Math.min( width - dia + itemRadius + itemRadius - subTextures[1].getWidth(), height - dia ) );
+            {
+                // TODO: We need a cheap way to calculate the max x and y extend for all rotation angles.
+                int wh = Math.min( width - dia + itemRadius + itemRadius - subTextures[1].getWidth(), height - dia );
+                scale = track.getScale( (int)( wh * 0.9f ), (int)( wh * 0.9f ) );
+            }
             else
-                scale = track.getScale( width - dia - itemRadius - itemRadius + subTextures[0].getWidth(), height - dia );
+            {
+                int w = width - dia - itemRadius - itemRadius + subTextures[0].getWidth();
+                int h = height - dia;
+                scale = track.getScale( w, h );
+            }
             
             Point p0 = new Point();
             Point p1 = new Point();
@@ -298,7 +310,8 @@ public class MapWidget extends Widget
             
             if ( rotationEnabled.getBooleanValue() )
             {
-                subTextures[0].setRotationCenter( x0 + track.getXExtend( scale ) / 2, y0 + track.getZExtend( scale ) / 2 );
+                //subTextures[0].setRotationCenter( x0 + track.getXExtend( scale ) / 2, y0 + track.getZExtend( scale ) / 2 );
+                subTextures[0].setRotationCenter( subTextures[0].getWidth() / 2, subTextures[0].getHeight() / 2 );
             }
             
             Stroke oldStroke = tc.getStroke();
@@ -311,11 +324,45 @@ public class MapWidget extends Widget
             track.getWaypointPosition( false, 0, scale, p0 );
             xPoints[0] = x0 + p0.x;
             yPoints[0] = y0 + p0.y;
+            byte oldSec = track.getWaypointSector( false, 0 );
             
             int j = 1;
             for ( int i = 1; i < n; i++ )
             {
                 track.getWaypointPosition( false, i, scale, p1 );
+                byte sec = track.getWaypointSector( false, i );
+                
+                if ( sec != oldSec )
+                {
+                    if ( oldSec == 1 )
+                        tc.setColor( roadBoundaryColorSec1.getColor() );
+                    else if ( oldSec == 2 )
+                        tc.setColor( roadBoundaryColorSec2.getColor() );
+                    else if ( oldSec == 3 )
+                        tc.setColor( roadBoundaryColorSec3.getColor() );
+                    tc.setStroke( new BasicStroke( roadWidth.getIntValue() ) );
+                    tc.setAntialiazingEnabled( true );
+                    
+                    tc.drawPolyline( xPoints, yPoints, j );
+                    
+                    if ( oldSec == 1 )
+                        tc.setColor( roadColorSec1.getColor() );
+                    else if ( oldSec == 2 )
+                        tc.setColor( roadColorSec2.getColor() );
+                    else if ( oldSec == 3 )
+                        tc.setColor( roadColorSec3.getColor() );
+                    tc.setStroke( new BasicStroke( roadWidth.getIntValue() - 1.5f ) );
+                    tc.setAntialiazingEnabled( true );
+                    
+                    tc.drawPolyline( xPoints, yPoints, j );
+                    
+                    xPoints[0] = xPoints[j - 1];
+                    yPoints[0] = yPoints[j - 1];
+                    
+                    j = 1;
+                }
+                
+                oldSec = sec;
                 
                 double dsq = ( p0.getX() - p1.getX() ) * ( p0.getX() - p1.getX() ) + ( p0.getY() - p1.getY() ) * ( p0.getY() - p1.getY() );
                 
@@ -332,17 +379,37 @@ public class MapWidget extends Widget
                 }
             }
             
-            tc.setColor( roadBoundaryColor.getColor() );
-            tc.setStroke( new BasicStroke( roadWidth.getIntValue() ) );
-            tc.setAntialiazingEnabled( true );
-            
-            tc.drawPolygon( xPoints, yPoints, j );
-            
-            tc.setColor( roadColor.getColor() );
-            tc.setStroke( new BasicStroke( roadWidth.getIntValue() - 1.5f ) );
-            tc.setAntialiazingEnabled( true );
-            
-            tc.drawPolygon( xPoints, yPoints, j );
+            if ( j > 0 )
+            {
+                track.getWaypointPosition( false, 0, scale, p0 );
+                xPoints[j] = x0 + p0.x;
+                yPoints[j] = y0 + p0.y;
+                j++;
+                
+                if ( oldSec == 1 )
+                    tc.setColor( roadBoundaryColorSec1.getColor() );
+                else if ( oldSec == 2 )
+                    tc.setColor( roadBoundaryColorSec2.getColor() );
+                else if ( oldSec == 3 )
+                    tc.setColor( roadBoundaryColorSec3.getColor() );
+                tc.setStroke( new BasicStroke( roadWidth.getIntValue() ) );
+                tc.setAntialiazingEnabled( true );
+                
+                tc.drawPolyline( xPoints, yPoints, j );
+                
+                if ( oldSec == 1 )
+                    tc.setColor( roadColorSec1.getColor() );
+                else if ( oldSec == 2 )
+                    tc.setColor( roadColorSec2.getColor() );
+                else if ( oldSec == 3 )
+                    tc.setColor( roadColorSec3.getColor() );
+                tc.setStroke( new BasicStroke( roadWidth.getIntValue() - 1.5f ) );
+                tc.setAntialiazingEnabled( true );
+                
+                tc.drawPolyline( xPoints, yPoints, j );
+                
+                j = 0;
+            }
             
             tc.setColor( pitlaneColor.getColor() );
             tc.setStroke( new BasicStroke( 2f ) );
@@ -479,29 +546,47 @@ public class MapWidget extends Widget
             
             int subTexOff = hasMasterCanvas( editorPresets != null ) ? 0 : 1;
             
-            float rotation = rotationEnabled.getBooleanValue() ? track.getInterpolatedAngleToRoad( scoringInfo ) : 0f;
+            float rotation = 0f;
+            
             if ( rotationEnabled.getBooleanValue() )
             {
+                rotation = track.getInterpolatedAngleToRoad( scoringInfo );
                 subTextures[0].setRotation( rotation );
                 at.setToRotation( rotation, x0 + track.getXExtend( scale ) / 2, y0 + track.getZExtend( scale ) / 2 );
             }
             
             int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles );
+            int j = 0, k;
             for ( int i = 0; i < n; i++ )
             {
                 VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
+                short place = vsi.getPlace( getUseClassScoring() );
+                
+                if ( vsi.isPlayer() )
+                    k = n - 1;
+                else if ( place == ownPlace - 1 )
+                    k = n - 2;
+                else if ( place == ownPlace + 1 )
+                    k = n - 3;
+                else if ( place == 1 )
+                    k = n - 4;
+                else
+                    k = j++;
+                
                 if ( /*!vsi.isInPits() &&*/ ( vsi.getFinishStatus().isNone() || vsi.getFinishStatus().isFinished() ) )
                 {
                     float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % track.getTrackLength();
                     
-                    TransformableTexture tt = subTextures[subTexOff + i];
-                    subTextures[subTexOff + i].setVisible( true );
-                    int itemState = ( vsi.getPlace( getUseClassScoring() ) << 0 ) | ( vsi.getDriverId() << 9 );
+                    TransformableTexture tt = subTextures[subTexOff + k];
+                    subTextures[subTexOff + k].setVisible( true );
+                    int itemState = ( place << 0 ) | ( vsi.getDriverId() << 9 );
                     
                     track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, position );
+                    position.x += x0;
+                    position.y += y0;
                     
                     Color color = null;
-                    if ( vsi.getPlace( getUseClassScoring() ) == 1 )
+                    if ( place == 1 )
                     {
                         itemState |= 1 << 26;
                         if ( vsi.isPlayer() && useMyColorForMe1st.getBooleanValue() )
@@ -514,12 +599,12 @@ public class MapWidget extends Widget
                         itemState |= 1 << 27;
                         color = markColorMe.getColor();
                     }
-                    else if ( vsi.getPlace( getUseClassScoring() ) == ownPlace - 1 )
+                    else if ( place == ownPlace - 1 )
                     {
                         itemState |= 1 << 28;
                         color = markColorNextInFront.getColor();
                     }
-                    else if ( vsi.getPlace( getUseClassScoring() ) == ownPlace + 1 )
+                    else if ( place == ownPlace + 1 )
                     {
                         itemState |= 1 << 29;
                         color = markColorNextBehind.getColor();
@@ -530,15 +615,12 @@ public class MapWidget extends Widget
                         color = markColorNormal.getColor();
                     }
                     
-                    if ( itemStates[i] != itemState )
+                    if ( itemStates[k] != itemState )
                     {
-                        itemStates[i] = itemState;
+                        itemStates[k] = itemState;
                         
                         StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace( false ), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
                     }
-                    
-                    position.x += x0;
-                    position.y += y0;
                     
                     if ( rotationEnabled.getBooleanValue() )
                         at.transform( position, position );
@@ -547,10 +629,8 @@ public class MapWidget extends Widget
                 }
                 else
                 {
-                    subTextures[subTexOff + i].setVisible( false );
+                    subTextures[subTexOff + k].setVisible( false );
                 }
-                
-                subTextures[subTexOff + i].setVisible( true );
             }
             
             for ( int i = n; i < maxDisplayedVehicles; i++ )
@@ -568,8 +648,12 @@ public class MapWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( rotationEnabled, "Map rotation enabled?" );
-        writer.writeProperty( roadColor, "The color used for the road in #RRGGBBAA (hex)." );
-        writer.writeProperty( roadBoundaryColor, "The color used for the road boundary in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadColorSec1, "The color used for the road and sector 1 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadBoundaryColorSec1, "The color used for the road boundary and sector 1 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadColorSec2, "The color used for the road and sector 2 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadBoundaryColorSec2, "The color used for the road boundary and sector 2 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadColorSec3, "The color used for the road and sector 3 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadBoundaryColorSec3, "The color used for the road boundary and sector 3 in #RRGGBBAA (hex)." );
         writer.writeProperty( pitlaneColor, "The color used for the pitlane in #RRGGBBAA (hex)." );
         writer.writeProperty( roadWidth, "The width of the roadin absolute pixels." );
         writer.writeProperty( "itemRadius", baseItemRadius, "The abstract radius for any displayed driver item." );
@@ -595,8 +679,12 @@ public class MapWidget extends Widget
         super.loadProperty( key, value );
         
         if ( rotationEnabled.loadProperty( key, value ) );
-        else if ( roadColor.loadProperty( key, value ) );
-        else if ( roadBoundaryColor.loadProperty( key, value ) );
+        else if ( roadColorSec1.loadProperty( key, value ) );
+        else if ( roadBoundaryColorSec1.loadProperty( key, value ) );
+        else if ( roadColorSec2.loadProperty( key, value ) );
+        else if ( roadBoundaryColorSec2.loadProperty( key, value ) );
+        else if ( roadColorSec3.loadProperty( key, value ) );
+        else if ( roadBoundaryColorSec3.loadProperty( key, value ) );
         else if ( pitlaneColor.loadProperty( key, value ) );
         else if ( roadWidth.loadProperty( key, value ) );
         if ( key.equals( "itemRadius" ) )
@@ -628,8 +716,12 @@ public class MapWidget extends Widget
         
         propsCont.addGroup( "Road" );
         
-        propsCont.addProperty( roadColor );
-        propsCont.addProperty( roadBoundaryColor );
+        propsCont.addProperty( roadColorSec1 );
+        propsCont.addProperty( roadBoundaryColorSec1 );
+        propsCont.addProperty( roadColorSec2 );
+        propsCont.addProperty( roadBoundaryColorSec2 );
+        propsCont.addProperty( roadColorSec3 );
+        propsCont.addProperty( roadBoundaryColorSec3 );
         propsCont.addProperty( pitlaneColor );
         propsCont.addProperty( roadWidth );
         

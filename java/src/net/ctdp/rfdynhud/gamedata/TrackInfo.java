@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.Track;
 
 public class TrackInfo
 {
