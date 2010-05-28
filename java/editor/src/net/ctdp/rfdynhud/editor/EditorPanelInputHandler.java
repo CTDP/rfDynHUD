@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.editor;
 
 import java.awt.AWTEvent;
 import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
@@ -9,9 +10,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.values.RelativePositioning;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -233,6 +236,116 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
+    private void snapPositionToRail( Widget widget, Point point )
+    {
+        if ( !isControlDown )
+        {
+            EditorPanel panel = editor.getEditorPanel();
+            
+            if ( ( panel.getRailDistanceX() > 0 ) || ( panel.getRailDistanceY() > 0 ) )
+            {
+                WidgetsConfiguration wc = panel.getWidgetsDrawingManager();
+                int closestRailX = Integer.MAX_VALUE;
+                int closestRailY = Integer.MAX_VALUE;
+                int rdx, rdy;
+                for ( int i = 0; i < wc.getNumWidgets(); i++ )
+                {
+                    Widget w = wc.getWidget( i );
+                    if ( w != widget )
+                    {
+                        rdx = w.getPosition().getEffectiveX() - point.x;
+                        rdy = w.getPosition().getEffectiveY() - point.y;
+                        
+                        if ( Math.abs( rdx ) < Math.abs( closestRailX ) )
+                            closestRailX = rdx;
+                        if ( Math.abs( rdy ) < Math.abs( closestRailY ) )
+                            closestRailY = rdy;
+                        
+                        rdx = w.getPosition().getEffectiveX() + w.getSize().getEffectiveWidth() - point.x;
+                        rdy = w.getPosition().getEffectiveY() + w.getSize().getEffectiveHeight() - point.y;
+                        
+                        if ( Math.abs( rdx ) < Math.abs( closestRailX ) )
+                            closestRailX = rdx;
+                        if ( Math.abs( rdy ) < Math.abs( closestRailY ) )
+                            closestRailY = rdy;
+                    }
+                }
+                
+                if ( Math.abs( closestRailX ) < panel.getRailDistanceX() )
+                    point.x += closestRailX;
+                
+                if ( Math.abs( closestRailY ) < panel.getRailDistanceY() )
+                    point.y += closestRailY;
+            }
+            
+            point.x = panel.snapXToGrid( point.x );
+            point.y = panel.snapYToGrid( point.y );
+        }
+    }
+    
+    private boolean setWidgetPosition( Widget widget, RelativePositioning positioning, int x, int y )
+    {
+        Point p = new Point( x, y );
+        
+        snapPositionToRail( widget, p );
+        
+        x = p.x;
+        y = p.y;
+        
+        final int gameResX = widget.getConfiguration().getGameResolution().getResX();
+        final int gameResY = widget.getConfiguration().getGameResolution().getResY();
+        
+        final int effWidth = widget.getSize().getEffectiveWidth();
+        final int effHeight = widget.getSize().getEffectiveHeight();
+        
+        if ( positioning.isLeft() )
+        {
+            if ( x / (float)( gameResX - x - effWidth ) > 0.4f )
+                positioning = positioning.deriveHCenter();
+            else if ( x + effWidth / 2 >= gameResX / 2 + 50 )
+                positioning = positioning.deriveRight();
+        }
+        else if ( positioning.isRight() )
+        {
+            if ( x / (float)( gameResX - x - effWidth ) < 2.5f )
+                positioning = positioning.deriveHCenter();
+            else if ( x + effWidth / 2 < gameResX / 2 - 50 )
+                positioning = positioning.deriveLeft();
+        }
+        else if ( positioning.isHCenter() )
+        {
+            int centerWidth = gameResX * 5 / 6;
+            if ( x < ( gameResX - centerWidth ) / 2 + 50 )
+                positioning = positioning.deriveLeft();
+            else if ( x + effWidth > gameResX - ( gameResX - centerWidth ) / 2 - 50 )
+                positioning = positioning.deriveRight();
+        }
+        
+        if ( positioning.isTop() )
+        {
+            if ( y / (float)( gameResY - y - effHeight ) > 0.4f )
+                positioning = positioning.deriveVCenter();
+            //else if ( y + effHeight / 2 >= gameResY * 8 / 10 )
+            //    positioning = positioning.deriveBottom();
+        }
+        else if ( positioning.isBottom() )
+        {
+            if ( y / (float)( gameResY - y - effHeight ) < 2.5f )
+                positioning = positioning.deriveVCenter();
+            //else if ( y + effHeight / 2 < gameResY * 8 / 10 )
+            //    positioning = positioning.deriveTop();
+        }
+        else if ( positioning.isVCenter() )
+        {
+            if ( y / (float)( gameResY - y - effHeight ) < 0.3f )
+                positioning = positioning.deriveTop();
+            else if ( y / (float)( gameResY - y - effHeight ) > 3.333f )
+                positioning = positioning.deriveBottom();
+        }
+        
+        return ( widget.getPosition().setEffectivePosition( positioning, x, y ) );
+    }
+    
     public void mouseDragged( MouseEvent e )
     {
         if ( selectedWidget != null )
@@ -326,7 +439,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                             int dw = w - widgetDragStartWidth;
                             int dh = h - widgetDragStartHeight;
                             
-                            if ( dw >= dh )
+                            if ( Math.abs( dw ) >= Math.abs( dh ) )
                                 h = Math.round( w / aspect );
                             else
                                 w = Math.round( h * aspect );
@@ -334,14 +447,14 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                     }
                 }
                 
-                if ( !isControlDown )
-                {
-                    EditorPanel panel = editor.getEditorPanel();
-                    x = panel.snapXToGrid( x );
-                    y = panel.snapYToGrid( y );
-                    w = panel.snapXToGrid( x + w - 1 ) + 1 - x;
-                    h = panel.snapYToGrid( y + h - 1 ) + 1 - y;
-                }
+                Point p = new Point( x, y );
+                Point s = new Point( x + w - 1, y + h - 1 );
+                snapPositionToRail( selectedWidget, p );
+                x = p.x;
+                y = p.y;
+                snapPositionToRail( selectedWidget, s );
+                w = s.x + 1 - x;
+                h = s.y + 1 - y;
                 
                 boolean b1 = selectedWidget.getSize().setEffectiveSize( w, h );
                 boolean b2 = selectedWidget.getPosition().setEffectivePosition( x, y );
@@ -362,59 +475,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 
                 RelativePositioning positioning = selectedWidget.getPosition().getPositioning();
                 
-                if ( positioning.isLeft() )
-                {
-                    if ( x / (float)( gameResX - x - effWidth ) > 0.4f )
-                        positioning = positioning.deriveHCenter();
-                    else if ( x + effWidth / 2 >= gameResX / 2 + 50 )
-                        positioning = positioning.deriveRight();
-                }
-                else if ( positioning.isRight() )
-                {
-                    if ( x / (float)( gameResX - x - effWidth ) < 2.5f )
-                        positioning = positioning.deriveHCenter();
-                    else if ( x + effWidth / 2 < gameResX / 2 - 50 )
-                        positioning = positioning.deriveLeft();
-                }
-                else if ( positioning.isHCenter() )
-                {
-                    int centerWidth = gameResX * 5 / 6;
-                    if ( x < ( gameResX - centerWidth ) / 2 + 50 )
-                        positioning = positioning.deriveLeft();
-                    else if ( x + effWidth > gameResX - ( gameResX - centerWidth ) / 2 - 50 )
-                        positioning = positioning.deriveRight();
-                }
-                
-                if ( positioning.isTop() )
-                {
-                    if ( y / (float)( gameResY - y - effHeight ) > 0.4f )
-                        positioning = positioning.deriveVCenter();
-                    //else if ( y + effHeight / 2 >= gameResY * 8 / 10 )
-                    //    positioning = positioning.deriveBottom();
-                }
-                else if ( positioning.isBottom() )
-                {
-                    if ( y / (float)( gameResY - y - effHeight ) < 2.5f )
-                        positioning = positioning.deriveVCenter();
-                    //else if ( y + effHeight / 2 < gameResY * 8 / 10 )
-                    //    positioning = positioning.deriveTop();
-                }
-                else if ( positioning.isVCenter() )
-                {
-                    if ( y / (float)( gameResY - y - effHeight ) < 0.3f )
-                        positioning = positioning.deriveTop();
-                    else if ( y / (float)( gameResY - y - effHeight ) > 3.333f )
-                        positioning = positioning.deriveBottom();
-                }
-                
-                if ( !isControlDown )
-                {
-                    EditorPanel panel = editor.getEditorPanel();
-                    x = panel.snapXToGrid( x );
-                    y = panel.snapYToGrid( y );
-                }
-                
-                changed = selectedWidget.getPosition().setEffectivePosition( positioning, x, y );
+                changed = setWidgetPosition( selectedWidget, positioning, x, y );
             }
             
             if ( changed )
@@ -441,6 +502,92 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     {
     }
     
+    private boolean needsRedraw = false;
+    
+    private void handleGlobalKeyEvent( KeyEvent kev )
+    {
+        isShiftDown = kev.isShiftDown();
+        isControlDown = kev.isControlDown();
+        
+        Widget w = editor.getEditorPanel().getSelectedWidget();
+        
+        if ( ( w != null ) && editor.getEditorPanel().hasFocus() )
+        {
+            if ( kev.getKeyCode() == KeyEvent.VK_UP )
+            {
+                if ( kev.getID() == KeyEvent.KEY_PRESSED )
+                {
+                    w.clearRegion( true, editor.getOverlayTexture() );
+                    if ( setWidgetPosition( w, w.getPosition().getPositioning(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
+                    {
+                        editor.onWidgetChanged( w, "POSITIONAL" );
+                        needsRedraw = true;
+                    }
+                }
+                
+                kev.consume();
+            }
+            else if ( kev.getKeyCode() == KeyEvent.VK_LEFT )
+            {
+                if ( kev.getID() == KeyEvent.KEY_PRESSED )
+                {
+                    w.clearRegion( true, editor.getOverlayTexture() );
+                    if ( setWidgetPosition( w, w.getPosition().getPositioning(), w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
+                    {
+                        editor.onWidgetChanged( w, "POSITIONAL" );
+                        needsRedraw = true;
+                    }
+                }
+                
+                kev.consume();
+            }
+            else if ( kev.getKeyCode() == KeyEvent.VK_RIGHT )
+            {
+                if ( kev.getID() == KeyEvent.KEY_PRESSED )
+                {
+                    w.clearRegion( true, editor.getOverlayTexture() );
+                    if ( setWidgetPosition( w, w.getPosition().getPositioning(), w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
+                    {
+                        editor.onWidgetChanged( w, "POSITIONAL" );
+                        needsRedraw = true;
+                    }
+                }
+                
+                kev.consume();
+            }
+            else if ( kev.getKeyCode() == KeyEvent.VK_DOWN )
+            {
+                if ( kev.getID() == KeyEvent.KEY_PRESSED )
+                {
+                    w.clearRegion( true, editor.getOverlayTexture() );
+                    if ( setWidgetPosition( w, w.getPosition().getPositioning(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
+                    {
+                        editor.onWidgetChanged( w, "POSITIONAL" );
+                        needsRedraw = true;
+                    }
+                }
+                
+                kev.consume();
+            }
+        }
+    }
+    
+    /**
+     * 
+     * @param mwev
+     */
+    private void handleGlobalMouseWheelEvent( MouseWheelEvent mwev )
+    {
+        if ( editor.getEditorPanel().hasFocus() )
+        {
+            if ( needsRedraw )
+                widgetsManager.setAllDirtyFlags();
+            
+            needsRedraw = false;
+            
+        }
+    }
+    
     public EditorPanelInputHandler( RFDynHUDEditor editor, WidgetsDrawingManager widgetsManager )
     {
         this.editor = editor;
@@ -451,11 +598,15 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             @Override
             public void eventDispatched( AWTEvent event )
             {
-                KeyEvent kev = (KeyEvent)event;
-                
-                isShiftDown = kev.isShiftDown();
-                isControlDown = kev.isControlDown();
+                if ( event instanceof KeyEvent )
+                {
+                    handleGlobalKeyEvent( (KeyEvent)event );
+                }
+                else if ( event instanceof MouseWheelEvent )
+                {
+                    handleGlobalMouseWheelEvent( (MouseWheelEvent)event );
+                }
             }
-        }, AWTEvent.KEY_EVENT_MASK );
+        }, AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_WHEEL_EVENT_MASK );
     }
 }

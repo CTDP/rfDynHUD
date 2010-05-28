@@ -62,6 +62,9 @@ public class EditorPanel extends JPanel
         this.bgImageReloadSuppressed = suppressed;
     }
     
+    private final IntProperty railDistanceX = new IntProperty( null, "railDistanceX", 10, 0, 100 );
+    private final IntProperty railDistanceY = new IntProperty( null, "railDistanceY", 10, 0, 100 );
+    
     private final BooleanProperty drawGrid = new BooleanProperty( null, "drawGrid", false )
     {
         @Override
@@ -127,6 +130,16 @@ public class EditorPanel extends JPanel
         this.drawGrid.setBooleanValue( drawGrid );
     }
     
+    public final int getRailDistanceX()
+    {
+        return ( railDistanceX.getIntValue() );
+    }
+    
+    public final int getRailDistanceY()
+    {
+        return ( railDistanceY.getIntValue() );
+    }
+    
     public final boolean getDrawGrid()
     {
         return ( drawGrid.getBooleanValue() );
@@ -154,6 +167,8 @@ public class EditorPanel extends JPanel
     
     public void getProperties( WidgetPropertiesContainer propsCont )
     {
+        propsCont.addProperty( railDistanceX );
+        propsCont.addProperty( railDistanceY );
         propsCont.addProperty( drawGrid );
         propsCont.addProperty( gridOffsetX );
         propsCont.addProperty( gridOffsetY );
@@ -163,6 +178,8 @@ public class EditorPanel extends JPanel
     
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
+        writer.writeProperty( railDistanceX, null );
+        writer.writeProperty( railDistanceY, null );
         writer.writeProperty( drawGrid, null );
         writer.writeProperty( gridOffsetX, null );
         writer.writeProperty( gridOffsetY, null );
@@ -174,7 +191,9 @@ public class EditorPanel extends JPanel
     {
         bgImageReloadSuppressed = true;
         
-        if ( drawGrid.loadProperty( key, value ) );
+        if ( railDistanceX.loadProperty( key, value ) );
+        else if ( railDistanceY.loadProperty( key, value ) );
+        else if ( drawGrid.loadProperty( key, value ) );
         else if ( gridOffsetX.loadProperty( key, value ) );
         else if ( gridOffsetY.loadProperty( key, value ) );
         else if ( gridSizeX.loadProperty( key, value ) );

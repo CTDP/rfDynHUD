@@ -46,10 +46,10 @@ Minor:
 * An image can now be selected in the ImageSelector through a double click.
 * When adding a new Widget, it is now added to the center of the current viewport instead of absolute top left.
 * TogglePlugin InputAction now only reacts, if stroked three times within a second.
+* Editor: New magnet effect / rail effect (theoretically replaces the grid, but I left it in).
 
 TODO:
 
-* Editor: magnet effect / rail effect
 * Calculate remaining laps based on remaining time for timed races
 * Save As: Construct filename
 * Make widget selection menues nicer
