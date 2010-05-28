@@ -81,11 +81,14 @@ public class VehicleScoringInfo
     private Integer classId2 = null;
     
     short placeByClass = -1;
+    int numVehiclesInClass = -1;
     float timeBehindNextByClass = 0f;
     int lapsBehindNextByClass = -1;
     float timeBehindLeaderByClass = 0f;
     int lapsBehindLeaderByClass = -1;
     VehicleScoringInfo classLeaderVSI = null;
+    VehicleScoringInfo classNextInFrontVSI = null;
+    VehicleScoringInfo classNextBehindVSI = null;
     
     private int stintStartLap = -1;
     private float stintLength = 0f;
@@ -138,7 +141,7 @@ public class VehicleScoringInfo
         
         updateNameID();
         
-        topspeed = editorPresets.getTopSpeed( getPlace() - 1 );
+        topspeed = editorPresets.getTopSpeed( getPlace( false ) - 1 );
     }
     
     void onDataUpdated()
@@ -582,35 +585,94 @@ public class VehicleScoringInfo
     }
     
     /**
-     * 1-based position
+     * Gets the number of vehicles in the same vehicle class.
+     * 
+     * @return the number of vehicles in the same vehicle class.
      */
-    public final short getPlace()
+    public final int getNumVehiclesInSameClass()
     {
+        scoringInfo.updateClassScoring();
+        
+        return ( numVehiclesInClass );
+    }
+    
+    /**
+     * 1-based position
+     * 
+     * @param byClass only consider vehicles in the same class
+     */
+    public final short getPlace( boolean byClass )
+    {
+        if ( byClass )
+        {
+            scoringInfo.updateClassScoring();
+            
+            return ( placeByClass );
+        }
+        
         // unsigned char mPlace
         
         return ( ByteUtil.readUnsignedByte( buffer, OFFSET_PLACE ) );
     }
     
     /**
-     * 1-based position in the same vehicle class
-     */
-    public final short getPlaceByClass()
-    {
-        scoringInfo.updateClassScoring();
-        
-        return ( placeByClass );
-    }
-    
-    /**
-     * Gets the {@link VehicleScoringInfo}, that leads the same vehicle class.
+     * Gets the {@link VehicleScoringInfo}, that leads the same class.
      * 
-     * @return the {@link VehicleScoringInfo}, that leads the same vehicle class.
+     * @return the {@link VehicleScoringInfo}, that leads the same class.
      */
-    public final VehicleScoringInfo getClassLeaderVSI()
+    public final VehicleScoringInfo getLeaderByClass()
     {
         scoringInfo.updateClassScoring();
         
         return ( classLeaderVSI );
+    }
+    
+    /**
+     * Gets the {@link VehicleScoringInfo}, that is next in front.
+     * 
+     * @param byClass only consider vehicles in the same class
+     * 
+     * @return the {@link VehicleScoringInfo}, that is next in front.
+     */
+    public final VehicleScoringInfo getNextInFront( boolean byClass )
+    {
+        if ( byClass )
+        {
+            scoringInfo.updateClassScoring();
+            
+            return ( classNextInFrontVSI );
+        }
+        
+        short place = getPlace( false );
+        
+        if ( place == 1 )
+            return ( null );
+        
+        return ( scoringInfo.getVehicleScoringInfo( place - 2 ) );
+    }
+    
+    /**
+     * Gets the {@link VehicleScoringInfo}, that is next behind.
+     * 
+     * @param byClass only consider vehicles in the same class
+     * 
+     * @return the {@link VehicleScoringInfo}, that is next behind.
+     */
+    public final VehicleScoringInfo getNextBehind( boolean byClass )
+    {
+        if ( byClass )
+        {
+            scoringInfo.updateClassScoring();
+            
+            return ( classNextBehindVSI );
+        }
+        
+        short place = getPlace( false );
+        
+        if ( place == scoringInfo.getNumVehicles() )
+            return ( null );
+        
+        return ( scoringInfo.getVehicleScoringInfo( place + 0 ) );
     }
     
     /**
@@ -656,82 +718,78 @@ public class VehicleScoringInfo
     
     /**
      * time behind vehicle in next higher place
+     * 
+     * @param byClass only consider vehicles in the same class
      */
-    public final float getTimeBehindNextInFront()
+    public final float getTimeBehindNextInFront( boolean byClass )
     {
+        if ( byClass )
+        {
+            scoringInfo.updateClassScoring();
+            
+            return ( timeBehindNextByClass );
+        }
+        
         // float mTimeBehindNext
         
         return ( ByteUtil.readFloat( buffer, OFFSET_TIME_BEHIND_NEXT ) );
     }
     
     /**
-     * time behind vehicle in next higher place ignoring those not in the same vehicle class
-     */
-    public final float getTimeBehindNextInFrontByClass()
-    {
-        scoringInfo.updateClassScoring();
-        
-        return ( timeBehindNextByClass );
-    }
-    
-    /**
      * laps behind vehicle in next higher place
+     * 
+     * @param byClass only consider vehicles in the same class
      */
-    public final int getLapsBehindNextInFront()
+    public final int getLapsBehindNextInFront( boolean byClass )
     {
+        if ( byClass )
+        {
+            scoringInfo.updateClassScoring();
+            
+            return ( lapsBehindNextByClass );
+        }
+        
         // long mLapsBehindNext
         
         return ( (int)ByteUtil.readLong( buffer, OFFSET_LAPS_BEHIND_NEXT ) );
     }
     
     /**
-     * laps behind vehicle in next higher place ignoring those not in the same vehicle class
-     */
-    public final int getLapsBehindNextInFrontByClass()
-    {
-        scoringInfo.updateClassScoring();
-        
-        return ( lapsBehindNextByClass );
-    }
-    
-    /**
      * time behind leader
+     * 
+     * @param byClass only consider vehicles in the same class
      */
-    public final float getTimeBehindLeader()
+    public final float getTimeBehindLeader( boolean byClass )
     {
+        if ( byClass )
+        {
+            scoringInfo.updateClassScoring();
+            
+            return ( timeBehindLeaderByClass );
+        }
+        
         // float mTimeBehindLeader
         
         return ( ByteUtil.readFloat( buffer, OFFSET_TIME_BEHIND_LEADER ) );
     }
     
     /**
-     * time behind leader of the same vehicle class
-     */
-    public final float getTimeBehindLeaderByClass()
-    {
-        scoringInfo.updateClassScoring();
-        
-        return ( timeBehindLeaderByClass );
-    }
-    
-    /**
      * laps behind leader
+     * 
+     * @param byClass only consider vehicles in the same class
      */
-    public final int getLapsBehindLeader()
+    public final int getLapsBehindLeader( boolean byClass )
     {
+        if ( byClass )
+        {
+            scoringInfo.updateClassScoring();
+            
+            return ( lapsBehindLeaderByClass );
+        }
+        
         // long mLapsBehindLeader
         
         return ( (int)ByteUtil.readLong( buffer, OFFSET_LAPS_BEHIND_LEADER ) );
-    }
-    
-    /**
-     * laps behind leader of the same vehicle class
-     */
-    public final int getLapsBehindLeaderByClass()
-    {
-        scoringInfo.updateClassScoring();
-        
-        return ( lapsBehindLeaderByClass );
     }
     
     /**
@@ -940,10 +998,10 @@ public class VehicleScoringInfo
         
         public int compare( VehicleScoringInfo vsi1, VehicleScoringInfo vsi2 )
         {
-            if ( vsi1.getPlace() < vsi2.getPlace() )
+            if ( vsi1.getPlace( false ) < vsi2.getPlace( false ) )
                 return ( -1 );
             
-            if ( vsi1.getPlace() > vsi2.getPlace() )
+            if ( vsi1.getPlace( false ) > vsi2.getPlace( false ) )
                 return ( +1 );
             
             return ( 0 );

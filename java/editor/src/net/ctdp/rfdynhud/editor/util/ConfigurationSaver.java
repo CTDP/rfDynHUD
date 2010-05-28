@@ -83,6 +83,9 @@ public class ConfigurationSaver
         writer.writeSetting( "Design_Resolution", designResultion );
         writer.writeSetting( "Design_Grid", "(" + gridOffsetX + "," + gridOffsetY + ";" + gridSizeX + "," + gridSizeY + ")" );
         
+        writer.writeGroup( "Global" );
+        widgetsConfig.saveProperties( new DefaultWidgetsConfigurationWriter( writer ) );
+        
         writer.writeGroup( "NamedColors" );
         HashSet<String> usedColorNames = getUsedColorNames( widgetsConfig );
         ArrayList<String> colorNames = new ArrayList<String>( widgetsConfig.getColorNames() );

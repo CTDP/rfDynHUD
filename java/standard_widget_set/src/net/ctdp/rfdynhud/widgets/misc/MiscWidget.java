@@ -285,7 +285,7 @@ public class MiscWidget extends Widget
             VehicleScoringInfo leaderVSI = scoringInfo.getVehicleScoringInfo( 0 );
             leaderID.update( leaderVSI.getDriverId() );
             String leaderName = leaderVSI.getDriverNameShort();
-            place.update( scoringInfo.getOwnPlace() );
+            place.update( scoringInfo.getOwnPlace( getConfiguration().getUseClassScoring() ) );
             VehicleScoringInfo fastestLapVSI = scoringInfo.getFastestLapVSI();
             String fastestLapper = fastestLapVSI.getDriverNameShort();
             fastestLap.update( fastestLapVSI.getBestLapTime() );

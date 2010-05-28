@@ -71,6 +71,11 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     private short decisionPlace = 0;
     private float hideTime = -1f;
     
+    private final boolean getUseClassScoring()
+    {
+        return ( getConfiguration().getUseClassScoring() );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -122,7 +127,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         if ( editorPresets != null )
         {
-            relVSI = scoringInfo.getVehicleScoringInfo( vsi.getPlace() - 2 ); // next in front
+            relVSI = vsi.getNextInFront( getUseClassScoring() );
             waitingForNextBehind = false;
             return;
         }
@@ -152,20 +157,20 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             }
             else if ( ( laps.getValue() % displayEveryXLaps.getIntValue() ) == 0 )
             {
-                if ( waitingForNextBehind && ( decisionPlace != vsi.getPlace() ) )
+                if ( waitingForNextBehind && ( decisionPlace != vsi.getPlace( getUseClassScoring() ) ) )
                 {
                     waitingForNextBehind = false;
                 }
                 
                 if ( waitingForNextBehind )
                 {
-                    VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
+                    VehicleScoringInfo vsi_nb = vsi.getNextBehind( getUseClassScoring() );
                     if ( !vsi_nb.getFinishStatus().isNone() )
                     {
                         waitingForNextBehind = false;
                         setUserVisible2( false );
                     }
-                    else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
+                    else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront( getUseClassScoring() ) < laps.getValue() )
                     {
                         laps.reset( true );
                         setUserVisible2( false );
@@ -187,15 +192,15 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                     {
                         b = false;
                     }
-                    else if ( vsi.getPlace() == 1 )
+                    else if ( vsi.getPlace( getUseClassScoring() ) == 1 )
                     {
-                        VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( 1 ); // next behind (2nd)
+                        VehicleScoringInfo vsi_nb = vsi.getNextBehind( getUseClassScoring() );
                         if ( vsi_nb.getFinishStatus().isNone()  )
                         {
-                            if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
+                            if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront( getUseClassScoring() ) < laps.getValue() )
                             {
                                 waitingForNextBehind = true;
-                                decisionPlace = vsi.getPlace();
+                                decisionPlace = vsi.getPlace( getUseClassScoring() );
                                 laps.reset( true );
                                 b = false;
                             }
@@ -212,9 +217,9 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                             b = false;
                         }
                     }
-                    else if ( vsi.getPlace() == scoringInfo.getNumVehicles() )
+                    else if ( vsi.getNextBehind( getUseClassScoring() ) == null )
                     {
-                        VehicleScoringInfo vsi_nif = scoringInfo.getVehicleScoringInfo( scoringInfo.getNumVehicles() - 2 ); // next in front
+                        VehicleScoringInfo vsi_nif = vsi.getNextInFront( getUseClassScoring() );
                         b = vsi_nif.getFinishStatus().isNone();
                         
                         waitingForNextBehind = false;
@@ -228,12 +233,12 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                     {
                         // There are at least 3 vehicles in the race.
                         
-                        VehicleScoringInfo vsi_nif = scoringInfo.getVehicleScoringInfo( vsi.getPlace() - 2 ); // next in front
-                        if ( vsi_nif.getFinishStatus().isNone() && ( vsi_nif.getLapsCompleted() + vsi.getLapsBehindNextInFront() >= NUM_DISPLAYED_LAPS ) )
+                        VehicleScoringInfo vsi_nif = vsi.getNextInFront( getUseClassScoring() );
+                        if ( vsi_nif.getFinishStatus().isNone() && ( vsi_nif.getLapsCompleted() + vsi.getLapsBehindNextInFront( getUseClassScoring() ) >= NUM_DISPLAYED_LAPS ) )
                         {
-                            VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
+                            VehicleScoringInfo vsi_nb = vsi.getNextBehind( getUseClassScoring() );
                             
-                            if ( preferNextInFront.getBooleanValue() || !vsi_nb.getFinishStatus().isNone() || ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < NUM_DISPLAYED_LAPS - 1 ) )
+                            if ( preferNextInFront.getBooleanValue() || !vsi_nb.getFinishStatus().isNone() || ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront( getUseClassScoring() ) < NUM_DISPLAYED_LAPS - 1 ) )
                             {
                                 waitingForNextBehind = false;
                                 relVSI = vsi_nif;
@@ -241,8 +246,8 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                             }
                             else
                             {
-                                float gapToNextInFront = Math.abs( vsi.getTimeBehindNextInFront() );
-                                float gapToNextBehind = Math.abs( vsi_nb.getTimeBehindNextInFront() );
+                                float gapToNextInFront = Math.abs( vsi.getTimeBehindNextInFront( getUseClassScoring() ) );
+                                float gapToNextBehind = Math.abs( vsi_nb.getTimeBehindNextInFront( getUseClassScoring() ) );
                                 
                                 if ( gapToNextInFront < gapToNextBehind )
                                 {
@@ -250,10 +255,10 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                                     relVSI = vsi_nif;
                                     b = true;
                                 }
-                                else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
+                                else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront( getUseClassScoring() ) < laps.getValue() )
                                 {
                                     waitingForNextBehind = true;
-                                    decisionPlace = vsi.getPlace();
+                                    decisionPlace = vsi.getPlace( getUseClassScoring() );
                                     laps.reset( true );
                                     b = false;
                                 }
@@ -267,13 +272,13 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                         }
                         else
                         {
-                            VehicleScoringInfo vsi_nb = scoringInfo.getVehicleScoringInfo( vsi.getPlace() ); // next behind
-                            if ( vsi_nb.getFinishStatus().isNone() && ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() >= NUM_DISPLAYED_LAPS - 1 ) )
+                            VehicleScoringInfo vsi_nb = vsi.getNextBehind( getUseClassScoring() );
+                            if ( vsi_nb.getFinishStatus().isNone() && ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront( getUseClassScoring() ) >= NUM_DISPLAYED_LAPS - 1 ) )
                             {
-                                if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront() < laps.getValue() )
+                                if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront( getUseClassScoring() ) < laps.getValue() )
                                 {
                                     waitingForNextBehind = false;
-                                    decisionPlace = vsi.getPlace();
+                                    decisionPlace = vsi.getPlace( getUseClassScoring() );
                                     laps.reset( true );
                                     b = false;
                                 }
@@ -390,20 +395,20 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         Color captionBgColor = captionBackgroundColor.getColor();
         Color dataBgColor = getBackgroundColor();
-        if ( vsi.getPlace() == 1 )
+        if ( vsi.getPlace( getUseClassScoring() ) == 1 )
             captionBgColor = captionBackgroundColor1st.getColor();
         
         ETVUtils.drawLabeledDataBackground( offsetX + ETVUtils.TRIANGLE_WIDTH, offsetY + 1 * ( rowHeight + ETVUtils.ITEM_GAP ), namesWidth - ETVUtils.TRIANGLE_WIDTH / 2, rowHeight, "00", getFont(), captionBgColor, dataBgColor, texture, false );
-        positionString1.draw( offsetX, offsetY, String.valueOf( vsi.getPlace() ), texture );
+        positionString1.draw( offsetX, offsetY, String.valueOf( vsi.getPlace( getUseClassScoring() ) ), texture );
         drivernameString1.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture );
         
         captionBgColor = captionBackgroundColor.getColor();
         dataBgColor = getBackgroundColor();
-        if ( vsi.getPlace() == 1 )
+        if ( vsi.getPlace( getUseClassScoring() ) == 1 )
             captionBgColor = captionBackgroundColor1st.getColor();
         
         ETVUtils.drawLabeledDataBackground( offsetX, offsetY + 2 * ( rowHeight + ETVUtils.ITEM_GAP ), namesWidth - ETVUtils.TRIANGLE_WIDTH / 2, rowHeight, "00", getFont(), captionBgColor, dataBgColor, texture, false );
-        positionString2.draw( offsetX, offsetY, String.valueOf( relVSI.getPlace() ), texture );
+        positionString2.draw( offsetX, offsetY, String.valueOf( relVSI.getPlace( getUseClassScoring() ) ), texture );
         drivernameString2.draw( offsetX, offsetY, relVSI.getDriverNameShort(), texture );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + 0 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
@@ -453,7 +458,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         }
         else
         {
-            int relLapsOffset = ( relVSI.getPlace() < vsi.getPlace() ) ? vsi.getLapsBehindNextInFront() : relVSI.getLapsBehindNextInFront();
+            int relLapsOffset = ( relVSI.getPlace( getUseClassScoring() ) < vsi.getPlace( getUseClassScoring() ) ) ? vsi.getLapsBehindNextInFront( getUseClassScoring() ) : relVSI.getLapsBehindNextInFront( getUseClassScoring() );
             
             float rlt1 = getLaptime( relVSI, relVSI.getLapsCompleted() - 2 + relLapsOffset );
             float rlt2 = getLaptime( relVSI, relVSI.getLapsCompleted() - 1 + relLapsOffset );

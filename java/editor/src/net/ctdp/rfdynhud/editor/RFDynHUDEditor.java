@@ -84,6 +84,7 @@ import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
@@ -152,6 +153,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private final PropertiesEditor propsEditor;
     private final EditorTable editorTable;
     private final JEditorPane docPanel;
+    private boolean isSomethingDoced = false;
     
     private final EditorPresets presets = new EditorPresets();
     
@@ -308,6 +310,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         if ( property == null )
             return ( "" );
         
+        if ( __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) )
+            return ( getEditorPanel().getWidgetsDrawingManager().getDocumentationSource( property ) );
+        
         URL docURL = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getPropertyName() + ".html" );
         
         if ( docURL == null )
@@ -323,19 +328,26 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         if ( property == null )
         {
-            if ( currentDocedWidget != editorPanel.getSelectedWidget() )
+            if ( ( currentDocedWidget != editorPanel.getSelectedWidget() ) || ( ( currentDocedWidget == null ) && isSomethingDoced ) )
             {
                 if ( editorPanel.getSelectedWidget() == null )
                 {
                     docPanel.setText( doc_header + "" + doc_footer );
+                    isSomethingDoced = false;
                 }
                 else
                 {
                     String helpText = editorPanel.getSelectedWidget().getDocumentationSource( null );
                     if ( helpText == null )
+                    {
                         docPanel.setText( doc_header + "" + doc_footer );
+                        isSomethingDoced = false;
+                    }
                     else
+                    {
                         docPanel.setText( doc_header + helpText + doc_footer );
+                        isSomethingDoced = true;
+                    }
                 }
                 
                 docPanel.setCaretPosition( 0 );
@@ -455,7 +467,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     private void getProperties( WidgetPropertiesContainer propsCont )
     {
-        propsCont.addGroup( "General" );
+        propsCont.addGroup( "Editor - General" );
         
         propsCont.addProperty( new ListProperty<String, ArrayList<String>>( null, "screenshotSet", screenshotSet, getScreenshotSets() )
         {
@@ -534,6 +546,10 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 }
             }
         } );
+        
+        propsCont.addGroup( "Configuration - Global" );
+        
+        getEditorPanel().getWidgetsDrawingManager().getProperties( propsCont, false );
     }
     
     private static void readExpandFlags( FlaggedList list, String keyPrefix, HashMap<String, Boolean> map )

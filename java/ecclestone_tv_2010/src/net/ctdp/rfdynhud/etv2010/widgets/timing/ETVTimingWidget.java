@@ -165,7 +165,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         {
             referenceTimeAbs = relTime;
             referenceTimePers = vsi.getFastestLaptime();
-            referencePlace = refVSI.getPlace();
+            referencePlace = refVSI.getPlace( getConfiguration().getUseClassScoring() );
         }
         
         if ( scoringInfo.getSessionType().isRace() )
@@ -362,7 +362,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         }
         
         Color capBgColor = captionBackgroundColor.getColor();
-        if ( vsi.getPlace() == 1 )
+        if ( vsi.getPlace( getConfiguration().getUseClassScoring() ) == 1 )
             capBgColor = captionBackgroundColor1st.getColor();
         
         ETVUtils.drawDataBackground( width - 4 * ETVUtils.TRIANGLE_WIDTH - bigPositionWidth, 0, 4 * ETVUtils.TRIANGLE_WIDTH + bigPositionWidth, 2 * rowHeight + ETVUtils.ITEM_GAP, 2, capBgColor, cacheTexture, false );
@@ -380,7 +380,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
-        ownPlace.update( vsi.getPlace() );
+        ownPlace.update( vsi.getPlace( getConfiguration().getUseClassScoring() ) );
         
         if ( needsCompleteRedraw || ( clock1 && ownPlace.hasChanged() ) )
         {

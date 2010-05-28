@@ -152,12 +152,13 @@ public class Track
      * @param trackDistance
      * @param scale
      * @param point
-     * @return success?
      */
-    public final boolean getInterpolatedPosition( boolean pitlane, float trackDistance, float scale, Point2D.Float point )
+    public final void getInterpolatedPosition( boolean pitlane, float trackDistance, float scale, Point2D.Float point )
     {
-        if ( ( trackDistance < 0f ) || ( trackDistance > trackLength ) )
-            return ( false );
+        while ( trackDistance < 0f )
+            trackDistance += trackLength;
+        
+        trackDistance = trackDistance % trackLength;
         
         Waypoint[] waypoints = pitlane ? waypointsPitlane : waypointsTrack;
         
@@ -199,8 +200,6 @@ public class Track
         float vecZ = wp1.posZ - wp0.posZ;
         
         point.setLocation( ( -minXPos + wp0.posX + ( vecX * alpha ) ) * scale, ( -minZPos + wp0.posZ + ( vecZ * alpha ) ) * scale );
-        
-        return ( true );
     }
     
     /**

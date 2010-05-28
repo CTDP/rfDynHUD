@@ -105,6 +105,11 @@ public class ETVStandingsWidget extends ETVWidgetBase
         itemHeight.setHeightToPixels();
     }
     
+    private final boolean getUseClassScoring()
+    {
+        return ( getConfiguration().getUseClassScoring() );
+    }
+    
     @Override
     public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -177,7 +182,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     @Override
     protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        int numVehicles = gameData.getScoringInfo().getNumVehicles();
+        int numVehicles = getUseClassScoring() ? gameData.getScoringInfo().getNumVehiclesInSameClass( gameData.getScoringInfo().getViewedVehicleScoringInfo() ) : gameData.getScoringInfo().getNumVehicles();
         
         boolean result = ( numVehicles != oldNumVehicles );
         
@@ -280,7 +285,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         final int itemHeight = this.itemHeight.getEffectiveHeight();
         
-        final int numDrivers = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, scoringInfo.getViewedVehicleScoringInfo(), false, StandingsView.RELATIVE_TO_LEADER, forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        final int numDrivers = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, scoringInfo.getViewedVehicleScoringInfo(), getUseClassScoring(), StandingsView.RELATIVE_TO_LEADER, forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         int numDisplayedLaptimes = 0;
         
         if ( flagTextures != null )
@@ -297,7 +302,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         }
         
         int i2 = 0;
-        if ( ( numDrivers > 1 ) && ( vehicleScoringInfos[1].getPlace() - vehicleScoringInfos[0].getPlace() > 1 ) )
+        if ( ( numDrivers > 1 ) && ( vehicleScoringInfos[1].getPlace( getUseClassScoring() ) - vehicleScoringInfos[0].getPlace( getUseClassScoring() ) > 1 ) )
         {
             i2 = 1;
         }
@@ -326,6 +331,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         for ( int i = 0; i < numDrivers; i++ )
         {
             VehicleScoringInfo vsi = vehicleScoringInfos[i];
+            short place = vsi.getPlace( getUseClassScoring() );
             
             Boolean visible;
             if ( isEditorMode )
@@ -351,7 +357,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             }
             
             int offsetY2 = i * ( itemHeight + ETVUtils.ITEM_GAP );
-            int srcOffsetY = ( vsi.getPlace() == 1 ) ? 0 : itemHeight;
+            int srcOffsetY = ( place == 1 ) ? 0 : itemHeight;
             
             if ( drawBackground )
             {
@@ -361,7 +367,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                     texture.clear( offsetX, offsetY + offsetY2, width, itemHeight, true, null );
             }
             
-            positions[i].update( vsi.getPlace() );
+            positions[i].update( place );
             
             if ( ( needsCompleteRedraw || visibilityChanged || positions[i].hasChanged() ) && visible )
                 captionStrings[i].draw( offsetX, offsetY + offsetY2, positions[i].getValueAsString(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
@@ -371,10 +377,10 @@ public class ETVStandingsWidget extends ETVWidgetBase
             if ( ( needsCompleteRedraw || visibilityChanged || driverNames[i].hasChanged() ) && visible )
                 nameStrings[i].draw( offsetX, offsetY + offsetY2, driverNames[i].getValue(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
             
-            if ( vsi.getPlace() > 1 )
+            if ( place > 1 )
             {
                 if ( scoringInfo.getSessionType() == SessionType.RACE )
-                    gaps[i].update( ( vsi.getLapsBehindLeader() > 0 ) ? -vsi.getLapsBehindLeader() - 10000 : Math.abs( vsi.getTimeBehindLeader() ) );
+                    gaps[i].update( ( vsi.getLapsBehindLeader( getUseClassScoring() ) > 0 ) ? -vsi.getLapsBehindLeader( getUseClassScoring() ) - 10000 : Math.abs( vsi.getTimeBehindLeader( getUseClassScoring() ) ) );
                 else
                     gaps[i].update( vsi.getBestLapTime() - scoringInfo.getVehicleScoringInfo( 0 ).getBestLapTime() );
                 

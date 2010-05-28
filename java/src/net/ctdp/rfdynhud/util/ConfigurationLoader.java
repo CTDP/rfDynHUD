@@ -75,7 +75,11 @@ public class ConfigurationLoader
                     //throw new ParsingException( "Found setting before the first group started (line " + lineNr + ")." );
                     Logger.log( "WARNING: Found setting before the first group started (line " + lineNr + ")." );
                 
-                if ( group.equals( "NamedColors" ) )
+                if ( group.equals( "Global" ) )
+                {
+                    widgetsConfig.loadProperty( key, value );
+                }
+                else if ( group.equals( "NamedColors" ) )
                 {
                     java.awt.Color color = ColorUtils.hexToColor( value, false );
                     

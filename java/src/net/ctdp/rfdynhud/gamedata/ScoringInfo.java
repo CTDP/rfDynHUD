@@ -175,7 +175,11 @@ public class ScoringInfo
             for ( int i = 0; i < vehicleScoringInfo.length; i++ )
             {
                 if ( vehicleScoringInfo[i] != null )
+                {
                     vehicleScoringInfo[i].classLeaderVSI = null;
+                    vehicleScoringInfo[i].classNextInFrontVSI = null;
+                    vehicleScoringInfo[i].classNextBehindVSI = null;
+                }
             }
         }
     }
@@ -676,6 +680,7 @@ public class ScoringInfo
             if ( handledClassIDs.add( vsi0.getVehicleClassID() ) )
             {
                 short p = 1;
+                int numVehiclesInClass = 1;
                 float tbn = 0f;
                 int lbn = 0;
                 float tbl = 0f;
@@ -687,15 +692,16 @@ public class ScoringInfo
                 vsi0.timeBehindLeaderByClass = tbl;
                 vsi0.lapsBehindLeaderByClass = lbl;
                 vsi0.classLeaderVSI = vsi0;
+                vsi0.classNextInFrontVSI = null;
                 
-                for ( int j = vsi0.getPlace() - 0; j < n; j++ )
+                for ( int j = vsi0.getPlace( false ) - 0; j < n; j++ )
                 {
                     VehicleScoringInfo vsi1 = getVehicleScoringInfo( j );
                     
-                    tbn += vsi1.getTimeBehindNextInFront();
-                    lbn += vsi1.getLapsBehindNextInFront();
-                    tbl += vsi1.getTimeBehindNextInFront();
-                    lbl += vsi1.getLapsBehindNextInFront();
+                    tbn += vsi1.getTimeBehindNextInFront( false );
+                    lbn += vsi1.getLapsBehindNextInFront( false );
+                    tbl += vsi1.getTimeBehindNextInFront( false );
+                    lbl += vsi1.getLapsBehindNextInFront( false );
                     
                     if ( vsi1.getVehicleClassId() == vsi0.getVehicleClassId() )
                     {
@@ -705,11 +711,25 @@ public class ScoringInfo
                         vsi1.timeBehindLeaderByClass = tbl;
                         vsi1.lapsBehindLeaderByClass = lbl;
                         vsi1.classLeaderVSI = vsi0.classLeaderVSI;
+                        vsi1.classNextInFrontVSI = vsi0;
+                        vsi0.classNextBehindVSI = vsi1;
                         
                         tbn = 0f;
                         lbn = 0;
                         vsi0 = vsi1;
+                        
+                        numVehiclesInClass++;
                     }
+                }
+                
+                vsi0.classNextBehindVSI = null;
+                
+                for ( int j = vsi0.getPlace( false ) - 1; j >= 0; j-- )
+                {
+                    VehicleScoringInfo vsi1 = getVehicleScoringInfo( j );
+                    
+                    if ( vsi1.getVehicleClassId() == vsi0.getVehicleClassId() )
+                        vsi1.numVehiclesInClass = numVehiclesInClass;
                 }
             }
         }
@@ -807,6 +827,26 @@ public class ScoringInfo
             numVehicles = (int)ByteUtil.readLong( buffer, OFFSET_NUM_VEHICLES );
         
         return ( numVehicles );
+    }
+    
+    /**
+     * Gets the number of vehicles in the same vehicle class as the given one.
+     * 
+     * @param vsi
+     * 
+     * @return the number of vehicles in the same vehicle class as the given one.
+     */
+    public final int getNumVehiclesInSameClass( VehicleScoringInfo vsi )
+    {
+        int n = 0;
+        
+        for ( int i = 0; i < getNumVehicles(); i++ )
+        {
+            if ( getVehicleScoringInfo( i ).getVehicleClassId() == vsi.getVehicleClassId() )
+                n++;
+        }
+        
+        return ( n );
     }
     
     /*
@@ -1137,11 +1177,13 @@ public class ScoringInfo
     /**
      * Gets the position of the player.
      * 
+     * @param byClass only consider vehicles in the same class
+     * 
      * @return the position of the player.
      */
-    public final short getOwnPlace()
+    public final short getOwnPlace( boolean byClass )
     {
-        return ( playerVSI.getPlace() );
+        return ( playerVSI.getPlace( byClass ) );
     }
     
     /**

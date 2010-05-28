@@ -11,19 +11,19 @@ public class StandingsTools
      * 
      * @param scoringInfo
      * @param viewedVSI
-     * @param ignoreOtherClasses
+     * @param useClassScoring
      * @param standingsView
      * @param forceLeaderDisplayed
      * @param target
      * 
      * @return the actual number of displayed drivers.
      */
-    public static int getDisplayedVSIsForScoring( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, boolean ignoreOtherClasses, StandingsView standingsView, boolean forceLeaderDisplayed, VehicleScoringInfo[] target )
+    public static int getDisplayedVSIsForScoring( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, boolean useClassScoring, StandingsView standingsView, boolean forceLeaderDisplayed, VehicleScoringInfo[] target )
     {
         final int maxDisplayedDrivers = target.length;
         
         int numDispVehicles = scoringInfo.getNumVehicles();
-        if ( ignoreOtherClasses )
+        if ( useClassScoring )
         {
             int n = numDispVehicles;
             numDispVehicles = 0;
@@ -41,18 +41,16 @@ public class StandingsTools
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             
-            if ( !ignoreOtherClasses || ( vsi.getVehicleClassId() == viewedVSI.getVehicleClassId() ) )
+            if ( !useClassScoring || ( vsi.getVehicleClassId() == viewedVSI.getVehicleClassId() ) )
                 vsis[j++] = vsi;
         }
-        
-        int ownPlace = viewedVSI.getPlace();
         
         int i0 = 0;
         j = 0;
         if ( maxDisplayedDrivers < numDispVehicles )
         {
             numDispVehicles = maxDisplayedDrivers;
-            i0 = Math.max( 0, ownPlace - (int)Math.ceil( ( numDispVehicles + 1 ) / 2f ) );
+            i0 = Math.max( 0, viewedVSI.getPlace( useClassScoring ) - (int)Math.ceil( ( numDispVehicles + 1 ) / 2f ) );
             
             if ( i0 + numDispVehicles > numClassVehicles )
             {
@@ -92,21 +90,21 @@ public class StandingsTools
     public static void computeRaceGapsRelativeToPosition( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, float[] relTimes )
     {
         final int numVehicles = scoringInfo.getNumVehicles();
-        final int ownPlace = viewedVSI.getPlace();
+        final int ownPlace = viewedVSI.getPlace( false );
         relTimes[ownPlace - 1] = 0f;
         
         for ( int i = ownPlace - 2; i >= 0; i-- )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i + 1 );
             
-            relTimes[i] = relTimes[i + 1] + vsi.getTimeBehindNextInFront();
+            relTimes[i] = relTimes[i + 1] + vsi.getTimeBehindNextInFront( false );
         }
         
         for ( int i = ownPlace; i < numVehicles; i++ )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             
-            relTimes[i] = relTimes[i - 1] + -vsi.getTimeBehindNextInFront();
+            relTimes[i] = relTimes[i - 1] + -vsi.getTimeBehindNextInFront( false );
         }
     }
 }

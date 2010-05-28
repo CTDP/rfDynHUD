@@ -1269,7 +1269,7 @@ public abstract class Widget implements Documented
         
         if ( docURL == null )
         {
-            if ( clazz != Widget.class )
+            if ( ( clazz.getSuperclass() != null ) && ( clazz.getSuperclass() != Object.class ) )
                 return ( getDocumentationSource( clazz.getSuperclass(), property ) );
             
             return ( "" );

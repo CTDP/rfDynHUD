@@ -46,8 +46,6 @@ public class StandingsWidget extends Widget
     
     private final BooleanProperty useAutoWidth = new BooleanProperty( this, "useAutoWidth", false );
     
-    private final BooleanProperty ignoreOtherClasses = new BooleanProperty( this, "ignoreOtherClasses", false );
-    
     private final EnumProperty<StandingsView> initialView = new EnumProperty<StandingsView>( this, "initialView", StandingsView.RELATIVE_TO_ME )
     {
         @Override
@@ -125,6 +123,11 @@ public class StandingsWidget extends Widget
         }
         
         return ( array );
+    }
+    
+    private final boolean getUseClassScoring()
+    {
+        return ( getConfiguration().getUseClassScoring() );
     }
     
     public void setView( StandingsView view )
@@ -322,7 +325,7 @@ public class StandingsWidget extends Widget
     {
         String[] ss = new String[ 7 ];
         
-        ss[0] = ( ignoreOtherClasses.getBooleanValue() ? vsi.getPlaceByClass() : vsi.getPlace() ) + ".";
+        ss[0] = vsi.getPlace( getUseClassScoring() ) + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
@@ -335,14 +338,14 @@ public class StandingsWidget extends Widget
             }
             else
             {
-                int lbl = ignoreOtherClasses.getBooleanValue() ? vsi.getLapsBehindLeaderByClass() : vsi.getLapsBehindLeader();
+                int lbl = vsi.getLapsBehindLeader( getUseClassScoring() );
                 if ( lbl > 0 )
                 {
                     ss[2] = "(+" + lbl + ( abbreviate.getBooleanValue() ? Loc.column_time_gap_laps_short : ( ( lbl == 1 ) ? " " + Loc.column_time_gap_laps_singular + ")" : " " + Loc.column_time_gap_laps_plural + ")" ) );
                 }
                 else
                 {
-                    float sbl = -( ignoreOtherClasses.getBooleanValue() ? vsi.getTimeBehindLeaderByClass() : vsi.getTimeBehindLeader() );
+                    float sbl = -vsi.getTimeBehindLeader( getUseClassScoring() );
                     ss[2] = "(" + TimingUtil.getTimeAsGapString( sbl ) + ")";
                 }
             }
@@ -415,14 +418,14 @@ public class StandingsWidget extends Widget
     private String[] getPositionStringRaceRelToMe( int ownPlace, int ownLaps, float ownLapDistance, float relTime, GamePhase gamePhase, VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         String[] ss = new String[ 7 ];
-        ss[0] = ( ignoreOtherClasses.getBooleanValue() ? vsi.getPlaceByClass() : vsi.getPlace() ) + ".";
+        ss[0] = vsi.getPlace( getUseClassScoring() ) + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
         FinishStatus finishStatus = vsi.getFinishStatus();
         if ( finishStatus.isNone() )
         {
-            if ( ( gamePhase != GamePhase.FORMATION_LAP ) && ( gamePhase != GamePhase.RECONNAISSANCE_LAPS ) && ( vsi.getPlace() != ownPlace ) )
+            if ( ( gamePhase != GamePhase.FORMATION_LAP ) && ( gamePhase != GamePhase.RECONNAISSANCE_LAPS ) && ( vsi.getPlace( getUseClassScoring() ) != ownPlace ) )
             {
                 int lapDiff = ownLaps - vsi.getLapsCompleted();
                 if ( ( lapDiff > 0 ) && ( ownLapDistance < vsi.getLapDistance() ) )
@@ -526,7 +529,7 @@ public class StandingsWidget extends Widget
             case RELATIVE_TO_LEADER:
                 return ( getPositionStringRaceRelToLeader( gamePhase, vsi, speedUnits ) );
             case RELATIVE_TO_ME:
-                return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace() - 1], gamePhase, vsi, speedUnits ) );
+                return ( getPositionStringRaceRelToMe( ownPlace, ownLaps, ownLapDistance, relTimes[vsi.getPlace( false ) - 1], gamePhase, vsi, speedUnits ) );
             case ABSOLUTE_TIMES: // Only possible in the editor!
                 return ( getPositionStringNonRaceAbsTimes( vsi, speedUnits ) );
         }
@@ -542,9 +545,9 @@ public class StandingsWidget extends Widget
         GamePhase gamePhase = scoringInfo.getGamePhase();
         VehicleScoringInfo myVSI = scoringInfo.getViewedVehicleScoringInfo();
         
-        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, myVSI, ignoreOtherClasses.getBooleanValue(), getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, myVSI, getUseClassScoring(), getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         
-        int ownPlace = myVSI.getPlace();
+        int ownPlace = myVSI.getPlace( getUseClassScoring() );
         int ownLaps = myVSI.getLapsCompleted();
         float ownLapDistance = myVSI.getLapDistance();
         
@@ -566,7 +569,7 @@ public class StandingsWidget extends Widget
     private String[] getPositionStringNonRaceRelToLeader( int firstVisiblePlace, float bestTime, VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         String[] ss = new String[ 7 ];
-        ss[0] = ( ignoreOtherClasses.getBooleanValue() ? vsi.getPlaceByClass() : vsi.getPlace() ) + ".";
+        ss[0] = vsi.getPlace( getUseClassScoring() ) + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
@@ -574,7 +577,7 @@ public class StandingsWidget extends Widget
         
         if ( t > 0f )
         {
-            if ( vsi.getPlace() == firstVisiblePlace )
+            if ( vsi.getPlace( getUseClassScoring() ) == firstVisiblePlace )
                 ss[2] = "(" + TimingUtil.getTimeAsLaptimeString( t ) + ")";
             else
                 ss[2] = "(" + TimingUtil.getTimeAsGapString( t - bestTime ) + ")";
@@ -626,7 +629,7 @@ public class StandingsWidget extends Widget
     private String[] getPositionStringNonRaceRelToMe( int ownPlace, float ownTime, VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         String[] ss = new String[ 7 ];
-        ss[0] = ( ignoreOtherClasses.getBooleanValue() ? vsi.getPlaceByClass() : vsi.getPlace() ) + ".";
+        ss[0] = vsi.getPlace( getUseClassScoring() ) + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
@@ -634,7 +637,7 @@ public class StandingsWidget extends Widget
         
         if ( t > 0f )
         {
-            if ( vsi.getPlace() == ownPlace )
+            if ( vsi.getPlace( getUseClassScoring() ) == ownPlace )
                 ss[2] = "(" + TimingUtil.getTimeAsLaptimeString( t ) + ")";
             else
                 ss[2] = "(" + TimingUtil.getTimeAsGapString( t - ownTime ) + ")";
@@ -686,7 +689,7 @@ public class StandingsWidget extends Widget
     private String[] getPositionStringNonRaceAbsTimes( VehicleScoringInfo vsi, SpeedUnits speedUnits )
     {
         String[] ss = new String[ 7 ];
-        ss[0] = ( ignoreOtherClasses.getBooleanValue() ? vsi.getPlaceByClass() : vsi.getPlace() ) + ".";
+        ss[0] = vsi.getPlace( getUseClassScoring() ) + ".";
         
         ss[1] = getDisplayedDriverName( vsi );
         
@@ -757,11 +760,11 @@ public class StandingsWidget extends Widget
         SpeedUnits speedUnits = gameData.getProfileInfo().getSpeedUnits();
         VehicleScoringInfo ownVSI = scoringInfo.getViewedVehicleScoringInfo();
         
-        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, ownVSI, ignoreOtherClasses.getBooleanValue(), getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
+        numVehicles = StandingsTools.getDisplayedVSIsForScoring( scoringInfo, ownVSI, getUseClassScoring(), getView(), forceLeaderDisplayed.getBooleanValue(), vehicleScoringInfos );
         
-        int firstVisiblePlace = vehicleScoringInfos[0].getPlace();
+        int firstVisiblePlace = vehicleScoringInfos[0].getPlace( getUseClassScoring() );
         float bestTime = vehicleScoringInfos[0].getBestLapTime();
-        int ownPlace = ownVSI.getPlace();
+        int ownPlace = ownVSI.getPlace( getUseClassScoring() );
         float ownTime = ownVSI.getBestLapTime();
         
         currPosStrings = ensureCapacity( currPosStrings, numVehicles, false );
@@ -961,7 +964,6 @@ public class StandingsWidget extends Widget
         writer.writeProperty( fontColor_out, "The font color used for retired drivers in the format #RRGGBB (hex)." );
         writer.writeProperty( fontColor_finished, "The font color used for finished drivers in the format #RRGGBB (hex)." );
         writer.writeProperty( useAutoWidth, "Automatically compute and display the width?" );
-        writer.writeProperty( ignoreOtherClasses, "Ignore vehicles from other classes than the viewed for stadings?" );
         writer.writeProperty( initialView, "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
         //writer.writeProperty( allowAbsTimesView, "" );
         //writer.writeProperty( allowRelToLeaderView, "" );
@@ -985,7 +987,6 @@ public class StandingsWidget extends Widget
         else if ( fontColor_out.loadProperty( key, value ) );
         else if ( fontColor_finished.loadProperty( key, value ) );
         else if ( useAutoWidth.loadProperty( key, value ) );
-        else if ( ignoreOtherClasses.loadProperty( key, value ) );
         else if ( initialView.loadProperty( key, value ) );
         //else if ( allowAbsTimesView.loadProperty( key, value ) );
         //else if ( allowRelToLeaderView.loadProperty( key, value ) );
@@ -1011,8 +1012,6 @@ public class StandingsWidget extends Widget
         propsCont.addProperty( fontColor_out );
         propsCont.addProperty( fontColor_finished );
         propsCont.addProperty( useAutoWidth );
-        
-        propsCont.addProperty( ignoreOtherClasses );
         
         propsCont.addProperty( initialView );
         //propsCont.addProperty( allowAbsTimesView );

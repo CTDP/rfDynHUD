@@ -1,5 +1,6 @@
 package net.ctdp.rfdynhud.properties;
 
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -10,6 +11,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public abstract class Property
 {
+    protected final WidgetsConfiguration widgetsConfig;
     protected final Widget widget;
     
     private final String name;
@@ -58,6 +60,18 @@ public abstract class Property
     
     public abstract Object getValue();
     
+    protected void onValueChanged()
+    {
+        if ( widgetsConfig != null )
+        {
+            for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+                widgetsConfig.getWidget( i ).forceAndSetDirty();
+        }
+        
+        if ( widget != null )
+            widget.forceAndSetDirty();
+    }
+    
     /**
      * 
      * @param button
@@ -77,6 +91,28 @@ public abstract class Property
     
     /**
      * 
+     * @param widgetsConfig
+     * @param name
+     * @param nameForDisplay
+     * @param readonly
+     * @param editorType
+     * @param buttonText
+     * @param buttonTooltip
+     */
+    protected Property( WidgetsConfiguration widgetsConfig, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
+    {
+        this.widgetsConfig = widgetsConfig;
+        this.widget = null;
+        this.name = name;
+        this.nameForDisplay = nameForDisplay;
+        this.readonly = readonly;
+        this.editorType = editorType;
+        this.buttonText = buttonText;
+        this.buttonTooltip = buttonTooltip;
+    }
+    
+    /**
+     * 
      * @param widget
      * @param name
      * @param nameForDisplay
@@ -87,6 +123,7 @@ public abstract class Property
      */
     public Property( Widget widget, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
+        this.widgetsConfig = null;
         this.widget = widget;
         this.name = name;
         this.nameForDisplay = nameForDisplay;

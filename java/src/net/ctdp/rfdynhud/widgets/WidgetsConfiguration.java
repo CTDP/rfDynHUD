@@ -2,6 +2,8 @@ package net.ctdp.rfdynhud.widgets;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,13 +14,19 @@ import java.util.Set;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputMappings;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
+import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -29,7 +37,7 @@ import org.openmali.vecmath2.util.ColorUtils;
  * 
  * @author Marvin Froehlich
  */
-public class WidgetsConfiguration
+public class WidgetsConfiguration implements Documented
 {
     private static final Comparator<Widget> WIDGET_Y_X_COMPARATOR = new Comparator<Widget>()
     {
@@ -75,6 +83,8 @@ public class WidgetsConfiguration
     private final HashMap<Class<? extends Widget>, Object> generalStores = new HashMap<Class<? extends Widget>, Object>();
     private final HashMap<String, Object> localStores = new HashMap<String, Object>();
     private final HashMap<String, Boolean> visibilities = new HashMap<String, Boolean>();
+    
+    private final BooleanProperty useClassScoring = __PropsPrivilegedAccess.newBooleanProperty( this, "useClassScoring", "useClassScoring", false, false );
     
     private boolean needsCheckFixAndBake = true;
     
@@ -818,6 +828,76 @@ public class WidgetsConfiguration
             renameBorderPropertyValues( propsCont.getList(), oldName, newValue );
             //break;
         }
+    }
+    
+    /**
+     * Gets whether class relative scoring is enabled or not.
+     * 
+     * @return whether class relative scoring is enabled or not.
+     */
+    public final boolean getUseClassScoring()
+    {
+        return ( useClassScoring.getBooleanValue() );
+    }
+    
+    /**
+     * Saves all settings to the config file.
+     * 
+     * @param writer
+     */
+    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( useClassScoring, "Ignore vehicles from other classes than the viewed one for scoring?" );
+    }
+    
+    /**
+     * Loads (and parses) a certain property from a config file.
+     * 
+     * @param key
+     * @param value
+     */
+    public void loadProperty( String key, String value )
+    {
+        if ( useClassScoring.loadProperty( key, value ) );
+    }
+    
+    /**
+     * Puts all editable properties to the editor.
+     * 
+     * @param propsCont
+     * @param forceAll
+     */
+    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        //propsCont.addGroup( "General" );
+        
+        propsCont.addProperty( useClassScoring );
+    }
+    
+    private String getDocumentationSource( Class<?> clazz, Property property )
+    {
+        URL docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getPropertyName() + ".html" );
+        
+        if ( docURL == null )
+        {
+            if ( ( clazz.getSuperclass() != null ) && ( clazz.getSuperclass() != Object.class ) )
+                return ( getDocumentationSource( clazz.getSuperclass(), property ) );
+            
+            return ( "" );
+        }
+        
+        return ( StringUtil.loadString( docURL ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public final String getDocumentationSource( Property property )
+    {
+        if ( property == null )
+            return ( "" );
+        
+        return ( getDocumentationSource( this.getClass(), property ) );
     }
     
     /**

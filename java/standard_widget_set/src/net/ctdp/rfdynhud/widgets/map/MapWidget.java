@@ -145,6 +145,11 @@ public class MapWidget extends Widget
         return ( Widget.NEEDED_DATA_SCORING );
     }
     
+    private final boolean getUseClassScoring()
+    {
+        return ( getConfiguration().getUseClassScoring() );
+    }
+    
     private void setItemRadius( int radius )
     {
         this.baseItemRadius = radius;
@@ -467,7 +472,7 @@ public class MapWidget extends Widget
             int x0 = off2 - itemRadius + ( ( width - track.getXExtend( scale ) ) / 2 );
             int y0 = off2 - itemRadius + ( ( height - track.getZExtend( scale ) ) / 2 );
             
-            short ownPlace = scoringInfo.getOwnPlace();
+            short ownPlace = scoringInfo.getOwnPlace( getUseClassScoring() );
             
             final Font font = getFont();
             final boolean posNumberFontAntiAliased = isFontAntiAliased();
@@ -491,55 +496,54 @@ public class MapWidget extends Widget
                     
                     TransformableTexture tt = subTextures[subTexOff + i];
                     subTextures[subTexOff + i].setVisible( true );
-                    int itemState = ( vsi.getPlace() << 0 ) | ( vsi.getDriverId() << 9 );
+                    int itemState = ( vsi.getPlace( getUseClassScoring() ) << 0 ) | ( vsi.getDriverId() << 9 );
                     
-                    if ( track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, position ) )
+                    track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, position );
+                    
+                    Color color = null;
+                    if ( vsi.getPlace( getUseClassScoring() ) == 1 )
                     {
-                        Color color = null;
-                        if ( vsi.getPlace() == 1 )
-                        {
-                            itemState |= 1 << 26;
-                            if ( vsi.isPlayer() && useMyColorForMe1st.getBooleanValue() )
-                                color = markColorMe.getColor();
-                            else
-                                color = markColorLeader.getColor();
-                        }
-                        else if ( vsi.isPlayer() )
-                        {
-                            itemState |= 1 << 27;
+                        itemState |= 1 << 26;
+                        if ( vsi.isPlayer() && useMyColorForMe1st.getBooleanValue() )
                             color = markColorMe.getColor();
-                        }
-                        else if ( vsi.getPlace() == ownPlace - 1 )
-                        {
-                            itemState |= 1 << 28;
-                            color = markColorNextInFront.getColor();
-                        }
-                        else if ( vsi.getPlace() == ownPlace + 1 )
-                        {
-                            itemState |= 1 << 29;
-                            color = markColorNextBehind.getColor();
-                        }
                         else
-                        {
-                            itemState |= 1 << 30;
-                            color = markColorNormal.getColor();
-                        }
-                        
-                        if ( itemStates[i] != itemState )
-                        {
-                            itemStates[i] = itemState;
-                            
-                            StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace(), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
-                        }
-                        
-                        position.x += x0;
-                        position.y += y0;
-                        
-                        if ( rotationEnabled.getBooleanValue() )
-                            at.transform( position, position );
-                        
-                        tt.setTranslation( position.x, position.y );
+                            color = markColorLeader.getColor();
                     }
+                    else if ( vsi.isPlayer() )
+                    {
+                        itemState |= 1 << 27;
+                        color = markColorMe.getColor();
+                    }
+                    else if ( vsi.getPlace( getUseClassScoring() ) == ownPlace - 1 )
+                    {
+                        itemState |= 1 << 28;
+                        color = markColorNextInFront.getColor();
+                    }
+                    else if ( vsi.getPlace( getUseClassScoring() ) == ownPlace + 1 )
+                    {
+                        itemState |= 1 << 29;
+                        color = markColorNextBehind.getColor();
+                    }
+                    else
+                    {
+                        itemState |= 1 << 30;
+                        color = markColorNormal.getColor();
+                    }
+                    
+                    if ( itemStates[i] != itemState )
+                    {
+                        itemStates[i] = itemState;
+                        
+                        StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace( false ), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
+                    }
+                    
+                    position.x += x0;
+                    position.y += y0;
+                    
+                    if ( rotationEnabled.getBooleanValue() )
+                        at.transform( position, position );
+                    
+                    tt.setTranslation( position.x, position.y );
                 }
                 else
                 {

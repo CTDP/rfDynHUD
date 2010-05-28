@@ -1,5 +1,6 @@
 package net.ctdp.rfdynhud.properties;
 
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -22,9 +23,7 @@ public class BooleanProperty extends Property
         
         this.value = value;
         
-        if ( widget != null )
-            widget.forceAndSetDirty();
-        
+        onValueChanged();
         onValueChanged( value );
         
         if ( widget != null )
@@ -64,6 +63,13 @@ public class BooleanProperty extends Property
         }
         
         return ( false );
+    }
+    
+    BooleanProperty( WidgetsConfiguration widgetsConfig, String propertyName, String nameForDisplay, boolean defaultValue, boolean readonly )
+    {
+        super( widgetsConfig, propertyName, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
+        
+        this.value = defaultValue;
     }
     
     public BooleanProperty( Widget widget, String propertyName, String nameForDisplay, boolean defaultValue, boolean readonly )
