@@ -32,6 +32,18 @@ public class RFDynHUD
     private final InputDeviceManager inputDeviceManager;
     private final InputMappingsManager inputMappingsManager;
     
+    private boolean renderMode = false;
+    
+    public void setRenderMode( boolean renderMode )
+    {
+        this.renderMode = renderMode;
+    }
+    
+    public final boolean isInRenderMode()
+    {
+        return ( renderMode );
+    }
+    
     public final ByteBuffer getTextureInfoBuffer()
     {
         return ( drawingManager.getSubTextureBuffer() );
@@ -165,6 +177,8 @@ public class RFDynHUD
             Logger.log( t );
         }
         
+        setRenderMode( result != 0 );
+        
         return ( result );
     }
     
@@ -184,7 +198,7 @@ public class RFDynHUD
         this.drawingManager = new WidgetsDrawingManager( gameResX, gameResY );
         Logger.log( " done." );
         
-        this.eventsManager = new RFactorEventsManager( drawingManager );
+        this.eventsManager = new RFactorEventsManager( this, drawingManager );
         
         this.gameData = new LiveGameData( eventsManager );
         this.gameData_CPP_Adapter = new _LiveGameData_CPP_Adapter( gameData );
@@ -192,7 +206,7 @@ public class RFDynHUD
         eventsManager.setGameData( gameData );
         
         this.inputDeviceManager = new InputDeviceManager();
-        this.inputMappingsManager = new InputMappingsManager();
+        this.inputMappingsManager = new InputMappingsManager( this );
         
         Logger.log( "Successfully created RFDynHUD instance." );
     }

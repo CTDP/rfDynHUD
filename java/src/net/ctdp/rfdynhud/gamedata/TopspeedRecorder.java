@@ -29,6 +29,8 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
                 else if ( ++resetStrokes >= 3 )
                 {
                     liveReset();
+                    
+                    resetStrokes = 0;
                 }
             }
         }

@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.util.HashMap;
 
+import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
@@ -19,8 +20,9 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener
  */
 public class RFactorEventsManager implements ConfigurationClearListener
 {
-    private LiveGameData gameData = null;
+    private final RFDynHUD rfDynHUD;
     private final WidgetsDrawingManager widgetsManager;
+    private LiveGameData gameData = null;
     
     private boolean running = false;
     
@@ -217,6 +219,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
         {
         }
         
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( result != 0 );
+        
         return ( result );
     }
     
@@ -249,6 +254,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
      */
     public final void onSessionEnded()
     {
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( false );
+        
         onSessionEnded( null );
     }
     
@@ -330,6 +338,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
             Logger.log( t );
         }
         
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( result != 0 );
+        
         return ( result );
     }
     
@@ -375,6 +386,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
         //byte result = reloadConfigAndSetupTexture( false );
         __WCPrivilegedAccess.setValid( widgetsManager, false );
         waitingForData = true;
+        
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( false );
         
         return ( 0 );
     }
@@ -530,6 +544,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         byte result = checkWaitingData( false );
         
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( result != 0 );
+        
         return ( result );
     }
     
@@ -589,6 +606,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
             }
         }
         
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( result != 0 );
+        
         return ( result );
     }
     
@@ -605,7 +625,12 @@ public class RFactorEventsManager implements ConfigurationClearListener
     public final byte onGraphicsInfoUpdated( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
     {
         if ( !isSessionRunning() )
+        {
+            if ( rfDynHUD != null )
+                rfDynHUD.setRenderMode( false );
+            
             return ( 0 );
+        }
         
         this.waitingForGraphics = false;
         
@@ -630,6 +655,9 @@ public class RFactorEventsManager implements ConfigurationClearListener
         {
             Logger.log( t );
         }
+        
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( result != 0 );
         
         return ( result );
     }
@@ -680,10 +708,12 @@ public class RFactorEventsManager implements ConfigurationClearListener
     /**
      * Creates a new {@link RFactorEventsManager}.
      * 
+     * @param rfDynHUD
      * @param widgetsManager
      */
-    public RFactorEventsManager( WidgetsDrawingManager widgetsManager )
+    public RFactorEventsManager( RFDynHUD rfDynHUD, WidgetsDrawingManager widgetsManager )
     {
+        this.rfDynHUD = rfDynHUD;
         this.widgetsManager = widgetsManager;
     }
 }

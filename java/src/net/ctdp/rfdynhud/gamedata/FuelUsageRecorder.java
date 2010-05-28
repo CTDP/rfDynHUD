@@ -34,6 +34,8 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
                 else if ( ++resetStrokes >= 3 )
                 {
                     liveReset();
+                    
+                    resetStrokes = 0;
                 }
             }
         }

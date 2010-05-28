@@ -2301,7 +2301,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( resolution[0], resolution[1] );
         
-        eventsManager = new RFactorEventsManager( drawingManager );
+        eventsManager = new RFactorEventsManager( null, drawingManager );
         this.gameData = new LiveGameData( eventsManager );
         __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
         eventsManager.setGameData( gameData );

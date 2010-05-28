@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.RFactorEventsManager;
@@ -26,6 +27,8 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class InputMappingsManager
 {
+    private final RFDynHUD rfDynHUD;
+    
     private InputMapping[] mappings = null;
     
     private ByteBuffer buffer = null;
@@ -345,6 +348,24 @@ public class InputMappingsManager
         return ( new InputMappings( mappings ) );
     }
     
+    private long firstToggleStrokeTime = -1L;
+    private int toggleStrokes = 0;
+    
+    private void handleTogglePlugin( long when )
+    {
+        if ( when - firstToggleStrokeTime > 1000000000L )
+        {
+            toggleStrokes = 1;
+            firstToggleStrokeTime = when;
+        }
+        else if ( ++toggleStrokes >= 3 )
+        {
+            isPluginEnabled = !isPluginEnabled;
+            
+            toggleStrokes = 0;
+        }
+    }
+    
     /**
      * 
      * @param widgetsManager
@@ -382,31 +403,34 @@ public class InputMappingsManager
                     
                     if ( action == KnownInputActions.TogglePlugin )
                     {
-                        isPluginEnabled = !isPluginEnabled;
+                        handleTogglePlugin( when );
                     }
                     
-                    if ( action.getConsumer() != null )
+                    if ( isPluginEnabled && rfDynHUD.isInRenderMode() && gameData.isInRealtimeMode() )
                     {
-                        action.getConsumer().onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
-                    }
-                    else if ( action == KnownInputActions.IncBoost )
-                    {
-                        if ( gameData.getScoringInfo().isInRealtimeMode() )
-                            __GDPrivilegedAccess.incEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
-                    }
-                    else if ( action == KnownInputActions.DecBoost )
-                    {
-                        if ( gameData.getScoringInfo().isInRealtimeMode() )
-                            __GDPrivilegedAccess.decEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
-                    }
-                    else if ( action == KnownInputActions.TempBoost )
-                    {
-                        if ( gameData.getScoringInfo().isInRealtimeMode() )
-                            __GDPrivilegedAccess.setTempBoostFlag( gameData.getTelemetryData(), state );
-                    }
-                    else if ( isPluginEnabled && action.isWidgetAction() )
-                    {
-                        widgetsManager.fireOnInputStateChanged( mappings[k], state, modifierMask, when, gameData, editorPresets );
+                        if ( action.getConsumer() != null )
+                        {
+                            action.getConsumer().onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
+                        }
+                        else if ( action == KnownInputActions.IncBoost )
+                        {
+                            if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                __GDPrivilegedAccess.incEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
+                        }
+                        else if ( action == KnownInputActions.DecBoost )
+                        {
+                            if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                __GDPrivilegedAccess.decEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
+                        }
+                        else if ( action == KnownInputActions.TempBoost )
+                        {
+                            if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                __GDPrivilegedAccess.setTempBoostFlag( gameData.getTelemetryData(), state );
+                        }
+                        else if ( isPluginEnabled && action.isWidgetAction() )
+                        {
+                            widgetsManager.fireOnInputStateChanged( mappings[k], state, modifierMask, when, gameData, editorPresets );
+                        }
                     }
                 }
                 
@@ -428,7 +452,8 @@ public class InputMappingsManager
         return ( 0 );
     }
     
-    public InputMappingsManager()
+    public InputMappingsManager( RFDynHUD rfDynHUD )
     {
+        this.rfDynHUD = rfDynHUD;
     }
 }

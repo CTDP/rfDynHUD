@@ -1,0 +1,77 @@
+v1.0.0 - 1.0.1
+
+* Fixed 30-50 seconds freeze when switching back on the plugin when started with AI control.
+* Fixed redraw bug for the MapWidget and TrackPositionWidget.
+* Fixed item coloring of the MapWidget and TrackPositionWidget.
+* Added flag to StandingsWidget to show/hide the Laps/Stops column.
+* Added some random topspeeds to the Editor display.
+* Absolute pixels for position and size properties are now displayed with a "px" postfix.
+* Position and size properties can now be entered without units. Current units are used then.
+* Tweaked (default) font color for the StandingsWidget entry for the own car to be more different to the others.
+* ETVTimingWidget has a "displayType" property now instead of the "alwaysVisible" one, that enables you to make it visible only if the current lap is not an outlap.
+* MiscWidget now shows the "Leader" also in the first lap.
+* Added low-fuel warning image (blinking) to FuelWidget.
+* Added estimated (at the end of the race) engine lifetime marker to the WearWidget.
+* Moved readme.html from the config folder to the root plugin folder.
+
+v1.0.1 - 1.1.0
+
+Major:
+
+* Added support for rendering the overlay on the session monitor views.
+* When observing other vehicles the HUD displays data for this vehicle (as much as available).
+* Some Widgets are now auto-hidden when switching to AI control, since the rFactor Plugin interface doesn't give data for them in that case.
+* Added a localizations system (translations).
+* Added support for imperial units.
+* Added MapWidget rotation according to the current vehicle's heading.
+* Added vehicle class relative scoring (configuration global option).
+* Improved early rendering of Widgets to reduce the gap when entering the cockpit.
+* Added padding properties.
+* Added rfdynhud.ini as central plugin configuration file to support localizations and custom config folders.
+* Rev limit from setup is now used. This enables you to actually use rev markes fixed in the background image.
+
+Minor:
+
+* Fixed laptimes to be properly displayed after finishing the race.
+* Added a "No Border" button to the border selector. (Simply sets the selected border alias to an empty string)
+* Dirty flag is now set when the %/px button is pressed for position and size properties.
+* Positioning property is now properly modified when dragging a Widget around. This also fixes the inability to move a centered Widget to the left or right boudary.
+* Added multiple visibility flags to properly handle visibility.
+* Improved StandingsWidget update frequency to only update when things can have changed.
+* Fixed clear rectangles for drawn strings (fixes very small StandingsWidgets).
+* Max revs are now handled better to improve the workaround for an rf-plugin-interface bug.
+* The Widget name is now applied to the InputBindingsManager when a Widget is doubleclicked (instead of selection change).
+* An image can now be selected in the ImageSelector through a double click.
+* When adding a new Widget, it is now added to the center of the current viewport instead of absolute top left.
+* TogglePlugin InputAction now only reacts, if stroked three times within a second.
+
+TODO:
+
+* Editor: magnet effect / rail effect
+* Calculate remaining laps based on remaining time for timed races
+* Save As: Construct filename
+* Make widget selection menues nicer
+* Improve viewed vehicle detection (use me if close)
+* MapWidget/TrackPositionWidget: draw important positions last
+* MapWidget: Sector colors
+* Add StandardBorder alias if missing
+* Select Widget in background
+* Draw sub textures in editor (clickable?)
+* Cache: Fuel usage, Laptimes per car
+* ETVStandingsWidget: Fix laptime flag textures overwrite
+* Add RideHeightWidget
+* Add auto-sizing to StartingLightWidget
+* Add TinyWidgets: Velocity, Place, Lap, etc.
+* Add DashboardWidget
+* Add SpeedoMeterWidget
+* Pause detection
+* Manage logs to keep 5
+* Meta config (merge configurations)
+* Add master d3d9.dll
+* Show plugin in replay mode (theoretically not possible)
+* Fix/Improve clock frequencies
+* RevMeterWidget: Scale/fix positions on background change
+
+* Externalize widget properties and generic parameters for stores
+* Editor: Mem profiling
+* General profiling to tweak performance

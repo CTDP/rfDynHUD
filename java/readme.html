@@ -74,18 +74,9 @@ Please refer to the log file to know the names of the mod and car, if you don't 
 </p>
 
 <p>
-The search order, if the mod is &quot;F1CTDP06&quot; and the car is &quot;F1 2006&quot; and the session type is &quot;PRACTICE3&quot;,
-is the following:
+If the mod is &quot;F1CTDP06&quot; and the car is &quot;F1 2006&quot; and the session type is &quot;PRACTICE3&quot;,
+the search order is as follows.
 <ol>
-    <li>F1CTDP06\overlay_garage_F1 2006_PRACTICE3.ini</li>
-    <li>F1CTDP06\overlay_garage_F1 2006_PRACTICE.ini</li>
-    <li>F1CTDP06\overlay_garage_PRACTICE3.ini</li>
-    <li>F1CTDP06\overlay_garage_PRACTICE.ini</li>
-    <li>overlay_garage_PRACTICE3.ini</li>
-    <li>overlay_garage_PRACTICE.ini</li>
-    <li>F1CTDP06\overlay_garage_F1 2006.ini</li>
-    <li>F1CTDP06\overlay_garage.ini</li>
-    <li>overlay_garage.ini</li>
     <li>F1CTDP06\overlay_F1 2006_PRACTICE3.ini</li>
     <li>F1CTDP06\overlay_F1 2006_PRACTICE.ini</li>
     <li>F1CTDP06\overlay_PRACTICE3.ini</li>
@@ -97,7 +88,18 @@ is the following:
     <li>overlay.ini</li>
 </ol>
 
-The &quot;_garage&quot; block is skipped, when leaving the garage.
+When you enter the cockpit and start in the garage the above order is worked down twice. The first time the prefix &quot;overlay&quot;
+is replaced by &quot;overlay_garage&quot;. When leaving the garage the overlay is reloaded only using the above order once.<br />
+<br />
+It is now possible to render an overlay on the session monitor preview. There is a small preview, that you know in the lower right of
+the session monitor and a fullscreen version, that you get to when clicking onto the small one. These two scenes don't use the regular overlay.ini,
+but are rendered, if and only if the above order matches a file using the prefix &quot;monitor_small&quot; resp. &quot;monitor_big&quot; in
+the first pass and &quot;monitor&quot; in the second pass. So you can use one configuration for both monitor screens. But since they are very
+different in scale, it is advisable to use two configurations.<br />
+<br />
+As a result you can use one single configuration for all sessions, mods and cars, if you delete all &quot;overlay*.ini&quot; files and only leave
+the &quot;overlay.ini&quot; file itself. If neither &quot;overlay_monitor_small*.ini&quot;, nor &quot;overlay_monitor_big*.ini&quot;, nor
+&quot;overlay_monitor*.ini&quot; exist, no overlay is rendered on the session monitor.
 </p>
 
 <p>
@@ -181,8 +183,10 @@ menu. This will create a new image file in your &quot;UserData\ScreenShots&quot;
 
 <p>
 <strong>Translations</strong><br />
-Every Widget set (folders under Plugins\rfDynHUD\widget_sets) keeps files named &quot;localizations_.ini&quot;. The * is usually something like &quot;en&quot; or &quot;de&quot;,
-but can be anything and only serves your recognition. These files are loaded in alphabetical order and settings from a file read later overwrite those from files read earlier.<br />
+Every Widget set (folders under Plugins\rfDynHUD\widget_sets) keeps files named &quot;localizations_.ini&quot;.
+The * is usually something like &quot;en&quot; or &quot;de&quot;, but can be anything and only serves your recognition.
+These files are loaded in alphabetical order and settings from a file read later overwrite those from files read earlier.
+This way you can overwrite default translations without having to modify the original files.<br />
 Each of these files must begin with the following header:
 <pre>
 [GENERAL]
