@@ -40,12 +40,14 @@ public class _LiveGameData_CPP_Adapter
     
     public final byte[] getVehicleScoringInfoBuffer( int index )
     {
-        return ( gameData.getScoringInfo().getVehicleScoringInfo( index ).buffer );
+        return ( gameData.getScoringInfo().vehicleScoringInfoCapsules[index].getBuffer() );
     }
     
     public void notifyScoringInfoUpdated()
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        
+        scoringInfo.assignVSICapsules();
         
         int n = scoringInfo.getNumVehicles();
         for ( int i = 0; i < n; i++ )

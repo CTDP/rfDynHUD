@@ -2,6 +2,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 /**
  * 
@@ -10,7 +11,9 @@ import java.io.InputStream;
 class VehicleScoringInfoCapsule
 {
     private static final int OFFSET_DRIVER_NAME = 0;
+    private static final int MAX_DRIVER_NAME_LENGTH = 32;
     private static final int OFFSET_VEHICLE_NAME = OFFSET_DRIVER_NAME + 32 * ByteUtil.SIZE_CHAR;
+    private static final int MAX_VEHICLE_NAME_LENGTH = 64;
     
     private static final int OFFSET_TOTAL_LAPS = OFFSET_VEHICLE_NAME + 64 * ByteUtil.SIZE_CHAR;
     
@@ -37,6 +40,7 @@ class VehicleScoringInfoCapsule
     private static final int OFFSET_IN_PITS = OFFSET_CONTROL + ByteUtil.SIZE_CHAR;
     private static final int OFFSET_PLACE = OFFSET_IN_PITS + ByteUtil.SIZE_BOOL;
     private static final int OFFSET_VEHICLE_CLASS = OFFSET_PLACE + ByteUtil.SIZE_CHAR;
+    private static final int MAX_VEHICLE_CLASS_LENGTH = 32;
     
     private static final int OFFSET_TIME_BEHIND_NEXT = OFFSET_VEHICLE_CLASS + 32 * ByteUtil.SIZE_CHAR;
     private static final int OFFSET_LAPS_BEHIND_NEXT = OFFSET_TIME_BEHIND_NEXT + ByteUtil.SIZE_FLOAT;
@@ -58,10 +62,154 @@ class VehicleScoringInfoCapsule
     
     static final int BUFFER_SIZE = OFFSET_EXPANSION + 128 * ByteUtil.SIZE_CHAR;
     
-    final byte[] buffer = new byte[ BUFFER_SIZE ];
+    private final byte[] buffer = new byte[ BUFFER_SIZE ];
+    
+    private int hash = 0;
+    private boolean hasHash = false;
+    
+    private static final HashMap<Object, Integer> idMap = new HashMap<Object, Integer>();
+    private static int nextId = 1;
+    private Integer id = null;
+    
+    private static class HashItem
+    {
+        private final byte[] buffer = new byte[ MAX_DRIVER_NAME_LENGTH ];
+        private final int hash;
+        
+        @Override
+        public int hashCode()
+        {
+            return ( hash );
+        }
+        
+        @Override
+        public boolean equals( Object o )
+        {
+            byte[] buffer2;
+            int offset2;
+            if ( o instanceof VehicleScoringInfoCapsule )
+            {
+                buffer2 = ( (VehicleScoringInfoCapsule)o ).buffer;
+                offset2 = OFFSET_DRIVER_NAME;
+            }
+            else if ( o instanceof HashItem )
+            {
+                buffer2 = ( (HashItem)o ).buffer;
+                offset2 = 0;
+            }
+            else
+            {
+                return ( false );
+            }
+            
+            for ( int i = 0; i < MAX_DRIVER_NAME_LENGTH; i++ )
+            {
+                byte ch1 = this.buffer[i];
+                byte ch2 = buffer2[offset2 + i];
+                
+                if ( ch1 != ch2 )
+                    return ( false );
+                
+                if ( ch1 == (byte)0 )
+                    break;
+            }
+            
+            return ( true );
+        }
+        
+        public HashItem( VehicleScoringInfoCapsule vsic )
+        {
+            System.arraycopy( vsic.buffer, OFFSET_DRIVER_NAME, this.buffer, 0, MAX_DRIVER_NAME_LENGTH );
+            this.hash = vsic.hashCode();
+        }
+    }
+    
+    byte[] getBuffer()
+    {
+        hasHash = false;
+        
+        return ( buffer );
+    }
+    
+    Integer refreshID()
+    {
+        id = idMap.get( this );
+        if ( id == null )
+        {
+            id = nextId++;
+            idMap.put( new HashItem( this ), id );
+        }
+        
+        return ( id );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        if ( !hasHash )
+        {
+            hash = 0;
+            
+            for ( int i = 0; i < MAX_DRIVER_NAME_LENGTH; i++ )
+            {
+                int ch = buffer[OFFSET_DRIVER_NAME + i] & 0xFF;
+                if ( ch == 0 )
+                    break;
+                
+                hash = 31 * hash + ch;
+            }
+            
+            hasHash = true;
+        }
+        
+        return ( hash );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals( Object o )
+    {
+        byte[] buffer2;
+        int offset2;
+        if ( o instanceof VehicleScoringInfoCapsule )
+        {
+            buffer2 = ( (VehicleScoringInfoCapsule)o ).buffer;
+            offset2 = OFFSET_DRIVER_NAME;
+        }
+        else if ( o instanceof HashItem )
+        {
+            buffer2 = ( (HashItem)o ).buffer;
+            offset2 = 0;
+        }
+        else
+        {
+            return ( false );
+        }
+        
+        for ( int i = 0; i < MAX_DRIVER_NAME_LENGTH; i++ )
+        {
+            byte ch1 = this.buffer[OFFSET_DRIVER_NAME + i];
+            byte ch2 = buffer2[offset2 + i];
+            
+            if ( ch1 != ch2 )
+                return ( false );
+            
+            if ( ch1 == (byte)0 )
+                break;
+        }
+        
+        return ( true );
+    }
     
     void loadFromStream( InputStream in ) throws IOException
     {
+        hasHash = false;
+        
         int offset = 0;
         int bytesToRead = BUFFER_SIZE;
         
@@ -83,11 +231,18 @@ class VehicleScoringInfoCapsule
      * ################################
      */
     
+    void setDriverName( String drivername )
+    {
+        byte[] bytes = drivername.getBytes();
+        System.arraycopy( bytes, 0, buffer, OFFSET_DRIVER_NAME, bytes.length );
+        buffer[OFFSET_DRIVER_NAME + bytes.length] = (byte)0;
+    }
+    
     public final String getDriverName()
     {
         // char mDriverName[32]
         
-        return ( ByteUtil.readString( buffer, OFFSET_DRIVER_NAME, 32 ) );
+        return ( ByteUtil.readString( buffer, OFFSET_DRIVER_NAME, MAX_DRIVER_NAME_LENGTH ) );
     }
     
     /**
@@ -97,7 +252,7 @@ class VehicleScoringInfoCapsule
     {
         // char mVehicleName[64]
         
-        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_NAME, 64 ) );
+        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_NAME, MAX_VEHICLE_NAME_LENGTH ) );
     }
     
     /**
@@ -113,16 +268,16 @@ class VehicleScoringInfoCapsule
     /**
      * sector
      */
-    public final short getSector()
+    public final byte getSector()
     {
         // signed char mSector
         
-        short sector = (short)( ByteUtil.readByte( buffer, OFFSET_SECTOR ) + 1 );
+        byte sector = (byte)( ByteUtil.readByte( buffer, OFFSET_SECTOR ) + 1 );
         
         if ( sector == 1 )
             return ( 3 );
         
-        return ( (short)( sector - 1 ) );
+        return ( (byte)( sector - 1 ) );
     }
     
     /**
@@ -191,10 +346,8 @@ class VehicleScoringInfoCapsule
     
     /**
      * best sector 2
-     * 
-     * @param includingSector1
      */
-    public final float getBestSector2( boolean includingSector1 )
+    public final float getBestSector2()
     {
         // float mBestSector2
         
@@ -223,10 +376,8 @@ class VehicleScoringInfoCapsule
     
     /**
      * last sector 2
-     * 
-     * @param includingSector1
      */
-    public final float getLastSector2( boolean includingSector1 )
+    public final float getLastSector2()
     {
         // float mLastSector2
         
@@ -346,7 +497,7 @@ class VehicleScoringInfoCapsule
     {
         // char mVehicleClass[32]
         
-        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_CLASS, 32 ) );
+        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_CLASS, MAX_VEHICLE_CLASS_LENGTH ) );
     }
     
     /**
@@ -543,8 +694,4 @@ class VehicleScoringInfoCapsule
     
     // Future use
     //unsigned char mExpansion[128];
-    
-    VehicleScoringInfoCapsule()
-    {
-    }
 }

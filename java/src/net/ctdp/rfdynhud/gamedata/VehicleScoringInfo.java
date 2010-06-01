@@ -1,7 +1,5 @@
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,69 +14,20 @@ import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
  */
 public class VehicleScoringInfo
 {
-    private static final int OFFSET_DRIVER_NAME = 0;
-    private static final int OFFSET_VEHICLE_NAME = OFFSET_DRIVER_NAME + 32 * ByteUtil.SIZE_CHAR;
-    
-    private static final int OFFSET_TOTAL_LAPS = OFFSET_VEHICLE_NAME + 64 * ByteUtil.SIZE_CHAR;
-    
-    private static final int OFFSET_SECTOR = OFFSET_TOTAL_LAPS + ByteUtil.SIZE_SHORT;
-    private static final int OFFSET_FINISH_STATUS = OFFSET_SECTOR + ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_LAP_DISTANCE = OFFSET_FINISH_STATUS + ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_PATH_LATERAL = OFFSET_LAP_DISTANCE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TRACK_EDGE = OFFSET_PATH_LATERAL + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_BEST_SECTOR_1 = OFFSET_TRACK_EDGE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_BEST_SECTOR_2 = OFFSET_BEST_SECTOR_1 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_BEST_LAP_TIME = OFFSET_BEST_SECTOR_2 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAST_SECTOR_1 = OFFSET_BEST_LAP_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAST_SECTOR_2 = OFFSET_LAST_SECTOR_1 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAST_LAP_TIME = OFFSET_LAST_SECTOR_2 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_CURR_SECTOR_1 = OFFSET_LAST_LAP_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_CURR_SECTOR_2 = OFFSET_CURR_SECTOR_1 + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_NUM_PITSTOPS = OFFSET_CURR_SECTOR_2 + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_NUM_PENALTIES = OFFSET_NUM_PITSTOPS + ByteUtil.SIZE_SHORT;
-    
-    private static final int OFFSET_IS_PLAYER = OFFSET_NUM_PENALTIES + ByteUtil.SIZE_SHORT;
-    private static final int OFFSET_CONTROL = OFFSET_IS_PLAYER + ByteUtil.SIZE_BOOL;
-    private static final int OFFSET_IN_PITS = OFFSET_CONTROL + ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_PLACE = OFFSET_IN_PITS + ByteUtil.SIZE_BOOL;
-    private static final int OFFSET_VEHICLE_CLASS = OFFSET_PLACE + ByteUtil.SIZE_CHAR;
-    
-    private static final int OFFSET_TIME_BEHIND_NEXT = OFFSET_VEHICLE_CLASS + 32 * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_LAPS_BEHIND_NEXT = OFFSET_TIME_BEHIND_NEXT + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TIME_BEHIND_LEADER = OFFSET_LAPS_BEHIND_NEXT + ByteUtil.SIZE_LONG;
-    private static final int OFFSET_LAPS_BEHIND_LEADER = OFFSET_TIME_BEHIND_LEADER + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAP_START_TIME = OFFSET_LAPS_BEHIND_LEADER + ByteUtil.SIZE_LONG;
-    
-    private static final int OFFSET_POSITION = OFFSET_LAP_START_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LOCAL_VELOCITY = OFFSET_POSITION + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ACCELERATION = OFFSET_LOCAL_VELOCITY + ByteUtil.SIZE_VECTOR3;
-    
-    private static final int OFFSET_ORIENTATION_X = OFFSET_LOCAL_ACCELERATION + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_ORIENTATION_Y = OFFSET_ORIENTATION_X + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_ORIENTATION_Z = OFFSET_ORIENTATION_Y + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ROTATION = OFFSET_ORIENTATION_Z + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ROTATION_ACCELERATION = OFFSET_LOCAL_ROTATION + ByteUtil.SIZE_VECTOR3;
-    
-    private static final int OFFSET_EXPANSION = OFFSET_LOCAL_ROTATION_ACCELERATION + ByteUtil.SIZE_VECTOR3;
-    
-    static final int BUFFER_SIZE = OFFSET_EXPANSION + 128 * ByteUtil.SIZE_CHAR;
-    
-    final byte[] buffer = new byte[ BUFFER_SIZE ];
-    
     private final ScoringInfo scoringInfo;
     private final ProfileInfo profileInfo;
     
-    private String name = null;
-    private static int nextNameId = 1;
-    private int nameId = 0;
-    private Integer nameId2 = null;
+    VehicleScoringInfoCapsule data = null;
+    
+    String name = null;
+    static int nextNameId = 1;
+    int nameId = 0;
+    Integer nameID = null;
     
     private String vehClass = null;
     private static int nextClassId = 1;
     private int classId = 0;
-    private Integer classId2 = null;
+    private Integer classID = null;
     
     short placeByClass = -1;
     int numVehiclesInClass = -1;
@@ -98,23 +47,7 @@ public class VehicleScoringInfo
     
     float topspeed = 0f;
     
-    private static final HashMap<String, Integer> nameToIDMap = new HashMap<String, Integer>();
     private static final HashMap<String, Integer> classToIDMap = new HashMap<String, Integer>();
-    
-    private void updateNameID()
-    {
-        String name = getDriverName();
-        
-        Integer id = nameToIDMap.get( name );
-        if ( id == null )
-        {
-            id = nextNameId++;
-            nameToIDMap.put( name, id );
-        }
-        
-        this.nameId = id.intValue();
-        this.nameId2 = id;
-    }
     
     private void updateClassID()
     {
@@ -128,7 +61,7 @@ public class VehicleScoringInfo
         }
         
         this.classId = id.intValue();
-        this.classId2 = id;
+        this.classID = id;
     }
     
     void applyEditorPresets( EditorPresets editorPresets )
@@ -137,56 +70,33 @@ public class VehicleScoringInfo
             return;
         
         if ( isPlayer() )
+        {
             name = editorPresets.getDriverName();
-        
-        updateNameID();
+            data.setDriverName( name );
+            nameID = data.refreshID();
+            nameId = nameID.intValue();
+        }
         
         topspeed = editorPresets.getTopSpeed( getPlace( false ) - 1 );
     }
     
     void onDataUpdated()
     {
-        name = null;
-        nameId = 0;
-        nameId2 = null;
-        
         vehClass = null;
         classId = 0;
-        classId2 = null;
+        classID = null;
     }
     
-    void loadFromStream( InputStream in ) throws IOException
-    {
-        int offset = 0;
-        int bytesToRead = BUFFER_SIZE;
-        
-        while ( bytesToRead > 0 )
-        {
-            int n = in.read( buffer, offset, bytesToRead );
-            
-            if ( n < 0 )
-                throw new IOException();
-            
-            offset += n;
-            bytesToRead -= n;
-        }
-        
-        onDataUpdated();
-    }
-    
-    /*
-     * ################################
-     * VehicleScoringInfo
-     * ################################
+    /**
+     * Gets the full name of the driver driving this vehicle.
+     * 
+     * @return the full name of the driver driving this vehicle.
      */
-    
     public final String getDriverName()
     {
-        // char mDriverName[32]
-        
         if ( name == null )
         {
-            name = ByteUtil.readString( buffer, OFFSET_DRIVER_NAME, 32 );
+            name = data.getDriverName();
         }
         
         return ( name );
@@ -208,24 +118,24 @@ public class VehicleScoringInfo
         return ( ThreeLetterCodeManager.getShortForm( getDriverName(), getDriverID() ) );
     }
     
+    /**
+     * Uniquely identifes this vehicle's driver. It returns the same value as {@link #getDriverID()}, but as a primitive int.
+     * 
+     * @return the driver's id.
+     */
     public final int getDriverId()
     {
-        if ( nameId <= 0 )
-        {
-            updateNameID();
-        }
-        
         return ( nameId );
     }
     
+    /**
+     * Uniquely identifes this vehicle's driver. It returns the same value as {@link #getDriverId()}, but as an {@link Integer} instance.
+     * 
+     * @return the driver's id.
+     */
     public final Integer getDriverID()
     {
-        if ( nameId2 == null )
-        {
-            updateNameID();
-        }
-        
-        return ( nameId2 );
+        return ( nameID );
     }
     
     /**
@@ -254,9 +164,7 @@ public class VehicleScoringInfo
      */
     public final String getVehicleName()
     {
-        // char mVehicleName[64]
-        
-        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_NAME, 64 ) );
+        return ( data.getVehicleName() );
     }
     
     /**
@@ -264,9 +172,7 @@ public class VehicleScoringInfo
      */
     public final short getLapsCompleted()
     {
-        // short mTotalLaps
-        
-        return ( ByteUtil.readShort( buffer, OFFSET_TOTAL_LAPS ) );
+        return ( data.getLapsCompleted() );
     }
     
     public final short getCurrentLap()
@@ -402,16 +308,9 @@ public class VehicleScoringInfo
     /**
      * sector
      */
-    public final short getSector()
+    public final byte getSector()
     {
-        // signed char mSector
-        
-        short sector = (short)( ByteUtil.readByte( buffer, OFFSET_SECTOR ) + 1 );
-        
-        if ( sector == 1 )
-            return ( 3 );
-        
-        return ( (short)( sector - 1 ) );
+        return ( data.getSector() );
     }
     
     /**
@@ -419,23 +318,7 @@ public class VehicleScoringInfo
      */
     public final FinishStatus getFinishStatus()
     {
-        // signed char mFinishStatus
-        
-        short state = ByteUtil.readByte( buffer, OFFSET_FINISH_STATUS );
-        
-        switch ( state )
-        {
-            case 0:
-                return ( FinishStatus.NONE );
-            case 1:
-                return ( FinishStatus.FINISHED );
-            case 2:
-                return ( FinishStatus.DNF );
-            case 3:
-                return ( FinishStatus.DQ );
-        }
-        
-        throw new Error( "Unknown finish status read (" + state + ")." );
+        return ( data.getFinishStatus() );
     }
     
     /**
@@ -443,9 +326,7 @@ public class VehicleScoringInfo
      */
     public final float getLapDistance()
     {
-        // float mLapDist
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAP_DISTANCE ) );
+        return ( data.getLapDistance() );
     }
     
     /**
@@ -502,9 +383,7 @@ public class VehicleScoringInfo
      */
     public final float getPathLateral()
     {
-        // float mPathLateral
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_PATH_LATERAL ) );
+        return ( data.getPathLateral() );
     }
     
     /**
@@ -512,9 +391,7 @@ public class VehicleScoringInfo
      */
     public final float getTrackEdge()
     {
-        // float mTrackEdge
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_TRACK_EDGE ) );
+        return ( data.getTrackEdge() );
     }
     
     /**
@@ -522,9 +399,7 @@ public class VehicleScoringInfo
      */
     public final float getBestSector1()
     {
-        // float mBestSector1
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_BEST_SECTOR_1 ) );
+        return ( data.getBestSector1() );
     }
     
     /**
@@ -534,9 +409,7 @@ public class VehicleScoringInfo
      */
     public final float getBestSector2( boolean includingSector1 )
     {
-        // float mBestSector2
-        
-        float sec2 = ByteUtil.readFloat( buffer, OFFSET_BEST_SECTOR_2 );
+        float sec2 = data.getBestSector2();
         
         if ( !includingSector1 )
             sec2 -= getBestSector1();
@@ -549,9 +422,7 @@ public class VehicleScoringInfo
      */
     public final float getBestLapTime()
     {
-        // float mBestLapTime
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_BEST_LAP_TIME ) );
+        return ( data.getBestLapTime() );
     }
     
     /**
@@ -569,7 +440,7 @@ public class VehicleScoringInfo
     {
         // float mLastSector1
         
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAST_SECTOR_1 ) );
+        return ( data.getLastSector1() );
     }
     
     /**
@@ -581,7 +452,7 @@ public class VehicleScoringInfo
     {
         // float mLastSector2
         
-        float sec2 = ByteUtil.readFloat( buffer, OFFSET_LAST_SECTOR_2 );
+        float sec2 = data.getLastSector2();
         
         if ( !includingSector1 )
             sec2 -= getLastSector1();
@@ -594,9 +465,7 @@ public class VehicleScoringInfo
      */
     public final float getLastLapTime()
     {
-        // float mLastLapTime
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAST_LAP_TIME ) );
+        return ( data.getLastLapTime() );
     }
     
     /**
@@ -612,11 +481,7 @@ public class VehicleScoringInfo
      */
     public final float getCurrentSector1()
     {
-        // float mCurSector1
-        
-        // TODO: Check result, if sector1 is invalid
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_CURR_SECTOR_1 ) );
+        return ( data.getCurrentSector1() );
     }
     
     /**
@@ -626,9 +491,7 @@ public class VehicleScoringInfo
      */
     public final float getCurrentSector2( boolean includingSector1 )
     {
-        // float mCurSector2
-        
-        float sec2 = ByteUtil.readFloat( buffer, OFFSET_CURR_SECTOR_2 );
+        float sec2 = data.getCurrentSector2();
         
         if ( !includingSector1 && ( sec2 > 0f ) )
             sec2 -= getCurrentSector1();
@@ -657,9 +520,7 @@ public class VehicleScoringInfo
      */
     public final short getNumPitstopsMade()
     {
-        // short mNumPitstops
-        
-        return ( ByteUtil.readShort( buffer, OFFSET_NUM_PITSTOPS ) );
+        return ( data.getNumPitstopsMade() );
     }
     
     /**
@@ -667,25 +528,15 @@ public class VehicleScoringInfo
      */
     public final short getNumOutstandingPenalties()
     {
-        // short mNumPenalties
-        
-        return ( ByteUtil.readShort( buffer, OFFSET_NUM_PENALTIES ) );
+        return ( data.getNumOutstandingPenalties() );
     }
-    
-    /*
-     * ################################
-     * VehicleScoringInfoV2
-     * ################################
-     */
     
     /**
      * is this the player's vehicle?
      */
     public final boolean isPlayer()
     {
-        // bool mIsPlayer
-        
-        return ( ByteUtil.readBoolean( buffer, OFFSET_IS_PLAYER ) );
+        return ( data.isPlayer() );
     }
     
     /**
@@ -693,15 +544,7 @@ public class VehicleScoringInfo
      */
     public final VehicleControl getVehicleControl()
     {
-        // signed char mControl
-        
-        byte control = ByteUtil.readByte( buffer, OFFSET_CONTROL );
-        VehicleControl vc = VehicleControl.getFromISIValue( control );
-        
-        if ( vc == null )
-            throw new Error( "Unknown control id read (" + control + ")." );
-        
-        return ( vc );
+        return ( data.getVehicleControl() );
     }
     
     /**
@@ -709,9 +552,7 @@ public class VehicleScoringInfo
      */
     public final boolean isInPits()
     {
-        // bool mInPits
-        
-        return ( ByteUtil.readBoolean( buffer, OFFSET_IN_PITS ) );
+        return ( data.isInPits() );
     }
     
     /**
@@ -740,9 +581,7 @@ public class VehicleScoringInfo
             return ( placeByClass );
         }
         
-        // unsigned char mPlace
-        
-        return ( ByteUtil.readUnsignedByte( buffer, OFFSET_PLACE ) );
+        return ( data.getPlace() );
     }
     
     /**
@@ -810,11 +649,9 @@ public class VehicleScoringInfo
      */
     public final String getVehicleClass()
     {
-        // char mVehicleClass[32]
-        
         if ( vehClass == null )
         {
-            vehClass = ByteUtil.readString( buffer, OFFSET_VEHICLE_CLASS, 32 );
+            vehClass = data.getVehicleClass();
         }
         
         return ( vehClass );
@@ -838,12 +675,12 @@ public class VehicleScoringInfo
     
     public final Integer getVehicleClassID()
     {
-        if ( classId2 == null )
+        if ( classID == null )
         {
             updateClassID();
         }
         
-        return ( classId2 );
+        return ( classID );
     }
     
     /**
@@ -860,9 +697,7 @@ public class VehicleScoringInfo
             return ( timeBehindNextByClass );
         }
         
-        // float mTimeBehindNext
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_TIME_BEHIND_NEXT ) );
+        return ( data.getTimeBehindNextInFront() );
     }
     
     /**
@@ -879,9 +714,7 @@ public class VehicleScoringInfo
             return ( lapsBehindNextByClass );
         }
         
-        // long mLapsBehindNext
-        
-        return ( (int)ByteUtil.readLong( buffer, OFFSET_LAPS_BEHIND_NEXT ) );
+        return ( data.getLapsBehindNextInFront() );
     }
     
     /**
@@ -898,9 +731,7 @@ public class VehicleScoringInfo
             return ( timeBehindLeaderByClass );
         }
         
-        // float mTimeBehindLeader
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_TIME_BEHIND_LEADER ) );
+        return ( data.getTimeBehindLeader() );
     }
     
     /**
@@ -917,9 +748,7 @@ public class VehicleScoringInfo
             return ( lapsBehindLeaderByClass );
         }
         
-        // long mLapsBehindLeader
-        
-        return ( (int)ByteUtil.readLong( buffer, OFFSET_LAPS_BEHIND_LEADER ) );
+        return ( data.getLapsBehindNextInFront() );
     }
     
     /**
@@ -927,12 +756,8 @@ public class VehicleScoringInfo
      */
     public final float getLapStartTime()
     {
-        // float mLapStartET
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAP_START_TIME ) );
+        return ( data.getLapStartTime() );
     }
-    
-    // Position and derivatives
     
     /**
      * world position in meters
@@ -941,9 +766,7 @@ public class VehicleScoringInfo
      */
     public final void getWorldPosition( TelemVect3 position )
     {
-        // TelemVect3 mPos
-        
-        ByteUtil.readVector( buffer, OFFSET_POSITION, position );
+        data.getWorldPosition( position );
     }
     
     /**
@@ -951,9 +774,7 @@ public class VehicleScoringInfo
      */
     public final float getWorldPositionX()
     {
-        // TelemVect3 mPos
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 0 * ByteUtil.SIZE_FLOAT ) );
+        return ( data.getWorldPositionX() );
     }
     
     /**
@@ -961,9 +782,7 @@ public class VehicleScoringInfo
      */
     public final float getWorldPositionY()
     {
-        // TelemVect3 mPos
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 1 * ByteUtil.SIZE_FLOAT ) );
+        return ( data.getWorldPositionY() );
     }
     
     /**
@@ -971,9 +790,7 @@ public class VehicleScoringInfo
      */
     public final float getWorldPositionZ()
     {
-        // TelemVect3 mPos
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 2 * ByteUtil.SIZE_FLOAT ) );
+        return ( data.getWorldPositionZ() );
     }
     
     /**
@@ -983,9 +800,7 @@ public class VehicleScoringInfo
      */
     public final void getLocalVelocity( TelemVect3 localVel )
     {
-        // TelemVect3 mLocalVel
-        
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_VELOCITY, localVel );
+        data.getLocalVelocity( localVel );
     }
     
     /**
@@ -993,11 +808,7 @@ public class VehicleScoringInfo
      */
     public final float getScalarVelocityMPS()
     {
-        float vecX = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 0 * ByteUtil.SIZE_FLOAT );
-        float vecY = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 1 * ByteUtil.SIZE_FLOAT );
-        float vecZ = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 2 * ByteUtil.SIZE_FLOAT );
-        
-        return ( (float)Math.sqrt( vecX * vecX + vecY * vecY + vecZ * vecZ ) );
+        return ( data.getScalarVelocity() );
     }
     
     /**
@@ -1046,12 +857,8 @@ public class VehicleScoringInfo
      */
     public final void getLocalAcceleration( TelemVect3 localAccel )
     {
-        // TelemVect3 mLocalAccel
-        
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ACCELERATION, localAccel );
+        data.getLocalAcceleration( localAccel );
     }
-    
-    // Orientation and derivatives
     
     /**
      * top row of orientation matrix (also converts local vehicle vectors into world X using dot product)
@@ -1060,9 +867,7 @@ public class VehicleScoringInfo
      */
     public final void getOrientationX( TelemVect3 oriX )
     {
-        // TelemVect3 mOriX
-        
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_X, oriX );
+        data.getOrientationX( oriX );
     }
     
     /**
@@ -1072,9 +877,7 @@ public class VehicleScoringInfo
      */
     public final void getOrientationY( TelemVect3 oriY )
     {
-        // TelemVect3 mOriY
-        
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_Y, oriY );
+        data.getOrientationY( oriY );
     }
     
     /**
@@ -1084,9 +887,7 @@ public class VehicleScoringInfo
      */
     public final void getOrientationZ( TelemVect3 oriZ )
     {
-        // TelemVect3 mOriZ
-        
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_Z, oriZ );
+        data.getOrientationZ( oriZ );
     }
     
     /**
@@ -1096,9 +897,7 @@ public class VehicleScoringInfo
      */
     public final void getLocalRotation( TelemVect3 localRot )
     {
-        // TelemVect3 mLocalRot
-        
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ROTATION, localRot );
+        data.getLocalRotation( localRot );
     }
     
     /**
@@ -1108,9 +907,7 @@ public class VehicleScoringInfo
      */
     public final void getLocalRotationalAcceleration( TelemVect3 localRotAccel )
     {
-        // TelemVect3 mLocalRotAccel
-        
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ROTATION_ACCELERATION, localRotAccel );
+        data.getLocalRotationalAcceleration( localRotAccel );
     }
     
     // Future use

@@ -138,7 +138,9 @@ public class ScoringInfo
     private final RFactorEventsManager eventsManager;
     
     private VehicleScoringInfo[] vehicleScoringInfo = null;
+    VehicleScoringInfoCapsule[] vehicleScoringInfoCapsules = null;
     private int numVehicles = -1;
+    private int oldNumVehicles = -1;
     private VehicleScoringInfo playerVSI = null;
     private VehicleScoringInfo viewedVSI = null;
     
@@ -153,6 +155,134 @@ public class ScoringInfo
     private VehicleScoringInfo fastestSector3VSI = null;
     
     //private Laptime fastestLaptime = null;
+    
+    private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
+    private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
+    
+    void initVehicleScoringInfo()
+    {
+        oldNumVehicles = numVehicles;
+        numVehicles = -1;
+        numVehicles = getNumVehicles();
+        
+        if ( ( vehicleScoringInfoCapsules == null ) || ( vehicleScoringInfoCapsules.length < numVehicles ) )
+        {
+            VehicleScoringInfoCapsule[] tmp = new VehicleScoringInfoCapsule[ numVehicles ];
+            
+            int oldCount;
+            if ( vehicleScoringInfoCapsules == null )
+            {
+                oldCount = 0;
+            }
+            else
+            {
+                oldCount = vehicleScoringInfoCapsules.length;
+                System.arraycopy( vehicleScoringInfoCapsules, 0, tmp, 0, oldCount );
+            }
+            
+            for ( int i = oldCount; i < numVehicles; i++ )
+            {
+                tmp[i] = new VehicleScoringInfoCapsule();
+            }
+            
+            vehicleScoringInfoCapsules = tmp;
+        }
+        
+        if ( ( vehicleScoringInfo == null ) || ( vehicleScoringInfo.length < numVehicles ) )
+        {
+            VehicleScoringInfo[] tmp = new VehicleScoringInfo[ numVehicles ];
+            
+            int oldCount;
+            if ( vehicleScoringInfo == null )
+            {
+                oldCount = 0;
+            }
+            else
+            {
+                oldCount = vehicleScoringInfo.length;
+                System.arraycopy( vehicleScoringInfo, 0, tmp, 0, oldCount );
+            }
+            
+            for ( int i = oldCount; i < numVehicles; i++ )
+            {
+                tmp[i] = new VehicleScoringInfo( this, gameData.getProfileInfo() );
+            }
+            
+            vehicleScoringInfo = tmp;
+        }
+    }
+    
+    void assignVSICapsules()
+    {
+        try
+        {
+            idCapsuleMap.clear();
+            
+            int n = getNumVehicles();
+            for ( int i = 0; i < n; i++ )
+            {
+                idCapsuleMap.put( vehicleScoringInfoCapsules[i].refreshID(), vehicleScoringInfoCapsules[i] );
+            }
+            
+            int firstFree = 0;
+            
+            if ( oldNumVehicles > 0 )
+            {
+                int j = oldNumVehicles - 1;
+                int n2 = Math.max( n, oldNumVehicles );
+                for ( int i = 0; i < n2; i++ )
+                {
+                    VehicleScoringInfo vsi = vehicleScoringInfo[i];
+                    if ( vsi.nameId > 0 )
+                    {
+                        vsi.data = idCapsuleMap.remove( vsi.nameID );
+                        
+                        if ( vsi.data == null )
+                        {
+                            // player left
+                            
+                            leftVSICache.put( vsi.nameID, vsi );
+                            vehicleScoringInfo[i] = vehicleScoringInfo[j];
+                            vehicleScoringInfo[j] = new VehicleScoringInfo( this, gameData.getProfileInfo() );
+                            i--;
+                            j--;
+                        }
+                    }
+                }
+                
+                firstFree = j + 1;
+            }
+            
+            if ( idCapsuleMap.size() > 0 )
+            {
+                for ( Integer joinedID : idCapsuleMap.keySet() )
+                {
+                    // Player joined
+                    
+                    VehicleScoringInfo vsi = leftVSICache.remove( joinedID );
+                    if ( vsi == null )
+                    {
+                        vsi = vehicleScoringInfo[firstFree++];
+                        vsi.data = idCapsuleMap.get( joinedID );
+                        vsi.name = vsi.data.getDriverName();
+                        vsi.nameID = joinedID;
+                        vsi.nameId = joinedID.intValue();
+                    }
+                    else
+                    {
+                        vehicleScoringInfo[firstFree++] = vsi;
+                        vsi.data = idCapsuleMap.get( joinedID );
+                    }
+                }
+            }
+            
+            idCapsuleMap.clear();
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+    }
     
     private void resetDerivateData()
     {
@@ -181,35 +311,6 @@ public class ScoringInfo
                     vehicleScoringInfo[i].classNextBehindVSI = null;
                 }
             }
-        }
-    }
-    
-    void initVehicleScoringInfo()
-    {
-        numVehicles = -1;
-        numVehicles = getNumVehicles();
-        
-        if ( ( vehicleScoringInfo == null ) || ( vehicleScoringInfo.length < numVehicles ) )
-        {
-            VehicleScoringInfo[] tmp = new VehicleScoringInfo[ numVehicles ];
-            
-            int oldCount;
-            if ( vehicleScoringInfo == null )
-            {
-                oldCount = 0;
-            }
-            else
-            {
-                oldCount = vehicleScoringInfo.length;
-                System.arraycopy( vehicleScoringInfo, 0, tmp, 0, oldCount );
-            }
-            
-            for ( int i = oldCount; i < numVehicles; i++ )
-            {
-                tmp[i] = new VehicleScoringInfo( this, gameData.getProfileInfo() );
-            }
-            
-            vehicleScoringInfo = tmp;
         }
     }
     
@@ -619,7 +720,16 @@ public class ScoringInfo
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            vehicleScoringInfo[i].loadFromStream( in );
+            vehicleScoringInfoCapsules[i].loadFromStream( in );
+        }
+        
+        assignVSICapsules();
+        
+        applyEditorPresets( editorPresets );
+        
+        for ( int i = 0; i < numVehicles; i++ )
+        {
+            vehicleScoringInfo[i].onDataUpdated();
         }
         
         onDataUpdated( editorPresets );
@@ -1103,7 +1213,7 @@ public class ScoringInfo
      */
     public final VehicleScoringInfo getVehicleScoringInfo( int i )
     {
-        // VehicleScoringInfoV2 *mVehicle
+        // VehicleScoringInfoV2* mVehicle
         
         if ( i >= getNumVehicles() )
             throw new IllegalArgumentException( "There is no vehicle with the index " + i + ". There are only " + getNumVehicles() + " vehicles." );
