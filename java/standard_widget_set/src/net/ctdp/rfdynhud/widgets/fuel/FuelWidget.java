@@ -604,7 +604,7 @@ public class FuelWidget extends Widget
             float lapsForFuel = ( fuel - 0.5f ) / avgFuelUsage;
             float restLapLength = 1.0f - ( stintLength % 1f );
             
-            int lapsRemaining = scoringInfo.getMaxLaps() - vsi.getLapsCompleted() - 1;
+            int lapsRemaining = vsi.getEstimatedMaxLaps() - vsi.getLapsCompleted() - 1;
             
             if ( ( avgFuelUsage > 0f ) && ( lapsForFuel - restLapLength < 1.0f ) && ( lapsRemaining > 0 ) )
             {
@@ -700,7 +700,7 @@ public class FuelWidget extends Widget
         {
             int currLap = vsi.getCurrentLap();
             boolean isRace = scoringInfo.getSessionType().isRace();
-            int totalLaps = scoringInfo.getMaxLaps(); // compute for time based races
+            int totalLaps = vsi.getEstimatedMaxLaps();
             
             int remainingFuelLaps = (int)Math.floor( ( fuel / avgFuelUsage ) + ( stintLength - (int)stintLength ) );
             nextPitstopLap = vsi.getLapsCompleted() + remainingFuelLaps + nextPitstopLapCorrection;

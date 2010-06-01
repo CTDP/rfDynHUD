@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
@@ -175,6 +176,13 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             }
         }
         
+        if ( numTextures > TransformableTexture.MAX_NUM_TEXTURES )
+        {
+            Logger.log( "WARNING: Number of displayed textures truncated. Possible reason: maxOpponents = " + gameData.getModInfo().getMaxOpponents() );
+            
+            numTextures = TransformableTexture.MAX_NUM_TEXTURES;
+        }
+        
         if ( numTextures < textures.length )
         {
             TransformableTexture[] tmp = new TransformableTexture[ numTextures ];
@@ -218,7 +226,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         }
     }
     
-    public void refreshSubTextureBuffer( boolean isEditorMode )
+    public void refreshSubTextureBuffer( boolean isEditorMode, LiveGameData gameData, boolean newConfig )
     {
         textureBuffer.position( 0 );
         textureBuffer.limit( textureBuffer.capacity() );
@@ -236,6 +244,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         int k = 0;
         
         int rectOffset = textures[0].fillBuffer( true, 0, 0, k++, 0, textureBuffer );
+        int testRectOffset = textures[0].getNumUsedRectangles();
         
         for ( int i = 0; i < widgetSubTextures.length; i++ )
         {
@@ -246,12 +255,18 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 for ( j = 0; j < textures.length; j++ )
                 {
                     rectOffset = textures[j].fillBuffer( widget.isVisible(), widget.getPosition().getEffectiveX() + widget.getBorder().getInnerLeftWidth(), widget.getPosition().getEffectiveY() + widget.getBorder().getInnerTopHeight(), k++, rectOffset, textureBuffer );
+                    testRectOffset += textures[j].getNumUsedRectangles();
                 }
             }
         }
         
         textureBuffer.position( textures.length * TransformableTexture.STRUCT_SIZE );
         textureBuffer.flip();
+        
+        if ( newConfig && ( rectOffset < testRectOffset ) )
+        {
+            Logger.log( "WARNING: Number of displayed textures truncated. Possible reason: maxOpponents = " + gameData.getModInfo().getMaxOpponents() );
+        }
     }
     
     public final int getNumTextures()
@@ -338,6 +353,21 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         for ( int i = 0; i < n; i++ )
         {
             getWidget( i ).onRealtimeExited( gameData, editorPresets );
+        }
+    }
+    
+    /**
+     * This method is called when {@link ScoringInfo} have been updated (done at 2Hz).
+     * 
+     * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     */
+    public void fireOnScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        final int n = getNumWidgets();
+        for ( int i = 0; i < n; i++ )
+        {
+            getWidget( i ).onScoringInfoUpdated( gameData, editorPresets );
         }
     }
     

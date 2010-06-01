@@ -3,6 +3,8 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
+
 /**
  * 
  * @author Marvin Froehlich
@@ -28,7 +30,7 @@ public class GraphicsInfo
     
     public static interface GraphicsInfoUpdateListener
     {
-        public void onGraphicsInfoUpdated( LiveGameData gameData );
+        public void onGraphicsInfoUpdated( LiveGameData gameData, EditorPresets editorPresets );
     }
     
     private GraphicsInfoUpdateListener[] updateListeners = null;
@@ -84,7 +86,7 @@ public class GraphicsInfo
     {
     }
     
-    void onDataUpdated()
+    void onDataUpdated( EditorPresets editorPresets )
     {
         this.updatedInRealtimeMode = gameData.isInRealtimeMode();
         this.updateId++;
@@ -92,7 +94,7 @@ public class GraphicsInfo
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onGraphicsInfoUpdated( gameData );
+                updateListeners[i].onGraphicsInfoUpdated( gameData, editorPresets );
         }
     }
     
@@ -110,7 +112,7 @@ public class GraphicsInfo
         return ( updateId );
     }
     
-    void loadFromStream( InputStream in ) throws IOException
+    void loadFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
     {
         prepareDataUpdate();
         
@@ -128,7 +130,7 @@ public class GraphicsInfo
             bytesToRead -= n;
         }
         
-        onDataUpdated();
+        onDataUpdated( editorPresets );
     }
     
     // GraphicsInfo

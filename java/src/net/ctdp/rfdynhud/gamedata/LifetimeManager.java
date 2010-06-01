@@ -1,5 +1,6 @@
 package net.ctdp.rfdynhud.gamedata;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Brakes.WheelBrake;
 
 class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
@@ -79,14 +80,17 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         return ( torque );
     }
     
-    public void onSessionStarted( LiveGameData gameData ) {}
+    @Override
+    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets ) {}
     
-    public void onRealtimeEntered( LiveGameData gameData ) {}
+    @Override
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets ) {}
     
     /**
      * {@inheritDoc}
      */
-    public void onTelemetryDataUpdated( LiveGameData gameData )
+    @Override
+    public void onTelemetryDataUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
         final VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
         final VehiclePhysics.Brakes brakes = gameData.getPhysics().getBrakes();
@@ -94,10 +98,10 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         
         long timestamp = System.nanoTime();
         
-        if ( ( gameData.getScoringInfo().getSessionID() > lastSessionID ) || ( gameData.getScoringInfo().getRealtimeEntredID() > lastEnteredRealtimeID ) )
+        if ( ( gameData.getScoringInfo().getSessionId() > lastSessionID ) || ( gameData.getScoringInfo().getRealtimeEntredId() > lastEnteredRealtimeID ) )
         {
-            lastSessionID = gameData.getScoringInfo().getSessionID();
-            lastEnteredRealtimeID = gameData.getScoringInfo().getRealtimeEntredID();
+            lastSessionID = gameData.getScoringInfo().getSessionId();
+            lastEnteredRealtimeID = gameData.getScoringInfo().getRealtimeEntredId();
             engineLifetime = engine.getSafeLifetimeTotal( gameData.getScoringInfo().getRaceLengthPercentage() );
             
             brakeDiscThicknessFL = gameData.getSetup().getWheelAndTire( Wheel.FRONT_LEFT ).getBrakeDiscThickness();
@@ -227,7 +231,8 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         lastTimestamp = timestamp;
     }
     
-    public void onRealtimeExited( LiveGameData gameData ) {}
+    @Override
+    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
     
     LifetimeManager()
     {

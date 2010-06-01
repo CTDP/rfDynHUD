@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
@@ -782,6 +783,16 @@ public abstract class Widget implements Documented
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
     public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    {
+    }
+    
+    /**
+     * This method is called when {@link ScoringInfo} have been updated (done at 2Hz).
+     * 
+     * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     */
+    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     

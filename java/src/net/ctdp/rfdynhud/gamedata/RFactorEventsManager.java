@@ -134,14 +134,20 @@ public class RFactorEventsManager implements ConfigurationClearListener
             if ( !gameData.isInRealtimeMode() )
             {
                 int gameResX = widgetsManager.getMainTexture().getWidth();
-                int gameResY = widgetsManager.getMainTexture().getHeight();
+                //int gameResY = widgetsManager.getMainTexture().getHeight();
                 int viewportWidth = widgetsManager.getGameResolution().getResX();
-                int viewportHeight = widgetsManager.getGameResolution().getResY();
+                //int viewportHeight = widgetsManager.getGameResolution().getResY();
                 
+                if ( (float)viewportWidth / (float)gameResX > 0.8f )
+                    bigMonitor = true;
+                else
+                    smallMonitor = true;
+                /*
                 if ( ( viewportWidth == gameResX ) && ( viewportHeight == gameResY ) )
                     bigMonitor = true;
                 else
                     smallMonitor = true;
+                */
             }
             
             String modName = gameData.getModInfo().getName();
@@ -202,7 +208,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
             reloadPhysics( editorPresets != null, true );
             reloadSetup( editorPresets != null );
             
-            __GDPrivilegedAccess.onSessionStarted( gameData );
+            __GDPrivilegedAccess.onSessionStarted( gameData, editorPresets );
             
             // We cannot load the configuration here, because we don't know, which one to load (no scoring info).
             
@@ -294,7 +300,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
             ThreeLetterCodeManager.updateThreeLetterCodes();
             
             __GDPrivilegedAccess.updateInfo( gameData );
-            __GDPrivilegedAccess.setRealtimeMode( true, gameData );
+            __GDPrivilegedAccess.setRealtimeMode( true, gameData, editorPresets );
             
             reloadPhysics( editorPresets != null, false );
             
@@ -366,7 +372,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         try
         {
-            __GDPrivilegedAccess.setRealtimeMode( false, gameData );
+            __GDPrivilegedAccess.setRealtimeMode( false, gameData, editorPresets );
             
             widgetsManager.fireOnRealtimeExited( gameData, editorPresets );
         }
@@ -574,6 +580,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
         
         byte result = checkWaitingData( false );
+        
+        widgetsManager.fireOnScoringInfoUpdated( gameData, null );
         
         if ( !waitingForData && ( result != 0 ) )
         {

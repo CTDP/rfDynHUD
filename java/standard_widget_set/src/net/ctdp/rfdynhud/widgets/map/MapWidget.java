@@ -173,9 +173,19 @@ public class MapWidget extends Widget
     private void initMaxDisplayedVehicles( boolean isEditorMode, ModInfo modInfo )
     {
         if ( isEditorMode )
-            this.maxDisplayedVehicles = 23;
+            this.maxDisplayedVehicles = 22 + 1;
         else
             this.maxDisplayedVehicles = modInfo.getMaxOpponents() + 1;
+        
+        this.maxDisplayedVehicles = Math.min( maxDisplayedVehicles, 32 ); // TODO
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    {
     }
     
     private void initSubTextures( boolean isEditorMode, ModInfo modInfo, int widgetWidth, int widgetHeight )

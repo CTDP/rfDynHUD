@@ -44,9 +44,9 @@ public class MiscWidget extends Widget
     private DrawnString scoringString2 = null;
     private DrawnString scoringString3 = null;
     
-    private DrawnString sessionTimeString = null;
     private DrawnString lapString = null;
     private DrawnString stintString = null;
+    private DrawnString sessionTimeString = null;
     
     private DrawnString absTopspeedString = null;
     private DrawnString relTopspeedString = null;
@@ -69,8 +69,10 @@ public class MiscWidget extends Widget
     private boolean updateAbs = false;
     
     private int[] scoringColWidths = new int[ 2 ];
+    private int[] timingColWidths = new int[ 2 ];
     private int[] velocityColWidths = new int[ 3 ];
     private final Alignment[] scoringAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT };
+    private final Alignment[] timingAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT };
     private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
     private static final int padding = 4;
     
@@ -186,7 +188,6 @@ public class MiscWidget extends Widget
         final int top = -2;
         
         final String speedUnits = getSpeedUnits( gameData.getProfileInfo().getSpeedUnits() );
-        final boolean showCurrentLap = gameData.getProfileInfo().getShowCurrentLap();
         
         {
             boolean b = displayScoring.getBooleanValue();
@@ -200,33 +201,21 @@ public class MiscWidget extends Widget
             boolean b = displayTiming.getBooleanValue();
             if ( ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() ) || ( !displayScoring.getBooleanValue() && !displayVelocity.getBooleanValue() ) )
             {
-                if ( showCurrentLap )
-                    lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
-                else
-                    lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
-                
-                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_stintlength_prefix + ": ", null );
-                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_sessiontime_prefix + ": ", null );
+                lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                stintString = dsf.newDrawnStringIf( b, "stintString", null, lapString, center, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", null, stintString, center, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             }
             else if ( !displayScoring.getBooleanValue() )
             {
-                if ( showCurrentLap )
-                    lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
-                else
-                    lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
-                
-                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Stint: ", null );
-                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, "Time: ", null );
+                lapString = dsf.newDrawnStringIf( b, "lapString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                stintString = dsf.newDrawnStringIf( b, "stintString", null, lapString, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", null, stintString, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
             }
             else if ( !displayVelocity.getBooleanValue() )
             {
-                if ( showCurrentLap )
-                    lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, Loc.timing_current_lap_prefix + ": ", null );
-                else
-                    lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, Loc.timing_laps_done_prefix + ": ", null );
-                
-                stintString = dsf.newDrawnStringIf( b, "stintString", lapString, lapString, 0, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_stintlength_prefix + ": ", null );
-                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", lapString, stintString, left, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor, Loc.timing_sessiontime_prefix + ": ", null );
+                lapString = dsf.newDrawnStringIf( b, "lapString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+                stintString = dsf.newDrawnStringIf( b, "stintString", null, lapString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", null, stintString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
             }
         }
         
@@ -267,6 +256,16 @@ public class MiscWidget extends Widget
             scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort() + ")" }, scoringAlignment, padding, texture, scoringColWidths );
         else
             scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, texture, scoringColWidths );
+    }
+    
+    private void updateTimingColWidths( String[] lapStringValue, String[] stintStringValue, String[] sessionTimeStringValue, TextureImage2D texture )
+    {
+        timingColWidths[0] = 0;
+        timingColWidths[1] = 0;
+        
+        lapString.getMaxColWidths( lapStringValue, timingAlignment, padding, texture, timingColWidths );
+        stintString.getMaxColWidths( stintStringValue, timingAlignment, padding, texture, timingColWidths );
+        sessionTimeString.getMaxColWidths( sessionTimeStringValue, timingAlignment, padding, texture, timingColWidths );
     }
     
     /**
@@ -325,7 +324,7 @@ public class MiscWidget extends Widget
                 }
                 
                 if ( place.isValid() )
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", place.getValueAsString() + "/" + ( getConfiguration().getUseClassScoring() ? vsi.getNumVehiclesInSameClass() : scoringInfo.getNumVehicles() ) }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
                 else
                     scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
             }
@@ -347,86 +346,146 @@ public class MiscWidget extends Widget
         
         if ( displayTiming.getBooleanValue() )
         {
+            String[] lapStringValue = new String[ 2 ];
+            String[] stintStringValue = new String[ 2 ];
+            String[] sessionTimeStringValue = new String[ 2 ];
+            boolean needsLapRedraw = false;
+            boolean needsStintRedraw = false;
+            boolean needsTimeRedraw = false;
+            
+            if ( gameData.getProfileInfo().getShowCurrentLap() )
+                lapStringValue[0] = Loc.timing_current_lap_prefix + ":";
+            else
+                lapStringValue[0] = Loc.timing_laps_done_prefix + ":";
+            
             lapsCompleted.update( vsi.getLapsCompleted() );
-            final int maxLaps = scoringInfo.getMaxLaps();
-            if ( maxLaps < Integer.MAX_VALUE / 2 )
+            final int maxLaps = vsi.getEstimatedMaxLaps();
+            if ( maxLaps > 0 )
             {
-                float lapsRemaining = maxLaps - lapsCompleted.getValue();
+                float lapsRemaining = vsi.getLapsRemaining( maxLaps );
                 
-                if ( true )
-                {
-                    lapsRemaining -= 1f;
-                    lapsRemaining += 1f - vsi.getLapDistance() / scoringInfo.getTrackLength();
-                }
-                
-                float rounded = Math.round( lapsRemaining * 10f );
+                //float rounded = Math.round( lapsRemaining * 10f );
+                float rounded = (float)Math.floor( lapsRemaining * 10f );
                 gamePhase1.update( scoringInfo.getGamePhase() );
                 
-                if ( needsCompleteRedraw || ( rounded != oldLapsRemaining ) || gamePhase1.hasChanged())
+                if ( scoringInfo.getSessionType().isRace() && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )
+                {
+                    lapStringValue[1] = "0 / " + maxLaps + " / " + maxLaps;
+                }
+                else
+                {
+                    lapsRemaining = (float)Math.floor( lapsRemaining * 10f ) / 10f;
+                    
+                    if ( gameData.getProfileInfo().getShowCurrentLap() )
+                        lapStringValue[1] = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
+                    else
+                        lapStringValue[1] = lapsCompleted + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
+                }
+                
+                if ( needsCompleteRedraw || ( rounded != oldLapsRemaining ) || gamePhase1.hasChanged() )
                 {
                     oldLapsRemaining = rounded;
                     
-                    String string;
-                    if ( scoringInfo.getSessionType().isRace() && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )
-                    {
-                        string = "0 / " + maxLaps + " / " + maxLaps;
-                    }
-                    else
-                    {
-                        if ( gameData.getProfileInfo().getShowCurrentLap() )
-                            string = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
-                        else
-                            string = lapsCompleted + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
-                    }
-                    lapString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    needsLapRedraw = true;
                 }
             }
-            else if ( needsCompleteRedraw || lapsCompleted.hasChanged() )
+            else
             {
-                String string;
                 if ( gameData.getProfileInfo().getShowCurrentLap() )
-                    string = String.valueOf( lapsCompleted.getValue() + 1 );
+                    lapStringValue[1] = String.valueOf( lapsCompleted.getValue() + 1 );
                 else
-                    string = String.valueOf( lapsCompleted );
-                lapString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    lapStringValue[1] = String.valueOf( lapsCompleted );
+                
+                if ( needsCompleteRedraw || lapsCompleted.hasChanged() )
+                {
+                    needsLapRedraw = true;
+                }
             }
             
             {
+                stintStringValue[0] = Loc.timing_stintlength_prefix + ":";
+                
                 int stintLength = (int)( ( ( editorPresets == null ) ? vsi.getStintLength() : 5.2f ) * 10f );
-                if ( needsCompleteRedraw || ( stintLength != oldStintLength ) )
+                boolean changed = ( stintLength != oldStintLength );
+                if ( vsi.isInPits() )
                 {
-                    if ( vsi.isInPits() )
-                    {
-                        if ( oldStintLength < 0 )
-                            stintString.draw( offsetX, offsetY, Loc.timing_stintlength_na, backgroundColor, texture );
-                        else
-                            stintString.draw( offsetX, offsetY, String.valueOf( Math.round( oldStintLength / 10f ) ), backgroundColor, texture );
-                    }
+                    if ( oldStintLength < 0 )
+                        stintStringValue[1] = Loc.timing_stintlength_na;
                     else
-                    {
-                        oldStintLength = stintLength;
-                        
-                        stintString.draw( offsetX, offsetY, String.valueOf( oldStintLength / 10f ), backgroundColor, texture );
-                    }
+                        stintStringValue[1] = String.valueOf( Math.round( oldStintLength / 10f ) );
+                }
+                else
+                {
+                    oldStintLength = stintLength;
+                    
+                    stintStringValue[1] = String.valueOf( oldStintLength / 10f );
+                }
+                
+                if ( needsCompleteRedraw || changed )
+                {
+                    needsStintRedraw = true;
                 }
             }
+            
+            sessionTimeStringValue[0] = Loc.timing_sessiontime_prefix + ":";
             
             sessionTime.update( gameData.getScoringInfo().getSessionTime() );
             gamePhase2.update( scoringInfo.getGamePhase() );
-            float totalTime = gameData.getScoringInfo().getEndTime();
+            float endTime = gameData.getScoringInfo().getEndTime();
+            
+            if ( scoringInfo.getGamePhase() == GamePhase.SESSION_OVER )
+                sessionTimeStringValue[1] = "00:00:00";
+            else if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( endTime < 0f ) || ( endTime > 3000000f ) ) )
+                sessionTimeStringValue[1] = "--:--:--";
+            else if ( scoringInfo.getSessionType().isTestDay() || ( endTime < 0f ) || ( endTime > 3000000f ) )
+                sessionTimeStringValue[1] = TimingUtil.getTimeAsString( sessionTime.getValue(), true, false );
+            else
+                sessionTimeStringValue[1] = TimingUtil.getTimeAsString( sessionTime.getValue() - endTime, true, false );
+            
             if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase2.hasChanged( false ) ) ) )
             {
                 sessionTime.setUnchanged();
                 gamePhase2.setUnchanged();
                 
-                if ( scoringInfo.getGamePhase() == GamePhase.SESSION_OVER )
-                    sessionTimeString.draw( offsetX, offsetY, "00:00:00", backgroundColor, texture );
-                else if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
-                    sessionTimeString.draw( offsetX, offsetY, "--:--:--", backgroundColor, texture );
-                else if ( scoringInfo.getSessionType().isTestDay() || ( totalTime < 0f ) || ( totalTime > 3000000f ) )
-                    sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), backgroundColor, texture );
-                else
-                    sessionTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue() - totalTime, true, false ), backgroundColor, texture );
+                needsTimeRedraw = true;
+            }
+            
+            boolean colWidthsUpdated = false;
+            
+            if ( needsLapRedraw )
+            {
+                if ( !colWidthsUpdated )
+                {
+                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue, texture );
+                    
+                    colWidthsUpdated = true;
+                }
+                
+                lapString.drawColumns( offsetX, offsetY, lapStringValue, timingAlignment, padding, timingColWidths, backgroundColor, texture );
+            }
+            
+            if ( needsStintRedraw )
+            {
+                if ( !colWidthsUpdated )
+                {
+                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue, texture );
+                    
+                    colWidthsUpdated = true;
+                }
+                
+                stintString.drawColumns( offsetX, offsetY, stintStringValue, timingAlignment, padding, timingColWidths, backgroundColor, texture );
+            }
+            
+            if ( needsTimeRedraw )
+            {
+                if ( !colWidthsUpdated )
+                {
+                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue, texture );
+                    
+                    colWidthsUpdated = true;
+                }
+                
+                sessionTimeString.drawColumns( offsetX, offsetY, sessionTimeStringValue, timingAlignment, padding, timingColWidths, backgroundColor, texture );
             }
         }
         

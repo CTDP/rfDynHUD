@@ -71,6 +71,8 @@ public class WidgetsConfiguration implements Documented
         public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig );
     }
     
+    private int id = 0;
+    
     private final ArrayList<Widget> widgets = new ArrayList<Widget>();
     private final HashMap<String, Widget> widgetsMap = new HashMap<String, Widget>();
     
@@ -93,6 +95,11 @@ public class WidgetsConfiguration implements Documented
     private InputMappings inputMappings = null;
     
     private boolean isValid = false;
+    
+    public final int getId()
+    {
+        return ( id );
+    }
     
     void setValid( boolean valid )
     {
@@ -271,6 +278,7 @@ public class WidgetsConfiguration implements Documented
     
     void setJustLoaded( LiveGameData gameData, EditorPresets editorPresets )
     {
+        this.id++;
         this.needsCheckFixAndBake = true;
         
         for ( int i = 0; i < widgets.size(); i++ )

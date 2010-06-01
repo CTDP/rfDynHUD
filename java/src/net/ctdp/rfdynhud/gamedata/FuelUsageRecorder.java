@@ -119,12 +119,14 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         setByEditor = true;
     }
     
-    public void onSessionStarted( LiveGameData gameData )
+    @Override
+    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
         reset();
     }
     
-    public void onRealtimeEntered( LiveGameData gameData )
+    @Override
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
         oldLapsCompleted = -1;
         lapStartFuel = -1f;
@@ -135,7 +137,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
      * {@inheritDoc}
      */
     @Override
-    public void onScoringInfoUpdated( LiveGameData gameData )
+    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -175,7 +177,8 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         }
     }
     
-    public void onRealtimeExited( LiveGameData gameData )
+    @Override
+    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
     {
         float avgUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getAverage();
         

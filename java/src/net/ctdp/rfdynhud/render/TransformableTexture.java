@@ -70,10 +70,11 @@ public class TransformableTexture
         }
     }
     
-    public static final int MAX_NUM_TEXTURES = 128;
-    public static final int MAX_NUM_RECTANGLES = 128;
+    private static final int SOFT_MAX_NUM_WIDGETS = 48;
+    private static final int MAX_TOTAL_NUM_RECTANGLES = 255;
+    public static final int MAX_NUM_TEXTURES = MAX_TOTAL_NUM_RECTANGLES - SOFT_MAX_NUM_WIDGETS + 1;
     
-    public static final int STRUCT_SIZE = 39 + MAX_NUM_RECTANGLES * 8;
+    public static final int STRUCT_SIZE = 40 + SOFT_MAX_NUM_WIDGETS * 9;
     
     private static final int OFFSET_VISIBLE = 1;
     private static final int OFFSET_SIZE = OFFSET_VISIBLE + MAX_NUM_TEXTURES * 1;
@@ -85,7 +86,7 @@ public class TransformableTexture
     private static final int OFFSET_CLIP_RECT = OFFSET_SCALE + MAX_NUM_TEXTURES * 8;
     private static final int OFFSET_NUM_RECTANLES = OFFSET_CLIP_RECT + MAX_NUM_TEXTURES * 8;
     private static final int OFFSET_RECT_VISIBLE_FLAGS = OFFSET_NUM_RECTANLES + MAX_NUM_TEXTURES * 1;
-    private static final int OFFSET_RECTANLES = OFFSET_RECT_VISIBLE_FLAGS + MAX_NUM_TEXTURES * MAX_NUM_RECTANGLES * 1;
+    private static final int OFFSET_RECTANGLES = OFFSET_RECT_VISIBLE_FLAGS + MAX_NUM_TEXTURES * SOFT_MAX_NUM_WIDGETS * 1;
     
     private final TextureImage2D texture;
     
@@ -146,6 +147,11 @@ public class TransformableTexture
         System.arraycopy( tmp, 0, usedRectangles, 0, m );
         
         this.dirty = true;
+    }
+    
+    protected final int getNumUsedRectangles()
+    {
+        return ( usedRectangles.length );
     }
     
     protected void setRectangleVisible( int index, boolean visible )
@@ -322,49 +328,53 @@ public class TransformableTexture
     
     protected int fillBuffer( boolean widgetVisibility, int offsetX, int offsetY, int index, int rectangleIndex, ByteBuffer buffer )
     {
+        if ( ( index >= MAX_NUM_TEXTURES ) || ( rectangleIndex >= MAX_TOTAL_NUM_RECTANGLES ) )
+            return ( rectangleIndex );
+        
         buffer.put( OFFSET_VISIBLE + index * 1, ( widgetVisibility && visible ) ? (byte)1 : (byte)0 );
         
-        if ( !dirty )
-            return ( rectangleIndex + usedRectangles.length );
-        
-        buffer.putShort( OFFSET_SIZE + index * 4 + 0, (short)texture.getWidth() );
-        buffer.putShort( OFFSET_SIZE + index * 4 + 2, (short)texture.getHeight() );
-        buffer.put( OFFSET_TRANSFORMED + index * 1, isTransformed ? transformFlags : (byte)0 );
-        buffer.putFloat( OFFSET_TRANSLATION + index * 8 + 0, offsetX + transX );
-        buffer.putFloat( OFFSET_TRANSLATION + index * 8 + 4, offsetY + transY );
-        buffer.putShort( OFFSET_ROT_CENTER + index * 4 + 0, (short)rotCenterX );
-        buffer.putShort( OFFSET_ROT_CENTER + index * 4 + 2, (short)rotCenterY );
-        buffer.putFloat( OFFSET_ROTATION + index * 4, rotation );
-        buffer.putFloat( OFFSET_SCALE + index * 8 + 0, scaleX );
-        buffer.putFloat( OFFSET_SCALE + index * 8 + 4, scaleY );
-        buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 0, (short)clipRectX );
-        buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 2, (short)clipRectY );
-        buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 4, (short)clipRectWidth );
-        buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 6, (short)clipRectHeight );
-        
-        if ( ( usedRectangles == null ) || ( usedRectangles.length == 0 ) )
+        if ( dirty )
         {
-            buffer.put( OFFSET_NUM_RECTANLES + index * 1, (byte)0 );
-        }
-        else
-        {
-            buffer.put( OFFSET_NUM_RECTANLES + index * 1, (byte)usedRectangles.length );
-            buffer.position( OFFSET_RECT_VISIBLE_FLAGS + rectangleIndex );
-            for ( int i = 0; i < usedRectangles.length; i++ )
-                buffer.put( usedRectangles[i].visible );
-            buffer.position( OFFSET_RECTANLES + rectangleIndex * 8 );
-            for ( int i = 0; i < usedRectangles.length; i++ )
+            buffer.putShort( OFFSET_SIZE + index * 4 + 0, (short)texture.getWidth() );
+            buffer.putShort( OFFSET_SIZE + index * 4 + 2, (short)texture.getHeight() );
+            buffer.put( OFFSET_TRANSFORMED + index * 1, isTransformed ? transformFlags : (byte)0 );
+            buffer.putFloat( OFFSET_TRANSLATION + index * 8 + 0, offsetX + transX );
+            buffer.putFloat( OFFSET_TRANSLATION + index * 8 + 4, offsetY + transY );
+            buffer.putShort( OFFSET_ROT_CENTER + index * 4 + 0, (short)rotCenterX );
+            buffer.putShort( OFFSET_ROT_CENTER + index * 4 + 2, (short)rotCenterY );
+            buffer.putFloat( OFFSET_ROTATION + index * 4, rotation );
+            buffer.putFloat( OFFSET_SCALE + index * 8 + 0, scaleX );
+            buffer.putFloat( OFFSET_SCALE + index * 8 + 4, scaleY );
+            buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 0, (short)clipRectX );
+            buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 2, (short)clipRectY );
+            buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 4, (short)clipRectWidth );
+            buffer.putShort( OFFSET_CLIP_RECT + index * 8 + 6, (short)clipRectHeight );
+            
+            if ( ( usedRectangles == null ) || ( usedRectangles.length == 0 ) )
             {
-                buffer.putShort( usedRectangles[i].left );
-                buffer.putShort( usedRectangles[i].top );
-                buffer.putShort( usedRectangles[i].width );
-                buffer.putShort( usedRectangles[i].height );
+                buffer.put( OFFSET_NUM_RECTANLES + index * 1, (byte)0 );
             }
+            else
+            {
+                int n = Math.min( usedRectangles.length, SOFT_MAX_NUM_WIDGETS );
+                buffer.put( OFFSET_NUM_RECTANLES + index * 1, (byte)n );
+                buffer.position( OFFSET_RECT_VISIBLE_FLAGS + rectangleIndex );
+                for ( int i = 0; i < n; i++ )
+                    buffer.put( usedRectangles[i].visible );
+                buffer.position( OFFSET_RECTANGLES + rectangleIndex * 8 );
+                for ( int i = 0; i < n; i++ )
+                {
+                    buffer.putShort( usedRectangles[i].left );
+                    buffer.putShort( usedRectangles[i].top );
+                    buffer.putShort( usedRectangles[i].width );
+                    buffer.putShort( usedRectangles[i].height );
+                }
+            }
+            
+            this.dirty = false;
         }
         
-        this.dirty = false;
-        
-        return ( rectangleIndex + usedRectangles.length );
+        return ( Math.min( rectangleIndex + usedRectangles.length, MAX_TOTAL_NUM_RECTANGLES ) );
     }
     
     /*

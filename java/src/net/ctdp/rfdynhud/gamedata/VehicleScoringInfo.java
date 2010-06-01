@@ -277,6 +277,128 @@ public class VehicleScoringInfo
         return ( (short)( getLapsCompleted() + 1 ) );
     }
     
+    private float getAvgLaptime()
+    {
+        short lapsCompleted = getLapsCompleted();
+        int n = 0;
+        float totalTime = 0f;
+        
+        for ( int i = 0; i < lapsCompleted; i++ )
+        {
+            Laptime lt = getLaptime( lapsCompleted - 1 - i );
+            
+            if ( ( lt != null ) && lt.isFinished() && ( lt.isOutlap() == Boolean.FALSE ) && ( lt.isInlap() == Boolean.FALSE ) )
+            {
+                totalTime += lt.getLapTime();
+                n++;
+            }
+            
+            if ( n >= 5 )
+                break;
+        }
+        
+        if ( n == 0 )
+        {
+            int maxLaps = scoringInfo.getMaxLaps();
+            if ( maxLaps > Integer.MAX_VALUE / 2 )
+                maxLaps = 0;
+            
+            if ( maxLaps > 0 )
+                return ( maxLaps );
+            
+            return ( -1 );
+        }
+        
+        return ( totalTime / n );
+    }
+    
+    public final SessionLimit getSessionLimit( SessionLimit preference )
+    {
+        int maxLaps = scoringInfo.getMaxLaps();
+        if ( maxLaps > Integer.MAX_VALUE / 2 )
+            maxLaps = 0;
+        final float endTime = scoringInfo.getEndTime();
+        
+        if ( maxLaps < 10000 )
+        {
+            if ( ( endTime > 0f ) && ( endTime < 999999f ) )
+            {
+                float avgLaptime = getAvgLaptime();
+                
+                if ( avgLaptime < 0f )
+                {
+                    if ( preference == null )
+                        return ( SessionLimit.LAPS );
+                    
+                    return ( preference );
+                }
+                
+                int timeLaps = (int)( endTime / avgLaptime );
+                
+                if ( timeLaps < maxLaps )
+                    return ( SessionLimit.TIME );
+            }
+            
+            return ( SessionLimit.LAPS );
+        }
+        
+        if ( ( endTime > 0f ) && ( endTime < 999999f ) )
+            return ( SessionLimit.TIME );
+        
+        return ( null );
+    }
+    
+    public final SessionLimit getSessionLimit()
+    {
+        return ( getSessionLimit( null ) );
+    }
+    
+    public final int getEstimatedMaxLaps()
+    {
+        short lapsCompleted = getLapsCompleted();
+        int maxLaps = scoringInfo.getMaxLaps();
+        if ( maxLaps > Integer.MAX_VALUE / 2 )
+            maxLaps = 0;
+        float endTime = scoringInfo.getEndTime();
+        if ( ( lapsCompleted == 0 ) || ( endTime < 0f ) || ( endTime > 999999f ) )
+        {
+            if ( maxLaps > 0 )
+                return ( maxLaps );
+            
+            return ( -1 );
+        }
+        
+        float avgLaptime = getAvgLaptime();
+        if ( avgLaptime < 0f )
+        {
+            if ( maxLaps > 0 )
+                return ( maxLaps );
+            
+            return ( -1 );
+        }
+        
+        float restTime = endTime - getLapStartTime();
+        int timeLaps = lapsCompleted + (int)( restTime / avgLaptime );
+        
+        if ( ( maxLaps <= 0 ) || ( timeLaps < maxLaps ) )
+            return ( timeLaps );
+        
+        return ( maxLaps );
+    }
+    
+    public final float getLapsRemaining( int maxLaps )
+    {
+        if ( maxLaps < 0 )
+            return ( -1f );
+        
+        return ( maxLaps - getLapsCompleted() - getNormalizedLapDistance() );
+    }
+    
+    public final float getLapsRemaining()
+    {
+        return ( getLapsRemaining( getEstimatedMaxLaps() ) );
+    }
+    
     /**
      * sector
      */
@@ -324,6 +446,14 @@ public class VehicleScoringInfo
         // float mLapDist
         
         return ( ByteUtil.readFloat( buffer, OFFSET_LAP_DISTANCE ) );
+    }
+    
+    /**
+     * current distance around track in range 0..1
+     */
+    public final float getNormalizedLapDistance()
+    {
+        return ( getLapDistance() / scoringInfo.getTrackLength() );
     }
     
     void setStintLength( int stintStartLap, float stintLength )

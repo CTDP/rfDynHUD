@@ -117,10 +117,10 @@ public class TelemetryData
     
     public static interface TelemetryDataUpdateListener
     {
-        public void onSessionStarted( LiveGameData gameData );
-        public void onRealtimeEntered( LiveGameData gameData );
-        public void onTelemetryDataUpdated( LiveGameData gameData );
-        public void onRealtimeExited( LiveGameData gameData );
+        public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets );
+        public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets );
+        public void onTelemetryDataUpdated( LiveGameData gameData, EditorPresets editorPresets );
+        public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets );
     }
     
     private TelemetryDataUpdateListener[] updateListeners = null;
@@ -184,7 +184,7 @@ public class TelemetryData
         setEngineBoostMapping( editorPresets.getEngineBoost() );
     }
     
-    void onDataUpdated()
+    void onDataUpdated( EditorPresets editorPresets )
     {
         this.updatedInRealtimeMode = gameData.isInRealtimeMode();
         this.updateId++;
@@ -201,7 +201,7 @@ public class TelemetryData
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onTelemetryDataUpdated( gameData );
+                updateListeners[i].onTelemetryDataUpdated( gameData, editorPresets );
         }
     }
     
@@ -219,34 +219,34 @@ public class TelemetryData
         return ( updateId );
     }
     
-    void onSessionStarted()
+    void onSessionStarted( EditorPresets editorPresets )
     {
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onSessionStarted( gameData );
+                updateListeners[i].onSessionStarted( gameData, editorPresets );
         }
     }
     
-    void onRealtimeEntered()
+    void onRealtimeEntered( EditorPresets editorPresets )
     {
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onRealtimeEntered( gameData );
+                updateListeners[i].onRealtimeEntered( gameData, editorPresets );
         }
     }
     
-    void onRealtimeExited()
+    void onRealtimeExited( EditorPresets editorPresets )
     {
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onRealtimeExited( gameData );
+                updateListeners[i].onRealtimeExited( gameData, editorPresets );
         }
     }
     
-    void loadFromStream( InputStream in ) throws IOException
+    void loadFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
     {
         prepareDataUpdate();
         
@@ -264,7 +264,7 @@ public class TelemetryData
             bytesToRead -= n;
         }
         
-        onDataUpdated();
+        onDataUpdated( editorPresets );
     }
     
     void setEngineBoostMapping( int boost )

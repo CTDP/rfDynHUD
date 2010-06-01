@@ -9,9 +9,9 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.etv2010.widgets._base.ETVWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
-import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
+import net.ctdp.rfdynhud.gamedata.SessionLimit;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.YellowFlagState;
@@ -37,13 +37,6 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  */
 public class ETVSessionStateWidget extends ETVWidgetBase
 {
-    private static enum SessionLimit
-    {
-        LAPS,
-        TIME,
-        ;
-    }
-    
     private final EnumProperty<SessionLimit> sessionLimitPreference = new EnumProperty<SessionLimit>( this, "sessionLimitPreference", SessionLimit.LAPS );
     
     private SessionLimit sessionLimit = SessionLimit.LAPS;
@@ -66,36 +59,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     private static final Alignment[] colAligns = new Alignment[] { Alignment.RIGHT, Alignment.CENTER, Alignment.RIGHT };
     private final int[] colWidths = new int[ 3 ];
     private static final int colPadding = 10;
-    
-    private static final SessionLimit getSessionLimit( ScoringInfo scoringInfo, SessionLimit preference )
-    {
-        final int maxLaps = scoringInfo.getMaxLaps();
-        final float endTime = scoringInfo.getEndTime();
-        
-        if ( maxLaps < 10000 )
-        {
-            if ( ( endTime > 0f ) && ( endTime < 999999f ) )
-            {
-                int timeLaps = (int)( endTime / 95.0f ) * 2;
-                Laptime fastestLap = scoringInfo.getViewedVehicleScoringInfo().getFastestLaptime();
-                if ( fastestLap != null )
-                    timeLaps = (int)( endTime / ( fastestLap.getLapTime() * 1.033f ) );
-                
-                if ( timeLaps < maxLaps )
-                    return ( SessionLimit.TIME );
-                
-                return ( preference );
-            }
-            
-            return ( SessionLimit.LAPS );
-        }
-        
-        if ( ( endTime > 0f ) && ( endTime < 999999f ) )
-            return ( SessionLimit.TIME );
-        
-        
-        return ( SessionLimit.LAPS );
-    }
     
     private static final String getCaption( SessionType sessionType, SessionLimit sessionLimit )
     {
@@ -154,7 +117,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         SessionLimit oldSessionLimit = sessionLimit;
         String oldCaption = caption;
         
-        sessionLimit = getSessionLimit( scoringInfo, sessionLimitPreference.getEnumValue() );
+        sessionLimit = scoringInfo.getViewedVehicleScoringInfo().getSessionLimit( sessionLimitPreference.getEnumValue() );
         caption = getCaption( scoringInfo.getSessionType(), sessionLimit );
         
         if ( ( sessionLimit != oldSessionLimit ) || !caption.equals( oldCaption ) )
@@ -286,7 +249,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         if ( sessionLimit == SessionLimit.TIME )
         {
             sessionTime.update( gameData.getScoringInfo().getSessionTime() );
-            float totalTime = gameData.getScoringInfo().getEndTime();
+            float endTime = gameData.getScoringInfo().getEndTime();
             if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase.hasChanged( false ) ) ) )
             {
                 sessionTime.setUnchanged();
@@ -294,12 +257,12 @@ public class ETVSessionStateWidget extends ETVWidgetBase
                 
                 if ( gamePhase.getValue() == GamePhase.SESSION_OVER )
                     stateString.draw( offsetX, offsetY, "00:00:00", dataBgColor, dataFontColor, texture );
-                else if ( scoringInfo.getSessionType().isRace() && ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( totalTime < 0f ) || ( totalTime > 3000000f ) ) )
+                else if ( scoringInfo.getSessionType().isRace() && ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( endTime < 0f ) || ( endTime > 3000000f ) ) )
                     stateString.draw( offsetX, offsetY, "--:--:--", dataBgColor, dataFontColor, texture );
-                else if ( scoringInfo.getSessionType().isTestDay() || ( totalTime < 0f ) || ( totalTime > 3000000f ) )
+                else if ( scoringInfo.getSessionType().isTestDay() || ( endTime < 0f ) || ( endTime > 3000000f ) )
                     stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), dataBgColor, dataFontColor, texture );
                 else
-                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( totalTime - sessionTime.getValue(), true, false ), dataBgColor, dataFontColor, texture );
+                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( endTime - sessionTime.getValue(), true, false ), dataBgColor, dataFontColor, texture );
             }
         }
         else

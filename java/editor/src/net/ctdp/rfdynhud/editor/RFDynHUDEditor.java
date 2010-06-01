@@ -2267,22 +2267,22 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         {
             //InputStream in = new FileInputStream( "data/game_data/commentary_info" );
             InputStream in = LiveGameData.class.getResourceAsStream( "/data/game_data/commentary_info" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getCommentaryRequestInfo() );
+            __GDPrivilegedAccess.loadFromStream( in, gameData.getCommentaryRequestInfo(), editorPresets );
             in.close();
             
             //in = new FileInputStream( "data/game_data/graphics_info" );
             in = LiveGameData.class.getResourceAsStream( "/data/game_data/graphics_info" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getGraphicsInfo() );
+            __GDPrivilegedAccess.loadFromStream( in, gameData.getGraphicsInfo(), editorPresets );
             in.close();
             
             //in = new FileInputStream( "data/game_data/scoring_info" );
             in = LiveGameData.class.getResourceAsStream( "/data/game_data/scoring_info" );
-            __GDPrivilegedAccess.loadFromStream( in, editorPresets, gameData.getScoringInfo() );
+            __GDPrivilegedAccess.loadFromStream( in, gameData.getScoringInfo(), editorPresets );
             in.close();
             
             //in = new FileInputStream( "data/game_data/telemetry_data" );
             in = LiveGameData.class.getResourceAsStream( "/data/game_data/telemetry_data" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getTelemetryData() );
+            __GDPrivilegedAccess.loadFromStream( in, gameData.getTelemetryData(), editorPresets );
             in.close();
             
             __GDPrivilegedAccess.applyEditorPresets( editorPresets, gameData );
@@ -2418,7 +2418,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             __GDPrivilegedAccess.loadEditorDefaults( editor.gameData.getPhysics() );
             __GDPrivilegedAccess.loadSetup( true, editor.gameData );
             
-            __GDPrivilegedAccess.setRealtimeMode( true, editor.gameData );
+            __GDPrivilegedAccess.setRealtimeMode( true, editor.gameData, editor.presets );
             initTestGameData( editor.gameData, editor.presets );
             
             if ( editor.currentConfigFile == null )

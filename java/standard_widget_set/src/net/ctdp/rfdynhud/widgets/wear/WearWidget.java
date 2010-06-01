@@ -582,12 +582,16 @@ public class WearWidget extends Widget
             }
             else if ( scoringInfo.getSessionType().isRace() && ( engineLifetimeLossPerLap > 0f ) )
             {
-                int lapsRemaining = scoringInfo.getMaxLaps() - scoringInfo.getPlayersVehicleScoringInfo().getLapsCompleted();
-                int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * w / maxLifetimeTotal );
-                x2 -= explodeTexture.getWidth() / 2;
-                x2 = Math.max( 0, x2 );
-                
-                texture.drawImage( explodeTexture, x + x2, y, false, null );
+                int maxLaps = scoringInfo.getPlayersVehicleScoringInfo().getEstimatedMaxLaps();
+                if ( maxLaps > 0 )
+                {
+                    int lapsRemaining = (int)scoringInfo.getPlayersVehicleScoringInfo().getLapsRemaining( maxLaps );
+                    int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * w / maxLifetimeTotal );
+                    x2 -= explodeTexture.getWidth() / 2;
+                    x2 = Math.max( 0, x2 );
+                    
+                    texture.drawImage( explodeTexture, x + x2, y, false, null );
+                }
             }
         }
         

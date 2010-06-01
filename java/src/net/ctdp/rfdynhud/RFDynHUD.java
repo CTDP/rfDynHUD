@@ -147,6 +147,7 @@ public class RFDynHUD
     }
     
     private long frameIndex = 0;
+    private int lastConfigId = -1;
     
     /**
      * Will and must be called any time, the game is redendered (called from the C++-Plugin).
@@ -161,7 +162,10 @@ public class RFDynHUD
         {
             frameIndex++;
             
-            drawingManager.refreshSubTextureBuffer( false );
+            boolean newConfig = ( drawingManager.getId() != lastConfigId );
+            lastConfigId = drawingManager.getId();
+            
+            drawingManager.refreshSubTextureBuffer( false, gameData, newConfig );
             
             drawingManager.drawWidgets( gameData, null, TextureDirtyRectsManager.isCompleteRedrawForced(), drawingManager.getTexture( 0 ).getTexture() );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );

@@ -63,12 +63,14 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
         firstValidTime = Long.MAX_VALUE;
     }
     
-    public void onSessionStarted( LiveGameData gameData )
+    @Override
+    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
         reset();
     }
     
-    public void onRealtimeEntered( LiveGameData gameData )
+    @Override
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
         firstValidTime = gameData.getScoringInfo().getSessionNanos() + 1L * 1000000000L;
     }
@@ -77,7 +79,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
      * {@inheritDoc}
      */
     @Override
-    public void onTelemetryDataUpdated( LiveGameData gameData )
+    public void onTelemetryDataUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -108,7 +110,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
      * {@inheritDoc}
      */
     @Override
-    public void onScoringInfoUpdated( LiveGameData gameData )
+    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -139,5 +141,6 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
         }
     }
     
-    public void onRealtimeExited( LiveGameData gameData ) {}
+    @Override
+    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
 }

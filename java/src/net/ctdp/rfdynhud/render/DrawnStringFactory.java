@@ -34,7 +34,7 @@ public class DrawnStringFactory
      */
     public final DrawnString newDrawnString( String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
-        DrawnString ds = new DrawnString( xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
+        DrawnString ds = new DrawnString( name, xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
         
         if ( name != null )
             map.put( name, ds );
@@ -193,7 +193,7 @@ public class DrawnStringFactory
             return ( null );
         }
         
-        DrawnString ds = new DrawnString( xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
+        DrawnString ds = new DrawnString( name, xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
         
         if ( name != null )
             map.put( name, ds );

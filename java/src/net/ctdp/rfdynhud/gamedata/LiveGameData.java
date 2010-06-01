@@ -23,7 +23,7 @@ public class LiveGameData
     private final ModInfo modInfo;
     private final TrackInfo trackInfo;
     
-    void setRealtimeMode( boolean realtimeMode )
+    void setRealtimeMode( boolean realtimeMode, EditorPresets editorPresets )
     {
         boolean was = this.realtimeMode;
         
@@ -31,13 +31,13 @@ public class LiveGameData
         
         if ( !was && realtimeMode )
         {
-            getTelemetryData().onRealtimeEntered();
-            getScoringInfo().onRealtimeEntered();
+            getTelemetryData().onRealtimeEntered( editorPresets );
+            getScoringInfo().onRealtimeEntered( editorPresets );
         }
         else if ( was && !realtimeMode )
         {
-            getTelemetryData().onRealtimeExited();
-            getScoringInfo().onRealtimeExited();
+            getTelemetryData().onRealtimeExited( editorPresets );
+            getScoringInfo().onRealtimeExited( editorPresets );
         }
     }
     

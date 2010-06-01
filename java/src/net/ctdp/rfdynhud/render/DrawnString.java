@@ -22,6 +22,8 @@ public class DrawnString
     
     private static final String MAX_HEIGHT_STRING = "yg0O9" + (char)196;
     
+    private final String name;
+    
     private final DrawnString xRelativeTo;
     private final DrawnString yRelativeTo;
     
@@ -43,6 +45,11 @@ public class DrawnString
     
     private final String prefix;
     private final String postfix;
+    
+    public final String getName()
+    {
+        return ( name );
+    }
     
     public void resetClearRect()
     {
@@ -105,6 +112,12 @@ public class DrawnString
                 //if ( xRelativeTo.getAlignment() == Alignment.RIGHT )
                     return ( xRelativeTo.getAbsX() - ( xRelativeTo.maxWidth / 2 ) + x );
             }
+            
+            if ( xRelativeTo.getAlignment() == Alignment.CENTER )
+                return ( xRelativeTo.getAbsX() + ( xRelativeTo.maxWidth / 2 ) + x );
+            
+            if ( xRelativeTo.getAlignment() == Alignment.RIGHT )
+                return ( xRelativeTo.getAbsX() + x );
             
             return ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + x );
         }
@@ -866,8 +879,18 @@ public class DrawnString
     }
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        return ( getClass().getSimpleName() + "( \"" + getName() + "\" )" );
+    }
+    
+    /**
      * Creates a new {@link DrawnString}.
      * 
+     * @param name
      * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
      * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
@@ -880,8 +903,10 @@ public class DrawnString
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
      */
-    DrawnString( DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
+    DrawnString( String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
+        this.name = name;
+        
         this.xRelativeTo = xRelativeTo;
         this.yRelativeTo = yRelativeTo;
         

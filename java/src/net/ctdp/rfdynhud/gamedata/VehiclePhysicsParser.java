@@ -101,7 +101,7 @@ public class VehiclePhysicsParser
         String ss = st.nextToken().trim();
         String ns = st.nextToken().trim();
         
-        setting.set( Float.parseFloat( bv ), Float.parseFloat( ss ), Integer.parseInt( ns ) );
+        setting.set( Float.parseFloat( bv ), Float.parseFloat( ss ), (int)Float.parseFloat( ns ) ); // ILMS has wrong physics and has fractions for the third value. We're simply truncating them.
     }
     
     private static final void parsePhysicsSetting( String value, VehiclePhysics.PhysicsSetting setting, String op )
@@ -132,8 +132,7 @@ public class VehiclePhysicsParser
     
     private static class TBCParser extends AbstractIniParser
     {
-        @SuppressWarnings( "unused" )
-        private final File path;
+        private final String filename;
         private final VehiclePhysics physics;
         private String currentLabel = null;
         private final HashMap<String, VehiclePhysics.SlipCurve> slipCurves = new HashMap<String, VehiclePhysics.SlipCurve>();
@@ -482,6 +481,16 @@ public class VehiclePhysicsParser
         }
         
         @Override
+        protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
+        {
+            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from TBC physics \"" + filename + "\"." );
+            Logger.log( "Line was \"" + line + "\". Exception follows." );
+            Logger.log( t );
+            
+            return ( true );
+        }
+        
+        @Override
         protected void onParsingFinished() throws ParsingException
         {
             if ( currentSlipCurve != null )
@@ -502,9 +511,9 @@ public class VehiclePhysicsParser
             }
         }
         
-        public TBCParser( File path, VehiclePhysics physics )
+        public TBCParser( String filename, VehiclePhysics physics )
         {
-            this.path = path;
+            this.filename = filename;
             this.physics = physics;
         }
         
@@ -530,7 +539,7 @@ public class VehiclePhysicsParser
             {
                 try
                 {
-                    new TBCParser( tireFile.getParentFile(), physics ).parse( tireFile );
+                    new TBCParser( tireFile.getAbsolutePath(), physics ).parse( tireFile );
                     physics.usedTBCFile = tireFile;
                 }
                 catch ( Throwable t )
@@ -547,8 +556,7 @@ public class VehiclePhysicsParser
     
     private static class EnginePhysicsParser extends AbstractIniParser
     {
-        @SuppressWarnings( "unused" )
-        private final File path;
+        private final String filename;
         private final VehiclePhysics.Engine engine;
         
         public static void parseEngineSetting( String key, String value, String op, VehiclePhysics.Engine engine )
@@ -614,9 +622,19 @@ public class VehiclePhysicsParser
             return ( true );
         }
         
-        public EnginePhysicsParser( File path, VehiclePhysics.Engine engine )
+        @Override
+        protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
-            this.path = path;
+            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from engine physics \"" + filename + "\"." );
+            Logger.log( "Line was \"" + line + "\". Exception follows." );
+            Logger.log( t );
+            
+            return ( true );
+        }
+        
+        public EnginePhysicsParser( String filename, VehiclePhysics.Engine engine )
+        {
+            this.filename = filename;
             this.engine = engine;
         }
         
@@ -630,7 +648,7 @@ public class VehiclePhysicsParser
             {
                 try
                 {
-                    new EnginePhysicsParser( engineFile.getParentFile(), engine ).parse( engineFile );
+                    new EnginePhysicsParser( engineFile.getAbsolutePath(), engine ).parse( engineFile );
                 }
                 catch ( Throwable t )
                 {
@@ -661,6 +679,7 @@ public class VehiclePhysicsParser
     private static class HDVParser extends AbstractIniParser
     {
         private final File path;
+        private final String filename;
         private final VehiclePhysics physics;
         
         public static void parseHDVLine( File path, String group, String key, String op, String value, VehiclePhysics physics )
@@ -798,15 +817,27 @@ public class VehiclePhysicsParser
             return ( true );
         }
         
-        public HDVParser( File path, VehiclePhysics physics )
+        @Override
+        protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
-            this.path = path;
+            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from HDV file \"" + filename + "\"." );
+            Logger.log( "Line was \"" + line + "\". Exception follows." );
+            Logger.log( t );
+            
+            return ( true );
+        }
+        
+        public HDVParser( File file, VehiclePhysics physics )
+        {
+            this.path = file.getParentFile();
+            this.filename = file.getAbsolutePath();
             this.physics = physics;
         }
     }
     
     private static class CCHParser extends AbstractIniParser
     {
+        private final String filename;
         private final String vehicleFile;
         
         private boolean groupFound = false;
@@ -887,14 +918,26 @@ public class VehiclePhysicsParser
             return ( false );
         }
         
-        public CCHParser( String vehicleFile )
+        @Override
+        protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
+            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from CCH file \"" + filename + "\"." );
+            Logger.log( "Line was \"" + line + "\". Exception follows." );
+            Logger.log( t );
+            
+            return ( true );
+        }
+        
+        public CCHParser( String filename, String vehicleFile )
+        {
+            this.filename = filename;
             this.vehicleFile = vehicleFile;
         }
     }
     
     private static class UpgradesParser
     {
+        private final String filename;
         private final File path;
         private final String searchedUpgradeType;
         private final int searchedUpgradeLevel;
@@ -1041,17 +1084,14 @@ public class VehiclePhysicsParser
                     try
                     {
                         AbstractIniParser.parseLine( -1, currentHDVGroup, line, op, iniLine, null );
+                        parseHDVValue( currentHDVGroup, iniLine.getKey(), op, iniLine.getValue() );
                     }
-                    catch ( ParsingException e )
+                    catch ( Throwable t )
                     {
-                        Logger.log( e );
+                        Logger.log( "Warning: Unable to parse upgrade HDV line from upgrades file \"" + filename + "\"." );
+                        Logger.log( "Line was \"" + line + "\". Exception follows." );
+                        Logger.log( t );
                     }
-                    catch ( IOException e )
-                    {
-                        Logger.log( e );
-                    }
-                    
-                    parseHDVValue( currentHDVGroup, iniLine.getKey(), op, iniLine.getValue() );
                 }
             }
         }
@@ -1134,9 +1174,10 @@ public class VehiclePhysicsParser
             }
         }
         
-        public UpgradesParser( File path, String searchedUpgradeType, int searchedUpgradeLevel, VehiclePhysics physics )
+        public UpgradesParser( File file, String searchedUpgradeType, int searchedUpgradeLevel, VehiclePhysics physics )
         {
-            this.path = path;
+            this.path = file.getParentFile();
+            this.filename = file.getAbsolutePath();
             this.searchedUpgradeType = searchedUpgradeType;
             this.searchedUpgradeLevel = searchedUpgradeLevel;
             this.physics = physics;
@@ -1146,6 +1187,7 @@ public class VehiclePhysicsParser
     private static class VEHParser extends AbstractIniParser
     {
         private final File path;
+        private final String filename;
         private final Object[][] upgradesList;
         private final VehiclePhysics physics;
         
@@ -1170,7 +1212,7 @@ public class VehiclePhysicsParser
                     {
                         try
                         {
-                            new HDVParser( hdvFile.getParentFile(), physics ).parse( hdvFile );
+                            new HDVParser( hdvFile, physics ).parse( hdvFile );
                         }
                         catch ( Throwable t )
                         {
@@ -1199,7 +1241,7 @@ public class VehiclePhysicsParser
                                 for ( int i = 0; i < upgradesList.length; i++ )
                                 {
                                     Object[] upgrade = upgradesList[i];
-                                    UpgradesParser up = new UpgradesParser( upgradesFile.getParentFile(), (String)upgrade[0], (Integer)upgrade[1], physics );
+                                    UpgradesParser up = new UpgradesParser( upgradesFile, (String)upgrade[0], (Integer)upgrade[1], physics );
                                     up.parse( upgradesFile );
                                     
                                     if ( up.identifier == null )
@@ -1226,9 +1268,20 @@ public class VehiclePhysicsParser
             return ( true );
         }
         
-        public VEHParser( File path, Object[][] upgradesList, VehiclePhysics physics )
+        @Override
+        protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
-            this.path = path;
+            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from engine physics \"" + filename + "\"." );
+            Logger.log( "Line was \"" + line + "\". Exception follows." );
+            Logger.log( t );
+            
+            return ( true );
+        }
+        
+        public VEHParser( File file, Object[][] upgradesList, VehiclePhysics physics )
+        {
+            this.path = file.getParentFile();
+            this.filename = file.getAbsolutePath();
             this.upgradesList = upgradesList;
             this.physics = physics;
         }
@@ -1328,12 +1381,12 @@ public class VehiclePhysicsParser
     {
         File vehicleFile = new File( rFactorFolder, vehicleFilename );
         
-        CCHParser cchParser = new CCHParser( vehicleFilename );
+        CCHParser cchParser = new CCHParser( cchFile.getAbsolutePath(), vehicleFilename );
         cchParser.parse( cchFile );
         
         Object[][] upgradesList = cchParser.getUpgradesList();
         upgradesList = ensureTrackConfiguration( upgradesList, vehicleFile.getParentFile(), trackName );
         
-        new VEHParser( vehicleFile.getParentFile(), upgradesList, physics ).parse( vehicleFile );
+        new VEHParser( vehicleFile, upgradesList, physics ).parse( vehicleFile );
     }
 }

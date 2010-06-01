@@ -60,11 +60,11 @@ public class ScoringInfo
     private boolean updatedInRealtimeMode = false;
     private long updateId = 0L;
     private long updateTimestamp = -1L;
-    private int sessionID = 0;
+    private int sessionId = 0;
     
     private long sessionStartTimestamp = -1L;
     private long realtimeEnteredTimestamp = -1L;
-    private int realtimeEnteredID = 0;
+    private int realtimeEnteredId = 0;
     
     private long lastUpdateTimestamp = -1L;
     private long sessionBaseNanos = -1L;
@@ -79,10 +79,10 @@ public class ScoringInfo
     
     public static interface ScoringInfoUpdateListener
     {
-        public void onSessionStarted( LiveGameData gameData );
-        public void onRealtimeEntered( LiveGameData gameData );
-        public void onScoringInfoUpdated( LiveGameData gameData );
-        public void onRealtimeExited( LiveGameData gameData );
+        public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets );
+        public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets );
+        public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets );
+        public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets );
     }
     
     private ScoringInfoUpdateListener[] updateListeners = null;
@@ -419,7 +419,7 @@ public class ScoringInfo
             {
                 try
                 {
-                    updateListeners[i].onScoringInfoUpdated( gameData );
+                    updateListeners[i].onScoringInfoUpdated( gameData, editorPresets );
                 }
                 catch ( Throwable t )
                 {
@@ -461,9 +461,9 @@ public class ScoringInfo
         }
     }
     
-    final void onSessionStarted()
+    final void onSessionStarted( EditorPresets editorPresets )
     {
-        this.sessionID++;
+        this.sessionId++;
         this.sessionStartTimestamp = System.nanoTime();
         
         resetStintLengths();
@@ -487,7 +487,7 @@ public class ScoringInfo
             {
                 try
                 {
-                    updateListeners[i].onSessionStarted( gameData );
+                    updateListeners[i].onSessionStarted( gameData, editorPresets );
                 }
                 catch ( Throwable t )
                 {
@@ -507,10 +507,10 @@ public class ScoringInfo
         return ( sessionStartTimestamp );
     }
     
-    final void onRealtimeEntered()
+    final void onRealtimeEntered( EditorPresets editorPresets )
     {
         this.realtimeEnteredTimestamp = System.nanoTime();
-        this.realtimeEnteredID++;
+        this.realtimeEnteredId++;
         
         updateRaceLengthPercentage();
         
@@ -520,7 +520,7 @@ public class ScoringInfo
             {
                 try
                 {
-                    updateListeners[i].onRealtimeEntered( gameData );
+                    updateListeners[i].onRealtimeEntered( gameData, editorPresets );
                 }
                 catch ( Throwable t )
                 {
@@ -530,7 +530,7 @@ public class ScoringInfo
         }
     }
     
-    final void onRealtimeExited()
+    final void onRealtimeExited( EditorPresets editorPresets )
     {
         if ( updateListeners != null )
         {
@@ -538,7 +538,7 @@ public class ScoringInfo
             {
                 try
                 {
-                    updateListeners[i].onRealtimeExited( gameData );
+                    updateListeners[i].onRealtimeExited( gameData, editorPresets );
                 }
                 catch ( Throwable t )
                 {
@@ -563,9 +563,9 @@ public class ScoringInfo
      * 
      * @return the ID of realtime enter actions.
      */
-    public final int getRealtimeEntredID()
+    public final int getRealtimeEntredId()
     {
-        return ( realtimeEnteredID );
+        return ( realtimeEnteredId );
     }
     
     /**
@@ -592,9 +592,9 @@ public class ScoringInfo
      * 
      * @return a session ID unique for each started session.
      */
-    public final int getSessionID()
+    public final int getSessionId()
     {
-        return ( sessionID );
+        return ( sessionId );
     }
     
     void loadFromStream( InputStream in, EditorPresets editorPresets ) throws IOException

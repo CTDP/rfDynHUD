@@ -20,7 +20,7 @@ public class _LiveGameData_CPP_Adapter
     
     public void notifyTelemetryUpdated()
     {
-        gameData.getTelemetryData().onDataUpdated();
+        gameData.getTelemetryData().onDataUpdated( null );
     }
     
     public final void prepareScoringInfoDataUpdate()
@@ -68,7 +68,7 @@ public class _LiveGameData_CPP_Adapter
     
     public void notifyGraphicsInfoUpdated()
     {
-        gameData.getGraphicsInfo().onDataUpdated();
+        gameData.getGraphicsInfo().onDataUpdated( null );
     }
     
     public final void prepareCommentaryInfoDataUpdate()
@@ -83,7 +83,7 @@ public class _LiveGameData_CPP_Adapter
     
     public void notifyCommentaryInfoUpdated()
     {
-        gameData.getCommentaryRequestInfo().onDataUpdated();
+        gameData.getCommentaryRequestInfo().onDataUpdated( null );
     }
     
     public _LiveGameData_CPP_Adapter( LiveGameData gameData )

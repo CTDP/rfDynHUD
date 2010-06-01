@@ -3,6 +3,8 @@ package net.ctdp.rfdynhud.gamedata;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
+
 public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
     private final HashMap<Integer, Integer> lapsCompletedMap = new HashMap<Integer, Integer>();
@@ -19,12 +21,14 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
         //absFastestLaptime = null;
     }
     
-    public void onSessionStarted( LiveGameData gameData )
+    @Override
+    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
         reset();
     }
     
-    public void onRealtimeEntered( LiveGameData gameData ) {}
+    @Override
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets ) {}
     
     private ArrayList<Laptime> addLaptime( Integer driverID, int lapsCompleted, Laptime laptime )
     {
@@ -43,7 +47,8 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
         return ( laps );
     }
     
-    public void onScoringInfoUpdated( LiveGameData gameData )
+    @Override
+    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -186,5 +191,6 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
         //scoringInfo.absFastestLaptime = this.absFastestLaptime;
     }
     
-    public void onRealtimeExited( LiveGameData gameData ) {}
+    @Override
+    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
 }

@@ -56,35 +56,35 @@ public class __GDPrivilegedAccess
         return ( scoringInfo.getLaptimesRecorder() );
     }
     
-    public static final void loadFromStream( InputStream in, TelemetryData telemetryData ) throws IOException
+    public static final void loadFromStream( InputStream in, TelemetryData telemetryData, EditorPresets editorPresets ) throws IOException
     {
-        telemetryData.loadFromStream( in );
+        telemetryData.loadFromStream( in, editorPresets );
     }
     
-    public static final void loadFromStream( InputStream in, EditorPresets editorPresets, ScoringInfo scoringInfo ) throws IOException
+    public static final void loadFromStream( InputStream in, ScoringInfo scoringInfo, EditorPresets editorPresets ) throws IOException
     {
         scoringInfo.loadFromStream( in, editorPresets );
     }
     
-    public static final void loadFromStream( InputStream in, CommentaryRequestInfo commentaryInfo ) throws IOException
+    public static final void loadFromStream( InputStream in, CommentaryRequestInfo commentaryInfo, EditorPresets editorPresets ) throws IOException
     {
-        commentaryInfo.loadFromStream( in );
+        commentaryInfo.loadFromStream( in, editorPresets );
     }
     
-    public static final void loadFromStream( InputStream in, GraphicsInfo graphicsInfo ) throws IOException
+    public static final void loadFromStream( InputStream in, GraphicsInfo graphicsInfo, EditorPresets editorPresets ) throws IOException
     {
-        graphicsInfo.loadFromStream( in );
+        graphicsInfo.loadFromStream( in, editorPresets );
     }
     
-    public static final void onSessionStarted( LiveGameData gameData )
+    public static final void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
-        gameData.getTelemetryData().onSessionStarted();
-        gameData.getScoringInfo().onSessionStarted();
+        gameData.getTelemetryData().onSessionStarted( editorPresets );
+        gameData.getScoringInfo().onSessionStarted( editorPresets );
     }
     
-    public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData )
+    public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData, EditorPresets editorPresets )
     {
-        gameData.setRealtimeMode( realtimeMode );
+        gameData.setRealtimeMode( realtimeMode, editorPresets );
     }
     
     public static final void updateSessionTime( ScoringInfo scoringInfo, long timestamp )

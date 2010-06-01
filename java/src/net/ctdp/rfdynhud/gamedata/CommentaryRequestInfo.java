@@ -3,6 +3,8 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
+
 /**
  * 
  * @author Marvin Froehlich
@@ -25,7 +27,7 @@ public class CommentaryRequestInfo
     
     public static interface CommentaryInfoUpdateListener
     {
-        public void onCommentaryInfoUpdated( LiveGameData gameData );
+        public void onCommentaryInfoUpdated( LiveGameData gameData, EditorPresets editorPresets );
     }
     
     private CommentaryInfoUpdateListener[] updateListeners = null;
@@ -81,14 +83,14 @@ public class CommentaryRequestInfo
     {
     }
     
-    void onDataUpdated()
+    void onDataUpdated( EditorPresets editorPresets )
     {
         this.updateId++;
         
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onCommentaryInfoUpdated( gameData );
+                updateListeners[i].onCommentaryInfoUpdated( gameData, editorPresets );
         }
     }
     
@@ -97,7 +99,7 @@ public class CommentaryRequestInfo
         return ( updateId );
     }
     
-    void loadFromStream( InputStream in ) throws IOException
+    void loadFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
     {
         prepareDataUpdate();
         
@@ -115,7 +117,7 @@ public class CommentaryRequestInfo
             bytesToRead -= n;
         }
         
-        onDataUpdated();
+        onDataUpdated( editorPresets );
     }
     
     /**
