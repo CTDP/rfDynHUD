@@ -376,59 +376,6 @@ public class ScoringInfo
         }
     }
     
-    /*
-    private void checkDriverNames()
-    {
-        long t0 = System.nanoTime();
-        int n = getNumVehicles();
-        for ( int i = 0; i < n; i++ )
-        {
-            if ( !lastKnownDriverNames.contains( getVehicleScoringInfo( i ).getDriverName() ) )
-            {
-                // driver joined
-                
-                lastKnownDriverNames.add( getVehicleScoringInfo( i ).getDriverName() );
-            }
-        }
-        
-        String[] disconnectedDrivers = null;
-        int numDisconnected = 0;
-        for ( String driverName : lastKnownDriverNames )
-        {
-            boolean found = false;
-            for ( int i = 0; i < n; i++ )
-            {
-                if ( getVehicleScoringInfo( i ).getDriverName().equals( driverName ) )
-                {
-                    found = true;
-                    break;
-                }
-            }
-            
-            if ( !found )
-            {
-                // driver disconnected
-                
-                if ( disconnectedDrivers == null )
-                    disconnectedDrivers = new String[ lastKnownDriverNames.size() ];
-                
-                disconnectedDrivers[numDisconnected++] = driverName;
-            }
-        }
-        
-        if ( numDisconnected > 0 )
-        {
-            for ( int i = 0; i < numDisconnected; i++ )
-            {
-                lastKnownDriverNames.remove( disconnectedDrivers[i] );
-            }
-            
-            fastestLaptime = null;
-        }
-        Logger.log( System.nanoTime() - t0 );
-    }
-    */
-    
     private final void setLastUpdateTimestamp()
     {
         lastUpdateTimestamp = System.nanoTime();
