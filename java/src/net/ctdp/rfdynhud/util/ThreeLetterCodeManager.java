@@ -27,6 +27,13 @@ public class ThreeLetterCodeManager
     
     private static long lastModified = -1L;
     
+    private static int updateId = 0;
+    
+    public static final int getUpdateId()
+    {
+        return ( updateId );
+    }
+    
     private static void resetMaps()
     {
         if ( name2TLCMap == null )
@@ -138,6 +145,7 @@ public class ThreeLetterCodeManager
             if ( ini.lastModified() > lastModified )
             {
                 lastModified = ini.lastModified();
+                updateId++;
                 
                 resetMaps();
                 

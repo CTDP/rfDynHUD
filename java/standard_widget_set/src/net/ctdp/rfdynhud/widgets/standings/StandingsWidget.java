@@ -108,6 +108,15 @@ public class StandingsWidget extends Widget
         return ( new InputAction[] { INPUT_ACTION_CYCLE_VIEW } );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getNeededData()
+    {
+        return ( Widget.NEEDED_DATA_SCORING );
+    }
+    
     private static final String[][] ensureCapacity( String[][] array, int minCapacity, boolean preserveValues )
     {
         if ( array == null )

@@ -20,6 +20,9 @@ public class _LiveGameData_CPP_Adapter
     
     public void notifyTelemetryUpdated()
     {
+        if ( !gameData.getProfileInfo().isValid() )
+            return;
+        
         gameData.getTelemetryData().onDataUpdated( null );
     }
     
@@ -45,6 +48,9 @@ public class _LiveGameData_CPP_Adapter
     
     public void notifyScoringInfoUpdated()
     {
+        if ( !gameData.getProfileInfo().isValid() )
+            return;
+        
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         scoringInfo.assignVSICapsules();
@@ -70,6 +76,9 @@ public class _LiveGameData_CPP_Adapter
     
     public void notifyGraphicsInfoUpdated()
     {
+        if ( !gameData.getProfileInfo().isValid() )
+            return;
+        
         gameData.getGraphicsInfo().onDataUpdated( null );
     }
     
@@ -85,6 +94,9 @@ public class _LiveGameData_CPP_Adapter
     
     public void notifyCommentaryInfoUpdated()
     {
+        if ( !gameData.getProfileInfo().isValid() )
+            return;
+        
         gameData.getCommentaryRequestInfo().onDataUpdated( null );
     }
     

@@ -317,16 +317,16 @@ public class WidgetsConfiguration implements Documented
             
             if ( virtual == Boolean.TRUE )
             {
-                fontMap.put( name, FontUtils.parseFont( fontStringMap.get( name ), gameResolution.getResY(), false, true ) );
+                fontMap.put( name, FontUtils.parseFont( fontStringMap.get( name ), gameResolution.getViewportHeight(), false, true ) );
             }
         }
         
         resetAllFontProperties();
     }
     
-    boolean setGameResolution( int gameResX, int gameResY )
+    boolean setViewport( int x, int y, int w, int h )
     {
-        if ( gameResolution.set( gameResX, gameResY ) )
+        if ( gameResolution.setViewport( x, y, w, h ) )
         {
             int n = getNumWidgets();
             for ( int i = 0; i < n; i++ )
@@ -361,8 +361,8 @@ public class WidgetsConfiguration implements Documented
         if ( !needsCheckFixAndBake )
             return;
         
-        final int gameResX = gameResolution.getResX();
-        final int gameResY = gameResolution.getResY();
+        final int gameResX = gameResolution.getViewportWidth();
+        final int gameResY = gameResolution.getViewportHeight();
         
         int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
@@ -570,7 +570,7 @@ public class WidgetsConfiguration implements Documented
      */
     public boolean addNamedFont( String name, String fontStr )
     {
-        Font font = FontUtils.parseFont( fontStr, gameResolution.getResY(), false, true );
+        Font font = FontUtils.parseFont( fontStr, gameResolution.getViewportHeight(), false, true );
         boolean virtual = FontUtils.parseVirtualFlag( fontStr, false, true );
         
         Font oldFont = this.fontMap.put( name, font );

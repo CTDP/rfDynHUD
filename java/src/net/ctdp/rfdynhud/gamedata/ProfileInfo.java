@@ -50,6 +50,11 @@ public class ProfileInfo
     private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
     private SpeedUnits speedUnits = SpeedUnits.KPH;
     
+    public final boolean isValid()
+    {
+        return ( plrFile != null );
+    }
+    
     private static File findPLRFile()
     {
         File[] profileCandidates = USERDATA_FOLDER.listFiles( DIRECTORY_FILE_FILTER );
@@ -89,19 +94,21 @@ public class ProfileInfo
         speedUnits = SpeedUnits.KPH;
     }
     
-    void update()
+    boolean update()
     {
         File plrFile = findPLRFile();
         
         if ( plrFile == null )
         {
+            Logger.log( "ERROR: No Profile with RFM file found. Plugin unusable!" );
+            
             reset();
-            return;
+            return ( false );
         }
         
         if ( ( this.plrFile != null ) && plrFile.equals( this.plrFile ) && ( plrFile.lastModified() == plrLastModified ) )
         {
-            return;
+            return ( true );
         }
         
         reset();
@@ -215,6 +222,8 @@ public class ProfileInfo
         }
         
         updateId++;
+        
+        return ( true );
     }
     
     public final long getUpdateId()

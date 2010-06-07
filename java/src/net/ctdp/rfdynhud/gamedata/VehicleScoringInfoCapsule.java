@@ -12,10 +12,10 @@ class VehicleScoringInfoCapsule
 {
     private static final int OFFSET_DRIVER_NAME = 0;
     private static final int MAX_DRIVER_NAME_LENGTH = 32;
-    private static final int OFFSET_VEHICLE_NAME = OFFSET_DRIVER_NAME + 32 * ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_VEHICLE_NAME = OFFSET_DRIVER_NAME + MAX_DRIVER_NAME_LENGTH * ByteUtil.SIZE_CHAR;
     private static final int MAX_VEHICLE_NAME_LENGTH = 64;
     
-    private static final int OFFSET_TOTAL_LAPS = OFFSET_VEHICLE_NAME + 64 * ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_TOTAL_LAPS = OFFSET_VEHICLE_NAME + MAX_VEHICLE_NAME_LENGTH * ByteUtil.SIZE_CHAR;
     
     private static final int OFFSET_SECTOR = OFFSET_TOTAL_LAPS + ByteUtil.SIZE_SHORT;
     private static final int OFFSET_FINISH_STATUS = OFFSET_SECTOR + ByteUtil.SIZE_CHAR;
@@ -42,7 +42,7 @@ class VehicleScoringInfoCapsule
     private static final int OFFSET_VEHICLE_CLASS = OFFSET_PLACE + ByteUtil.SIZE_CHAR;
     private static final int MAX_VEHICLE_CLASS_LENGTH = 32;
     
-    private static final int OFFSET_TIME_BEHIND_NEXT = OFFSET_VEHICLE_CLASS + 32 * ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_TIME_BEHIND_NEXT = OFFSET_VEHICLE_CLASS + MAX_VEHICLE_CLASS_LENGTH * ByteUtil.SIZE_CHAR;
     private static final int OFFSET_LAPS_BEHIND_NEXT = OFFSET_TIME_BEHIND_NEXT + ByteUtil.SIZE_FLOAT;
     private static final int OFFSET_TIME_BEHIND_LEADER = OFFSET_LAPS_BEHIND_NEXT + ByteUtil.SIZE_LONG;
     private static final int OFFSET_LAPS_BEHIND_LEADER = OFFSET_TIME_BEHIND_LEADER + ByteUtil.SIZE_FLOAT;
@@ -236,6 +236,31 @@ class VehicleScoringInfoCapsule
         byte[] bytes = drivername.getBytes();
         System.arraycopy( bytes, 0, buffer, OFFSET_DRIVER_NAME, bytes.length );
         buffer[OFFSET_DRIVER_NAME + bytes.length] = (byte)0;
+    }
+    
+    int postfixDriverName( String postfix, int pos )
+    {
+        if ( pos < 0 )
+        {
+            for ( int i = 0; i < MAX_DRIVER_NAME_LENGTH; i++ )
+            {
+                if ( buffer[OFFSET_DRIVER_NAME + i] == (byte)0 )
+                {
+                    pos = i;
+                    
+                    break;
+                }
+            }
+        }
+        
+        if ( pos >= 0 )
+        {
+            byte[] bytes = postfix.getBytes();
+            System.arraycopy( bytes, 0, buffer, OFFSET_DRIVER_NAME + pos, bytes.length );
+            buffer[OFFSET_DRIVER_NAME + pos + postfix.length()] = (byte)0;
+        }
+        
+        return ( pos );
     }
     
     public final String getDriverName()

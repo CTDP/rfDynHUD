@@ -16,7 +16,8 @@ import net.ctdp.rfdynhud.util.Logger;
 public class ScoringInfo
 {
     private static final int OFFSET_TRACK_NAME = 0;
-    private static final int OFFSET_SESSION_TYPE = OFFSET_TRACK_NAME + 64 * ByteUtil.SIZE_CHAR;
+    private static final int MAX_TRACK_NAME_LENGTH = 64;
+    private static final int OFFSET_SESSION_TYPE = OFFSET_TRACK_NAME + MAX_TRACK_NAME_LENGTH * ByteUtil.SIZE_CHAR;
     private static final int OFFSET_CURRENT_TIME = OFFSET_SESSION_TYPE + ByteUtil.SIZE_LONG;
     private static final int OFFSET_END_TIME = OFFSET_CURRENT_TIME + ByteUtil.SIZE_FLOAT;
     private static final int OFFSET_MAX_LAPS = OFFSET_END_TIME + ByteUtil.SIZE_FLOAT;
@@ -35,9 +36,11 @@ public class ScoringInfo
     private static final int OFFSET_IN_REALTIME = OFFSET_NUM_RED_LIGHTS + ByteUtil.SIZE_CHAR;
     
     private static final int OFFSET_PLAYER_NAME = OFFSET_IN_REALTIME + ByteUtil.SIZE_BOOL;
-    private static final int OFFSET_PLAYER_FILENAME = OFFSET_PLAYER_NAME + 32 * ByteUtil.SIZE_CHAR;
+    private static final int MAX_PLAYER_NAME_LENGTH = 32;
+    private static final int OFFSET_PLAYER_FILENAME = OFFSET_PLAYER_NAME + MAX_PLAYER_NAME_LENGTH * ByteUtil.SIZE_CHAR;
+    private static final int MAX_PLAYER_FILENAME_LENGTH = 64;
     
-    private static final int OFFSET_CLOUD_DARKNESS = OFFSET_PLAYER_FILENAME + 64 * ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_CLOUD_DARKNESS = OFFSET_PLAYER_FILENAME + MAX_PLAYER_FILENAME_LENGTH * ByteUtil.SIZE_CHAR;
     private static final int OFFSET_RAINING_SEVERITIY = OFFSET_CLOUD_DARKNESS + ByteUtil.SIZE_FLOAT;
     private static final int OFFSET_AMBIENT_TEMPERATURE = OFFSET_RAINING_SEVERITIY + ByteUtil.SIZE_FLOAT;
     private static final int OFFSET_TRACK_TEMPERATURE = OFFSET_AMBIENT_TEMPERATURE + ByteUtil.SIZE_FLOAT;
@@ -61,6 +64,7 @@ public class ScoringInfo
     private long updateId = 0L;
     private long updateTimestamp = -1L;
     private int sessionId = 0;
+    private int sessionJustStarted = 0;
     
     private long sessionStartTimestamp = -1L;
     private long realtimeEnteredTimestamp = -1L;
@@ -138,6 +142,7 @@ public class ScoringInfo
     private final RFactorEventsManager eventsManager;
     
     private VehicleScoringInfo[] vehicleScoringInfo = null;
+    private VehicleScoringInfo[] vehicleScoringInfo2 = null;
     VehicleScoringInfoCapsule[] vehicleScoringInfoCapsules = null;
     private int numVehicles = -1;
     private int oldNumVehicles = -1;
@@ -158,9 +163,13 @@ public class ScoringInfo
     
     private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
     private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
+    private final HashMap<Integer, Integer> nameDuplicatesMap = new HashMap<Integer, Integer>();
     
     void initVehicleScoringInfo()
     {
+        if ( sessionJustStarted == 1 )
+            this.sessionJustStarted = 2;
+        
         oldNumVehicles = numVehicles;
         numVehicles = -1;
         numVehicles = getNumVehicles();
@@ -210,18 +219,42 @@ public class ScoringInfo
             
             vehicleScoringInfo = tmp;
         }
+        
+        if ( ( vehicleScoringInfo2 == null ) || ( vehicleScoringInfo2.length != numVehicles ) )
+        {
+            vehicleScoringInfo2 = new VehicleScoringInfo[ numVehicles ];
+        }
     }
     
     void assignVSICapsules()
     {
         try
         {
+            //Logger.log( "################ numVehicles = " + getNumVehicles() + ", oldNumVehicles = " + oldNumVehicles );
+            
             idCapsuleMap.clear();
+            nameDuplicatesMap.clear();
             
             int n = getNumVehicles();
             for ( int i = 0; i < n; i++ )
             {
-                idCapsuleMap.put( vehicleScoringInfoCapsules[i].refreshID(), vehicleScoringInfoCapsules[i] );
+                //idCapsuleMap.put( vehicleScoringInfoCapsules[i].refreshID(), vehicleScoringInfoCapsules[i] );
+                
+                Integer id = vehicleScoringInfoCapsules[i].refreshID();
+                
+                if ( idCapsuleMap.containsKey( id ) )
+                {
+                    Integer pf = nameDuplicatesMap.get( id );
+                    if ( pf == null )
+                        pf = 2;
+                    vehicleScoringInfoCapsules[i].postfixDriverName( String.valueOf( pf ), -1 );
+                    //Logger.log( vehicleScoringInfoCapsules[i].getDriverName() );
+                    nameDuplicatesMap.put( id, pf.intValue() + 1 );
+                    id = vehicleScoringInfoCapsules[i].refreshID();
+                }
+                
+                //Logger.log( "Found data for " + vehicleScoringInfoCapsules[i].getDriverName() + ", assigned id " + id + "." );
+                idCapsuleMap.put( id, vehicleScoringInfoCapsules[i] );
             }
             
             int firstFree = 0;
@@ -233,19 +266,25 @@ public class ScoringInfo
                 for ( int i = 0; i < n2; i++ )
                 {
                     VehicleScoringInfo vsi = vehicleScoringInfo[i];
-                    if ( vsi.nameId > 0 )
+                    if ( vsi.getDriverId() > 0 )
                     {
-                        vsi.data = idCapsuleMap.remove( vsi.nameID );
+                        vsi.data = idCapsuleMap.remove( vsi.getDriverID() );
                         
                         if ( vsi.data == null )
                         {
                             // player left
                             
-                            leftVSICache.put( vsi.nameID, vsi );
+                            //Logger.log( "Player " + vsi.getDriverName() + " left the game." );
+                            
+                            leftVSICache.put( vsi.getDriverID(), vsi );
                             vehicleScoringInfo[i] = vehicleScoringInfo[j];
                             vehicleScoringInfo[j] = new VehicleScoringInfo( this, gameData.getProfileInfo() );
                             i--;
                             j--;
+                        }
+                        else
+                        {
+                            //Logger.log( "Assigned data for " + vsi.data.getDriverName() + " to index " + i + "." );
                         }
                     }
                 }
@@ -259,24 +298,48 @@ public class ScoringInfo
                 {
                     // Player joined
                     
+                    VehicleScoringInfoCapsule data = idCapsuleMap.get( joinedID );
+                    
                     VehicleScoringInfo vsi = leftVSICache.remove( joinedID );
                     if ( vsi == null )
                     {
+                        //Logger.log( "Player joined: " + data.getDriverName() + ", id = " + joinedID + ", index = " + firstFree );
+                        
                         vsi = vehicleScoringInfo[firstFree++];
-                        vsi.data = idCapsuleMap.get( joinedID );
-                        vsi.name = vsi.data.getDriverName();
-                        vsi.nameID = joinedID;
-                        vsi.nameId = joinedID.intValue();
+                        vsi.data = data;
+                        vsi.setDriverName( data.getDriverName(), joinedID );
                     }
                     else
                     {
+                        //Logger.log( "Player rejoined: " + data.getDriverName() + ", id = " + joinedID + ", index = " + firstFree );
+                        
                         vehicleScoringInfo[firstFree++] = vsi;
-                        vsi.data = idCapsuleMap.get( joinedID );
+                        vsi.data = data;
                     }
                 }
             }
             
             idCapsuleMap.clear();
+            
+            System.arraycopy( vehicleScoringInfo, 0, vehicleScoringInfo2, 0, n );
+            
+            //for ( int i = n; i < vehicleScoringInfo.length; i++ )
+            for ( int i = n; i < oldNumVehicles; i++ )
+                vehicleScoringInfo[i].data = null;
+            
+            /*
+            int nn = 0;
+            Logger.log( "VSIs without data: " );
+            for ( int i = 0; i < n; i++ )
+            {
+                if ( vehicleScoringInfo[i].data == null )
+                {
+                    Logger.log( i + ": " + vehicleScoringInfo[i].getDriverName() );
+                    nn++;
+                }
+            }
+            Logger.log( nn );
+            */
         }
         catch ( Throwable t )
         {
@@ -314,76 +377,9 @@ public class ScoringInfo
         }
     }
     
-    private final HashMap<Integer, Short> stintStartLaps = new HashMap<Integer, Short>();
-    private final HashMap<Integer, Integer> pitStates = new HashMap<Integer, Integer>();
-    
-    private void resetStintLengths()
-    {
-        stintStartLaps.clear();
-    }
-    
-    private void updateStintLengths()
-    {
-        int n = getNumVehicles();
-        for ( int i = 0; i < n; i++ )
-        {
-            VehicleScoringInfo vsi = getVehicleScoringInfo( i );
-            Integer driverID = vsi.getDriverID();
-            Short stintStartLap = stintStartLaps.get( driverID );
-            short currentLap = (short)( vsi.getLapsCompleted() + 1 ); // Don't use getCurrentLap(), since it depends on stint length!
-            boolean isInPits = vsi.isInPits();
-            boolean isStanding = ( vsi.getScalarVelocityMPS() < 0.1f );
-            float trackPos = ( vsi.getLapDistance() / getTrackLength() );
-            
-            if ( ( stintStartLap == null ) || ( isInPits && ( stintStartLap.shortValue() != currentLap ) && isStanding ) || ( stintStartLap.shortValue() > currentLap ) )
-            {
-                stintStartLap = currentLap;
-                stintStartLaps.put( driverID, stintStartLap );
-            }
-            
-            Integer oldPitState = pitStates.get( driverID );
-            if ( oldPitState == null )
-            {
-                if ( isInPits && isStanding )
-                    pitStates.put( driverID, 2 );
-                else if ( isInPits )
-                    pitStates.put( driverID, 1 );
-                else
-                    pitStates.put( driverID, 0 );
-            }
-            else
-            {
-                if ( ( oldPitState == 2 ) && !isInPits )
-                {
-                    stintStartLap = currentLap;
-                    stintStartLaps.put( driverID, stintStartLap );
-                }
-                
-                if ( isInPits )
-                {
-                    if ( isStanding && ( oldPitState != 2 ) )
-                        pitStates.put( driverID, 2 );
-                    else if ( oldPitState == 0 )
-                        pitStates.put( driverID, 1 );
-                }
-                else if ( oldPitState != 0 )
-                {
-                    pitStates.put( driverID, 0 );
-                }
-            }
-            
-            vsi.setStintLength( stintStartLap, currentLap - stintStartLap + trackPos );
-        }
-    }
-    
-    private final void setLastUpdateTimestamp()
-    {
-        lastUpdateTimestamp = System.nanoTime();
-    }
-    
     void prepareDataUpdate()
     {
-        setLastUpdateTimestamp();
+        lastUpdateTimestamp = System.nanoTime();
     }
     
     final void updateSessionTime( long timestamp )
@@ -443,52 +439,6 @@ public class ScoringInfo
         FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.applyEditorPresets( editorPresets );
     }
     
-    void onDataUpdated( EditorPresets editorPresets )
-    {
-        this.updatedInRealtimeMode = gameData.isInRealtimeMode();
-        this.updateId++;
-        updateTimestamp = System.nanoTime();
-        
-        //checkDriverNames();
-        
-        Arrays.sort( vehicleScoringInfo, VehicleScoringInfo.VSIPlaceComparator.INSTANCE );
-        
-        resetDerivateData();
-        updateStintLengths();
-        
-        sessionBaseNanos = Math.round( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) * 1000000000.0 );
-        updateSessionTime( updateTimestamp );
-        
-        applyEditorPresets( editorPresets );
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-            {
-                try
-                {
-                    updateListeners[i].onScoringInfoUpdated( gameData, editorPresets );
-                }
-                catch ( Throwable t )
-                {
-                    Logger.log( t );
-                }
-            }
-        }
-        
-        if ( eventsManager != null )
-        {
-            if ( getSessionType().isRace() )
-                eventsManager.checkRaceRestart( updateTimestamp );
-            eventsManager.checkAndFireOnLapStarted( null );
-        }
-    }
-    
-    final LaptimesRecorder getLaptimesRecorder()
-    {
-        return ( laptimesRecorder );
-    }
-    
     private void updateRaceLengthPercentage()
     {
         if ( getSessionType().isRace() )
@@ -509,39 +459,107 @@ public class ScoringInfo
         }
     }
     
+    void onDataUpdated( EditorPresets editorPresets )
+    {
+        try
+        {
+            this.updatedInRealtimeMode = gameData.isInRealtimeMode();
+            this.updateId++;
+            this.updateTimestamp = System.nanoTime();
+            
+            this.sessionBaseNanos = Math.round( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) * 1000000000.0 );
+            updateSessionTime( updateTimestamp );
+            
+            Arrays.sort( vehicleScoringInfo2, VehicleScoringInfo.VSIPlaceComparator.INSTANCE );
+            
+            resetDerivateData();
+            
+            int n = getNumVehicles();
+            for ( int i = 0; i < n; i++ )
+            {
+                getVehicleScoringInfo( i ).updateStintLength();
+            }
+            
+            applyEditorPresets( editorPresets );
+            
+            if ( sessionJustStarted > 0 )
+            {
+                updateRaceLengthPercentage();
+                
+                for ( int i = 0; i < n; i++ )
+                {
+                    getVehicleScoringInfo( i ).onSessionStarted();
+                }
+                
+                if ( updateListeners != null )
+                {
+                    for ( int i = 0; i < updateListeners.length; i++ )
+                    {
+                        try
+                        {
+                            updateListeners[i].onSessionStarted( gameData, editorPresets );
+                        }
+                        catch ( Throwable t )
+                        {
+                            Logger.log( t );
+                        }
+                    }
+                }
+                
+                this.sessionJustStarted = 0;
+            }
+            
+            
+            if ( updateListeners != null )
+            {
+                for ( int i = 0; i < updateListeners.length; i++ )
+                {
+                    try
+                    {
+                        updateListeners[i].onScoringInfoUpdated( gameData, editorPresets );
+                    }
+                    catch ( Throwable t )
+                    {
+                        Logger.log( t );
+                    }
+                }
+            }
+            
+            if ( eventsManager != null )
+            {
+                eventsManager.checkRaceRestart( updateTimestamp );
+                eventsManager.checkAndFireOnLapStarted( null );
+            }
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+    }
+    
+    final LaptimesRecorder getLaptimesRecorder()
+    {
+        return ( laptimesRecorder );
+    }
+    
+    /**
+     * 
+     * @param editorPresets
+     */
     final void onSessionStarted( EditorPresets editorPresets )
     {
         this.sessionId++;
         this.sessionStartTimestamp = System.nanoTime();
+        this.sessionJustStarted = 1;
         
-        resetStintLengths();
-        updateRaceLengthPercentage();
-        
-        if ( vehicleScoringInfo != null )
+        this.raceLengthPercentage = 1.0; // We don't know it better now!
+    }
+    
+    final void onSessionEnded()
+    {
+        for ( int i = 0; i < vehicleScoringInfo.length; i++ )
         {
-            for ( int i = 0; i < vehicleScoringInfo.length; i++ )
-            {
-                if ( vehicleScoringInfo[i] != null )
-                {
-                    vehicleScoringInfo[i].laptimes = null;
-                    vehicleScoringInfo[i].fastestLaptime = null;
-                }
-            }
-        }
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-            {
-                try
-                {
-                    updateListeners[i].onSessionStarted( gameData, editorPresets );
-                }
-                catch ( Throwable t )
-                {
-                    Logger.log( t );
-                }
-            }
+            vehicleScoringInfo[i].onSessionEnded();
         }
     }
     
@@ -559,8 +577,6 @@ public class ScoringInfo
     {
         this.realtimeEnteredTimestamp = System.nanoTime();
         this.realtimeEnteredId++;
-        
-        updateRaceLengthPercentage();
         
         if ( updateListeners != null )
         {
@@ -626,6 +642,16 @@ public class ScoringInfo
     }
     
     /**
+     * Gets whether this data has been updated in the current session.
+     * 
+     * @return whether this data has been updated in the current session.
+     */
+    public final boolean isValid()
+    {
+        return ( sessionJustStarted == 0 );
+    }
+    
+    /**
      * Gets an ID, that in incremented every time, this {@link ScoringInfo} object is filled with new data from the game.
      * 
      * @return an ID, that in incremented every time, this {@link ScoringInfo} object is filled with new data from the game.
@@ -676,7 +702,7 @@ public class ScoringInfo
         
         for ( int i = 0; i < numVehicles; i++ )
         {
-            vehicleScoringInfo[i].onDataUpdated();
+            vehicleScoringInfo2[i].onDataUpdated();
         }
         
         onDataUpdated( editorPresets );
@@ -684,29 +710,28 @@ public class ScoringInfo
         // Add postfixes to some vehicle's classes to get valid class-scoring in the editor.
         String classA = "F1 2006";
         String classB = "F1 2006B";
-        vehicleScoringInfo[0].setVehClass( classA );
-        vehicleScoringInfo[1].setVehClass( classB );
-        vehicleScoringInfo[3].setVehClass( classA );
-        vehicleScoringInfo[3].setVehClass( classB );
-        vehicleScoringInfo[4].setVehClass( classA );
-        vehicleScoringInfo[5].setVehClass( classA );
-        vehicleScoringInfo[6].setVehClass( classB );
-        vehicleScoringInfo[7].setVehClass( classB );
-        vehicleScoringInfo[8].setVehClass( classA );
-        vehicleScoringInfo[9].setVehClass( classA );
-        vehicleScoringInfo[10].setVehClass( classA );
-        vehicleScoringInfo[11].setVehClass( classA );
-        vehicleScoringInfo[12].setVehClass( classA );
-        vehicleScoringInfo[13].setVehClass( classA );
-        vehicleScoringInfo[13].setVehClass( classB );
-        vehicleScoringInfo[14].setVehClass( classA );
-        vehicleScoringInfo[15].setVehClass( classA );
-        vehicleScoringInfo[16].setVehClass( classA );
-        vehicleScoringInfo[17].setVehClass( classA );
-        vehicleScoringInfo[18].setVehClass( classB );
-        vehicleScoringInfo[19].setVehClass( classA );
-        vehicleScoringInfo[20].setVehClass( classA );
-        vehicleScoringInfo[21].setVehClass( classA );
+        vehicleScoringInfo2[0].setVehClass( classA );
+        vehicleScoringInfo2[1].setVehClass( classB );
+        vehicleScoringInfo2[2].setVehClass( classA );
+        vehicleScoringInfo2[3].setVehClass( classB );
+        vehicleScoringInfo2[4].setVehClass( classA );
+        vehicleScoringInfo2[5].setVehClass( classA );
+        vehicleScoringInfo2[6].setVehClass( classB );
+        vehicleScoringInfo2[7].setVehClass( classB );
+        vehicleScoringInfo2[8].setVehClass( classA );
+        vehicleScoringInfo2[9].setVehClass( classA );
+        vehicleScoringInfo2[10].setVehClass( classA );
+        vehicleScoringInfo2[11].setVehClass( classA );
+        vehicleScoringInfo2[12].setVehClass( classA );
+        vehicleScoringInfo2[13].setVehClass( classB );
+        vehicleScoringInfo2[14].setVehClass( classA );
+        vehicleScoringInfo2[15].setVehClass( classA );
+        vehicleScoringInfo2[16].setVehClass( classA );
+        vehicleScoringInfo2[17].setVehClass( classA );
+        vehicleScoringInfo2[18].setVehClass( classB );
+        vehicleScoringInfo2[19].setVehClass( classA );
+        vehicleScoringInfo2[20].setVehClass( classA );
+        vehicleScoringInfo2[21].setVehClass( classA );
     }
     
     /**
@@ -809,7 +834,7 @@ public class ScoringInfo
         
         if ( trackName == null )
         {
-            trackName = ByteUtil.readString( buffer, OFFSET_TRACK_NAME, 64 );
+            trackName = ByteUtil.readString( buffer, OFFSET_TRACK_NAME, MAX_TRACK_NAME_LENGTH );
         }
         
         return ( trackName );
@@ -879,6 +904,9 @@ public class ScoringInfo
     public final int getNumVehicles()
     {
         // long mNumVehicles
+        
+        if ( sessionJustStarted == 1 )
+            return ( 0 );
         
         if ( numVehicles == -1 )
             numVehicles = (int)ByteUtil.readLong( buffer, OFFSET_NUM_VEHICLES );
@@ -1055,7 +1083,7 @@ public class ScoringInfo
         
         if ( playerName == null )
         {
-            playerName = ByteUtil.readString( buffer, OFFSET_PLAYER_NAME, 32 );
+            playerName = ByteUtil.readString( buffer, OFFSET_PLAYER_NAME, MAX_PLAYER_NAME_LENGTH );
         }
         
         return ( playerName );
@@ -1070,7 +1098,7 @@ public class ScoringInfo
         
         if ( playerFilename == null )
         {
-            playerFilename = ByteUtil.readString( buffer, OFFSET_PLAYER_FILENAME, 64 );
+            playerFilename = ByteUtil.readString( buffer, OFFSET_PLAYER_FILENAME, MAX_PLAYER_FILENAME_LENGTH );
         }
         
         return ( playerFilename );
@@ -1165,7 +1193,29 @@ public class ScoringInfo
         if ( i >= getNumVehicles() )
             throw new IllegalArgumentException( "There is no vehicle with the index " + i + ". There are only " + getNumVehicles() + " vehicles." );
         
-        return ( vehicleScoringInfo[i] );
+        return ( vehicleScoringInfo2[i] );
+    }
+    
+    /**
+     * Gets all the current {@link VehicleScoringInfo}s and writes them into the given array.
+     * 
+     * @param vsis the target array (must be of at least {@link #getNumVehicles()} size.
+     * 
+     * @return the number of {@link VehicleScoringInfo}s.
+     */
+    public final int getVehicleScoringInfos( VehicleScoringInfo[] vsis )
+    {
+        if ( vsis == null )
+            throw new NullPointerException( "vsis parameter is null" );
+        
+        int n = getNumVehicles();
+        
+        if ( vsis.length < n )
+            throw new ArrayIndexOutOfBoundsException( "vsis array too small (" + vsis.length + " < " + n + ")." );
+        
+        System.arraycopy( vehicleScoringInfo2, 0, vsis, 0, n );
+        
+        return ( n );
     }
     
     /**
@@ -1180,9 +1230,9 @@ public class ScoringInfo
             int n = getNumVehicles();
             for ( short i = 0; i < n; i++ )
             {
-                if ( vehicleScoringInfo[i].isPlayer() )
+                if ( vehicleScoringInfo2[i].isPlayer() )
                 {
-                    playerVSI = vehicleScoringInfo[i];
+                    playerVSI = vehicleScoringInfo2[i];
                     break;
                 }
             }
@@ -1216,14 +1266,14 @@ public class ScoringInfo
             int n = getNumVehicles();
             for ( short i = 0; i < n; i++ )
             {
-                vehicleScoringInfo[i].getWorldPosition( carPos );
+                vehicleScoringInfo2[i].getWorldPosition( carPos );
                 
                 float dist = carPos.getDistanceToSquared( camPos );
                 
                 if ( dist < closestDist )
                 {
                     closestDist = dist;
-                    viewedVSI = vehicleScoringInfo[i];
+                    viewedVSI = vehicleScoringInfo2[i];
                 }
             }
         }
@@ -1252,15 +1302,15 @@ public class ScoringInfo
     {
         if ( fastestSector1VSI == null )
         {
-            fastestSector1VSI = vehicleScoringInfo[0];
+            fastestSector1VSI = vehicleScoringInfo2[0];
             float fs = fastestSector1VSI.getBestSector1();
             
-            for ( int i = 1; i < vehicleScoringInfo.length; i++ )
+            for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
             {
-                float fs_ = vehicleScoringInfo[i].getBestLapTime();
+                float fs_ = vehicleScoringInfo2[i].getBestLapTime();
                 if ( fs_ < fs )
                 {
-                    fastestSector1VSI = vehicleScoringInfo[i];
+                    fastestSector1VSI = vehicleScoringInfo2[i];
                     fs = fs_;
                 }
             }
@@ -1278,15 +1328,15 @@ public class ScoringInfo
     {
         if ( fastestSector2VSI == null )
         {
-            fastestSector2VSI = vehicleScoringInfo[0];
+            fastestSector2VSI = vehicleScoringInfo2[0];
             float fs = fastestSector2VSI.getBestSector2( false );
             
-            for ( int i = 1; i < vehicleScoringInfo.length; i++ )
+            for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
             {
-                float fs_ = vehicleScoringInfo[i].getBestSector2( false );
+                float fs_ = vehicleScoringInfo2[i].getBestSector2( false );
                 if ( fs_ < fs )
                 {
-                    fastestSector2VSI = vehicleScoringInfo[i];
+                    fastestSector2VSI = vehicleScoringInfo2[i];
                     fs = fs_;
                 }
             }
@@ -1304,15 +1354,15 @@ public class ScoringInfo
     {
         if ( fastestSector3VSI == null )
         {
-            fastestSector3VSI = vehicleScoringInfo[0];
+            fastestSector3VSI = vehicleScoringInfo2[0];
             float fs = fastestSector3VSI.getBestSector3();
             
-            for ( int i = 1; i < vehicleScoringInfo.length; i++ )
+            for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
             {
-                float fs_ = vehicleScoringInfo[i].getBestSector3();
+                float fs_ = vehicleScoringInfo2[i].getBestSector3();
                 if ( fs_ < fs )
                 {
-                    fastestSector3VSI = vehicleScoringInfo[i];
+                    fastestSector3VSI = vehicleScoringInfo2[i];
                     fs = fs_;
                 }
             }
@@ -1357,64 +1407,64 @@ public class ScoringInfo
             {
                 // VehicleScoringInfos are sorted by place, which is the same as by laptime in non-race sessions.
                 
-                fastestLapVSI = vehicleScoringInfo[0];
+                fastestLapVSI = vehicleScoringInfo2[0];
                 
-                if ( ( vehicleScoringInfo.length > 1 ) && ( vehicleScoringInfo[1].getBestLapTime() > 0f ) )
+                if ( ( vehicleScoringInfo2.length > 1 ) && ( vehicleScoringInfo2[1].getBestLapTime() > 0f ) )
                 {
-                    secondFastestLapVSI = vehicleScoringInfo[1];
+                    secondFastestLapVSI = vehicleScoringInfo2[1];
                 }
                 
                 return ( fastestLapVSI );
             }
             
             int i0;
-            for ( i0 = 0; i0 < vehicleScoringInfo.length; i0++ )
+            for ( i0 = 0; i0 < vehicleScoringInfo2.length; i0++ )
             {
-                float fl_ = vehicleScoringInfo[i0].getBestLapTime();
+                float fl_ = vehicleScoringInfo2[i0].getBestLapTime();
                 if ( fl_ > 0f )
                     break;
             }
             
-            if ( i0 == vehicleScoringInfo.length )
+            if ( i0 == vehicleScoringInfo2.length )
             {
-                fastestLapVSI = vehicleScoringInfo[0];
+                fastestLapVSI = vehicleScoringInfo2[0];
                 
-                if ( vehicleScoringInfo.length > 1 )
-                    secondFastestLapVSI = vehicleScoringInfo[1];
+                if ( vehicleScoringInfo2.length > 1 )
+                    secondFastestLapVSI = vehicleScoringInfo2[1];
             }
             else
             {
-                fastestLapVSI = vehicleScoringInfo[i0];
+                fastestLapVSI = vehicleScoringInfo2[i0];
                 float fl = fastestLapVSI.getBestLapTime();
                 
-                for ( int i = i0 + 1; i < vehicleScoringInfo.length; i++ )
+                for ( int i = i0 + 1; i < vehicleScoringInfo2.length; i++ )
                 {
-                    float fl_ = vehicleScoringInfo[i].getBestLapTime();
+                    float fl_ = vehicleScoringInfo2[i].getBestLapTime();
                     if ( ( fl_ > 0f ) && ( fl_ < fl ) )
                     {
                         secondFastestLapVSI = fastestLapVSI;
-                        fastestLapVSI = vehicleScoringInfo[i];
+                        fastestLapVSI = vehicleScoringInfo2[i];
                         fl = fl_;
                     }
                 }
                 
-                if ( ( secondFastestLapVSI == null ) && ( vehicleScoringInfo.length > i0 ) )
+                if ( ( secondFastestLapVSI == null ) && ( vehicleScoringInfo2.length > i0 ) )
                 {
                     float fl2 = 0f;
                     
-                    for ( int i = i0 + 1; i < vehicleScoringInfo.length; i++ )
+                    for ( int i = i0 + 1; i < vehicleScoringInfo2.length; i++ )
                     {
-                        float fl_ = vehicleScoringInfo[i].getBestLapTime();
+                        float fl_ = vehicleScoringInfo2[i].getBestLapTime();
                         if ( fl_ > 0f )
                         {
                             if ( secondFastestLapVSI == null )
                             {
-                                secondFastestLapVSI = vehicleScoringInfo[i];
+                                secondFastestLapVSI = vehicleScoringInfo2[i];
                                 fl2 = secondFastestLapVSI.getBestLapTime();
                             }
                             else if ( fl_ < fl2 )
                             {
-                                secondFastestLapVSI = vehicleScoringInfo[i];
+                                secondFastestLapVSI = vehicleScoringInfo2[i];
                                 fl2 = fl_;
                             }
                         }

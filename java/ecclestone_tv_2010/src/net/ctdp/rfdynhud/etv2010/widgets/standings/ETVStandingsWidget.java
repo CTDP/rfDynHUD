@@ -268,7 +268,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             }
         }
         
-        isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResolution().getResX() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
+        isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResolution().getViewportWidth() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
     }
     
     @Override

@@ -98,7 +98,7 @@ public class Size implements AbstractSize
     private final float getScaleWidth()
     {
         if ( isWidgetSize )
-            return ( widget.getConfiguration().getGameResolution().getResX() );
+            return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
         
         return ( widget.getEffectiveInnerWidth() );
     }
@@ -106,7 +106,7 @@ public class Size implements AbstractSize
     private final float getScaleHeight()
     {
         if ( isWidgetSize )
-            return ( widget.getConfiguration().getGameResolution().getResY() );
+            return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
         
         return ( widget.getEffectiveInnerHeight() );
     }
@@ -114,7 +114,7 @@ public class Size implements AbstractSize
     private final float getHundretPercentWidth()
     {
         if ( isWidgetSize )
-            return ( widget.getConfiguration().getGameResolution().getResY() * 4 / 3 );
+            return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
         
         return ( widget.getEffectiveInnerWidth() );
     }
@@ -457,7 +457,7 @@ public class Size implements AbstractSize
     
     public Size flipWidthSign()
     {
-        int gameResX = widget.getConfiguration().getGameResolution().getResX();
+        int gameResX = widget.getConfiguration().getGameResolution().getViewportWidth();
         
         if ( isNegPixelValue( width ) )
             width = +PIXEL_OFFSET + gameResX + ( width + PIXEL_OFFSET );
@@ -477,7 +477,7 @@ public class Size implements AbstractSize
     
     public Size flipHeightSign()
     {
-        int gameResY = widget.getConfiguration().getGameResolution().getResY();
+        int gameResY = widget.getConfiguration().getGameResolution().getViewportHeight();
         
         if ( isNegPixelValue( height ) )
             height = +PIXEL_OFFSET + gameResY + ( height + PIXEL_OFFSET );

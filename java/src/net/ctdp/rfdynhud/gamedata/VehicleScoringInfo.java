@@ -19,10 +19,13 @@ public class VehicleScoringInfo
     
     VehicleScoringInfoCapsule data = null;
     
-    String name = null;
-    static int nextNameId = 1;
-    int nameId = 0;
-    Integer nameID = null;
+    private String name = null;
+    private String nameShort = null;
+    private String nameTLC = null;
+    private int nameId = 0;
+    private Integer nameID = null;
+    
+    private int lastTLCMrgUpdateId = -1;
     
     private String vehClass = null;
     private static int nextClassId = 1;
@@ -39,10 +42,13 @@ public class VehicleScoringInfo
     VehicleScoringInfo classNextInFrontVSI = null;
     VehicleScoringInfo classNextBehindVSI = null;
     
+    private int oldLap = -1;
+    private int lap = -1;
     private int stintStartLap = -1;
     private float stintLength = 0f;
+    private int pitState = -1;
     
-    ArrayList<Laptime> laptimes = null;
+    final ArrayList<Laptime> laptimes = new ArrayList<Laptime>();
     Laptime fastestLaptime = null;
     
     float topspeed = 0f;
@@ -73,6 +79,8 @@ public class VehicleScoringInfo
         {
             name = editorPresets.getDriverName();
             data.setDriverName( name );
+            nameShort = null;
+            nameTLC = null;
             nameID = data.refreshID();
             nameId = nameID.intValue();
         }
@@ -85,6 +93,18 @@ public class VehicleScoringInfo
         vehClass = null;
         classId = 0;
         classID = null;
+        
+        oldLap = lap;
+        lap = getLapsCompleted() + 1;
+    }
+    
+    void setDriverName( String name, Integer id )
+    {
+        this.name = name;
+        this.nameShort = null;
+        this.nameTLC = null;
+        this.nameID = id;
+        this.nameId = id.intValue();
     }
     
     /**
@@ -94,20 +114,14 @@ public class VehicleScoringInfo
      */
     public final String getDriverName()
     {
+        /*
         if ( name == null )
         {
             name = data.getDriverName();
         }
+        */
         
         return ( name );
-    }
-    
-    /**
-     * driver name (three letter code)
-     */
-    public final String getDriverNameTLC()
-    {
-        return ( ThreeLetterCodeManager.getThreeLetterCode( getDriverName(), getDriverID() ) );
     }
     
     /**
@@ -115,7 +129,27 @@ public class VehicleScoringInfo
      */
     public final String getDriverNameShort()
     {
-        return ( ThreeLetterCodeManager.getShortForm( getDriverName(), getDriverID() ) );
+        if ( ( nameShort == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
+        {
+            nameShort = ThreeLetterCodeManager.getShortForm( getDriverName(), getDriverID() );
+            lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
+        }
+        
+        return ( nameShort );
+    }
+    
+    /**
+     * driver name (three letter code)
+     */
+    public final String getDriverNameTLC()
+    {
+        if ( ( nameTLC == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
+        {
+            nameTLC = ThreeLetterCodeManager.getThreeLetterCode( getDriverName(), getDriverID() );
+            lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
+        }
+        
+        return ( nameTLC );
     }
     
     /**
@@ -181,6 +215,11 @@ public class VehicleScoringInfo
             return ( getLapsCompleted() );
         
         return ( (short)( getLapsCompleted() + 1 ) );
+    }
+    
+    public final boolean isLapJustStarted()
+    {
+        return ( lap != oldLap );
     }
     
     private float getAvgLaptime()
@@ -284,7 +323,7 @@ public class VehicleScoringInfo
         }
         
         float restTime = endTime - getLapStartTime();
-        int timeLaps = lapsCompleted + (int)( restTime / avgLaptime );
+        int timeLaps = lapsCompleted + (int)( restTime / avgLaptime ) + 1;
         
         if ( ( maxLaps <= 0 ) || ( timeLaps < maxLaps ) )
             return ( timeLaps );
@@ -337,10 +376,67 @@ public class VehicleScoringInfo
         return ( getLapDistance() / scoringInfo.getTrackLength() );
     }
     
-    void setStintLength( int stintStartLap, float stintLength )
+    void updateStintLength()
     {
-        this.stintStartLap = stintStartLap;
-        this.stintLength = stintLength;
+        int currentLap = getLapsCompleted() + 1; // Don't use getCurrentLap(), since it depends on stint length!
+        boolean isInPits = isInPits();
+        boolean isStanding = ( Math.abs( getScalarVelocityMPS() ) < 0.1f );
+        float trackPos = getNormalizedLapDistance();
+        
+        if ( ( stintStartLap < 0 ) || ( isInPits && ( stintStartLap != currentLap ) && isStanding ) || ( stintStartLap > currentLap ) )
+        {
+            stintStartLap = currentLap;
+        }
+        
+        int oldPitState = pitState;
+        if ( oldPitState == -1 )
+        {
+            if ( isInPits && isStanding )
+                pitState = 2;
+            else if ( isInPits )
+                pitState = 1;
+            else
+                pitState = 0;
+        }
+        else
+        {
+            if ( ( oldPitState == 2 ) && !isInPits )
+            {
+                stintStartLap = currentLap;
+            }
+            
+            if ( isInPits )
+            {
+                if ( isStanding && ( oldPitState != 2 ) )
+                    pitState = 2;
+                else if ( oldPitState == 0 )
+                    pitState = 1;
+            }
+            else if ( oldPitState != 0 )
+            {
+                pitState = 0;
+            }
+        }
+        
+        stintLength = currentLap - stintStartLap + trackPos;
+    }
+    
+    void resetDerivateData()
+    {
+        stintStartLap = -1;
+        oldLap = -1;
+        laptimes.clear();
+        fastestLaptime = null;
+    }
+    
+    void onSessionStarted()
+    {
+        resetDerivateData();
+    }
+    
+    void onSessionEnded()
+    {
+        resetDerivateData();
     }
     
     public final int getStintStartLap()

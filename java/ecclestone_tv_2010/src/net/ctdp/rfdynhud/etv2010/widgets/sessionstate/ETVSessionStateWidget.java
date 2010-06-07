@@ -29,6 +29,7 @@ import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
  * The {@link ETVSessionStateWidget} displays the current lap.
@@ -59,6 +60,15 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     private static final Alignment[] colAligns = new Alignment[] { Alignment.RIGHT, Alignment.CENTER, Alignment.RIGHT };
     private final int[] colWidths = new int[ 3 ];
     private static final int colPadding = 10;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getNeededData()
+    {
+        return ( Widget.NEEDED_DATA_SCORING );
+    }
     
     private static final String getCaption( SessionType sessionType, SessionLimit sessionLimit )
     {

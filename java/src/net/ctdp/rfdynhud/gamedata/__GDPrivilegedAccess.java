@@ -12,9 +12,9 @@ public class __GDPrivilegedAccess
     public static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = FuelUsageRecorder.INPUT_ACTION_RESET_FUEL_CONSUMPTION;
     public static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = TopspeedRecorder.INPUT_ACTION_RESET_TOPSPEEDS;
     
-    public static final void updateProfileInfo( ProfileInfo profileInfo )
+    public static final boolean updateProfileInfo( ProfileInfo profileInfo )
     {
-        profileInfo.update();
+        return ( profileInfo.update() );
     }
     
     public static final void updateTrackInfo( TrackInfo trackInfo )
@@ -24,11 +24,13 @@ public class __GDPrivilegedAccess
     
     public static final void updateInfo( LiveGameData gameData )
     {
-        gameData.getProfileInfo().update();
-        gameData.getModInfo().update();
-        gameData.getTrackInfo().update();
-        
-        gameData.getPhysics().applyMeasurementUnits( gameData.getProfileInfo().getMeasurementUnits() );
+        if ( gameData.getProfileInfo().update() )
+        {
+            gameData.getModInfo().update();
+            gameData.getTrackInfo().update();
+            
+            gameData.getPhysics().applyMeasurementUnits( gameData.getProfileInfo().getMeasurementUnits() );
+        }
     }
     
     public static final void loadEditorDefaults( VehiclePhysics physics )
@@ -80,6 +82,12 @@ public class __GDPrivilegedAccess
     {
         gameData.getTelemetryData().onSessionStarted( editorPresets );
         gameData.getScoringInfo().onSessionStarted( editorPresets );
+    }
+    
+    public static final void onSessionEnded( LiveGameData gameData )
+    {
+        gameData.getTelemetryData().onSessionEnded();
+        gameData.getScoringInfo().onSessionEnded();
     }
     
     public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData, EditorPresets editorPresets )

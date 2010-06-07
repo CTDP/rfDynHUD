@@ -8,7 +8,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
@@ -488,12 +487,12 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     {
         final boolean isEditorMode = ( editorPresets != null );
         
+        if ( !isValid() )
+            return;
+        
         texture.getTextureCanvas().setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
         
         checkFixAndBakeConfiguration( isEditorMode );
-        
-        if ( !isEditorMode )
-            __GDPrivilegedAccess.updateSessionTime( gameData.getScoringInfo(), System.nanoTime() );
         
         long sessionNanos = gameData.getScoringInfo().getSessionNanos();
         
@@ -616,5 +615,6 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         this.textures = new TransformableTexture[] { __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY ) };
         
         __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
+        __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
     }
 }

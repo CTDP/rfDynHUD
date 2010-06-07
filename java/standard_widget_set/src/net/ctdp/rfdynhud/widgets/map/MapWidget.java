@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.MapTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -89,7 +90,9 @@ public class MapWidget extends Widget
     private static final int ANTI_ALIAS_RADIUS_OFFSET = 1;
     
     private TransformableTexture[] subTextures = null;
+    private VehicleScoringInfo[] vsis = null;
     private int[] itemStates = null;
+    private int numVehicles = 0;
     
     private final Point2D.Float position = new Point2D.Float();
     
@@ -177,7 +180,34 @@ public class MapWidget extends Widget
         else
             this.maxDisplayedVehicles = modInfo.getMaxOpponents() + 1;
         
-        this.maxDisplayedVehicles = Math.min( maxDisplayedVehicles, 32 ); // TODO
+        this.maxDisplayedVehicles = Math.max( 3, Math.min( maxDisplayedVehicles, 32 ) );
+    }
+    
+    private void updateVSIs( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        initMaxDisplayedVehicles( editorPresets != null, gameData.getModInfo() );
+        
+        if ( ( vsis == null ) || ( vsis.length < maxDisplayedVehicles ) )
+        {
+            vsis = new VehicleScoringInfo[ maxDisplayedVehicles ];
+            
+            if ( itemStates == null )
+            {
+                itemStates = new int[ maxDisplayedVehicles ];
+            }
+            else
+            {
+                int[] tmpItemStates = new int[ maxDisplayedVehicles ];
+                
+                System.arraycopy( itemStates, 0, tmpItemStates, 0, itemStates.length );
+                itemStates = tmpItemStates;
+            }
+            
+            for ( int i = 0; i < itemStates.length; i++ )
+                itemStates[i] = 0;
+        }
+        
+        numVehicles = MapTools.getDisplayedVSIsForMap( gameData.getScoringInfo(), gameData.getScoringInfo().getViewedVehicleScoringInfo(), getUseClassScoring(), true, vsis );
     }
     
     /**
@@ -186,6 +216,7 @@ public class MapWidget extends Widget
     @Override
     public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
+        updateVSIs( gameData, editorPresets );
     }
     
     private void initSubTextures( boolean isEditorMode, ModInfo modInfo, int widgetWidth, int widgetHeight )
@@ -203,7 +234,6 @@ public class MapWidget extends Widget
         if ( ( subTextures == null ) || ( subTextures.length != numTextures ) )
         {
             subTextures = new TransformableTexture[ numTextures ];
-            itemStates = new int[ numTextures ];
         }
         
         if ( !hasMasterCanvas( isEditorMode ) && ( ( subTextures[0] == null ) || ( subTextures[0].getWidth() != widgetWidth ) || ( subTextures[0].getHeight() != widgetHeight ) ) )
@@ -211,7 +241,7 @@ public class MapWidget extends Widget
             subTextures[0] = new TransformableTexture( widgetWidth, widgetHeight, isEditorMode );
         }
         
-        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getResY() / 960f );
+        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         if ( subTextures[subTexOff] == null )
             subTextures[subTexOff] = new TransformableTexture( 1, 1, isEditorMode );
@@ -227,8 +257,6 @@ public class MapWidget extends Widget
         {
             subTextures[subTexOff + i] = new TransformableTexture( w, h, isEditorMode );
             subTextures[subTexOff + i].setVisible( false );
-            
-            itemStates[i] = -1;
         }
     }
     
@@ -250,6 +278,18 @@ public class MapWidget extends Widget
         
         initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
+        if ( isEditorMode )
+            updateVSIs( gameData, editorPresets );
+        
+        initSubTextures( isEditorMode, gameData.getModInfo(), width, height );
+        
+        if ( ( cacheTexture == null ) || ( cacheTexture.getUsedWidth() != width ) || ( cacheTexture.getUsedHeight() != height ) )
+        {
+            cacheTexture = TextureImage2D.createOfflineTexture( width, height, true );
+        }
+        
+        cacheTexture.clear( true, null );
+        
         if ( track == null )
         {
             File sceneFolder = gameData.getTrackInfo().getTrackFolder();
@@ -266,15 +306,6 @@ public class MapWidget extends Widget
             }
             //track = Track.parseTrackFromAIW( new File( "D:\\Spiele\\rFactor\\GameData\\Locations\\4r2009FSone\\Northamptonshire\\NAS_BritishGP\\NAS_BritishGP.AIW" ) );
         }
-        
-        initSubTextures( isEditorMode, gameData.getModInfo(), width, height );
-        
-        if ( ( cacheTexture == null ) || ( cacheTexture.getUsedWidth() != width ) || ( cacheTexture.getUsedHeight() != height ) )
-        {
-            cacheTexture = TextureImage2D.createOfflineTexture( width, height, true );
-        }
-        
-        cacheTexture.clear( true, null );
         
         if ( track == null )
         {
@@ -498,11 +529,6 @@ public class MapWidget extends Widget
             cacheTexture = null;
         }
         
-        for ( int i = 0; i < maxDisplayedVehicles; i++ )
-        {
-            itemStates[i] = -1;
-        }
-        
         if ( editorPresets != null )
         {
             isBgClean = false;
@@ -541,7 +567,9 @@ public class MapWidget extends Widget
     @Override
     public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        ScoringInfo scoringInfo = gameData.getScoringInfo();
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        final VehicleScoringInfo viewedVSI = scoringInfo.getViewedVehicleScoringInfo();
+        final boolean useClassScoring = getUseClassScoring();
         
         if ( ( track != null ) && ( cacheTexture != null ) )
         {
@@ -549,7 +577,7 @@ public class MapWidget extends Widget
             int x0 = off2 - itemRadius + ( ( width - track.getXExtend( scale ) ) / 2 );
             int y0 = off2 - itemRadius + ( ( height - track.getZExtend( scale ) ) / 2 );
             
-            short ownPlace = scoringInfo.getOwnPlace( getUseClassScoring() );
+            short ownPlace = scoringInfo.getOwnPlace( useClassScoring );
             
             final Font font = getFont();
             final boolean posNumberFontAntiAliased = isFontAntiAliased();
@@ -565,30 +593,17 @@ public class MapWidget extends Widget
                 at.setToRotation( rotation, x0 + track.getXExtend( scale ) / 2, y0 + track.getZExtend( scale ) / 2 );
             }
             
-            int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles );
-            int j = 0, k;
-            for ( int i = 0; i < n; i++ )
+            for ( int i = 0; i < numVehicles; i++ )
             {
-                VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
-                short place = vsi.getPlace( getUseClassScoring() );
-                
-                if ( vsi.isPlayer() )
-                    k = n - 1;
-                else if ( place == ownPlace - 1 )
-                    k = n - 2;
-                else if ( place == ownPlace + 1 )
-                    k = n - 3;
-                else if ( place == 1 )
-                    k = n - 4;
-                else
-                    k = j++;
-                
-                if ( /*!vsi.isInPits() &&*/ ( vsi.getFinishStatus().isNone() || vsi.getFinishStatus().isFinished() ) )
+                VehicleScoringInfo vsi = vsis[i];
+                if ( vsi != null )
                 {
+                    short place = vsi.getPlace( useClassScoring );
+                    
                     float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % track.getTrackLength();
                     
-                    TransformableTexture tt = subTextures[subTexOff + k];
-                    subTextures[subTexOff + k].setVisible( true );
+                    TransformableTexture tt = subTextures[subTexOff + i];
+                    subTextures[subTexOff + i].setVisible( true );
                     int itemState = ( place << 0 ) | ( vsi.getDriverId() << 9 );
                     
                     track.getInterpolatedPosition( vsi.isInPits(), lapDistance, scale, position );
@@ -596,7 +611,7 @@ public class MapWidget extends Widget
                     position.y += y0;
                     
                     Color color = null;
-                    if ( place == 1 )
+                    if ( ( place == 1 ) && ( !useClassScoring || ( vsi.getVehicleClassId() == viewedVSI.getVehicleClassId() ) ) )
                     {
                         itemState |= 1 << 26;
                         if ( vsi.isPlayer() && useMyColorForMe1st.getBooleanValue() )
@@ -609,12 +624,12 @@ public class MapWidget extends Widget
                         itemState |= 1 << 27;
                         color = markColorMe.getColor();
                     }
-                    else if ( place == ownPlace - 1 )
+                    else if ( ( place == ownPlace - 1 ) && ( !useClassScoring || ( vsi.getVehicleClassId() == viewedVSI.getVehicleClassId() ) ) )
                     {
                         itemState |= 1 << 28;
                         color = markColorNextInFront.getColor();
                     }
-                    else if ( place == ownPlace + 1 )
+                    else if ( ( place == ownPlace + 1 ) && ( !useClassScoring || ( vsi.getVehicleClassId() == viewedVSI.getVehicleClassId() ) ) )
                     {
                         itemState |= 1 << 29;
                         color = markColorNextBehind.getColor();
@@ -625,11 +640,11 @@ public class MapWidget extends Widget
                         color = markColorNormal.getColor();
                     }
                     
-                    if ( itemStates[k] != itemState )
+                    if ( itemStates[i] != itemState )
                     {
-                        itemStates[k] = itemState;
+                        itemStates[i] = itemState;
                         
-                        StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace( false ), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
+                        StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, place, color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
                     }
                     
                     if ( rotationEnabled.getBooleanValue() )
@@ -639,11 +654,11 @@ public class MapWidget extends Widget
                 }
                 else
                 {
-                    subTextures[subTexOff + k].setVisible( false );
+                    subTextures[subTexOff + i].setVisible( false );
                 }
             }
             
-            for ( int i = n; i < maxDisplayedVehicles; i++ )
+            for ( int i = numVehicles; i < maxDisplayedVehicles; i++ )
                 subTextures[subTexOff + i].setVisible( false );
         }
     }

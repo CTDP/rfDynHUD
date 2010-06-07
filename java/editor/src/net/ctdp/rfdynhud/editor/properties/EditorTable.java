@@ -17,6 +17,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueAccessor;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Tools;
 
 
@@ -208,7 +209,7 @@ public class EditorTable extends HierarchicalTable
             property.setValue( newValue );
             ( (EditorTable)table ).propsEditor.invokeChangeListeners( property, oldValue, newValue, table.getSelectedRow(), table.getSelectedColumn() );
             
-            if ( ( editor != null ) && ( property.getWidget() != null ) )
+            if ( ( editor != null ) && ( ( property.getWidget() != null ) || __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) ) )
             {
                 editor.onWidgetChanged( property.getWidget(), property.getPropertyName() );
             }

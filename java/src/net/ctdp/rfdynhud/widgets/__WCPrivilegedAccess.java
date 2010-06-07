@@ -28,6 +28,11 @@ public class __WCPrivilegedAccess
     
     public static final boolean setGameResolution( int gameResX, int gameResY, WidgetsConfiguration widgetsConfig )
     {
-        return ( widgetsConfig.setGameResolution( gameResX, gameResY ) );
+        return ( widgetsConfig.getGameResolution().setResolution( gameResX, gameResY ) );
+    }
+    
+    public static final boolean setViewport( int x, int y, int w, int h, WidgetsConfiguration widgetsConfig )
+    {
+        return ( widgetsConfig.setViewport( x, y, w, h ) );
     }
 }

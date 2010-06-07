@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.widgets.GameResolution;
 
 /**
  * 
@@ -9,6 +10,8 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
  */
 public class LiveGameData
 {
+    private final GameResolution gameResolution;
+    
     private boolean realtimeMode = false;
     
     private final VehiclePhysics physics = new VehiclePhysics();
@@ -22,6 +25,11 @@ public class LiveGameData
     private final ProfileInfo profileInfo;
     private final ModInfo modInfo;
     private final TrackInfo trackInfo;
+    
+    public final GameResolution getGameResolution()
+    {
+        return ( gameResolution );
+    }
     
     void setRealtimeMode( boolean realtimeMode, EditorPresets editorPresets )
     {
@@ -103,8 +111,9 @@ public class LiveGameData
         setup.applyEditorPresets( editorPresets );
     }
     
-    public LiveGameData( RFactorEventsManager eventsManager )
+    public LiveGameData( GameResolution gameResolution, RFactorEventsManager eventsManager )
     {
+        this.gameResolution = gameResolution;
         this.telemetryData = new TelemetryData( this, eventsManager );
         this.scoringInfo = new ScoringInfo( this, eventsManager );
         this.graphicsInfo = new GraphicsInfo( this );

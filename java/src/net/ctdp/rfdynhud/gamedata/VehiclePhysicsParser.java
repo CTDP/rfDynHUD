@@ -544,7 +544,8 @@ public class VehiclePhysicsParser
                 }
                 catch ( Throwable t )
                 {
-                    throw new ParsingException( t );
+                    Logger.log( t );
+                    //throw new ParsingException( t );
                 }
             }
             else
@@ -652,7 +653,8 @@ public class VehiclePhysicsParser
                 }
                 catch ( Throwable t )
                 {
-                    throw new ParsingException( t );
+                    Logger.log( t );
+                    //throw new ParsingException( t );
                 }
             }
             else
@@ -1217,7 +1219,7 @@ public class VehiclePhysicsParser
                         catch ( Throwable t )
                         {
                             Logger.log( t );
-                            throw new ParsingException( t );
+                            //throw new ParsingException( t );
                         }
                     }
                     else
@@ -1254,7 +1256,8 @@ public class VehiclePhysicsParser
                             }
                             catch ( Throwable t )
                             {
-                                throw new ParsingException( t );
+                                Logger.log( t );
+                                //throw new ParsingException( t );
                             }
                         }
                         else

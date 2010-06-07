@@ -137,7 +137,7 @@ public class FontProperty extends Property
                 }
                 else
                 {
-                    font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResolution().getResY(), false, true );
+                    font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResolution().getViewportHeight(), false, true );
                 }
             }
         }

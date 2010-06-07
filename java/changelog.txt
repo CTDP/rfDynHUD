@@ -47,9 +47,11 @@ Minor:
 * When adding a new Widget, it is now added to the center of the current viewport instead of absolute top left.
 * TogglePlugin InputAction now only reacts, if stroked three times within a second.
 * Editor: New magnet effect / rail effect (theoretically replaces the grid, but I left it in).
+* StartingLightWidget's visibility handling changed. Make sure, initialVisibility is on, if you don't plan to toggle it with an InputAction.
 
 TODO:
 
+* MapWidget/TrackPositionWidget: Display pace car
 * Calculate remaining laps based on remaining time for timed races
 * Save As: Construct filename
 * Make widget selection menues nicer
@@ -71,6 +73,7 @@ TODO:
 * Show plugin in replay mode (theoretically not possible)
 * Fix/Improve clock frequencies
 * RevMeterWidget: Scale/fix positions on background change
+* Key combinations for InputActions
 
 * Externalize widget properties and generic parameters for stores
 * Editor: Mem profiling

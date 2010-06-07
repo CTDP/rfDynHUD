@@ -105,6 +105,15 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
+    public int getNeededData()
+    {
+        return ( Widget.NEEDED_DATA_SCORING );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
         super.onSessionStarted( sessionType, gameData, editorPresets );

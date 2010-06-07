@@ -20,6 +20,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.MapTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -60,7 +61,9 @@ public class TrackPositionWidget extends Widget
     
     private TransformableTexture[] itemTextures = null;
     private int[] itemTextureOffsetsY = null;
+    private VehicleScoringInfo[] vsis = null;
     private int[] itemStates = null;
+    private int numVehicles = -1;
     
     private int lineLength = 0;
     
@@ -121,7 +124,34 @@ public class TrackPositionWidget extends Widget
         else
             this.maxDisplayedVehicles = modInfo.getMaxOpponents() + 1;
         
-        this.maxDisplayedVehicles = Math.min( maxDisplayedVehicles, 32 ); // TODO
+        this.maxDisplayedVehicles = Math.max( 3, Math.min( maxDisplayedVehicles, 32 ) );
+    }
+    
+    private void updateVSIs( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        initMaxDisplayedVehicles( editorPresets != null, gameData.getModInfo() );
+        
+        if ( ( vsis == null ) || ( vsis.length < maxDisplayedVehicles ) )
+        {
+            vsis = new VehicleScoringInfo[ maxDisplayedVehicles ];
+            
+            if ( itemStates == null )
+            {
+                itemStates = new int[ maxDisplayedVehicles ];
+            }
+            else
+            {
+                int[] tmpItemStates = new int[ maxDisplayedVehicles ];
+                
+                System.arraycopy( itemStates, 0, tmpItemStates, 0, itemStates.length );
+                itemStates = tmpItemStates;
+            }
+            
+            for ( int i = 0; i < itemStates.length; i++ )
+                itemStates[i] = 0;
+        }
+        
+        numVehicles = MapTools.getDisplayedVSIsForMap( gameData.getScoringInfo(), gameData.getScoringInfo().getViewedVehicleScoringInfo(), getUseClassScoring(), true, vsis );
     }
     
     /**
@@ -130,6 +160,7 @@ public class TrackPositionWidget extends Widget
     @Override
     public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
+        updateVSIs( gameData, editorPresets );
     }
     
     private void initSubTextures( boolean isEditorMode, ModInfo modInfo )
@@ -139,10 +170,9 @@ public class TrackPositionWidget extends Widget
         if ( ( itemTextures == null ) || ( itemTextures.length != maxDisplayedVehicles ) )
         {
             itemTextures = new TransformableTexture[ maxDisplayedVehicles ];
-            itemStates = new int[ maxDisplayedVehicles ];
         }
         
-        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getResY() / 960f );
+        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         if ( itemTextures[0] == null )
             itemTextures[0] = new TransformableTexture( 1, 1, isEditorMode );
@@ -158,8 +188,6 @@ public class TrackPositionWidget extends Widget
         {
             itemTextures[i] = new TransformableTexture( w, h, isEditorMode );
             itemTextures[i].setVisible( false );
-            
-            itemStates[i] = -1;
         }
     }
     
@@ -179,12 +207,12 @@ public class TrackPositionWidget extends Widget
     {
         final boolean isEditorMode = ( editorPresets != null );
         
-        initSubTextures( isEditorMode, gameData.getModInfo() );
+        initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
-        for ( int i = 0; i < maxDisplayedVehicles; i++ )
-        {
-            itemStates[i] = -1;
-        }
+        if ( isEditorMode )
+            updateVSIs( gameData, editorPresets );
+        
+        initSubTextures( isEditorMode, gameData.getModInfo() );
     }
     
     @Override
@@ -197,7 +225,7 @@ public class TrackPositionWidget extends Widget
         texCanvas.setAntialiazingEnabled( true );
         
         int lineHeight = LINE_THICKNESS;
-        int linePadding = (int)( BASE_LINE_PADDING * getConfiguration().getGameResolution().getResY() / (float)1200 );
+        int linePadding = (int)( BASE_LINE_PADDING * getConfiguration().getGameResolution().getViewportHeight() / (float)1200 );
         lineLength = width - 2 * linePadding;
         
         texCanvas.setColor( lineColor.getColor() );
@@ -208,13 +236,15 @@ public class TrackPositionWidget extends Widget
     @Override
     public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        ScoringInfo scoringInfo = gameData.getScoringInfo();
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        final VehicleScoringInfo viewedVSI = scoringInfo.getViewedVehicleScoringInfo();
+        final boolean useClassScoring = getUseClassScoring();
         
-        int linePadding = (int)( BASE_LINE_PADDING * getConfiguration().getGameResolution().getResX() / 1920f );
+        int linePadding = (int)( BASE_LINE_PADDING * getConfiguration().getGameResolution().getViewportWidth() / 1920f );
         
         int off2 = ( isFontAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
         
-        short ownPlace = scoringInfo.getOwnPlace( getUseClassScoring() );
+        short ownPlace = scoringInfo.getOwnPlace( useClassScoring );
         
         final Font font = getFont();
         final boolean posNumberFontAntiAliased = isFontAntiAliased();
@@ -226,35 +256,21 @@ public class TrackPositionWidget extends Widget
             itemTextureOffsetsY = new int[ itemTextures.length ];
         }
         
-        int j = 0, k;
-        for ( int i = 0; i < n; i++ )
+        for ( int i = 0; i < numVehicles; i++ )
         {
-            VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
-            short place = vsi.getPlace( getUseClassScoring() );
-            
-            if ( vsi.isPlayer() )
-                k = n - 1;
-            else if ( place == ownPlace - 1 )
-                k = n - 2;
-            else if ( place == ownPlace + 1 )
-                k = n - 3;
-            else if ( place == 1 )
-                k = n - 4;
-            else
-                k = j++;
-            
-            if ( /*!vsi.isInPits() &&*/ ( vsi.getFinishStatus().isNone() || vsi.getFinishStatus().isFinished() ) )
+            VehicleScoringInfo vsi = vsis[i];
+            if ( vsi != null )
             {
-                float lapDistance = ( ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength() ) / scoringInfo.getTrackLength();
-                if ( lapDistance < 0f )
-                    lapDistance = 0f;
+                short place = vsi.getPlace( useClassScoring );
                 
-                TransformableTexture tt = itemTextures[k];
-                itemTextures[k].setVisible( true );
+                float lapDistance = ( ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() + scoringInfo.getTrackLength() ) % scoringInfo.getTrackLength() ) / scoringInfo.getTrackLength();
+                
+                TransformableTexture tt = itemTextures[i];
+                itemTextures[i].setVisible( true );
                 int itemState = ( place << 0 ) | ( vsi.getDriverId() << 9 );
                 
                 Color color = null;
-                if ( place == 1 )
+                if ( ( place == 1 ) && ( !useClassScoring || ( vsi.getVehicleClassId() == viewedVSI.getVehicleClassId() ) ) )
                 {
                     itemState |= 1 << 26;
                     if ( vsi.isPlayer() && useMyColorForMe1st.getBooleanValue() )
@@ -267,12 +283,12 @@ public class TrackPositionWidget extends Widget
                     itemState |= 1 << 27;
                     color = markColorMe.getColor();
                 }
-                else if ( place == ownPlace - 1 )
+                else if ( ( place == ownPlace - 1 ) && ( !useClassScoring || ( vsi.getVehicleClassId() == viewedVSI.getVehicleClassId() ) ) )
                 {
                     itemState |= 1 << 28;
                     color = markColorNextInFront.getColor();
                 }
-                else if ( place == ownPlace + 1 )
+                else if ( ( place == ownPlace + 1 ) && ( !useClassScoring || ( vsi.getVehicleClassId() == viewedVSI.getVehicleClassId() ) ) )
                 {
                     itemState |= 1 << 29;
                     color = markColorNextBehind.getColor();
@@ -283,14 +299,20 @@ public class TrackPositionWidget extends Widget
                     color = markColorNormal.getColor();
                 }
                 
-                if ( itemStates[k] != itemState )
+                if ( itemStates[i] != itemState )
                 {
-                    itemStates[k] = itemState;
+                    itemStates[i] = itemState;
                     
-                    itemTextureOffsetsY[k] = StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, vsi.getPlace( false ), color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
+                    itemTextureOffsetsY[i] = StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, place, color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
                 }
                 
-                tt.setTranslation( linePadding + off2 + lapDistance * lineLength - itemRadius, off2 + height / 2 - itemRadius - itemTextureOffsetsY[k] );
+                int yOff3 = vsi.isInPits() ? -3 : 0;
+                
+                tt.setTranslation( linePadding + off2 + lapDistance * lineLength - itemRadius, off2 + height / 2 - itemRadius - itemTextureOffsetsY[i] + yOff3 );
+            }
+            else
+            {
+                itemTextures[i].setVisible( false );
             }
         }
         

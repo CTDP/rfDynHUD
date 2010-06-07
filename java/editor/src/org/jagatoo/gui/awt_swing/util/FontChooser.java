@@ -384,7 +384,7 @@ public class FontChooser extends JPanel
                     case ItemEvent.SELECTED:
                         if ( combo.getSelectedIndex() == 0 )
                         {
-                            setSelectedFont( composeSelectedFont(), widgetsConfig.getGameResolution().getResY() );
+                            setSelectedFont( composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
                         }
                         else if ( combo.getSelectedIndex() > 0 )
                         {
@@ -392,8 +392,8 @@ public class FontChooser extends JPanel
                             
                             String fontStr = widgetsConfig.getNamedFontString( fontName );
                             
-                            applySelectedFont( fontStr, widgetsConfig.getGameResolution().getResY() );
-                            setSelectedFont( fontStr, widgetsConfig.getGameResolution().getResY() );
+                            applySelectedFont( fontStr, widgetsConfig.getGameResolution().getViewportHeight() );
+                            setSelectedFont( fontStr, widgetsConfig.getGameResolution().getViewportHeight() );
                         }
                         
                         /*
@@ -771,13 +771,13 @@ public class FontChooser extends JPanel
         
         main.add( south0, BorderLayout.SOUTH );
         
-        fontNamesList = createFontList( font.getFamily(), widgetsConfig.getGameResolution().getResY() );
+        fontNamesList = createFontList( font.getFamily(), widgetsConfig.getGameResolution().getViewportHeight() );
         JScrollPane fontNamesListScrollPanel = new JScrollPane( fontNamesList );
         if ( fontNamesList.getSelectedIndex() != -1 )
             fontNamesList.scrollRectToVisible( fontNamesList.getCellBounds( fontNamesList.getSelectedIndex(), fontNamesList.getSelectedIndex() ) );
         main.add( fontNamesListScrollPanel, BorderLayout.CENTER );
         
-        final JPanel eastPanel = createEastPanel( font, virtual, antiAliased, widgetsConfig.getGameResolution().getResY() );
+        final JPanel eastPanel = createEastPanel( font, virtual, antiAliased, widgetsConfig.getGameResolution().getViewportHeight() );
         main.add( eastPanel, BorderLayout.EAST );
         
         wrapper.add( main, BorderLayout.CENTER );
@@ -822,7 +822,7 @@ public class FontChooser extends JPanel
         
         private void init( final FontChooser fontChooser, final String startFont, final WidgetsConfiguration widgetsConfig )
         {
-            fontChooser.setSelectedFont( fontChooser.composeSelectedFont(), widgetsConfig.getGameResolution().getResY() );
+            fontChooser.setSelectedFont( fontChooser.composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
             
             this.setContentPane( fontChooser );
             this.pack();
@@ -846,7 +846,7 @@ public class FontChooser extends JPanel
                     }
                     else
                     {
-                        fontChooser.setSelectedFont( fontChooser.composeSelectedFont(), widgetsConfig.getGameResolution().getResY() );
+                        fontChooser.setSelectedFont( fontChooser.composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
                         fontChooser.valueChanged = applyNamedFont( getSelectedFontName(), getSelectedFont(), widgetsConfig ) || !getSelectedFontName().equals( startFont );
                         
                         fontChooser.setAllWidgetsDirty( widgetsConfig );

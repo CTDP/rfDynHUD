@@ -71,7 +71,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( boolean newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
         }
     };
     
@@ -81,7 +81,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
         }
     };
     
@@ -91,7 +91,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
         }
     };
     
@@ -101,7 +101,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
         }
     };
     
@@ -111,7 +111,7 @@ public class EditorPanel extends JPanel
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getResX(), gameResolution.getResY() ) );
+                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
         }
     };
     
@@ -212,7 +212,7 @@ public class EditorPanel extends JPanel
         if ( !isGridUsed() )
             return ( x );
         
-        return ( gridOffsetX.getIntValue() + Math.min( Math.round( ( x - gridOffsetX.getIntValue() ) / (float)gridSizeX.getIntValue() ) * gridSizeX.getIntValue(), drawingManager.getGameResolution().getResX() - 1 ) );
+        return ( gridOffsetX.getIntValue() + Math.min( Math.round( ( x - gridOffsetX.getIntValue() ) / (float)gridSizeX.getIntValue() ) * gridSizeX.getIntValue(), drawingManager.getGameResolution().getViewportWidth() - 1 ) );
     }
     
     public final int snapYToGrid( int y )
@@ -220,7 +220,7 @@ public class EditorPanel extends JPanel
         if ( !isGridUsed() )
             return ( y );
         
-        return ( gridOffsetY.getIntValue() + Math.min( Math.round( ( y - gridOffsetY.getIntValue() ) / (float)gridSizeY.getIntValue() ) * gridSizeY.getIntValue(), drawingManager.getGameResolution().getResY() - 1 ) );
+        return ( gridOffsetY.getIntValue() + Math.min( Math.round( ( y - gridOffsetY.getIntValue() ) / (float)gridSizeY.getIntValue() ) * gridSizeY.getIntValue(), drawingManager.getGameResolution().getViewportHeight() - 1 ) );
     }
     
     public void snapWidgetToGrid( Widget widget )
@@ -265,8 +265,8 @@ public class EditorPanel extends JPanel
         final int gridOffsetY = this.gridOffsetY.getIntValue();
         final int gridSizeX = this.gridSizeX.getIntValue();
         final int gridSizeY = this.gridSizeY.getIntValue();
-        final int gameResX = drawingManager.getGameResolution().getResX();
-        final int gameResY = drawingManager.getGameResolution().getResY();
+        final int gameResX = drawingManager.getGameResolution().getViewportWidth();
+        final int gameResY = drawingManager.getGameResolution().getViewportHeight();
         
         for ( int x = gridSizeX - 1 + gridOffsetX; x < gameResX - gridOffsetX; x += gridSizeX )
         {

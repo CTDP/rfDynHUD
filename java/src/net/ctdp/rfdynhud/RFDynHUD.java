@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.RFactorEventsManager;
 import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
@@ -165,6 +166,8 @@ public class RFDynHUD
             boolean newConfig = ( drawingManager.getId() != lastConfigId );
             lastConfigId = drawingManager.getId();
             
+            __GDPrivilegedAccess.updateSessionTime( gameData.getScoringInfo(), System.nanoTime() );
+            
             drawingManager.refreshSubTextureBuffer( false, gameData, newConfig );
             
             drawingManager.drawWidgets( gameData, null, TextureDirtyRectsManager.isCompleteRedrawForced(), drawingManager.getTexture( 0 ).getTexture() );
@@ -204,7 +207,7 @@ public class RFDynHUD
         
         this.eventsManager = new RFactorEventsManager( this, drawingManager );
         
-        this.gameData = new LiveGameData( eventsManager );
+        this.gameData = new LiveGameData( drawingManager.getGameResolution(), eventsManager );
         this.gameData_CPP_Adapter = new _LiveGameData_CPP_Adapter( gameData );
         
         eventsManager.setGameData( gameData );

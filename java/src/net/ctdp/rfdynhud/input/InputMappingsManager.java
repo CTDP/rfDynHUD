@@ -378,6 +378,11 @@ public class InputMappingsManager
      */
     public int update( WidgetsDrawingManager widgetsManager, LiveGameData gameData, EditorPresets editorPresets, RFactorEventsManager eventsManager, int modifierMask )
     {
+        if ( !gameData.getProfileInfo().isValid() )
+        {
+            return ( 0 );
+        }
+        
         boolean wasPluginEnabled = isPluginEnabled;
         
         long when = gameData.getScoringInfo().getSessionNanos();

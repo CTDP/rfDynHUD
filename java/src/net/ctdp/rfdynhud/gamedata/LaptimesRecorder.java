@@ -1,43 +1,20 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 
 public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
-    private final HashMap<Integer, Integer> lapsCompletedMap = new HashMap<Integer, Integer>();
-    private final HashMap<Integer, ArrayList<Laptime>> laptimesMap = new HashMap<Integer, ArrayList<Laptime>>();
-    private final HashMap<Integer, Laptime> fastestLaptimesMap = new HashMap<Integer, Laptime>();
-    
-    //private Laptime absFastestLaptime = null;
-    
-    public void reset()
-    {
-        lapsCompletedMap.clear();
-        laptimesMap.clear();
-        fastestLaptimesMap.clear();
-        //absFastestLaptime = null;
-    }
-    
     @Override
-    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
-    {
-        reset();
-    }
+    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets ) {}
     
     @Override
     public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets ) {}
     
-    private ArrayList<Laptime> addLaptime( Integer driverID, int lapsCompleted, Laptime laptime )
+    private ArrayList<Laptime> addLaptime( VehicleScoringInfo vsi, int lapsCompleted, Laptime laptime )
     {
-        ArrayList<Laptime> laps = laptimesMap.get( driverID );
-        if ( laps == null )
-        {
-            laps = new ArrayList<Laptime>();
-            laptimesMap.put( driverID, laps );
-        }
+        ArrayList<Laptime> laps = vsi.laptimes;
         
         for ( int i = laps.size(); i < lapsCompleted; i++ )
             laps.add( null );
@@ -55,24 +32,14 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
         for ( int i = 0; i < scoringInfo.getNumVehicles(); i++ )
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
-            Integer driverID = vsi.getDriverID();
             int lapsCompleted = vsi.getLapsCompleted();
             
-            ArrayList<Laptime> laps;
-            Integer lastLapsCompleted = lapsCompletedMap.get( driverID );
-            if ( lastLapsCompleted == null )
+            if ( vsi.isLapJustStarted() )
             {
-                lapsCompletedMap.put( driverID, lapsCompleted );
                 Laptime laptime = new Laptime( lapsCompleted + 1 );
-                laps = addLaptime( driverID, lapsCompleted, laptime );
-            }
-            else if ( lastLapsCompleted.intValue() < lapsCompleted )
-            {
-                lapsCompletedMap.put( driverID, lapsCompleted );
-                Laptime laptime = new Laptime( lapsCompleted + 1 );
-                laps = addLaptime( driverID, lapsCompleted, laptime );
+                ArrayList<Laptime> laps = addLaptime( vsi, lapsCompleted, laptime );
                 
-                Laptime last = laptimesMap.get( driverID ).get( lapsCompleted - 1 );
+                Laptime last = ( lapsCompleted == 0 ) ? null : laps.get( lapsCompleted - 1 );
                 
                 if ( last != null )
                 {
@@ -90,63 +57,48 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                     }
                     else
                     {
-                        Laptime fastestLaptime = fastestLaptimesMap.get( driverID );
+                        Laptime fastestLaptime = vsi.fastestLaptime;
                         if ( ( fastestLaptime == null ) || ( fastestLaptime.getLapTime() < 0f ) || ( last.getLapTime() < fastestLaptime.getLapTime() ) )
                         {
-                            fastestLaptimesMap.put( driverID, last );
+                            vsi.fastestLaptime = last;
                         }
-                        
-                        /*
-                        if ( ( absFastestLaptime == null ) || ( absFastestLaptime.getLapTime() < 0f ) || ( last.getLapTime() < absFastestLaptime.getLapTime() ) )
-                        {
-                            absFastestLaptime = last;
-                        }
-                        */
                     }
                     
                     last.finished = true;
                 }
             }
-            else
+            else if ( vsi.getFinishStatus() == FinishStatus.NONE )
             {
-                laps = laptimesMap.get( driverID );
+                Laptime laptime = vsi.laptimes.get( lapsCompleted );
                 
-                if ( vsi.getFinishStatus() == FinishStatus.NONE )
+                if ( laptime == null )
                 {
-                    Laptime laptime = laps.get( lapsCompleted );
-                    
-                    if ( laptime == null )
-                    {
-                        laptime = new Laptime( lapsCompleted + 1 );
-                        addLaptime( driverID, lapsCompleted, laptime );
-                    }
-                    
-                    switch ( vsi.getSector() )
-                    {
-                        case 1:
-                            laptime.sector1 = vsi.getCurrentSector1();
-                            laptime.sector2 = -1f;
+                    laptime = new Laptime( lapsCompleted + 1 );
+                    addLaptime( vsi, lapsCompleted, laptime );
+                }
+                
+                switch ( vsi.getSector() )
+                {
+                    case 1:
+                        laptime.sector1 = vsi.getCurrentSector1();
+                        laptime.sector2 = -1f;
+                        laptime.sector3 = -1f;
+                        break;
+                    case 2:
+                        laptime.sector1 = vsi.getLastSector1();
+                        laptime.sector2 = vsi.getCurrentSector2( false );
+                        laptime.sector3 = -1f;
+                        break;
+                    case 3:
+                        laptime.sector1 = vsi.getLastSector1();
+                        laptime.sector2 = vsi.getLastSector2( false );
+                        if ( !scoringInfo.getSessionType().isRace() && ( laptime.isInLap == Boolean.TRUE ) )
                             laptime.sector3 = -1f;
-                            break;
-                        case 2:
-                            laptime.sector1 = vsi.getLastSector1();
-                            laptime.sector2 = vsi.getCurrentSector2( false );
-                            laptime.sector3 = -1f;
-                            break;
-                        case 3:
-                            laptime.sector1 = vsi.getLastSector1();
-                            laptime.sector2 = vsi.getLastSector2( false );
-                            if ( !scoringInfo.getSessionType().isRace() && ( laptime.isInLap == Boolean.TRUE ) )
-                                laptime.sector3 = -1f;
-                            else
-                                laptime.sector3 = scoringInfo.getSessionTime() - vsi.getLapStartTime() - laptime.sector1 - laptime.sector2;
-                            break;
-                    }
+                        else
+                            laptime.sector3 = scoringInfo.getSessionTime() - vsi.getLapStartTime() - laptime.sector1 - laptime.sector2;
+                        break;
                 }
             }
-            
-            vsi.laptimes = laps;
-            vsi.fastestLaptime = fastestLaptimesMap.get( driverID );
             
             if ( vsi.isInPits() )
             {
@@ -157,7 +109,7 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                 if ( laptime == null )
                 {
                     laptime = new Laptime( lapsCompleted + 1 );
-                    addLaptime( driverID, lapsCompleted, laptime );
+                    addLaptime( vsi, lapsCompleted, laptime );
                 }
                 
                 if ( trackPos > 0.5f )
@@ -187,8 +139,6 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                 }
             }
         }
-        
-        //scoringInfo.absFastestLaptime = this.absFastestLaptime;
     }
     
     @Override

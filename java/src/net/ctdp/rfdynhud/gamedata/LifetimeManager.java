@@ -216,7 +216,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         
         lastBrakeBias = gameData.getSetup().getControls().getRearBrakeBalance();
         lastBrakeApplication = telemData.getUnfilteredBrake();
-        if ( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() && gameData.getScoringInfo().getViewedVehicleScoringInfo().getVehicleControl().isLocalPlayer() )
+        if ( ( gameData.getScoringInfo().getViewedVehicleScoringInfo() == null ) || ( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() && gameData.getScoringInfo().getViewedVehicleScoringInfo().getVehicleControl().isLocalPlayer() ) )
         {
             lastBrakeTemperatureFL = telemData.getBrakeTemperatureK( Wheel.FRONT_LEFT );
             lastBrakeTemperatureFR = telemData.getBrakeTemperatureK( Wheel.FRONT_RIGHT );

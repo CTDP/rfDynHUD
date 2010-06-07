@@ -285,8 +285,8 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     
     private RelativePositioning fixPositioning( Widget widget, int x, int y, int w, int h )
     {
-        final int gameResX = widget.getConfiguration().getGameResolution().getResX();
-        final int gameResY = widget.getConfiguration().getGameResolution().getResY();
+        final int gameResX = widget.getConfiguration().getGameResolution().getViewportWidth();
+        final int gameResY = widget.getConfiguration().getGameResolution().getViewportHeight();
         
         RelativePositioning positioning = selectedWidget.getPosition().getPositioning();
         
@@ -361,8 +361,8 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         {
             selectedWidget.clearRegion( true, editor.getOverlayTexture() );
             
-            final int gameResX = selectedWidget.getConfiguration().getGameResolution().getResX();
-            final int gameResY = selectedWidget.getConfiguration().getGameResolution().getResY();
+            final int gameResX = selectedWidget.getConfiguration().getGameResolution().getViewportWidth();
+            final int gameResY = selectedWidget.getConfiguration().getGameResolution().getViewportHeight();
             
             final int dx = ( e.getX() - mousePressedX );
             final int dy = ( e.getY() - mousePressedY );

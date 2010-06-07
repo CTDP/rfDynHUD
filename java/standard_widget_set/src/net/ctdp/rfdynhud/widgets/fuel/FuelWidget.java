@@ -25,6 +25,7 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.AbstractSize;
@@ -578,10 +579,10 @@ public class FuelWidget extends Widget
             //nextPitstopHeaderString.draw( offsetX, offsetY, "", backgroundColor, image );
         }
         
-        float fuel = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuel();
-        float fuelL = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuelL();
-        float avgFuelUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getAverage();
-        float stintLength = ( editorPresets == null ) ? vsi.getStintLength() : 5.2f;
+        final float fuel = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuel();
+        final float fuelL = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuelL();
+        final float avgFuelUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getAverage();
+        final float stintLength = ( editorPresets == null ) ? vsi.getStintLength() : 5.2f;
         
         if ( isEditorMode )
         {
@@ -699,8 +700,8 @@ public class FuelWidget extends Widget
         if ( !isEditorMode && ( avgFuelUsage > 0f ) )
         {
             int currLap = vsi.getCurrentLap();
-            boolean isRace = scoringInfo.getSessionType().isRace();
-            int totalLaps = vsi.getEstimatedMaxLaps();
+            int maxLaps = vsi.getEstimatedMaxLaps();
+            Logger.log( maxLaps );
             
             int remainingFuelLaps = (int)Math.floor( ( fuel / avgFuelUsage ) + ( stintLength - (int)stintLength ) );
             nextPitstopLap = vsi.getLapsCompleted() + remainingFuelLaps + nextPitstopLapCorrection;
@@ -709,8 +710,8 @@ public class FuelWidget extends Widget
             {
                 int delta = currLap - nextPitstopLap;
                 
-                nextPitstopLapCorrection += delta;
-                nextPitstopFuelLapsCorrection -= delta;
+                //nextPitstopLapCorrection += delta;
+                //nextPitstopFuelLapsCorrection -= delta;
                 nextPitstopLap = vsi.getLapsCompleted() + remainingFuelLaps + nextPitstopLapCorrection;
             }
             
@@ -719,17 +720,19 @@ public class FuelWidget extends Widget
             pitstopLaps = (int)Math.floor( pitstopFuel0 / avgFuelUsage );
             pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
             
+            /*
             while ( pitstopFuel_ < avgFuelUsage )
             {
                 nextPitstopFuelLapsCorrection++;
                 pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
             }
             
-            while ( ( pitstopFuel_ > tankSize ) || ( isRace && ( nextPitstopLap + pitstopLaps + nextPitstopFuelLapsCorrection > totalLaps ) ) )
+            while ( ( pitstopFuel_ > tankSize ) || ( scoringInfo.getSessionType().isRace() && ( nextPitstopLap + pitstopLaps + nextPitstopFuelLapsCorrection > maxLaps ) ) )
             {
                 nextPitstopFuelLapsCorrection--;
                 pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
             }
+            */
         }
         else if ( isEditorMode )
         {

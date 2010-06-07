@@ -6,6 +6,7 @@ import java.io.InputStream;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
+import net.ctdp.rfdynhud.util.Logger;
 
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
@@ -33,9 +34,11 @@ public class TelemetryData
     private static final int OFFSET_LAP_NUMBER = OFFSET_DELTA_TIME + ByteUtil.SIZE_FLOAT;
     private static final int OFFSET_LAP_START_TIME = OFFSET_LAP_NUMBER + ByteUtil.SIZE_LONG;
     private static final int OFFSET_VEHICLE_NAME = OFFSET_LAP_START_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TRACK_NAME = OFFSET_VEHICLE_NAME + 64 * ByteUtil.SIZE_CHAR;
+    private static final int MAX_VEHICLE_NAME_LENGTH = 64;
+    private static final int OFFSET_TRACK_NAME = OFFSET_VEHICLE_NAME + MAX_VEHICLE_NAME_LENGTH * ByteUtil.SIZE_CHAR;
+    private static final int MAX_TRACK_NAME_LENGTH = 64;
     
-    private static final int OFFSET_POSITION = OFFSET_TRACK_NAME + 64 * ByteUtil.SIZE_CHAR;
+    private static final int OFFSET_POSITION = OFFSET_TRACK_NAME + MAX_TRACK_NAME_LENGTH * ByteUtil.SIZE_CHAR;
     private static final int OFFSET_LOCAL_VELOCITY = OFFSET_POSITION + ByteUtil.SIZE_VECTOR3;
     private static final int OFFSET_LOCAL_ACCELERATION = OFFSET_LOCAL_VELOCITY + ByteUtil.SIZE_VECTOR3;
     
@@ -84,7 +87,8 @@ public class TelemetryData
     
     private static final int OFFSET_TIRE_WEAR = OFFSET_TIRE_TEMPERATURES + 3 * ByteUtil.SIZE_FLOAT;
     private static final int OFFSET_TERRAIN_NAME = OFFSET_TIRE_WEAR + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_SURFACE_TYPE = OFFSET_TERRAIN_NAME + 16 * ByteUtil.SIZE_CHAR;
+    private static final int MAX_TERRAIN_NAME_LENGTH = 16;
+    private static final int OFFSET_SURFACE_TYPE = OFFSET_TERRAIN_NAME + MAX_TERRAIN_NAME_LENGTH * ByteUtil.SIZE_CHAR;
     private static final int OFFSET_IS_WHEEL_FLAT = OFFSET_SURFACE_TYPE + ByteUtil.SIZE_CHAR;
     private static final int OFFSET_IS_WHEEL_DETACHED = OFFSET_IS_WHEEL_FLAT + ByteUtil.SIZE_BOOL;
     
@@ -98,6 +102,7 @@ public class TelemetryData
     
     private boolean updatedInRealtimeMode = false;
     private long updateId = 0L;
+    private boolean sessionJustStarted = false;
     
     private final LiveGameData gameData;
     
@@ -186,22 +191,40 @@ public class TelemetryData
     
     void onDataUpdated( EditorPresets editorPresets )
     {
-        this.updatedInRealtimeMode = gameData.isInRealtimeMode();
-        this.updateId++;
-        
-        float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
-        bmr = gameData.getPhysics().getEngine().getRevLimitRange().limitValue( bmr );
-        
-        if ( bmr != engineBaseMaxRPM )
+        try
         {
-            // the car is controlled by the player but not the AI
-            this.engineBaseMaxRPM = bmr;
+            this.updatedInRealtimeMode = gameData.isInRealtimeMode();
+            this.updateId++;
+            
+            float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
+            bmr = gameData.getPhysics().getEngine().getRevLimitRange().limitValue( bmr );
+            
+            if ( bmr != engineBaseMaxRPM )
+            {
+                // the car is controlled by the player but not the AI
+                this.engineBaseMaxRPM = bmr;
+            }
+            
+            if ( sessionJustStarted )
+            {
+                if ( updateListeners != null )
+                {
+                    for ( int i = 0; i < updateListeners.length; i++ )
+                        updateListeners[i].onSessionStarted( gameData, editorPresets );
+                }
+                
+                sessionJustStarted = false;
+            }
+            
+            if ( updateListeners != null )
+            {
+                for ( int i = 0; i < updateListeners.length; i++ )
+                    updateListeners[i].onTelemetryDataUpdated( gameData, editorPresets );
+            }
         }
-        
-        if ( updateListeners != null )
+        catch ( Throwable t )
         {
-            for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onTelemetryDataUpdated( gameData, editorPresets );
+            Logger.log( t );
         }
     }
     
@@ -219,13 +242,17 @@ public class TelemetryData
         return ( updateId );
     }
     
+    /**
+     * 
+     * @param editorPresets
+     */
     void onSessionStarted( EditorPresets editorPresets )
     {
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onSessionStarted( gameData, editorPresets );
-        }
+        sessionJustStarted = true;
+    }
+    
+    void onSessionEnded()
+    {
     }
     
     void onRealtimeEntered( EditorPresets editorPresets )
@@ -387,7 +414,7 @@ public class TelemetryData
     {
         // char mVehicleName[64]
         
-        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_NAME, 64 ) );
+        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_NAME, MAX_VEHICLE_NAME_LENGTH ) );
     }
     
     /**
@@ -397,7 +424,7 @@ public class TelemetryData
     {
         // char mTrackName[64]
         
-        return ( ByteUtil.readString( buffer, OFFSET_TRACK_NAME, 64 ) );
+        return ( ByteUtil.readString( buffer, OFFSET_TRACK_NAME, MAX_TRACK_NAME_LENGTH ) );
     }
     
     // Position and derivatives
@@ -1285,13 +1312,13 @@ public class TelemetryData
         switch ( wheel )
         {
             case FRONT_LEFT:
-                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, 16 ) );
+                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, MAX_TERRAIN_NAME_LENGTH ) );
             case FRONT_RIGHT:
-                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, 16 ) );
+                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, MAX_TERRAIN_NAME_LENGTH ) );
             case REAR_LEFT:
-                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, 16 ) );
+                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, MAX_TERRAIN_NAME_LENGTH ) );
             case REAR_RIGHT:
-                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, 16 ) );
+                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, MAX_TERRAIN_NAME_LENGTH ) );
         }
         
         // Unreachable code!
