@@ -73,29 +73,15 @@ public class TimeCompareWidget extends Widget
         int lap = vsi.getCurrentLap();
         
         int n = 0;
-        float sumS1 = 0f;
-        float sumS2 = 0f;
-        float sumS3 = 0f;
-        float sumL = 0f;
         for ( int i = lap - 1; i >= 1 && n < numDisplayedLaps; i-- )
         {
             Laptime lt = vsi.getLaptime( i );
             if ( ( lt != null ) && ( lt.isInlap() != Boolean.TRUE ) && ( lt.isOutlap() != Boolean.TRUE ) && ( lt.getLapTime() > 0f ) )
             {
                 store.displayedLaps[numDisplayedLaps - n - 1] = lt;
-                sumS1 += lt.getSector1();
-                sumS2 += lt.getSector2();
-                sumS3 += lt.getSector3();
-                sumL += lt.getLapTime();
-                
                 n++;
             }
         }
-        
-        store.avgS1 = sumS1 / n;
-        store.avgS2 = sumS2 / n;
-        store.avgS3 = sumS3 / n;
-        store.avgL = sumL / n;
         
         if ( n < numDisplayedLaps )
         {
@@ -217,7 +203,9 @@ public class TimeCompareWidget extends Widget
             }
         }
         
-        lap.update( gameData.getScoringInfo().getViewedVehicleScoringInfo().getCurrentLap() );
+        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+        
+        lap.update( vsi.getCurrentLap() );
         
         if ( needsCompleteRedraw || lap.hasChanged() )
         {
@@ -246,21 +234,21 @@ public class TimeCompareWidget extends Widget
             }
             
             String[] s;
-            if ( last < 0 )
+            if ( ( last >= 0 ) && ( vsi.getAverageLaptime() > 0f ) )
+            {
+                Laptime lt = store.displayedLaps[last];
+                
+                if ( displaySectors.getBooleanValue() )
+                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getSector1() - vsi.getAverageSector1Time() ), TimingUtil.getTimeAsGapString( lt.getSector2() - vsi.getAverageSector2Time() ), TimingUtil.getTimeAsGapString( lt.getSector3() - vsi.getAverageSector3Time() ), TimingUtil.getTimeAsGapString( lt.getLapTime() - vsi.getAverageLaptime() ) };
+                else
+                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getLapTime() - vsi.getAverageLaptime() ) };
+            }
+            else
             {
                 if ( displaySectors.getBooleanValue() )
                     s = new String[] { Loc.footer_gap, "--.---", "--.---", "--.---", "-:--.---" };
                 else
                     s = new String[] { Loc.footer_gap, "-:--.---" };
-            }
-            else
-            {
-                Laptime lt = store.displayedLaps[last];
-                
-                if ( displaySectors.getBooleanValue() )
-                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getSector1() - store.avgS1 ), TimingUtil.getTimeAsGapString( lt.getSector2() - store.avgS2 ), TimingUtil.getTimeAsGapString( lt.getSector3() - store.avgS3 ), TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
-                else
-                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getLapTime() - store.avgL ) };
             }
             
             timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, backgroundColor, texture );

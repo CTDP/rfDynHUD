@@ -27,6 +27,7 @@ Major:
 * Added sector specific colors to MapWidget.
 * MapWidget/TrackPositionWidget: draw important positions last.
 * Added vehicle class relative scoring (configuration global option).
+* Added support for timed races (estimate max laps, calculate lifetime).
 * Improved early rendering of Widgets to reduce the gap when entering the cockpit.
 * Added padding properties.
 * Added rfdynhud.ini as central plugin configuration file to support localizations and custom config folders.
@@ -52,7 +53,6 @@ Minor:
 TODO:
 
 * MapWidget/TrackPositionWidget: Display pace car
-* Calculate remaining laps based on remaining time for timed races
 * Save As: Construct filename
 * Make widget selection menues nicer
 * Improve viewed vehicle detection (use me if close)
