@@ -293,10 +293,10 @@ public class TimingWidget extends Widget
         {
             // Just to get differences...
             
-            if ( afVSI == scoringInfo.getVehicleScoringInfo( 0 ) )
+            if ( afVSI == scoringInfo.getLeadersVehicleScoringInfo() )
                 afVSI = scoringInfo.getVehicleScoringInfo( 1 );
             else
-                afVSI = scoringInfo.getVehicleScoringInfo( 0 );
+                afVSI = scoringInfo.getLeadersVehicleScoringInfo();
         }
         
         if ( displayAbsFastest.getBooleanValue() )

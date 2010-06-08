@@ -465,7 +465,6 @@ public class WearWidget extends Widget
     
     private void drawEngine( ScoringInfo scoringInfo, boolean isEditorMode, float lifetime, double raceLengthMultiplier, VehiclePhysics.Engine engine, TextureImage2D texture, final int x, final int y, final int width )
     {
-        final int w = width;
         final int h = engineHeight.getEffectiveHeight();
         
         final int lowerSafeLifetime = engine.getLowerSafeLifetimeValue( raceLengthMultiplier );
@@ -487,21 +486,21 @@ public class WearWidget extends Widget
             
             if ( lifetime >= lowerBadLifetime )
             {
-                int w2 = ( lowerBadLifetime - minLifetime ) * w / maxLifetimeTotal;
+                int w2 = ( lowerBadLifetime - minLifetime ) * width / maxLifetimeTotal;
                 texture.clear( Color.RED, x0, y, w2, h, false, null );
                 x0 += w2;
             }
             else
             {
-                int w2 = (int)( ( lifetime - minLifetime ) * w / maxLifetimeTotal );
+                int w2 = (int)( ( lifetime - minLifetime ) * width / maxLifetimeTotal );
                 texture.clear( Color.RED, x0, y, w2, h, false, null );
                 x0 += w2;
-                x1 = x + ( maxLifetimeTotal - badLifetimeTotal ) * w / maxLifetimeTotal;
+                x1 = x + ( maxLifetimeTotal - badLifetimeTotal ) * width / maxLifetimeTotal;
             }
             
             if ( lifetime >= lowerGoodLifetime )
             {
-                int w2 = ( lowerGoodLifetime - lowerBadLifetime ) * w / maxLifetimeTotal;
+                int w2 = ( lowerGoodLifetime - lowerBadLifetime ) * width / maxLifetimeTotal;
                 texture.clear( YELLOW2, x0, y, w2, h, false, null );
                 x0 += w2;
             }
@@ -509,21 +508,21 @@ public class WearWidget extends Widget
             {
                 if ( lifetime >= lowerBadLifetime )
                 {
-                    int w2 = (int)( ( lifetime - lowerBadLifetime ) * w / maxLifetimeTotal );
+                    int w2 = (int)( ( lifetime - lowerBadLifetime ) * width / maxLifetimeTotal );
                     texture.clear( YELLOW2, x0, y, w2, h, false, null );
                     x0 += w2;
                 }
                 
-                x2 = x + ( maxLifetimeTotal - goodLifetimeTotal ) * w / maxLifetimeTotal;
+                x2 = x + ( maxLifetimeTotal - goodLifetimeTotal ) * width / maxLifetimeTotal;
             }
             
             if ( lifetime >= lowerSafeLifetime )
             {
-                int w2 = ( lowerSafeLifetime - lowerGoodLifetime ) * w / maxLifetimeTotal;
+                int w2 = ( lowerSafeLifetime - lowerGoodLifetime ) * width / maxLifetimeTotal;
                 texture.clear( GREEN2, x0, y, w2, h, false, null );
                 x0 += w2;
                 
-                int w3 = (int)( ( lifetime - lowerSafeLifetime ) * w / maxLifetimeTotal );
+                int w3 = (int)( ( lifetime - lowerSafeLifetime ) * width / maxLifetimeTotal );
                 texture.clear( Color.GREEN, x0, y, w3, h, false, null );
                 x0 += w3;
             }
@@ -531,15 +530,15 @@ public class WearWidget extends Widget
             {
                 if ( lifetime >= lowerGoodLifetime )
                 {
-                    int w2 = (int)( ( lifetime - lowerGoodLifetime ) * w / maxLifetimeTotal );
+                    int w2 = (int)( ( lifetime - lowerGoodLifetime ) * width / maxLifetimeTotal );
                     texture.clear( GREEN2, x0, y, w2, h, false, null );
                     x0 += w2;
                 }
                 
-                x3 = x + ( maxLifetimeTotal - safeLifetimeTotal ) * w / maxLifetimeTotal;
+                x3 = x + ( maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal;
             }
             
-            int w_ = w - x0 + x;
+            int w_ = width - x0 + x;
             if ( w_ > 0 )
             {
                 texture.clear( Color.BLACK, x0, y, w_, h, false, null );
@@ -565,10 +564,10 @@ public class WearWidget extends Widget
         }
         else
         {
-            int w2 = (int)( lifetime * w / maxLifetimeTotal );
+            int w2 = (int)( lifetime * width / maxLifetimeTotal );
             texture.clear( Color.GREEN, x, y, w2, h, false, null );
             
-            int w3 = w - w2;
+            int w3 = width - w2;
             if ( w3 > 0 )
                 texture.clear( Color.BLACK, x + w2, y, w3, h, false, null );
         }
@@ -582,11 +581,11 @@ public class WearWidget extends Widget
             }
             else if ( scoringInfo.getSessionType().isRace() && ( engineLifetimeLossPerLap > 0f ) )
             {
-                int maxLaps = scoringInfo.getPlayersVehicleScoringInfo().getEstimatedMaxLaps();
+                final int maxLaps = scoringInfo.getEstimatedMaxLaps( scoringInfo.getPlayersVehicleScoringInfo() );
                 if ( maxLaps > 0 )
                 {
                     int lapsRemaining = (int)scoringInfo.getPlayersVehicleScoringInfo().getLapsRemaining( maxLaps );
-                    int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * w / maxLifetimeTotal );
+                    int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
                     x2 -= explodeTexture.getWidth() / 2;
                     x2 = Math.max( 0, x2 );
                     
@@ -595,7 +594,7 @@ public class WearWidget extends Widget
             }
         }
         
-        texture.markDirty( x, y, w, h );
+        texture.markDirty( x, y, width, h );
     }
     
     private void drawTire( float wear, float grip, CompoundWheel compoundWheel, TextureImage2D texture, int x, int y )

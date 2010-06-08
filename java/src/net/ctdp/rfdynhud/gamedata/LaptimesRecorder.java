@@ -24,6 +24,60 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
         return ( laps );
     }
     
+    private void calcAvgLaptime( VehicleScoringInfo vsi )
+    {
+        if ( vsi.fastestLaptime == null )
+        {
+            vsi.avgSector1 = -1f;
+            vsi.avgSector2 = -1f;
+            vsi.avgSector3 = -1f;
+            vsi.avgLaptime = -1f;
+            return;
+        }
+        
+        float fastest = vsi.fastestLaptime.getLapTime();
+        float accepted = fastest * 1.06f;
+        
+        float sumS1 = 0f;
+        float sumS2 = 0f;
+        float sumS3 = 0f;
+        float sumL = 0f;
+        int count = 0;
+        
+        for ( int i = 0; i < vsi.laptimes.size(); i++ )
+        {
+            Laptime lt = vsi.laptimes.get( i );
+            if ( ( lt != null ) && lt.finished && !lt.isOutLap && ( lt.isInLap == Boolean.FALSE ) )
+            {
+                float ltt = lt.getLapTime();
+                
+                if ( ltt <= accepted )
+                {
+                    sumS1 += lt.getSector1();
+                    sumS2 += lt.getSector2();
+                    sumS3 += lt.getSector3();
+                    sumL += ltt;
+                    count++;
+                }
+            }
+        }
+        
+        if ( count == 0 )
+        {
+            vsi.avgSector1 = -1f;
+            vsi.avgSector2 = -1f;
+            vsi.avgSector3 = -1f;
+            vsi.avgLaptime = -1f;
+        }
+        else
+        {
+            vsi.avgSector1 = sumS1 / (float)count;
+            vsi.avgSector2 = sumS2 / (float)count;
+            vsi.avgSector3 = sumS3 / (float)count;
+            vsi.avgLaptime = sumL / (float)count;
+        }
+    }
+    
     @Override
     public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -102,8 +156,6 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             
             if ( vsi.isInPits() )
             {
-                float trackPos = ( vsi.getLapDistance() / scoringInfo.getTrackLength() );
-                
                 Laptime laptime = vsi.getLaptime( lapsCompleted + 1 );
                 
                 if ( laptime == null )
@@ -112,7 +164,7 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                     addLaptime( vsi, lapsCompleted, laptime );
                 }
                 
-                if ( trackPos > 0.5f )
+                if ( vsi.getNormalizedLapDistance() > 0.5f )
                 {
                     if ( vsi.getStintStartLap() != lapsCompleted + 1 )
                         laptime.isInLap = true;
@@ -137,6 +189,11 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                 {
                     lastLap.isInLap = false;
                 }
+            }
+            
+            if ( vsi.isLapJustStarted() )
+            {
+                calcAvgLaptime( vsi );
             }
         }
     }

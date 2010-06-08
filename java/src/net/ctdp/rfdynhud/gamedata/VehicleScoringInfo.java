@@ -50,6 +50,10 @@ public class VehicleScoringInfo
     
     final ArrayList<Laptime> laptimes = new ArrayList<Laptime>();
     Laptime fastestLaptime = null;
+    float avgLaptime = -1f;
+    float avgSector1 = -1f;
+    float avgSector2 = -1f;
+    float avgSector3 = -1f;
     
     float topspeed = 0f;
     
@@ -222,41 +226,15 @@ public class VehicleScoringInfo
         return ( lap != oldLap );
     }
     
-    private float getAvgLaptime()
-    {
-        short lapsCompleted = getLapsCompleted();
-        int n = 0;
-        float totalTime = 0f;
-        
-        for ( int i = 0; i < lapsCompleted; i++ )
-        {
-            Laptime lt = getLaptime( lapsCompleted - 1 - i );
-            
-            if ( ( lt != null ) && lt.isFinished() && ( lt.isOutlap() == Boolean.FALSE ) && ( lt.isInlap() == Boolean.FALSE ) )
-            {
-                totalTime += lt.getLapTime();
-                n++;
-            }
-            
-            if ( n >= 5 )
-                break;
-        }
-        
-        if ( n == 0 )
-        {
-            int maxLaps = scoringInfo.getMaxLaps();
-            if ( maxLaps > Integer.MAX_VALUE / 2 )
-                maxLaps = 0;
-            
-            if ( maxLaps > 0 )
-                return ( maxLaps );
-            
-            return ( -1 );
-        }
-        
-        return ( totalTime / n );
-    }
-    
+    /**
+     * Gets the {@link SessionLimit} of the current session. If the session limit is defined to be LAPS,
+     * LAPS is returned. If it is defined to be timed, TIME is returned. Otherwise the method
+     * tries to guess the limit based on the average laptime.
+     * 
+     * @param preference if both TIME and LAPS are possible, preference is returned.
+     * 
+     * @return the {@link SessionLimit}.
+     */
     public final SessionLimit getSessionLimit( SessionLimit preference )
     {
         int maxLaps = scoringInfo.getMaxLaps();
@@ -264,11 +242,11 @@ public class VehicleScoringInfo
             maxLaps = 0;
         final float endTime = scoringInfo.getEndTime();
         
-        if ( maxLaps < 10000 )
+        if ( ( maxLaps > 0 ) && ( maxLaps < 10000 ) )
         {
             if ( ( endTime > 0f ) && ( endTime < 999999f ) )
             {
-                float avgLaptime = getAvgLaptime();
+                float avgLaptime = getAverageLaptime();
                 
                 if ( avgLaptime < 0f )
                 {
@@ -293,13 +271,31 @@ public class VehicleScoringInfo
         return ( null );
     }
     
+    /**
+     * Gets the {@link SessionLimit} of the current session. If the session limit is defined to be LAPS,
+     * LAPS is returned. If it is defined to be timed, TIME is returned. Otherwise the method
+     * tries to guess the limit based on the average laptime.
+     * 
+     * @return the {@link SessionLimit}.
+     */
     public final SessionLimit getSessionLimit()
     {
         return ( getSessionLimit( null ) );
     }
     
+    /**
+     * Gets the estimated max laps based on the session end time and average lap time.
+     * If the {@link SessionLimit} is defined to be LAPS, then max laps is known and returned.
+     * 
+     * @return the estimated max laps.
+     */
     public final int getEstimatedMaxLaps()
     {
+        if ( scoringInfo.getSessionType().isRace() && scoringInfo.getLeadersVehicleScoringInfo().getFinishStatus().isFinished() )
+        {
+            return ( scoringInfo.getLeadersVehicleScoringInfo().getLapsCompleted() );
+        }
+        
         short lapsCompleted = getLapsCompleted();
         int maxLaps = scoringInfo.getMaxLaps();
         if ( maxLaps > Integer.MAX_VALUE / 2 )
@@ -313,7 +309,7 @@ public class VehicleScoringInfo
             return ( -1 );
         }
         
-        float avgLaptime = getAvgLaptime();
+        float avgLaptime = getAverageLaptime();
         if ( avgLaptime < 0f )
         {
             if ( maxLaps > 0 )
@@ -331,17 +327,24 @@ public class VehicleScoringInfo
         return ( maxLaps );
     }
     
+    /**
+     * Gets the number of remaining laps (with fractions).
+     * 
+     * @param maxLaps
+     * 
+     * @return the number of remaining laps.
+     */
     public final float getLapsRemaining( int maxLaps )
     {
         if ( maxLaps < 0 )
             return ( -1f );
         
-        return ( maxLaps - getLapsCompleted() - getNormalizedLapDistance() );
-    }
-    
-    public final float getLapsRemaining()
-    {
-        return ( getLapsRemaining( getEstimatedMaxLaps() ) );
+        int lr = maxLaps - getLapsCompleted();
+        
+        if ( getFinishStatus().isFinished() )
+            return ( lr );
+        
+        return ( lr - getNormalizedLapDistance() );
     }
     
     /**
@@ -427,6 +430,10 @@ public class VehicleScoringInfo
         oldLap = -1;
         laptimes.clear();
         fastestLaptime = null;
+        avgLaptime = -1f;
+        avgSector1 = -1f;
+        avgSector2 = -1f;
+        avgSector3 = -1f;
     }
     
     void onSessionStarted()
@@ -472,6 +479,46 @@ public class VehicleScoringInfo
     public final Laptime getFastestLaptime()
     {
         return ( fastestLaptime );
+    }
+    
+    /**
+     * Gets the average laptime of the current session. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
+     * 
+     * @return the average laptime or -1.
+     */
+    public final float getAverageLaptime()
+    {
+        return ( avgLaptime );
+    }
+    
+    /**
+     * Gets the average sector 1 time of the current session. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
+     * 
+     * @return the average sector 1 time or -1.
+     */
+    public final float getAverageSector1Time()
+    {
+        return ( avgSector1 );
+    }
+    
+    /**
+     * Gets the average sector 2 time of the current session. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
+     * 
+     * @return the average sector 2 time or -1.
+     */
+    public final float getAverageSector2Time()
+    {
+        return ( avgSector2 );
+    }
+    
+    /**
+     * Gets the average sector 3 time of the current session. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
+     * 
+     * @return the average sector 3 time or -1.
+     */
+    public final float getAverageSector3Time()
+    {
+        return ( avgSector3 );
     }
     
     /**

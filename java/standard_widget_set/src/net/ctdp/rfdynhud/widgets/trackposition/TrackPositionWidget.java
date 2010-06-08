@@ -124,7 +124,7 @@ public class TrackPositionWidget extends Widget
         else
             this.maxDisplayedVehicles = modInfo.getMaxOpponents() + 1;
         
-        this.maxDisplayedVehicles = Math.max( 3, Math.min( maxDisplayedVehicles, 32 ) );
+        this.maxDisplayedVehicles = Math.max( 4, Math.min( maxDisplayedVehicles, 32 ) );
     }
     
     private void updateVSIs( LiveGameData gameData, EditorPresets editorPresets )

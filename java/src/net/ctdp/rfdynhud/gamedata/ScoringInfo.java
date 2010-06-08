@@ -449,9 +449,35 @@ public class ScoringInfo
                 // We seem to be in editor mode
                 trackRaceLaps = 70;
             }
-            double raceLaps = getMaxLaps();
             
-            raceLengthPercentage = ( raceLaps + 1 ) / trackRaceLaps;
+            VehicleScoringInfo leader = getLeadersVehicleScoringInfo();
+            
+            Logger.log( leader.getSessionLimit() );
+            if ( leader.getSessionLimit() == SessionLimit.TIME )
+            {
+                int raceLaps = getEstimatedMaxLaps( leader );
+                
+                if ( raceLaps > 0 )
+                {
+                    double oldRLP = raceLengthPercentage;
+                    raceLengthPercentage = ( raceLaps + 1 ) / trackRaceLaps;
+                    
+                    if ( raceLengthPercentage != oldRLP )
+                    {
+                        LifetimeManager.INSTANCE.applyActualLifetime( gameData, oldRLP, raceLengthPercentage );
+                    }
+                }
+                else
+                {
+                    raceLengthPercentage = 1.0;
+                }
+            }
+            else
+            {
+                double raceLaps = getEstimatedMaxLaps( leader );
+                
+                raceLengthPercentage = ( raceLaps + 1 ) / trackRaceLaps;
+            }
         }
         else
         {
@@ -507,6 +533,11 @@ public class ScoringInfo
                 }
                 
                 this.sessionJustStarted = 0;
+            }
+            
+            if ( getLeadersVehicleScoringInfo().isLapJustStarted() )
+            {
+                updateRaceLengthPercentage();
             }
             
             
@@ -887,6 +918,21 @@ public class ScoringInfo
     }
     
     /**
+     * Gets the estimated max laps based on the session end time and average lap time.
+     * If the {@link SessionLimit} is defined to be LAPS, then max laps is known and returned.
+     * If the current session is a race, the estimated max laps of the leader are returned.
+     * 
+     * @return the estimated max laps.
+     */
+    public final int getEstimatedMaxLaps( VehicleScoringInfo vsi )
+    {
+        if ( getSessionType().isRace() )
+            return ( getLeadersVehicleScoringInfo().getEstimatedMaxLaps() );
+        
+        return ( vsi.getEstimatedMaxLaps() );
+    }
+    
+    /**
      * distance around track
      */
     public final float getTrackLength()
@@ -1216,6 +1262,17 @@ public class ScoringInfo
         System.arraycopy( vehicleScoringInfo2, 0, vsis, 0, n );
         
         return ( n );
+    }
+    
+    /**
+     * Gets the leader's {@link VehicleScoringInfo}.
+     * This is equivalent to getVehicleScoringInfo( 0 ).
+     * 
+     * @return the leader's {@link VehicleScoringInfo}.
+     */
+    public final VehicleScoringInfo getLeadersVehicleScoringInfo()
+    {
+        return ( getVehicleScoringInfo( 0 ) );
     }
     
     /**

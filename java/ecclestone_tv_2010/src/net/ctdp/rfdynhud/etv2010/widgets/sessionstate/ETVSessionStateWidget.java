@@ -249,7 +249,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        VehicleScoringInfo vsi = scoringInfo.getSessionType().isRace() ? scoringInfo.getVehicleScoringInfo( 0 ) : scoringInfo.getViewedVehicleScoringInfo();
+        VehicleScoringInfo vsi = scoringInfo.getSessionType().isRace() ? scoringInfo.getLeadersVehicleScoringInfo() : scoringInfo.getViewedVehicleScoringInfo();
         
         if ( needsCompleteRedraw )
         {

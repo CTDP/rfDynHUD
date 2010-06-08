@@ -7,6 +7,7 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.FuelUsageRecorder;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
+import net.ctdp.rfdynhud.gamedata.SessionLimit;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
@@ -25,7 +26,6 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
-import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.AbstractSize;
@@ -605,7 +605,7 @@ public class FuelWidget extends Widget
             float lapsForFuel = ( fuel - 0.5f ) / avgFuelUsage;
             float restLapLength = 1.0f - ( stintLength % 1f );
             
-            int lapsRemaining = vsi.getEstimatedMaxLaps() - vsi.getLapsCompleted() - 1;
+            int lapsRemaining = scoringInfo.getEstimatedMaxLaps( vsi ) - vsi.getLapsCompleted() - 1;
             
             if ( ( avgFuelUsage > 0f ) && ( lapsForFuel - restLapLength < 1.0f ) && ( lapsRemaining > 0 ) )
             {
@@ -697,11 +697,17 @@ public class FuelWidget extends Widget
         int nextPitstopLap = -1;
         int pitstopFuel_ = -1;
         int pitstopLaps = -1;
+        int maxLaps = scoringInfo.getEstimatedMaxLaps( vsi );
+        if ( maxLaps > 0 )
+        {
+            maxLaps -= vsi.getLapsBehindLeader( false );
+            
+            if ( vsi.getSessionLimit() == SessionLimit.TIME )
+                maxLaps++; // In a timed race we never know, if we might be fast enough to drive another lap.
+        }
         if ( !isEditorMode && ( avgFuelUsage > 0f ) )
         {
             int currLap = vsi.getCurrentLap();
-            int maxLaps = vsi.getEstimatedMaxLaps();
-            Logger.log( maxLaps );
             
             int remainingFuelLaps = (int)Math.floor( ( fuel / avgFuelUsage ) + ( stintLength - (int)stintLength ) );
             nextPitstopLap = vsi.getLapsCompleted() + remainingFuelLaps + nextPitstopLapCorrection;
@@ -710,8 +716,8 @@ public class FuelWidget extends Widget
             {
                 int delta = currLap - nextPitstopLap;
                 
-                //nextPitstopLapCorrection += delta;
-                //nextPitstopFuelLapsCorrection -= delta;
+                nextPitstopLapCorrection += delta;
+                nextPitstopFuelLapsCorrection -= delta;
                 nextPitstopLap = vsi.getLapsCompleted() + remainingFuelLaps + nextPitstopLapCorrection;
             }
             
@@ -720,19 +726,17 @@ public class FuelWidget extends Widget
             pitstopLaps = (int)Math.floor( pitstopFuel0 / avgFuelUsage );
             pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
             
-            /*
             while ( pitstopFuel_ < avgFuelUsage )
             {
                 nextPitstopFuelLapsCorrection++;
                 pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
             }
             
-            while ( ( pitstopFuel_ > tankSize ) || ( scoringInfo.getSessionType().isRace() && ( nextPitstopLap + pitstopLaps + nextPitstopFuelLapsCorrection > maxLaps ) ) )
+            while ( ( pitstopFuel_ > tankSize ) || ( scoringInfo.getSessionType().isRace() && ( maxLaps > 0 ) && ( nextPitstopLap + pitstopLaps + nextPitstopFuelLapsCorrection > maxLaps ) ) )
             {
                 nextPitstopFuelLapsCorrection--;
                 pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
             }
-            */
         }
         else if ( isEditorMode )
         {
@@ -751,7 +755,7 @@ public class FuelWidget extends Widget
         {
             oldNextPitstopLapCorrection = tmp;
             
-            if ( avgFuelUsage > 0f )
+            if ( ( avgFuelUsage > 0f ) && ( maxLaps > 0 ) )
             {
                 if ( pitstopFuel.isValid() )
                 {

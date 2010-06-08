@@ -382,7 +382,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                 if ( scoringInfo.getSessionType() == SessionType.RACE )
                     gaps[i].update( ( vsi.getLapsBehindLeader( getUseClassScoring() ) > 0 ) ? -vsi.getLapsBehindLeader( getUseClassScoring() ) - 10000 : Math.abs( vsi.getTimeBehindLeader( getUseClassScoring() ) ) );
                 else
-                    gaps[i].update( vsi.getBestLapTime() - scoringInfo.getVehicleScoringInfo( 0 ).getBestLapTime() );
+                    gaps[i].update( vsi.getBestLapTime() - scoringInfo.getLeadersVehicleScoringInfo().getBestLapTime() );
                 
                 if ( ( needsCompleteRedraw || visibilityChanged || gaps[i].hasChanged() ) && visible )
                 {

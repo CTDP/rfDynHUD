@@ -290,7 +290,7 @@ public class MiscWidget extends Widget
         
         if ( displayScoring.getBooleanValue() )
         {
-            VehicleScoringInfo leaderVSI = scoringInfo.getVehicleScoringInfo( 0 );
+            VehicleScoringInfo leaderVSI = scoringInfo.getLeadersVehicleScoringInfo();
             leaderID.update( leaderVSI.getDriverId() );
             String leaderName = leaderVSI.getDriverNameShort();
             place.update( scoringInfo.getOwnPlace( getConfiguration().getUseClassScoring() ) );
@@ -368,7 +368,7 @@ public class MiscWidget extends Widget
                 lapStringValue[0] = Loc.timing_laps_done_prefix + ":";
             
             lapsCompleted.update( vsi.getLapsCompleted() );
-            final int maxLaps = vsi.getEstimatedMaxLaps();
+            final int maxLaps = scoringInfo.getEstimatedMaxLaps( vsi );
             if ( maxLaps > 0 )
             {
                 float lapsRemaining = vsi.getLapsRemaining( maxLaps );
@@ -449,7 +449,7 @@ public class MiscWidget extends Widget
             else if ( scoringInfo.getSessionType().isTestDay() || ( endTime < 0f ) || ( endTime > 3000000f ) )
                 sessionTimeStringValue[1] = TimingUtil.getTimeAsString( sessionTime.getValue(), true, false );
             else
-                sessionTimeStringValue[1] = TimingUtil.getTimeAsString( sessionTime.getValue() - endTime, true, false );
+                sessionTimeStringValue[1] = TimingUtil.getTimeAsString( Math.min( sessionTime.getValue() - endTime, 0f ), true, false );
             
             if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase2.hasChanged( false ) ) ) )
             {

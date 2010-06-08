@@ -182,7 +182,13 @@ public class RFactorEventsManager implements ConfigurationClearListener
     public byte onSessionStarted( EditorPresets editorPresets )
     {
         //Logger.log( ">>> onSessionStarted" );
-        byte result = 0;
+        //if ( currentSessionIsRace == Boolean.TRUE )
+        if ( sessionRunning )
+        {
+            //Logger.log( "INFO: Got a call to StartSession() in already started RACE session. Looks like an rFactor bug. Ignoring this call." );
+            Logger.log( "INFO: Got a call to StartSession() in already started session. Looks like an rFactor bug. Ignoring this call." );
+            return ( rfDynHUD.isInRenderMode() ? (byte)1 : (byte)0 );
+        }
         
         this.sessionRunning = true;
         this.isComingOutOfGarage = true;
@@ -197,6 +203,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.lastSessionStartedTimestamp = System.nanoTime();
         this.lastViewedVSIId = -1;
         this.lastControl = null;
+        
+        byte result = 0;
         
         try
         {
@@ -246,11 +254,12 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.waitingForGraphics = false;
         //this.sessionStartTime = -1f;
         this.sessionRunning = false;
+        this.currentSessionIsRace = null;
         
-        if ( !gameData.getProfileInfo().isValid() )
-            return;
-        
-        __GDPrivilegedAccess.onSessionEnded( gameData );
+        if ( gameData.getProfileInfo().isValid() )
+        {
+            __GDPrivilegedAccess.onSessionEnded( gameData );
+        }
     }
     
     /**
@@ -300,49 +309,49 @@ public class RFactorEventsManager implements ConfigurationClearListener
             
             __GDPrivilegedAccess.updateInfo( gameData );
             
-            if ( !gameData.getProfileInfo().isValid() )
-                return ( 0 );
-            
-            __GDPrivilegedAccess.setRealtimeMode( true, gameData, editorPresets );
-            
-            reloadPhysics( editorPresets != null, false );
-            
-            if ( reloadSetup( editorPresets != null ) )
+            if ( gameData.getProfileInfo().isValid() )
             {
-                waitingForSetup = false;
-            }
-            
-            if ( editorPresets == null )
-            {
-                /*
-                int gameResX = widgetsManager.getMainTexture().getWidth();
-                int gameResY = widgetsManager.getMainTexture().getHeight();
+                __GDPrivilegedAccess.setRealtimeMode( true, gameData, editorPresets );
                 
-                __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, widgetsManager );
-                */
+                reloadPhysics( editorPresets != null, false );
                 
-                if ( !gameData.getScoringInfo().getSessionType().isRace() )
+                if ( reloadSetup( editorPresets != null ) )
                 {
-                    //result = reloadConfigAndSetupTexture( false );
+                    waitingForSetup = false;
                 }
                 
-                /*
-                File lastConfigFile = ConfigurationLoader.getCurrentlyLoadedConfigFile();
-                if ( ( lastConfigFile != null ) && lastConfigFile.getName().toLowerCase().contains( "_garage" ) )
+                if ( editorPresets == null )
                 {
-                    widgetsManager.clear( gameData, null, this );
-                    TextureDirtyRectsManager.forceCompleteRedraw();
-                    widgetsManager.collectTextures( gameData, null );
-                    widgetsManager.clearCompleteTexture();
+                    /*
+                    int gameResX = widgetsManager.getMainTexture().getWidth();
+                    int gameResY = widgetsManager.getMainTexture().getHeight();
                     
-                    nextReloadForced = true;
+                    __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, widgetsManager );
+                    */
                     
-                    result = 2;
+                    if ( !gameData.getScoringInfo().getSessionType().isRace() )
+                    {
+                        //result = reloadConfigAndSetupTexture( false );
+                    }
+                    
+                    /*
+                    File lastConfigFile = ConfigurationLoader.getCurrentlyLoadedConfigFile();
+                    if ( ( lastConfigFile != null ) && lastConfigFile.getName().toLowerCase().contains( "_garage" ) )
+                    {
+                        widgetsManager.clear( gameData, null, this );
+                        TextureDirtyRectsManager.forceCompleteRedraw();
+                        widgetsManager.collectTextures( gameData, null );
+                        widgetsManager.clearCompleteTexture();
+                        
+                        nextReloadForced = true;
+                        
+                        result = 2;
+                    }
+                    */
                 }
-                */
+                
+                widgetsManager.fireOnRealtimeEntered( gameData, editorPresets );
             }
-            
-            widgetsManager.fireOnRealtimeEntered( gameData, editorPresets );
         }
         catch ( Throwable t )
         {
@@ -564,13 +573,22 @@ public class RFactorEventsManager implements ConfigurationClearListener
      */
     public final byte onTelemetryDataUpdated( EditorPresets editorPresets )
     {
-        //Logger.log( ">>> onTelemetryDataUpdated" );
-        this.waitingForTelemetry = false;
+        byte result = 0;
         
-        if ( !gameData.getProfileInfo().isValid() )
-            return ( 0 );
-        
-        byte result = checkWaitingData( editorPresets, false );
+        try
+        {
+            //Logger.log( ">>> onTelemetryDataUpdated" );
+            this.waitingForTelemetry = false;
+            
+            if ( gameData.getProfileInfo().isValid() )
+            {
+                result = checkWaitingData( editorPresets, false );
+            }
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
         
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
@@ -590,62 +608,70 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     public final byte onScoringInfoUpdated( EditorPresets editorPresets )
     {
-       //Logger.log( ">>> onScoringInfoUpdated" );
+        byte result = 0;
         
-        this.currentSessionIsRace = gameData.getScoringInfo().getSessionType().isRace();
-        
-        if ( waitingForScoring )
+        try
         {
-            final VehicleScoringInfo vsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
-            vsi.getWorldPosition( garageStartLocation );
-            vsi.getOrientationX( garageStartOrientationX );
-            vsi.getOrientationY( garageStartOrientationY );
-            vsi.getOrientationZ( garageStartOrientationZ );
+            //Logger.log( ">>> onScoringInfoUpdated" );
+            this.currentSessionIsRace = gameData.getScoringInfo().getSessionType().isRace();
             
-            this.isInPits = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
-            this.isInGarage = isInPits;
+            if ( waitingForScoring )
+            {
+                final VehicleScoringInfo vsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+                vsi.getWorldPosition( garageStartLocation );
+                vsi.getOrientationX( garageStartOrientationX );
+                vsi.getOrientationY( garageStartOrientationY );
+                vsi.getOrientationZ( garageStartOrientationZ );
+                
+                this.isInPits = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
+                this.isInGarage = isInPits;
+            }
+            
+            this.waitingForScoring = false;
+            
+            this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
+            
+            if ( gameData.getProfileInfo().isValid() )
+            {
+                result = checkWaitingData( editorPresets, false );
+                
+                widgetsManager.fireOnScoringInfoUpdated( gameData, editorPresets );
+                
+                if ( !waitingForData && ( result != 0 ) )
+                {
+                    byte result2 = checkPosition( editorPresets );
+                    
+                    if ( result2 != 1 )
+                    {
+                        result = result2;
+                    }
+                    
+                    VehicleScoringInfo viewedVSI = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+                    
+                    if ( ( lastViewedVSIId == -1 ) || ( viewedVSI.getDriverId() != lastViewedVSIId ) || ( viewedVSI.getVehicleControl() != lastControl ) )
+                    {
+                        lastViewedVSIId = viewedVSI.getDriverId();
+                        lastControl = viewedVSI.getVehicleControl();
+                        widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, editorPresets );
+                        
+                        result2 = reloadConfigAndSetupTexture( false );
+                        
+                        if ( result2 == 2 )
+                        {
+                            widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, editorPresets );
+                        }
+                        
+                        if ( result2 != 1 )
+                        {
+                            result = result2;
+                        }
+                    }
+                }
+            }
         }
-        
-        this.waitingForScoring = false;
-        
-        this.lastSessionTime = gameData.getScoringInfo().getSessionTime();
-        
-        if ( !gameData.getProfileInfo().isValid() )
-            return ( 0 );
-        
-        byte result = checkWaitingData( editorPresets, false );
-        
-        widgetsManager.fireOnScoringInfoUpdated( gameData, editorPresets );
-        
-        if ( !waitingForData && ( result != 0 ) )
+        catch ( Throwable t )
         {
-            byte result2 = checkPosition( editorPresets );
-            
-            if ( result2 != 1 )
-            {
-                result = result2;
-            }
-            
-            VehicleScoringInfo viewedVSI = gameData.getScoringInfo().getViewedVehicleScoringInfo();
-            
-            if ( ( lastViewedVSIId == -1 ) || ( viewedVSI.getDriverId() != lastViewedVSIId ) || ( viewedVSI.getVehicleControl() != lastControl ) )
-            {
-                lastViewedVSIId = viewedVSI.getDriverId();
-                lastControl = viewedVSI.getVehicleControl();
-                widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, editorPresets );
-                
-                result2 = reloadConfigAndSetupTexture( false );
-                
-                if ( result2 == 2 )
-                {
-                    widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, editorPresets );
-                }
-                
-                if ( result2 != 1 )
-                {
-                    result = result2;
-                }
-            }
+            Logger.log( t );
         }
         
         if ( rfDynHUD != null )

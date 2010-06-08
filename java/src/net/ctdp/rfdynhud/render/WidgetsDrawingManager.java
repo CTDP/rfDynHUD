@@ -58,7 +58,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onTrackChanged( trackname, gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onTrackChanged( trackname, gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -81,7 +88,15 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         {
             Widget widget = getWidget( i );
             
-            widget.onSessionStarted( sessionType, gameData, editorPresets );
+            try
+            {
+                widget.onSessionStarted( sessionType, gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
+            
             waitingWidgets.add( widget );
         }
     }
@@ -103,7 +118,15 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         {
             Widget widget = getWidget( i );
             
-            widget.onRealtimeEntered( gameData, editorPresets );
+            try
+            {
+                widget.onRealtimeEntered( gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
+            
             waitingWidgets.add( widget );
         }
     }
@@ -293,7 +316,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onPitsEntered( gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onPitsEntered( gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -307,7 +337,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onGarageEntered( gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onGarageEntered( gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -321,7 +358,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onGarageExited( gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onGarageExited( gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -335,7 +379,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onPitsExited( gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onPitsExited( gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -351,7 +402,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onRealtimeExited( gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onRealtimeExited( gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -366,7 +424,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onScoringInfoUpdated( gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onScoringInfoUpdated( gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -382,7 +447,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -398,7 +470,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            getWidget( i ).onLapStarted( vsi, gameData, editorPresets );
+            try
+            {
+                getWidget( i ).onLapStarted( vsi, gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -413,7 +492,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         int numWidgets = getNumWidgets();
         for ( int i = 0; i < numWidgets; i++ )
         {
-            getWidget( i ).onEngineBoostMappingChanged( oldValue, newValue );
+            try
+            {
+                getWidget( i ).onEngineBoostMappingChanged( oldValue, newValue );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -427,7 +513,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         int numWidgets = getNumWidgets();
         for ( int i = 0; i < numWidgets; i++ )
         {
-            getWidget( i ).onTemporaryEngineBoostStateChanged( enabled );
+            try
+            {
+                getWidget( i ).onTemporaryEngineBoostStateChanged( enabled );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
         }
     }
     
@@ -450,10 +543,17 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         if ( widget == null )
             return;
         
-        if ( action == KnownInputActions.ToggleWidgetVisibility )
-            widget.setInputVisible( !widget.isInputVisible() );
-        else
-            widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, editorPresets );
+        try
+        {
+            if ( action == KnownInputActions.ToggleWidgetVisibility )
+                widget.setInputVisible( !widget.isInputVisible() );
+            else
+                widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, editorPresets );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
     }
     
     private final boolean isWidgetReady( Widget widget, LiveGameData gameData )

@@ -103,7 +103,7 @@ public class MapTools
         
         if ( ( ownPlace > 1 ) && ( ( i0 == 0 ) || forceLeaderDisplayed ) )
         {
-            target[--n] = scoringInfo.getVehicleScoringInfo( 0 );
+            target[--n] = scoringInfo.getLeadersVehicleScoringInfo();
             if ( i0 == 0 )
                 i0++;
         }
@@ -148,19 +148,31 @@ public class MapTools
     
     public static int getDisplayedVSIsForMap( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, boolean useClassScoring, boolean forceLeaderDisplayed, VehicleScoringInfo[] target )
     {
+        if ( target == null )
+            throw new NullPointerException( "target array must not be null." );
+        
+        if ( !forceLeaderDisplayed && ( target.length < 3 ) )
+            throw new ArrayIndexOutOfBoundsException( "target array must be at least of size 3." );
+        
+        if ( forceLeaderDisplayed && ( target.length < 4 ) )
+            throw new ArrayIndexOutOfBoundsException( "target array must be at least of size 4." );
+        
         int n = Math.min( scoringInfo.getNumVehicles(), target.length );
         int result = n;
         
-        target[--n] = viewedVSI;
+        if ( n > 0 )
+        {
+            target[--n] = viewedVSI;
+        }
         
         VehicleScoringInfo nif = viewedVSI.getNextInFront( useClassScoring );
-        if ( ( nif != null ) && finishStatusOk( nif ) )
+        if ( ( n > 0 ) && ( nif != null ) && finishStatusOk( nif ) )
         {
             target[--n] = nif;
         }
         
         VehicleScoringInfo nb = viewedVSI.getNextBehind( useClassScoring );
-        if ( ( nb != null ) && finishStatusOk( nb ) )
+        if ( ( n > 0 ) && ( nb != null ) && finishStatusOk( nb ) )
         {
             target[--n] = nb;
         }
@@ -168,8 +180,8 @@ public class MapTools
         int leaderIndex = n - 1;
         if ( forceLeaderDisplayed )
         {
-            VehicleScoringInfo leader = useClassScoring ? viewedVSI.getLeaderByClass() : scoringInfo.getVehicleScoringInfo( 0 );
-            if ( ( leader != null ) && finishStatusOk( leader ) )
+            VehicleScoringInfo leader = useClassScoring ? viewedVSI.getLeaderByClass() : scoringInfo.getLeadersVehicleScoringInfo();
+            if ( ( n > 0 ) && ( leader != null ) && finishStatusOk( leader ) )
             {
                 target[--n] = leader;
             }

@@ -86,6 +86,32 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     @Override
     public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets ) {}
     
+    public void applyActualLifetime( LiveGameData gameData, double oldRaceLengthPercentage, double raceLengthPercentage )
+    {
+        final VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
+        final VehicleSetup setup = gameData.getSetup();
+        
+        double engineLifetime1 = engine.getSafeLifetimeTotal( oldRaceLengthPercentage );
+        double engineLifetimeP = engine.getSafeLifetimeTotal( raceLengthPercentage );
+        double d = engineLifetime1 - this.engineLifetime;
+        this.engineLifetime = engineLifetimeP - d;
+        
+        double factor = oldRaceLengthPercentage / raceLengthPercentage;
+        
+        double brakeDiscThicknessFL1 = setup.getWheelAndTire( Wheel.FRONT_LEFT ).getBrakeDiscThickness();
+        d = brakeDiscThicknessFL1 - this.brakeDiscThicknessFL;
+        this.brakeDiscThicknessFL = brakeDiscThicknessFL1 - d * factor;
+        double brakeDiscThicknessFR1 = setup.getWheelAndTire( Wheel.FRONT_RIGHT ).getBrakeDiscThickness();
+        d = brakeDiscThicknessFR1 - this.brakeDiscThicknessFR;
+        this.brakeDiscThicknessFR = brakeDiscThicknessFR1 - d * factor;
+        double brakeDiscThicknessRL1 = setup.getWheelAndTire( Wheel.REAR_LEFT ).getBrakeDiscThickness();
+        d = brakeDiscThicknessRL1 - this.brakeDiscThicknessRL;
+        this.brakeDiscThicknessRL = brakeDiscThicknessRL1 - d * factor;
+        double brakeDiscThicknessRR1 = setup.getWheelAndTire( Wheel.REAR_RIGHT ).getBrakeDiscThickness();
+        d = brakeDiscThicknessRR1 - this.brakeDiscThicknessRR;
+        this.brakeDiscThicknessRR = brakeDiscThicknessRR1 - d * factor;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -95,19 +121,22 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         final VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
         final VehiclePhysics.Brakes brakes = gameData.getPhysics().getBrakes();
         final TelemetryData telemData = gameData.getTelemetryData();
+        final ScoringInfo scoringInfo = gameData.getScoringInfo();
+        final VehicleSetup setup = gameData.getSetup();
+        final double raceLengthPercentage = scoringInfo.getRaceLengthPercentage();
         
         long timestamp = System.nanoTime();
         
-        if ( ( gameData.getScoringInfo().getSessionId() > lastSessionID ) || ( gameData.getScoringInfo().getRealtimeEntredId() > lastEnteredRealtimeID ) )
+        if ( ( scoringInfo.getSessionId() > lastSessionID ) || ( scoringInfo.getRealtimeEntredId() > lastEnteredRealtimeID ) )
         {
-            lastSessionID = gameData.getScoringInfo().getSessionId();
-            lastEnteredRealtimeID = gameData.getScoringInfo().getRealtimeEntredId();
-            engineLifetime = engine.getSafeLifetimeTotal( gameData.getScoringInfo().getRaceLengthPercentage() );
+            lastSessionID = scoringInfo.getSessionId();
+            lastEnteredRealtimeID = scoringInfo.getRealtimeEntredId();
+            engineLifetime = engine.getSafeLifetimeTotal( raceLengthPercentage );
             
-            brakeDiscThicknessFL = gameData.getSetup().getWheelAndTire( Wheel.FRONT_LEFT ).getBrakeDiscThickness();
-            brakeDiscThicknessFR = gameData.getSetup().getWheelAndTire( Wheel.FRONT_RIGHT ).getBrakeDiscThickness();
-            brakeDiscThicknessRL = gameData.getSetup().getWheelAndTire( Wheel.REAR_LEFT ).getBrakeDiscThickness();
-            brakeDiscThicknessRR = gameData.getSetup().getWheelAndTire( Wheel.REAR_RIGHT ).getBrakeDiscThickness();
+            brakeDiscThicknessFL = setup.getWheelAndTire( Wheel.FRONT_LEFT ).getBrakeDiscThickness();
+            brakeDiscThicknessFR = setup.getWheelAndTire( Wheel.FRONT_RIGHT ).getBrakeDiscThickness();
+            brakeDiscThicknessRL = setup.getWheelAndTire( Wheel.REAR_LEFT ).getBrakeDiscThickness();
+            brakeDiscThicknessRR = setup.getWheelAndTire( Wheel.REAR_RIGHT ).getBrakeDiscThickness();
         }
         else
         {
@@ -134,7 +163,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
                 {
                     float currBrakeApplication = telemData.getUnfilteredBrake();
                     float avgBrakeApplication = ( lastBrakeApplication + currBrakeApplication ) / 2.0f;
-                    float brakePressure = gameData.getSetup().getControls().getBrakePressure();
+                    float brakePressure = setup.getControls().getBrakePressure();
                     
                     //brake bias for that end * brake application * brake pressure * ((brakewear rate * temperature (Kelvin) ^ 3 ) / ( ( brake response curve value 2 + brake response curve value 3 + 271.15 *2 ) / 2 ) ^ 3)
                     
@@ -194,10 +223,10 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
                     torque = computeTorque( brakes.getBrake( wheel ), lastBrakeTemperatureRR );
                     double brakeWearRR = torque * lastBrakeBias * avgBrakeApplication * brakePressure * Math.abs( lastWheelRotationRR ) * ( wearRate * Math.pow( lastBrakeTemperatureRR, 3.0 ) ) / Math.pow( ( ( lowerOptTemp + upperOptTemp - ( TelemetryData.ZERO_KELVIN * 2.0f ) ) / 2.0 ), 3.0 );
                     
-                    brakeDiscThicknessFL -= deltaTime * brakeWearFL / gameData.getScoringInfo().getRaceLengthPercentage();
-                    brakeDiscThicknessFR -= deltaTime * brakeWearFR / gameData.getScoringInfo().getRaceLengthPercentage();
-                    brakeDiscThicknessRL -= deltaTime * brakeWearRL / gameData.getScoringInfo().getRaceLengthPercentage();
-                    brakeDiscThicknessRR -= deltaTime * brakeWearRR / gameData.getScoringInfo().getRaceLengthPercentage();
+                    brakeDiscThicknessFL -= deltaTime * brakeWearFL / raceLengthPercentage;
+                    brakeDiscThicknessFR -= deltaTime * brakeWearFR / raceLengthPercentage;
+                    brakeDiscThicknessRL -= deltaTime * brakeWearRL / raceLengthPercentage;
+                    brakeDiscThicknessRR -= deltaTime * brakeWearRR / raceLengthPercentage;
                 }
             }
         }
@@ -214,9 +243,9 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         lastEngineBoost = telemData.getEffectiveEngineBoostMapping();
         lastVelocity = telemData.getScalarVelocityMPS();
         
-        lastBrakeBias = gameData.getSetup().getControls().getRearBrakeBalance();
+        lastBrakeBias = setup.getControls().getRearBrakeBalance();
         lastBrakeApplication = telemData.getUnfilteredBrake();
-        if ( ( gameData.getScoringInfo().getViewedVehicleScoringInfo() == null ) || ( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() && gameData.getScoringInfo().getViewedVehicleScoringInfo().getVehicleControl().isLocalPlayer() ) )
+        if ( ( scoringInfo.getViewedVehicleScoringInfo() == null ) || ( scoringInfo.getViewedVehicleScoringInfo().isPlayer() && scoringInfo.getViewedVehicleScoringInfo().getVehicleControl().isLocalPlayer() ) )
         {
             lastBrakeTemperatureFL = telemData.getBrakeTemperatureK( Wheel.FRONT_LEFT );
             lastBrakeTemperatureFR = telemData.getBrakeTemperatureK( Wheel.FRONT_RIGHT );
