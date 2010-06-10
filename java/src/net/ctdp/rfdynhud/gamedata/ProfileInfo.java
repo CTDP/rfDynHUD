@@ -100,7 +100,7 @@ public class ProfileInfo
         
         if ( plrFile == null )
         {
-            Logger.log( "ERROR: No Profile with RFM file found. Plugin unusable!" );
+            Logger.log( "ERROR: No Profile with PLR file found. Plugin unusable!" );
             
             reset();
             return ( false );

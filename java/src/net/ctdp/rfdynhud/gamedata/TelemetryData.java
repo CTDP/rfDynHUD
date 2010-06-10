@@ -100,7 +100,7 @@ public class TelemetryData
     
     final byte[] buffer = new byte[ BUFFER_SIZE ];
     
-    private boolean updatedInRealtimeMode = false;
+    private boolean updatedInTimeScope = false;
     private long updateId = 0L;
     private boolean sessionJustStarted = false;
     
@@ -193,7 +193,7 @@ public class TelemetryData
     {
         try
         {
-            this.updatedInRealtimeMode = gameData.isInRealtimeMode();
+            this.updatedInTimeScope = gameData.isInRealtimeMode();
             this.updateId++;
             
             float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
@@ -229,12 +229,12 @@ public class TelemetryData
     }
     
     /**
-     * Gets, whether the last update of these data has been done while in realtime mode.
-     * @return whether the last update of these data has been done while in realtime mode.
+     * Gets, whether the last update of these data has been done while in running session resp. realtime mode.
+     * @return whether the last update of these data has been done while in running session resp. realtime mode.
      */
-    public final boolean isUpdatedInRealtimeMode()
+    public final boolean isUpdatedInTimeScope()
     {
-        return ( updatedInRealtimeMode );
+        return ( updatedInTimeScope );
     }
     
     public final long getUpdateId()
@@ -248,15 +248,19 @@ public class TelemetryData
      */
     void onSessionStarted( EditorPresets editorPresets )
     {
-        sessionJustStarted = true;
+        this.sessionJustStarted = true;
+        this.updatedInTimeScope = false;
     }
     
     void onSessionEnded()
     {
+        this.updatedInTimeScope = false;
     }
     
     void onRealtimeEntered( EditorPresets editorPresets )
     {
+        this.updatedInTimeScope = true;
+        
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
@@ -266,6 +270,8 @@ public class TelemetryData
     
     void onRealtimeExited( EditorPresets editorPresets )
     {
+        this.updatedInTimeScope = false;
+        
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )

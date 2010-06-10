@@ -41,11 +41,13 @@ public class LiveGameData
         {
             getTelemetryData().onRealtimeEntered( editorPresets );
             getScoringInfo().onRealtimeEntered( editorPresets );
+            getSetup().onRealtimeEntered();
         }
         else if ( was && !realtimeMode )
         {
             getTelemetryData().onRealtimeExited( editorPresets );
             getScoringInfo().onRealtimeExited( editorPresets );
+            getSetup().onRealtimeExited();
         }
     }
     

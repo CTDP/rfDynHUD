@@ -374,7 +374,7 @@ public class ConfigurationLoader
      */
     public static Boolean reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener, boolean force )
     {
-        if ( force )
+        if ( force || !widgetsConfig.isValid() )
         {
             currentlyLoadedConfigFile = null;
             lastModified = -1L;

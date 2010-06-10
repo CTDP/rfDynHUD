@@ -60,10 +60,11 @@ public class ScoringInfo
     
     private final LiveGameData gameData;
     
-    private boolean updatedInRealtimeMode = false;
+    private boolean updatedInTimeScope = false;
     private long updateId = 0L;
     private long updateTimestamp = -1L;
     private int sessionId = 0;
+    private boolean sessionRunning = false;
     private int sessionJustStarted = 0;
     
     private long sessionStartTimestamp = -1L;
@@ -489,7 +490,7 @@ public class ScoringInfo
     {
         try
         {
-            this.updatedInRealtimeMode = gameData.isInRealtimeMode();
+            this.updatedInTimeScope = true;
             this.updateId++;
             this.updateTimestamp = System.nanoTime();
             
@@ -581,17 +582,32 @@ public class ScoringInfo
     {
         this.sessionId++;
         this.sessionStartTimestamp = System.nanoTime();
+        this.sessionRunning = true;
         this.sessionJustStarted = 1;
+        this.updatedInTimeScope = false;
         
         this.raceLengthPercentage = 1.0; // We don't know it better now!
     }
     
     final void onSessionEnded()
     {
+        this.sessionRunning = false;
+        this.updatedInTimeScope = false;
+        
         for ( int i = 0; i < vehicleScoringInfo.length; i++ )
         {
             vehicleScoringInfo[i].onSessionEnded();
         }
+    }
+    
+    /**
+     * Gets whether a session is currently running or not.
+     * 
+     * @return whether a session is currently running or not.
+     */
+    public final boolean isSessionRunning()
+    {
+        return ( sessionRunning );
     }
     
     /**
@@ -608,6 +624,7 @@ public class ScoringInfo
     {
         this.realtimeEnteredTimestamp = System.nanoTime();
         this.realtimeEnteredId++;
+        this.updatedInTimeScope = true;
         
         if ( updateListeners != null )
         {
@@ -627,6 +644,8 @@ public class ScoringInfo
     
     final void onRealtimeExited( EditorPresets editorPresets )
     {
+        this.updatedInTimeScope = false;
+        
         if ( updateListeners != null )
         {
             for ( int i = 0; i < updateListeners.length; i++ )
@@ -664,12 +683,12 @@ public class ScoringInfo
     }
     
     /**
-     * Gets, whether the last update of these data has been done while in realtime mode.
-     * @return whether the last update of these data has been done while in realtime mode.
+     * Gets, whether the last update of these data has been done while in running session resp. realtime mode.
+     * @return whether the last update of these data has been done while in running session resp. realtime mode.
      */
-    public final boolean isUpdatedInRealtimeMode()
+    public final boolean isUpdatedInTimeScope()
     {
-        return ( updatedInRealtimeMode );
+        return ( updatedInTimeScope );
     }
     
     /**

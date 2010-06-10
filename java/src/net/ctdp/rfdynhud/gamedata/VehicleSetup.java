@@ -25,15 +25,35 @@ import org.jagatoo.util.ini.AbstractIniParser;
 @SuppressWarnings( "unused" )
 public class VehicleSetup
 {
-    private boolean updatedInRealtimeMode = false;
+    private boolean updatedInTimeScope = false;
     
     /**
-     * Gets, whether the last update of these data has been done while in realtime mode.
-     * @return whether the last update of these data has been done while in realtime mode.
+     * Gets, whether the last update of these data has been done while in running session resp. realtime mode.
+     * @return whether the last update of these data has been done while in running session resp. realtime mode.
      */
-    public final boolean isUpdatedInRealtimeMode()
+    public final boolean isUpdatedInTimeScope()
     {
-        return ( updatedInRealtimeMode );
+        return ( updatedInTimeScope );
+    }
+    
+    void onSessionStarted()
+    {
+        this.updatedInTimeScope = false;
+    }
+    
+    void onSessionEnded()
+    {
+        this.updatedInTimeScope = false;
+    }
+    
+    void onRealtimeEntered()
+    {
+        this.updatedInTimeScope = false;
+    }
+    
+    void onRealtimeExited()
+    {
+        this.updatedInTimeScope = false;
     }
     
     //private boolean symmetric; // GENERAL::Symmetric=1
@@ -1686,7 +1706,7 @@ public class VehicleSetup
             Logger.log( e );
         }
         
-        setup.updatedInRealtimeMode = gameData.isInRealtimeMode();
+        setup.updatedInTimeScope = true;
         
         gameData.setSetup( setup );
     }

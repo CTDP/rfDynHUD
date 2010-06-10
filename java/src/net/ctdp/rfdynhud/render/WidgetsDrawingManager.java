@@ -146,13 +146,13 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             Widget widget = waitingWidgets.get( i );
             int neededData = ( widget.getNeededData() & Widget.NEEDED_DATA_ALL );
             
-            if ( ( ( neededData & Widget.NEEDED_DATA_TELEMETRY ) != 0 ) && gameData.getTelemetryData().isUpdatedInRealtimeMode() )
+            if ( ( ( neededData & Widget.NEEDED_DATA_TELEMETRY ) != 0 ) && gameData.getTelemetryData().isUpdatedInTimeScope() )
                 neededData &= ~Widget.NEEDED_DATA_TELEMETRY;
             
-            if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInRealtimeMode() )
+            if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInTimeScope() )
                 neededData &= ~Widget.NEEDED_DATA_SCORING;
             
-            if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInRealtimeMode() )
+            if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInTimeScope() )
                 neededData &= ~Widget.NEEDED_DATA_SETUP;
             
             if ( neededData == 0 )
@@ -564,11 +564,11 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         {
             int neededData = widget.getNeededData();
             
-            if ( ( ( neededData & Widget.NEEDED_DATA_TELEMETRY ) != 0 ) && !gameData.getTelemetryData().isUpdatedInRealtimeMode() )
+            if ( ( ( neededData & Widget.NEEDED_DATA_TELEMETRY ) != 0 ) && !gameData.getTelemetryData().isUpdatedInTimeScope() )
                 ready = false;
-            else if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInRealtimeMode() )
+            else if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInTimeScope() )
                 ready = false;
-            else if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInRealtimeMode() )
+            else if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInTimeScope() )
                 ready = false;
         }
         

@@ -31,11 +31,12 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     private boolean sessionJustStarted = false;
     private Boolean currentSessionIsRace = null;
-    private boolean waitingForData = false;
+    
+    private boolean waitingForGraphics = false;
     private boolean waitingForTelemetry = false;
     private boolean waitingForScoring = false;
     private boolean waitingForSetup = false;
-    private boolean waitingForGraphics = false;
+    private boolean waitingForData = false;
     
     private boolean isInGarage = true;
     private boolean isInPits = true;
@@ -193,11 +194,13 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.sessionRunning = true;
         this.isComingOutOfGarage = true;
         this.isInGarage = true;
+        
+        this.waitingForGraphics = ( editorPresets == null );
         this.waitingForTelemetry = ( editorPresets == null );
         this.waitingForScoring = ( editorPresets == null );
         this.waitingForSetup = false;
-        this.waitingForGraphics = ( editorPresets == null );
         this.waitingForData = ( editorPresets == null );
+        
         this.sessionJustStarted = true;
         this.currentSessionIsRace = null;
         this.lastSessionStartedTimestamp = System.nanoTime();
@@ -211,23 +214,25 @@ public class RFactorEventsManager implements ConfigurationClearListener
             ThreeLetterCodeManager.updateThreeLetterCodes();
             __GDPrivilegedAccess.updateInfo( gameData );
             
-            if ( !gameData.getProfileInfo().isValid() )
-                return ( 0 );
-            
-            reloadPhysics( editorPresets != null, true );
-            reloadSetup( editorPresets != null );
-            
-            __GDPrivilegedAccess.onSessionStarted( gameData, editorPresets );
-            
-            // We cannot load the configuration here, because we don't know, which one to load (no scoring info).
+            if ( gameData.getProfileInfo().isValid() )
+            {
+                reloadPhysics( editorPresets != null, true );
+                reloadSetup( editorPresets != null );
+                
+                __GDPrivilegedAccess.onSessionStarted( gameData, editorPresets );
+                
+                // We cannot load the configuration here, because we don't know, which one to load (no scoring info).
+            }
         }
         catch ( Throwable t )
         {
+            Logger.log( t );
         }
         
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
+        //Logger.log( ">>> result: " + result );
         return ( result );
     }
     
@@ -247,11 +252,12 @@ public class RFactorEventsManager implements ConfigurationClearListener
     public void onSessionEnded( EditorPresets editorPresets )
     {
         //Logger.log( ">>> onSessionEnded" );
-        this.waitingForData = false;
+        this.waitingForGraphics = false;
         this.waitingForTelemetry = false;
         this.waitingForScoring = false;
         this.waitingForSetup = false;
-        this.waitingForGraphics = false;
+        this.waitingForData = false;
+        
         //this.sessionStartTime = -1f;
         this.sessionRunning = false;
         this.currentSessionIsRace = null;
@@ -260,6 +266,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
         {
             __GDPrivilegedAccess.onSessionEnded( gameData );
         }
+        
+        __WCPrivilegedAccess.setValid( widgetsManager, false );
     }
     
     /**
@@ -292,10 +300,10 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.lastViewedVSIId = -1;
         this.lastControl = null;
         
+        this.waitingForGraphics = waitingForGraphics || ( editorPresets == null );
         this.waitingForTelemetry = waitingForTelemetry || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForScoring = waitingForScoring || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForSetup = waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
-        this.waitingForGraphics = waitingForGraphics || ( editorPresets == null );
         this.waitingForData = ( editorPresets == null );
         
         if ( editorPresets == null )
@@ -320,36 +328,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
                     waitingForSetup = false;
                 }
                 
-                if ( editorPresets == null )
-                {
-                    /*
-                    int gameResX = widgetsManager.getMainTexture().getWidth();
-                    int gameResY = widgetsManager.getMainTexture().getHeight();
-                    
-                    __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, widgetsManager );
-                    */
-                    
-                    if ( !gameData.getScoringInfo().getSessionType().isRace() )
-                    {
-                        //result = reloadConfigAndSetupTexture( false );
-                    }
-                    
-                    /*
-                    File lastConfigFile = ConfigurationLoader.getCurrentlyLoadedConfigFile();
-                    if ( ( lastConfigFile != null ) && lastConfigFile.getName().toLowerCase().contains( "_garage" ) )
-                    {
-                        widgetsManager.clear( gameData, null, this );
-                        TextureDirtyRectsManager.forceCompleteRedraw();
-                        widgetsManager.collectTextures( gameData, null );
-                        widgetsManager.clearCompleteTexture();
-                        
-                        nextReloadForced = true;
-                        
-                        result = 2;
-                    }
-                    */
-                }
-                
                 widgetsManager.fireOnRealtimeEntered( gameData, editorPresets );
             }
         }
@@ -361,6 +339,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
+        //Logger.log( ">>> result: " + result );
         return ( result );
     }
     
@@ -385,14 +364,14 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.isInPits = true;
         this.isInGarage = true;
         
-        if ( !gameData.getProfileInfo().isValid() )
-            return;
-        
         try
         {
-            __GDPrivilegedAccess.setRealtimeMode( false, gameData, editorPresets );
-            
-            widgetsManager.fireOnRealtimeExited( gameData, editorPresets );
+            if ( gameData.getProfileInfo().isValid() )
+            {
+                __GDPrivilegedAccess.setRealtimeMode( false, gameData, editorPresets );
+                
+                widgetsManager.fireOnRealtimeExited( gameData, editorPresets );
+            }
         }
         catch ( Throwable t )
         {
@@ -418,24 +397,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
     }
     
     private final TelemVect3 position = new TelemVect3();
-    
-    /*
-    private final boolean checkIsInGarage()
-    {
-        if ( !isInRealtimeMode() )
-            return ( true );
-        
-        if ( !gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits() )
-            return ( false );
-        
-        gameData.getTelemetryData().getPosition( position );
-        
-        if ( garageStartLocation.getDistanceXZToSquared( position ) < 4f ) // distance < 2 m
-            return ( true );
-        
-        return ( false );
-    }
-    */
     
     private final boolean checkIsInGarage()
     {
@@ -465,10 +426,10 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     private byte checkPosition( EditorPresets editorPresets )
     {
-        if ( !isInGarage ) // For now we don't support reentering the garage with a special configuration, because of the inaccurate check.
-            return ( 1 );
-        
         byte result = 1;
+        
+        if ( !isInGarage ) // For now we don't support reentering the garage with a special configuration, because of the inaccurate check.
+            return ( result );
         
         boolean isInGarage = checkIsInGarage();
         
@@ -530,7 +491,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         
         byte result = 0;
         
-        if ( !waitingForTelemetry && !waitingForScoring && !waitingForSetup && !waitingForGraphics )
+        if ( !waitingForGraphics && !waitingForTelemetry && !waitingForScoring && !waitingForSetup )
         {
             isInGarage = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
             
@@ -567,17 +528,82 @@ public class RFactorEventsManager implements ConfigurationClearListener
     }
     
     /**
+     * Will and must be called any time, the game is redendered (called from the C++-Plugin).
+     * 
+     * @param viewportX
+     * @param viewportY
+     * @param viewportWidth
+     * @param viewportHeight
+     * 
+     * @return 0, if nothing shouldbe rendered anymore, 1 to render something, 2 to render and update texture info.
+     */
+    public final byte onGraphicsInfoUpdated( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
+    {
+        //Logger.log( ">>> onGraphicsInfoUpdated" );
+        this.waitingForGraphics = false;
+        
+        byte result = 0;
+        
+        try
+        {
+            boolean vpChanged = __WCPrivilegedAccess.setViewport( viewportX, viewportY, viewportWidth, viewportHeight, widgetsManager );
+            
+            if ( isSessionRunning() && gameData.getProfileInfo().isValid() )
+            {
+                if ( vpChanged )
+                {
+                    //Logger.log( "Viewport changed: " + viewportX + ", " + viewportY + ", " + viewportWidth + "x" + viewportHeight );
+                    
+                    if ( gameData.getProfileInfo().isValid() )
+                    {
+                        if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
+                        {
+                            __WCPrivilegedAccess.setValid( widgetsManager, false );
+                            result = 0;
+                        }
+                        else
+                        {
+                            //result = reloadConfigAndSetupTexture( true );
+                            waitingForData = true;
+                            result = checkWaitingData( null, true );
+                        }
+                    }
+                }
+                else if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
+                {
+                    __WCPrivilegedAccess.setValid( widgetsManager, false );
+                    result = 0;
+                }
+                else
+                {
+                    result = checkWaitingData( null, false );
+                }
+            }
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+        
+        if ( rfDynHUD != null )
+            rfDynHUD.setRenderMode( result != 0 );
+        
+        //Logger.log( ">>> result: " + result );
+        return ( result );
+    }
+    
+    /**
      * 
      * @param editorPresets
      * @return
      */
     public final byte onTelemetryDataUpdated( EditorPresets editorPresets )
     {
+        //Logger.log( ">>> onTelemetryDataUpdated" );
         byte result = 0;
         
         try
         {
-            //Logger.log( ">>> onTelemetryDataUpdated" );
             this.waitingForTelemetry = false;
             
             if ( gameData.getProfileInfo().isValid() )
@@ -593,6 +619,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
+        //Logger.log( ">>> result: " + result );
         return ( result );
     }
     
@@ -608,11 +635,11 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     public final byte onScoringInfoUpdated( EditorPresets editorPresets )
     {
+        //Logger.log( ">>> onScoringInfoUpdated" );
         byte result = 0;
         
         try
         {
-            //Logger.log( ">>> onScoringInfoUpdated" );
             this.currentSessionIsRace = gameData.getScoringInfo().getSessionType().isRace();
             
             if ( waitingForScoring )
@@ -677,6 +704,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
+        //Logger.log( ">>> result: " + result );
         return ( result );
     }
     
@@ -688,76 +716,6 @@ public class RFactorEventsManager implements ConfigurationClearListener
     public final byte onScoringInfoUpdated()
     {
         return ( onScoringInfoUpdated( null ) );
-    }
-    
-    /**
-     * Will and must be called any time, the game is redendered (called from the C++-Plugin).
-     * 
-     * @param viewportX
-     * @param viewportY
-     * @param viewportWidth
-     * @param viewportHeight
-     * 
-     * @return 0, if nothing shouldbe rendered anymore, 1 to render something, 2 to render and update texture info.
-     */
-    public final byte onGraphicsInfoUpdated( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
-    {
-        //Logger.log( ">>> onGraphicsInfoUpdated" );
-        if ( !isSessionRunning() )
-        {
-            if ( rfDynHUD != null )
-                rfDynHUD.setRenderMode( false );
-            
-            return ( 0 );
-        }
-        
-        this.waitingForGraphics = false;
-        
-        byte result = 0;
-        
-        try
-        {
-            if ( __WCPrivilegedAccess.setViewport( viewportX, viewportY, viewportWidth, viewportHeight, widgetsManager ) )
-            {
-                //Logger.log( "Viewport changed: " + viewportX + ", " + viewportY + ", " + viewportWidth + "x" + viewportHeight );
-                
-                if ( !gameData.getProfileInfo().isValid() )
-                    return ( 0 );
-                
-                if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
-                {
-                    __WCPrivilegedAccess.setValid( widgetsManager, false );
-                    result = 0;
-                }
-                else
-                {
-                    //result = reloadConfigAndSetupTexture( true );
-                    waitingForData = true;
-                    result = checkWaitingData( null, true );
-                }
-            }
-            else if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
-            {
-                __WCPrivilegedAccess.setValid( widgetsManager, false );
-                result = 0;
-            }
-            else
-            {
-                if ( !gameData.getProfileInfo().isValid() )
-                    return ( 0 );
-                
-                result = checkWaitingData( null, false );
-            }
-        }
-        catch ( Throwable t )
-        {
-            Logger.log( t );
-        }
-        
-        if ( rfDynHUD != null )
-            rfDynHUD.setRenderMode( result != 0 );
-        
-        return ( result );
     }
     
     public final void checkRaceRestart( long updateTimestamp )

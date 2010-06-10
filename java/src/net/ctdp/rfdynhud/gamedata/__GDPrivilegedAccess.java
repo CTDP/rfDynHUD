@@ -82,12 +82,14 @@ public class __GDPrivilegedAccess
     {
         gameData.getTelemetryData().onSessionStarted( editorPresets );
         gameData.getScoringInfo().onSessionStarted( editorPresets );
+        gameData.getSetup().onSessionStarted();
     }
     
     public static final void onSessionEnded( LiveGameData gameData )
     {
         gameData.getTelemetryData().onSessionEnded();
         gameData.getScoringInfo().onSessionEnded();
+        gameData.getSetup().onSessionEnded();
     }
     
     public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData, EditorPresets editorPresets )
