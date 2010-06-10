@@ -32,7 +32,7 @@ public class ProfileInfo
         ;
     }
     
-    public static final File USERDATA_FOLDER = GameFileSystem.getPathFromGameConfigINI( "SaveDir", "UserData" );
+    public static final File USERDATA_FOLDER = GameFileSystem.INSTANCE.getPathFromGameConfigINI( "SaveDir", "UserData" );
     
     private File profileFolder = null;
     private File plrFile = null;
@@ -96,6 +96,8 @@ public class ProfileInfo
     
     boolean update()
     {
+        final GameFileSystem fileSystem = GameFileSystem.INSTANCE;
+        
         File plrFile = findPLRFile();
         
         if ( plrFile == null )
@@ -130,7 +132,7 @@ public class ProfileInfo
                             lastUsedTrackFile = new File( value );
                             
                             if ( !lastUsedTrackFile.isAbsolute() )
-                                lastUsedTrackFile = new File( GameFileSystem.GAME_FOLDER, value );
+                                lastUsedTrackFile = new File( fileSystem.getGameFolder(), value );
                         }
                     }
                     else if ( group.equalsIgnoreCase( "DRIVER" ) )

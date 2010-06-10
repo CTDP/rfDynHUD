@@ -275,7 +275,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     
     private void loadBindings( final InputDeviceManager devManager )
     {
-        File configFile = new File( GameFileSystem.CONFIG_FOLDER, "input_bindings.ini" );
+        File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), "input_bindings.ini" );
         
         if ( !configFile.exists() )
         {
@@ -344,7 +344,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     {
         try
         {
-            IniWriter writer = new IniWriter( new File( GameFileSystem.CONFIG_FOLDER, "input_bindings.ini" ) );
+            IniWriter writer = new IniWriter( new File( GameFileSystem.INSTANCE.getConfigFolder(), "input_bindings.ini" ) );
             
             for ( int i = 0; i < rows.size(); i++ )
             {

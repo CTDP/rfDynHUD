@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
-class GameFileSystemInitializerRFactor extends GameFileSystemInitializer
+class GameFileSystemRFactor extends GameFileSystem
 {
     private static boolean isRoot( File folder )
     {
@@ -17,7 +17,7 @@ class GameFileSystemInitializerRFactor extends GameFileSystemInitializer
      * {@inheritDoc}
      */
     @Override
-    protected File findGameFolderImpl( File pluginFolder )
+    protected File findGameFolder( File pluginFolder )
     {
         File f = pluginFolder.getParentFile();
         
@@ -51,8 +51,9 @@ class GameFileSystemInitializerRFactor extends GameFileSystemInitializer
      * {@inheritDoc}
      */
     @Override
-    protected File getPathFromGameConfigINIImpl( File gameFolder, final String setting, String fallback )
+    public File getPathFromGameConfigINI( final String setting, String fallback )
     {
+        File gameFolder = getGameFolder();
         File config = new File( gameFolder, "config.ini" );
         
         if ( !config.exists() )
@@ -111,12 +112,12 @@ class GameFileSystemInitializerRFactor extends GameFileSystemInitializer
      * {@inheritDoc}
      */
     @Override
-    protected File findGameScreenshotsFolderImpl( File gameFolder )
+    protected File findGameScreenshotsFolder( File gameFolder )
     {
-        return ( getPathFromGameConfigINI( gameFolder, "ScreenShotsDir", "UserData" + File.separator + "ScreenShots" ) );
+        return ( getPathFromGameConfigINI( "ScreenShotsDir", "UserData" + File.separator + "ScreenShots" ) );
     }
     
-    public GameFileSystemInitializerRFactor()
+    public GameFileSystemRFactor()
     {
         super();
     }

@@ -2,8 +2,6 @@ package net.ctdp.rfdynhud.util;
 
 import java.io.File;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
-
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
@@ -14,7 +12,8 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class PluginINI
 {
-    public static final File INI_FILE = new File( GameFileSystem.PLUGIN_FOLDER, "rfdynhud.ini" );
+    private final File pluginFolder;
+    private final File iniFile;
     
     private long lastModified = -1;
     
@@ -64,18 +63,18 @@ public class PluginINI
         return ( path );
     }
     
-    private static File getConfigFolder( String configPath )
+    private File getConfigFolder( String configPath )
     {
         if ( !ResourceManager.isJarMode() )
             return ( new File( new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ), "config" ).getAbsoluteFile() );
         
         if ( configPath == null )
-            configPath = new File( GameFileSystem.PLUGIN_FOLDER, "config" ).getAbsolutePath();
+            configPath = new File( pluginFolder, "config" ).getAbsolutePath();
         
         configPath = parsePath( configPath );
         File f = new File( configPath );
         if ( !f.isAbsolute() )
-            f = new File( GameFileSystem.PLUGIN_FOLDER, configPath );
+            f = new File( pluginFolder, configPath );
         
         f = __UtilHelper.stripDotDots( f.getAbsolutePath() );
         
@@ -96,7 +95,7 @@ public class PluginINI
     
     private void update()
     {
-        if ( INI_FILE.lastModified() <= lastModified )
+        if ( iniFile.lastModified() <= lastModified )
             return;
         
         reset();
@@ -125,9 +124,9 @@ public class PluginINI
                     
                     return ( true );
                 }
-            }.parse( INI_FILE );
+            }.parse( iniFile );
             
-            lastModified = INI_FILE.lastModified();
+            lastModified = iniFile.lastModified();
         }
         catch ( Throwable t )
         {
@@ -157,5 +156,11 @@ public class PluginINI
         update();
         
         return ( general_configFolder );
+    }
+    
+    public PluginINI( File pluginFolder )
+    {
+        this.pluginFolder = pluginFolder;
+        this.iniFile = new File( pluginFolder, "rfdynhud.ini" );
     }
 }

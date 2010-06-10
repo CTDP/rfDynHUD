@@ -38,7 +38,7 @@ public class HelpWindow extends JDialog
         String s = "Unable to load readme";
         try
         {
-            s = StringUtil.loadString( new File( GameFileSystem.PLUGIN_FOLDER, "readme.html" ).toURI().toURL() );
+            s = StringUtil.loadString( new File( GameFileSystem.INSTANCE.getPluginFolder(), "readme.html" ).toURI().toURL() );
         }
         catch ( Throwable t )
         {

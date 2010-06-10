@@ -78,7 +78,7 @@ public class ModInfo
     void update()
     {
         this.modName = profileInfo.getModName();
-        this.rfmFile = new File( new File( GameFileSystem.GAME_FOLDER, "rfm" ), modName + ".rfm" );
+        this.rfmFile = new File( new File( GameFileSystem.INSTANCE.getGameFolder(), "rfm" ), modName + ".rfm" );
         
         maxOpponents = readMaxOpponents( rfmFile );
     }

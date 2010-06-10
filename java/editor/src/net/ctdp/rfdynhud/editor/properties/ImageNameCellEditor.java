@@ -13,8 +13,8 @@ import javax.swing.table.TableCellEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.editor.util.ImageSelector;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.ImageProperty;
-import net.ctdp.rfdynhud.util.TextureManager;
 
 /**
  * 
@@ -120,7 +120,7 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
                 if ( prop != null )
                 {
                     //model.setSelectedItem( prop.getValue() );
-                    ImageSelector is = new ImageSelector( TextureManager.IMAGES_FOLDER );
+                    ImageSelector is = new ImageSelector( GameFileSystem.INSTANCE.getImagesFolder() );
                     //JFrame frame = (JFrame)button.getRootPane().getParent();
                     JFrame frame = (JFrame)table.getRootPane().getParent();
                     String selFile = is.showDialog( frame, (String)prop.getValue(), prop.getNoImageAllowed() );

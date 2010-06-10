@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.TextureManager;
@@ -208,7 +209,7 @@ public class BorderCache
         if ( File.separatorChar != '\\' )
             iniFilename = iniFilename.replace( '\\', File.separatorChar );
         
-        File iniFile = new File( new File( TextureManager.IMAGES_FOLDER, "borders" ), iniFilename );
+        File iniFile = new File( new File( GameFileSystem.INSTANCE.getImagesFolder(), "borders" ), iniFilename );
         
         if ( !iniFile.exists() || !iniFile.isFile() || !iniFile.getName().toLowerCase().endsWith( ".ini" ) )
         {

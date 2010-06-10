@@ -14,8 +14,8 @@ import javax.swing.table.TableCellEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.editor.util.BorderSelector;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.BorderProperty;
-import net.ctdp.rfdynhud.util.TextureManager;
 
 /**
  * 
@@ -128,7 +128,7 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
             {
                 if ( prop != null )
                 {
-                    BorderSelector bs = new BorderSelector( new File( TextureManager.IMAGES_FOLDER, "borders" ) );
+                    BorderSelector bs = new BorderSelector( new File( GameFileSystem.INSTANCE.getImagesFolder(), "borders" ) );
                     //JFrame frame = (JFrame)button.getRootPane().getParent();
                     JFrame frame = (JFrame)table.getRootPane().getParent();
                     String selBorder = bs.showDialog( frame, prop.getWidget().getConfiguration(), (String)prop.getValue() );

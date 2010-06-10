@@ -20,8 +20,6 @@ import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
  */
 public class TextureManager
 {
-    public static final File IMAGES_FOLDER = new File( new File( GameFileSystem.CONFIG_FOLDER, "data" ), "images" );
-    
     private static ImageTemplate MISSING_IMAGE = null;
     
     public static BufferedImage createMissingImage( int width, int height )
@@ -91,7 +89,7 @@ public class TextureManager
         if ( File.separatorChar != '\\' )
             name = name.replace( '\\', File.separatorChar );
         
-        File f = new File( IMAGES_FOLDER, name );
+        File f = new File( GameFileSystem.INSTANCE.getImagesFolder(), name );
         
         ImageTemplate template = null;
         

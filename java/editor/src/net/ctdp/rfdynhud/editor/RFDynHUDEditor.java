@@ -75,9 +75,9 @@ import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
-import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.ListProperty;
@@ -235,11 +235,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( dirtyFlag );
     }
     
-    private static final File BACKGROUNDS_FOLDER = new File( GameFileSystem.EDITOR_FOLDER, "backgrounds" );
-    
     private File getScreenshotSetFolder()
     {
-        return ( new File( BACKGROUNDS_FOLDER, screenshotSet ) );
+        File backgroundsFolder = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
+        
+        return ( new File( backgroundsFolder, screenshotSet ) );
     }
     
     private File getBackgroundImageFile( int width, int height )
@@ -249,26 +249,28 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     private void setScreenshotSet( String screenshotSet )
     {
-        if ( !BACKGROUNDS_FOLDER.exists() )
+        File backgroundsFolder = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
+        
+        if ( !backgroundsFolder.exists() )
         {
             this.screenshotSet = DEFAULT_SCREENSHOT_SET;
             return;
         }
         
-        File folder = new File( BACKGROUNDS_FOLDER, screenshotSet );
+        File folder = new File( backgroundsFolder, screenshotSet );
         if ( folder.exists() && folder.isDirectory() )
         {
             this.screenshotSet = screenshotSet;
         }
         else
         {
-            if ( new File( BACKGROUNDS_FOLDER, DEFAULT_SCREENSHOT_SET ).exists() )
+            if ( new File( backgroundsFolder, DEFAULT_SCREENSHOT_SET ).exists() )
             {
                 this.screenshotSet = DEFAULT_SCREENSHOT_SET;
             }
             else
             {
-                for ( File f : BACKGROUNDS_FOLDER.listFiles() )
+                for ( File f : backgroundsFolder.listFiles() )
                 {
                     if ( f.isDirectory() )
                     {
@@ -417,7 +419,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             if ( f.isFile() && f.getName().toLowerCase().endsWith( ".ini" ) )
             {
                 if ( checkConfigFile( f ) )
-                    list.add( f.getAbsolutePath().substring( GameFileSystem.CONFIG_PATH.length() + 1 ) );
+                    list.add( f.getAbsolutePath().substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 ) );
             }
         }
         
@@ -436,7 +438,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         list.add( "<none>" );
         
-        fillConfigurationFiles( GameFileSystem.CONFIG_FOLDER, list );
+        fillConfigurationFiles( GameFileSystem.INSTANCE.getConfigFolder(), list );
         
         return ( list );
     }
@@ -446,14 +448,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         if ( currentTemplateFile == null )
             return ( "<none>" );
         
-        return ( currentTemplateFile.getAbsolutePath().substring( GameFileSystem.CONFIG_PATH.length() + 1 ) );
+        return ( currentTemplateFile.getAbsolutePath().substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 ) );
     }
     
     private ArrayList<String> getScreenshotSets()
     {
         ArrayList<String> list = new ArrayList<String>();
         
-        File root = new File( GameFileSystem.EDITOR_FOLDER, "backgrounds" );
+        File root = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
         for ( File f : root.listFiles() )
         {
             if ( f.isDirectory() && !f.getName().toLowerCase().equals( ".svn" ) )
@@ -515,7 +517,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 {
                     try
                     {
-                        loadTemplateConfig( new File( GameFileSystem.CONFIG_FOLDER, (String)value ) );
+                        loadTemplateConfig( new File( GameFileSystem.INSTANCE.getConfigFolder(), (String)value ) );
                     }
                     catch ( IOException e )
                     {
@@ -643,7 +645,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( f );
         */
         //return ( RFactorTools.EDITOR_FOLDER );
-        return ( GameFileSystem.CONFIG_FOLDER );
+        return ( GameFileSystem.INSTANCE.getConfigFolder() );
     }
     
     private static File getEditorSettingsFile()
@@ -656,12 +658,12 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         if ( ( currentConfigFile != null ) && currentConfigFile.exists() )
         {
             String currentConfigFilename = currentConfigFile.getAbsolutePath();
-            if ( currentConfigFilename.startsWith( GameFileSystem.CONFIG_PATH ) )
+            if ( currentConfigFilename.startsWith( GameFileSystem.INSTANCE.getConfigPath() ) )
             {
-                if ( currentConfigFilename.charAt( GameFileSystem.CONFIG_PATH.length() ) == File.separatorChar )
-                    currentConfigFilename = currentConfigFilename.substring( GameFileSystem.CONFIG_PATH.length() + 1 );
+                if ( currentConfigFilename.charAt( GameFileSystem.INSTANCE.getConfigPath().length() ) == File.separatorChar )
+                    currentConfigFilename = currentConfigFilename.substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 );
                 else
-                    currentConfigFilename = currentConfigFilename.substring( GameFileSystem.CONFIG_PATH.length() );
+                    currentConfigFilename = currentConfigFilename.substring( GameFileSystem.INSTANCE.getConfigPath().length() );
             }
             
             writer.writeSetting( "lastConfig", currentConfigFilename );
@@ -825,7 +827,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         {
                             try
                             {
-                                loadTemplateConfig( new File( GameFileSystem.CONFIG_FOLDER, value ) );
+                                loadTemplateConfig( new File( GameFileSystem.INSTANCE.getConfigFolder(), value ) );
                             }
                             catch ( IOException e )
                             {
@@ -847,7 +849,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                         {
                             File configFile = new File( value );
                             if ( !configFile.isAbsolute() )
-                                configFile = new File( GameFileSystem.CONFIG_FOLDER, value );
+                                configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), value );
                             if ( configFile.exists() )
                                 //openConfig( configFile );
                                 result[1] = configFile;
@@ -1043,8 +1045,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
             else
             {
-                fc.setCurrentDirectory( GameFileSystem.CONFIG_FOLDER );
-                fc.setSelectedFile( new File( GameFileSystem.CONFIG_FOLDER, "overlay.ini" ) );
+                fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
+                fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" ) );
             }
             
             fc.setMultiSelectionEnabled( false );
@@ -1101,8 +1103,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
         else
         {
-            fc.setCurrentDirectory( GameFileSystem.CONFIG_FOLDER );
-            fc.setSelectedFile( new File( GameFileSystem.CONFIG_FOLDER, "overlay.ini" ) );
+            fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
+            fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" ) );
         }
         
         fc.setMultiSelectionEnabled( false );
@@ -1503,7 +1505,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         try
         {
-            File folder = GameFileSystem.SCREENSHOTS_FOLDER;
+            File folder = GameFileSystem.INSTANCE.getGameScreenshotsFolder();
             folder.mkdirs();
             
             String filenameBase = ( currentConfigFile == null ) ? "rfDynHUD_screenshot_" : "rfDynHUD_" + currentConfigFile.getName().replace( ".", "_" ) + "_";
@@ -2431,7 +2433,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             {
                 File configFile = (File)result[1];
                 if ( configFile == null )
-                    configFile = new File( GameFileSystem.CONFIG_FOLDER, "overlay.ini" );
+                    configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" );
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else

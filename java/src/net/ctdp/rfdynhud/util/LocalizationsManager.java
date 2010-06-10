@@ -126,9 +126,9 @@ public class LocalizationsManager
         }
     }
     
-    private void update( File baseFolder )
+    private void update( PluginINI pluginINI, File baseFolder )
     {
-        String usedLanguage = GameFileSystem.PLUGIN_INI.getGeneralLanguage();
+        String usedLanguage = pluginINI.getGeneralLanguage();
         ArrayList<File> files = new ArrayList<File>();
         
         for ( File f : baseFolder.listFiles() )
@@ -161,9 +161,9 @@ public class LocalizationsManager
             return;
         
         if ( ResourceManager.isJarMode() )
-            update( new File( GameFileSystem.PLUGIN_FOLDER, "widget_sets" ) );
+            update( GameFileSystem.INSTANCE.getPluginINI(), new File( GameFileSystem.INSTANCE.getPluginFolder(), "widget_sets" ) );
         else
-            update( GameFileSystem.PLUGIN_FOLDER );
+            update( GameFileSystem.INSTANCE.getPluginINI(), GameFileSystem.INSTANCE.getPluginFolder() );
     }
     
     public final String getLocalization( Class<? extends Widget> widgetClass, String key )

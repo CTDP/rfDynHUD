@@ -132,7 +132,7 @@ public class ThreeLetterCodeManager
     {
         try
         {
-            File ini = new File( GameFileSystem.CONFIG_FOLDER, INI_FILENAME );
+            File ini = new File( GameFileSystem.INSTANCE.getConfigFolder(), INI_FILENAME );
             if ( !ini.exists() )
             {
                 Logger.log( "WARNING: No " + INI_FILENAME + " found." );

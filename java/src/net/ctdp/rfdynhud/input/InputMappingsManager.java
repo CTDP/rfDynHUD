@@ -70,7 +70,7 @@ public class InputMappingsManager
     {
         try
         {
-            File configFile = new File( GameFileSystem.CONFIG_FOLDER, "input_bindings.ini" );
+            File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), "input_bindings.ini" );
             
             if ( !configFile.exists() )
             {
