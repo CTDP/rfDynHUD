@@ -11,7 +11,7 @@ import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.RFactorEventsManager;
-import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
@@ -70,7 +70,7 @@ public class InputMappingsManager
     {
         try
         {
-            File configFile = new File( RFactorFileSystem.CONFIG_FOLDER, "input_bindings.ini" );
+            File configFile = new File( GameFileSystem.CONFIG_FOLDER, "input_bindings.ini" );
             
             if ( !configFile.exists() )
             {

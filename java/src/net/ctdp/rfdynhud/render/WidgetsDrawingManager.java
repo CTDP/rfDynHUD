@@ -157,7 +157,15 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             if ( neededData == 0 )
             {
-                widget.onNeededDataComplete( gameData, editorPresets );
+                try
+                {
+                    widget.onNeededDataComplete( gameData, editorPresets );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
+                
                 waitingWidgets.remove( i );
                 
                 widget.forceReinitialization();

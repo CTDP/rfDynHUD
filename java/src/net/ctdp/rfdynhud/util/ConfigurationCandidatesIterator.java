@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 
 public class ConfigurationCandidatesIterator implements Iterator<File>
@@ -35,12 +35,12 @@ public class ConfigurationCandidatesIterator implements Iterator<File>
     
     private void addCandidate( String modName, String filename )
     {
-        candidates.add( new File( new File( RFactorFileSystem.CONFIG_FOLDER, modName ), filename ) );
+        candidates.add( new File( new File( GameFileSystem.CONFIG_FOLDER, modName ), filename ) );
     }
     
     private void addCandidate( String filename )
     {
-        candidates.add( new File( RFactorFileSystem.CONFIG_FOLDER, filename ) );
+        candidates.add( new File( GameFileSystem.CONFIG_FOLDER, filename ) );
     }
     
     private void addSmallMonitorCandidates( String modName, String vehicleClass, SessionType sessionType )

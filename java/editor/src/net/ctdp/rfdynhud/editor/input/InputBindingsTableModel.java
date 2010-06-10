@@ -8,7 +8,7 @@ import javax.swing.table.DefaultTableModel;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.WidgetSelectionListener;
-import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMapping;
@@ -275,7 +275,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     
     private void loadBindings( final InputDeviceManager devManager )
     {
-        File configFile = new File( RFactorFileSystem.CONFIG_FOLDER, "input_bindings.ini" );
+        File configFile = new File( GameFileSystem.CONFIG_FOLDER, "input_bindings.ini" );
         
         if ( !configFile.exists() )
         {
@@ -344,7 +344,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     {
         try
         {
-            IniWriter writer = new IniWriter( new File( RFactorFileSystem.CONFIG_FOLDER, "input_bindings.ini" ) );
+            IniWriter writer = new IniWriter( new File( GameFileSystem.CONFIG_FOLDER, "input_bindings.ini" ) );
             
             for ( int i = 0; i < rows.size(); i++ )
             {

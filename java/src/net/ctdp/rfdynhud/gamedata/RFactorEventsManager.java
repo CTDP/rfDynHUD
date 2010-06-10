@@ -478,6 +478,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
     
     private byte checkWaitingData( EditorPresets editorPresets, boolean forceReload )
     {
+        widgetsManager.checkAndFireOnNeededDataComplete( gameData, editorPresets );
+        
         if ( !waitingForData  )
         {
             return ( widgetsManager.isValid() ? (byte)1 : (byte)0 );

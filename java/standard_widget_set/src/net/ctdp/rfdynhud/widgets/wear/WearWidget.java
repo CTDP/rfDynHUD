@@ -195,7 +195,7 @@ public class WearWidget extends Widget
     @Override
     public int getNeededData()
     {
-        return ( Widget.NEEDED_DATA_SCORING );
+        return ( Widget.NEEDED_DATA_SCORING | Widget.NEEDED_DATA_SETUP );
     }
     
     public final boolean getDisplayWearPercent()

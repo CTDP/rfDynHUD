@@ -2,7 +2,7 @@ package net.ctdp.rfdynhud.util;
 
 import java.io.File;
 
-import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -14,7 +14,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class PluginINI
 {
-    public static final File INI_FILE = new File( RFactorFileSystem.PLUGIN_FOLDER, "rfdynhud.ini" );
+    public static final File INI_FILE = new File( GameFileSystem.PLUGIN_FOLDER, "rfdynhud.ini" );
     
     private long lastModified = -1;
     
@@ -70,12 +70,12 @@ public class PluginINI
             return ( new File( new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ), "config" ).getAbsoluteFile() );
         
         if ( configPath == null )
-            configPath = new File( RFactorFileSystem.PLUGIN_FOLDER, "config" ).getAbsolutePath();
+            configPath = new File( GameFileSystem.PLUGIN_FOLDER, "config" ).getAbsolutePath();
         
         configPath = parsePath( configPath );
         File f = new File( configPath );
         if ( !f.isAbsolute() )
-            f = new File( RFactorFileSystem.PLUGIN_FOLDER, configPath );
+            f = new File( GameFileSystem.PLUGIN_FOLDER, configPath );
         
         f = __UtilHelper.stripDotDots( f.getAbsolutePath() );
         

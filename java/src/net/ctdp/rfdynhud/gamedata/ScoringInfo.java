@@ -453,7 +453,6 @@ public class ScoringInfo
             
             VehicleScoringInfo leader = getLeadersVehicleScoringInfo();
             
-            Logger.log( leader.getSessionLimit() );
             if ( leader.getSessionLimit() == SessionLimit.TIME )
             {
                 int raceLaps = getEstimatedMaxLaps( leader );

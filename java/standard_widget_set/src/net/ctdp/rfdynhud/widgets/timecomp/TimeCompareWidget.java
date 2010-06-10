@@ -209,7 +209,7 @@ public class TimeCompareWidget extends Widget
         
         if ( needsCompleteRedraw || lap.hasChanged() )
         {
-            int last = -1;
+            int lastDspIdx = -1;
             for ( int i = 0; i < numDisplayedLaps; i++ )
             {
                 String[] s;
@@ -227,21 +227,23 @@ public class TimeCompareWidget extends Widget
                     else
                         s = new String[] { String.valueOf( store.displayedLaps[i].getLap() ), TimingUtil.getTimeAsString( store.displayedLaps[i].getLapTime(), true ) };
                     
-                    last = i;
+                    lastDspIdx = i;
                 }
                 
                 timeStrings[i].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, backgroundColor, texture );
             }
             
+            Laptime lt = ( lastDspIdx >= 0 ) ? store.displayedLaps[lastDspIdx] : null;
+            Laptime lastDriven = vsi.getLaptime( vsi.getLapsCompleted() );
+            Laptime avgLaptime = vsi.getOldAverageLaptime();
+            
             String[] s;
-            if ( ( last >= 0 ) && ( vsi.getAverageLaptime() > 0f ) )
+            if ( ( lt != null ) && ( lastDriven != null ) && ( lastDriven.isOutlap() == Boolean.FALSE ) && ( avgLaptime != null ) )
             {
-                Laptime lt = store.displayedLaps[last];
-                
                 if ( displaySectors.getBooleanValue() )
-                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getSector1() - vsi.getAverageSector1Time() ), TimingUtil.getTimeAsGapString( lt.getSector2() - vsi.getAverageSector2Time() ), TimingUtil.getTimeAsGapString( lt.getSector3() - vsi.getAverageSector3Time() ), TimingUtil.getTimeAsGapString( lt.getLapTime() - vsi.getAverageLaptime() ) };
+                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getSector1() - avgLaptime.getSector1() ), TimingUtil.getTimeAsGapString( lt.getSector2() - avgLaptime.getSector2() ), TimingUtil.getTimeAsGapString( lt.getSector3() - avgLaptime.getSector3() ), TimingUtil.getTimeAsGapString( lt.getLapTime() - avgLaptime.getLapTime() ) };
                 else
-                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getLapTime() - vsi.getAverageLaptime() ) };
+                    s = new String[] { Loc.footer_gap, TimingUtil.getTimeAsGapString( lt.getLapTime() - avgLaptime.getLapTime() ) };
             }
             else
             {

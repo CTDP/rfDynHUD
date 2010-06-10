@@ -50,10 +50,8 @@ public class VehicleScoringInfo
     
     final ArrayList<Laptime> laptimes = new ArrayList<Laptime>();
     Laptime fastestLaptime = null;
-    float avgLaptime = -1f;
-    float avgSector1 = -1f;
-    float avgSector2 = -1f;
-    float avgSector3 = -1f;
+    Laptime oldAverageLaptime = null;
+    Laptime averageLaptime = null;
     
     float topspeed = 0f;
     
@@ -246,9 +244,9 @@ public class VehicleScoringInfo
         {
             if ( ( endTime > 0f ) && ( endTime < 999999f ) )
             {
-                float avgLaptime = getAverageLaptime();
+                Laptime avgLaptime = getAverageLaptime();
                 
-                if ( avgLaptime < 0f )
+                if ( avgLaptime == null )
                 {
                     if ( preference == null )
                         return ( SessionLimit.LAPS );
@@ -256,7 +254,7 @@ public class VehicleScoringInfo
                     return ( preference );
                 }
                 
-                int timeLaps = (int)( endTime / avgLaptime );
+                int timeLaps = (int)( endTime / avgLaptime.getLapTime() );
                 
                 if ( timeLaps < maxLaps )
                     return ( SessionLimit.TIME );
@@ -309,8 +307,8 @@ public class VehicleScoringInfo
             return ( -1 );
         }
         
-        float avgLaptime = getAverageLaptime();
-        if ( avgLaptime < 0f )
+        Laptime avgLaptime = getAverageLaptime();
+        if ( avgLaptime == null )
         {
             if ( maxLaps > 0 )
                 return ( maxLaps );
@@ -319,7 +317,7 @@ public class VehicleScoringInfo
         }
         
         float restTime = endTime - getLapStartTime();
-        int timeLaps = lapsCompleted + (int)( restTime / avgLaptime ) + 1;
+        int timeLaps = lapsCompleted + (int)( restTime / avgLaptime.getLapTime() ) + 1;
         
         if ( ( maxLaps <= 0 ) || ( timeLaps < maxLaps ) )
             return ( timeLaps );
@@ -430,10 +428,8 @@ public class VehicleScoringInfo
         oldLap = -1;
         laptimes.clear();
         fastestLaptime = null;
-        avgLaptime = -1f;
-        avgSector1 = -1f;
-        avgSector2 = -1f;
-        avgSector3 = -1f;
+        oldAverageLaptime = null;
+        averageLaptime = null;
     }
     
     void onSessionStarted()
@@ -482,43 +478,23 @@ public class VehicleScoringInfo
     }
     
     /**
+     * Gets the average laptime of the current session excluding the last timed lap. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
+     * 
+     * @return the average laptime or -1.
+     */
+    public final Laptime getOldAverageLaptime()
+    {
+        return ( oldAverageLaptime );
+    }
+    
+    /**
      * Gets the average laptime of the current session. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
      * 
      * @return the average laptime or -1.
      */
-    public final float getAverageLaptime()
+    public final Laptime getAverageLaptime()
     {
-        return ( avgLaptime );
-    }
-    
-    /**
-     * Gets the average sector 1 time of the current session. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
-     * 
-     * @return the average sector 1 time or -1.
-     */
-    public final float getAverageSector1Time()
-    {
-        return ( avgSector1 );
-    }
-    
-    /**
-     * Gets the average sector 2 time of the current session. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
-     * 
-     * @return the average sector 2 time or -1.
-     */
-    public final float getAverageSector2Time()
-    {
-        return ( avgSector2 );
-    }
-    
-    /**
-     * Gets the average sector 3 time of the current session. Inlaps, outlaps and laps slower than (1.06 * fastest) are ignored.
-     * 
-     * @return the average sector 3 time or -1.
-     */
-    public final float getAverageSector3Time()
-    {
-        return ( avgSector3 );
+        return ( averageLaptime );
     }
     
     /**

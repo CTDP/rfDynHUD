@@ -1915,7 +1915,7 @@ public class VehiclePhysics
     	{
     	    long t0 = System.currentTimeMillis();
     	    
-			VehiclePhysicsParser.parsePhysicsFiles( cchFile, RFactorFileSystem.RFACTOR_FOLDER, playerVEHFile, trackInfo.getTrackName(), this );
+			VehiclePhysicsParser.parsePhysicsFiles( cchFile, GameFileSystem.GAME_FOLDER, playerVEHFile, trackInfo.getTrackName(), this );
 			
 			Logger.log( "Successfully parsed physics files. (Took " + ( System.currentTimeMillis() - t0 ) + "ms.)" );
 			

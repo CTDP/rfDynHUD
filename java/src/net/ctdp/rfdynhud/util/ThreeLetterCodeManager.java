@@ -3,7 +3,7 @@ package net.ctdp.rfdynhud.util;
 import java.io.File;
 import java.util.HashMap;
 
-import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -132,7 +132,7 @@ public class ThreeLetterCodeManager
     {
         try
         {
-            File ini = new File( RFactorFileSystem.CONFIG_FOLDER, INI_FILENAME );
+            File ini = new File( GameFileSystem.CONFIG_FOLDER, INI_FILENAME );
             if ( !ini.exists() )
             {
                 Logger.log( "WARNING: No " + INI_FILENAME + " found." );

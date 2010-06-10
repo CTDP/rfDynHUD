@@ -28,10 +28,8 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     {
         if ( vsi.fastestLaptime == null )
         {
-            vsi.avgSector1 = -1f;
-            vsi.avgSector2 = -1f;
-            vsi.avgSector3 = -1f;
-            vsi.avgLaptime = -1f;
+            vsi.oldAverageLaptime = null;
+            vsi.averageLaptime = null;
             return;
         }
         
@@ -64,17 +62,48 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
         
         if ( count == 0 )
         {
-            vsi.avgSector1 = -1f;
-            vsi.avgSector2 = -1f;
-            vsi.avgSector3 = -1f;
-            vsi.avgLaptime = -1f;
+            vsi.oldAverageLaptime = null;
+            vsi.averageLaptime = null;
         }
         else
         {
-            vsi.avgSector1 = sumS1 / (float)count;
-            vsi.avgSector2 = sumS2 / (float)count;
-            vsi.avgSector3 = sumS3 / (float)count;
-            vsi.avgLaptime = sumL / (float)count;
+            if ( vsi.averageLaptime == null )
+            {
+                vsi.oldAverageLaptime = null;
+                
+                vsi.averageLaptime = new Laptime( 0 );
+                vsi.averageLaptime.isInLap = false;
+                vsi.averageLaptime.isOutLap = false;
+                vsi.averageLaptime.finished = true;
+            }
+            else
+            {
+                if ( vsi.oldAverageLaptime == null )
+                {
+                    vsi.oldAverageLaptime = new Laptime( vsi.averageLaptime.lap );
+                    vsi.oldAverageLaptime.isInLap = false;
+                    vsi.oldAverageLaptime.isOutLap = false;
+                    vsi.oldAverageLaptime.finished = true;
+                    vsi.oldAverageLaptime.sector1 = vsi.averageLaptime.sector1;
+                    vsi.oldAverageLaptime.sector2 = vsi.averageLaptime.sector2;
+                    vsi.oldAverageLaptime.sector3 = vsi.averageLaptime.sector3;
+                    vsi.oldAverageLaptime.laptime = vsi.averageLaptime.laptime;
+                }
+                else if ( count != vsi.oldAverageLaptime.lap )
+                {
+                    vsi.oldAverageLaptime.lap = vsi.averageLaptime.lap;
+                    vsi.oldAverageLaptime.sector1 = vsi.averageLaptime.sector1;
+                    vsi.oldAverageLaptime.sector2 = vsi.averageLaptime.sector2;
+                    vsi.oldAverageLaptime.sector3 = vsi.averageLaptime.sector3;
+                    vsi.oldAverageLaptime.laptime = vsi.averageLaptime.laptime;
+                }
+            }
+            
+            vsi.averageLaptime.lap = count;
+            vsi.averageLaptime.sector1 = sumS1 / (float)count;
+            vsi.averageLaptime.sector2 = sumS2 / (float)count;
+            vsi.averageLaptime.sector3 = sumS3 / (float)count;
+            vsi.averageLaptime.laptime = sumL / (float)count;
         }
     }
     
@@ -104,6 +133,8 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                         last.sector3 = -1f;
                     else
                         last.sector3 = vsi.getLastSector3();
+                    
+                    last.updateLaptimeFromSectors();
                     
                     if ( last.getLapTime() < 0f )
                     {
@@ -152,6 +183,8 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                             laptime.sector3 = scoringInfo.getSessionTime() - vsi.getLapStartTime() - laptime.sector1 - laptime.sector2;
                         break;
                 }
+                
+                laptime.updateLaptimeFromSectors();
             }
             
             if ( vsi.isInPits() )
@@ -178,7 +211,10 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                     {
                         lastLap.isInLap = true;
                         if ( !scoringInfo.getSessionType().isRace() )
+                        {
                             lastLap.sector3 = -1f;
+                            lastLap.updateLaptimeFromSectors();
+                        }
                     }
                 }
             }

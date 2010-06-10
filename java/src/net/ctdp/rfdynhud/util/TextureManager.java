@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
-import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 
@@ -20,7 +20,7 @@ import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
  */
 public class TextureManager
 {
-    public static final File IMAGES_FOLDER = new File( new File( RFactorFileSystem.CONFIG_FOLDER, "data" ), "images" );
+    public static final File IMAGES_FOLDER = new File( new File( GameFileSystem.CONFIG_FOLDER, "data" ), "images" );
     
     private static ImageTemplate MISSING_IMAGE = null;
     

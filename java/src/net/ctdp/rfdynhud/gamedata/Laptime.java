@@ -2,10 +2,11 @@ package net.ctdp.rfdynhud.gamedata;
 
 public class Laptime
 {
-    private final int lap;
+    int lap;
     float sector1 = -1f;
     float sector2 = -1f;
     float sector3 = -1f;
+    float laptime = -1f;
     
     boolean isOutLap = false;
     Boolean isInLap = null;
@@ -14,6 +15,14 @@ public class Laptime
     public final int getLap()
     {
         return ( lap );
+    }
+    
+    void updateLaptimeFromSectors()
+    {
+        if ( ( sector1 < 0f ) || ( sector2 < 0f ) || ( sector3 < 0f ) )
+            laptime = -1f;
+        else
+            laptime = sector1 + sector2 + sector3;
     }
     
     public final float getSector1()
@@ -46,10 +55,7 @@ public class Laptime
     
     public final float getLapTime()
     {
-        if ( ( sector1 < 0f ) || ( sector2 < 0f ) || ( sector3 < 0f ) )
-            return ( -1 );
-        
-        return ( sector1 + sector2 + sector3 );
+        return ( laptime );
     }
     
     /**

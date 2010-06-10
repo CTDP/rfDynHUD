@@ -11,7 +11,7 @@ import java.util.HashMap;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
-import net.ctdp.rfdynhud.gamedata.RFactorFileSystem;
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class LocalizationsManager
@@ -128,7 +128,7 @@ public class LocalizationsManager
     
     private void update( File baseFolder )
     {
-        String usedLanguage = RFactorFileSystem.PLUGIN_INI.getGeneralLanguage();
+        String usedLanguage = GameFileSystem.PLUGIN_INI.getGeneralLanguage();
         ArrayList<File> files = new ArrayList<File>();
         
         for ( File f : baseFolder.listFiles() )
@@ -161,9 +161,9 @@ public class LocalizationsManager
             return;
         
         if ( ResourceManager.isJarMode() )
-            update( new File( RFactorFileSystem.PLUGIN_FOLDER, "widget_sets" ) );
+            update( new File( GameFileSystem.PLUGIN_FOLDER, "widget_sets" ) );
         else
-            update( RFactorFileSystem.PLUGIN_FOLDER );
+            update( GameFileSystem.PLUGIN_FOLDER );
     }
     
     public final String getLocalization( Class<? extends Widget> widgetClass, String key )

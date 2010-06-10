@@ -32,7 +32,7 @@ public class ProfileInfo
         ;
     }
     
-    public static final File USERDATA_FOLDER = RFactorFileSystem.getPathFromRFConfigINI( RFactorFileSystem.RFACTOR_FOLDER, "SaveDir", "UserData" );
+    public static final File USERDATA_FOLDER = GameFileSystem.getPathFromGameConfigINI( GameFileSystem.GAME_FOLDER, "SaveDir", "UserData" );
     
     private File profileFolder = null;
     private File plrFile = null;
@@ -130,7 +130,7 @@ public class ProfileInfo
                             lastUsedTrackFile = new File( value );
                             
                             if ( !lastUsedTrackFile.isAbsolute() )
-                                lastUsedTrackFile = new File( RFactorFileSystem.RFACTOR_FOLDER, value );
+                                lastUsedTrackFile = new File( GameFileSystem.GAME_FOLDER, value );
                         }
                     }
                     else if ( group.equalsIgnoreCase( "DRIVER" ) )

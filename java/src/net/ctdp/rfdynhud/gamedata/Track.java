@@ -246,9 +246,11 @@ public class Track
             alpha = ( trackDistance - wp0.lapDistance ) / delta;
         }
         
-        float vecX = ( wp0.vecX * alpha ) + ( wp1.vecX * ( 1f - alpha ) );
-        float vecY = ( wp0.vecY * alpha ) + ( wp1.vecY * ( 1f - alpha ) );
-        float vecZ = ( wp0.vecZ * alpha ) + ( wp1.vecZ * ( 1f - alpha ) );
+        float beta = 1f - alpha;
+        
+        float vecX = ( wp0.vecX * beta ) + ( wp1.vecX * alpha );
+        float vecY = ( wp0.vecY * beta ) + ( wp1.vecY * alpha );
+        float vecZ = ( wp0.vecZ * beta ) + ( wp1.vecZ * alpha );
         
         __GDPrivilegedAccess.setTelemVect3( vecX, vecY, vecZ, vector );
         
