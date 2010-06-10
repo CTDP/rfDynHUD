@@ -76,7 +76,7 @@ import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.RFactorEventsManager;
+import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
@@ -2294,7 +2294,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
-    private RFactorEventsManager eventsManager;
+    private GameEventsManager eventsManager;
     
     private EditorPanel createEditorPanel()
     {
@@ -2302,7 +2302,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( resolution[0], resolution[1] );
         
-        eventsManager = new RFactorEventsManager( null, drawingManager );
+        eventsManager = new GameEventsManager( null, drawingManager );
         this.gameData = new LiveGameData( drawingManager.getGameResolution(), eventsManager );
         __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
         eventsManager.setGameData( gameData );

@@ -8,7 +8,7 @@ import net.ctdp.rfdynhud.util.Logger;
 
 public class TrackInfo
 {
-    public static final File LOCATIONS_FOLDER = GameFileSystem.getPathFromGameConfigINI( GameFileSystem.GAME_FOLDER, "TracksDir", "GameData\\Locations\\" );
+    public static final File LOCATIONS_FOLDER = GameFileSystem.getPathFromGameConfigINI( "TracksDir", "GameData\\Locations\\" );
     
     private final ProfileInfo profileInfo;
     

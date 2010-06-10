@@ -140,7 +140,7 @@ public class ScoringInfo
     }
     
     private final LaptimesRecorder laptimesRecorder = new LaptimesRecorder();
-    private final RFactorEventsManager eventsManager;
+    private final GameEventsManager eventsManager;
     
     private VehicleScoringInfo[] vehicleScoringInfo = null;
     private VehicleScoringInfo[] vehicleScoringInfo2 = null;
@@ -1569,7 +1569,7 @@ public class ScoringInfo
         return ( getFastestLapVSI().getFastestLaptime() );
     }
     
-    ScoringInfo( LiveGameData gameData, RFactorEventsManager eventsManager )
+    ScoringInfo( LiveGameData gameData, GameEventsManager eventsManager )
     {
         this.gameData = gameData;
         this.eventsManager = eventsManager;

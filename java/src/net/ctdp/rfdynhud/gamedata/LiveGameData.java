@@ -113,7 +113,7 @@ public class LiveGameData
         setup.applyEditorPresets( editorPresets );
     }
     
-    public LiveGameData( GameResolution gameResolution, RFactorEventsManager eventsManager )
+    public LiveGameData( GameResolution gameResolution, GameEventsManager eventsManager )
     {
         this.gameResolution = gameResolution;
         this.telemetryData = new TelemetryData( this, eventsManager );

@@ -16,7 +16,7 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener
  * 
  * @author Marvin Froehlich
  */
-public class RFactorEventsManager implements ConfigurationClearListener
+public class GameEventsManager implements ConfigurationClearListener
 {
     private final RFDynHUD rfDynHUD;
     private final WidgetsDrawingManager widgetsManager;
@@ -774,12 +774,12 @@ public class RFactorEventsManager implements ConfigurationClearListener
     }
     
     /**
-     * Creates a new {@link RFactorEventsManager}.
+     * Creates a new {@link GameEventsManager}.
      * 
      * @param rfDynHUD
      * @param widgetsManager
      */
-    public RFactorEventsManager( RFDynHUD rfDynHUD, WidgetsDrawingManager widgetsManager )
+    public GameEventsManager( RFDynHUD rfDynHUD, WidgetsDrawingManager widgetsManager )
     {
         this.rfDynHUD = rfDynHUD;
         this.widgetsManager = widgetsManager;

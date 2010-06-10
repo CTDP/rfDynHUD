@@ -10,7 +10,7 @@ import java.util.Comparator;
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.RFactorEventsManager;
+import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
@@ -376,7 +376,7 @@ public class InputMappingsManager
      * 
      * @return -1 if plugin got disabled, 0 if plugin was and is disabled, 1 if plugin was and is enabled., 2 if plugin got enabled.
      */
-    public int update( WidgetsDrawingManager widgetsManager, LiveGameData gameData, EditorPresets editorPresets, RFactorEventsManager eventsManager, int modifierMask )
+    public int update( WidgetsDrawingManager widgetsManager, LiveGameData gameData, EditorPresets editorPresets, GameEventsManager eventsManager, int modifierMask )
     {
         if ( !gameData.getProfileInfo().isValid() )
         {

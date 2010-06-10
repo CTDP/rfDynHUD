@@ -32,7 +32,7 @@ public class ProfileInfo
         ;
     }
     
-    public static final File USERDATA_FOLDER = GameFileSystem.getPathFromGameConfigINI( GameFileSystem.GAME_FOLDER, "SaveDir", "UserData" );
+    public static final File USERDATA_FOLDER = GameFileSystem.getPathFromGameConfigINI( "SaveDir", "UserData" );
     
     private File profileFolder = null;
     private File plrFile = null;

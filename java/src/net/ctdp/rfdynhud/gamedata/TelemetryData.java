@@ -106,7 +106,7 @@ public class TelemetryData
     
     private final LiveGameData gameData;
     
-    private final RFactorEventsManager eventsManager;
+    private final GameEventsManager eventsManager;
     
     private float engineBaseMaxRPM = 1000.12345f;
     private float engineMaxRPM = 1000.12345f;
@@ -1404,7 +1404,7 @@ public class TelemetryData
     
     // unsigned char mExpansion[32];
     
-    TelemetryData( LiveGameData gameData, RFactorEventsManager eventsManager )
+    TelemetryData( LiveGameData gameData, GameEventsManager eventsManager )
     {
         this.gameData = gameData;
         this.eventsManager = eventsManager;

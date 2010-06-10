@@ -22,8 +22,8 @@ public class GameFileSystem
     public static final String EDITOR_PATH = EDITOR_FOLDER.getAbsolutePath();
     public static final File SCREENSHOTS_FOLDER = INITIALIZER.findGameScreenshotsFolder( GAME_FOLDER );
     
-    public static File getPathFromGameConfigINI( File gameFolder, String setting, String fallback )
+    public static File getPathFromGameConfigINI( String setting, String fallback )
     {
-        return ( INITIALIZER.getPathFromGameConfigINI( gameFolder, setting, fallback ) );
+        return ( INITIALIZER.getPathFromGameConfigINI( GAME_FOLDER, setting, fallback ) );
     }
 }
