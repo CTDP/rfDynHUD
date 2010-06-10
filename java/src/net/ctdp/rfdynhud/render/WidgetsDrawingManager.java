@@ -8,6 +8,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
@@ -152,8 +153,8 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInTimeScope() )
                 neededData &= ~Widget.NEEDED_DATA_SCORING;
             
-            if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInTimeScope() )
-                neededData &= ~Widget.NEEDED_DATA_SETUP;
+            //if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInTimeScope() )
+            //    neededData &= ~Widget.NEEDED_DATA_SETUP;
             
             if ( neededData == 0 )
             {
@@ -444,6 +445,28 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     }
     
     /**
+     * This method is called when {@link VehicleSetup} has been updated.
+     * 
+     * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     */
+    public void fireOnVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        final int n = getNumWidgets();
+        for ( int i = 0; i < n; i++ )
+        {
+            try
+            {
+                getWidget( i ).onVehicleSetupUpdated( gameData, editorPresets );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
+        }
+    }
+    
+    /**
      * This method is called when either the player's vehicle control has changed or another vehicle is being viewed.
      * 
      * @param viewedVSI
@@ -576,8 +599,8 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 ready = false;
             else if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInTimeScope() )
                 ready = false;
-            else if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInTimeScope() )
-                ready = false;
+            //else if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInTimeScope() )
+            //    ready = false;
         }
         
         return ( ready );

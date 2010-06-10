@@ -195,7 +195,7 @@ public class WearWidget extends Widget
     @Override
     public int getNeededData()
     {
-        return ( Widget.NEEDED_DATA_SCORING | Widget.NEEDED_DATA_SETUP );
+        return ( Widget.NEEDED_DATA_SCORING/* | Widget.NEEDED_DATA_SETUP*/ );
     }
     
     public final boolean getDisplayWearPercent()
@@ -255,6 +255,18 @@ public class WearWidget extends Widget
         //forceReinitialization();
         
         displayBrakes2 = null;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleSetupUpdated( gameData, editorPresets );
+        
+        forceCompleteRedraw();
+        forceReinitialization();
     }
     
     /**

@@ -10,6 +10,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
@@ -49,8 +50,8 @@ public abstract class Widget implements Documented
 {
     public static final int NEEDED_DATA_TELEMETRY = 1;
     public static final int NEEDED_DATA_SCORING = 2;
-    public static final int NEEDED_DATA_SETUP = 4;
-    public static final int NEEDED_DATA_ALL = NEEDED_DATA_TELEMETRY | NEEDED_DATA_SCORING | NEEDED_DATA_SETUP;
+    //public static final int NEEDED_DATA_SETUP = 4;
+    public static final int NEEDED_DATA_ALL = NEEDED_DATA_TELEMETRY | NEEDED_DATA_SCORING/* | NEEDED_DATA_SETUP*/;
     
     private WidgetsConfiguration config = null;
     
@@ -793,6 +794,16 @@ public abstract class Widget implements Documented
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      */
     public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    {
+    }
+    
+    /**
+     * This method is called when {@link VehicleSetup} has been updated.
+     * 
+     * @param gameData
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     */
+    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
     {
     }
     

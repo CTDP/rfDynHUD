@@ -280,7 +280,7 @@ public class RevMeterWidget extends Widget
     @Override
     public int getNeededData()
     {
-        return ( Widget.NEEDED_DATA_TELEMETRY | Widget.NEEDED_DATA_SETUP );
+        return ( Widget.NEEDED_DATA_TELEMETRY/* | Widget.NEEDED_DATA_SETUP*/ );
     }
     
     private void setControlVisibility( VehicleScoringInfo viewedVSI )
@@ -530,6 +530,18 @@ public class RevMeterWidget extends Widget
         maxRPMCheck.reset();
         gear.reset();
         velocity.reset();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleSetupUpdated( gameData, editorPresets );
+        
+        forceCompleteRedraw();
+        forceReinitialization();
     }
     
     /**

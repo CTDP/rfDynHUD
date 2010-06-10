@@ -36,6 +36,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
     private boolean waitingForTelemetry = false;
     private boolean waitingForScoring = false;
     private boolean waitingForSetup = false;
+    private long setupReloadTryTime = -1L;
     private boolean waitingForData = false;
     
     private boolean isInGarage = true;
@@ -199,6 +200,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.waitingForTelemetry = ( editorPresets == null );
         this.waitingForScoring = ( editorPresets == null );
         this.waitingForSetup = false;
+        this.setupReloadTryTime = -1L;
         this.waitingForData = ( editorPresets == null );
         
         this.sessionJustStarted = true;
@@ -256,6 +258,7 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.waitingForTelemetry = false;
         this.waitingForScoring = false;
         this.waitingForSetup = false;
+        this.setupReloadTryTime = -1L;
         this.waitingForData = false;
         
         //this.sessionStartTime = -1f;
@@ -303,7 +306,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
         this.waitingForGraphics = waitingForGraphics || ( editorPresets == null );
         this.waitingForTelemetry = waitingForTelemetry || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForScoring = waitingForScoring || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
-        this.waitingForSetup = waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
+        this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
+        this.setupReloadTryTime = System.nanoTime() + 2000000000L;
         this.waitingForData = ( editorPresets == null );
         
         if ( editorPresets == null )
@@ -326,6 +330,8 @@ public class RFactorEventsManager implements ConfigurationClearListener
                 if ( reloadSetup( editorPresets != null ) )
                 {
                     waitingForSetup = false;
+                    
+                    widgetsManager.fireOnVehicleSetupUpdated( gameData, editorPresets );
                 }
                 
                 widgetsManager.fireOnRealtimeEntered( gameData, editorPresets );
@@ -480,20 +486,28 @@ public class RFactorEventsManager implements ConfigurationClearListener
     {
         widgetsManager.checkAndFireOnNeededDataComplete( gameData, editorPresets );
         
+        boolean waitingForSetup2 = ( System.nanoTime() <= setupReloadTryTime );
+        
+        if ( waitingForSetup || waitingForSetup2 )
+        {
+            if ( reloadSetup( false ) )
+            {
+                waitingForSetup = false;
+                waitingForSetup2 = false;
+                setupReloadTryTime = -1L;
+                
+                widgetsManager.fireOnVehicleSetupUpdated( gameData, editorPresets );
+            }
+        }
+        
         if ( !waitingForData  )
         {
             return ( widgetsManager.isValid() ? (byte)1 : (byte)0 );
         }
         
-        if ( waitingForSetup )
-        {
-            if ( reloadSetup( false ) )
-                waitingForSetup = false;
-        }
-        
         byte result = 0;
         
-        if ( !waitingForGraphics && !waitingForTelemetry && !waitingForScoring && !waitingForSetup )
+        if ( !waitingForGraphics && !waitingForTelemetry && !waitingForScoring/* && !waitingForSetup && !waitingForSetup2*/ )
         {
             isInGarage = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
             
