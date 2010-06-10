@@ -4,14 +4,18 @@
 #include "d3d9.h"
 #include "extended_ISI_API.h"
 
+const unsigned char SOFT_MAX_NUM_WIDGETS = 48;
+const unsigned char MAX_TOTAL_NUM_RECTANGLES = 255;
+const unsigned char MAX_NUM_TEXTURES = MAX_TOTAL_NUM_RECTANGLES - SOFT_MAX_NUM_WIDGETS + 1;
+
 class TextureAtlas
 {
 private:
-    static const unsigned char MAX_SOURCE_TEXTURES = 128;
-    static const unsigned char MAX_RECTANGLES = 128;
-    static const unsigned int  MAX_TOTAL_RECTS = (unsigned int)MAX_SOURCE_TEXTURES * (unsigned int)MAX_RECTANGLES;
+    static const unsigned char MAX_SOURCE_TEXTURES = MAX_NUM_TEXTURES;
+    static const unsigned char MAX_RECTANGLES = SOFT_MAX_NUM_WIDGETS;
+    static const unsigned int  MAX_TOTAL_RECTS = (unsigned int)MAX_TOTAL_NUM_RECTANGLES;
     static const unsigned char MAX_SUB_RECTS = 32;
-    static const unsigned int  MAX_TOTAL_SUBRECTS = (unsigned int)MAX_SOURCE_TEXTURES * (unsigned int)MAX_RECTANGLES * (unsigned int)MAX_SUB_RECTS;
+    static const unsigned int  MAX_TOTAL_SUBRECTS = MAX_TOTAL_RECTS * (unsigned int)MAX_SUB_RECTS;
     
     const unsigned short m_resX;
     const unsigned short m_resY;
@@ -154,9 +158,9 @@ public:
         m_resY( resY ),
         m_useProxyTexture( true )
     {
-        m_sourceTexWidths = (unsigned short*)malloc( 128 * sizeof( unsigned short ) );
-        m_sourceTexHeights = (unsigned short*)malloc( 128 * sizeof( unsigned short ) );
-        m_sourceTexPitches = (unsigned int*)malloc( 128 * sizeof( unsigned int ) );
+        m_sourceTexWidths = (unsigned short*)malloc( MAX_NUM_TEXTURES * sizeof( unsigned short ) );
+        m_sourceTexHeights = (unsigned short*)malloc( MAX_NUM_TEXTURES * sizeof( unsigned short ) );
+        m_sourceTexPitches = (unsigned int*)malloc( MAX_NUM_TEXTURES * sizeof( unsigned int ) );
         
         m_atlas = new TextureAtlas( resX, resY );
         

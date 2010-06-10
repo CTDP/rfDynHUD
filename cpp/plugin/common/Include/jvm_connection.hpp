@@ -19,8 +19,9 @@ private:
     
     unsigned char numTextures;
     
-    static const unsigned int MAX_NUM_TEXTURES = 128;
-    static const unsigned int MAX_NUM_RECTANGLES = 128;
+    static const unsigned int SOFT_MAX_NUM_WIDGETS = 48;
+    static const unsigned int MAX_TOTAL_NUM_RECTANGLES = 255;
+    static const unsigned int MAX_NUM_TEXTURES = MAX_TOTAL_NUM_RECTANGLES - SOFT_MAX_NUM_WIDGETS + 1;
     
     static const unsigned int OFFSET_VISIBLE = 1;
     static const unsigned int OFFSET_SIZE = OFFSET_VISIBLE + MAX_NUM_TEXTURES * 1;
@@ -32,7 +33,7 @@ private:
     static const unsigned int OFFSET_CLIP_RECT = OFFSET_SCALE + MAX_NUM_TEXTURES * 8;
     static const unsigned int OFFSET_NUM_RECTANLES = OFFSET_CLIP_RECT + MAX_NUM_TEXTURES * 8;
     static const unsigned int OFFSET_RECT_VISIBLE_FLAGS = OFFSET_NUM_RECTANLES + MAX_NUM_TEXTURES * 1;
-    static const unsigned int OFFSET_RECTANLES = OFFSET_RECT_VISIBLE_FLAGS + MAX_NUM_TEXTURES * MAX_NUM_RECTANGLES * 1;
+    static const unsigned int OFFSET_RECTANLES = OFFSET_RECT_VISIBLE_FLAGS + MAX_NUM_TEXTURES * SOFT_MAX_NUM_WIDGETS * 1;
     
 public:
     unsigned short** dirtyRectsBuffers;
@@ -153,8 +154,8 @@ class JVMTelemtryUpdateFunctions
 private:
     JNIEnv* env;
     
-    jclass RFactorEventsManager;
-    jobject eventsManager;
+    jclass GameEventsManager;
+    jobject gameEventsManager;
     
     jmethodID onStartup;
     jmethodID onShutdown;

@@ -218,7 +218,7 @@ void TextureAtlas::buildAtlas( const unsigned char numSourceTextures, const unsi
                         w = 0;
                         h = 0;
 //loggui4( "d1: ", sx, sy, w, h );
-//loggui3( "d2: ", tx, ty, rw );
+//loggui3( "d2: ", tx, ty, restW );
                     }
                 }
 //loggui4( "src: ", src->left, src->top, src->right, src->bottom );
@@ -1099,12 +1099,12 @@ void OverlayTextureManagerImpl::setupTextures( const unsigned char numTextures, 
         m_vertexBuffer->Release();
         m_vertexBuffer = NULL;
     }
-    
+	
     for ( unsigned char i = 0; i < numTextures; i++ )
     {
         m_sourceTexWidths[i] = *textureSizes++;
         m_sourceTexHeights[i] = *textureSizes++;
-        m_sourceTexPitches[i] = m_sourceTexWidths[i] * 4;
+        m_sourceTexPitches[i] = (unsigned int)m_sourceTexWidths[i] * 4;
     }
     
     setupD3DTexture( m_atlas->getWidth(), m_atlas->getHeight(), true );

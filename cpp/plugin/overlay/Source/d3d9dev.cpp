@@ -63,6 +63,7 @@ hkIDirect3DDevice9::hkIDirect3DDevice9( IDirect3DDevice9** ppReturnedDeviceInter
 unsigned int lastNumScenes = 1;
 unsigned int currNumScenes = 0;
 bool viewportSet = false;
+D3DVIEWPORT9 vp;
 
 HRESULT APIENTRY hkIDirect3DDevice9::BeginScene() 
 {
@@ -76,7 +77,14 @@ HRESULT APIENTRY hkIDirect3DDevice9::EndScene()
     //if ( ++currNumScenes == lastNumScenes )
     if ( ++currNumScenes == 1 )
     {
-        manager->renderOverlay( m_pD3Ddev, resX, resY, viewportSet ? viewport : viewport0, colorDepth, overlayTextureManager );
+        m_pD3Ddev->GetViewport( &vp );
+        viewport[0] = (unsigned short)vp.X;
+        viewport[1] = (unsigned short)vp.Y;
+        viewport[2] = (unsigned short)vp.Width;
+        viewport[3] = (unsigned short)vp.Height;
+        
+        //manager->renderOverlay( m_pD3Ddev, resX, resY, viewportSet ? viewport : viewport0, colorDepth, overlayTextureManager );
+        manager->renderOverlay( m_pD3Ddev, resX, resY, viewport, colorDepth, overlayTextureManager );
     }
     
     return ( m_pD3Ddev->EndScene() );
@@ -729,8 +737,14 @@ HRESULT APIENTRY hkIDirect3DDevice9::SetVertexShaderConstantI( UINT StartRegiste
 
 HRESULT APIENTRY hkIDirect3DDevice9::SetViewport( CONST D3DVIEWPORT9* pViewport )
 {
-    if ( pViewport->X > 0 )
+/*
+viewport2[0] = (unsigned short)pViewport->X;
+viewport2[1] = (unsigned short)pViewport->Y;
+viewport2[2] = (unsigned short)pViewport->Width;
+viewport2[3] = (unsigned short)pViewport->Height;
+    if ( ( pViewport->X > 0 ) || ( pViewport->Width > viewport0[2] ) )
     {
+        //loggui2( "vpw: ", viewport0[2], pViewport->Width );
 	    viewport[0] = (unsigned short)pViewport->X;
 	    viewport[1] = (unsigned short)pViewport->Y;
 	    viewport[2] = (unsigned short)pViewport->Width;
@@ -738,6 +752,7 @@ HRESULT APIENTRY hkIDirect3DDevice9::SetViewport( CONST D3DVIEWPORT9* pViewport 
         
         viewportSet = true;
     }
+*/
     
     return ( m_pD3Ddev->SetViewport( pViewport ) );
 }
