@@ -32,6 +32,7 @@ Major:
 * Added padding properties.
 * Added rfdynhud.ini as central plugin configuration file to support localizations and custom config folders.
 * Rev limit from setup is now used. This enables you to actually use rev markes fixed in the background image.
+* Digital max revs in RevMeterWidget can now be boost level dependent.
 
 Minor:
 
@@ -70,7 +71,7 @@ TODO:
 * Manage logs to keep 5
 * Meta config (merge configurations)
 * Add master d3d9.dll
-* Show plugin in replay mode (theoretically not possible)
+* Render plugin in replay mode (theoretically not possible)
 * Fix/Improve clock frequencies
 * RevMeterWidget: Scale/fix positions on background change
 * Key combinations for InputActions

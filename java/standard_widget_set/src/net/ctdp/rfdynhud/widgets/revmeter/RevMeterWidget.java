@@ -225,6 +225,7 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
     private final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
     private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
+    private final BooleanProperty useBoostRevLimit1 = new BooleanProperty( this, "useBoostRevLimit1", false );
     private final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
     private final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
     private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
@@ -234,6 +235,7 @@ public class RevMeterWidget extends Widget
     private final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
     private final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
     private final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
+    private final BooleanProperty useBoostRevLimit2 = new BooleanProperty( this, "useBoostRevLimit2", false );
     private final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
     private final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
     private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
@@ -1042,7 +1044,13 @@ public class RevMeterWidget extends Widget
                 if ( displayCurrRPM1.getBooleanValue() && displayMaxRPM1.getBooleanValue() )
                     string += rpmJoinString1.getStringValue();
                 if ( displayMaxRPM1.getBooleanValue() )
-                    string += NumberUtil.formatFloat( maxRPM, 0, false );
+                {
+                    float maxRPM2 = maxRPM;
+                    if ( useBoostRevLimit1.getBooleanValue() )
+                        maxRPM2 = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
+                    
+                    string += NumberUtil.formatFloat( maxRPM2, 0, false );
+                }
             }
             
             if ( backgroundTexture == null )
@@ -1061,7 +1069,13 @@ public class RevMeterWidget extends Widget
                 if ( displayCurrRPM2.getBooleanValue() && displayMaxRPM2.getBooleanValue() )
                     string += rpmJoinString2.getStringValue();
                 if ( displayMaxRPM2.getBooleanValue() )
-                    string += NumberUtil.formatFloat( maxRPM, 0, false );
+                {
+                    float maxRPM2 = maxRPM;
+                    if ( useBoostRevLimit2.getBooleanValue() )
+                        maxRPM2 = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
+                    
+                    string += NumberUtil.formatFloat( maxRPM2, 0, false );
+                }
             }
             
             if ( backgroundTexture == null )
@@ -1159,6 +1173,7 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( displayRPMString1, "whether to display the digital RPM/Revs string or not" );
         writer.writeProperty( displayCurrRPM1, "whether to display the current revs or to hide them" );
         writer.writeProperty( displayMaxRPM1, "whether to display the maximum revs or to hide them" );
+        writer.writeProperty( useBoostRevLimit1, "whether to use boost level to display max RPM" );
         writer.writeProperty( rpmPosX1, "The offset in (background image space) pixels from the right of the Widget, where the text is to be placed." );
         writer.writeProperty( rpmPosY1, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
         writer.writeProperty( rpmFont1, "The font used to draw the RPM." );
@@ -1167,6 +1182,7 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( displayRPMString2, "whether to display the digital RPM/Revs string or not" );
         writer.writeProperty( displayCurrRPM2, "whether to display the current revs or to hide them" );
         writer.writeProperty( displayMaxRPM2, "whether to display the maximum revs or to hide them" );
+        writer.writeProperty( useBoostRevLimit2, "whether to use boost level to display max RPM" );
         writer.writeProperty( rpmPosX2, "The offset in (background image space) pixels from the right of the Widget, where the text is to be placed." );
         writer.writeProperty( rpmPosY2, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
         writer.writeProperty( rpmFont2, "The font used to draw the RPM." );
@@ -1242,6 +1258,7 @@ public class RevMeterWidget extends Widget
         else if ( displayRPMString1.loadProperty( key, value ) );
         else if ( displayCurrRPM1.loadProperty( key, value ) );
         else if ( displayMaxRPM1.loadProperty( key, value ) );
+        else if ( useBoostRevLimit1.loadProperty( key, value ) );
         else if ( rpmPosX1.loadProperty( key, value ) );
         else if ( rpmPosY1.loadProperty( key, value ) );
         else if ( rpmFont1.loadProperty( key, value ) );
@@ -1250,6 +1267,7 @@ public class RevMeterWidget extends Widget
         else if ( displayRPMString2.loadProperty( key, value ) );
         else if ( displayCurrRPM2.loadProperty( key, value ) );
         else if ( displayMaxRPM2.loadProperty( key, value ) );
+        else if ( useBoostRevLimit2.loadProperty( key, value ) );
         else if ( rpmPosX2.loadProperty( key, value ) );
         else if ( rpmPosY2.loadProperty( key, value ) );
         else if ( rpmFont2.loadProperty( key, value ) );
@@ -1352,6 +1370,7 @@ public class RevMeterWidget extends Widget
         propsCont.addProperty( displayRPMString1 );
         propsCont.addProperty( displayCurrRPM1 );
         propsCont.addProperty( displayMaxRPM1 );
+        propsCont.addProperty( useBoostRevLimit1 );
         propsCont.addProperty( rpmPosX1 );
         propsCont.addProperty( rpmPosY1 );
         propsCont.addProperty( rpmFont1 );
@@ -1363,6 +1382,7 @@ public class RevMeterWidget extends Widget
         propsCont.addProperty( displayRPMString2 );
         propsCont.addProperty( displayCurrRPM2 );
         propsCont.addProperty( displayMaxRPM2 );
+        propsCont.addProperty( useBoostRevLimit2 );
         propsCont.addProperty( rpmPosX2 );
         propsCont.addProperty( rpmPosY2 );
         propsCont.addProperty( rpmFont2 );

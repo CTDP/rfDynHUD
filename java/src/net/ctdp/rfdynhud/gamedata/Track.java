@@ -538,8 +538,11 @@ public class Track
             
             // mirror the x-coordinates
             wp.posX *= -1f;
-            wp.posZ *= -1f;
+            wp.vecX *= -1f;
+            wp.normX *= -1f;
+            //wp.posZ *= -1f;
             
+            /*
             //wp.normX *= -1f;
             
             // rotate clockwisely by 90°
@@ -556,6 +559,7 @@ public class Track
             // Fix vector to face into the direction of the road (but not backwards)
             wp.vecX *= -1f;
             wp.vecZ *= -1f;
+            */
             
             if ( wp.posX < pc.minXPos )
                 pc.minXPos = wp.posX;

@@ -44,7 +44,7 @@ public class IntValue
         return ( value );
     }
     
-    public final int getFloatValue()
+    public final float getFloatValue()
     {
         return ( value );
     }

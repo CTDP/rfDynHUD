@@ -332,9 +332,13 @@ public class MapWidget extends Widget
             
             if ( rotationEnabled.getBooleanValue() )
             {
-                // TODO: We need a cheap way to calculate the max x and y extend for all rotation angles.
+                float xExtend = track.getXExtend( 1.0f );
+                float yExtend = track.getZExtend( 1.0f );
+                float dia2 = (float)Math.sqrt( xExtend * xExtend + yExtend * yExtend );
+                
                 int wh = Math.min( width - dia + itemRadius + itemRadius - subTextures[1].getWidth(), height - dia );
-                scale = track.getScale( (int)( wh * 0.9f ), (int)( wh * 0.9f ) );
+                scale = wh / dia2;
+                //scale = track.getScale( (int)( wh * 0.9f ), (int)( wh * 0.9f ) );
             }
             else
             {
