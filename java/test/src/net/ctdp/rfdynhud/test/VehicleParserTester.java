@@ -2,7 +2,7 @@ package net.ctdp.rfdynhud.test;
 import java.io.File;
 
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
-import net.ctdp.rfdynhud.gamedata.VehiclePhysicsParser;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 
 /** Class I (Marcel) use for local testing. */
 public class VehicleParserTester
@@ -37,7 +37,7 @@ public class VehicleParserTester
 		//VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\McLaren\\KR06.veh", "Silverstone", physics );
 		//VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\MS06.veh", "Silverstone", physics );
         //VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\4r2009\\2008\\Equipos\\SToroRosso\\STR_15.veh", "Silverstone", physics );
-        VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\F248_MS05.veh", "Silverstone", physics );
+        __GDPrivilegedAccess.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\F248_MS05.veh", "Silverstone", physics );
         
         //testGripLoss( physics );
 	}

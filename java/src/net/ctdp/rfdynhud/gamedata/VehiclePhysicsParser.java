@@ -14,7 +14,7 @@ import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 import org.jagatoo.util.ini.IniLine;
 
-public class VehiclePhysicsParser
+class VehiclePhysicsParser
 {
     private static File locateFile( File dir, String name )
     {

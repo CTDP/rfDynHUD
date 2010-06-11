@@ -149,18 +149,15 @@ public class ScoringInfo
     private int oldNumVehicles = -1;
     private VehicleScoringInfo playerVSI = null;
     private VehicleScoringInfo viewedVSI = null;
-    
-    private String playerName = null;
-    private String playerFilename = null;
-    private String trackName = null;
-    
     private VehicleScoringInfo fastestLapVSI = null;
     private VehicleScoringInfo secondFastestLapVSI = null;
     private VehicleScoringInfo fastestSector1VSI = null;
     private VehicleScoringInfo fastestSector2VSI = null;
     private VehicleScoringInfo fastestSector3VSI = null;
     
-    //private Laptime fastestLaptime = null;
+    private String playerName = null;
+    private String playerFilename = null;
+    private String trackName = null;
     
     private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
     private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
@@ -1365,7 +1362,7 @@ public class ScoringInfo
      */
     public final short getOwnPlace( boolean byClass )
     {
-        return ( playerVSI.getPlace( byClass ) );
+        return ( getPlayersVehicleScoringInfo().getPlace( byClass ) );
     }
     
     /**

@@ -1,5 +1,6 @@
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -43,9 +44,14 @@ public class __GDPrivilegedAccess
         physics.loadFromPhysicsFiles( profileInfo, trackInfo );
     }
     
+    public static void parsePhysicsFiles( File cchFile, File rFactorFolder, String vehicleFilename, String trackName, VehiclePhysics physics ) throws Throwable
+    {
+        VehiclePhysicsParser.parsePhysicsFiles( cchFile, rFactorFolder, vehicleFilename, trackName, physics );
+    }
+    
     public static final boolean loadSetup( boolean isEditorMode, LiveGameData gameData )
     {
-        return ( VehicleSetup.loadSetup( isEditorMode, gameData ) );
+        return ( VehicleSetupParser.loadSetup( isEditorMode, gameData ) );
     }
     
     public static final void applyEditorPresets( EditorPresets editorPresets, LiveGameData gameData )
