@@ -53,29 +53,30 @@ Minor:
 
 TODO:
 
-* MapWidget/TrackPositionWidget: Display pace car
+* ETVStandingsWidget: Fix laptime flag textures overwrite
+* Add auto-sizing to StartingLightWidget
+* RevMeterWidget: Scale/fix positions on background change
+* Pause detection
 * Save As: Construct filename
 * Make widget selection menues nicer
-* Improve viewed vehicle detection (use me if close)
 * Add StandardBorder alias if missing
 * Select Widget in background
-* Draw sub textures in editor (clickable?)
 * Cache: Fuel usage, Laptimes per car
-* ETVStandingsWidget: Fix laptime flag textures overwrite
+* Draw sub textures in editor (clickable?)
 * Add RideHeightWidget
-* Add auto-sizing to StartingLightWidget
 * Add TinyWidgets: Velocity, Place, Lap, etc.
 * Add DashboardWidget
 * Add SpeedoMeterWidget
-* Pause detection
 * Manage logs to keep 5
 * Meta config (merge configurations)
 * Add master d3d9.dll
 * Render plugin in replay mode (theoretically not possible)
 * Fix/Improve clock frequencies
-* RevMeterWidget: Scale/fix positions on background change
 * Key combinations for InputActions
+* Improve viewed vehicle detection (use me if close)
 
 * Externalize widget properties and generic parameters for stores
 * Editor: Mem profiling
 * General profiling to tweak performance
+
+* MapWidget/TrackPositionWidget: Display pace car (impossible, not in VehicleScoringInfo)

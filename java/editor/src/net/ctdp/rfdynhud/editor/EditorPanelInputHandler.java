@@ -236,8 +236,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
-    private void snapPositionToRail( Widget widget, Point point )
+    private boolean snapPositionToRail( Widget widget, Point point )
     {
+        boolean result = false;
+        
         if ( !isControlDown )
         {
             EditorPanel panel = editor.getEditorPanel();
@@ -272,15 +274,28 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 }
                 
                 if ( Math.abs( closestRailX ) < panel.getRailDistanceX() )
+                {
                     point.x += closestRailX;
+                    result = true;
+                }
                 
                 if ( Math.abs( closestRailY ) < panel.getRailDistanceY() )
+                {
                     point.y += closestRailY;
+                    result = true;
+                }
             }
             
-            point.x = panel.snapXToGrid( point.x );
-            point.y = panel.snapYToGrid( point.y );
+            if ( panel.isGridUsed() )
+            {
+                point.x = panel.snapXToGrid( point.x );
+                point.y = panel.snapYToGrid( point.y );
+                
+                result = true;
+            }
         }
+        
+        return ( result );
     }
     
     private RelativePositioning fixPositioning( Widget widget, int x, int y, int w, int h )
@@ -341,14 +356,44 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     private boolean setWidgetPosition( Widget widget, int x, int y )
     {
         Point p = new Point( x, y );
+        boolean snapped1 = snapPositionToRail( widget, p );
         
-        snapPositionToRail( widget, p );
-        
-        x = p.x;
-        y = p.y;
+        int dx1 = snapped1 ? p.x - x : Integer.MAX_VALUE;
+        int dy1 = snapped1 ? p.y - y : Integer.MAX_VALUE;
         
         final int effWidth = widget.getSize().getEffectiveWidth();
         final int effHeight = widget.getSize().getEffectiveHeight();
+        
+        int x2 = x + effWidth - 1;
+        int y2 = y + effHeight - 1;
+        
+        p.setLocation( x2, y2 );
+        boolean snapped2 = snapPositionToRail( widget, p );
+        
+        int dx2 = snapped2 ? p.x - x2 : Integer.MAX_VALUE;
+        int dy2 = snapped2 ? p.y - y2 : Integer.MAX_VALUE;
+        
+        if ( Math.abs( dx1 ) < Math.abs( dx2 ) )
+        {
+            if ( snapped1 )
+                x += dx1;
+        }
+        else
+        {
+            if ( snapped2 )
+                x += dx2;
+        }
+        
+        if ( Math.abs( dy1 ) < Math.abs( dy2 ) )
+        {
+            if ( snapped1 )
+                y += dy1;
+        }
+        else
+        {
+            if ( snapped2 )
+                y += dy2;
+        }
         
         RelativePositioning positioning = fixPositioning( widget, x, y, effWidth, effHeight );
         
