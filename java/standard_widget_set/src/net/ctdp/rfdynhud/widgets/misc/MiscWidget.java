@@ -372,28 +372,24 @@ public class MiscWidget extends Widget
             if ( maxLaps > 0 )
             {
                 float lapsRemaining = vsi.getLapsRemaining( maxLaps );
+                float roundedLapsRemaining;
+                if ( vsi.getNormalizedLapDistance() >= 0.9f )
+                    roundedLapsRemaining = (float)Math.ceil( lapsRemaining * 10f ) / 10f;
+                else
+                    roundedLapsRemaining = Math.round( lapsRemaining * 10f ) / 10f;
                 
-                //float rounded = Math.round( lapsRemaining * 10f );
-                float rounded = (float)Math.ceil( lapsRemaining * 10f );
+                if ( scoringInfo.getSessionType().isRace() && ( ( scoringInfo.getGamePhase() == GamePhase.BEFORE_SESSION_HAS_BEGUN ) || ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) ) )
+                    lapStringValue[1] = "0 / " + maxLaps + " / " + maxLaps;
+                else if ( gameData.getProfileInfo().getShowCurrentLap() )
+                    lapStringValue[1] = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + NumberUtil.formatFloat( roundedLapsRemaining, 1, true );
+                else
+                    lapStringValue[1] = lapsCompleted + " / " + maxLaps + " / " + NumberUtil.formatFloat( roundedLapsRemaining, 1, true );
+                
                 gamePhase1.update( scoringInfo.getGamePhase() );
                 
-                if ( scoringInfo.getSessionType().isRace() && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )
+                if ( needsCompleteRedraw || ( roundedLapsRemaining != oldLapsRemaining ) || gamePhase1.hasChanged() )
                 {
-                    lapStringValue[1] = "0 / " + maxLaps + " / " + maxLaps;
-                }
-                else
-                {
-                    lapsRemaining = (float)Math.floor( lapsRemaining * 10f ) / 10f;
-                    
-                    if ( gameData.getProfileInfo().getShowCurrentLap() )
-                        lapStringValue[1] = ( lapsCompleted.getValue() + 1 ) + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
-                    else
-                        lapStringValue[1] = lapsCompleted + " / " + maxLaps + " / " + NumberUtil.formatFloat( lapsRemaining, 1, true );
-                }
-                
-                if ( needsCompleteRedraw || ( rounded != oldLapsRemaining ) || gamePhase1.hasChanged() )
-                {
-                    oldLapsRemaining = rounded;
+                    oldLapsRemaining = roundedLapsRemaining;
                     
                     needsLapRedraw = true;
                 }
