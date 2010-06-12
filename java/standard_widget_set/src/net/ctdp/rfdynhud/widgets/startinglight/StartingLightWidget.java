@@ -27,6 +27,8 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class StartingLightWidget extends Widget
 {
+    private static final int MAX_LIGHTS = 5;
+    
     private TextureImage2D offImage = null;
     private final ImageProperty offImageProp = new ImageProperty( this, "offImageName", "starting_light_off.png" )
     {
@@ -53,9 +55,9 @@ public class StartingLightWidget extends Widget
         }
     };
     
-    private final IntProperty numRows = new IntProperty( this, "numRows", 2 );
+    private final IntProperty numRows = new IntProperty( this, "numRows", 2, 1, 4 );
     
-    private final FloatProperty visibleTimeAfterLightsOff = new FloatProperty( this, "visibleTimeAfterLightsOff", 4.0f );
+    private final FloatProperty visibleTimeAfterLightsOff = new FloatProperty( this, "visibleTimeAfterLightsOff", 4.0f, 0f, 60f );
     
     private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
     private final IntValue numLights = new IntValue();
@@ -123,41 +125,60 @@ public class StartingLightWidget extends Widget
         setUserVisible2( visible );
     }
     
+    private void loadImages( int innerHeight )
+    {
+        final int imageHeight = innerHeight / numRows.getIntValue();
+        
+        if ( ( offImage == null ) || ( offImage.getHeight() != imageHeight ) )
+        {
+            try
+            {
+                ImageTemplate it = offImageProp.getImage();
+                
+                float scale = (float)imageHeight / (float)it.getBaseHeight();
+                int imageWidth = (int)( it.getBaseWidth() * scale );
+                
+                offImage = it.getScaledTextureImage( imageWidth, imageHeight );
+                onImage = onImageProp.getImage().getScaledTextureImage( imageWidth, imageHeight );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+            }
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final int imageHeight = height / 2;
+        loadImages( height );
+    }
+    
+    @Override
+    public int getMaxWidth( LiveGameData gameData, TextureImage2D texture )
+    {
+        loadImages( getEffectiveInnerHeight() );
         
-        try
-        {
-            ImageTemplate it = offImageProp.getImage();
-            
-            float scale = (float)imageHeight / (float)it.getBaseHeight();
-            int imageWidth = (int)( it.getBaseWidth() * scale );
-            
-            offImage = it.getScaledTextureImage( imageWidth, imageHeight );
-            onImage = onImageProp.getImage().getScaledTextureImage( imageWidth, imageHeight );
-        }
-        catch ( Throwable t )
-        {
-            Logger.log( t );
-        }
+        return ( offImage.getWidth() * MAX_LIGHTS + getEffectiveWidth() - getEffectiveInnerWidth() );
     }
     
     @Override
     protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        /*
-        if ( editorPresets != null )
-            return ( false );
-        
-        int numLights = gameData.getScoringInfo().getNumRedLights();
-        
-        int newWidth = 
-        */
+        if ( ( editorPresets == null ) && ( offImage != null ) )
+        {
+            int newWidth = offImage.getWidth() * Math.min( gameData.getScoringInfo().getNumRedLights(), MAX_LIGHTS );
+            
+            if ( newWidth != width )
+            {
+                getSize().setEffectiveSize( getEffectiveWidth() - getEffectiveInnerWidth() + newWidth, getEffectiveHeight() );
+                
+                return ( true );
+            }
+        }
         
         return ( false );
     }
@@ -167,12 +188,15 @@ public class StartingLightWidget extends Widget
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
-        numLights.update( scoringInfo.getStartLightFrame() );
+        int m = scoringInfo.getNumRedLights();
+        int numIgnoredLights = ( m <= MAX_LIGHTS ) ? 0 : m - MAX_LIGHTS;
+        m = Math.min( m, MAX_LIGHTS );
+        
+        numLights.update( scoringInfo.getStartLightFrame() - numIgnoredLights );
         
         if ( needsCompleteRedraw || numLights.hasChanged() )
         {
             int n = numLights.getValue();
-            int m = scoringInfo.getNumRedLights();
             
             if ( editorPresets != null )
                 n = m / 2;

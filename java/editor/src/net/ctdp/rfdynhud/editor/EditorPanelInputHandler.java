@@ -303,7 +303,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         final int gameResX = widget.getConfiguration().getGameResolution().getViewportWidth();
         final int gameResY = widget.getConfiguration().getGameResolution().getViewportHeight();
         
-        RelativePositioning positioning = selectedWidget.getPosition().getPositioning();
+        RelativePositioning positioning = editor.getEditorPanel().getSelectedWidget().getPosition().getPositioning();
         
         if ( positioning.isLeft() )
         {
@@ -507,8 +507,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 x = p.x;
                 y = p.y;
                 snapPositionToRail( selectedWidget, s );
-                w = s.x + 1 - x;
-                h = s.y + 1 - y;
+                if ( w != widgetDragStartWidth )
+                    w = s.x + 1 - x;
+                if ( h != widgetDragStartHeight )
+                    h = s.y + 1 - y;
                 
                 RelativePositioning positioning = fixPositioning( selectedWidget, x, y, w, h );
                 

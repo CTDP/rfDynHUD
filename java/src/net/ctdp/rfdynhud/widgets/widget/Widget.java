@@ -437,11 +437,11 @@ public abstract class Widget implements Documented
      * Override this method, if it will change its size during game play.
      * 
      * @param gameData
-     * @param texCanvas
+     * @param texture
      * 
      * @return the maximum width covered by this {@link Widget}.
      */
-    public int getMaxWidth( LiveGameData gameData, Texture2DCanvas texCanvas )
+    public int getMaxWidth( LiveGameData gameData, TextureImage2D texture )
     {
         return ( size.getEffectiveWidth() );
     }
@@ -452,11 +452,11 @@ public abstract class Widget implements Documented
      * Override this method, if it will change its size during game play.
      * 
      * @param gameData
-     * @param texCanvas
+     * @param texture
      * 
      * @return the maximum height covered by this {@link Widget}.
      */
-    public int getMaxHeight( LiveGameData gameData, Texture2DCanvas texCanvas )
+    public int getMaxHeight( LiveGameData gameData, TextureImage2D texture )
     {
         return ( size.getEffectiveHeight() );
     }

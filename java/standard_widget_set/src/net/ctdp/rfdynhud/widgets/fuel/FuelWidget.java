@@ -761,7 +761,7 @@ public class FuelWidget extends Widget
                     String string = String.valueOf( nextPitstopLap ) + " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")";
                     nextPitstopLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
                     
-                    string = String.valueOf( pitstopFuel.getValue() + (float)Math.ceil( avgFuelUsage * 0.25f ) ) + getFuelUnits( measurementUnits ) + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + Loc.nextPitstopFuel_laps + "," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
+                    string = String.valueOf( pitstopFuel.getValue() + (int)Math.ceil( avgFuelUsage * 0.25f ) ) + getFuelUnits( measurementUnits ) + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + Loc.nextPitstopFuel_laps + "," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
                     nextPitstopFuelString.draw( offsetX, offsetY, string, backgroundColor, texture );
                 }
                 else

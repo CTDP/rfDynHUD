@@ -18,7 +18,6 @@ import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
-import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
@@ -792,16 +791,16 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public int getMaxWidth( LiveGameData gameData, Texture2DCanvas texCanvas )
+    public int getMaxWidth( LiveGameData gameData, TextureImage2D texture )
     {
         if ( !useAutoWidth.getBooleanValue() )
-            return ( super.getMaxWidth( gameData, texCanvas ) );
+            return ( super.getMaxWidth( gameData, texture ) );
         
         DrawnString ds = getDrawnStringFactory().newDrawnString( null, 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         String[] strs = { "99.", ( nameDisplayType.getEnumValue() == NameDisplayType.THREE_LETTER_CODE ) ? "AAAA" : ( ( nameDisplayType.getEnumValue() == NameDisplayType.SHORT_FORM ) ? "G. Fisichella___" : "Giancarlo Fisichella___" ), "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
         
-        int total = ds.getMinColWidths( strs, colAligns, colPadding, texCanvas.getImage(), colWidths );
+        int total = ds.getMinColWidths( strs, colAligns, colPadding, texture, colWidths );
         
         return ( total );
     }

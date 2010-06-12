@@ -131,8 +131,6 @@ public class TransformableTexture
     
     protected void generateSubRectangles( LiveGameData gameData, EditorPresets editorPresets, WidgetsDrawingManager widgetsManager )
     {
-        final Texture2DCanvas texCanvas = widgetsManager.getMainTexture().getTextureCanvas();
-        
         final int n = widgetsManager.getNumWidgets();
         Rectangle[] tmp = new Rectangle[ n ];
         int m = 0;
@@ -140,7 +138,7 @@ public class TransformableTexture
         {
             Widget w = widgetsManager.getWidget( i );
             if ( w.hasMasterCanvas( editorPresets != null ) )
-                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, texCanvas ), w.getMaxHeight( gameData, texCanvas ) );
+                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, widgetsManager.getMainTexture() ), w.getMaxHeight( gameData, widgetsManager.getMainTexture() ) );
         }
         
         this.usedRectangles = new Rectangle[ m ];
