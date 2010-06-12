@@ -374,7 +374,7 @@ public class MiscWidget extends Widget
                 float lapsRemaining = vsi.getLapsRemaining( maxLaps );
                 
                 //float rounded = Math.round( lapsRemaining * 10f );
-                float rounded = (float)Math.floor( lapsRemaining * 10f );
+                float rounded = (float)Math.ceil( lapsRemaining * 10f );
                 gamePhase1.update( scoringInfo.getGamePhase() );
                 
                 if ( scoringInfo.getSessionType().isRace() && ( scoringInfo.getGamePhase() == GamePhase.FORMATION_LAP ) )

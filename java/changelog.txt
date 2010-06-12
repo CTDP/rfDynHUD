@@ -53,7 +53,6 @@ Minor:
 
 TODO:
 
-* ETVStandingsWidget: Fix laptime flag textures overwrite
 * Add auto-sizing to StartingLightWidget
 * RevMeterWidget: Scale/fix positions on background change
 * Pause detection
