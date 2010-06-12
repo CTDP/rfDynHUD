@@ -61,6 +61,8 @@ public class RevMeterWidget extends Widget
         @Override
         protected void onValueChanged( String oldValue, String newValue )
         {
+            boolean fixPositions = ( backgroundTexture != null );
+            
             backgroundTexture = null;
             needleTexture = null;
             for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
@@ -71,6 +73,34 @@ public class RevMeterWidget extends Widget
             boostNumberBackgroundTexture_bak = null;
             velocityBackgroundTexture = null;
             velocityBackgroundTexture_bak = null;
+            
+            if ( fixPositions )
+            {
+                float oldBgScaleX = backgroundScaleX;
+                float oldBgScaleY = backgroundScaleY;
+                
+                loadBackgroundImage( true, getEffectiveInnerWidth(), getEffectiveInnerHeight() );
+                
+                float corrX = oldBgScaleX / backgroundScaleX;
+                float corrY = oldBgScaleY / backgroundScaleY;
+                
+                revMarkersInnerRadius.setIntValue( Math.round( revMarkersInnerRadius.getIntValue() * corrX ) );
+                revMarkersLength.setIntValue( Math.round( revMarkersLength.getIntValue() * ( corrX + corrY ) / 2 ) );
+                gearPosX.setIntValue( Math.round( gearPosX.getIntValue() * corrX ) );
+                gearPosY.setIntValue( Math.round( gearPosY.getIntValue() * corrY ) );
+                boostBarPosX.setIntValue( Math.round( boostBarPosX.getIntValue() * corrX ) );
+                boostBarPosY.setIntValue( Math.round( boostBarPosY.getIntValue() * corrY ) );
+                boostBarWidth.setIntValue( Math.round( boostBarWidth.getIntValue() * corrX ) );
+                boostBarHeight.setIntValue( Math.round( boostBarHeight.getIntValue() * corrY ) );
+                boostNumberPosX.setIntValue( Math.round( boostNumberPosX.getIntValue() * corrX ) );
+                boostNumberPosY.setIntValue( Math.round( boostNumberPosY.getIntValue() * corrY ) );
+                velocityPosX.setIntValue( Math.round( velocityPosX.getIntValue() * corrX ) );
+                velocityPosY.setIntValue( Math.round( velocityPosY.getIntValue() * corrY ) );
+                rpmPosX1.setIntValue( Math.round( rpmPosX1.getIntValue() * corrX ) );
+                rpmPosY1.setIntValue( Math.round( rpmPosY1.getIntValue() * corrY ) );
+                rpmPosX2.setIntValue( Math.round( rpmPosX2.getIntValue() * corrX ) );
+                rpmPosY2.setIntValue( Math.round( rpmPosY2.getIntValue() * corrY ) );
+            }
             
             forceAndSetDirty();
         }
@@ -100,7 +130,8 @@ public class RevMeterWidget extends Widget
     private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
     private int velocityBackgroundTexPosX, velocityBackgroundTexPosY;
     
-    private float backgroundScaleX, backgroundScaleY;
+    private float backgroundScaleX = 1.0f;
+    private float backgroundScaleY = 1.0f;
     
     private final IntProperty needleAxisBottomOffset = new IntProperty( this, "needleAxisBottomOffset", "axisBottomOffset", 60 );
     
@@ -570,15 +601,8 @@ public class RevMeterWidget extends Widget
         setControlVisibility( viewedVSI );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    private void loadBackgroundImage( boolean isEditorMode, int width, int height )
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        final Texture2DCanvas texCanvas = texture.getTextureCanvas();
-        
         if ( backgroundImageName.isNoImage() )
         {
             backgroundTexture = null;
@@ -589,7 +613,7 @@ public class RevMeterWidget extends Widget
         {
             boolean reloadBackground = ( backgroundTexture == null );
             
-            if ( isEditorMode && ( backgroundTexture != null ) && ( ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) ) )
+            if ( !reloadBackground && isEditorMode && ( ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) ) )
                 reloadBackground = true;
             
             if ( reloadBackground )
@@ -608,7 +632,18 @@ public class RevMeterWidget extends Widget
                 backgroundScaleY = (float)height / (float)it.getBaseHeight();
             }
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        final boolean isEditorMode = ( editorPresets != null );
+        final Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
+        loadBackgroundImage( isEditorMode, width, height );
         loadNeedleTexture( isEditorMode );
         
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )

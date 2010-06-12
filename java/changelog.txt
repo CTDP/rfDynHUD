@@ -51,10 +51,10 @@ Minor:
 * Editor: New magnet effect / rail effect (theoretically replaces the grid, but I left it in).
 * StartingLightWidget's visibility handling changed. Make sure, initialVisibility is on, if you don't plan to toggle it with an InputAction.
 * StartingLightWidget is now auto-sized based on the number of lights (track dependent).
+* RevMeterWidget: When the background image is changed, positions and sizes of elements are adjusted.
 
 TODO:
 
-* RevMeterWidget: Scale/fix positions on background change
 * Pause detection
 * Save As: Construct filename
 * Make widget selection menues nicer
