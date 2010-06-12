@@ -25,6 +25,8 @@ public class VehicleScoringInfo
     private int nameId = 0;
     private Integer nameID = null;
     
+    private short place = -1;
+    
     private int lastTLCMrgUpdateId = -1;
     
     private String vehClass = null;
@@ -42,6 +44,7 @@ public class VehicleScoringInfo
     VehicleScoringInfo classNextInFrontVSI = null;
     VehicleScoringInfo classNextBehindVSI = null;
     
+    private float lapDistance = -1f;
     private int oldLap = -1;
     private int lap = -1;
     private int stintStartLap = -1;
@@ -92,12 +95,90 @@ public class VehicleScoringInfo
     
     void onDataUpdated()
     {
+        place = -1;
+        lapDistance = -1f;
+        
         vehClass = null;
         classId = 0;
         classID = null;
         
         oldLap = lap;
         lap = getLapsCompleted() + 1;
+    }
+    
+    private void updateStintLength()
+    {
+        int currentLap = getLapsCompleted() + 1; // Don't use getCurrentLap(), since it depends on stint length!
+        boolean isInPits = isInPits();
+        boolean isStanding = ( Math.abs( getScalarVelocityMPS() ) < 0.1f );
+        float trackPos = getNormalizedLapDistance();
+        
+        if ( ( stintStartLap < 0 ) || ( isInPits && ( stintStartLap != currentLap ) && isStanding ) || ( stintStartLap > currentLap ) )
+        {
+            stintStartLap = currentLap;
+        }
+        
+        int oldPitState = pitState;
+        if ( oldPitState == -1 )
+        {
+            if ( isInPits && isStanding )
+                pitState = 2;
+            else if ( isInPits )
+                pitState = 1;
+            else
+                pitState = 0;
+        }
+        else
+        {
+            if ( ( oldPitState == 2 ) && !isInPits )
+            {
+                stintStartLap = currentLap;
+            }
+            
+            if ( isInPits )
+            {
+                if ( isStanding && ( oldPitState != 2 ) )
+                    pitState = 2;
+                else if ( oldPitState == 0 )
+                    pitState = 1;
+            }
+            else if ( oldPitState != 0 )
+            {
+                pitState = 0;
+            }
+        }
+        
+        stintLength = currentLap - stintStartLap + trackPos;
+    }
+    
+    void updateSomeData()
+    {
+        updateStintLength();
+    }
+    
+    void resetExtrapolatedValues()
+    {
+        lapDistance = -1f;
+    }
+    
+    void resetDerivateData()
+    {
+        stintStartLap = -1;
+        oldLap = -1;
+        laptimes.clear();
+        fastestLaptime = null;
+        oldAverageLaptime = null;
+        averageLaptime = null;
+    }
+    
+    void onSessionStarted()
+    {
+        resetDerivateData();
+    }
+    
+    void onSessionEnded()
+    {
+        resetDerivateData();
     }
     
     void setDriverName( String name, Integer id )
@@ -366,7 +447,12 @@ public class VehicleScoringInfo
      */
     public final float getLapDistance()
     {
-        return ( data.getLapDistance() );
+        if ( lapDistance < 0f )
+        {
+            lapDistance = ( data.getLapDistance() + getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % scoringInfo.getTrackLength();
+        }
+        
+        return ( lapDistance );
     }
     
     /**
@@ -375,71 +461,6 @@ public class VehicleScoringInfo
     public final float getNormalizedLapDistance()
     {
         return ( getLapDistance() / scoringInfo.getTrackLength() );
-    }
-    
-    void updateStintLength()
-    {
-        int currentLap = getLapsCompleted() + 1; // Don't use getCurrentLap(), since it depends on stint length!
-        boolean isInPits = isInPits();
-        boolean isStanding = ( Math.abs( getScalarVelocityMPS() ) < 0.1f );
-        float trackPos = getNormalizedLapDistance();
-        
-        if ( ( stintStartLap < 0 ) || ( isInPits && ( stintStartLap != currentLap ) && isStanding ) || ( stintStartLap > currentLap ) )
-        {
-            stintStartLap = currentLap;
-        }
-        
-        int oldPitState = pitState;
-        if ( oldPitState == -1 )
-        {
-            if ( isInPits && isStanding )
-                pitState = 2;
-            else if ( isInPits )
-                pitState = 1;
-            else
-                pitState = 0;
-        }
-        else
-        {
-            if ( ( oldPitState == 2 ) && !isInPits )
-            {
-                stintStartLap = currentLap;
-            }
-            
-            if ( isInPits )
-            {
-                if ( isStanding && ( oldPitState != 2 ) )
-                    pitState = 2;
-                else if ( oldPitState == 0 )
-                    pitState = 1;
-            }
-            else if ( oldPitState != 0 )
-            {
-                pitState = 0;
-            }
-        }
-        
-        stintLength = currentLap - stintStartLap + trackPos;
-    }
-    
-    void resetDerivateData()
-    {
-        stintStartLap = -1;
-        oldLap = -1;
-        laptimes.clear();
-        fastestLaptime = null;
-        oldAverageLaptime = null;
-        averageLaptime = null;
-    }
-    
-    void onSessionStarted()
-    {
-        resetDerivateData();
-    }
-    
-    void onSessionEnded()
-    {
-        resetDerivateData();
     }
     
     public final int getStintStartLap()
@@ -700,7 +721,12 @@ public class VehicleScoringInfo
             return ( placeByClass );
         }
         
-        return ( data.getPlace() );
+        if ( place < 0 )
+        {
+            place = data.getPlace();
+        }
+        
+        return ( place );
     }
     
     /**

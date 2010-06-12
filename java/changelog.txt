@@ -33,6 +33,7 @@ Major:
 * Added rfdynhud.ini as central plugin configuration file to support localizations and custom config folders.
 * Rev limit from setup is now used. This enables you to actually use rev markes fixed in the background image.
 * Digital max revs in RevMeterWidget can now be boost level dependent.
+* Added pause detection.
 
 Minor:
 
@@ -55,7 +56,6 @@ Minor:
 
 TODO:
 
-* Pause detection
 * Save As: Construct filename
 * Make widget selection menues nicer
 * Add StandardBorder alias if missing

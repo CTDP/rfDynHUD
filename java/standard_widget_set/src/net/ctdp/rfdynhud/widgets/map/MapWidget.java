@@ -604,7 +604,7 @@ public class MapWidget extends Widget
                 {
                     short place = vsi.getPlace( useClassScoring );
                     
-                    float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % track.getTrackLength();
+                    float lapDistance = vsi.getLapDistance();
                     
                     TransformableTexture tt = subTextures[subTexOff + i];
                     subTextures[subTexOff + i].setVisible( true );

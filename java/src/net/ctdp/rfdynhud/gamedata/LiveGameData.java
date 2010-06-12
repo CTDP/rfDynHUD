@@ -12,6 +12,7 @@ public class LiveGameData
 {
     private final GameResolution gameResolution;
     
+    boolean gamePaused = false;
     private boolean realtimeMode = false;
     
     private final VehiclePhysics physics = new VehiclePhysics();
@@ -29,6 +30,17 @@ public class LiveGameData
     public final GameResolution getGameResolution()
     {
         return ( gameResolution );
+    }
+    
+    /**
+     * Gets whether the game is paused. Since rFactor1 doesn't tell its plugins about the paused state,
+     * this can only be a guess based on the last TelemetryData update. So this info can be up to some splitss of a second late.
+     * 
+     * @return whether the game is paused.
+     */
+    public final boolean isGamePaused()
+    {
+        return ( gamePaused );
     }
     
     void setRealtimeMode( boolean realtimeMode, EditorPresets editorPresets )

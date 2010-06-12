@@ -262,7 +262,7 @@ public class Track
     public final float getInterpolatedAngleToRoad( ScoringInfo scoringInfo )
     {
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
-        float lapDistance = ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() ) % getTrackLength();
+        float lapDistance = vsi.getLapDistance();
         
         getInterpolatedVector( vsi.isInPits(), lapDistance, vec1 );
         

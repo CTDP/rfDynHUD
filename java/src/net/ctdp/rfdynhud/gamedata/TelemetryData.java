@@ -102,6 +102,7 @@ public class TelemetryData
     
     private boolean updatedInTimeScope = false;
     private long updateId = 0L;
+    private long updateTimestamp = -1L;
     private boolean sessionJustStarted = false;
     
     private final LiveGameData gameData;
@@ -195,6 +196,7 @@ public class TelemetryData
         {
             this.updatedInTimeScope = gameData.isInRealtimeMode();
             this.updateId++;
+            this.updateTimestamp = System.nanoTime();
             
             float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
             bmr = gameData.getPhysics().getEngine().getRevLimitRange().limitValue( bmr );
@@ -226,6 +228,13 @@ public class TelemetryData
         {
             Logger.log( t );
         }
+    }
+    
+    boolean checkGamePaused( long timestamp )
+    {
+        // TelemetryData are updated at 90Hz = 11ms. So 100ms should be a safe value to check against.
+        
+        return ( timestamp - updateTimestamp > 100000000L );
     }
     
     /**

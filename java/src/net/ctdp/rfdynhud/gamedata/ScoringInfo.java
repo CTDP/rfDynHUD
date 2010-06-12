@@ -71,6 +71,7 @@ public class ScoringInfo
     private long realtimeEnteredTimestamp = -1L;
     private int realtimeEnteredId = 0;
     
+    private boolean gamePausedCache = false;
     private long lastUpdateTimestamp = -1L;
     private long sessionBaseNanos = -1L;
     private long extrapolationNanos = 0L;
@@ -384,9 +385,10 @@ public class ScoringInfo
     {
         extrapolationNanos = timestamp - lastUpdateTimestamp;
         
-        if ( extrapolationNanos > 600000000000L )
+        gamePausedCache = gamePausedCache || gameData.isGamePaused();
+        
+        if ( gamePausedCache )
         {
-            // The game seems to be paused.
             extrapolationNanos = 0L;
         }
         
@@ -394,6 +396,12 @@ public class ScoringInfo
         
         sessionNanos = sessionBaseNanos + extrapolationNanos;
         sessionTime = sessionNanos / 1000000000.0f;
+        
+        int n = getNumVehicles();
+        for ( int i = 0; i < n; i++ )
+        {
+            getVehicleScoringInfo( i ).resetExtrapolatedValues();
+        }
     }
     
     /**
@@ -489,6 +497,7 @@ public class ScoringInfo
             this.updatedInTimeScope = true;
             this.updateId++;
             this.updateTimestamp = System.nanoTime();
+            this.gamePausedCache = gameData.isGamePaused();
             
             this.sessionBaseNanos = Math.round( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) * 1000000000.0 );
             updateSessionTime( updateTimestamp );
@@ -500,7 +509,7 @@ public class ScoringInfo
             int n = getNumVehicles();
             for ( int i = 0; i < n; i++ )
             {
-                getVehicleScoringInfo( i ).updateStintLength();
+                getVehicleScoringInfo( i ).updateSomeData();
             }
             
             applyEditorPresets( editorPresets );

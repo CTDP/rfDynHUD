@@ -263,8 +263,6 @@ public class TrackPositionWidget extends Widget
             {
                 short place = vsi.getPlace( useClassScoring );
                 
-                float lapDistance = ( ( vsi.getLapDistance() + vsi.getScalarVelocityMPS() * scoringInfo.getExtrapolationTime() + scoringInfo.getTrackLength() ) % scoringInfo.getTrackLength() ) / scoringInfo.getTrackLength();
-                
                 TransformableTexture tt = itemTextures[i];
                 itemTextures[i].setVisible( true );
                 int itemState = ( place << 0 ) | ( vsi.getDriverId() << 9 );
@@ -308,7 +306,7 @@ public class TrackPositionWidget extends Widget
                 
                 int yOff3 = vsi.isInPits() ? -3 : 0;
                 
-                tt.setTranslation( linePadding + off2 + lapDistance * lineLength - itemRadius, off2 + height / 2 - itemRadius - itemTextureOffsetsY[i] + yOff3 );
+                tt.setTranslation( linePadding + off2 + vsi.getNormalizedLapDistance() * lineLength - itemRadius, off2 + height / 2 - itemRadius - itemTextureOffsetsY[i] + yOff3 );
             }
             else
             {

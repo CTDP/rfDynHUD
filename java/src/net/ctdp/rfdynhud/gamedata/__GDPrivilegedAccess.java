@@ -103,9 +103,10 @@ public class __GDPrivilegedAccess
         gameData.setRealtimeMode( realtimeMode, editorPresets );
     }
     
-    public static final void updateSessionTime( ScoringInfo scoringInfo, long timestamp )
+    public static final void updateSessionTime( LiveGameData gameData, long timestamp )
     {
-        scoringInfo.updateSessionTime( timestamp );
+        gameData.gamePaused = gameData.getTelemetryData().checkGamePaused( timestamp );
+        gameData.getScoringInfo().updateSessionTime( timestamp );
     }
     
     public static final void setEngineBoostMapping( int boost, TelemetryData telemData )

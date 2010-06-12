@@ -142,7 +142,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         {
             double deltaTime = ( timestamp - lastTimestamp ) / 1000000000.0;
             
-            if ( deltaTime < 0.15 ) // Game paused?
+            if ( !gameData.isGamePaused() )
             {
                 // engine lifetime
                 //if ( telemData.getEngineRPM() > 1.00f )
