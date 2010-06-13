@@ -209,7 +209,7 @@ public class BorderCache
         if ( File.separatorChar != '\\' )
             iniFilename = iniFilename.replace( '\\', File.separatorChar );
         
-        File iniFile = new File( new File( GameFileSystem.INSTANCE.getImagesFolder(), "borders" ), iniFilename );
+        File iniFile = new File( GameFileSystem.INSTANCE.getBordersFolder(), iniFilename );
         
         if ( !iniFile.exists() || !iniFile.isFile() || !iniFile.getName().toLowerCase().endsWith( ".ini" ) )
         {

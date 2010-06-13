@@ -18,6 +18,8 @@ public abstract class GameFileSystem
     private final String gamePath;
     private final File configFolder;
     private final String configPath;
+    private final File bordersFolder;
+    private final String bordersPath;
     private final File imagesFolder;
     private final String imagesPath;
     private final File editorFolder;
@@ -53,6 +55,18 @@ public abstract class GameFileSystem
     protected File findConfigFolder( File pluginFolder, PluginINI pluginINI )
     {
         return ( pluginINI.getGeneralConfigFolder() );
+    }
+    
+    /**
+     * 
+     * @param pluginFolder
+     * @param pluginINI
+     * @param configFolder
+     * @return
+     */
+    protected File findBordersFolder( File pluginFolder, PluginINI pluginINI, File configFolder )
+    {
+        return ( new File( new File( configFolder, "data" ), "borders" ).getAbsoluteFile() );
     }
     
     /**
@@ -121,6 +135,16 @@ public abstract class GameFileSystem
         return ( configPath );
     }
     
+    public final File getBordersFolder()
+    {
+        return ( bordersFolder );
+    }
+    
+    public final String getBordersPath()
+    {
+        return ( bordersPath );
+    }
+    
     public final File getImagesFolder()
     {
         return ( imagesFolder );
@@ -159,6 +183,9 @@ public abstract class GameFileSystem
         
         this.configFolder = findConfigFolder( pluginFolder, pluginINI );
         this.configPath = configFolder.getAbsolutePath();
+        
+        this.bordersFolder = findBordersFolder( pluginFolder, pluginINI, configFolder );
+        this.bordersPath = bordersFolder.getAbsolutePath();
         
         this.imagesFolder = findImagesFolder( pluginFolder, pluginINI, configFolder );
         this.imagesPath = imagesFolder.getAbsolutePath();

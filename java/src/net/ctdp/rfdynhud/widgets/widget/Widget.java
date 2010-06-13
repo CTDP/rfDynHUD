@@ -149,6 +149,18 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * Gets the default value for the given border alias/name.
+     * 
+     * @param name
+     * 
+     * @return the default value for the given border alias/name.
+     */
+    public String getDefaultBorderValue( String name )
+    {
+        return ( BorderProperty.getDefaultBorderValue( name ) );
+    }
+    
+    /**
      * Gets the default value for the given named color.
      * 
      * @param name

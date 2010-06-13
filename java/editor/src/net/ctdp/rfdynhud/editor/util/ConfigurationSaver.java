@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
@@ -72,6 +73,33 @@ public class ConfigurationSaver
         return ( result );
     }
     
+    @SuppressWarnings( "unused" )
+    private static HashSet<String> getUsedBorderAliases( WidgetsConfiguration widgetsConfig )
+    {
+        HashSet<String> result = new HashSet<String>();
+        
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+        {
+            propsCont.clear();
+            widgetsConfig.getWidget( i ).getProperties( propsCont, true );
+            
+            for ( Property prop : propsCont.getList() )
+            {
+                if ( prop instanceof BorderProperty )
+                {
+                    String borderAlias = ( (BorderProperty)prop ).getBorderName();
+                    
+                    if ( widgetsConfig.getBorderName( borderAlias ) != null )
+                        result.add( borderAlias );
+                }
+            }
+        }
+        
+        return ( result );
+    }
+    
     public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, File out ) throws IOException
     {
         final IniWriter writer = new IniWriter( out );
@@ -107,7 +135,10 @@ public class ConfigurationSaver
         }
         
         writer.writeGroup( "BorderAliases" );
-        for ( String alias : widgetsConfig.getBorderAliases() )
+        //HashSet<String> usedBorderAliases = getUsedBorderAliases( widgetsConfig );
+        ArrayList<String> borderAliases = new ArrayList<String>( widgetsConfig.getBorderAliases() );
+        Collections.sort( borderAliases, String.CASE_INSENSITIVE_ORDER );
+        for ( String alias : borderAliases )
         {
             writer.writeSetting( alias, widgetsConfig.getBorderName( alias ) );
         }

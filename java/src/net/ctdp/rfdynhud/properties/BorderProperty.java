@@ -20,6 +20,14 @@ public class BorderProperty extends Property
     private final IntProperty paddingRight;
     private final IntProperty paddingBottom;
     
+    public static String getDefaultBorderValue( String name )
+    {
+        if ( name.equals( DEFAULT_BORDER_NAME ) )
+            return ( "backgroundcolor_border.ini" );
+        
+        return ( null );
+    }
+    
     /**
      * 
      * @param oldValue
@@ -69,12 +77,22 @@ public class BorderProperty extends Property
             {
                 final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
                 
-                String borderName_ = widgetsConf.getBorderName( borderName );
+                String borderValue = widgetsConf.getBorderName( borderName );
                 
-                if ( borderName_ == null )
-                    border = BorderCache.getBorder( borderName, paddingTop, paddingLeft, paddingRight, paddingBottom );
-                else
-                    border = BorderCache.getBorder( borderName_, paddingTop, paddingLeft, paddingRight, paddingBottom );
+                if ( ( borderValue == null ) && ( widget != null ) )
+                {
+                    String borderValue2 = widget.getDefaultBorderValue( borderName );
+                    if ( borderValue2 != null )
+                    {
+                        borderValue = borderValue2;
+                        widgetsConf.addBorderAlias( borderName, borderValue );
+                    }
+                }
+                
+                if ( borderValue == null )
+                    borderValue = borderName;
+                
+                border = BorderCache.getBorder( borderValue, paddingTop, paddingLeft, paddingRight, paddingBottom );
             }
         }
         
