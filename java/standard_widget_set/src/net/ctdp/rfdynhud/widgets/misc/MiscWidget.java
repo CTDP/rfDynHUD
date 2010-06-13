@@ -210,9 +210,9 @@ public class MiscWidget extends Widget
             boolean b = displayTiming.getBooleanValue();
             if ( ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() ) || ( !displayScoring.getBooleanValue() && !displayVelocity.getBooleanValue() ) )
             {
-                lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-                stintString = dsf.newDrawnStringIf( b, "stintString", null, lapString, center, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", null, stintString, center, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
+                stintString = dsf.newDrawnStringIf( b, "stintString", null, lapString, center, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
+                sessionTimeString = dsf.newDrawnStringIf( b, "sessionTimeString", null, stintString, center, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
             }
             else if ( !displayScoring.getBooleanValue() )
             {
