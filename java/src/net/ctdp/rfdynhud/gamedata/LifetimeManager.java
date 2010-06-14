@@ -12,7 +12,6 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     
     private int lastSessionID = -1;
     private int lastEnteredRealtimeID = -1;
-    private long lastTimestamp = -2L;
     
     private float lastOilTemperature = -1f;
     private float lastEngineRevs = -1f;
@@ -125,8 +124,6 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         final VehicleSetup setup = gameData.getSetup();
         final double raceLengthPercentage = scoringInfo.getRaceLengthPercentage();
         
-        long timestamp = System.nanoTime();
-        
         if ( ( scoringInfo.getSessionId() > lastSessionID ) || ( scoringInfo.getRealtimeEntredId() > lastEnteredRealtimeID ) )
         {
             lastSessionID = scoringInfo.getSessionId();
@@ -140,10 +137,10 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         }
         else
         {
-            double deltaTime = ( timestamp - lastTimestamp ) / 1000000000.0;
-            
             if ( !gameData.isGamePaused() )
             {
+                double deltaTime = telemData.getDeltaUpdateTime() / 1000000000.0;
+                
                 // engine lifetime
                 //if ( telemData.getEngineRPM() > 1.00f )
                 {
@@ -256,8 +253,6 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         lastWheelRotationFR = telemData.getWheelRotation( Wheel.FRONT_RIGHT );
         lastWheelRotationRL = telemData.getWheelRotation( Wheel.REAR_LEFT );
         lastWheelRotationRR = telemData.getWheelRotation( Wheel.REAR_RIGHT );
-        
-        lastTimestamp = timestamp;
     }
     
     @Override

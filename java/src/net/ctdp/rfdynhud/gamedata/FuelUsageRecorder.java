@@ -24,7 +24,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         {
             if ( action == INPUT_ACTION_RESET_FUEL_CONSUMPTION )
             {
-                long t = System.nanoTime();
+                long t = when;
                 
                 if ( t - firstResetStrokeTime > 1000000000L )
                 {

@@ -102,6 +102,7 @@ public class TelemetryData
     
     private boolean updatedInTimeScope = false;
     private long updateId = 0L;
+    private long lastUpdateTimestamp = -1L;
     private long updateTimestamp = -1L;
     private boolean sessionJustStarted = false;
     
@@ -178,6 +179,44 @@ public class TelemetryData
         updateListeners = tmp;
     }
     
+    /**
+     * 
+     * @param editorPresets
+     */
+    void onSessionStarted( EditorPresets editorPresets )
+    {
+        this.sessionJustStarted = true;
+        this.updatedInTimeScope = false;
+        this.updateTimestamp = -1L;
+    }
+    
+    void onSessionEnded()
+    {
+        this.updatedInTimeScope = false;
+    }
+    
+    void onRealtimeEntered( EditorPresets editorPresets )
+    {
+        this.updatedInTimeScope = true;
+        
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+                updateListeners[i].onRealtimeEntered( gameData, editorPresets );
+        }
+    }
+    
+    void onRealtimeExited( EditorPresets editorPresets )
+    {
+        this.updatedInTimeScope = false;
+        
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+                updateListeners[i].onRealtimeExited( gameData, editorPresets );
+        }
+    }
+    
     void prepareDataUpdate()
     {
     }
@@ -196,6 +235,7 @@ public class TelemetryData
         {
             this.updatedInTimeScope = gameData.isInRealtimeMode();
             this.updateId++;
+            this.lastUpdateTimestamp = updateTimestamp;
             this.updateTimestamp = System.nanoTime();
             
             float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
@@ -238,6 +278,32 @@ public class TelemetryData
     }
     
     /**
+     * The system timestamp (in nanos) of the last {@link TelemetryData} update.
+     * 
+     * @return system timestamp (in nanos) of the last {@link TelemetryData} update.
+     */
+    public final long getUpdateTimestamp()
+    {
+        return ( updateTimestamp );
+    }
+    
+    /**
+     * The delta time between the last two {@link TelemetryData} updates (using system timing) (in nanos).
+     * 
+     * @return delta time between the last two {@link TelemetryData} updates (using system timing).
+     */
+    public final long getDeltaUpdateTime()
+    {
+        if ( lastUpdateTimestamp == -1L )
+            return ( 0L );
+        
+        if ( updateTimestamp == -1L )
+            return ( -1L );
+        
+        return ( updateTimestamp - lastUpdateTimestamp );
+    }
+    
+    /**
      * Gets, whether the last update of these data has been done while in running session resp. realtime mode.
      * @return whether the last update of these data has been done while in running session resp. realtime mode.
      */
@@ -249,43 +315,6 @@ public class TelemetryData
     public final long getUpdateId()
     {
         return ( updateId );
-    }
-    
-    /**
-     * 
-     * @param editorPresets
-     */
-    void onSessionStarted( EditorPresets editorPresets )
-    {
-        this.sessionJustStarted = true;
-        this.updatedInTimeScope = false;
-    }
-    
-    void onSessionEnded()
-    {
-        this.updatedInTimeScope = false;
-    }
-    
-    void onRealtimeEntered( EditorPresets editorPresets )
-    {
-        this.updatedInTimeScope = true;
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onRealtimeEntered( gameData, editorPresets );
-        }
-    }
-    
-    void onRealtimeExited( EditorPresets editorPresets )
-    {
-        this.updatedInTimeScope = false;
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onRealtimeExited( gameData, editorPresets );
-        }
     }
     
     void loadFromStream( InputStream in, EditorPresets editorPresets ) throws IOException

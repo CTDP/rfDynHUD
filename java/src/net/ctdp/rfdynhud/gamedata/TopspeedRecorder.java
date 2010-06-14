@@ -17,7 +17,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
         {
             if ( action == INPUT_ACTION_RESET_TOPSPEEDS )
             {
-                long t = System.nanoTime();
+                long t = when;
                 
                 if ( t - firstResetStrokeTime > 1000000000L )
                 {
