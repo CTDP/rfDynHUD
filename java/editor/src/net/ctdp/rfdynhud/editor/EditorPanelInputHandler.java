@@ -113,7 +113,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
         else if ( e.getButton() == MouseEvent.BUTTON3 )
         {
-            editor.initContextMenu();
+            editor.getMenuBar().initContextMenu();
         }
     }
     
@@ -246,7 +246,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             
             if ( ( panel.getRailDistanceX() > 0 ) || ( panel.getRailDistanceY() > 0 ) )
             {
-                WidgetsConfiguration wc = panel.getWidgetsDrawingManager();
+                WidgetsConfiguration wc = editor.getWidgetsconConfiguration();
                 int closestRailX = Integer.MAX_VALUE;
                 int closestRailY = Integer.MAX_VALUE;
                 int rdx, rdy;

@@ -3,7 +3,6 @@ package net.ctdp.rfdynhud.editor;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
@@ -13,9 +12,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -29,42 +25,26 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JViewport;
-import javax.swing.KeyStroke;
 import javax.swing.UIManager;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.html.HTMLDocument;
 
 import net.ctdp.rfdynhud.RFDynHUD;
-import net.ctdp.rfdynhud.editor.help.AboutPage;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
-import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
@@ -72,9 +52,10 @@ import net.ctdp.rfdynhud.editor.properties.EditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
+import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.editor.util.StrategyTool;
+import net.ctdp.rfdynhud.editor.util.SaveAsDialog;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -102,9 +83,6 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
-import org.jagatoo.util.classes.ClassSearcher;
-import org.jagatoo.util.classes.PackageSearcher;
-import org.jagatoo.util.classes.SuperClassCriterium;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 import org.jagatoo.util.ini.IniWriter;
@@ -120,25 +98,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         __EDPrivilegedAccess.isEditorMode = true;
     }
     
-    public class EditorWindow extends JFrame
-    {
-        private static final long serialVersionUID = 1944993989958953367L;
-        
-        public RFDynHUDEditor getEditor()
-        {
-            return ( RFDynHUDEditor.this );
-        }
-        
-        public EditorWindow( String title )
-        {
-            super( title );
-        }
-    }
-    
     private static final String BASE_WINDOW_TITLE = "rFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
     
     private LiveGameData gameData;
-    
+    private WidgetsConfiguration widgetsConfig;
+    private GameEventsManager eventsManager;
     private final GameResolution gameResolution;
     
     private static final String DEFAULT_SCREENSHOT_SET = "CTDPF106_Fer_T-Cam";
@@ -147,6 +111,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private boolean alwaysShowHelpOnStartup = true;
     
     private final JFrame window;
+    private final EditorMenuBar menuBar;
     private final EditorPanel editorPanel;
     private final JScrollPane editorScrollPane;
     
@@ -171,36 +136,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private WidgetsConfiguration templateConfig = null;
     private long lastTemplateConfigModified = -1L;
     
-    private static final HashMap<String, java.awt.DisplayMode> displayModes = new HashMap<String, java.awt.DisplayMode>();
-    static
-    {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        for ( DisplayMode dm : ge.getDefaultScreenDevice().getDisplayModes() )
-        {
-            if ( ( dm.getWidth() >= 800 ) && ( dm.getWidth() >= 600 ) && ( dm.getBitDepth() == 32 ) )
-            {
-                String key = dm.getWidth() + "x" + dm.getHeight();
-                
-                DisplayMode dm2 = displayModes.get( key );
-                if ( dm2 == null )
-                {
-                    displayModes.put( key, dm );
-                }
-                else
-                {
-                    if ( dm.getRefreshRate() > dm2.getRefreshRate() )
-                    {
-                        displayModes.remove( key );
-                        displayModes.put( key, dm );
-                    }
-                }
-            }
-        }
-    }
-    
     public final LiveGameData getGameData()
     {
         return ( gameData );
+    }
+    
+    public final WidgetsConfiguration getWidgetsconConfiguration()
+    {
+        return ( widgetsConfig );
     }
     
     public final EditorPresets getEditorPresets()
@@ -294,6 +237,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( window );
     }
     
+    public final EditorMenuBar getMenuBar()
+    {
+        return ( menuBar );
+    }
+    
     public final EditorPanel getEditorPanel()
     {
         return ( editorPanel );
@@ -313,7 +261,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             return ( "" );
         
         if ( __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) )
-            return ( getEditorPanel().getWidgetsDrawingManager().getDocumentationSource( property ) );
+            return ( widgetsConfig.getDocumentationSource( property ) );
         
         URL docURL = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getPropertyName() + ".html" );
         
@@ -551,7 +499,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         propsCont.addGroup( "Configuration - Global" );
         
-        getEditorPanel().getWidgetsDrawingManager().getProperties( propsCont, false );
+        widgetsConfig.getProperties( propsCont, false );
     }
     
     private static void readExpandFlags( FlaggedList list, String keyPrefix, HashMap<String, Boolean> map )
@@ -995,14 +943,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         try
         {
-            WidgetsDrawingManager widgetsManager = getEditorPanel().getWidgetsDrawingManager();
-            int n = widgetsManager.getNumWidgets();
+            int n = widgetsConfig.getNumWidgets();
             for ( int i = 0; i < n; i++ )
             {
-                widgetsManager.getWidget( i ).clearRegion( true, getOverlayTexture() );
+                widgetsConfig.getWidget( i ).clearRegion( true, getOverlayTexture() );
             }
             
-            ConfigurationLoader.forceLoadConfiguration( configFile, widgetsManager, gameData, presets, null );
+            ConfigurationLoader.forceLoadConfiguration( configFile, widgetsConfig, gameData, presets, null );
             
             currentConfigFile = configFile;
             
@@ -1079,7 +1026,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         try
         {
             EditorPanel ep = getEditorPanel();
-            ConfigurationSaver.saveConfiguration( getEditorPanel().getWidgetsDrawingManager(), gameResolution.getResolutionString(), ep.getGridOffsetX(), ep.getGridOffsetY(), ep.getGridSizeX(), ep.getGridSizeY(), currentConfigFile );
+            ConfigurationSaver.saveConfiguration( widgetsConfig, gameResolution.getResolutionString(), ep.getGridOffsetX(), ep.getGridOffsetY(), ep.getGridSizeX(), ep.getGridSizeY(), currentConfigFile );
             
             resetDirtyFlag();
             
@@ -1095,53 +1042,31 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     public File saveConfigAs()
     {
-        JFileChooser fc = new JFileChooser();
-        if ( currentConfigFile != null )
-        {
-            fc.setCurrentDirectory( currentConfigFile.getParentFile() );
-            fc.setSelectedFile( currentConfigFile );
-        }
-        else
-        {
-            fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
-            fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" ) );
-        }
+        SaveAsDialog sad = new SaveAsDialog( this );
+        sad.setSelectedFile( currentConfigFile );
         
-        fc.setMultiSelectionEnabled( false );
-        fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
-        fc.setFileFilter( new FileNameExtensionFilter( "ini files", "ini" ) );
+        sad.setVisible( true );
         
-        do
+        if ( sad.getSelectedFile() == null )
+            return ( null );
+        
+        currentConfigFile = sad.getSelectedFile();
+        
+        try
         {
-            if ( fc.showSaveDialog( window ) != JFileChooser.APPROVE_OPTION )
-                return ( null );
-            
-            if ( !fc.getSelectedFile().getName().endsWith( ".ini" ) )
-                fc.setSelectedFile( new File( fc.getSelectedFile().getAbsolutePath() + ".ini" ) );
-            
-            if ( fc.getSelectedFile().exists() )
-            {
-                int result = JOptionPane.showConfirmDialog( window, "Do you want to overwrite the existing file \"" + fc.getSelectedFile().getAbsolutePath() + "\"?", window.getTitle(), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
-                
-                if ( result == JOptionPane.CANCEL_OPTION )
-                    return ( null );
-                
-                if ( result == JOptionPane.YES_OPTION )
-                {
-                    break;
-                }
-            }
+            currentConfigFile.getParentFile().mkdirs();
         }
-        while ( fc.getSelectedFile().exists() );
-        
-        currentConfigFile = fc.getSelectedFile();
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
         
         saveConfig();
         
         return ( currentConfigFile );
     }
     
-    private void onCloseRequested()
+    public void onCloseRequested()
     {
         if ( getDirtyFlag() )
         {
@@ -1167,6 +1092,55 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         presetsWindow.dispose();
         getMainWindow().dispose();
         System.exit( 0 );
+    }
+    
+    public void snapSelectedWidgetToGrid()
+    {
+        Widget widget = getEditorPanel().getSelectedWidget();
+        if ( widget != null )
+        {
+            getEditorPanel().clearWidgetRegion( widget );
+            getEditorPanel().snapWidgetToGrid( widget );
+            onWidgetSelected( widget, false );
+            getEditorPanel().repaint();
+            setDirtyFlag();
+        }
+    }
+    
+    public void snapAllWidgetsToGrid()
+    {
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+            getEditorPanel().clearWidgetRegion( widgetsConfig.getWidget( i ) );
+        getEditorPanel().snapAllWidgetsToGrid();
+        onWidgetSelected( getEditorPanel().getSelectedWidget(), false );
+        getEditorPanel().repaint();
+        setDirtyFlag();
+    }
+    
+    public void removeSelectedWidget()
+    {
+        getEditorPanel().removeSelectedWidget();
+        onWidgetSelected( null, false );
+    }
+    
+    public void makeAllWidgetsUsePixels()
+    {
+        int result = JOptionPane.showConfirmDialog( getMainWindow(), "Do you really want to convert all Widgets' positions and sizes to be absolute pixels?", "Convert all Widgets' coordinates", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
+        if ( result == JOptionPane.YES_OPTION )
+        {
+            for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+                widgetsConfig.getWidget( i ).setAllPosAndSizeToPixels();
+        }
+    }
+    
+    public void makeAllWidgetsUsePercents()
+    {
+        int result = JOptionPane.showConfirmDialog( getMainWindow(), "Do you really want to convert all Widgets' positions and sizes to be percents?", "Convert all Widgets' coordinates", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
+        if ( result == JOptionPane.YES_OPTION )
+        {
+            for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+                widgetsConfig.getWidget( i ).setAllPosAndSizeToPercents();
+        }
     }
     
     private void copyPropertiesFromTemplate( List<Property> lstTemplate, List<Property> lstTarget )
@@ -1213,14 +1187,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         copyPropertiesFromTemplate( pcTemplate.getList(), pcTarget.getList() );
     }
     
-    private static Widget createWidgetInstance( Class<?> widgetClass, WidgetsConfiguration widgetsConfig ) throws InvocationTargetException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, NoSuchMethodException
+    public static Widget createWidgetInstance( Class<?> widgetClass, WidgetsConfiguration widgetsConfig ) throws InvocationTargetException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, NoSuchMethodException
     {
         String name = ( widgetsConfig != null ) ? widgetsConfig.findFreeName( widgetClass.getSimpleName() ) : "";
         
         return ( (Widget)widgetClass.getConstructor( String.class ).newInstance( name ) );
     }
     
-    private Widget addNewWidget( Class<?> widgetClazz )
+    public Widget addNewWidget( Class<?> widgetClazz )
     {
         Widget widget = null;
         
@@ -1229,9 +1203,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
             
             //widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
-            widget = createWidgetInstance( widgetClazz, getEditorPanel().getWidgetsDrawingManager() );
+            widget = createWidgetInstance( widgetClazz, widgetsConfig );
             copyPropertiesFromTemplate( widget );
-            getEditorPanel().getWidgetsDrawingManager().addWidget( widget );
+            widgetsConfig.addWidget( widget );
             if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
                 widget.setAllPosAndSizeToPercents();
             else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
@@ -1302,11 +1276,16 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( result );
     }
     
+    public boolean checkResolution( int resX, int resY )
+    {
+        return ( getBackgroundImageFile( resX, resY ).exists() );
+    }
+    
     public void switchToGameResolution( int resX, int resY )
     {
         BufferedImage backgroundImage = loadBackgroundImage( resX, resY );
-        __WCPrivilegedAccess.setGameResolution( resX, resY, editorPanel.getWidgetsDrawingManager() );
-        __WCPrivilegedAccess.setViewport( 0, 0, resX, resY, editorPanel.getWidgetsDrawingManager() );
+        __WCPrivilegedAccess.setGameResolution( resX, resY, widgetsConfig );
+        __WCPrivilegedAccess.setViewport( 0, 0, resX, resY, widgetsConfig );
         TransformableTexture overlayTexture = __RenderPrivilegedAccess.createMainTexture( resX, resY );
         
         editorPanel.setBackgroundImage( backgroundImage );
@@ -1330,7 +1309,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         switchToGameResolution( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() );
     }
     
-    private void showFullscreenPreview()
+    public void showFullscreenPreview()
     {
         Logger.log( "Showing fullscreen preview" );
         
@@ -1349,7 +1328,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         };
         p.setBackground( Color.BLACK );
         
-        DisplayMode dm = displayModes.get( gameResolution.getResolutionString() );
+        DisplayMode dm = AvailableDisplayModes.getDisplayMode( gameResolution.getResolutionString() );
         
         //boolean isSameMode = dm.equals( desktopDM );
         boolean isSameMode = ( ( dm.getWidth() == desktopDM.getWidth() ) && ( dm.getHeight() == desktopDM.getHeight() ) );
@@ -1472,7 +1451,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
-    private void takeScreenshot()
+    public void takeScreenshot()
     {
         EditorPanel editorPanel = getEditorPanel();
         
@@ -1527,741 +1506,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
-    private JMenu createFileMenu()
+    public void showPresetsWindow()
     {
-        JMenu menu = new JMenu( "File" );
-        menu.setDisplayedMnemonicIndex( 0 );
-        
-        JMenuItem open = new JMenuItem( "Open...", 0 );
-        open.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                openConfig();
-            }
-        } );
-        menu.add( open );
-        
-        menu.add( new JSeparator() );
-        
-        JMenuItem save = new JMenuItem( "Save", 0 );
-        save.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_S, InputEvent.CTRL_MASK ) );
-        save.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                saveConfig();
-            }
-        } );
-        menu.add( save );
-        
-        JMenuItem saveAs = new JMenuItem( "Save As...", 5 );
-        saveAs.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                saveConfigAs();
-            }
-        } );
-        menu.add( saveAs );
-        
-        menu.add( new JSeparator() );
-        
-        JMenuItem close = new JMenuItem( "Close", 0 );
-        close.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                onCloseRequested();
-            }
-        } );
-        menu.add( close );
-        
-        return ( menu );
+        presetsWindow.setVisible( true );
     }
     
-    private JMenuItem createSnapSelWidgetToGridMenu()
+    public void showHelpWindow()
     {
-        JMenuItem snapSelWidgetToGrid = new JMenuItem( "Snap selected Widget to grid" );
-        snapSelWidgetToGrid.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                Widget widget = getEditorPanel().getSelectedWidget();
-                if ( widget != null )
-                {
-                    getEditorPanel().clearWidgetRegion( widget );
-                    getEditorPanel().snapWidgetToGrid( widget );
-                    onWidgetSelected( widget, false );
-                    getEditorPanel().repaint();
-                    setDirtyFlag();
-                }
-            }
-        } );
-        
-        return ( snapSelWidgetToGrid );
-    }
-    
-    private JMenuItem createSnapAllWidgetsToGridMenu()
-    {
-        JMenuItem snapAllWidgetsToGrid = new JMenuItem( "Snap all Widgets to grid" );
-        snapAllWidgetsToGrid.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                for ( int i = 0; i < getEditorPanel().getWidgetsDrawingManager().getNumWidgets(); i++ )
-                    getEditorPanel().clearWidgetRegion( getEditorPanel().getWidgetsDrawingManager().getWidget( i ) );
-                getEditorPanel().snapAllWidgetsToGrid();
-                onWidgetSelected( getEditorPanel().getSelectedWidget(), false );
-                getEditorPanel().repaint();
-                setDirtyFlag();
-            }
-        } );
-        
-        return ( snapAllWidgetsToGrid );
-    }
-    
-    private JMenuItem createRemoveWidgetMenu()
-    {
-        JMenuItem removeItem = new JMenuItem( "Remove selected Widget (DEL)" );
-        //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
-        removeItem.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                getEditorPanel().removeSelectedWidget();
-                onWidgetSelected( null, false );
-            }
-        } );
-        
-        return ( removeItem );
-    }
-    
-    private JMenu createEditMenu()
-    {
-        JMenu menu = new JMenu( "Edit" );
-        menu.setDisplayedMnemonicIndex( 0 );
-        
-        final JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu();
-        menu.add( snapSelWidgetToGrid );
-        
-        final JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu();
-        menu.add( snapAllWidgetsToGrid );
-        
-        menu.addSeparator();
-        
-        final JMenuItem makeAllPixels = new JMenuItem( "Make all Widgets use Pixels" );
-        makeAllPixels.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                int result = JOptionPane.showConfirmDialog( getMainWindow(), "Do you really want to convert all Widgets' positions and sizes to be absolute pixels?", "Convert all Widgets' coordinates", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
-                if ( result == JOptionPane.YES_OPTION )
-                {
-                    WidgetsConfiguration wc = getEditorPanel().getWidgetsDrawingManager();
-                    for ( int i = 0; i < wc.getNumWidgets(); i++ )
-                        wc.getWidget( i ).setAllPosAndSizeToPixels();
-                }
-            }
-        } );
-        menu.add( makeAllPixels );
-        
-        final JMenuItem makeAllPercents = new JMenuItem( "Make all Widgets use Percents" );
-        makeAllPercents.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                int result = JOptionPane.showConfirmDialog( getMainWindow(), "Do you really want to convert all Widgets' positions and sizes to be percents?", "Convert all Widgets' coordinates", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
-                if ( result == JOptionPane.YES_OPTION )
-                {
-                    WidgetsConfiguration wc = getEditorPanel().getWidgetsDrawingManager();
-                    for ( int i = 0; i < wc.getNumWidgets(); i++ )
-                        wc.getWidget( i ).setAllPosAndSizeToPercents();
-                }
-            }
-        } );
-        menu.add( makeAllPercents );
-        
-        menu.addSeparator();
-        
-        final JMenuItem removeItem = createRemoveWidgetMenu();
-        menu.add( removeItem );
-        
-        menu.addMenuListener( new MenuListener()
-        {
-            @Override
-            public void menuSelected( MenuEvent e )
-            {
-                boolean hasSelected = ( getEditorPanel().getSelectedWidget() != null );
-                boolean hasWidgets = ( getEditorPanel().getWidgetsDrawingManager().getNumWidgets() > 0 );
-                
-                snapSelWidgetToGrid.setEnabled( hasSelected && getEditorPanel().isGridUsed() );
-                snapAllWidgetsToGrid.setEnabled( hasWidgets && getEditorPanel().isGridUsed() );
-                removeItem.setEnabled( hasSelected );
-                makeAllPixels.setEnabled( hasWidgets );
-                makeAllPercents.setEnabled( hasWidgets );
-            }
-            
-            @Override
-            public void menuDeselected( MenuEvent e )
-            {
-            }
-            
-            @Override
-            public void menuCanceled( MenuEvent e )
-            {
-            }
-        } );
-        
-        return ( menu );
-    }
-    
-    public void initContextMenu()
-    {
-        JPopupMenu menu = new JPopupMenu();
-        
-        JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu();
-        menu.add( snapSelWidgetToGrid );
-        
-        JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu();
-        menu.add( snapAllWidgetsToGrid );
-        
-        JMenuItem removeItem = createRemoveWidgetMenu();
-        menu.add( removeItem );
-        
-        boolean hasSelected = ( getEditorPanel().getSelectedWidget() != null );
-        boolean hasWidgets = ( getEditorPanel().getWidgetsDrawingManager().getNumWidgets() > 0 );
-        
-        snapSelWidgetToGrid.setEnabled( hasSelected && getEditorPanel().isGridUsed() );
-        snapAllWidgetsToGrid.setEnabled( hasWidgets && getEditorPanel().isGridUsed() );
-        removeItem.setEnabled( hasSelected );
-        
-        getEditorPanel().setComponentPopupMenu( menu );
-    }
-    
-    private JMenuItem createWidgetMenuItem( final Class<?> clazz )
-    {
-        //JMenuItem widgetMenuItem = new JMenuItem( clazz.getName() );
-        JMenuItem widgetMenuItem = new JCheckBoxMenuItem( clazz.getSimpleName() );
-        widgetMenuItem.setName( clazz.getName() );
-        widgetMenuItem.addActionListener( new ActionListener()
-        {
-            private final Class<?> widgetClazz = clazz;
-            
-            public void actionPerformed( ActionEvent e )
-            {
-                addNewWidget( widgetClazz );
-            }
-        } );
-        
-        return ( widgetMenuItem );
-    }
-    
-    /*
-    @SuppressWarnings( "unchecked" )
-    private void applyHierarchy( String[] path, int offset, HashMap<String, Object> map )
-    {
-        HashMap<String, Object> map2 = (HashMap<String, Object>)map.get( path[offset] );
-        if ( map2 == null )
-        {
-            map2 = new HashMap<String, Object>();
-            map.put( path[offset], map2 );
-        }
-        
-        if ( offset < path.length - 1 )
-        {
-            applyHierarchy( path, offset + 1, map2 );
-        }
-    }
-    
-    @SuppressWarnings( "unchecked" )
-    private void collapseSingleEntries( HashMap<String, Object> map )
-    {
-        ArrayList<String> keys = new ArrayList<String>( map.keySet() );
-        
-        for ( String key : keys )
-        {
-            HashMap<String, Object> map2 = (HashMap<String, Object>)map.get( key );
-            
-            if ( map2 != null )
-            {
-                if ( map2.size() == 1 )
-                {
-                    String key2 = map2.keySet().iterator().next();
-                    String newKey = key + "/" + key2;
-                }
-                else if ( map2.size() > 1 )
-                {
-                    collapseSingleEntries( map2 );
-                }
-            }
-        }
-    }
-    
-    private HashMap<String, Object> buildHierarchy( List<Class<?>> classes, HashMap<Class<?>, Widget> instances )
-    {
-        HashMap<String, Object> hierarchy = new HashMap<String, Object>();
-        
-        for ( Class<?> clazz : classes )
-        {
-            try
-            {
-                Widget widget = createWidgetInstance( clazz, null );
-                instances.put( clazz, widget );
-                String pkg = widget.getWidgetPackage();
-                
-                String[] path = pkg.split( "/" );
-                
-                applyHierarchy( path, 0, hierarchy );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-        
-        return ( hierarchy );
-    }
-    */
-    
-    private JMenu getMenu( JMenu parent, String[] pkg, int i )
-    {
-        for ( Component c : parent.getMenuComponents() )
-        {
-            if ( c instanceof JMenu )
-            {
-                JMenu m = (JMenu)c;
-                
-                if ( m.getText().equals( pkg[i] ) )
-                {
-                    if ( i < pkg.length - 1 )
-                        return ( getMenu( m, pkg, i + 1 ) );
-                    
-                    return ( m );
-                }
-            }
-        }
-        
-        JMenu m = new JMenu( pkg[i] );
-        parent.add( m );
-        
-        if ( i < pkg.length - 1 )
-            return ( getMenu( m, pkg, i + 1 ) );
-        
-        return ( m );
-    }
-    
-    private JMenu createWidgetsMenu()
-    {
-        JMenu menu = new JMenu( "Widgets" );
-        menu.setDisplayedMnemonicIndex( 0 );
-        
-        List<String> packages = PackageSearcher.findPackages( "*widgets*" );
-        List<Class<?>> classes = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ), packages.toArray( new String[ packages.size() ] ) );
-        
-        Collections.sort( classes, new Comparator< Class<?> >()
-        {
-            @Override
-            public int compare( Class<?> o1, Class<?> o2 )
-            {
-                return ( String.CASE_INSENSITIVE_ORDER.compare( o1.getSimpleName(), o2.getSimpleName() ) );
-            }
-        } );
-        
-        HashMap<Class<?>, Widget> instances = new HashMap<Class<?>, Widget>();
-        /*
-        HashMap<String, Object> hierarchy = buildHierarchy( classes, instances );
-        System.out.println( hierarchy );
-        for ( Class<?> clazz : classes )
-        {
-            Widget widget = instances.get( clazz );
-            String pkg = widget.getWidgetPackage();
-            
-            String[] path = pkg.split( "/" );
-            
-            applyHierarchy( path, 0, hierarchy );
-        }
-        */
-        
-        ArrayList<String> widgetPackages = new ArrayList<String>();
-        Iterator<Class<?>> it = classes.iterator();
-        while ( it.hasNext() )
-        {
-            Class<?> clazz = it.next();
-            
-            try
-            {
-                Widget widget = createWidgetInstance( clazz, null );
-                instances.put( clazz, widget );
-                widgetPackages.add( widget.getWidgetPackage() );
-            }
-            catch ( Throwable t )
-            {
-                it.remove();
-                Logger.log( "Error handling Widget class " + clazz.getName() + ":" );
-                Logger.log( t );
-            }
-        }
-        
-        Collections.sort( widgetPackages, String.CASE_INSENSITIVE_ORDER );
-        
-        for ( String widgetPackage : widgetPackages )
-        {
-            String[] pkg = widgetPackage.split( "/" );
-            
-            if ( ( pkg.length > 1 ) || !pkg[0].equals( "" ) )
-                getMenu( menu, pkg, 0 );
-        }
-        
-        it = classes.iterator();
-        while ( it.hasNext() )
-        {
-            Class<?> clazz = it.next();
-            
-            try
-            {
-                Widget widget = instances.get( clazz );
-                String[] pkg = widget.getWidgetPackage().split( "/" );
-                
-                if ( ( pkg.length == 1 ) && pkg[0].equals( "" ) )
-                    menu.add( createWidgetMenuItem( clazz ) );
-                else
-                    getMenu( menu, pkg, 0 ).add( createWidgetMenuItem( clazz ) );
-            }
-            catch ( Throwable t )
-            {
-                it.remove();
-                Logger.log( "Error handling Widget class " + clazz.getName() + ":" );
-                Logger.log( t );
-            }
-        }
-        
-        menu.addMenuListener( new MenuListener()
-        {
-            private void checkWidgetUsed( JMenuItem item )
-            {
-                if ( item instanceof JMenu )
-                {
-                    for ( Component mi : ( (JMenu)item ).getMenuComponents() )
-                    {
-                        if ( mi instanceof JMenuItem )
-                            checkWidgetUsed( (JMenuItem)mi );
-                    }
-                }
-                
-                item.setSelected( false );
-                
-                WidgetsConfiguration widgetsConfig = getEditorPanel().getWidgetsDrawingManager();
-                int n = widgetsConfig.getNumWidgets();
-                for ( int i = 0; i < n; i++ )
-                {
-                    if ( widgetsConfig.getWidget( i ).getClass().getName().equals( item.getName() ) )
-                    {
-                        item.setSelected( true );
-                        break;
-                    }
-                }
-            }
-            
-            @Override
-            public void menuSelected( MenuEvent e )
-            {
-                JMenu menu = (JMenu)e.getSource();
-                
-                for ( Component mi : menu.getMenuComponents() )
-                {
-                    if ( mi instanceof JMenuItem )
-                        checkWidgetUsed( (JMenuItem)mi );
-                }
-            }
-            
-            @Override
-            public void menuDeselected( MenuEvent e )
-            {
-            }
-            
-            @Override
-            public void menuCanceled( MenuEvent e )
-            {
-            }
-        } );
-        
-        return ( menu );
-    }
-    
-    private static class DM implements Comparable<DM>
-    {
-        private static final float sysA;
-        static
-        {
-            DisplayMode dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
-            
-            sysA = Math.round( (float)dm.getWidth() * 100f / (float)dm.getHeight() ) / 100f;
-        }
-        
-        public final int w;
-        public final int h;
-        public final float a;
-        
-        public int compareTo( DM o )
-        {
-            if ( this.a != o.a )
-            {
-                return ( Float.compare( Math.abs( this.a - sysA ), Math.abs( o.a - sysA ) ) );
-            }
-            
-            if ( this.w < o.w )
-                return ( -1 );
-            
-            if ( this.w > o.w )
-                return ( +1 );
-            
-            if ( this.h < o.h )
-                return ( -1 );
-            
-            if ( this.h > o.h )
-                return ( +1 );
-            
-            return ( 0 );
-        }
-        
-        @Override
-        public boolean equals( Object o )
-        {
-            if ( o == this )
-                return ( true );
-            
-            if ( !( o instanceof DM ) )
-                return ( false );
-            
-            return ( ( this.w == ( (DM)o ).w ) && ( this.h == ( (DM)o ).h ) );
-        }
-        
-        @Override
-        public int hashCode()
-        {
-            return ( ( ( w & 0xFFFF ) << 16 ) | ( ( h & 0xFFFF ) << 0 ) );
-        }
-        
-        public DM( int w, int h )
-        {
-            this.w = w;
-            this.h = h;
-            this.a = Math.round( (float)w * 100f / (float)h ) / 100f;
-        }
-    }
-    
-    private boolean checkResolution( int resX, int resY )
-    {
-        return ( getBackgroundImageFile( resX, resY ).exists() );
-    }
-    
-    private JMenu createResolutionsMenu()
-    {
-        JMenu resMenu = new JMenu( "Resolutions" );
-        resMenu.setDisplayedMnemonicIndex( 0 );
-        
-        HashSet<DM> set = new HashSet<DM>();
-        for ( DisplayMode dm : displayModes.values() )
-        {
-            set.add( new DM( dm.getWidth(), dm.getHeight() ) );
-        }
-        
-        DM[] array = new DM[ set.size() ];
-        int i = 0;
-        for ( DM dm : set )
-        {
-            array[i++] = dm;
-        }
-        Arrays.sort( array );
-        
-        float lastA = array[0].a;
-        JMenuItem item;
-        for ( DM dm : array )
-        {
-            if ( dm.a != lastA )
-            {
-                resMenu.add( new JSeparator() );
-                lastA = dm.a;
-            }
-            
-            final String resString = dm.w + "x" + dm.h;
-            
-            if ( !checkResolution( dm.w, dm.h ) )
-            {
-                item = new JMenuItem( resString + " [" + dm.a + "] (no screenshot available)" );
-                item.setName( dm.w + "x" + dm.h );
-                item.setEnabled( false );
-            }
-            else
-            {
-                item = new JCheckBoxMenuItem( resString + " [" + dm.a + "]" );
-                item.setName( dm.w + "x" + dm.h );
-                
-                item.setActionCommand( resString );
-                final DM dm2 = dm;
-                item.addActionListener( new ActionListener()
-                {
-                    public void actionPerformed( ActionEvent e )
-                    {
-                        Logger.log( "Switching to resolution " + dm2.w + "x" + dm2.h + "..." );
-                        
-                        switchToGameResolution( dm2.w, dm2.h );
-                    }
-                } );
-            }
-            
-            resMenu.add( item );
-        }
-        
-        resMenu.addMenuListener( new MenuListener()
-        {
-            @Override
-            public void menuSelected( MenuEvent e )
-            {
-                String resString = gameResolution.getResolutionString();
-                
-                JMenu menu = (JMenu)e.getSource();
-                
-                for ( Component mi : menu.getMenuComponents() )
-                {
-                    if ( mi instanceof JMenuItem )
-                        ( (JMenuItem)mi ).setSelected( resString.equals( mi.getName() ) );
-                }
-            }
-            
-            @Override
-            public void menuDeselected( MenuEvent e )
-            {
-            }
-            
-            @Override
-            public void menuCanceled( MenuEvent e )
-            {
-            }
-        } );
-        
-        return ( resMenu );
-    }
-    
-    private JMenu createToolsMenu()
-    {
-        JMenu menu = new JMenu( "Tools" );
-        menu.setDisplayedMnemonicIndex( 0 );
-        
-        JMenuItem previewItem = new JMenuItem( "Show fullscreen preview..." );
-        previewItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F11, 0 ) );
-        previewItem.addActionListener( new ActionListener()
-        {
-            private long lastWhen = -1L;
-            
-            public void actionPerformed( ActionEvent e )
-            {
-                if ( e.getWhen() < lastWhen + 1500L )
-                    return;
-                
-                showFullscreenPreview();
-                
-                lastWhen = e.getWhen();
-            }
-        } );
-        menu.add( previewItem );
-        
-        JMenuItem screenshotItem = new JMenuItem( "Take Screenshot" );
-        screenshotItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F12, 0 ) );
-        screenshotItem.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                takeScreenshot();
-            }
-        } );
-        menu.add( screenshotItem );
-        
-        menu.addSeparator();
-        
-        JMenuItem manangerItem = new JMenuItem( "Open Strategy Calculator..." );
-        manangerItem.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                StrategyTool.showStrategyTool( RFDynHUDEditor.this.window );
-            }
-        } );
-        menu.add( manangerItem );
-        
-        menu.addSeparator();
-        
-        JMenuItem inputMgrItem = new JMenuItem( "Open InputBindingsManager..." );
-        inputMgrItem.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                InputBindingsGUI.showInputBindingsGUI( RFDynHUDEditor.this );
-            }
-        } );
-        
-        menu.add( inputMgrItem );
-        
-        menu.addSeparator();
-        
-        JMenuItem optionsItem = new JMenuItem( "Editor Presets..." );
-        optionsItem.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                presetsWindow.setVisible( true );
-            }
-        } );
-        menu.add( optionsItem );
-        
-        return ( menu );
-    }
-    
-    private JMenu createHelpMenu()
-    {
-        JMenu menu = new JMenu( "Help" );
-        menu.setDisplayedMnemonicIndex( 0 );
-        
-        JMenuItem help = new JMenuItem( "Help" );
-        help.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( RFDynHUDEditor.this.window, alwaysShowHelpOnStartup ).getAlwaysShowOnStartup();
-            }
-        } );
-        
-        menu.add( help );
-        
-        menu.addSeparator();
-        
-        JMenuItem about = new JMenuItem( "About" );
-        about.addActionListener( new ActionListener()
-        {
-            public void actionPerformed( ActionEvent e )
-            {
-                AboutPage.showAboutPage( RFDynHUDEditor.this.window );
-            }
-        } );
-        
-        menu.add( about );
-        
-        return ( menu );
-    }
-    
-    private void createMenu()
-    {
-        JMenuBar menuBar = new JMenuBar();
-        
-        menuBar.add( createFileMenu() );
-        menuBar.add( createEditMenu() );
-        menuBar.add( createWidgetsMenu() );
-        menuBar.add( createResolutionsMenu() );
-        menuBar.add( createToolsMenu() );
-        menuBar.add( createHelpMenu() );
-        
-        window.setJMenuBar( menuBar );
+        alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( window, alwaysShowHelpOnStartup ).getAlwaysShowOnStartup();
     }
     
     private static void initTestGameData( LiveGameData gameData, EditorPresets editorPresets )
@@ -2296,15 +1548,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
-    private GameEventsManager eventsManager;
-    
     private EditorPanel createEditorPanel()
     {
         int[] resolution = loadResolutionFromUserSettings();
         
         WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( resolution[0], resolution[1] );
-        
-        eventsManager = new GameEventsManager( null, drawingManager );
+        this.widgetsConfig = drawingManager;
+        this.eventsManager = new GameEventsManager( null, drawingManager );
         this.gameData = new LiveGameData( drawingManager.getGameResolution(), eventsManager );
         __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
         eventsManager.setGameData( gameData );
@@ -2330,17 +1580,18 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
         
-        this.window = new EditorWindow( BASE_WINDOW_TITLE );
+        this.window = new JFrame( BASE_WINDOW_TITLE );
         
         window.setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
         
-        createMenu();
+        this.menuBar = new EditorMenuBar( this );
+        window.setJMenuBar( menuBar );
         
         Container contentPane = window.getContentPane();
         contentPane.setLayout( new BorderLayout() );
         
         this.editorPanel = createEditorPanel();
-        this.gameResolution = editorPanel.getWidgetsDrawingManager().getGameResolution();
+        this.gameResolution = widgetsConfig.getGameResolution();
         
         editorScrollPane = new JScrollPane( editorPanel );
         editorScrollPane.getHorizontalScrollBar().setUnitIncrement( 20 );
@@ -2437,7 +1688,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else
-                    ConfigurationLoader.loadFactoryDefaults( editor.getEditorPanel().getWidgetsDrawingManager(), editor.gameData, editor.presets, null );
+                    ConfigurationLoader.loadFactoryDefaults( editor.widgetsConfig, editor.gameData, editor.presets, null );
             }
             
             editor.eventsManager.onRealtimeEntered( editor.presets );

@@ -310,11 +310,6 @@ public class EditorPanel extends JPanel
         return ( overlay );
     }
     
-    public final WidgetsDrawingManager getWidgetsDrawingManager()
-    {
-        return ( drawingManager );
-    }
-    
     public void setSelectedWidget( Widget widget, boolean doubleClick )
     {
         boolean selectionChanged = ( widget != this.selectedWidget );
