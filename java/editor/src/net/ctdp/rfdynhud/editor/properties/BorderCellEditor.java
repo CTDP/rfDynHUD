@@ -2,7 +2,6 @@ package net.ctdp.rfdynhud.editor.properties;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
-import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -128,7 +127,7 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
             {
                 if ( prop != null )
                 {
-                    BorderSelector bs = new BorderSelector( new File( GameFileSystem.INSTANCE.getImagesFolder(), "borders" ) );
+                    BorderSelector bs = new BorderSelector( GameFileSystem.INSTANCE.getBordersFolder() );
                     //JFrame frame = (JFrame)button.getRootPane().getParent();
                     JFrame frame = (JFrame)table.getRootPane().getParent();
                     String selBorder = bs.showDialog( frame, prop.getWidget().getConfiguration(), (String)prop.getValue() );
