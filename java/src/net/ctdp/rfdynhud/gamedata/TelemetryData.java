@@ -30,81 +30,12 @@ public class TelemetryData
     static final float MPS_TO_KPH = 3.6f; // 3600f / 1000f
     static final float LITERS_TO_GALONS = 0.26417287f;
     
-    private static final int OFFSET_DELTA_TIME = 0;
-    private static final int OFFSET_LAP_NUMBER = OFFSET_DELTA_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAP_START_TIME = OFFSET_LAP_NUMBER + ByteUtil.SIZE_LONG;
-    private static final int OFFSET_VEHICLE_NAME = OFFSET_LAP_START_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int MAX_VEHICLE_NAME_LENGTH = 64;
-    private static final int OFFSET_TRACK_NAME = OFFSET_VEHICLE_NAME + MAX_VEHICLE_NAME_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int MAX_TRACK_NAME_LENGTH = 64;
-    
-    private static final int OFFSET_POSITION = OFFSET_TRACK_NAME + MAX_TRACK_NAME_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_LOCAL_VELOCITY = OFFSET_POSITION + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ACCELERATION = OFFSET_LOCAL_VELOCITY + ByteUtil.SIZE_VECTOR3;
-    
-    private static final int OFFSET_ORIENTATION_X = OFFSET_LOCAL_ACCELERATION + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_ORIENTATION_Y = OFFSET_ORIENTATION_X + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_ORIENTATION_Z = OFFSET_ORIENTATION_Y + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ROTATION = OFFSET_ORIENTATION_Z + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_LOCAL_ROTATION_ACCELERATION = OFFSET_LOCAL_ROTATION + ByteUtil.SIZE_VECTOR3;
-    
-    private static final int OFFSET_GEAR = OFFSET_LOCAL_ROTATION_ACCELERATION + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_ENGINE_RPM = OFFSET_GEAR + ByteUtil.SIZE_LONG;
-    private static final int OFFSET_ENGINE_WATER_TEMP = OFFSET_ENGINE_RPM + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_ENGINE_OIL_TEMP = OFFSET_ENGINE_WATER_TEMP + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_CLUTCH_RPM = OFFSET_ENGINE_OIL_TEMP + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_UNFILTERED_THROTTLE = OFFSET_CLUTCH_RPM + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_UNFILTERED_BRAKE = OFFSET_UNFILTERED_THROTTLE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_UNFILTERED_STEERING = OFFSET_UNFILTERED_BRAKE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_UNFILTERED_CLUTCH = OFFSET_UNFILTERED_STEERING + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_STEERING_ARM_FORCE = OFFSET_UNFILTERED_CLUTCH + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_FUEL = OFFSET_STEERING_ARM_FORCE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_ENGINE_MAX_RPM = OFFSET_FUEL + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_SCHEDULED_STOPS = OFFSET_ENGINE_MAX_RPM + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_OVERHEATING = OFFSET_SCHEDULED_STOPS + ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_DETACHED = OFFSET_OVERHEATING + ByteUtil.SIZE_BOOL;
-    private static final int OFFSET_DENT_SEVERITY = OFFSET_DETACHED + ByteUtil.SIZE_BOOL;
-    private static final int OFFSET_LAST_IMPACT_TIME = OFFSET_DENT_SEVERITY + 8 * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_LAST_IMPACT_MAGNITUDE = OFFSET_LAST_IMPACT_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAST_IMPACT_POSITION = OFFSET_LAST_IMPACT_MAGNITUDE + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_EXPANSION = OFFSET_LAST_IMPACT_POSITION + ByteUtil.SIZE_VECTOR3;
-    
-    private static final int OFFSET_WHEEL_DATA = OFFSET_EXPANSION + 64 * ByteUtil.SIZE_CHAR;
-    
-    private static final int OFFSET_WHEEL_ROTATION = 1;
-    private static final int OFFSET_WHEEL_SUSPENSION_DEFLECTION = OFFSET_WHEEL_ROTATION + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_RIDE_HEIGHT = OFFSET_WHEEL_SUSPENSION_DEFLECTION + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TIRE_LOAD = OFFSET_RIDE_HEIGHT + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LATERAL_FORCE = OFFSET_TIRE_LOAD + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_GRIP_FRACTION = OFFSET_LATERAL_FORCE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_BRAKE_TEMP = OFFSET_GRIP_FRACTION + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TIRE_PRESSURE = OFFSET_BRAKE_TEMP + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TIRE_TEMPERATURES = OFFSET_TIRE_PRESSURE + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_TIRE_WEAR = OFFSET_TIRE_TEMPERATURES + 3 * ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TERRAIN_NAME = OFFSET_TIRE_WEAR + ByteUtil.SIZE_FLOAT;
-    private static final int MAX_TERRAIN_NAME_LENGTH = 16;
-    private static final int OFFSET_SURFACE_TYPE = OFFSET_TERRAIN_NAME + MAX_TERRAIN_NAME_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_IS_WHEEL_FLAT = OFFSET_SURFACE_TYPE + ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_IS_WHEEL_DETACHED = OFFSET_IS_WHEEL_FLAT + ByteUtil.SIZE_BOOL;
-    
-    private static final int OFFSET_WHEEL_DATA_EXPENSION = OFFSET_IS_WHEEL_DETACHED + ByteUtil.SIZE_BOOL;
-    
-    private static final int WHEEL_DATA_SIZE = OFFSET_WHEEL_DATA_EXPENSION + 32 * ByteUtil.SIZE_CHAR;
-    
-    private static final int BUFFER_SIZE = OFFSET_WHEEL_DATA + ( 4 * WHEEL_DATA_SIZE );
-    
-    final byte[] buffer = new byte[ BUFFER_SIZE ];
+    final TelemetryDataCapsule data = new TelemetryDataCapsule();
     
     private boolean updatedInTimeScope = false;
     private long updateId = 0L;
     private long lastUpdateTimestamp = -1L;
     private long updateTimestamp = -1L;
-    private boolean sessionJustStarted = false;
     
     private final LiveGameData gameData;
     
@@ -122,12 +53,12 @@ public class TelemetryData
     float brakeDiscThicknessRL = 0.0f;
     float brakeDiscThicknessRR = 0.0f;
     
-    public static interface TelemetryDataUpdateListener
+    float fuelUsageLastLap = -1f;
+    float fuelUsageAverage = -1f;
+    
+    public static interface TelemetryDataUpdateListener extends LiveGameData.GameDataUpdateListener
     {
-        public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets );
-        public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets );
         public void onTelemetryDataUpdated( LiveGameData gameData, EditorPresets editorPresets );
-        public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets );
     }
     
     private TelemetryDataUpdateListener[] updateListeners = null;
@@ -140,11 +71,19 @@ public class TelemetryData
         }
         else
         {
+            for ( int i = 0; i < updateListeners.length; i++ )
+            {
+                if ( updateListeners[i] == l )
+                    return;
+            }
+            
             TelemetryDataUpdateListener[] tmp = new TelemetryDataUpdateListener[ updateListeners.length + 1 ];
             System.arraycopy( updateListeners, 0, tmp, 0, updateListeners.length );
             updateListeners = tmp;
             updateListeners[updateListeners.length - 1] = l;
         }
+        
+        gameData.registerListener( l );
     }
     
     public void unregisterListener( TelemetryDataUpdateListener l )
@@ -177,6 +116,8 @@ public class TelemetryData
         if ( index < updateListeners.length - 1 )
             System.arraycopy( updateListeners, index + 1, tmp, index, updateListeners.length - index - 1 );
         updateListeners = tmp;
+        
+        gameData.unregisterListener( l );
     }
     
     /**
@@ -185,7 +126,6 @@ public class TelemetryData
      */
     void onSessionStarted( EditorPresets editorPresets )
     {
-        this.sessionJustStarted = true;
         this.updatedInTimeScope = false;
         this.updateTimestamp = -1L;
     }
@@ -195,26 +135,14 @@ public class TelemetryData
         this.updatedInTimeScope = false;
     }
     
-    void onRealtimeEntered( EditorPresets editorPresets )
+    void onRealtimeEntered()
     {
         this.updatedInTimeScope = true;
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onRealtimeEntered( gameData, editorPresets );
-        }
     }
     
-    void onRealtimeExited( EditorPresets editorPresets )
+    void onRealtimeExited()
     {
         this.updatedInTimeScope = false;
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-                updateListeners[i].onRealtimeExited( gameData, editorPresets );
-        }
     }
     
     void prepareDataUpdate()
@@ -238,24 +166,13 @@ public class TelemetryData
             this.lastUpdateTimestamp = updateTimestamp;
             this.updateTimestamp = System.nanoTime();
             
-            float bmr = ByteUtil.readFloat( buffer, OFFSET_ENGINE_MAX_RPM );
+            float bmr = data.getEngineMaxRPM();
             bmr = gameData.getPhysics().getEngine().getRevLimitRange().limitValue( bmr );
             
             if ( bmr != engineBaseMaxRPM )
             {
                 // the car is controlled by the player but not the AI
                 this.engineBaseMaxRPM = bmr;
-            }
-            
-            if ( sessionJustStarted )
-            {
-                if ( updateListeners != null )
-                {
-                    for ( int i = 0; i < updateListeners.length; i++ )
-                        updateListeners[i].onSessionStarted( gameData, editorPresets );
-                }
-                
-                sessionJustStarted = false;
             }
             
             if ( updateListeners != null )
@@ -321,19 +238,7 @@ public class TelemetryData
     {
         prepareDataUpdate();
         
-        int offset = 0;
-        int bytesToRead = BUFFER_SIZE;
-        
-        while ( bytesToRead > 0 )
-        {
-            int n = in.read( buffer, offset, bytesToRead );
-            
-            if ( n < 0 )
-                throw new IOException();
-            
-            offset += n;
-            bytesToRead -= n;
-        }
+        data.loadFromStream( in );
         
         onDataUpdated( editorPresets );
     }
@@ -413,22 +318,32 @@ public class TelemetryData
         return ( 0f );
     }
     
-    /*
-     * ################################
-     * TelemInfoBase
-     * ################################
+    /**
+     * Gets the fuel usage of the last (timed) lap.
+     * 
+     * @return the fuel usage of the last (timed) lap.
      */
+    public final float getFuelUsageLastLap()
+    {
+        return ( fuelUsageLastLap );
+    }
     
-    // Time
+    /**
+     * Gets the average fuel usage of all recorded (timed) laps.
+     * 
+     * @return the average fuel usage of all recorded (timed) laps.
+     */
+    public final float getFuelUsageAverage()
+    {
+        return ( fuelUsageAverage );
+    }
     
     /**
      * time since last update (seconds)
      */
     public final float getDeltaTime()
     {
-        // float mDeltaTime
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_DELTA_TIME ) );
+        return ( data.getDeltaTime() );
     }
     
     /**
@@ -436,9 +351,7 @@ public class TelemetryData
      */
     public final int getCurrentLapNumber()
     {
-        // long mLapNumber
-        
-        return ( (int)ByteUtil.readLong( buffer, OFFSET_LAP_NUMBER ) );
+        return ( data.getCurrentLapNumber() );
     }
     
     /**
@@ -446,9 +359,7 @@ public class TelemetryData
      */
     public final float getLapStartET()
     {
-        // float mLapStartET
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAP_START_TIME ) );
+        return ( data.getLapStartET() );
     }
     
     /**
@@ -456,9 +367,7 @@ public class TelemetryData
      */
     public final String getVehicleName()
     {
-        // char mVehicleName[64]
-        
-        return ( ByteUtil.readString( buffer, OFFSET_VEHICLE_NAME, MAX_VEHICLE_NAME_LENGTH ) );
+        return ( data.getVehicleName() );
     }
     
     /**
@@ -466,12 +375,8 @@ public class TelemetryData
      */
     public final String getTrackName()
     {
-        // char mTrackName[64]
-        
-        return ( ByteUtil.readString( buffer, OFFSET_TRACK_NAME, MAX_TRACK_NAME_LENGTH ) );
+        return ( data.getTrackName() );
     }
-    
-    // Position and derivatives
     
     /**
      * world position in meters
@@ -480,11 +385,7 @@ public class TelemetryData
      */
     public final TelemVect3 getPosition( TelemVect3 position )
     {
-        // TelemVect3 mPos
-        
-        ByteUtil.readVector( buffer, OFFSET_POSITION, position );
-        
-        return ( position );
+        return ( data.getPosition( position ) );
     }
     
     /**
@@ -492,9 +393,7 @@ public class TelemetryData
      */
     public final float getPositionX()
     {
-        // TelemVect3 mPos
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 0 * ByteUtil.SIZE_FLOAT ) );
+        return ( data.getPositionX() );
     }
     
     /**
@@ -502,9 +401,7 @@ public class TelemetryData
      */
     public final float getPositionY()
     {
-        // TelemVect3 mPos
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 1 * ByteUtil.SIZE_FLOAT ) );
+        return ( data.getPositionY() );
     }
     
     /**
@@ -512,9 +409,7 @@ public class TelemetryData
      */
     public final float getPositionZ()
     {
-        // TelemVect3 mPos
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_POSITION + 2 * ByteUtil.SIZE_FLOAT ) );
+        return ( data.getPositionZ() );
     }
     
     /**
@@ -524,11 +419,7 @@ public class TelemetryData
      */
     public final TelemVect3 getLocalVelocity( TelemVect3 localVel )
     {
-        // TelemVect3 mLocalVel
-        
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_VELOCITY, localVel );
-        
-        return ( localVel );
+        return ( data.getLocalVelocity( localVel ) );
     }
     
     /**
@@ -536,11 +427,7 @@ public class TelemetryData
      */
     public final float getScalarVelocityMPS()
     {
-        float vecX = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 0 * ByteUtil.SIZE_FLOAT );
-        float vecY = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 1 * ByteUtil.SIZE_FLOAT );
-        float vecZ = ByteUtil.readFloat( buffer, OFFSET_LOCAL_VELOCITY + 2 * ByteUtil.SIZE_FLOAT );
-        
-        return ( (float)Math.sqrt( vecX * vecX + vecY * vecY + vecZ * vecZ ) );
+        return ( data.getScalarVelocity() );
     }
     
     /**
@@ -581,11 +468,7 @@ public class TelemetryData
      */
     public final TelemVect3 getLocalAcceleration( TelemVect3 localAccel )
     {
-        // TelemVect3 mLocalAccel
-        
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ACCELERATION, localAccel );
-        
-        return ( localAccel );
+        return ( data.getLocalAcceleration( localAccel ) );
     }
     
     /**
@@ -593,9 +476,7 @@ public class TelemetryData
      */
     public final float getLongitudinalAcceleration()
     {
-        // TelemVect3 mLocalAccel
-        
-        return ( -ByteUtil.readFloat( buffer, OFFSET_LOCAL_ACCELERATION + 2 * ByteUtil.SIZE_FLOAT ) );
+        return ( data.getLongitudinalAcceleration() );
     }
     
     /**
@@ -603,12 +484,8 @@ public class TelemetryData
      */
     public final float getLateralAcceleration()
     {
-        // TelemVect3 mLocalAccel
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_LOCAL_ACCELERATION + 0 * ByteUtil.SIZE_FLOAT ) );
+        return ( data.getLateralAcceleration() );
     }
-    
-    // Orientation and derivatives
     
     /**
      * top row of orientation matrix
@@ -619,11 +496,7 @@ public class TelemetryData
      */
     public final TelemVect3 getOrientationX( TelemVect3 oriX )
     {
-        // TelemVect3 mOriX
-        
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_X, oriX );
-        
-        return ( oriX );
+        return ( data.getOrientationX( oriX ) );
     }
     
     /**
@@ -635,11 +508,7 @@ public class TelemetryData
      */
     public final TelemVect3 getOrientationY( TelemVect3 oriY )
     {
-        // TelemVect3 mOriY
-        
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_Y, oriY );
-        
-        return ( oriY );
+        return ( data.getOrientationY( oriY ) );
     }
     
     /**
@@ -651,11 +520,7 @@ public class TelemetryData
      */
     public final TelemVect3 getOrientationZ( TelemVect3 oriZ )
     {
-        // TelemVect3 mOriZ
-        
-        ByteUtil.readVector( buffer, OFFSET_ORIENTATION_Z, oriZ );
-        
-        return ( oriZ );
+        return ( data.getOrientationZ( oriZ ) );
     }
     
     /**
@@ -665,11 +530,7 @@ public class TelemetryData
      */
     public final TelemVect3 getLocalRotation( TelemVect3 localRot )
     {
-        // TelemVect3 mLocalRot
-        
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ROTATION, localRot );
-        
-        return ( localRot );
+        return ( data.getLocalRotation( localRot ) );
     }
     
     /**
@@ -679,23 +540,15 @@ public class TelemetryData
      */
     public final TelemVect3 getLocalRotationalAcceleration( TelemVect3 localRotAccel )
     {
-        // TelemVect3 mLocalRotAccel
-        
-        ByteUtil.readVector( buffer, OFFSET_LOCAL_ROTATION_ACCELERATION, localRotAccel );
-        
-        return ( localRotAccel );
+        return ( data.getLocalRotationalAcceleration( localRotAccel ) );
     }
-    
-    // Vehicle status
     
     /**
      * -1=reverse, 0=neutral, 1+=forward gears
      */
     public final short getCurrentGear()
     {
-        // long mGear
-        
-        return ( (short)ByteUtil.readLong( buffer, OFFSET_GEAR ) );
+        return ( data.getCurrentGear() );
     }
     
     /**
@@ -703,9 +556,7 @@ public class TelemetryData
      */
     public final float getEngineRPM()
     {
-        // float mEngineRPM
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_ENGINE_RPM ) );
+        return ( data.getEngineRPM() );
     }
     
     /**
@@ -713,9 +564,7 @@ public class TelemetryData
      */
     public final float getEngineWaterTemperatureC()
     {
-        // float mEngineWaterTemp
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_ENGINE_WATER_TEMP ) );
+        return ( data.getEngineWaterTemperature() );
     }
     
     /**
@@ -746,9 +595,7 @@ public class TelemetryData
      */
     public final float getEngineOilTemperatureC()
     {
-        // float mEngineOilTemp
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_ENGINE_OIL_TEMP ) );
+        return ( data.getEngineOilTemperature() );
     }
     
     /**
@@ -779,21 +626,15 @@ public class TelemetryData
      */
     public final float getClutchRPM()
     {
-        // float mClutchRPM
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_CLUTCH_RPM ) );
+        return ( data.getClutchRPM() );
     }
-    
-    // Driver input
     
     /**
      * ranges  0.0-1.0
      */
     public final float getUnfilteredThrottle()
     {
-        // float mUnfilteredThrottle
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_UNFILTERED_THROTTLE ) );
+        return ( data.getUnfilteredThrottle() );
     }
     
     /**
@@ -801,9 +642,7 @@ public class TelemetryData
      */
     public final float getUnfilteredBrake()
     {
-        // float mUnfilteredBrake
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_UNFILTERED_BRAKE ) );
+        return ( data.getUnfilteredBrake() );
     }
     
     /**
@@ -811,9 +650,7 @@ public class TelemetryData
      */
     public final float getUnfilteredSteering()
     {
-        // float mUnfilteredSteering
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_UNFILTERED_STEERING ) );
+        return ( data.getUnfilteredSteering() );
     }
     
     /**
@@ -821,39 +658,23 @@ public class TelemetryData
      */
     public final float getUnfilteredClutch()
     {
-        // float mUnfilteredClutch
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_UNFILTERED_CLUTCH ) );
+        return ( data.getUnfilteredClutch() );
     }
-    
-    // Misc
     
     /**
      * force on steering arms
      */
     public final float getSteeringArmForce()
     {
-        // float mSteeringArmForce
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_STEERING_ARM_FORCE ) );
+        return ( data.getSteeringArmForce() );
     }
-    
-    /*
-     * ################################
-     * TelemInfoV2
-     * ################################
-     */
-    
-    // state/damage info
     
     /**
      * amount of fuel (liters)
      */
     public final float getFuelL()
     {
-        // float mFuel
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_FUEL ) );
+        return ( data.getFuel() );
     }
     
     /**
@@ -884,8 +705,6 @@ public class TelemetryData
      */
     public final float getEngineBaseMaxRPM()
     {
-        // float mEngineMaxRPM
-        
         return ( engineBaseMaxRPM );
     }
     
@@ -902,9 +721,7 @@ public class TelemetryData
      */
     public short getNumberOfScheduledPitstops()
     {
-        // unsigned char mScheduledStops
-        
-        return ( ByteUtil.readUnsignedByte( buffer, OFFSET_SCHEDULED_STOPS ) );
+        return ( data.getNumberOfScheduledPitstops() );
     }
     
     /**
@@ -912,9 +729,7 @@ public class TelemetryData
      */
     public final boolean isOverheating()
     {
-        // bool mOverheating
-        
-        return ( ByteUtil.readBoolean( buffer, OFFSET_OVERHEATING ) );
+        return ( data.isOverheating() );
     }
     
     /**
@@ -922,9 +737,7 @@ public class TelemetryData
      */
     public final boolean isAnythingDetached()
     {
-        // bool mDetached
-        
-        return ( ByteUtil.readBoolean( buffer, OFFSET_DETACHED ) );
+        return ( data.isAnythingDetached() );
     }
     
     /**
@@ -932,16 +745,7 @@ public class TelemetryData
      */
     public final short[] getDentSevirity()
     {
-        // unsigned char mDentSeverity[8]
-        
-        short[] result = new short[ 8 ];
-        
-        for ( int i = 0; i < result.length; i++ )
-        {
-            result[i] = ByteUtil.readUnsignedByte( buffer, OFFSET_DENT_SEVERITY + i * ByteUtil.SIZE_CHAR );
-        }
-        
-        return ( result );
+        return ( data.getDentSevirity() );
     }
     
     /**
@@ -949,9 +753,7 @@ public class TelemetryData
      */
     public final float getLastImpactTime()
     {
-        // float mLastImpactET
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAST_IMPACT_TIME ) );
+        return ( data.getLastImpactTime() );
     }
     
     /**
@@ -959,9 +761,7 @@ public class TelemetryData
      */
     public final float getLastImpactMagnitude()
     {
-        // float mLastImpactMagnitude
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAST_IMPACT_MAGNITUDE ) );
+        return ( data.getLastImpactMagnitude() );
     }
     
     /**
@@ -971,44 +771,15 @@ public class TelemetryData
      */
     public final TelemVect3 getLastImpactPosition( TelemVect3 lastImpactPos )
     {
-        // TelemVect3 mLastImpactPos
-        
-        ByteUtil.readVector( buffer, OFFSET_LAST_IMPACT_POSITION, lastImpactPos );
-        
-        return ( lastImpactPos );
+        return ( data.getLastImpactPosition( lastImpactPos ) );
     }
-    
-    // Future use
-    
-    //unsigned char mExpansion[64];
-    
-    /*
-     * ################################
-     * TelemWheelV2
-     * ################################
-     */
     
     /**
      * radians/sec
      */
     public final float getWheelRotation( Wheel wheel )
     {
-        // float mRotation
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_WHEEL_ROTATION ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_WHEEL_ROTATION ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_WHEEL_ROTATION ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_WHEEL_ROTATION ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getWheelRotation( wheel ) );
     }
     
     /**
@@ -1016,22 +787,7 @@ public class TelemetryData
      */
     public final float getWheelSuspensionDeflection( Wheel wheel )
     {
-        // float mSuspensionDeflection
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_WHEEL_SUSPENSION_DEFLECTION ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_WHEEL_SUSPENSION_DEFLECTION ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_WHEEL_SUSPENSION_DEFLECTION ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_WHEEL_SUSPENSION_DEFLECTION ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getWheelSuspensionDeflection( wheel ) );
     }
     
     /**
@@ -1039,22 +795,7 @@ public class TelemetryData
      */
     public final float getRideHeight( Wheel wheel )
     {
-        // float mRideHeight
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_RIDE_HEIGHT ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_RIDE_HEIGHT ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_RIDE_HEIGHT ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_RIDE_HEIGHT ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getRideHeight( wheel ) );
     }
     
     /**
@@ -1062,22 +803,7 @@ public class TelemetryData
      */
     public final float getTireLoad( Wheel wheel )
     {
-        // float mTireLoad
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_TIRE_LOAD ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_TIRE_LOAD ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_TIRE_LOAD ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_TIRE_LOAD ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getTireLoad( wheel ) );
     }
     
     /**
@@ -1085,22 +811,7 @@ public class TelemetryData
      */
     public final float getLateralForce( Wheel wheel )
     {
-        // float mLateralForce
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_LATERAL_FORCE ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_LATERAL_FORCE ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_LATERAL_FORCE ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_LATERAL_FORCE ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getLateralForce( wheel ) );
     }
     
     /**
@@ -1108,22 +819,7 @@ public class TelemetryData
      */
     public final float getGripFraction( Wheel wheel )
     {
-        // float mGripFract
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_GRIP_FRACTION ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_GRIP_FRACTION ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_GRIP_FRACTION ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_GRIP_FRACTION ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getGripFraction( wheel ) );
     }
     
     /**
@@ -1131,22 +827,7 @@ public class TelemetryData
      */
     public final float getBrakeTemperatureK( Wheel wheel )
     {
-        // float mBrakeTemp
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_BRAKE_TEMP ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_BRAKE_TEMP ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_BRAKE_TEMP ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_BRAKE_TEMP ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getBrakeTemperature( wheel ) );
     }
     
     /**
@@ -1189,22 +870,7 @@ public class TelemetryData
      */
     public final float getTirePressure( Wheel wheel )
     {
-        // float mPressure
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_TIRE_PRESSURE ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_TIRE_PRESSURE ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_TIRE_PRESSURE ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_TIRE_PRESSURE ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getTirePressure( wheel ) );
     }
     
     /**
@@ -1212,22 +878,7 @@ public class TelemetryData
      */
     public final float getTireTemperatureC( Wheel wheel, WheelPart part )
     {
-        // float mTemperature[3], left/center/right (not to be confused with inside/center/outside!)
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_TIRE_TEMPERATURES + part.getArrayIndexFL() * ByteUtil.SIZE_FLOAT ) + ZERO_KELVIN );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_TIRE_TEMPERATURES + part.getArrayIndexFR() * ByteUtil.SIZE_FLOAT ) + ZERO_KELVIN );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_TIRE_TEMPERATURES + part.getArrayIndexRL() * ByteUtil.SIZE_FLOAT ) + ZERO_KELVIN );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_TIRE_TEMPERATURES + part.getArrayIndexRR() * ByteUtil.SIZE_FLOAT ) + ZERO_KELVIN );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getTireTemperature( wheel, part ) + ZERO_KELVIN );
     }
     
     /**
@@ -1328,22 +979,7 @@ public class TelemetryData
      */
     public final float getTireWear( Wheel wheel )
     {
-        // float mWear
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_TIRE_WEAR ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_TIRE_WEAR ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_TIRE_WEAR ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readFloat( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_TIRE_WEAR ) );
-        }
-        
-        // Unreachable code!
-        return ( 0f );
+        return ( data.getTireWear( wheel ) );
     }
     
     /**
@@ -1351,22 +987,7 @@ public class TelemetryData
      */
     public final String getTerrainName( Wheel wheel )
     {
-        // char mTerrainName[16]
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, MAX_TERRAIN_NAME_LENGTH ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, MAX_TERRAIN_NAME_LENGTH ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, MAX_TERRAIN_NAME_LENGTH ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readString( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_TERRAIN_NAME, MAX_TERRAIN_NAME_LENGTH ) );
-        }
-        
-        // Unreachable code!
-        return ( null );
+        return ( data.getTerrainName( wheel ) );
     }
     
     /**
@@ -1374,22 +995,7 @@ public class TelemetryData
      */
     public final SurfaceType getSurfaceType( Wheel wheel )
     {
-        // unsigned char mSurfaceType
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( SurfaceType.getFromIndex( ByteUtil.readUnsignedByte( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_SURFACE_TYPE ) ) );
-            case FRONT_RIGHT:
-                return ( SurfaceType.getFromIndex( ByteUtil.readUnsignedByte( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_SURFACE_TYPE ) ) );
-            case REAR_LEFT:
-                return ( SurfaceType.getFromIndex( ByteUtil.readUnsignedByte( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_SURFACE_TYPE ) ) );
-            case REAR_RIGHT:
-                return ( SurfaceType.getFromIndex( ByteUtil.readUnsignedByte( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_SURFACE_TYPE ) ) );
-        }
-        
-        // Unreachable code!
-        return ( null );
+        return ( data.getSurfaceType( wheel ) );
     }
     
     /**
@@ -1397,22 +1003,7 @@ public class TelemetryData
      */
     public final boolean isWheelFlat( Wheel wheel )
     {
-        // bool mFlat
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readBoolean( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_IS_WHEEL_FLAT ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readBoolean( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_IS_WHEEL_FLAT ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readBoolean( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_IS_WHEEL_FLAT ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readBoolean( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_IS_WHEEL_FLAT ) );
-        }
-        
-        // Unreachable code!
-        return ( false );
+        return ( data.isWheelFlat( wheel ) );
     }
     
     /**
@@ -1420,22 +1011,7 @@ public class TelemetryData
      */
     public final boolean isWheelDetached( Wheel wheel )
     {
-        // bool mDetached
-        
-        switch ( wheel )
-        {
-            case FRONT_LEFT:
-                return ( ByteUtil.readBoolean( buffer, OFFSET_WHEEL_DATA + 0 * WHEEL_DATA_SIZE + OFFSET_IS_WHEEL_DETACHED ) );
-            case FRONT_RIGHT:
-                return ( ByteUtil.readBoolean( buffer, OFFSET_WHEEL_DATA + 1 * WHEEL_DATA_SIZE + OFFSET_IS_WHEEL_DETACHED ) );
-            case REAR_LEFT:
-                return ( ByteUtil.readBoolean( buffer, OFFSET_WHEEL_DATA + 2 * WHEEL_DATA_SIZE + OFFSET_IS_WHEEL_DETACHED ) );
-            case REAR_RIGHT:
-                return ( ByteUtil.readBoolean( buffer, OFFSET_WHEEL_DATA + 3 * WHEEL_DATA_SIZE + OFFSET_IS_WHEEL_DETACHED ) );
-        }
-        
-        // Unreachable code!
-        return ( false );
+        return ( data.isWheelDetached( wheel ) );
     }
     
     // future use

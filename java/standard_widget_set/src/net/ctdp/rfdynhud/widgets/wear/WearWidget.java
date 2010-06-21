@@ -143,6 +143,15 @@ public class WearWidget extends Widget
     private float engineLifetimeAtLapStart = -1f;
     private float engineLifetimeLossPerLap = -1f;
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVersion()
+    {
+        return ( composeVersion( 1, 1, 0 ) );
+    }
+    
     @Override
     public String getWidgetPackage()
     {

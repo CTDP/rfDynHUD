@@ -53,7 +53,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     {
         liveReset( scoringInfo );
         
-        firstValidTime = Long.MAX_VALUE;
+        firstValidTime = scoringInfo.getSessionNanos() + 3L * 1000000000L;
     }
     
     @Override
@@ -65,7 +65,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     @Override
     public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
-        firstValidTime = gameData.getScoringInfo().getSessionNanos() + 1L * 1000000000L;
+        firstValidTime = gameData.getScoringInfo().getSessionNanos() + 3L * 1000000000L;
     }
     
     /**
@@ -109,6 +109,9 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
             }
         }
     }
+    
+    @Override
+    public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
     
     @Override
     public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}

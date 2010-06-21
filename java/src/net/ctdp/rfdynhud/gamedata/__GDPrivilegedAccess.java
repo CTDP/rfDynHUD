@@ -18,6 +18,11 @@ public class __GDPrivilegedAccess
         return ( profileInfo.update() );
     }
     
+    public static final void updateModInfo( ModInfo modInfo )
+    {
+        modInfo.update();
+    }
+    
     public static final void updateTrackInfo( TrackInfo trackInfo )
     {
         trackInfo.update();
@@ -59,11 +64,6 @@ public class __GDPrivilegedAccess
         gameData.applyEditorPresets( editorPresets );
     }
     
-    public static final LaptimesRecorder getLaptimesRecorder( ScoringInfo scoringInfo )
-    {
-        return ( scoringInfo.getLaptimesRecorder() );
-    }
-    
     public static final void loadFromStream( InputStream in, TelemetryData telemetryData, EditorPresets editorPresets ) throws IOException
     {
         telemetryData.loadFromStream( in, editorPresets );
@@ -91,6 +91,11 @@ public class __GDPrivilegedAccess
         gameData.getSetup().onSessionStarted();
     }
     
+    public static final void onSessionStarted2( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        gameData.onSessionStarted2( editorPresets );
+    }
+    
     public static final void onSessionEnded( LiveGameData gameData )
     {
         gameData.getTelemetryData().onSessionEnded();
@@ -103,9 +108,9 @@ public class __GDPrivilegedAccess
         gameData.setRealtimeMode( realtimeMode, editorPresets );
     }
     
-    public static final void updateSessionTime( LiveGameData gameData, long timestamp )
+    public static final void updateSessionTime( LiveGameData gameData, EditorPresets editorPresets, long timestamp )
     {
-        gameData.gamePaused = gameData.getTelemetryData().checkGamePaused( timestamp );
+        gameData.setGamePaused( gameData.getTelemetryData().checkGamePaused( timestamp ), editorPresets );
         gameData.getScoringInfo().updateSessionTime( timestamp );
     }
     
@@ -134,5 +139,10 @@ public class __GDPrivilegedAccess
         vect.x = x;
         vect.y = y;
         vect.z = z;
+    }
+    
+    public static Float loadFuelUsageFromCache( final String modName, final String trackName, final String teamName )
+    {
+        return ( DataCache.loadFuelUsageFromCache( modName, trackName, teamName ) );
     }
 }

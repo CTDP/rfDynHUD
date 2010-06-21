@@ -8,9 +8,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -25,7 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import net.ctdp.rfdynhud.gamedata.FuelUsageRecorder;
+import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.gamedata.TrackInfo;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
@@ -177,23 +174,14 @@ public class StrategyTool
         frame.setVisible( false );
     }
     
-    private static float getInitialFuelUsage()
+    private static float getInitialFuelUsage( String modName, String trackName, String vehicleName )
     {
         try
         {
-            File f = FuelUsageRecorder.FUEL_USAGE_FILE;
+            Float cached = __GDPrivilegedAccess.loadFuelUsageFromCache( modName, trackName, vehicleName );
             
-            if ( f.exists() )
-            {
-                BufferedReader br = new BufferedReader( new FileReader( f ) );
-                String l = br.readLine();
-                br.close();
-                
-                if ( l != null )
-                {
-                    return ( Float.parseFloat( l.trim() ) );
-                }
-            }
+            if ( cached != null )
+                return ( cached.floatValue() );
         }
         catch ( Throwable t )
         {
@@ -206,6 +194,8 @@ public class StrategyTool
     {
         ProfileInfo profileInfo = new ProfileInfo();
         __GDPrivilegedAccess.updateProfileInfo( profileInfo );
+        ModInfo modInfo = new ModInfo( profileInfo );
+        __GDPrivilegedAccess.updateModInfo( modInfo );
         TrackInfo trackInfo = new TrackInfo( profileInfo );
         __GDPrivilegedAccess.updateTrackInfo( trackInfo );
         
@@ -297,7 +287,7 @@ public class StrategyTool
         JLabel lblAverageFuelUsage = new JLabel( "Average fuel usage:" );
         table.add( lblAverageFuelUsage );
         
-        txtAverageFuelUsage = new JTextField( String.valueOf( getInitialFuelUsage() ) );
+        txtAverageFuelUsage = new JTextField( String.valueOf( getInitialFuelUsage( modInfo.getName(), trackInfo.getTrackName(), profileInfo.getTeamName() ) ) );
         table.add( txtAverageFuelUsage );
         
         JLabel lblNumPitstops = new JLabel( "Number of pitstops:" );

@@ -83,6 +83,15 @@ public class StandingsWidget extends Widget
     
     private final float[] relTimes = new float[ 64 ];
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVersion()
+    {
+        return ( composeVersion( 1, 1, 0 ) );
+    }
+    
     @Override
     public String getWidgetPackage()
     {

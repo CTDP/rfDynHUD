@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
+import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -75,6 +76,15 @@ public class MiscWidget extends Widget
     private final Alignment[] timingAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT };
     private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
     private static final int padding = 4;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVersion()
+    {
+        return ( composeVersion( 1, 1, 0 ) );
+    }
     
     @Override
     public String getWidgetPackage()
@@ -296,11 +306,12 @@ public class MiscWidget extends Widget
             place.update( scoringInfo.getOwnPlace( getConfiguration().getUseClassScoring() ) );
             VehicleScoringInfo fastestLapVSI = scoringInfo.getFastestLapVSI();
             String fastestLapper = fastestLapVSI.getDriverNameShort();
-            fastestLap.update( fastestLapVSI.getBestLapTime() );
+            Laptime fl = fastestLapVSI.getFastestLaptime();
+            fastestLap.update( ( fl == null ) ? -1f : fl.getLapTime() );
             
             boolean colWidthsUpdated = false;
             
-            boolean lv = scoringInfo.getSessionType().isRace() || ( leaderVSI.getBestLapTime() > 0f );
+            boolean lv = scoringInfo.getSessionType().isRace() || ( leaderVSI.getFastestLaptime() != null );
             if ( needsCompleteRedraw || leaderID.hasChanged() || ( lv != leaderValid ) )
             {
                 leaderValid = lv;

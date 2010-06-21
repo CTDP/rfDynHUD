@@ -58,6 +58,15 @@ public class ControlsWidget extends Widget
     private TransformableTexture texBrake = null;
     private TransformableTexture texThrottle = null;
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVersion()
+    {
+        return ( composeVersion( 1, 0, 0 ) );
+    }
+    
     private void resetTransTexs()
     {
         texClutch = null;

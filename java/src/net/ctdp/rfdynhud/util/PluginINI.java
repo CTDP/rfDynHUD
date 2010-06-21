@@ -12,6 +12,8 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class PluginINI
 {
+    private static final File IDE_DATA_FOLDER = ResourceManager.isJarMode() ? null : new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ).getAbsoluteFile();
+    
     private final File pluginFolder;
     private final File iniFile;
     
@@ -19,11 +21,13 @@ public class PluginINI
     
     private String general_language = null;
     private File general_configFolder = null;
+    private File general_cacheFolder = null;
     
     private void reset()
     {
         general_language = null;
         general_configFolder = null;
+        general_cacheFolder = null;
     }
     
     private static String parsePath( String path )
@@ -63,13 +67,13 @@ public class PluginINI
         return ( path );
     }
     
-    private File getConfigFolder( String configPath )
+    private File getFolder( String name, String configPath, String fallback )
     {
         if ( !ResourceManager.isJarMode() )
-            return ( new File( new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ), "config" ).getAbsoluteFile() );
+            return ( new File( IDE_DATA_FOLDER, fallback ).getAbsoluteFile() );
         
         if ( configPath == null )
-            configPath = new File( pluginFolder, "config" ).getAbsolutePath();
+            configPath = new File( pluginFolder, fallback ).getAbsolutePath();
         
         configPath = parsePath( configPath );
         File f = new File( configPath );
@@ -78,7 +82,7 @@ public class PluginINI
         
         f = __UtilHelper.stripDotDots( f.getAbsolutePath() );
         
-        Logger.log( "Using config folder \"" + f.getAbsolutePath() + "\"." );
+        Logger.log( "Using " + name + " folder \"" + f.getAbsolutePath() + "\"." );
         
         try
         {
@@ -87,7 +91,7 @@ public class PluginINI
         catch ( Throwable t )
         {
             Logger.log( t );
-            Logger.log( "[ERROR] Config folder doesn't exist and couldn't create it." );
+            Logger.log( "[ERROR] The " + name + " folder doesn't exist and couldn't be created." );
         }
         
         return ( f );
@@ -118,7 +122,14 @@ public class PluginINI
                         }
                         else if ( key.equals( "configFolder" ) )
                         {
-                            general_configFolder = getConfigFolder( value );
+                            general_configFolder = getFolder( "config", value, "config" );
+                        }
+                        else if ( key.equals( "cacheFolder" ) )
+                        {
+                            if ( ( value == null ) || value.equals( "" ) )
+                                general_cacheFolder = null;
+                            else
+                                general_cacheFolder = getFolder( "cache", value, "cache" );
                         }
                     }
                     
@@ -156,6 +167,18 @@ public class PluginINI
         update();
         
         return ( general_configFolder );
+    }
+    
+    /**
+     * Gets the cacheFolder setting from GENERAL group.
+     * 
+     * @return the cacheFolder setting from GENERAL group.
+     */
+    public final File getGeneralCacheFolder()
+    {
+        update();
+        
+        return ( general_cacheFolder );
     }
     
     public PluginINI( File pluginFolder )

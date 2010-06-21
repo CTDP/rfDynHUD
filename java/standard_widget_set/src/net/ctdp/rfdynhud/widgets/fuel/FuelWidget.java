@@ -4,11 +4,9 @@ import java.awt.Color;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.gamedata.FuelUsageRecorder;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionLimit;
-import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
@@ -30,6 +28,7 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.IntValue;
+import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
@@ -170,8 +169,6 @@ public class FuelWidget extends Widget
     private DrawnString nextPitstopLapString = null;
     private DrawnString nextPitstopFuelString = null;
     
-    private int oldFuelRelevantLaps = -1;
-    
     private static final byte[] colorFuel = new byte[ 4 ];
     static
     {
@@ -200,9 +197,19 @@ public class FuelWidget extends Widget
     private int nextPitstopFuelLapsCorrection = 0;
     private final IntValue pitstopFuel = new IntValue( ValidityTest.GREATER_THAN, 0 );
     private final IntValue stintLengthV = new IntValue( ValidityTest.GREATER_THAN, 0 );
+    private final LongValue fuelUsage = new LongValue();
     
     private int oldFuel = -1;
     private float oldAverage = -1f;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVersion()
+    {
+        return ( composeVersion( 1, 1, 0 ) );
+    }
     
     @Override
     public String getWidgetPackage()
@@ -253,17 +260,6 @@ public class FuelWidget extends Widget
         
         fuelBarWidth.setWidthToPixels();
         fuelBarWidth.setHeightToPixels();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
-    {
-        super.onSessionStarted( sessionType, gameData, editorPresets );
-        
-        this.oldFuelRelevantLaps = -1;
     }
     
     private final boolean isLowFuelWaningUsed()
@@ -382,6 +378,7 @@ public class FuelWidget extends Widget
         this.pitstopFuel.reset();
         
         this.stintLengthV.reset();
+        this.fuelUsage.reset();
         this.oldFuel = -1;
         this.oldAverage = -1f;
     }
@@ -580,7 +577,8 @@ public class FuelWidget extends Widget
         
         final float fuel = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuel();
         final float fuelL = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuelL();
-        final float avgFuelUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getAverage();
+        final float avgFuelUsage = telemData.getFuelUsageAverage();
+        final float lastFuelUsage = telemData.getFuelUsageLastLap();
         final float stintLength = ( editorPresets == null ) ? vsi.getStintLength() : 5.2f;
         
         if ( isEditorMode )
@@ -661,32 +659,34 @@ public class FuelWidget extends Widget
         }
         
         stintLengthV.update( (int)stintLength );
-        int fuelRelevantLaps = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getFuelRelevantLaps();
+        fuelUsage.update( ( (long)Float.floatToIntBits( lastFuelUsage ) << 32 ) | (long)Float.floatToIntBits( avgFuelUsage ) );
         
-        if ( fuelRelevantLaps == 0 )
+        if ( needsCompleteRedraw || ( clock1 && fuelUsage.hasChanged() ) )
         {
-            if ( fuelRelevantLaps != oldFuelRelevantLaps )
+            if ( avgFuelUsage < 0f )
             {
-                fuelUsageLastLapString.draw( offsetX, offsetY, Loc.fuelUsageLastLap_na, backgroundColor, texture );
+                String string;
+                if ( lastFuelUsage > 0f )
+                    string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + getFuelUnits( measurementUnits );
+                else
+                    string = Loc.fuelUsageLastLap_na;
+                fuelUsageLastLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                
                 fuelUsageAvgString.draw( offsetX, offsetY, Loc.fuelUsageAvg_na, backgroundColor, texture );
             }
-        }
-        else if ( needsCompleteRedraw || stintLengthV.hasChanged() )
-        {
-            float lastFuelUsage = FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.getLastLap();
-            
-            String string;
-            if ( lastFuelUsage > 0f )
-                string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + getFuelUnits( measurementUnits );
             else
-                string = Loc.fuelUsageLastLap_na;
-            fuelUsageLastLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
-            
-            string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + getFuelUnits( measurementUnits );
-            fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, texture );
+            {
+                String string;
+                if ( lastFuelUsage > 0f )
+                    string = NumberUtil.formatFloat( lastFuelUsage, 2, true ) + getFuelUnits( measurementUnits );
+                else
+                    string = Loc.fuelUsageLastLap_na;
+                fuelUsageLastLapString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                
+                string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + getFuelUnits( measurementUnits );
+                fuelUsageAvgString.draw( offsetX, offsetY, string, backgroundColor, texture );
+            }
         }
-        
-        this.oldFuelRelevantLaps = fuelRelevantLaps;
         
         if ( needsCompleteRedraw )
         {

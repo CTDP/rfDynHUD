@@ -166,7 +166,7 @@ public class RFDynHUD
             boolean newConfig = ( drawingManager.getId() != lastConfigId );
             lastConfigId = drawingManager.getId();
             
-            __GDPrivilegedAccess.updateSessionTime( gameData, System.nanoTime() );
+            __GDPrivilegedAccess.updateSessionTime( gameData, null, System.nanoTime() );
             
             drawingManager.refreshSubTextureBuffer( false, gameData, newConfig );
             

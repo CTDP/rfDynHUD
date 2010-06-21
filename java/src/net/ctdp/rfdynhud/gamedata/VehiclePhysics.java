@@ -1909,7 +1909,7 @@ public class VehiclePhysics
     void loadFromPhysicsFiles( ProfileInfo profileInfo, TrackInfo trackInfo )
     {
         File cchFile = profileInfo.getCCHFile();
-    	String playerVEHFile = profileInfo.getPlayerVEHFile();
+    	String playerVEHFile = profileInfo.getVehicleFile();
     	
     	try
     	{

@@ -41,7 +41,8 @@ public class ProfileInfo
     private long updateId = 0L;
     
     private String modName = null;
-    private String vehName = null;
+    private String vehFilename = null;
+    private String teamName = null;
     private File lastUsedTrackFile = null;
     private Float multiRaceLength = null;
     private Boolean showCurrentLap = null;
@@ -84,7 +85,8 @@ public class ProfileInfo
         plrFile = null;
         
         modName = null;
-        vehName = null;
+        vehFilename = null;
+        teamName = null;
         lastUsedTrackFile = null;
         multiRaceLength = null;
         showCurrentLap = null;
@@ -146,7 +148,11 @@ public class ProfileInfo
                         }
                         else if ( key.equalsIgnoreCase( "Vehicle File" ) )
                         {
-                            vehName = value;
+                            vehFilename = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "Team" ) )
+                        {
+                            teamName = value;
                         }
                     }
                     else if ( group.equalsIgnoreCase( "Game Options" ) )
@@ -248,9 +254,14 @@ public class ProfileInfo
         return ( modName );
     }
     
-    public final String getPlayerVEHFile()
+    public final String getVehicleFile()
     {
-        return ( vehName );
+        return ( vehFilename );
+    }
+    
+    public final String getTeamName()
+    {
+        return ( teamName );
     }
     
     final File getLastUsedSceneFile()

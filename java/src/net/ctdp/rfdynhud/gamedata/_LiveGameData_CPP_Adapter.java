@@ -15,7 +15,7 @@ public class _LiveGameData_CPP_Adapter
     
     public final byte[] getTelemetryBuffer()
     {
-        return ( gameData.getTelemetryData().buffer );
+        return ( gameData.getTelemetryData().data.getBuffer() );
     }
     
     public void notifyTelemetryUpdated()
@@ -33,7 +33,7 @@ public class _LiveGameData_CPP_Adapter
     
     public final byte[] getScoringInfoBuffer()
     {
-        return ( gameData.getScoringInfo().buffer );
+        return ( gameData.getScoringInfo().data.getBuffer() );
     }
     
     public void initVehicleScoringInfo()
@@ -71,7 +71,7 @@ public class _LiveGameData_CPP_Adapter
     
     public final byte[] getGraphicsInfoBuffer()
     {
-        return ( gameData.getGraphicsInfo().buffer );
+        return ( gameData.getGraphicsInfo().data.getBuffer() );
     }
     
     public void notifyGraphicsInfoUpdated()
@@ -89,7 +89,7 @@ public class _LiveGameData_CPP_Adapter
     
     public final byte[] getCommentaryInfoBuffer()
     {
-        return ( gameData.getCommentaryRequestInfo().buffer );
+        return ( gameData.getCommentaryRequestInfo().data.getBuffer() );
     }
     
     public void notifyCommentaryInfoUpdated()

@@ -34,6 +34,8 @@ public class VehicleScoringInfo
     private int classId = 0;
     private Integer classID = null;
     
+    private String vehicleName = null;
+    
     short placeByClass = -1;
     int numVehiclesInClass = -1;
     float timeBehindNextByClass = 0f;
@@ -101,6 +103,8 @@ public class VehicleScoringInfo
         vehClass = null;
         classId = 0;
         classID = null;
+        
+        vehicleName = null;
         
         oldLap = lap;
         lap = getLapsCompleted() + 1;
@@ -280,8 +284,13 @@ public class VehicleScoringInfo
      * vehicle name
      */
     public final String getVehicleName()
-    {
-        return ( data.getVehicleName() );
+    {   
+        if ( vehicleName == null )
+        {
+            vehicleName = data.getVehicleName();
+        }
+        
+        return ( vehicleName );
     }
     
     /**
@@ -495,6 +504,17 @@ public class VehicleScoringInfo
      */
     public final Laptime getFastestLaptime()
     {
+        if ( isPlayer() )
+        {
+            Laptime cached = DataCache.INSTANCE.getFastestLaptime( profileInfo.getTeamName() );
+            
+            if ( cached == null )
+                return ( fastestLaptime );
+            
+            if ( ( fastestLaptime == null ) || ( cached.getLapTime() < fastestLaptime.getLapTime() ) )
+                return ( cached );
+        }
+        
         return ( fastestLaptime );
     }
     
@@ -646,8 +666,10 @@ public class VehicleScoringInfo
      */
     public final float getCurrentLaptime()
     {
+        /*
         if ( getStintLength() < 1.0f )
             return ( -1f );
+        */
         
         if ( !scoringInfo.getSessionType().isRace() && ( getStintLength() < 1.0f ) )
             return ( -1f );

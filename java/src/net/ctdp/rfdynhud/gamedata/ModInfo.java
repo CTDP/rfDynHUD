@@ -98,7 +98,7 @@ public class ModInfo
         return ( maxOpponents );
     }
     
-    ModInfo( ProfileInfo profileInfo )
+    public ModInfo( ProfileInfo profileInfo )
     {
         this.profileInfo = profileInfo;
     }

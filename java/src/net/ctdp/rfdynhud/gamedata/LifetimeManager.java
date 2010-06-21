@@ -256,6 +256,9 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     }
     
     @Override
+    public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
+    
+    @Override
     public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
     
     LifetimeManager()

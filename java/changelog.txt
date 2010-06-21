@@ -34,6 +34,7 @@ Major:
 * Rev limit from setup is now used. This enables you to actually use rev markes fixed in the background image.
 * Digital max revs in RevMeterWidget can now be boost level dependent.
 * Added pause detection.
+* Added a data cache to restore fuel usage and fastest lap times per mod, car and track.
 
 Minor:
 
@@ -60,7 +61,6 @@ TODO:
 
 * Select Widget in background
 * Make widget selection menues nicer
-* Cache: Fuel usage, Laptimes per car
 * Draw sub textures in editor (clickable?)
 * Add RideHeightWidget
 * Add TinyWidgets: Velocity, Place, Lap, etc.

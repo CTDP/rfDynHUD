@@ -18,6 +18,8 @@ public abstract class GameFileSystem
     private final String gamePath;
     private final File configFolder;
     private final String configPath;
+    private final File cacheFolder;
+    private final String cachePath;
     private final File bordersFolder;
     private final String bordersPath;
     private final File imagesFolder;
@@ -55,6 +57,17 @@ public abstract class GameFileSystem
     protected File findConfigFolder( File pluginFolder, PluginINI pluginINI )
     {
         return ( pluginINI.getGeneralConfigFolder() );
+    }
+    
+    /**
+     * 
+     * @param pluginFolder
+     * @param pluginINI
+     * @return
+     */
+    protected File findCacheFolder( File pluginFolder, PluginINI pluginINI )
+    {
+        return ( pluginINI.getGeneralCacheFolder() );
     }
     
     /**
@@ -135,6 +148,16 @@ public abstract class GameFileSystem
         return ( configPath );
     }
     
+    public final File getCacheFolder()
+    {
+        return ( cacheFolder );
+    }
+    
+    public final String getCachePath()
+    {
+        return ( cachePath );
+    }
+    
     public final File getBordersFolder()
     {
         return ( bordersFolder );
@@ -186,6 +209,9 @@ public abstract class GameFileSystem
         
         this.bordersFolder = findBordersFolder( pluginFolder, pluginINI, configFolder );
         this.bordersPath = bordersFolder.getAbsolutePath();
+        
+        this.cacheFolder = findCacheFolder( pluginFolder, pluginINI );
+        this.cachePath = ( cacheFolder == null ) ? null : cacheFolder.getAbsolutePath();
         
         this.imagesFolder = findImagesFolder( pluginFolder, pluginINI, configFolder );
         this.imagesPath = imagesFolder.getAbsolutePath();

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 
-public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
+class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
     @Override
     public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets ) {}
@@ -235,5 +235,14 @@ public class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     }
     
     @Override
+    public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
+    
+    @Override
     public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
+    
+    private LaptimesRecorder()
+    {
+    }
+    
+    static final LaptimesRecorder INSTANCE = new LaptimesRecorder();
 }

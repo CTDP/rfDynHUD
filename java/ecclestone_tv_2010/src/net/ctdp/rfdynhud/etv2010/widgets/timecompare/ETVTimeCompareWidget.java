@@ -72,6 +72,15 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     private short decisionPlace = 0;
     private float hideTime = -1f;
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVersion()
+    {
+        return ( composeVersion( 1, 0, 0 ) );
+    }
+    
     private final boolean getUseClassScoring()
     {
         return ( getConfiguration().getUseClassScoring() );

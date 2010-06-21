@@ -1,6 +1,7 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.GameResolution;
 
 /**
@@ -12,7 +13,7 @@ public class LiveGameData
 {
     private final GameResolution gameResolution;
     
-    boolean gamePaused = false;
+    private boolean gamePaused = false;
     private boolean realtimeMode = false;
     
     private final VehiclePhysics physics = new VehiclePhysics();
@@ -27,9 +28,95 @@ public class LiveGameData
     private final ModInfo modInfo;
     private final TrackInfo trackInfo;
     
+    public static interface GameDataUpdateListener
+    {
+        public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets );
+        public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets );
+        public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused );
+        public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets );
+    }
+    
+    private GameDataUpdateListener[] updateListeners = null;
+    
+    public void registerListener( GameDataUpdateListener l )
+    {
+        if ( updateListeners == null )
+        {
+            updateListeners = new GameDataUpdateListener[] { l };
+        }
+        else
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+            {
+                if ( updateListeners[i] == l )
+                    return;
+            }
+            
+            GameDataUpdateListener[] tmp = new GameDataUpdateListener[ updateListeners.length + 1 ];
+            System.arraycopy( updateListeners, 0, tmp, 0, updateListeners.length );
+            updateListeners = tmp;
+            updateListeners[updateListeners.length - 1] = l;
+        }
+    }
+    
+    public void unregisterListener( GameDataUpdateListener l )
+    {
+        if ( updateListeners == null )
+            return;
+        
+        int index = -1;
+        for ( int i = 0; i < updateListeners.length; i++ )
+        {
+            if ( updateListeners[i] == l )
+            {
+                index = i;
+                break;
+            }
+        }
+        
+        if ( index < 0 )
+            return;
+        
+        if ( updateListeners.length == 1 )
+        {
+            updateListeners = null;
+            return;
+        }
+        
+        GameDataUpdateListener[] tmp = new GameDataUpdateListener[ updateListeners.length - 1 ];
+        if ( index > 0 )
+            System.arraycopy( updateListeners, 0, tmp, 0, index );
+        if ( index < updateListeners.length - 1 )
+            System.arraycopy( updateListeners, index + 1, tmp, index, updateListeners.length - index - 1 );
+        updateListeners = tmp;
+    }
+    
     public final GameResolution getGameResolution()
     {
         return ( gameResolution );
+    }
+    
+    void setGamePaused( boolean paused, EditorPresets editorPresets )
+    {
+        if ( paused == this.gamePaused )
+            return;
+        
+        this.gamePaused = paused;
+        
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+            {
+                try
+                {
+                    updateListeners[i].onGamePauseStateChanged( this, editorPresets, paused );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
+            }
+        }
     }
     
     /**
@@ -43,6 +130,24 @@ public class LiveGameData
         return ( gamePaused );
     }
     
+    void onSessionStarted2( EditorPresets editorPresets )
+    {
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+            {
+                try
+                {
+                    updateListeners[i].onSessionStarted( this, editorPresets );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
+            }
+        }
+    }
+    
     void setRealtimeMode( boolean realtimeMode, EditorPresets editorPresets )
     {
         boolean was = this.realtimeMode;
@@ -51,14 +156,44 @@ public class LiveGameData
         
         if ( !was && realtimeMode )
         {
-            getTelemetryData().onRealtimeEntered( editorPresets );
-            getScoringInfo().onRealtimeEntered( editorPresets );
+            if ( updateListeners != null )
+            {
+                for ( int i = 0; i < updateListeners.length; i++ )
+                {
+                    try
+                    {
+                        updateListeners[i].onRealtimeEntered( this, editorPresets );
+                    }
+                    catch ( Throwable t )
+                    {
+                        Logger.log( t );
+                    }
+                }
+            }
+            
+            getTelemetryData().onRealtimeEntered();
+            getScoringInfo().onRealtimeEntered();
             getSetup().onRealtimeEntered();
         }
         else if ( was && !realtimeMode )
         {
-            getTelemetryData().onRealtimeExited( editorPresets );
-            getScoringInfo().onRealtimeExited( editorPresets );
+            if ( updateListeners != null )
+            {
+                for ( int i = 0; i < updateListeners.length; i++ )
+                {
+                    try
+                    {
+                        updateListeners[i].onRealtimeExited( this, editorPresets );
+                    }
+                    catch ( Throwable t )
+                    {
+                        Logger.log( t );
+                    }
+                }
+            }
+            
+            getTelemetryData().onRealtimeExited();
+            getScoringInfo().onRealtimeExited();
             getSetup().onRealtimeExited();
         }
     }
@@ -127,6 +262,8 @@ public class LiveGameData
     
     public LiveGameData( GameResolution gameResolution, GameEventsManager eventsManager )
     {
+        registerListener( DataCache.INSTANCE );
+        
         this.gameResolution = gameResolution;
         this.telemetryData = new TelemetryData( this, eventsManager );
         this.scoringInfo = new ScoringInfo( this, eventsManager );

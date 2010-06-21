@@ -511,6 +511,8 @@ public class GameEventsManager implements ConfigurationClearListener
         {
             isInGarage = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
             
+            __GDPrivilegedAccess.onSessionStarted2( gameData, editorPresets );
+            
             if ( !gameData.isInRealtimeMode() && sessionJustStarted )
             {
                 String modName = gameData.getModInfo().getName();

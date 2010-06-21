@@ -106,5 +106,7 @@ public class Laptime
         this.isOutLap = isOutLap;
         this.isInLap = isInLap;
         this.finished = finished;
+        
+        updateLaptimeFromSectors();
     }
 }

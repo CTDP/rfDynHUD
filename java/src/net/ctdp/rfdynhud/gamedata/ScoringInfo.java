@@ -15,48 +15,7 @@ import net.ctdp.rfdynhud.util.Logger;
  */
 public class ScoringInfo
 {
-    private static final int OFFSET_TRACK_NAME = 0;
-    private static final int MAX_TRACK_NAME_LENGTH = 64;
-    private static final int OFFSET_SESSION_TYPE = OFFSET_TRACK_NAME + MAX_TRACK_NAME_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_CURRENT_TIME = OFFSET_SESSION_TYPE + ByteUtil.SIZE_LONG;
-    private static final int OFFSET_END_TIME = OFFSET_CURRENT_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_MAX_LAPS = OFFSET_END_TIME + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_LAP_DISTANCE = OFFSET_MAX_LAPS + ByteUtil.SIZE_LONG;
-    
-    private static final int OFFSET_RESULTS_STREAM = OFFSET_LAP_DISTANCE + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_NUM_VEHICLES = OFFSET_RESULTS_STREAM + ByteUtil.SIZE_POINTER; // Is it just the pointer to be offsetted or the whole stream???
-    
-    private static final int OFFSET_GAME_PHASE = OFFSET_NUM_VEHICLES + ByteUtil.SIZE_LONG;
-    private static final int OFFSET_YELLOW_FLAG_STATE = OFFSET_GAME_PHASE + ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_SECTOR_FLAGS = OFFSET_YELLOW_FLAG_STATE + ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_STARTING_LIGHT_FRAME = OFFSET_SECTOR_FLAGS + 3 * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_NUM_RED_LIGHTS = OFFSET_STARTING_LIGHT_FRAME + ByteUtil.SIZE_CHAR;
-    
-    private static final int OFFSET_IN_REALTIME = OFFSET_NUM_RED_LIGHTS + ByteUtil.SIZE_CHAR;
-    
-    private static final int OFFSET_PLAYER_NAME = OFFSET_IN_REALTIME + ByteUtil.SIZE_BOOL;
-    private static final int MAX_PLAYER_NAME_LENGTH = 32;
-    private static final int OFFSET_PLAYER_FILENAME = OFFSET_PLAYER_NAME + MAX_PLAYER_NAME_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int MAX_PLAYER_FILENAME_LENGTH = 64;
-    
-    private static final int OFFSET_CLOUD_DARKNESS = OFFSET_PLAYER_FILENAME + MAX_PLAYER_FILENAME_LENGTH * ByteUtil.SIZE_CHAR;
-    private static final int OFFSET_RAINING_SEVERITIY = OFFSET_CLOUD_DARKNESS + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_AMBIENT_TEMPERATURE = OFFSET_RAINING_SEVERITIY + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_TRACK_TEMPERATURE = OFFSET_AMBIENT_TEMPERATURE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_WIND_SPEED = OFFSET_TRACK_TEMPERATURE + ByteUtil.SIZE_FLOAT;
-    private static final int OFFSET_ON_PATH_WETNESS = OFFSET_WIND_SPEED + ByteUtil.SIZE_VECTOR3;
-    private static final int OFFSET_OFF_PATH_WETNESS = OFFSET_ON_PATH_WETNESS + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_EXPANSION = OFFSET_OFF_PATH_WETNESS + ByteUtil.SIZE_FLOAT;
-    
-    private static final int OFFSET_VEHICLES = OFFSET_EXPANSION + ( 256 * ByteUtil.SIZE_CHAR );
-    
-    private static final int BUFFER_SIZE = OFFSET_VEHICLES + ByteUtil.SIZE_FLOAT /*+ ( 256 * ByteUtil.SIZE_CHAR )*/; // + ( 1 * VehicleScoringInfo.BUFFER_SIZE ); // How many vehicles?
-    
-    final byte[] buffer = new byte[ BUFFER_SIZE ];
-    
-    //private final HashSet<String> lastKnownDriverNames = new HashSet<String>();
+    final ScoringInfoCapsule data = new ScoringInfoCapsule();
     
     private final LiveGameData gameData;
     
@@ -83,12 +42,9 @@ public class ScoringInfo
     
     private boolean classScoringCalculated = false;
     
-    public static interface ScoringInfoUpdateListener
+    public static interface ScoringInfoUpdateListener extends LiveGameData.GameDataUpdateListener
     {
-        public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets );
-        public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets );
         public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets );
-        public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets );
     }
     
     private ScoringInfoUpdateListener[] updateListeners = null;
@@ -101,11 +57,19 @@ public class ScoringInfo
         }
         else
         {
+            for ( int i = 0; i < updateListeners.length; i++ )
+            {
+                if ( updateListeners[i] == l )
+                    return;
+            }
+            
             ScoringInfoUpdateListener[] tmp = new ScoringInfoUpdateListener[ updateListeners.length + 1 ];
             System.arraycopy( updateListeners, 0, tmp, 0, updateListeners.length );
             updateListeners = tmp;
             updateListeners[updateListeners.length - 1] = l;
         }
+        
+        gameData.registerListener( l );
     }
     
     public void unregisterListener( ScoringInfoUpdateListener l )
@@ -138,9 +102,10 @@ public class ScoringInfo
         if ( index < updateListeners.length - 1 )
             System.arraycopy( updateListeners, index + 1, tmp, index, updateListeners.length - index - 1 );
         updateListeners = tmp;
+        
+        gameData.unregisterListener( l );
     }
     
-    private final LaptimesRecorder laptimesRecorder = new LaptimesRecorder();
     private final GameEventsManager eventsManager;
     
     private VehicleScoringInfo[] vehicleScoringInfo = null;
@@ -313,6 +278,11 @@ public class ScoringInfo
                         //Logger.log( "Player rejoined: " + data.getDriverName() + ", id = " + joinedID + ", index = " + firstFree );
                         
                         vehicleScoringInfo[firstFree++] = vsi;
+                        if ( ( vsi.fastestLaptime == null ) && ( vsi.getBestLapTime() > 0f ) )
+                        {
+                            vsi.fastestLaptime = new Laptime( 0, 0f, 0f, 0f, false, false, true );
+                            vsi.fastestLaptime.laptime = vsi.getBestLapTime();
+                        }
                         vsi.data = data;
                     }
                 }
@@ -442,7 +412,7 @@ public class ScoringInfo
         for ( int i = 0; i < getNumVehicles(); i++ )
             getVehicleScoringInfo( i ).applyEditorPresets( editorPresets );
         
-        FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.applyEditorPresets( editorPresets );
+        FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.applyEditorPresets( gameData, editorPresets );
     }
     
     private void updateRaceLengthPercentage()
@@ -499,7 +469,7 @@ public class ScoringInfo
             this.updateTimestamp = System.nanoTime();
             this.gamePausedCache = gameData.isGamePaused();
             
-            this.sessionBaseNanos = Math.round( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) * 1000000000.0 );
+            this.sessionBaseNanos = Math.round( data.getSessionTime() * 1000000000.0 );
             updateSessionTime( updateTimestamp );
             
             Arrays.sort( vehicleScoringInfo2, VehicleScoringInfo.VSIPlaceComparator.INSTANCE );
@@ -521,21 +491,6 @@ public class ScoringInfo
                 for ( int i = 0; i < n; i++ )
                 {
                     getVehicleScoringInfo( i ).onSessionStarted();
-                }
-                
-                if ( updateListeners != null )
-                {
-                    for ( int i = 0; i < updateListeners.length; i++ )
-                    {
-                        try
-                        {
-                            updateListeners[i].onSessionStarted( gameData, editorPresets );
-                        }
-                        catch ( Throwable t )
-                        {
-                            Logger.log( t );
-                        }
-                    }
                 }
                 
                 this.sessionJustStarted = 0;
@@ -574,11 +529,6 @@ public class ScoringInfo
         }
     }
     
-    final LaptimesRecorder getLaptimesRecorder()
-    {
-        return ( laptimesRecorder );
-    }
-    
     /**
      * 
      * @param editorPresets
@@ -587,6 +537,7 @@ public class ScoringInfo
     {
         this.sessionId++;
         this.sessionStartTimestamp = System.nanoTime();
+        this.sessionBaseNanos = 0L;
         this.sessionRunning = true;
         this.sessionJustStarted = 1;
         this.updatedInTimeScope = false;
@@ -625,46 +576,16 @@ public class ScoringInfo
         return ( sessionStartTimestamp );
     }
     
-    final void onRealtimeEntered( EditorPresets editorPresets )
+    final void onRealtimeEntered()
     {
         this.realtimeEnteredTimestamp = System.nanoTime();
         this.realtimeEnteredId++;
         this.updatedInTimeScope = true;
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-            {
-                try
-                {
-                    updateListeners[i].onRealtimeEntered( gameData, editorPresets );
-                }
-                catch ( Throwable t )
-                {
-                    Logger.log( t );
-                }
-            }
-        }
     }
     
-    final void onRealtimeExited( EditorPresets editorPresets )
+    final void onRealtimeExited()
     {
         this.updatedInTimeScope = false;
-        
-        if ( updateListeners != null )
-        {
-            for ( int i = 0; i < updateListeners.length; i++ )
-            {
-                try
-                {
-                    updateListeners[i].onRealtimeExited( gameData, editorPresets );
-                }
-                catch ( Throwable t )
-                {
-                    Logger.log( t );
-                }
-            }
-        }
     }
     
     /**
@@ -730,19 +651,7 @@ public class ScoringInfo
     {
         prepareDataUpdate();
         
-        int offset = 0;
-        int bytesToRead = BUFFER_SIZE;
-        
-        while ( bytesToRead > 0 )
-        {
-            int n = in.read( buffer, offset, bytesToRead );
-            
-            if ( n < 0 )
-                throw new IOException();
-            
-            offset += n;
-            bytesToRead -= n;
-        }
+        data.loadFromStream( in );
         
         initVehicleScoringInfo();
         
@@ -874,22 +783,14 @@ public class ScoringInfo
         classScoringCalculated = true;
     }
     
-    /*
-     * ################################
-     * ScoringInfoBase
-     * ################################
-     */
-    
     /**
      * current track name
      */
     public final String getTrackName()
     {
-        // char mTrackName[64]
-        
         if ( trackName == null )
         {
-            trackName = ByteUtil.readString( buffer, OFFSET_TRACK_NAME, MAX_TRACK_NAME_LENGTH );
+            trackName = data.getTrackName();
         }
         
         return ( trackName );
@@ -900,11 +801,7 @@ public class ScoringInfo
      */
     public final SessionType getSessionType()
     {
-        // long mSession
-        
-        int st = (int)ByteUtil.readLong( buffer, OFFSET_SESSION_TYPE );
-        
-        return ( SessionType.values()[st] );
+        return ( data.getSessionType() );
     }
     
     /**
@@ -915,9 +812,6 @@ public class ScoringInfo
         if ( getGamePhase() == GamePhase.SESSION_OVER )
             return ( 0f );
         
-        // float mCurrentET
-        
-        //return ( ByteUtil.readFloat( buffer, OFFSET_CURRENT_TIME ) );
         return ( sessionTime );
     }
     
@@ -926,9 +820,7 @@ public class ScoringInfo
      */
     public final float getEndTime()
     {
-        // float mEndET
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_END_TIME ) );
+        return ( data.getEndTime() );
     }
     
     /**
@@ -936,9 +828,7 @@ public class ScoringInfo
      */
     public final int getMaxLaps()
     {
-        // long mMaxLaps
-        
-        return ( (int)ByteUtil.readLong( buffer, OFFSET_MAX_LAPS ) );
+        return ( data.getMaxLaps() );
     }
     
     /**
@@ -961,25 +851,19 @@ public class ScoringInfo
      */
     public final float getTrackLength()
     {
-        // float mLapDist
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_LAP_DISTANCE ) );
+        return ( data.getTrackLength() );
     }
-    
-    //char *mResultsStream;          // results stream additions since last update (newline-delimited and NULL-terminated)
     
     /**
      * current number of vehicles
      */
     public final int getNumVehicles()
     {
-        // long mNumVehicles
-        
         if ( sessionJustStarted == 1 )
             return ( 0 );
         
         if ( numVehicles == -1 )
-            numVehicles = (int)ByteUtil.readLong( buffer, OFFSET_NUM_VEHICLES );
+            numVehicles = data.getNumVehicles();
         
         return ( numVehicles );
     }
@@ -1004,63 +888,12 @@ public class ScoringInfo
         return ( n );
     }
     
-    /*
-     * ################################
-     * ScoringInfo
-     * ################################
-     */
-    
-    /*
-     * array of vehicle scoring info's
-     * 
-     * @see #getNumVehicles()
-     */
-    // We shouldn't need this, because VehicleScoringInfoV2 is at the end of the buffer.
-    /*
-    public final void getVehicleScoringInfos( VehicleScoringInfo[] vsi )
-    {
-        // VehicleScoringInfo *mVehicle
-    }
-    */
-    
-    /*
-     * ################################
-     * ScoringInfoV2
-     * ################################
-     */
-    
     /**
      * Game phases
      */
     public final GamePhase getGamePhase()
     {
-        // unsigned char mGamePhase
-        
-        short state = ByteUtil.readUnsignedByte( buffer, OFFSET_GAME_PHASE );
-        
-        switch ( state )
-        {
-            case 0:
-                return ( GamePhase.BEFORE_SESSION_HAS_BEGUN );
-            case 1:
-                return ( GamePhase.RECONNAISSANCE_LAPS );
-            case 2:
-                return ( GamePhase.GRID_WALK_THROUGH );
-            case 3:
-                return ( GamePhase.FORMATION_LAP );
-            case 4:
-                return ( GamePhase.STARTING_LIGHT_COUNTDOWN_HAS_BEGUN );
-            case 5:
-                return ( GamePhase.GREEN_FLAG );
-            case 6:
-                return ( GamePhase.FULL_COURSE_YELLOW );
-            case 7:
-                return ( GamePhase.SESSION_STOPPED );
-            case 8:
-                return ( GamePhase.SESSION_OVER );
-        }
-        
-        throw new Error( "Unknown game state read (" + state + ")." );
+        return ( data.getGamePhase() );
     }
     
     /**
@@ -1068,33 +901,7 @@ public class ScoringInfo
      */
     public final YellowFlagState getYellowFlagState()
     {
-        // signed char mYellowFlagState
-        
-        short state = ByteUtil.readByte( buffer, OFFSET_YELLOW_FLAG_STATE );
-        
-        switch ( state )
-        {
-            case -1:
-                throw new Error( "Invald state detected." );
-            case 0:
-                return ( YellowFlagState.NONE );
-            case 1:
-                return ( YellowFlagState.PENDING );
-            case 2:
-                return ( YellowFlagState.PITS_CLOSED );
-            case 3:
-                return ( YellowFlagState.PIT_LEAD_LAP );
-            case 4:
-                return ( YellowFlagState.PITS_OPEN );
-            case 5:
-                return ( YellowFlagState.LAST_LAP );
-            case 6:
-                return ( YellowFlagState.RESUME );
-            case 7:
-                return ( YellowFlagState.RACE_HALT );
-        }
-        
-        throw new Error( "Unknown game state read (" + state + ")." );
+        return ( data.getYellowFlagState() );
     }
     
     /**
@@ -1104,14 +911,7 @@ public class ScoringInfo
      */
     public final boolean getSectorYellowFlag( int sector )
     {
-        // signed char mSectorFlag[3]
-        
-        if ( ( sector < 1 ) || ( sector > 3 ) )
-            throw new IllegalArgumentException( "Sector must be in range [1, 3]" );
-        
-        short flag = ByteUtil.readByte( buffer, OFFSET_SECTOR_FLAGS + ( sector % 3 ) );
-        
-        return ( flag != 0 );
+        return ( data.getSectorYellowFlag( sector ) );
     }
     
     /**
@@ -1119,9 +919,7 @@ public class ScoringInfo
      */
     public final int getStartLightFrame()
     {
-        // unsigned char mStartLight
-        
-        return ( ByteUtil.readUnsignedByte( buffer, OFFSET_STARTING_LIGHT_FRAME ) );
+        return ( data.getStartLightFrame() );
     }
     
     /**
@@ -1129,9 +927,7 @@ public class ScoringInfo
      */
     public final int getNumRedLights()
     {
-        // unsigned char mNumRedLights
-        
-        return ( ByteUtil.readUnsignedByte( buffer, OFFSET_NUM_RED_LIGHTS ) );
+        return ( data.getNumRedLights() );
     }
     
     /**
@@ -1139,9 +935,7 @@ public class ScoringInfo
      */
     public final boolean isInRealtimeMode()
     {
-        // bool mInRealtime
-        
-        return ( ByteUtil.readBoolean( buffer, OFFSET_IN_REALTIME ) );
+        return ( data.isInRealtimeMode() );
     }
     
     /**
@@ -1149,11 +943,9 @@ public class ScoringInfo
      */
     public final String getPlayerName()
     {
-        // char mPlayerName[32]
-        
         if ( playerName == null )
         {
-            playerName = ByteUtil.readString( buffer, OFFSET_PLAYER_NAME, MAX_PLAYER_NAME_LENGTH );
+            playerName = data.getPlayerName();
         }
         
         return ( playerName );
@@ -1164,26 +956,20 @@ public class ScoringInfo
      */
     public final String getPlayerFilename()
     {
-        // char mPlrFileName[64]
-        
         if ( playerFilename == null )
         {
-            playerFilename = ByteUtil.readString( buffer, OFFSET_PLAYER_FILENAME, MAX_PLAYER_FILENAME_LENGTH );
+            playerFilename = data.getPlayerFilename();
         }
         
         return ( playerFilename );
     }
-    
-    // weather
     
     /**
      * cloud darkness? 0.0-1.0
      */
     public final float getCloudDarkness()
     {
-        // float mDarkCloud
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_CLOUD_DARKNESS ) );
+        return ( data.getCloudDarkness() );
     }
     
     /**
@@ -1191,9 +977,7 @@ public class ScoringInfo
      */
     public final float getRainingSeverity()
     {
-        // float mRaining
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_RAINING_SEVERITIY ) );
+        return ( data.getRainingSeverity() );
     }
     
     /**
@@ -1201,9 +985,7 @@ public class ScoringInfo
      */
     public final float getAmbientTemperature()
     {
-        // float mAmbientTemp
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_AMBIENT_TEMPERATURE ) );
+        return ( data.getAmbientTemperature() );
     }
     
     /**
@@ -1211,9 +993,7 @@ public class ScoringInfo
      */
     public final float getTrackTemperature()
     {
-        // float mTrackTemp
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_TRACK_TEMPERATURE ) );
+        return ( data.getTrackTemperature() );
     }
     
     /**
@@ -1221,9 +1001,7 @@ public class ScoringInfo
      */
     public final void getWindSpeed( TelemVect3 speed )
     {
-        // TelemVect3 mWind
-        
-        ByteUtil.readVector( buffer, OFFSET_WIND_SPEED, speed );
+        data.getWindSpeed( speed );
     }
     
     /**
@@ -1231,9 +1009,7 @@ public class ScoringInfo
      */
     public final float getOnPathWetness()
     {
-        // float mOnPathWetness
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_ON_PATH_WETNESS ) );
+        return ( data.getOnPathWetness() );
     }
     
     /**
@@ -1241,13 +1017,8 @@ public class ScoringInfo
      */
     public final float getOffPathWetness()
     {
-        // float mOffPathWetness
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_OFF_PATH_WETNESS ) );
+        return ( data.getOffPathWetness() );
     }
-    
-    // Future use
-    //unsigned char mExpansion[256];
     
     /**
      * array of vehicle scoring info's
@@ -1490,7 +1261,8 @@ public class ScoringInfo
                 
                 fastestLapVSI = vehicleScoringInfo2[0];
                 
-                if ( ( vehicleScoringInfo2.length > 1 ) && ( vehicleScoringInfo2[1].getBestLapTime() > 0f ) )
+                //if ( ( vehicleScoringInfo2.length > 1 ) && ( vehicleScoringInfo2[1].getBestLapTime() > 0f ) )
+                if ( ( vehicleScoringInfo2.length > 1 ) && ( vehicleScoringInfo2[1].getFastestLaptime() != null ) )
                 {
                     secondFastestLapVSI = vehicleScoringInfo2[1];
                 }
@@ -1501,8 +1273,8 @@ public class ScoringInfo
             int i0;
             for ( i0 = 0; i0 < vehicleScoringInfo2.length; i0++ )
             {
-                float fl_ = vehicleScoringInfo2[i0].getBestLapTime();
-                if ( fl_ > 0f )
+                Laptime lt_ = vehicleScoringInfo2[i0].getFastestLaptime();
+                if ( lt_ != null )
                     break;
             }
             
@@ -1516,37 +1288,37 @@ public class ScoringInfo
             else
             {
                 fastestLapVSI = vehicleScoringInfo2[i0];
-                float fl = fastestLapVSI.getBestLapTime();
+                Laptime lt = fastestLapVSI.getFastestLaptime();
                 
                 for ( int i = i0 + 1; i < vehicleScoringInfo2.length; i++ )
                 {
-                    float fl_ = vehicleScoringInfo2[i].getBestLapTime();
-                    if ( ( fl_ > 0f ) && ( fl_ < fl ) )
+                    Laptime lt_ = vehicleScoringInfo2[i].getFastestLaptime();
+                    if ( ( lt_ != null ) && ( lt_.getLapTime() < lt .getLapTime() ) )
                     {
                         secondFastestLapVSI = fastestLapVSI;
                         fastestLapVSI = vehicleScoringInfo2[i];
-                        fl = fl_;
+                        lt = lt_;
                     }
                 }
                 
                 if ( ( secondFastestLapVSI == null ) && ( vehicleScoringInfo2.length > i0 ) )
                 {
-                    float fl2 = 0f;
+                    Laptime lt2 = null;
                     
                     for ( int i = i0 + 1; i < vehicleScoringInfo2.length; i++ )
                     {
-                        float fl_ = vehicleScoringInfo2[i].getBestLapTime();
-                        if ( fl_ > 0f )
+                        Laptime lt_ = vehicleScoringInfo2[i].getFastestLaptime();
+                        if ( lt_ != null )
                         {
                             if ( secondFastestLapVSI == null )
                             {
                                 secondFastestLapVSI = vehicleScoringInfo2[i];
-                                fl2 = secondFastestLapVSI.getBestLapTime();
+                                lt2 = secondFastestLapVSI.getFastestLaptime();
                             }
-                            else if ( fl_ < fl2 )
+                            else if ( ( lt2 == null ) || ( lt_.getLapTime() < lt2.getLapTime() ) )
                             {
                                 secondFastestLapVSI = vehicleScoringInfo2[i];
-                                fl2 = fl_;
+                                lt2 = lt_;
                             }
                         }
                     }
@@ -1571,7 +1343,6 @@ public class ScoringInfo
     
     public final Laptime getFastestLaptime()
     {
-        //return ( fastestLaptime );
         return ( getFastestLapVSI().getFastestLaptime() );
     }
     
@@ -1580,7 +1351,7 @@ public class ScoringInfo
         this.gameData = gameData;
         this.eventsManager = eventsManager;
         
-        registerListener( laptimesRecorder );
+        registerListener( LaptimesRecorder.INSTANCE );
         registerListener( FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER );
         registerListener( TopspeedRecorder.MASTER_TOPSPEED_RECORDER );
     }

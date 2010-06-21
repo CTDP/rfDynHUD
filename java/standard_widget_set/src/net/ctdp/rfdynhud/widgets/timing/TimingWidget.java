@@ -94,6 +94,15 @@ public class TimingWidget extends Widget
     private final LongValue scoringInfoUpdateID = new LongValue();
     private final String[][] oldClStrings = new String[ 4 ][ 0 ];
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVersion()
+    {
+        return ( composeVersion( 1, 1, 0 ) );
+    }
+    
     @Override
     public String getWidgetPackage()
     {
@@ -303,7 +312,8 @@ public class TimingWidget extends Widget
         {
             // absolute fastest lap
             
-            float lap = afVSI.getBestLapTime();
+            Laptime lt = afVSI.getFastestLaptime();
+            float lap = ( lt == null ) ? -1f : lt.getLapTime();
             boolean lv = ( lap > 0f );
             String leaderName = lv ? afVSI.getDriverName() : "";
             leaderID.update( lv ? scoringInfo.getFastestLapVSI().getDriverId() : -1 );

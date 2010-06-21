@@ -33,6 +33,15 @@ public class ImageWidget extends Widget
         }
     };
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVersion()
+    {
+        return ( composeVersion( 1, 0, 0 ) );
+    }
+    
     @Override
     public String getWidgetPackage()
     {
