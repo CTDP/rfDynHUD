@@ -2,7 +2,6 @@ package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.widgets.GameResolution;
 
 /**
  * 

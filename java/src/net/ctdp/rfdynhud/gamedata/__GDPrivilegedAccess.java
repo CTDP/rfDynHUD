@@ -7,6 +7,7 @@ import java.io.InputStream;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 public class __GDPrivilegedAccess
 {
@@ -144,5 +145,15 @@ public class __GDPrivilegedAccess
     public static Float loadFuelUsageFromCache( final String modName, final String trackName, final String teamName )
     {
         return ( DataCache.loadFuelUsageFromCache( modName, trackName, teamName ) );
+    }
+    
+    public static final boolean setGameResolution( int gameResX, int gameResY, WidgetsConfiguration widgetsConfig )
+    {
+        return ( widgetsConfig.getGameResolution().setResolution( gameResX, gameResY ) );
+    }
+    
+    public static final boolean setViewport( int x, int y, int w, int h, GameResolution gameRes )
+    {
+        return ( gameRes.setViewport( x, y, w, h ) );
     }
 }

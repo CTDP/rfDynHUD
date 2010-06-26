@@ -26,11 +26,6 @@ public class __WCPrivilegedAccess
         config.setJustLoaded( gameData, editorPresets );
     }
     
-    public static final boolean setGameResolution( int gameResX, int gameResY, WidgetsConfiguration widgetsConfig )
-    {
-        return ( widgetsConfig.getGameResolution().setResolution( gameResX, gameResY ) );
-    }
-    
     public static final boolean setViewport( int x, int y, int w, int h, WidgetsConfiguration widgetsConfig )
     {
         return ( widgetsConfig.setViewport( x, y, w, h ) );

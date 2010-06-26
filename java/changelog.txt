@@ -35,6 +35,7 @@ Major:
 * Digital max revs in RevMeterWidget can now be boost level dependent.
 * Added pause detection.
 * Added a data cache to restore fuel usage and fastest lap times per mod, car and track.
+* Added support for multiple displays.
 
 Minor:
 

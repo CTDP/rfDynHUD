@@ -566,6 +566,11 @@ public class GameEventsManager implements ConfigurationClearListener
         {
             boolean vpChanged = __WCPrivilegedAccess.setViewport( viewportX, viewportY, viewportWidth, viewportHeight, widgetsManager );
             
+            if ( ( viewportWidth > gameData.getGameResolution().getResX() ) || ( viewportHeight > gameData.getGameResolution().getResY() ) )
+            {
+                widgetsManager.resizeMainTexture( viewportWidth, viewportHeight );
+            }
+            
             if ( isSessionRunning() && gameData.getProfileInfo().isValid() )
             {
                 if ( vpChanged )

@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Set;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
@@ -326,7 +328,7 @@ public class WidgetsConfiguration implements Documented
     
     boolean setViewport( int x, int y, int w, int h )
     {
-        if ( gameResolution.setViewport( x, y, w, h ) )
+        if ( __GDPrivilegedAccess.setViewport( x, y, w, h, gameResolution ) )
         {
             int n = getNumWidgets();
             for ( int i = 0; i < n; i++ )

@@ -58,6 +58,7 @@ import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.editor.util.SaveAsDialog;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
@@ -78,7 +79,6 @@ import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.TextureManager;
 import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.widgets.GameResolution;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -1284,7 +1284,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     public void switchToGameResolution( int resX, int resY )
     {
         BufferedImage backgroundImage = loadBackgroundImage( resX, resY );
-        __WCPrivilegedAccess.setGameResolution( resX, resY, widgetsConfig );
+        __GDPrivilegedAccess.setGameResolution( resX, resY, widgetsConfig );
         __WCPrivilegedAccess.setViewport( 0, 0, resX, resY, widgetsConfig );
         TransformableTexture overlayTexture = __RenderPrivilegedAccess.createMainTexture( resX, resY );
         

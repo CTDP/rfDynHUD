@@ -1,4 +1,4 @@
-package net.ctdp.rfdynhud.widgets;
+package net.ctdp.rfdynhud.gamedata;
 
 public final class GameResolution
 {

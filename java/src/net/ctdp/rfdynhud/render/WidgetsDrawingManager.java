@@ -9,6 +9,7 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
+import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
@@ -43,6 +44,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     
     private long clock1Frames = 10;
     private long clock2Frames = 30;
+    
+    public void resizeMainTexture( int gameResX, int gameResY )
+    {
+        this.textures[0] = __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY );
+        
+        __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
+        __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
+    }
     
     public final TextureImage2D getMainTexture()
     {
@@ -745,7 +754,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     {
         this.textures = new TransformableTexture[] { __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY ) };
         
-        __WCPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
+        __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
         __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
     }
 }
