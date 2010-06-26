@@ -417,6 +417,11 @@ public class InputMappingsManager
                         {
                             action.getConsumer().onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
                         }
+                        else if ( action == KnownInputActions.ToggleFixedViewedVehicle )
+                        {
+                            if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                __GDPrivilegedAccess.toggleFixedViewedVSI( gameData.getScoringInfo() );
+                        }
                         else if ( action == KnownInputActions.IncBoost )
                         {
                             if ( gameData.getScoringInfo().isInRealtimeMode() )

@@ -16,7 +16,8 @@ public class VehicleScoringInfo
 {
     private final ScoringInfo scoringInfo;
     private final ProfileInfo profileInfo;
-    
+    private final LiveGameData gameData;
+       
     VehicleScoringInfoCapsule data = null;
     
     private String name = null;
@@ -54,6 +55,8 @@ public class VehicleScoringInfo
     private int pitState = -1;
     
     final ArrayList<Laptime> laptimes = new ArrayList<Laptime>();
+    Laptime cachedFastestNormalLaptime = null;
+    Laptime cachedFastestHotLaptime = null;
     Laptime fastestLaptime = null;
     Laptime oldAverageLaptime = null;
     Laptime averageLaptime = null;
@@ -506,12 +509,9 @@ public class VehicleScoringInfo
     {
         if ( isPlayer() )
         {
-            Laptime cached = DataCache.INSTANCE.getFastestLaptime( profileInfo.getTeamName() );
+            Laptime cached = Laptime.isHotlap( gameData ) ? cachedFastestHotLaptime : cachedFastestNormalLaptime;
             
-            if ( cached == null )
-                return ( fastestLaptime );
-            
-            if ( ( fastestLaptime == null ) || ( cached.getLapTime() < fastestLaptime.getLapTime() ) )
+            if ( ( cached != null ) && ( ( fastestLaptime == null ) || ( cached.getLapTime() < fastestLaptime.getLapTime() ) ) )
                 return ( cached );
         }
         
@@ -1080,10 +1080,11 @@ public class VehicleScoringInfo
     // Future use
     //unsigned char mExpansion[128];
     
-    VehicleScoringInfo( ScoringInfo scoringInfo, ProfileInfo profileInfo )
+    VehicleScoringInfo( ScoringInfo scoringInfo, ProfileInfo profileInfo, LiveGameData gameData )
     {
         this.scoringInfo = scoringInfo;
         this.profileInfo = profileInfo;
+        this.gameData = gameData;
     }
     
     public static final class VSIPlaceComparator implements Comparator<VehicleScoringInfo>

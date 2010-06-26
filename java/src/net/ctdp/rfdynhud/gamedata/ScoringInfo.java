@@ -113,6 +113,7 @@ public class ScoringInfo
     VehicleScoringInfoCapsule[] vehicleScoringInfoCapsules = null;
     private int numVehicles = -1;
     private int oldNumVehicles = -1;
+    private boolean fixedViewedVSI = false;
     private VehicleScoringInfo playerVSI = null;
     private VehicleScoringInfo viewedVSI = null;
     private VehicleScoringInfo fastestLapVSI = null;
@@ -178,7 +179,7 @@ public class ScoringInfo
             
             for ( int i = oldCount; i < numVehicles; i++ )
             {
-                tmp[i] = new VehicleScoringInfo( this, gameData.getProfileInfo() );
+                tmp[i] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
             }
             
             vehicleScoringInfo = tmp;
@@ -242,7 +243,7 @@ public class ScoringInfo
                             
                             leftVSICache.put( vsi.getDriverID(), vsi );
                             vehicleScoringInfo[i] = vehicleScoringInfo[j];
-                            vehicleScoringInfo[j] = new VehicleScoringInfo( this, gameData.getProfileInfo() );
+                            vehicleScoringInfo[j] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
                             i--;
                             j--;
                         }
@@ -1093,6 +1094,12 @@ public class ScoringInfo
         return ( playerVSI );
     }
     
+    void toggleFixedViewedVSI()
+    {
+        this.fixedViewedVSI = !fixedViewedVSI;
+        this.viewedVSI = null;
+    }
+    
     private final TelemVect3 camPos = new TelemVect3();
     private final TelemVect3 carPos = new TelemVect3();
     
@@ -1101,6 +1108,9 @@ public class ScoringInfo
      */
     public final VehicleScoringInfo getViewedVehicleScoringInfo()
     {
+        if ( fixedViewedVSI )
+            return ( getPlayersVehicleScoringInfo() );
+        
         GraphicsInfo gi = gameData.getGraphicsInfo();
         
         //if ( !gi.isUpdatedInRealtimeMode() )

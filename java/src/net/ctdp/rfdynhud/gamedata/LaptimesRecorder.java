@@ -129,7 +129,9 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                     last.sector1 = vsi.getLastSector1();
                     last.sector2 = vsi.getLastSector2( false );
                     
-                    if ( !scoringInfo.getSessionType().isRace() && ( last.isInLap == Boolean.TRUE ) )
+                    SessionType sessionType = scoringInfo.getSessionType();
+                    
+                    if ( !sessionType.isRace() && ( last.isInLap == Boolean.TRUE ) )
                         last.sector3 = -1f;
                     else
                         last.sector3 = vsi.getLastSector3();
@@ -149,7 +151,21 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
                         }
                     }
                     
+                    if ( sessionType == SessionType.RACE )
+                        last.setType( Laptime.LapType.RACE );
+                    else if ( sessionType == SessionType.QUALIFYING )
+                        last.setType( Laptime.LapType.QUALIFY );
+                    else if ( Laptime.isHotlap( gameData ) )
+                        last.setType( Laptime.LapType.HOTLAP );
+                    else
+                        last.setType( Laptime.LapType.NORMAL );
+                    
                     last.finished = true;
+                    
+                    if ( ( last.isInLap != Boolean.TRUE ) && !last.isOutLap && ( last.getLapTime() > 0f ) )
+                    {
+                        DataCache.INSTANCE.addLaptime( scoringInfo, gameData.getProfileInfo().getTeamName(), last );
+                    }
                 }
             }
             else if ( vsi.getFinishStatus() == FinishStatus.NONE )

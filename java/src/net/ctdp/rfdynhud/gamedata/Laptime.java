@@ -2,6 +2,17 @@ package net.ctdp.rfdynhud.gamedata;
 
 public class Laptime
 {
+    public static enum LapType
+    {
+        UNKNOWN,
+        NORMAL,
+        HOTLAP,
+        QUALIFY,
+        RACE,
+        ;
+    }
+    
+    private LapType type = LapType.UNKNOWN;
     int lap;
     float sector1 = -1f;
     float sector2 = -1f;
@@ -11,6 +22,16 @@ public class Laptime
     boolean isOutLap = false;
     Boolean isInLap = null;
     boolean finished = false;
+    
+    void setType( LapType type )
+    {
+        this.type = type;
+    }
+    
+    public final LapType getType()
+    {
+        return ( type );
+    }
     
     public final int getLap()
     {
@@ -108,5 +129,12 @@ public class Laptime
         this.finished = finished;
         
         updateLaptimeFromSectors();
+    }
+    
+    static final boolean isHotlap( LiveGameData gameData )
+    {
+        float fuelUsage = ( gameData.getTelemetryData().getFuelUsageLastLap() > 0f ) ? gameData.getTelemetryData().getFuelUsageLastLap() : gameData.getTelemetryData().getFuelUsageAverage();
+        
+        return ( ( fuelUsage > 0f ) && gameData.getSetup().isUpdatedInTimeScope() && ( gameData.getSetup().getGeneral().getFuel( 0 ) / fuelUsage < 7.0f ) );
     }
 }

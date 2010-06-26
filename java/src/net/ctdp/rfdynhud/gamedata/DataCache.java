@@ -15,14 +15,44 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.input.InputActionConsumer;
+import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-class DataCache implements LiveGameData.GameDataUpdateListener
+class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsumer
 {
+    private long firstResetStrokeTime = -1L;
+    private int resetStrokes = 0;
+    
+    @Override
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        if ( action == INPUT_ACTION_RESET_DATA_CACHE )
+        {
+            long t = when;
+            
+            if ( t - firstResetStrokeTime > 1000000000L )
+            {
+                resetStrokes = 1;
+                firstResetStrokeTime = t;
+            }
+            else if ( ++resetStrokes >= 3 )
+            {
+                liveReset( gameData );
+                
+                resetStrokes = 0;
+            }
+        }
+    }
+    
+    static final DataCache INSTANCE = new DataCache();
+    static final InputAction INPUT_ACTION_RESET_DATA_CACHE = __InpPrivilegedAccess.createInputAction( "ResetDataCache", true, false, (InputActionConsumer)INSTANCE, DataCache.class.getClassLoader().getResource( DataCache.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetDataCache.html" ) );
+    
     private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     private static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
     
@@ -68,19 +98,47 @@ class DataCache implements LiveGameData.GameDataUpdateListener
     }
     
     private final HashMap<String, Float> fuelUsages = new HashMap<String, Float>();
-    private final HashMap<String, Laptime> fastestLaptimes = new HashMap<String, Laptime>();
+    private final HashMap<String, Laptime> fastestNormalLaptimes = new HashMap<String, Laptime>();
+    private final HashMap<String, Laptime> fastestHotLaptimes = new HashMap<String, Laptime>();
+    
+    void liveReset( LiveGameData gameData )
+    {
+        fastestNormalLaptimes.clear();
+        fastestHotLaptimes.clear();
+        
+        gameData.getScoringInfo().getPlayersVehicleScoringInfo().cachedFastestNormalLaptime = null;
+        gameData.getScoringInfo().getPlayersVehicleScoringInfo().cachedFastestHotLaptime = null;
+    }
+    
+    void addLaptime( ScoringInfo scoringInfo, String teamName, Laptime laptime )
+    {
+        if ( !checkSessionType( scoringInfo ) )
+            return;
+        
+        Laptime cached;
+        
+        switch ( laptime.getType() )
+        {
+            case NORMAL:
+                cached = fastestNormalLaptimes.get( teamName );
+                if ( ( cached == null ) || ( ( laptime.getLapTime() > 0f ) && ( laptime.getLapTime() < cached.getLapTime() ) ) )
+                    fastestNormalLaptimes.put( teamName, laptime );
+                break;
+            case HOTLAP:
+                cached = fastestHotLaptimes.get( teamName );
+                if ( ( cached == null ) || ( ( laptime.getLapTime() > 0f ) && ( laptime.getLapTime() < cached.getLapTime() ) ) )
+                    fastestHotLaptimes.put( teamName, laptime );
+                break;
+            // We're not interested in other times.
+        }
+    }
     
     final Float getFuelUsage( String teamName )
     {
         return ( fuelUsages.get( teamName ) );
     }
     
-    final Laptime getFastestLaptime( String teamName )
-    {
-        return ( fastestLaptimes.get( teamName ) );
-    }
-    
-    private static final boolean checkSessionType( ScoringInfo scoringInfo )
+    static final boolean checkSessionType( ScoringInfo scoringInfo )
     {
         SessionType sessionType = scoringInfo.getSessionType();
         
@@ -131,7 +189,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener
         {
             private int level = 0;
             
-            private String currentVehicle = null;
+            private String currentTeam = null;
             
             @Override
             public void startElement( String uri, String localName, String qName, Attributes attributes ) throws SAXException
@@ -144,25 +202,57 @@ class DataCache implements LiveGameData.GameDataUpdateListener
                 }
                 else if ( ( level == 1 ) && qName.equals( "VehicleData" ) )
                 {
-                    currentVehicle = attributes.getValue( "vehicle" );
+                    currentTeam = attributes.getValue( "vehicle" );
                 }
                 else if ( ( level == 2 ) && qName.equals( "FuelUsage" ) )
                 {
-                    float avgFuelUsage = Float.parseFloat( attributes.getValue( "average" ) );
-                    fuelUsages.put( currentVehicle, avgFuelUsage );
+                    try
+                    {
+                        float avgFuelUsage = Float.parseFloat( attributes.getValue( "average" ) );
+                        fuelUsages.put( currentTeam, avgFuelUsage );
+                    }
+                    catch ( NumberFormatException e )
+                    {
+                        Logger.log( "Warning: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
+                    }
                 }
                 else if ( ( level == 2 ) && qName.equals( "FastestLap" ) )
                 {
-                    //String type = attributes.getValue( "type" );
-                    float sector1 = Float.parseFloat( attributes.getValue( "sector1" ) );
-                    float sector2 = Float.parseFloat( attributes.getValue( "sector2" ) );
-                    float sector3 = Float.parseFloat( attributes.getValue( "sector3" ) );
-                    float lap = Float.parseFloat( attributes.getValue( "lap" ) );
-                    
-                    Laptime laptime = new Laptime( 0, sector1, sector2, sector3, false, false, true );
-                    laptime.laptime = lap;
-                    
-                    fastestLaptimes.put( currentVehicle, laptime );
+                    try
+                    {
+                        String type = attributes.getValue( "type" );
+                        float sector1 = Float.parseFloat( attributes.getValue( "sector1" ) );
+                        float sector2 = Float.parseFloat( attributes.getValue( "sector2" ) );
+                        float sector3 = Float.parseFloat( attributes.getValue( "sector3" ) );
+                        float lap = Float.parseFloat( attributes.getValue( "lap" ) );
+                        
+                        Laptime laptime = new Laptime( 0, sector1, sector2, sector3, false, false, true );
+                        laptime.laptime = lap;
+                        
+                        try
+                        {
+                            laptime.setType( Laptime.LapType.valueOf( type ) );
+                        }
+                        catch ( Throwable t )
+                        {
+                            laptime.setType( Laptime.LapType.UNKNOWN );
+                        }
+                        
+                        switch ( laptime.getType() )
+                        {
+                            case NORMAL:
+                                fastestNormalLaptimes.put( currentTeam, laptime );
+                                break;
+                            case HOTLAP:
+                                fastestHotLaptimes.put( currentTeam, laptime );
+                                break;
+                            // We're not interested in other times.
+                        }
+                    }
+                    catch ( NumberFormatException e )
+                    {
+                        Logger.log( "Warning: DataCache: Unable to parse laptime." );
+                    }
                 }
                 
                 level++;
@@ -183,7 +273,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener
                 
                 if ( ( level == 1 ) && qName.equals( "VehicleData" ) )
                 {
-                    currentVehicle = null;
+                    currentTeam = null;
                 }
             }
             
@@ -257,7 +347,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener
         {
             private int level = 0;
             
-            private String currentVehicle = null;
+            private String currentTeam = null;
             
             @Override
             public void startElement( String uri, String localName, String qName, Attributes attributes ) throws SAXException
@@ -270,13 +360,20 @@ class DataCache implements LiveGameData.GameDataUpdateListener
                 }
                 else if ( ( level == 1 ) && qName.equals( "VehicleData" ) )
                 {
-                    currentVehicle = attributes.getValue( "vehicle" );
+                    currentTeam = attributes.getValue( "vehicle" );
                 }
                 else if ( ( level == 2 ) && qName.equals( "FuelUsage" ) )
                 {
-                    float avgFuelUsage = Float.parseFloat( attributes.getValue( "average" ) );
-                    if ( teamName.equals( currentVehicle ) )
-                        result[0] = avgFuelUsage;
+                    try
+                    {
+                        float avgFuelUsage = Float.parseFloat( attributes.getValue( "average" ) );
+                        if ( teamName.equals( currentTeam ) )
+                            result[0] = avgFuelUsage;
+                    }
+                    catch ( NumberFormatException e )
+                    {
+                        Logger.log( "Warning: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
+                    }
                 }
                 
                 level++;
@@ -297,7 +394,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener
                 
                 if ( ( level == 1 ) && qName.equals( "VehicleData" ) )
                 {
-                    currentVehicle = null;
+                    currentTeam = null;
                 }
             }
             
@@ -364,7 +461,13 @@ class DataCache implements LiveGameData.GameDataUpdateListener
     public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
     {
         fuelUsages.clear();
-        fastestLaptimes.clear();
+        fastestNormalLaptimes.clear();
+        fastestHotLaptimes.clear();
+        
+        VehicleScoringInfo player = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+        
+        player.cachedFastestNormalLaptime = null;
+        player.cachedFastestHotLaptime = null;
         
         if ( !checkSessionType( gameData.getScoringInfo() ) )
             return;
@@ -375,6 +478,9 @@ class DataCache implements LiveGameData.GameDataUpdateListener
             return;
         
         loadFromCache( cacheFile );
+        
+        player.cachedFastestNormalLaptime = fastestNormalLaptimes.get( gameData.getProfileInfo().getTeamName() );
+        player.cachedFastestHotLaptime = fastestHotLaptimes.get( gameData.getProfileInfo().getTeamName() );
     }
     
     @Override
@@ -383,8 +489,13 @@ class DataCache implements LiveGameData.GameDataUpdateListener
     @Override
     public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
     
-    private void storeToCache( File cacheFile )
+    private void storeToCache( LiveGameData gameData )
     {
+        File cacheFile = getCacheFile( gameData, true );
+        
+        if ( cacheFile == null )
+            return;
+        
         ArrayList<String> vehicleNames = new ArrayList<String>( fuelUsages.keySet() );
         Collections.sort( vehicleNames );
         
@@ -403,18 +514,30 @@ class DataCache implements LiveGameData.GameDataUpdateListener
             
             for ( String vehicleName : vehicleNames )
             {
-                float fuelUsage = fuelUsages.get( vehicleName );
-                Laptime laptime = fastestLaptimes.get( vehicleName );
-                
                 bw.write( "    <VehicleData vehicle=\"" + vehicleName + "\">" );
                 bw.newLine();
-                bw.write( "        <FuelUsage average=\"" + fuelUsage + "\" />" );
-                bw.newLine();
-                if ( laptime != null )
+                
+                Float fuelUsage = fuelUsages.get( vehicleName );
+                if ( fuelUsage != null )
                 {
-                    bw.write( "        <FastestLap type=\"normal\" sector1=\"" + laptime.getSector1() + "\" sector2=\"" + laptime.getSector2() + "\" sector3=\"" + laptime.getSector3() + "\" lap=\"" + laptime.getLapTime() + "\" />" );
+                    bw.write( "        <FuelUsage average=\"" + fuelUsage + "\" />" );
                     bw.newLine();
                 }
+                
+                Laptime laptime = fastestNormalLaptimes.get( vehicleName );
+                if ( laptime != null )
+                {
+                    bw.write( "        <FastestLap type=\"" + laptime.getType().name() + "\" sector1=\"" + laptime.getSector1() + "\" sector2=\"" + laptime.getSector2() + "\" sector3=\"" + laptime.getSector3() + "\" lap=\"" + laptime.getLapTime() + "\" />" );
+                    bw.newLine();
+                }
+                
+                laptime = fastestHotLaptimes.get( vehicleName );
+                if ( laptime != null )
+                {
+                    bw.write( "        <FastestLap type=\"" + laptime.getType().name() + "\" sector1=\"" + laptime.getSector1() + "\" sector2=\"" + laptime.getSector2() + "\" sector3=\"" + laptime.getSector3() + "\" lap=\"" + laptime.getLapTime() + "\" />" );
+                    bw.newLine();
+                }
+                
                 bw.write( "    </VehicleData>" );
                 bw.newLine();
             }
@@ -439,7 +562,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener
         if ( !checkSessionType( gameData.getScoringInfo() ) )
             return;
         
-        VehicleScoringInfo player = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+        //VehicleScoringInfo player = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
         //String teamName = player.getVehicleName();
         String teamName = gameData.getProfileInfo().getTeamName();
         
@@ -447,19 +570,12 @@ class DataCache implements LiveGameData.GameDataUpdateListener
         if ( avgFuelUsage > 0f )
             fuelUsages.put( teamName, avgFuelUsage );
         
-        fastestLaptimes.put( teamName, player.getFastestLaptime() );
+        //fastestLaptimes.put( teamName, player.getFastestLaptime() );
         
-        File cacheFile = getCacheFile( gameData, true );
-        
-        if ( cacheFile == null )
-            return;
-        
-        storeToCache( cacheFile );
+        storeToCache( gameData );
     }
     
     private DataCache()
     {
     }
-    
-    static final DataCache INSTANCE = new DataCache();
 }
