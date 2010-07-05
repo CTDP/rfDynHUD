@@ -109,14 +109,16 @@ public class GameEventsManager implements ConfigurationClearListener
     
     private boolean reloadSetup( boolean isEditorMode )
     {
+        boolean result = false;
+        
         if ( __GDPrivilegedAccess.loadSetup( isEditorMode, gameData ) )
         {
-            __GDPrivilegedAccess.setEngineBoostMapping( gameData.getSetup().getEngine().getBoostMapping(), gameData.getTelemetryData() );
-            
-            return ( true );
+            result = true;
         }
         
-        return ( false );
+        __GDPrivilegedAccess.setEngineBoostMapping( gameData.getSetup().getEngine().getBoostMapping(), gameData.getTelemetryData() );
+        
+        return ( result );
     }
     
     public byte reloadConfigAndSetupTexture( boolean force )

@@ -155,7 +155,10 @@ public class VehicleScoringInfo
             }
         }
         
-        stintLength = currentLap - stintStartLap + trackPos;
+        if ( gameData.isInRealtimeMode() )
+            stintLength = currentLap - stintStartLap + trackPos;
+        else
+            stintLength = 0.0f;
     }
     
     void updateSomeData()

@@ -1362,6 +1362,22 @@ class VehiclePhysicsParser
         }
         
         if ( trackConfig == -1 )
+        {
+            // If we didn't find a matching track configuration, we try to find the joker...
+            
+            for ( File f : vehicleFolder.listFiles() )
+            {
+                if ( f.getName().toLowerCase().startsWith( "trackconfigs" ) && f.getName().toLowerCase().endsWith( ".ini" ) )
+                {
+                    trackConfig = getTrackConfiguration( f, "*" );
+                    
+                    if ( trackConfig != -1 )
+                        break;
+                }
+            }
+        }
+        
+        if ( trackConfig == -1 )
             return ( upgradesList );
         
         Object[][] upgradesList2 = null;
