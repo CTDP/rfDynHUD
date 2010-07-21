@@ -3,7 +3,6 @@ package net.ctdp.rfdynhud.widgets.widget;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -54,10 +53,6 @@ public abstract class Widget implements Documented
     public static final int NEEDED_DATA_ALL = NEEDED_DATA_TELEMETRY | NEEDED_DATA_SCORING/* | NEEDED_DATA_SETUP*/;
     
     private WidgetsConfiguration config = null;
-    
-    private static final HashMap<Class<? extends Widget>, Object> generalStores = new HashMap<Class<? extends Widget>, Object>();
-    private Object generalStore = null;
-    private Object localStore = null;
     
     private boolean dirtyFlag = true;
     
@@ -235,75 +230,6 @@ public abstract class Widget implements Documented
     public final WidgetsConfiguration getConfiguration()
     {
         return ( config );
-    }
-    
-    /**
-     * Creates a store object for all widgets of this type.
-     * 
-     * @return the general store object. <code>null</code> is explicitly permitted and default implementation simply returns <code>null</code>.
-     */
-    protected Object createGeneralStore()
-    {
-        return ( null );
-    }
-    
-    protected Class<? extends Widget> getGeneralStoreKey()
-    {
-        return ( this.getClass() );
-    }
-    
-    /**
-     * Gets a value store object for all {@link Widget}s of this class.
-     * 
-     * @return a value store object for all {@link Widget}s of this class.
-     */
-    public final Object getGeneralStore()
-    {
-        if ( generalStore == null )
-        {
-            final Class<? extends Widget> key = getGeneralStoreKey();
-            if ( !generalStores.containsKey( key ) )
-            {
-                generalStore = createGeneralStore();
-                generalStores.put( key, generalStore );
-            }
-            
-            generalStore = generalStores.get( key );
-        }
-        
-        return ( generalStore );
-    }
-    
-    /**
-     * Creates a store object for this Widget only.
-     * 
-     * @return the local store object. <code>null</code> is explicitly permitted and default implementation simply returns <code>null</code>.
-     */
-    protected Object createLocalStore()
-    {
-        return ( null );
-    }
-    
-    final void setLocalStore( Object localStore )
-    {
-        this.localStore = localStore;
-    }
-    
-    /**
-     * Gets a value store object for this {@link Widget}.
-     * The store is restored when the widget configuration is reloaded.
-     * The object is stored by the {@link Widget}'s class and name.
-     * 
-     * @return a value store object for this {@link Widget}.
-     */
-    public Object getLocalStore()
-    {
-        if ( localStore == null )
-        {
-            localStore = createLocalStore();
-        }
-        
-        return ( localStore );
     }
     
     /**

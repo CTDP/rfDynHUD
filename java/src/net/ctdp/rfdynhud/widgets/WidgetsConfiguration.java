@@ -26,9 +26,9 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.FontUtils;
-import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.widgets.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -84,7 +84,8 @@ public class WidgetsConfiguration implements Documented
     private final HashMap<String, Boolean> fontVirtualMap = new HashMap<String, Boolean>();
     private final HashMap<String, String> borderMap = new HashMap<String, String>();
     
-    private final HashMap<Class<? extends Widget>, Object> generalStores = new HashMap<Class<? extends Widget>, Object>();
+    //@SuppressWarnings( "unchecked" )
+    //private final HashMap<Class<? extends StatefulWidget>, Object> generalStores = new HashMap<Class<? extends StatefulWidget>, Object>();
     private final HashMap<String, Object> localStores = new HashMap<String, Object>();
     private final HashMap<String, Boolean> visibilities = new HashMap<String, Boolean>();
     
@@ -172,19 +173,26 @@ public class WidgetsConfiguration implements Documented
      * 
      * @param widget
      */
+    @SuppressWarnings( "unchecked" )
     public void removeWidget( Widget widget )
     {
         widgets.remove( widget );
         widgetsMap.remove( widget.getName() );
-        localStores.put( getLocalStoreKey( widget ), widget.getLocalStore() );
-        //if ( !isEditorMode )
-        //    visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
+        
+        if ( widget instanceof StatefulWidget )
+        {
+            localStores.put( getLocalStoreKey( widget ), ( (StatefulWidget)widget ).getLocalStore() );
+            //if ( !isEditorMode )
+            //    visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
+        }
+        
         __WPrivilegedAccess.setConfiguration( null, widget );
     }
     
     /**
      * Removes all {@link Widget}s and clears all name- and alias maps.
      */
+    @SuppressWarnings( "unchecked" )
     public void clear( LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
     {
         if ( clearListener != null )
@@ -205,7 +213,8 @@ public class WidgetsConfiguration implements Documented
             {
                 Widget widget = widgets.get( i );
                 
-                localStores.put( getLocalStoreKey( widget ), widget.getLocalStore() );
+                if ( widget instanceof StatefulWidget )
+                    localStores.put( getLocalStoreKey( widget ), ( (StatefulWidget)widget ).getLocalStore() );
                 visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
                 
                 __WPrivilegedAccess.setConfiguration( null, widget );
@@ -277,6 +286,7 @@ public class WidgetsConfiguration implements Documented
         return ( inputMappings );
     }
     
+    @SuppressWarnings( "unchecked" )
     void setJustLoaded( LiveGameData gameData, EditorPresets editorPresets )
     {
         this.id++;
@@ -286,10 +296,13 @@ public class WidgetsConfiguration implements Documented
         {
             Widget widget = widgets.get( i );
             
-            Object localStore = localStores.get( getLocalStoreKey( widget ) );
-            if ( localStore != null )
+            if ( widget instanceof StatefulWidget )
             {
-                __WPrivilegedAccess.setLocalStore( localStore, widget );
+                Object localStore = localStores.get( getLocalStoreKey( widget ) );
+                if ( localStore != null )
+                {
+                    __WPrivilegedAccess.setLocalStore( localStore, (StatefulWidget)widget );
+                }
             }
             
             if ( editorPresets == null )
@@ -424,14 +437,15 @@ public class WidgetsConfiguration implements Documented
         needsCheckFixAndBake = false;
     }
     
-    /**
+    /*
      * Gets the general store object for the given Widget class.
      * 
      * @param widgetClass
      * 
      * @return the general store object for the given Widget class.
      */
-    public final Object getGeneralStore( Class<? extends Widget> widgetClass )
+    /*
+    final Object getGeneralStore( Class<? extends StatefulWidget> widgetClass )
     {
         Object generalStore = generalStores.get( widgetClass );
         
@@ -439,7 +453,7 @@ public class WidgetsConfiguration implements Documented
         {
             try
             {
-                Widget widget = widgetClass.getConstructor( String.class ).newInstance( "" );
+                StatefulWidget widget = widgetClass.getConstructor( String.class ).newInstance( "" );
                 
                 generalStore = widget.getGeneralStore();
                 generalStores.put( widgetClass, generalStore );
@@ -452,6 +466,7 @@ public class WidgetsConfiguration implements Documented
         
         return ( generalStore );
     }
+    */
     
     /**
      * Maps a new named color.

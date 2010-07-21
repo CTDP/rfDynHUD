@@ -17,7 +17,7 @@ import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
@@ -25,7 +25,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * 
  * @author Marvin Froehlich
  */
-public class TimeCompareWidget extends Widget
+public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
 {
     private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
     private final BooleanProperty displaySectors = new BooleanProperty( this, "displaySectors", true );
@@ -60,7 +60,16 @@ public class TimeCompareWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected Object createLocalStore()
+    public Object createGeneralStore()
+    {
+        return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected LocalStore createLocalStore()
     {
         return ( new LocalStore() );
     }
@@ -78,7 +87,7 @@ public class TimeCompareWidget extends Widget
     
     private void updateLaps( VehicleScoringInfo vsi )
     {
-        LocalStore store = (LocalStore)getLocalStore();
+        LocalStore store = getLocalStore();
         
         int lap = vsi.getCurrentLap();
         
@@ -138,7 +147,7 @@ public class TimeCompareWidget extends Widget
         final boolean fontAntiAliased = isFontAntiAliased();
         final java.awt.Color fontColor = getFontColor();
         
-        LocalStore store = (LocalStore)getLocalStore();
+        LocalStore store = getLocalStore();
         
         headerString = dsf.newDrawnString( "headerString", 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
@@ -191,7 +200,7 @@ public class TimeCompareWidget extends Widget
     {
         final java.awt.Color backgroundColor = getBackgroundColor();
         
-        LocalStore store = (LocalStore)getLocalStore();
+        LocalStore store = getLocalStore();
         
         int padding = 10;
         

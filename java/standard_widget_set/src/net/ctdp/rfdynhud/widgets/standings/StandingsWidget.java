@@ -28,6 +28,7 @@ import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.values.NameDisplayType;
 import net.ctdp.rfdynhud.values.StandingsView;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
+import net.ctdp.rfdynhud.widgets.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
@@ -36,7 +37,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * 
  * @author Marvin Froehlich
  */
-public class StandingsWidget extends Widget
+public class StandingsWidget extends StatefulWidget<Object, LocalStore>
 {
     private static final InputAction INPUT_ACTION_CYCLE_VIEW = new InputAction( "CycleStandingsViewAction" );
     
@@ -103,7 +104,16 @@ public class StandingsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected Object createLocalStore()
+    public Object createGeneralStore()
+    {
+        return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected LocalStore createLocalStore()
     {
         return ( new LocalStore() );
     }
@@ -150,7 +160,7 @@ public class StandingsWidget extends Widget
     
     public void setView( StandingsView view )
     {
-        ( (LocalStore)getLocalStore() ).view = view;
+        getLocalStore().view = view;
         
         lastScoringUpdateId.reset( true );
         forceCompleteRedraw();
@@ -159,12 +169,12 @@ public class StandingsWidget extends Widget
     
     public final StandingsView getView()
     {
-        if ( ( (LocalStore)getLocalStore() ).view == null )
+        if ( getLocalStore().view == null )
         {
-            ( (LocalStore)getLocalStore() ).view = initialView.getEnumValue();
+            getLocalStore().view = initialView.getEnumValue();
         }
         
-        return ( ( (LocalStore)getLocalStore() ).view );
+        return ( getLocalStore().view );
     }
     
     public void allowViews( boolean relToLeader, boolean relToMe, boolean absTimes )

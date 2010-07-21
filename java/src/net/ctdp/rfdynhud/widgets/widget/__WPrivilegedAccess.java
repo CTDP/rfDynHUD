@@ -11,7 +11,8 @@ public class __WPrivilegedAccess
         widget.setConfiguration( config );
     }
     
-    public static final void setLocalStore( Object localStore, Widget widget )
+    @SuppressWarnings( "unchecked" )
+    public static final void setLocalStore( Object localStore, StatefulWidget widget )
     {
         widget.setLocalStore( localStore );
     }

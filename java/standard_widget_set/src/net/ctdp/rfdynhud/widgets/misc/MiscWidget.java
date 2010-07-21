@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
+import net.ctdp.rfdynhud.widgets.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
@@ -34,7 +35,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * 
  * @author Marvin Froehlich
  */
-public class MiscWidget extends Widget
+public class MiscWidget extends StatefulWidget<Object, LocalStore>
 {
     private long relTopspeedResetDelay = 10000000000L; // ten seconds
     
@@ -97,7 +98,16 @@ public class MiscWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public Object createLocalStore()
+    public Object createGeneralStore()
+    {
+        return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LocalStore createLocalStore()
     {
         return ( new LocalStore() );
     }
@@ -131,7 +141,7 @@ public class MiscWidget extends Widget
         
         oldAbsTopspeed = -1f;
         
-        ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = 0f;
+        getLocalStore().lastDisplayedAbsTopspeed = 0f;
     }
     
     /**
@@ -158,7 +168,7 @@ public class MiscWidget extends Widget
         
         oldRelTopspeed = -1f;
         relTopspeed = -1f;
-        ( (LocalStore)getLocalStore() ).lastRelTopspeedTime = -1L;
+        getLocalStore().lastRelTopspeedTime = -1L;
         oldVelocity = -1;
         
         updateAbs = false;
@@ -176,8 +186,8 @@ public class MiscWidget extends Widget
         
         oldRelTopspeed = -1f;
         relTopspeed = -1f;
-        ( (LocalStore)getLocalStore() ).lastRelTopspeedTime = -1L;
-        ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = viewedVSI.getTopspeed();
+        getLocalStore().lastRelTopspeedTime = -1L;
+        getLocalStore().lastDisplayedAbsTopspeed = viewedVSI.getTopspeed();
         oldAbsTopspeed = -1f;
         oldVelocity = -1;
         
