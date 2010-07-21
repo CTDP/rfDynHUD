@@ -246,7 +246,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             
             if ( ( panel.getRailDistanceX() > 0 ) || ( panel.getRailDistanceY() > 0 ) )
             {
-                WidgetsConfiguration wc = editor.getWidgetsconConfiguration();
+                WidgetsConfiguration wc = editor.getWidgetsConfiguration();
                 int closestRailX = Integer.MAX_VALUE;
                 int closestRailY = Integer.MAX_VALUE;
                 int rdx, rdy;

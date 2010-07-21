@@ -17,6 +17,7 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
  * The {@link ControlsWidget} displays clutch, brake and throttle.
@@ -77,7 +78,7 @@ public class ControlsWidget extends Widget
     private final IntProperty gap = new IntProperty( this, "gap", 10 );
     
     @Override
-    public String getWidgetPackage()
+    public WidgetPackage getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
     }

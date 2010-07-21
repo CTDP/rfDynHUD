@@ -8,10 +8,11 @@ import java.awt.geom.Rectangle2D;
 
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 public class StandardWidgetSet
 {
-    public static final String WIDGET_PACKAGE = "";
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "", StandardWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/ctdp-fat-1994.png" ) );
     
     public static final String POSITION_ITEM_FONT_COLOR_NAME = "PositionItemFontColor";
     public static final String POSITION_ITEM_COLOR_NORMAL = "PositionItemColorNormal";

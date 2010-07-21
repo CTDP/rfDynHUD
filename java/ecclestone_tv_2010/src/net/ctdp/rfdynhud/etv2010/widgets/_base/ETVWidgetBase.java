@@ -7,6 +7,7 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 public abstract class ETVWidgetBase extends Widget
 {
@@ -14,7 +15,7 @@ public abstract class ETVWidgetBase extends Widget
     protected final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
     
     @Override
-    public String getWidgetPackage()
+    public WidgetPackage getWidgetPackage()
     {
         return ( ETVUtils.WIDGET_PACKAGE );
     }

@@ -224,7 +224,7 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         frame.getContentPane().add( b );
         */
         
-        this.inputBindingsTableModel = new InputBindingsTableModel( editor, editor.getWidgetsconConfiguration(), directInputConnection.getInputDeviceManager() );
+        this.inputBindingsTableModel = new InputBindingsTableModel( editor, editor.getWidgetsConfiguration(), directInputConnection.getInputDeviceManager() );
         final JTable table = new JTable( inputBindingsTableModel, new InputBindingsColumnModel( this ), new DefaultListSelectionModel() );
         inputBindingsTableModel.setTable( table );
         table.setRowHeight( 20 );

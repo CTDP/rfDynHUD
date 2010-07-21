@@ -660,6 +660,9 @@ public class GameEventsManager implements ConfigurationClearListener
     
     public final byte onScoringInfoUpdated( EditorPresets editorPresets )
     {
+        if ( gameData.getScoringInfo().getNumVehicles() == 0 ) // What the hell is this again???
+            return ( 0 );
+        
         //Logger.log( ">>> onScoringInfoUpdated" );
         byte result = 0;
         

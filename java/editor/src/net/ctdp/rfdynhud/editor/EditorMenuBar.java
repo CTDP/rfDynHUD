@@ -32,6 +32,7 @@ import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 import org.jagatoo.util.classes.ClassSearcher;
 import org.jagatoo.util.classes.PackageSearcher;
@@ -183,7 +184,7 @@ public class EditorMenuBar extends JMenuBar
             public void menuSelected( MenuEvent e )
             {
                 boolean hasSelected = ( editor.getEditorPanel().getSelectedWidget() != null );
-                boolean hasWidgets = ( editor.getWidgetsconConfiguration().getNumWidgets() > 0 );
+                boolean hasWidgets = ( editor.getWidgetsConfiguration().getNumWidgets() > 0 );
                 
                 snapSelWidgetToGrid.setEnabled( hasSelected && editor.getEditorPanel().isGridUsed() );
                 snapAllWidgetsToGrid.setEnabled( hasWidgets && editor.getEditorPanel().isGridUsed() );
@@ -220,7 +221,7 @@ public class EditorMenuBar extends JMenuBar
         menu.add( removeItem );
         
         boolean hasSelected = ( editor.getEditorPanel().getSelectedWidget() != null );
-        boolean hasWidgets = ( editor.getWidgetsconConfiguration().getNumWidgets() > 0 );
+        boolean hasWidgets = ( editor.getWidgetsConfiguration().getNumWidgets() > 0 );
         
         snapSelWidgetToGrid.setEnabled( hasSelected && editor.getEditorPanel().isGridUsed() );
         snapAllWidgetsToGrid.setEnabled( hasWidgets && editor.getEditorPanel().isGridUsed() );
@@ -229,22 +230,30 @@ public class EditorMenuBar extends JMenuBar
         editor.getEditorPanel().setComponentPopupMenu( menu );
     }
     
-    private JMenuItem createWidgetMenuItem( final Class<?> clazz )
+    private JMenuItem createWidgetMenuItem( final Class<Widget> clazz )
     {
-        //JMenuItem widgetMenuItem = new JMenuItem( clazz.getName() );
-        JMenuItem widgetMenuItem = new JCheckBoxMenuItem( clazz.getSimpleName() );
-        widgetMenuItem.setName( clazz.getName() );
-        widgetMenuItem.addActionListener( new ActionListener()
+        try
         {
-            private final Class<?> widgetClazz = clazz;
-            
-            public void actionPerformed( ActionEvent e )
+            JMenuItem widgetMenuItem = new WidgetMenuItem( editor, clazz );
+            widgetMenuItem.setName( clazz.getName() );
+            widgetMenuItem.addActionListener( new ActionListener()
             {
-                editor.addNewWidget( widgetClazz );
-            }
-        } );
-        
-        return ( widgetMenuItem );
+                private final Class<Widget> widgetClazz = clazz;
+                
+                public void actionPerformed( ActionEvent e )
+                {
+                    editor.addNewWidget( widgetClazz );
+                }
+            } );
+            
+            return ( widgetMenuItem );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+            
+            return ( null );
+        }
     }
     
     /*
@@ -314,7 +323,7 @@ public class EditorMenuBar extends JMenuBar
     }
     */
     
-    private JMenu getMenu( JMenu parent, String[] pkg, int i )
+    private JMenu getMenu( JMenu parent, String[] path, int i, WidgetPackage pkg )
     {
         for ( Component c : parent.getMenuComponents() )
         {
@@ -322,25 +331,26 @@ public class EditorMenuBar extends JMenuBar
             {
                 JMenu m = (JMenu)c;
                 
-                if ( m.getText().equals( pkg[i] ) )
+                if ( m.getText().equals( path[i] ) )
                 {
-                    if ( i < pkg.length - 1 )
-                        return ( getMenu( m, pkg, i + 1 ) );
+                    if ( i < path.length - 1 )
+                        return ( getMenu( m, path, i + 1, pkg ) );
                     
                     return ( m );
                 }
             }
         }
         
-        JMenu m = new JMenu( pkg[i] );
+        JMenu m = new WidgetMenu( path[i], pkg, i );
         parent.add( m );
         
-        if ( i < pkg.length - 1 )
-            return ( getMenu( m, pkg, i + 1 ) );
+        if ( i < path.length - 1 )
+            return ( getMenu( m, path, i + 1, pkg ) );
         
         return ( m );
     }
     
+    @SuppressWarnings( "unchecked" )
     private JMenu createWidgetsMenu()
     {
         JMenu menu = new JMenu( "Widgets" );
@@ -373,11 +383,11 @@ public class EditorMenuBar extends JMenuBar
         }
         */
         
-        ArrayList<String> widgetPackages = new ArrayList<String>();
+        ArrayList<WidgetPackage> widgetPackages = new ArrayList<WidgetPackage>();
         Iterator<Class<?>> it = classes.iterator();
         while ( it.hasNext() )
         {
-            Class<?> clazz = it.next();
+            Class<Widget> clazz = (Class<Widget>)it.next();
             
             try
             {
@@ -393,30 +403,37 @@ public class EditorMenuBar extends JMenuBar
             }
         }
         
-        Collections.sort( widgetPackages, String.CASE_INSENSITIVE_ORDER );
+        Collections.sort( widgetPackages );
         
-        for ( String widgetPackage : widgetPackages )
+        for ( WidgetPackage widgetPackage : widgetPackages )
         {
-            String[] pkg = widgetPackage.split( "/" );
+            String pkgName = ( widgetPackage == null ) ? "" : widgetPackage.getName();
+            String[] path = pkgName.split( "/" );
             
-            if ( ( pkg.length > 1 ) || !pkg[0].equals( "" ) )
-                getMenu( menu, pkg, 0 );
+            if ( ( path.length > 1 ) || !path[0].equals( "" ) )
+                getMenu( menu, path, 0, widgetPackage );
         }
         
         it = classes.iterator();
         while ( it.hasNext() )
         {
-            Class<?> clazz = it.next();
+            Class<Widget> clazz = (Class<Widget>)it.next();
             
             try
             {
                 Widget widget = instances.get( clazz );
-                String[] pkg = widget.getWidgetPackage().split( "/" );
+                String pkgName = ( widget.getWidgetPackage() == null ) ? "" : widget.getWidgetPackage().getName();
+                String[] path = pkgName.split( "/" );
                 
-                if ( ( pkg.length == 1 ) && pkg[0].equals( "" ) )
-                    menu.add( createWidgetMenuItem( clazz ) );
-                else
-                    getMenu( menu, pkg, 0 ).add( createWidgetMenuItem( clazz ) );
+                JMenuItem mi = createWidgetMenuItem( clazz );
+                
+                if ( mi != null )
+                {
+                    if ( ( path.length == 1 ) && path[0].equals( "" ) )
+                        menu.add( mi );
+                    else
+                        getMenu( menu, path, 0, widget.getWidgetPackage() ).add( mi );
+                }
             }
             catch ( Throwable t )
             {
@@ -441,10 +458,10 @@ public class EditorMenuBar extends JMenuBar
                 
                 item.setSelected( false );
                 
-                int n = editor.getWidgetsconConfiguration().getNumWidgets();
+                int n = editor.getWidgetsConfiguration().getNumWidgets();
                 for ( int i = 0; i < n; i++ )
                 {
-                    if ( editor.getWidgetsconConfiguration().getWidget( i ).getClass().getName().equals( item.getName() ) )
+                    if ( editor.getWidgetsConfiguration().getWidget( i ).getClass().getName().equals( item.getName() ) )
                     {
                         item.setSelected( true );
                         break;
@@ -603,7 +620,7 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void menuSelected( MenuEvent e )
             {
-                String resString = editor.getWidgetsconConfiguration().getGameResolution().getResolutionString();
+                String resString = editor.getWidgetsConfiguration().getGameResolution().getResolutionString();
                 
                 JMenu menu = (JMenu)e.getSource();
                 

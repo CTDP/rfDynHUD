@@ -19,6 +19,7 @@ import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
  * The {@link StartingLightWidget} displays a starting light for the race.
@@ -73,7 +74,7 @@ public class StartingLightWidget extends Widget
     }
     
     @Override
-    public String getWidgetPackage()
+    public WidgetPackage getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
     }

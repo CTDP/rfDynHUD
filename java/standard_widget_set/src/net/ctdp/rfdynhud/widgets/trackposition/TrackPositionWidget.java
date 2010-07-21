@@ -25,6 +25,7 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
  * The {@link TrackPositionWidget} displays all driving vehicles on a line.
@@ -77,7 +78,7 @@ public class TrackPositionWidget extends Widget
     }
     
     @Override
-    public String getWidgetPackage()
+    public WidgetPackage getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
     }

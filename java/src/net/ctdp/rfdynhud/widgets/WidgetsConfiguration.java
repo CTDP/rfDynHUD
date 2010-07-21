@@ -170,10 +170,9 @@ public class WidgetsConfiguration implements Documented
     /**
      * Removes a {@link Widget} from the drawing process.
      * 
-     * @param isEditorMode
      * @param widget
      */
-    public void removeWidget( boolean isEditorMode, Widget widget )
+    public void removeWidget( Widget widget )
     {
         widgets.remove( widget );
         widgetsMap.remove( widget.getName() );

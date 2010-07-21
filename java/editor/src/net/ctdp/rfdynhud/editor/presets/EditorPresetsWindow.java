@@ -156,7 +156,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     private void apply()
     {
         __GDPrivilegedAccess.applyEditorPresets( editor.getEditorPresets(), editor.getGameData() );
-        editor.getWidgetsconConfiguration().setAllDirtyFlags();
+        editor.getWidgetsConfiguration().setAllDirtyFlags();
         editor.getEditorPanel().repaint();
         
         resetDirtyFlag();

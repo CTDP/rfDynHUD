@@ -141,7 +141,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( gameData );
     }
     
-    public final WidgetsConfiguration getWidgetsconConfiguration()
+    public final WidgetsConfiguration getWidgetsConfiguration()
     {
         return ( widgetsConfig );
     }
@@ -1187,14 +1187,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         copyPropertiesFromTemplate( pcTemplate.getList(), pcTarget.getList() );
     }
     
-    public static Widget createWidgetInstance( Class<?> widgetClass, WidgetsConfiguration widgetsConfig ) throws InvocationTargetException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, NoSuchMethodException
+    public static Widget createWidgetInstance( Class<Widget> widgetClass, WidgetsConfiguration widgetsConfig ) throws InvocationTargetException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, NoSuchMethodException
     {
         String name = ( widgetsConfig != null ) ? widgetsConfig.findFreeName( widgetClass.getSimpleName() ) : "";
         
         return ( (Widget)widgetClass.getConstructor( String.class ).newInstance( name ) );
     }
     
-    public Widget addNewWidget( Class<?> widgetClazz )
+    public Widget addNewWidget( Class<Widget> widgetClazz )
     {
         Widget widget = null;
         

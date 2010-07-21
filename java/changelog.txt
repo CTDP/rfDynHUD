@@ -57,11 +57,11 @@ Minor:
 * RevMeterWidget: When the background image is changed, positions and sizes of elements are adjusted.
 * Moved border configurations from config/images/borders to config/borders
 * When saving a new configuration in the editor (Save As), a filename construction utility helps you to construct the correct filename.
+* Widgets menu in the editor looks nicer with small Widget icons.
 
 TODO:
 
 * Select Widget in background
-* Make widget selection menues nicer
 * Draw sub textures in editor (clickable?)
 * Add RideHeightWidget
 * Add TinyWidgets: Velocity, Place, Lap, etc.

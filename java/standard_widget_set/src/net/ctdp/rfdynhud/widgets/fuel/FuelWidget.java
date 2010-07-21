@@ -36,6 +36,7 @@ import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
  * The {@link FuelWidget} displays fuel information like current fuel load, fuel usage per lap,
@@ -212,7 +213,7 @@ public class FuelWidget extends Widget
     }
     
     @Override
-    public String getWidgetPackage()
+    public WidgetPackage getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
     }

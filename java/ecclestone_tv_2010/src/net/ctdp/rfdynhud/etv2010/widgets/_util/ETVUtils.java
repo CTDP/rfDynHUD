@@ -7,12 +7,13 @@ import java.awt.geom.Rectangle2D;
 
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 import org.openmali.types.twodee.Rect2i;
 
 public class ETVUtils
 {
-    public static final String WIDGET_PACKAGE = "CTDP/Ecclestone TV 2010";
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Ecclestone TV 2010", ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/ctdp-fat-1994.png" ), ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/etv2010.png" ) );
     
     public static final int TRIANGLE_WIDTH = 16;
     private static final boolean AA_TRIANGLE = true;
