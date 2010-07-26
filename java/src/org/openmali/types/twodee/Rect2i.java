@@ -349,10 +349,7 @@ public class Rect2i implements Positioned2i, Sized2i
      * @return the sum of area-size of the parts of this rectangle,
      * that overlap the given one.
      * 
-     * @param left
-     * @param top
-     * @param width
-     * @param height
+     * @param rect
      */
     public final int getMatchFactor( Rect2i rect )
     {

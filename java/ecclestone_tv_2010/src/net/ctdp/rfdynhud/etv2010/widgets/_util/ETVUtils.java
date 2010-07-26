@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 package net.ctdp.rfdynhud.etv2010.widgets._util;
 
 import java.awt.Color;
@@ -13,7 +30,7 @@ import org.openmali.types.twodee.Rect2i;
 
 public class ETVUtils
 {
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Ecclestone TV 2010", ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/ctdp-fat-1994.png" ), ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/etv2010.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Ecclestone TV 2010", ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/ctdp.png" ), ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/etv2010.png" ) );
     
     public static final int TRIANGLE_WIDTH = 16;
     private static final boolean AA_TRIANGLE = true;

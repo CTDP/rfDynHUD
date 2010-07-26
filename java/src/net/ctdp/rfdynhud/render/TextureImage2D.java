@@ -1728,7 +1728,7 @@ public class TextureImage2D
     /**
      * Draws the given {@link TextureImage2D} onto this one and simply overwrites anything.
      * 
-     * @param ti source image
+     * @param srcTI source image
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
@@ -2016,6 +2016,16 @@ public class TextureImage2D
         }
         
         return ( fontMetrics.getStringBounds( s, textGraphics ) );
+    }
+    
+    public final int getStringWidth( String s, java.awt.Font font, boolean antiAliased )
+    {
+        return ( (int)getStringBounds( s, font, antiAliased ).getWidth() );
+    }
+    
+    public final int getStringHeight( String s, java.awt.Font font, boolean antiAliased )
+    {
+        return ( (int)getStringBounds( s, font, antiAliased ).getHeight() );
     }
     
     public final int getFontAscent( java.awt.Font font )

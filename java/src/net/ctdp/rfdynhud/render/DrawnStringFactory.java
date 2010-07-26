@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 package net.ctdp.rfdynhud.render;
 
 import java.util.HashMap;
@@ -20,8 +37,8 @@ public class DrawnStringFactory
      * Creates a new {@link DrawnString}.
      * 
      * @param name (widget-local) unique name used by this factory to overwrite in the cache (can be anything)
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
+     * @param xRelativeTo if this is non-null, the {@link DrawnString#getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
+     * @param yRelativeTo if this is non-null, the {@link DrawnString#getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
      * @param y the y-location
      * @param alignment the alignment
@@ -46,8 +63,8 @@ public class DrawnStringFactory
      * Creates a new {@link DrawnString} with {@link Alignment#LEFT} and y_at_baseline = true.
      * 
      * @param name (widget-local) unique name used by this factory to overwrite in the cache (can be anything)
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
+     * @param xRelativeTo if this is non-null, the {@link DrawnString#getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
+     * @param yRelativeTo if this is non-null, the {@link DrawnString#getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
@@ -65,8 +82,8 @@ public class DrawnStringFactory
      * Creates a new {@link DrawnString}.
      * 
      * @param name (widget-local) unique name used by this factory to overwrite in the cache (can be anything)
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
+     * @param xRelativeTo if this is non-null, the {@link DrawnString#getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
+     * @param yRelativeTo if this is non-null, the {@link DrawnString#getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
      * @param y the y-location
      * @param alignment the alignment
@@ -84,8 +101,8 @@ public class DrawnStringFactory
      * Creates a new {@link DrawnString} with {@link Alignment#LEFT} and y_at_baseline = true.
      * 
      * @param name (widget-local) unique name used by this factory to overwrite in the cache (can be anything)
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
+     * @param xRelativeTo if this is non-null, the {@link DrawnString#getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
+     * @param yRelativeTo if this is non-null, the {@link DrawnString#getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
@@ -171,8 +188,8 @@ public class DrawnStringFactory
      * 
      * @param condition if this is <code>false</code>, null is returned.
      * @param name (widget-local) unique name used by this factory to overwrite in the cache (can be anything)
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
+     * @param xRelativeTo if this is non-null, the {@link DrawnString#getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
+     * @param yRelativeTo if this is non-null, the {@link DrawnString#getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
      * @param y the y-location
      * @param alignment the alignment
@@ -206,8 +223,8 @@ public class DrawnStringFactory
      * 
      * @param condition if this is <code>false</code>, null is returned.
      * @param name (widget-local) unique name used by this factory to overwrite in the cache (can be anything)
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
+     * @param xRelativeTo if this is non-null, the {@link DrawnString#getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
+     * @param yRelativeTo if this is non-null, the {@link DrawnString#getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
@@ -226,8 +243,8 @@ public class DrawnStringFactory
      * 
      * @param condition if this is <code>false</code>, null is returned.
      * @param name (widget-local) unique name used by this factory to overwrite in the cache (can be anything)
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
+     * @param xRelativeTo if this is non-null, the {@link DrawnString#getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
+     * @param yRelativeTo if this is non-null, the {@link DrawnString#getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
      * @param y the y-location
      * @param alignment the alignment
@@ -246,8 +263,8 @@ public class DrawnStringFactory
      * 
      * @param condition if this is <code>false</code>, null is returned.
      * @param name (widget-local) unique name used by this factory to overwrite in the cache (can be anything)
-     * @param xRelativeTo if this is non-null, the {@link #getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
-     * @param yRelativeTo if this is non-null, the {@link #getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
+     * @param xRelativeTo if this is non-null, the {@link DrawnString#getAbsX()} is computed by ( xRelativeTo.getAbsX() + xRelativeTo.maxWidth + this.getX() ), otherwise getAbsX() returns the plain getX() value.
+     * @param yRelativeTo if this is non-null, the {@link DrawnString#getAbsY()} is computed by ( xRelativeTo.getAbsY() + xRelativeTo.maxHeight + this.getY() ), otherwise getAbsY() returns the plain getY() value.
      * @param x the x-location
      * @param y the y-location
      * @param font the used font

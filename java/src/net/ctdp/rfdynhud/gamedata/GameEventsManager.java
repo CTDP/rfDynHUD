@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.RFDynHUD;
@@ -121,6 +138,11 @@ public class GameEventsManager implements ConfigurationClearListener
         return ( result );
     }
     
+    /**
+     * 
+     * @param force
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
     public byte reloadConfigAndSetupTexture( boolean force )
     {
         byte result = 1;
@@ -183,6 +205,11 @@ public class GameEventsManager implements ConfigurationClearListener
         return ( result );
     }
     
+    /**
+     * 
+     * @param editorPresets
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
     public byte onSessionStarted( EditorPresets editorPresets )
     {
         //Logger.log( ">>> onSessionStarted" );
@@ -243,6 +270,8 @@ public class GameEventsManager implements ConfigurationClearListener
     /**
      * This method must be called when a session has been started.
      * Note: LiveGameData must have been updated before.
+     * 
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public byte onSessionStarted()
     {
@@ -296,6 +325,11 @@ public class GameEventsManager implements ConfigurationClearListener
         return ( sessionRunning );
     }
     
+    /**
+     * 
+     * @param editorPresets
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
     public byte onRealtimeEntered( EditorPresets editorPresets )
     {
         //Logger.log( ">>> onRealtimeEntered" );
@@ -354,7 +388,7 @@ public class GameEventsManager implements ConfigurationClearListener
     /**
      * This method must be called when realtime mode has been entered (the user clicked on "Drive").
      * 
-     * @return true, if textures need to be updated.
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onRealtimeEntered()
     {
@@ -389,6 +423,8 @@ public class GameEventsManager implements ConfigurationClearListener
     
     /**
      * This method must be called when the user exited realtime mode (pressed ESCAPE in the cockpit).
+     * 
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onRealtimeExited()
     {
@@ -555,7 +591,7 @@ public class GameEventsManager implements ConfigurationClearListener
      * @param viewportWidth
      * @param viewportHeight
      * 
-     * @return 0, if nothing shouldbe rendered anymore, 1 to render something, 2 to render and update texture info.
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onGraphicsInfoUpdated( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
     {
@@ -620,7 +656,7 @@ public class GameEventsManager implements ConfigurationClearListener
     /**
      * 
      * @param editorPresets
-     * @return
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onTelemetryDataUpdated( EditorPresets editorPresets )
     {
@@ -651,13 +687,18 @@ public class GameEventsManager implements ConfigurationClearListener
     /**
      * This method must be called when TelemetryData has been updated.
      * 
-     * @return true, if textures need to be updated.
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onTelemetryDataUpdated()
     {
         return ( onTelemetryDataUpdated( null ) );
     }
     
+    /**
+     * 
+     * @param editorPresets
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
+     */
     public final byte onScoringInfoUpdated( EditorPresets editorPresets )
     {
         if ( gameData.getScoringInfo().getNumVehicles() == 0 ) // What the hell is this again???
@@ -739,13 +780,17 @@ public class GameEventsManager implements ConfigurationClearListener
     /**
      * This method must be called when ScoringInfo has been updated.
      * 
-     * @return true, if textures need to be updated.
+     * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onScoringInfoUpdated()
     {
         return ( onScoringInfoUpdated( null ) );
     }
     
+    /**
+     * 
+     * @param updateTimestamp
+     */
     public final void checkRaceRestart( long updateTimestamp )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
@@ -756,6 +801,10 @@ public class GameEventsManager implements ConfigurationClearListener
         }
     }
     
+    /**
+     * 
+     * @param editorPresets
+     */
     public final void checkAndFireOnLapStarted( EditorPresets editorPresets )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
@@ -775,11 +824,20 @@ public class GameEventsManager implements ConfigurationClearListener
         }
     }
     
+    /**
+     * 
+     * @param oldValue
+     * @param newValue
+     */
     public void onEngineBoostMappingChanged( int oldValue, int newValue )
     {
         widgetsManager.fireOnEngineBoostMappingChanged( oldValue, newValue );
     }
     
+    /**
+     * 
+     * @param enabled
+     */
     public void onTemporaryEngineBoostStateChanged( boolean enabled )
     {
         widgetsManager.fireOnTemporaryEngineBoostStateChanged( enabled );

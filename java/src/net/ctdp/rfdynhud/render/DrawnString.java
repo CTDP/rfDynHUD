@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 package net.ctdp.rfdynhud.render;
 
 import java.awt.geom.Rectangle2D;
@@ -768,7 +785,7 @@ public class DrawnString
      * @param padding the padding to honor when aligning right
      * @param colWidths the column widths to use
      * @param clearColor the color to use for clearing (null to skip clearing)
-     * @param fontColor (null for predefined)
+     * @param fontColors (null for predefined)
      * @param texture the texture to draw on
      * 
      * @return the drawn string's width in pixels.
@@ -827,7 +844,7 @@ public class DrawnString
      * @param clearBackground the image to use for clearing (null to skip clearing)
      * @param clearOffsetX the x-offset of the clear texture on the background
      * @param clearOffsetY the y-offset of the clear texture on the background
-     * @param fontColor (null for predefined)
+     * @param fontColors (null for predefined)
      * @param texture the texture to draw on
      * 
      * @return the drawn string's width in pixels.

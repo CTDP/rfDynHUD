@@ -476,7 +476,7 @@ public class DirectBufferedImage extends BufferedImage
      * there is no help for that currently.
      * 
      * @param in
-     * @parma allowAlpha
+     * @param allowAlpha
      * 
      * @throws java.io.IOException
      */

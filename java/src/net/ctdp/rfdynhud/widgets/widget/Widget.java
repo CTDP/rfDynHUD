@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 package net.ctdp.rfdynhud.widgets.widget;
 
 import java.awt.Color;
@@ -22,7 +39,6 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
-import net.ctdp.rfdynhud.render.ImageBorderRenderer;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
@@ -626,7 +642,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Gets this Widget's total visibility flag ({@link #isInputVisible()} && {@link #isUserVisible1() && {@link #isUserVisible2()}).
+     * Gets this Widget's total visibility flag ({@link #isInputVisible()} && {@link #isUserVisible1()} && {@link #isUserVisible2()}).
      * 
      * @return this Widget's visibility flag.
      */
@@ -679,9 +695,9 @@ public abstract class Widget implements Documented
     /**
      * Gets the data indicators for the data needed for this {@link Widget} to be drawn (bitmask).
      * 
-     * @see NEEDED_DATA_TELEMETRY
-     * @see NEEDED_DATA_SCORING
-     * @see NEEDED_DATA_SCORING
+     * @see #NEEDED_DATA_TELEMETRY
+     * @see #NEEDED_DATA_SCORING
+     * @see #NEEDED_DATA_SCORING
      * 
      * @return the data indicators for the data needed for this {@link Widget} to be drawn.
      */
@@ -944,8 +960,8 @@ public abstract class Widget implements Documented
     protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
-     * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, ImageBorderRenderer, TextureImage2D, int, int, int, int)}
-     * and {@link #clearBackground(boolean, LiveGameData, TextureImage2D, int, int, int, int)} are (re-)invoked.<br />
+     * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, BorderWrapper, TextureImage2D, int, int, int, int)}
+     * and {@link #clearBackground(LiveGameData, EditorPresets, TextureImage2D, int, int, int, int)} are (re-)invoked.<br />
      * The original method is just an empty stub returning false.
      * 
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
@@ -964,22 +980,6 @@ public abstract class Widget implements Documented
     {
         return ( false );
     }
-    
-    /**
-     * This method must contain the actual drawing code for this Widget.
-     * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
-     * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
-     * @param gameData the live game data
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
-     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     * @param offsetX the x-offset on the texture
-     * @param offsetY the y-offset on the texture
-     * @param width the width on the texture
-     * @param height the height on the texture
-     */
-    protected abstract void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * 
@@ -1013,6 +1013,22 @@ public abstract class Widget implements Documented
         if ( hasBackgroundColor() && ( texture != null ) )
             texture.clear( getBackgroundColor(), offsetX, offsetY, width, height, true, null );
     }
+    
+    /**
+     * This method must contain the actual drawing code for this Widget.
+     * 
+     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
+     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
+     * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
+     * @param gameData the live game data
+     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
+     * @param width the width on the texture
+     * @param height the height on the texture
+     */
+    protected abstract void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method invokes the parts of the actual drawing code for this Widget.
@@ -1193,7 +1209,8 @@ public abstract class Widget implements Documented
     
     /**
      * 
-     * @param property
+     * @param font
+     * @param fontColor
      * @param propsCont
      * @param forceAll
      */

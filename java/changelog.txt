@@ -67,15 +67,17 @@ TODO:
 * Add TinyWidgets: Velocity, Place, Lap, etc.
 * Add DashboardWidget
 * Add SpeedoMeterWidget
+* Combine Widgets / CombinationWidget.
+* Bar meter for fuel, temp, etc.
 * Manage logs to keep 5
 * Meta config (merge configurations)
 * Add master d3d9.dll
-* Render plugin in replay mode (theoretically not possible)
-* Fix/Improve clock frequencies
 * Key combinations for InputActions
-* Improve viewed vehicle detection (use me if close)
+* Import Widget from other config. Compare named colors/fonts. Change name or use local name or direct value.
 
-* Externalize widget properties and generic parameters for stores
+* Improve viewed vehicle detection (use me if close, read from application)
+* Render plugin in replay mode (theoretically not possible, needs application memory access)
+* Fix/Improve clock frequencies
 * Editor: Mem profiling
 * General profiling to tweak performance
 

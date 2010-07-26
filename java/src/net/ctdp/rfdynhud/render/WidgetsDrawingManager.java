@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 package net.ctdp.rfdynhud.render;
 
 import java.nio.ByteBuffer;
@@ -61,7 +78,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is executed when a new track was loaded.<br>
      * <br>
-     * Calls {@link Widget#onTrackChanged(String, LiveGameData)} on each Widget.
+     * Calls {@link Widget#onTrackChanged(String, LiveGameData, EditorPresets)} on each Widget.
      */
     public void fireOnTrackChanged( String trackname, LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -84,7 +101,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a new session was started.<br>
      * <br>
-     * Calls {@link Widget#onSessionStarted(boolean, SessionType, LiveGameData)} on each Widget.
+     * Calls {@link Widget#onSessionStarted(SessionType, LiveGameData, EditorPresets)} on each Widget.
      */
     public void fireOnSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -114,7 +131,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeEntered(boolean, LiveGameData)} on each Widget.
+     * Calls {@link Widget#onRealtimeEntered(LiveGameData, EditorPresets)} on each Widget.
      */
     public void fireOnRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -144,7 +161,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeEntered(boolean, LiveGameData)} on each Widget.
+     * Calls {@link Widget#onRealtimeEntered(LiveGameData, EditorPresets)} on each Widget.
      */
     public void checkAndFireOnNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -327,7 +344,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user exited the garage.<br>
      * <br>
-     * Calls {@link Widget#onPitsEntered(LiveGameData)} on each Widget.
+     * Calls {@link Widget#onPitsEntered(LiveGameData, EditorPresets)} on each Widget.
      */
     public void fireOnPitsEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -348,7 +365,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user entered the garage.<br>
      * <br>
-     * Calls {@link Widget#onGarageEntered(LiveGameData)} on each Widget.
+     * Calls {@link Widget#onGarageEntered(LiveGameData, EditorPresets)} on each Widget.
      */
     public void fireOnGarageEntered( LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -369,7 +386,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user exited the garage.<br>
      * <br>
-     * Calls {@link Widget#onGarageExited(LiveGameData)} on each Widget.
+     * Calls {@link Widget#onGarageExited(LiveGameData, EditorPresets)} on each Widget.
      */
     public void fireOnGarageExited( LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -390,7 +407,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user exited the garage.<br>
      * <br>
-     * Calls {@link Widget#onPitsExited(LiveGameData)} on each Widget.
+     * Calls {@link Widget#onPitsExited(LiveGameData, EditorPresets)} on each Widget.
      */
     public void fireOnPitsExited( LiveGameData gameData, EditorPresets editorPresets )
     {
@@ -411,7 +428,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user exited realtime mode.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeExited(boolean, LiveGameData)} on each Widget.
+     * Calls {@link Widget#onRealtimeExited(LiveGameData, EditorPresets)} on each Widget.
      */
     public void fireOnRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
     {
