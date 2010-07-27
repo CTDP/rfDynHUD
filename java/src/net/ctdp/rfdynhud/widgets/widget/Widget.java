@@ -44,6 +44,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Documented;
+import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.Position;
@@ -102,6 +103,22 @@ public abstract class Widget implements Documented
     private TransformableTexture[] subTextures = null;
     
     private final DrawnStringFactory drawnStringFactory = new DrawnStringFactory();
+    
+    /**
+     * Logs data to the plugin's log file.
+     * 
+     * @param data
+     */
+    protected final void log( Object... data )
+    {
+        if ( ( data == null ) || ( data.length == 0 ) )
+            return;
+        
+        for ( int i = 0; i < data.length; i++ )
+        {
+            Logger.log( data[i], i == data.length - 1 );
+        }
+    }
     
     protected static final int composeVersion( int major, int minor, int revision )
     {
