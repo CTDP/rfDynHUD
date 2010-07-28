@@ -63,10 +63,10 @@ public class TemperaturesWidget extends Widget
     private final BooleanProperty displayTires = new BooleanProperty( this, "displayTires", true );
     private final BooleanProperty displayBrakes = new BooleanProperty( this, "displayBrakes", true );
     
-    private final Size engineHeight;
+    private final Size engineHeight = Size.newLocalSize( this, 0f, true, 10.0f, true );
     
-    private final Size tireSize;
-    private final Size brakeSize;
+    private final Size tireSize = Size.newLocalSize( this, 10.0f, true, 10.0f, true );
+    private final Size brakeSize = Size.newLocalSize( this, 7.0f, true, 20.0f, true );
     
     private final IntProperty brakeTempsPeekDelayProp = new IntProperty( this, "brakeTempsPeekDelay", 7000, 0, 20000 )
     {
@@ -841,9 +841,5 @@ public class TemperaturesWidget extends Widget
     public TemperaturesWidget( String name )
     {
         super( name, 17.8125f, 30.416667f );
-        
-        this.engineHeight = new Size( 0f, true, 10.0f, true, this );
-        this.tireSize = new Size( 10.0f, true, 10.0f, true, this );
-        this.brakeSize = new Size( 7.0f, true, 20.0f, true, this );
     }
 }

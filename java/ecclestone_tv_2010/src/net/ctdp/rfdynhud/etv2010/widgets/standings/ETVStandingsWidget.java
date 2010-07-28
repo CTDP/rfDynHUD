@@ -46,7 +46,6 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.StandingsView;
 import net.ctdp.rfdynhud.values.StringValue;
-import net.ctdp.rfdynhud.values.__ValPrivilegedAccess;
 
 /**
  * The {@link ETVStandingsWidget} displays the list of drivers and gaps.
@@ -75,7 +74,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     
     private Boolean[] itemsVisible = null;
     
-    private final Size itemHeight = __ValPrivilegedAccess.newWidgetSize( 0f, true, 2.5f, true, this );
+    private final Size itemHeight = Size.newGlobalSize( this, 0f, true, 2.5f, true );
     
     private TextureImage2D itemClearImage = null;
     

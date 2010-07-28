@@ -67,10 +67,10 @@ public class WearWidget extends Widget
     
     private final FontProperty font2 = new FontProperty( this, "font2", FontProperty.SMALLER_FONT_NAME );
     
-    private final Size engineHeight;
+    private final Size engineHeight = Size.newLocalSize( this, 0f, true, 10.0f, true );
     
-    private final Size tireSize;
-    private final Size brakeSize;
+    private final Size tireSize = Size.newLocalSize( this, 10.0f, true, 10.0f, true );
+    private final Size brakeSize = Size.newLocalSize( this, 7.0f, true, 20.0f, true );
     
     private final BooleanProperty displayEngine = new BooleanProperty( this, "displayEngine", true );
     private final BooleanProperty displayTires = new BooleanProperty( this, "displayTires", true );
@@ -1144,9 +1144,5 @@ public class WearWidget extends Widget
     public WearWidget( String name )
     {
         super( name, 17.8125f, 30.416667f );
-        
-        this.engineHeight = new Size( 0f, true, 10.0f, true, this );
-        this.tireSize = new Size( 10.0f, true, 10.0f, true, this );
-        this.brakeSize = new Size( 7.0f, true, 20.0f, true, this );
     }
 }

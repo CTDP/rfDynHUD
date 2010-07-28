@@ -28,9 +28,6 @@ public class Loc
     
     public static final String fuel_units_IMPERIAL = l( "fuel_units.IMPERIAL" );
     public static final String fuel_units_METRIC = l( "fuel_units.METRIC" );
-    public static final String fuelHeader_prefix = l( "fuelHeader.prefix" );
-    public static final String fuelHeader_postfix_IMPERIAL = l( "fuelHeader.postfix.IMPERIAL" );
-    public static final String fuelHeader_postfix_METRIC = l( "fuelHeader.postfix.METRIC" );
     public static final String fuelLoad2_postfix = l( "fuelLoad2.postfix" );
     public static final String fuelLoad3_na = l( "fuelLoad3.na" );
     public static final String fuelLoad3_postfix = l( "fuelLoad3.postfix" );

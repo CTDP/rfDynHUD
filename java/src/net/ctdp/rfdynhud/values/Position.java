@@ -809,21 +809,51 @@ public class Position
         return ( createYProperty( name, name ) );
     }
     
-    Position( RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size, Widget widget, boolean isWidgetPosition )
+    protected Position( Widget widget, boolean isWidgetPosition, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
     {
+        this.widget = widget;
+        this.isWidgetPosition = isWidgetPosition;
+        
         this.positioning = positioning;
         this.x = xPercent ? x * 0.01f : PIXEL_OFFSET + x;
         this.y = yPercent ? y * 0.01f : PIXEL_OFFSET + y;
         
         this.size = size;
-        
-        this.widget = widget;
-        
-        this.isWidgetPosition = isWidgetPosition;
     }
     
-    public Position( RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size, Widget widget )
+    /**
+     * Create a new positional property for positions local to a Widget's area.
+     * 
+     * @param widget the owning {@link Widget}.
+     * @param positioning
+     * @param x
+     * @param xPercent interpret 'x' as percents?
+     * @param y
+     * @param yPercent interpret 'y' as percents?
+     * @param size the size for the area
+     * 
+     * @return the new Position.
+     */
+    public static final Position newLocalPosition( Widget widget, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
     {
-        this( positioning, x, xPercent, y, yPercent, size, widget, false );
+        return ( new Position( widget, false, positioning, x, xPercent, y, yPercent, size ) );
+    }
+    
+    /**
+     * Create a new positional property for global positions on the whole screen area.
+     * 
+     * @param widget the owning {@link Widget}.
+     * @param positioning
+     * @param x
+     * @param xPercent interpret 'x' as percents?
+     * @param y
+     * @param yPercent interpret 'y' as percents?
+     * @param size the size for the area
+     * 
+     * @return the new Position.
+     */
+    public static final Position newGlobalPosition( Widget widget, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
+    {
+        return ( new Position( widget, true, positioning, x, xPercent, y, yPercent, size ) );
     }
 }

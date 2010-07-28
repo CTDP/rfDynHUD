@@ -747,18 +747,44 @@ public class Size implements AbstractSize
         return ( createHeightProperty( name, name ) );
     }
     
-    Size( float width, boolean widthPercent, float height, boolean heightPercent, Widget widget, boolean isWidgetSize )
+    protected Size( Widget widget, boolean isWidgetSize, float width, boolean widthPercent, float height, boolean heightPercent )
     {
+        this.widget = widget;
+        this.isWidgetSize = isWidgetSize;
+        
         this.width = widthPercent ? width * 0.01f : PIXEL_OFFSET + width;
         this.height = heightPercent ? height * 0.01f : PIXEL_OFFSET + height;
-        
-        this.widget = widget;
-        
-        this.isWidgetSize = isWidgetSize;
     }
     
-    public Size( float width, boolean widthPercent, float height, boolean heightPercent, Widget widget )
+    /**
+     * Create a new size property for sizes local to a Widget's area.
+     * 
+     * @param widget the owning {@link Widget}.
+     * @param width
+     * @param widthPercent
+     * @param height
+     * @param heightPercent
+     * 
+     * @return the new Size.
+     */
+    public static final Size newLocalSize( Widget widget, float width, boolean widthPercent, float height, boolean heightPercent )
     {
-        this( width, widthPercent, height, heightPercent, widget, false );
+        return ( new Size( widget, false, width, widthPercent, height, heightPercent ) );
+    }
+    
+    /**
+     * Create a new size property for global positions on the whole screen area.
+     * 
+     * @param widget the owning {@link Widget}.
+     * @param width
+     * @param widthPercent
+     * @param height
+     * @param heightPercent
+     * 
+     * @return the new Size.
+     */
+    public static final Size newGlobalSize( Widget widget, float width, boolean widthPercent, float height, boolean heightPercent )
+    {
+        return ( new Size( widget, true, width, widthPercent, height, heightPercent ) );
     }
 }

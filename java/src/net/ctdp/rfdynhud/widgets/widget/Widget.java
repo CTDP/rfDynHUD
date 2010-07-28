@@ -50,7 +50,6 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
-import net.ctdp.rfdynhud.values.__ValPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
@@ -538,6 +537,47 @@ public abstract class Widget implements Documented
     protected final Color getFontColor()
     {
         return ( fontColor.getColor() );
+    }
+    
+    protected final IntProperty getPaddingPropertyTop()
+    {
+        return ( paddingTop );
+    }
+    
+    protected final IntProperty getPaddingPropertyLeft()
+    {
+        return ( paddingLeft );
+    }
+    
+    protected final IntProperty getPaddingPropertyRight()
+    {
+        return ( paddingRight );
+    }
+    
+    protected final IntProperty getPaddingPropertyBottom()
+    {
+        return ( paddingBottom );
+    }
+    
+    protected final BorderProperty getBorderProperty()
+    {
+        return ( border );
+    }
+    
+    /**
+     * Sets padding for this Widget.
+     * 
+     * @param top
+     * @param left
+     * @param right
+     * @param bottom
+     */
+    protected final void setPadding( int top, int left, int right, int bottom )
+    {
+        paddingTop.setIntValue( top );
+        paddingLeft.setIntValue( left );
+        paddingRight.setIntValue( right );
+        paddingBottom.setIntValue( bottom );
     }
     
     /**
@@ -1346,8 +1386,8 @@ public abstract class Widget implements Documented
     protected Widget( String name, float width, boolean widthPercent, float height, boolean heightPercent )
     {
         this.name.setStringValue( name );
-        this.size = __ValPrivilegedAccess.newWidgetSize( width, widthPercent, height, heightPercent, this );
-        this.position = __ValPrivilegedAccess.newWidgetPosition( RelativePositioning.TOP_LEFT, 0f, true, 0f, true, size, this );
+        this.size = Size.newGlobalSize( this, width, widthPercent, height, heightPercent );
+        this.position = Position.newGlobalPosition( this, RelativePositioning.TOP_LEFT, 0f, true, 0f, true, size );
         
         if ( !canHaveBorder() )
             border.setBorder( null );
