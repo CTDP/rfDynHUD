@@ -34,7 +34,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * This Widget demonstrates the use of localizations.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson6Widget_Localizations extends Widget
 {

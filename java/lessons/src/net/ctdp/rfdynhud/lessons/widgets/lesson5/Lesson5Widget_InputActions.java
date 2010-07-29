@@ -36,7 +36,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * This Widget demonstrates the use of custom InputActions.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson5Widget_InputActions extends Widget
 {

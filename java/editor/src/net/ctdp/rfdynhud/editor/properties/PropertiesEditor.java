@@ -24,7 +24,7 @@ import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class PropertiesEditor
 {

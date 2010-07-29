@@ -58,7 +58,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link MapWidget} renders a map overview of the current track.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class MapWidget extends Widget
 {

@@ -32,7 +32,7 @@ import sun.awt.image.ByteInterleavedRaster;
  * to another image.
  * </p>
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ImageTemplate
 {

@@ -62,7 +62,7 @@ import org.openmali.types.twodee.Rect2i;
 /**
  * This is an adapter for pixel-perfect drawing onto a Texture2D.
  * 
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class Texture2DCanvas extends Graphics2D
 {

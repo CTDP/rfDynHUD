@@ -31,7 +31,7 @@ import net.ctdp.rfdynhud.util.TextureManager;
 /**
  * The {@link BorderCache} is used to load borders only once.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class BorderCache
 {

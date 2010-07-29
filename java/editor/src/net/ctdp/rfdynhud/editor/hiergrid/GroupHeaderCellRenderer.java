@@ -27,7 +27,7 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
 /**
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class GroupHeaderCellRenderer extends KeyValueCellRenderer< JLabel >
 {

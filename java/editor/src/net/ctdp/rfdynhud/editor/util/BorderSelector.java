@@ -80,7 +80,7 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
  * The {@link BorderSelector} provides a dialog to select border images from a certain
  * folder and its subfolders and to define aliases for these borders.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class BorderSelector extends DefaultTableModel
 {

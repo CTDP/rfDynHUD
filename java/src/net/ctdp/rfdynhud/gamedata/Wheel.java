@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public enum Wheel
 {

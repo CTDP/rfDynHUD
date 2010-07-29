@@ -21,7 +21,7 @@ package net.ctdp.rfdynhud.render;
  * This class must be initialized at the very beginning to feed the {@link ByteOrderManager}
  * with the correct values.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ByteOrderInitializer
 {

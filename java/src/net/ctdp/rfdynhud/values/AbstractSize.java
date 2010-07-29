@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.values;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public interface AbstractSize
 {

@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.gamedata;
 /**
  * Static methods to read primitive types from a byte array.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ByteUtil
 {

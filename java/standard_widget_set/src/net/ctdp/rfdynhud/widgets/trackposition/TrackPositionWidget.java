@@ -47,7 +47,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link TrackPositionWidget} displays all driving vehicles on a line.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TrackPositionWidget extends Widget
 {

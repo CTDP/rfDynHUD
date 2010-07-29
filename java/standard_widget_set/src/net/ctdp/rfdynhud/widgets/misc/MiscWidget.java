@@ -50,7 +50,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link MiscWidget} displays miscellaneous information like fastest lap, session time, top speed, etc..
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class MiscWidget extends StatefulWidget<Object, LocalStore>
 {

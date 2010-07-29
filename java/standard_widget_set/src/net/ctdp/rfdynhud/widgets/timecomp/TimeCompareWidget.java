@@ -40,7 +40,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link TimeCompareWidget} displays lap- and sector times of the last few laps to compare them.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
 {

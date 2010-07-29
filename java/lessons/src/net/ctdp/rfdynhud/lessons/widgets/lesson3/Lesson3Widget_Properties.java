@@ -43,7 +43,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * 
  * Some default properties are provided by the base Widget class. We will define our own properties here.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson3Widget_Properties extends Widget
 {

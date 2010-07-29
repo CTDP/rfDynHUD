@@ -30,4 +30,24 @@ public class __PropsPrivilegedAccess
     {
         return ( property.widgetsConfig != null );
     }
+    
+    public static final void setCellRenderer( Object renderer, Property property )
+    {
+        property.cellRenderer = renderer;
+    }
+    
+    public static final Object getCellRenderer( Property property )
+    {
+        return ( property.cellRenderer );
+    }
+    
+    public static final void setCellEditor( Object editor, Property property )
+    {
+        property.cellEditor = editor;
+    }
+    
+    public static final Object getCellEditor( Property property )
+    {
+        return ( property.cellEditor );
+    }
 }

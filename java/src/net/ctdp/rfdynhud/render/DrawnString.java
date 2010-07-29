@@ -25,7 +25,7 @@ import org.openmali.types.twodee.Rect2i;
  * A {@link DrawnString} is an abstraction of a String to be drawn.
  * It handles alignment and clearing.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class DrawnString
 {

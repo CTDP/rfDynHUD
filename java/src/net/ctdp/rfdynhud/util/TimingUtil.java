@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.util;
 /**
  * Provides static methods to deal with timing.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TimingUtil
 {

@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.editor.hiergrid;
 import javax.swing.JTable;
 
 /**
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class KeyCellRenderer extends KeyValueCellRenderer< KeyRenderLabel >
 {

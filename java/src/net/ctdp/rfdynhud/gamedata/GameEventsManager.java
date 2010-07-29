@@ -31,7 +31,7 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener
 /**
  * The events manager receives events from rFactor and modifies state-flags appropriately.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class GameEventsManager implements ConfigurationClearListener
 {
@@ -825,22 +825,16 @@ public class GameEventsManager implements ConfigurationClearListener
     }
     
     /**
+     * This event method is invoked when the engine boost mapping or temporary boost has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldBoost
+     * @param newBoost
+     * @param oldTempBoost
+     * @param newTempBoost
      */
-    public void onEngineBoostMappingChanged( int oldValue, int newValue )
+    public void onEngineBoostChanged( int oldBoost, int newBoost, boolean oldTempBoost, boolean newTempBoost )
     {
-        widgetsManager.fireOnEngineBoostMappingChanged( oldValue, newValue );
-    }
-    
-    /**
-     * 
-     * @param enabled
-     */
-    public void onTemporaryEngineBoostStateChanged( boolean enabled )
-    {
-        widgetsManager.fireOnTemporaryEngineBoostStateChanged( enabled );
+        widgetsManager.fireOnEngineBoostChanged( oldBoost, newBoost, oldTempBoost, newTempBoost );
     }
     
     /**

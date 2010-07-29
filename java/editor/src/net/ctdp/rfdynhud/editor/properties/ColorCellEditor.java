@@ -37,7 +37,7 @@ import org.jagatoo.gui.awt_swing.util.ColorChooser.ColorChooserDialog;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {

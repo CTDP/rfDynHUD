@@ -52,7 +52,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link TemperaturesWidget} displays temperature information for the engine, tires and brakes.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TemperaturesWidget extends Widget
 {

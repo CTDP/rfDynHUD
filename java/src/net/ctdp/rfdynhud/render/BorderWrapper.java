@@ -26,7 +26,7 @@ import net.ctdp.rfdynhud.properties.IntProperty;
  * A ColoredBorder is a Border implementation with no Textures but only a
  * color.
  * 
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class BorderWrapper
 {

@@ -54,7 +54,7 @@ import org.openmali.vecmath2.util.ColorUtils;
 /**
  * The {@link WidgetsConfiguration} handles the drawing of all visible widgets.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class WidgetsConfiguration implements Documented
 {
@@ -196,7 +196,7 @@ public class WidgetsConfiguration implements Documented
         widgets.remove( widget );
         widgetsMap.remove( widget.getName() );
         
-        if ( widget instanceof StatefulWidget )
+        if ( ( widget instanceof StatefulWidget ) && __WPrivilegedAccess.hasLocalStore( (StatefulWidget)widget ) )
         {
             localStores.put( getLocalStoreKey( widget ), ( (StatefulWidget)widget ).getLocalStore() );
             //if ( !isEditorMode )
@@ -230,7 +230,7 @@ public class WidgetsConfiguration implements Documented
             {
                 Widget widget = widgets.get( i );
                 
-                if ( widget instanceof StatefulWidget )
+                if ( ( widget instanceof StatefulWidget ) && __WPrivilegedAccess.hasLocalStore( (StatefulWidget)widget ) )
                     localStores.put( getLocalStoreKey( widget ), ( (StatefulWidget)widget ).getLocalStore() );
                 visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
                 

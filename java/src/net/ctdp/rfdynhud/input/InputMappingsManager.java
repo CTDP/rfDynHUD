@@ -40,7 +40,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
 /**
  * This manager manages mappings of {@link InputAction}s to input device components (buttons and keys).
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class InputMappingsManager
 {

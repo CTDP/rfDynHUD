@@ -39,7 +39,7 @@ import javax.swing.table.TableColumnModel;
  * The {@link HierarchicalTable} is a JTable, that displays hierarchical (structured) data in a
  * nice looking and compressed form.
  * 
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class HierarchicalTable extends JTable
 {

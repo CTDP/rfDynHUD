@@ -34,7 +34,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
 /**
  * This class loads setup data from an SVM file into a {@link VehicleSetup} instance.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 class VehicleSetupParser
 {

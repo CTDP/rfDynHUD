@@ -23,7 +23,7 @@ import java.net.URL;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class StringUtil
 {

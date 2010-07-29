@@ -24,7 +24,7 @@ import java.awt.Graphics2D;
 import javax.swing.JLabel;
 
 /**
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class KeyRenderLabel extends JLabel
 {

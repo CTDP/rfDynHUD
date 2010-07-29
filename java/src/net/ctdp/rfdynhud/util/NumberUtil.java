@@ -24,7 +24,7 @@ import java.util.Locale;
 /**
  * The {@link NumberUtil} keeps static methods to format numbers.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class NumberUtil
 {

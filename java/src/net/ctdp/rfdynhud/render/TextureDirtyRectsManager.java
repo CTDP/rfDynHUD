@@ -26,7 +26,7 @@ import org.openmali.types.twodee.Rect2i;
 /**
  * This class provides a public interface to retrieve the current dirty rectangles.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TextureDirtyRectsManager
 {

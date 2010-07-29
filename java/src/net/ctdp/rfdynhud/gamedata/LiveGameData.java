@@ -23,7 +23,7 @@ import net.ctdp.rfdynhud.util.Logger;
 /**
  * 
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class LiveGameData
 {

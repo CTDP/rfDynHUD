@@ -33,7 +33,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * This Widget shows another dynamic text.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson2bWidget_FirstDynamics extends Widget
 {

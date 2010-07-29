@@ -22,7 +22,7 @@ import java.io.InputStream;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 class ScoringInfoCapsule
 {

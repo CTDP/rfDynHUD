@@ -37,7 +37,7 @@ import java.util.HashMap;
  * @param <GeneralStore> the type name of the general store class
  * @param <LocalStore> the type name of the local store class
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
 {
@@ -92,6 +92,11 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
     final void setLocalStore( LocalStore localStore )
     {
         this.localStore = localStore;
+    }
+    
+    final boolean hasLocalStore()
+    {
+        return ( localStore != null );
     }
     
     /**

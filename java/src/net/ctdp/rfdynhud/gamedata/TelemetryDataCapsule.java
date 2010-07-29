@@ -31,7 +31,7 @@ import java.io.InputStream;
  *   +y yaws to the right
  *   +z rolls to the right
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 class TelemetryDataCapsule
 {

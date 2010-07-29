@@ -42,7 +42,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * parts of the Widget without problems.
  * You can draw on Subtextures the same way as on the Widget area itself.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson4bWidget_SubTextures extends Widget
 {

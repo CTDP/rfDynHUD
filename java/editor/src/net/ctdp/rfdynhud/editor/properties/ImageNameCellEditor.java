@@ -35,7 +35,7 @@ import net.ctdp.rfdynhud.properties.ImageProperty;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {

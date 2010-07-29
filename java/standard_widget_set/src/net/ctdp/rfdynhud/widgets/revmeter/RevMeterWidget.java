@@ -66,7 +66,7 @@ import org.openmali.vecmath2.util.ColorUtils;
 /**
  * The {@link RevMeterWidget} displays rev/RPM information.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class RevMeterWidget extends Widget
 {

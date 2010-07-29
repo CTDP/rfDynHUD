@@ -37,7 +37,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * Here you'll learn, how to rotate a TransformableTexture... pretty straight forward.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson4cWidget_SubTextures extends Widget
 {

@@ -29,7 +29,7 @@ import net.ctdp.rfdynhud.util.Logger;
 /**
  * This manager keeps information about plugged in Joysticks (Wheels) and their buttons.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class InputDeviceManager
 {

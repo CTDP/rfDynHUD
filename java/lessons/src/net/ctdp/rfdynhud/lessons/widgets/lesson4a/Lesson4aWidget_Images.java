@@ -35,7 +35,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * This Widget shows, how to use custom images.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson4aWidget_Images extends Widget
 {

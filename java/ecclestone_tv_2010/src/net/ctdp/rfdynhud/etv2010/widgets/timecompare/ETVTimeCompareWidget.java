@@ -48,7 +48,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 /**
  * The {@link ETVTimeCompareWidget} displays lap time gaps in race sessions.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ETVTimeCompareWidget extends ETVTimingWidgetBase
 {

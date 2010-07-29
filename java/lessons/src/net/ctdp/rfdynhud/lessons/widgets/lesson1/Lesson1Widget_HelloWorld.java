@@ -34,7 +34,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * 
  * This Widget will simply display the standard background and border with the text "Hello World".
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson1Widget_HelloWorld extends Widget
 {

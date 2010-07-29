@@ -58,7 +58,7 @@ import javax.swing.event.ListSelectionListener;
  * The {@link ImageSelector} provides a dialog to select images from a certain
  * folder and its subfolders.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ImageSelector
 {

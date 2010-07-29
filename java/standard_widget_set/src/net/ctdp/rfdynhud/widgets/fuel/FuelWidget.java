@@ -58,7 +58,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * The {@link FuelWidget} displays fuel information like current fuel load, fuel usage per lap,
  * and computed fuel for scheduled pitstops.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class FuelWidget extends Widget
 {

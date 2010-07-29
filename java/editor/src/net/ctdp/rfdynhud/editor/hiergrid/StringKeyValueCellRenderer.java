@@ -21,7 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 
 /**
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class StringKeyValueCellRenderer extends KeyValueCellRenderer< JLabel >
 {

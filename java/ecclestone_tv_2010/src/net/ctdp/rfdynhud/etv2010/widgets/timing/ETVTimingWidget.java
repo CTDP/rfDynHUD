@@ -51,7 +51,7 @@ import net.ctdp.rfdynhud.values.ValidityTest;
 /**
  * The {@link ETVTimingWidget} displays the current lap time.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ETVTimingWidget extends ETVTimingWidgetBase
 {

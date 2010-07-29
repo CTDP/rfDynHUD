@@ -40,7 +40,7 @@ import net.ctdp.rfdynhud.util.Tools;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class EditorTable extends HierarchicalTable
 {
@@ -97,47 +97,69 @@ public class EditorTable extends HierarchicalTable
         
         PropertyEditorType editorType = property.getEditorType();
         
-        switch ( editorType )
+        TableCellRenderer result = (TableCellRenderer)__PropsPrivilegedAccess.getCellRenderer( property );
+        
+        if ( result == null )
         {
-            case BOOLEAN:
-                //return ( booleanEditor );
-                return ( new BooleanCellEditor() );
-            case INTEGER:
-                //return ( integerEditor );
-                return ( new IntegerCellEditor() );
-            case FLOAT:
-                //return ( floatEditor );
-                return ( new FloatCellEditor() );
-            case POS_SIZE:
-                //return ( posSizeEditor );
-                return ( new PosSizeCellEditor() );
-            case STRING:
-                //return ( stringEditor );
-                return ( new StringCellEditor() );
-            case ENUM:
-                //return ( enumEditor );
-                return ( new EnumCellEditor() );
-            case ARRAY:
-                //return ( arrayEditor );
-                return ( new ArrayCellEditor() );
-            case LIST:
-                //return ( listEditor );
-                return ( new ListCellEditor() );
-            case FONT:
-                //return ( fontEditor );
-                return ( new FontCellEditor() );
-            case COLOR:
-                //return ( colorEditor );
-                return ( new ColorCellEditor() );
-            case IMAGE:
-                //return ( imageEditor );
-                return ( new ImageNameCellEditor() );
-            case BORDER:
-                //return ( borderEditor );
-                return ( new BorderCellEditor() );
+            switch ( editorType )
+            {
+                case BOOLEAN:
+                    //result = booleanEditor;
+                    result = new BooleanCellEditor();
+                    break;
+                case INTEGER:
+                    //result = integerEditor;
+                    result = new IntegerCellEditor();
+                    break;
+                case FLOAT:
+                    //result = floatEditor;
+                    result = new FloatCellEditor();
+                    break;
+                case POS_SIZE:
+                    //result = posSizeEditor;
+                    result = new PosSizeCellEditor();
+                    break;
+                case STRING:
+                    //result = stringEditor;
+                    result = new StringCellEditor();
+                    break;
+                case ENUM:
+                    //result = enumEditor;
+                    result = new EnumCellEditor();
+                    break;
+                case ARRAY:
+                    //result = arrayEditor;
+                    result = new ArrayCellEditor();
+                    break;
+                case LIST:
+                    //result = listEditor;
+                    result = new ListCellEditor();
+                    break;
+                case FONT:
+                    //result = fontEditor;
+                    result = new FontCellEditor();
+                    break;
+                case COLOR:
+                    //result = colorEditor;
+                    result = new ColorCellEditor();
+                    break;
+                case IMAGE:
+                    //result = imageEditor;
+                    result = new ImageNameCellEditor();
+                    break;
+                case BORDER:
+                    //result = borderEditor;
+                    result = new BorderCellEditor();
+                    break;
+                default:
+                    result = super.getCellRenderer( row, column );
+                    break;
+            }
+            
+            __PropsPrivilegedAccess.setCellRenderer( result, property );
         }
         
-        return ( super.getCellRenderer( row, column ) );
+        return ( result );
     }
     
     @Override
@@ -156,47 +178,69 @@ public class EditorTable extends HierarchicalTable
         
         PropertyEditorType editorType = property.getEditorType();
         
-        switch ( editorType )
+        TableCellEditor result = (TableCellEditor)__PropsPrivilegedAccess.getCellEditor( property );
+        
+        if ( result == null )
         {
-            case BOOLEAN:
-                //return ( booleanEditor );
-                return ( new BooleanCellEditor() );
-            case INTEGER:
-                //return ( integerEditor );
-                return ( new IntegerCellEditor() );
-            case FLOAT:
-                //return ( floatEditor );
-                return ( new FloatCellEditor() );
-            case POS_SIZE:
-                //return ( posSizeEditor );
-                return ( new PosSizeCellEditor() );
-            case STRING:
-                //return ( stringEditor );
-                return ( new StringCellEditor() );
-            case ENUM:
-                //return ( enumEditor );
-                return ( new EnumCellEditor() );
-            case ARRAY:
-                //return ( arrayEditor );
-                return ( new ArrayCellEditor() );
-            case LIST:
-                //return ( listEditor );
-                return ( new ListCellEditor() );
-            case FONT:
-                //return ( fontEditor );
-                return ( new FontCellEditor() );
-            case COLOR:
-                //return ( colorEditor );
-                return ( new ColorCellEditor() );
-            case IMAGE:
-                //return ( imageEditor );
-                return ( new ImageNameCellEditor() );
-            case BORDER:
-                //return ( borderEditor );
-                return ( new BorderCellEditor() );
+            switch ( editorType )
+            {
+                case BOOLEAN:
+                    //result = booleanEditor;
+                    result = new BooleanCellEditor();
+                    break;
+                case INTEGER:
+                    //result = integerEditor;
+                    result = new IntegerCellEditor();
+                    break;
+                case FLOAT:
+                    //result = floatEditor;
+                    result = new FloatCellEditor();
+                    break;
+                case POS_SIZE:
+                    //result = posSizeEditor;
+                    result = new PosSizeCellEditor();
+                    break;
+                case STRING:
+                    //result = stringEditor;
+                    result = new StringCellEditor();
+                    break;
+                case ENUM:
+                    //result = enumEditor;
+                    result = new EnumCellEditor();
+                    break;
+                case ARRAY:
+                    //result = arrayEditor;
+                    result = new ArrayCellEditor();
+                    break;
+                case LIST:
+                    //result = listEditor;
+                    result = new ListCellEditor();
+                    break;
+                case FONT:
+                    //result = fontEditor;
+                    result = new FontCellEditor();
+                    break;
+                case COLOR:
+                    //result = colorEditor;
+                    result = new ColorCellEditor();
+                    break;
+                case IMAGE:
+                    //result = imageEditor;
+                    result = new ImageNameCellEditor();
+                    break;
+                case BORDER:
+                    //result = borderEditor;
+                    result = new BorderCellEditor();
+                    break;
+                default:
+                    result = super.getCellEditor( row, column );
+                    break;
+            }
+            
+            __PropsPrivilegedAccess.setCellEditor( result, property );
         }
         
-        return ( super.getCellEditor( row, column ) );
+        return ( result );
     }
     
     public void apply()

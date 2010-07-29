@@ -50,7 +50,7 @@ import net.ctdp.rfdynhud.values.StringValue;
 /**
  * The {@link ETVStandingsWidget} displays the list of drivers and gaps.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ETVStandingsWidget extends ETVWidgetBase
 {

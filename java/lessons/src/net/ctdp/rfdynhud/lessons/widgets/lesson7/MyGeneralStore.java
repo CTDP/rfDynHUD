@@ -21,7 +21,7 @@ package net.ctdp.rfdynhud.lessons.widgets.lesson7;
  * The General Store is used to preserve the state of a whole Widget class.
  * All Widgets of the same class will use this state.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class MyGeneralStore
 {

@@ -23,7 +23,7 @@ import net.ctdp.rfdynhud.util.Logger;
 /**
  * This class interfaces native DirectInput.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class DirectInputConnection
 {

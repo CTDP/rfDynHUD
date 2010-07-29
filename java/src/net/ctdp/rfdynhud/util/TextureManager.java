@@ -33,7 +33,7 @@ import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 /**
  * ImageIO image loading is pretty slow. This is a simple but fast texture loading implementation.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TextureManager
 {

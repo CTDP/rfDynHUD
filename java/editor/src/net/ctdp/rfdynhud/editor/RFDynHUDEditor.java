@@ -62,6 +62,7 @@ import javax.swing.text.html.HTMLDocument;
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
@@ -106,7 +107,7 @@ import org.jagatoo.util.ini.IniWriter;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class RFDynHUDEditor implements Documented, PropertySelectionListener
 {
@@ -137,7 +138,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private final JEditorPane docPanel;
     private boolean isSomethingDoced = false;
     
+    private final EditorStatusBar statusBar;
+    
     private final EditorPresets presets = new EditorPresets();
+    
+    private final EditorRunningIndicator runningIndicator;
     
     private static final String doc_header = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
     private static final String doc_footer = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
@@ -174,6 +179,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             window.setTitle( BASE_WINDOW_TITLE + ( dirtyFlag ? " (*)" : "" ) );
         else
             window.setTitle( BASE_WINDOW_TITLE + " - " + currentConfigFile.getAbsolutePath() + ( dirtyFlag ? "*" : "" ) );
+    }
+    
+    public final EditorRunningIndicator getRunningIndicator()
+    {
+        return ( runningIndicator );
     }
     
     public void setDirtyFlag()
@@ -577,6 +587,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     
     //private long nextRedrawTime = -1L;
     
+    public static final String WIDGET_CHANGE_POS_SIZE = "POS_SIZE";
+    
     /**
      * @param widget
      * @param propertyName
@@ -593,8 +605,21 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         if ( ( widget != null ) && ( widget == getEditorPanel().getSelectedWidget() ) )
         {
-            editorTable.apply();
-            onWidgetSelected( widget, false );
+            //editorTable.apply();
+            //onWidgetSelected( widget, false );
+            
+            HierarchicalTableModel m = (HierarchicalTableModel)editorTable.getModel();
+            int rc = m.getRowCount();
+            for ( int i = 0; i < rc; i++ )
+            {
+                Object v = m.getValueAt( i, 1 );
+                if ( v instanceof String )
+                {
+                    String pn = (String)v;
+                    if ( pn.equals( "x" ) || pn.equals( "y" ) || pn.equals( "width" ) || pn.equals( "height" ) )
+                        m.fireTableCellUpdated( i, 2 );
+                }
+            }
         }
     }
     
@@ -1650,7 +1675,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         split.setContinuousLayout( true );
         
         split.add( split2 );
-        contentPane.add( split );
+        contentPane.add( split, BorderLayout.CENTER );
+        
+        this.runningIndicator = new EditorRunningIndicator( this );
+        
+        this.statusBar = new EditorStatusBar( runningIndicator );
+        
+        contentPane.add( statusBar, BorderLayout.SOUTH );
         
         this.presetsWindow = new EditorPresetsWindow( this );
         

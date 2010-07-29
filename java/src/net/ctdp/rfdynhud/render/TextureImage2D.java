@@ -57,7 +57,7 @@ import org.openmali.vecmath2.util.ColorUtils;
  * Most of the code is borrowed from TextureImage2D from the Xith3D project. (http://xith.org/)
  * 
  * @author David Yazel
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class TextureImage2D
 {

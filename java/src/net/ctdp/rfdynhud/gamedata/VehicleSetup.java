@@ -24,7 +24,7 @@ import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
 /**
  * This class models all possible settings of a car setup.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 @SuppressWarnings( "unused" )
 public class VehicleSetup

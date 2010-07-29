@@ -15,38 +15,34 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.input;
+package net.ctdp.rfdynhud.editor;
+
+import java.awt.Window;
 
 /**
- * The {@link InputMapping} keeps information about a single mapped input component to a Widget.
+ * This indicator serves as a check service to tell,
+ *  whether the application is running.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class InputMapping
+public final class EditorRunningIndicator
 {
-    private final String widgetName;
-    private final InputAction action;
-    private final String deviceComponent;
+    //private final RFDynHUDEditor editor;
+    private final Window mainWindow;
     
-    public final String getWidgetName()
+    /**
+     * This method returns <code>true</code> as long as the application is running.
+     * 
+     * @return <code>true</code> as long as the application is running.
+     */
+    public final boolean isEditorRunning()
     {
-        return ( widgetName );
+        return ( mainWindow.isVisible() );
     }
     
-    public final InputAction getAction()
+    public EditorRunningIndicator( RFDynHUDEditor editor )
     {
-        return ( action );
-    }
-    
-    public final String getDeviceComponent()
-    {
-        return ( deviceComponent );
-    }
-    
-    public InputMapping( String widgetName, InputAction action, String deviceComponent )
-    {
-        this.widgetName = widgetName;
-        this.action = action;
-        this.deviceComponent = deviceComponent;
+        //this.editor = editor;
+        this.mainWindow = editor.getMainWindow();
     }
 }

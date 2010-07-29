@@ -59,7 +59,7 @@ import org.openmali.types.twodee.Rect2i;
  * This is the base for all Widgets to be drawn on the HUD.<br>
  * Any concrete extension must have a parameterless constructor.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public abstract class Widget implements Documented
 {
@@ -249,7 +249,7 @@ public abstract class Widget implements Documented
      */
     public abstract WidgetPackage getWidgetPackage();
     
-    final void setConfiguration( WidgetsConfiguration config )
+    void setConfiguration( WidgetsConfiguration config )
     {
         this.config = config;
     }
@@ -931,21 +931,14 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * This event method is invoked when the engine boost mapping has changed.
+     * This event method is invoked when the engine boost mapping or temporary boost has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldBoost
+     * @param newBoost
+     * @param oldTempBoost
+     * @param newTempBoost
      */
-    public void onEngineBoostMappingChanged( int oldValue, int newValue )
-    {
-    }
-    
-    /**
-     * This event method is invoked when the temporary engine boost key or button state has changed.
-     * 
-     * @param enabled
-     */
-    public void onTemporaryEngineBoostStateChanged( boolean enabled )
+    public void onEngineBoostChanged( int oldBoost, int newBoost, boolean oldTempBoost, boolean newTempBoost )
     {
     }
     

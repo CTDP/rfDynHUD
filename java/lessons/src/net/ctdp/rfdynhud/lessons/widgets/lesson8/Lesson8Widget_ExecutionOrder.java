@@ -38,7 +38,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * There are several event methods, that are not executed in a specific order,
  * but when events occur. Check all the methods with an "on" prefix.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson8Widget_ExecutionOrder extends Widget
 {

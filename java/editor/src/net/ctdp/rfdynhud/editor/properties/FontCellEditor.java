@@ -36,7 +36,7 @@ import org.jagatoo.gui.awt_swing.util.FontChooser.FontChooserDialog;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class FontCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {

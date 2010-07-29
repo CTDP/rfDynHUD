@@ -26,7 +26,7 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 
 /**
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class StringCellEditor extends JTextField implements TableCellEditor
 {

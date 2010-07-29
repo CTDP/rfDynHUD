@@ -24,7 +24,7 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class CommentaryRequestInfo
 {

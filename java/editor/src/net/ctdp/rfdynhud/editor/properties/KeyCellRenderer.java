@@ -28,7 +28,7 @@ import javax.swing.table.TableCellRenderer;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class KeyCellRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor
 {

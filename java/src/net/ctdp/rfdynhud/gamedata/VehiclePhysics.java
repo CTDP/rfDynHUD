@@ -26,14 +26,14 @@ import net.ctdp.rfdynhud.util.Logger;
 /**
  * This is a model of vehicle physics settings.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class VehiclePhysics
 {
     /**
      * Abstraction of a usual physics setting (base_value, step_size, num_steps).
      * 
-     * @author Marvin Froehlich
+     * @author Marvin Froehlich (CTDP)
      */
     public static class PhysicsSetting
     {
@@ -162,7 +162,7 @@ public class VehiclePhysics
     /**
      * Abstraction of possible Wheel drive settings.
      * 
-     * @author Marvin Froehlich
+     * @author Marvin Froehlich (CTDP)
      */
     public static enum WheelDrive
     {
@@ -197,7 +197,7 @@ public class VehiclePhysics
     /**
      * Model of engine physics parameters.
      * 
-     * @author Marvin Froehlich
+     * @author Marvin Froehlich (CTDP)
      */
     public static class Engine
     {
@@ -618,7 +618,7 @@ public class VehiclePhysics
     /**
      * Model of brake physics parameters.
      * 
-     * @author Marvin Froehlich
+     * @author Marvin Froehlich (CTDP)
      */
     public static class Brakes
     {
@@ -975,7 +975,7 @@ public class VehiclePhysics
     /**
      * Model of a tire slip curve.
      * 
-     * @author Marvin Froehlich
+     * @author Marvin Froehlich (CTDP)
      */
     public static final class SlipCurve
     {
@@ -1030,7 +1030,7 @@ public class VehiclePhysics
     /**
      * Model of a tire compound.
      * 
-     * @author Marvin Froehlich
+     * @author Marvin Froehlich (CTDP)
      */
     public static class TireCompound
     {
@@ -1096,7 +1096,7 @@ public class VehiclePhysics
         /**
          * Model of one wheel of a compound. There will always be one {@link CompoundWheel} in a {@link TireCompound} for each wheel of the vehicle.
          * 
-         * @author Marvin Froehlich
+         * @author Marvin Froehlich (CTDP)
          */
         public static class CompoundWheel
         {

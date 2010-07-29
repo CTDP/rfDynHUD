@@ -31,7 +31,7 @@ import net.ctdp.rfdynhud.util.Logger;
 /**
  * The {@link WidgetPackage} class encapsulates properties for a {@link Widget}'s virtual package.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class WidgetPackage implements Comparable<WidgetPackage>
 {

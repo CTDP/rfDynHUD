@@ -32,7 +32,7 @@ import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class FloatCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {

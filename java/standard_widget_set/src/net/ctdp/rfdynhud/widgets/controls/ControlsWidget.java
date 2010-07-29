@@ -39,7 +39,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link ControlsWidget} displays clutch, brake and throttle.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ControlsWidget extends Widget
 {

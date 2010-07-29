@@ -27,7 +27,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ReadonlyCellEditor extends KeyValueCellRenderer<JLabel> implements TableCellEditor
 {

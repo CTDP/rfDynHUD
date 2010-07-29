@@ -37,7 +37,7 @@ import org.jagatoo.util.versioning.Version;
 /**
  * This is the entry point for the VM-invocation from rFactor.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class RFDynHUD
 {

@@ -51,7 +51,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 /**
  * The {@link ETVSessionStateWidget} displays the current lap.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ETVSessionStateWidget extends ETVWidgetBase
 {

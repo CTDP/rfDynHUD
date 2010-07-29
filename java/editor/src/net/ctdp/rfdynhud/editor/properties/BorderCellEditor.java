@@ -35,7 +35,7 @@ import net.ctdp.rfdynhud.properties.BorderProperty;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {

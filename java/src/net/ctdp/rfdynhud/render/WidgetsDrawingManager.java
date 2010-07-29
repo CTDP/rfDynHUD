@@ -39,7 +39,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 /**
  * The {@link WidgetsDrawingManager} handles the drawing of all visible widgets.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class WidgetsDrawingManager extends WidgetsConfiguration
 {
@@ -539,40 +539,21 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     }
     
     /**
-     * This event method is invoked when the engine boost mapping has changed.
+     * This event method is invoked when the engine boost mapping or temporary boost has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldBoost
+     * @param newBoost
+     * @param oldTempBoost
+     * @param newTempBoost
      */
-    public void fireOnEngineBoostMappingChanged( int oldValue, int newValue )
+    public void fireOnEngineBoostChanged( int oldBoost, int newBoost, boolean oldTempBoost, boolean newTempBoost )
     {
         int numWidgets = getNumWidgets();
         for ( int i = 0; i < numWidgets; i++ )
         {
             try
             {
-                getWidget( i ).onEngineBoostMappingChanged( oldValue, newValue );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This event method is invoked when the temporary engine boost key or button state has changed.
-     * 
-     * @param enabled
-     */
-    public void fireOnTemporaryEngineBoostStateChanged( boolean enabled )
-    {
-        int numWidgets = getNumWidgets();
-        for ( int i = 0; i < numWidgets; i++ )
-        {
-            try
-            {
-                getWidget( i ).onTemporaryEngineBoostStateChanged( enabled );
+                getWidget( i ).onEngineBoostChanged( oldBoost, newBoost, oldTempBoost, newTempBoost );
             }
             catch ( Throwable t )
             {

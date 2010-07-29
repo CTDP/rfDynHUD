@@ -36,7 +36,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class EditorPanelInputHandler implements MouseListener, MouseMotionListener, KeyListener
 {
@@ -551,7 +551,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             }
             
             if ( changed )
-                editor.onWidgetChanged( selectedWidget, "POSITIONAL" );
+                editor.onWidgetChanged( selectedWidget, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
         }
     }
     
@@ -592,7 +592,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                     w.clearRegion( true, editor.getOverlayTexture() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
                     {
-                        editor.onWidgetChanged( w, "POSITIONAL" );
+                        editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
                         needsRedraw = true;
                     }
                 }
@@ -606,7 +606,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                     w.clearRegion( true, editor.getOverlayTexture() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
                     {
-                        editor.onWidgetChanged( w, "POSITIONAL" );
+                        editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
                         needsRedraw = true;
                     }
                 }
@@ -620,7 +620,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                     w.clearRegion( true, editor.getOverlayTexture() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
                     {
-                        editor.onWidgetChanged( w, "POSITIONAL" );
+                        editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
                         needsRedraw = true;
                     }
                 }
@@ -634,7 +634,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                     w.clearRegion( true, editor.getOverlayTexture() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
                     {
-                        editor.onWidgetChanged( w, "POSITIONAL" );
+                        editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
                         needsRedraw = true;
                     }
                 }

@@ -24,7 +24,7 @@ import net.ctdp.rfdynhud.util.StringUtil;
 /**
  * This is a simple abstraction of an input action.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class InputAction implements Comparable<InputAction>
 {

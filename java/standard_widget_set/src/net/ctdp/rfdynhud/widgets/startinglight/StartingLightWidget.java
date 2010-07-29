@@ -41,7 +41,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link StartingLightWidget} displays a starting light for the race.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class StartingLightWidget extends Widget
 {

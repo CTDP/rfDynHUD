@@ -29,7 +29,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  * The {@link ThreeLetterCodeManager} loads name-to-code mappings from an
  * ini file and provides the information to the user.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ThreeLetterCodeManager
 {

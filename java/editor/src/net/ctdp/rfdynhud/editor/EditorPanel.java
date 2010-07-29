@@ -46,7 +46,7 @@ import org.openmali.types.twodee.Rect2i;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class EditorPanel extends JPanel
 {

@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.render;
 /**
  * The manager provides static final fields for the used byte order.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ByteOrderManager
 {

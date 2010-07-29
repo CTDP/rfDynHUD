@@ -29,7 +29,7 @@ import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
 /**
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public abstract class KeyValueCellRenderer < C extends JComponent > extends AbstractCellEditor implements Border, TableCellRenderer
 {

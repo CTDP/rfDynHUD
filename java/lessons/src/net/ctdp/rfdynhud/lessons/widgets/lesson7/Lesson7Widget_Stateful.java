@@ -34,7 +34,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * The generic parameters will help you to save some casts.
  * If you only need one of the two stores, just use 'Object' as generic parameter for the other one.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class Lesson7Widget_Stateful extends StatefulWidget<MyGeneralStore, MyLocalStore> // Note the different base class!
 {

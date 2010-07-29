@@ -36,7 +36,7 @@ import net.ctdp.rfdynhud.util.Logger;
  *   +y yaws to the right
  *   +z rolls to the right
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TelemetryData
 {
@@ -273,7 +273,7 @@ public class TelemetryData
         this.engineBoostMapping = Math.min( engineBoostMapping + 1, (int)engine.getBoostRange().getMaxValue() );
         
         if ( engineBoostMapping != oldValue )
-            eventsManager.onEngineBoostMappingChanged( oldValue, engineBoostMapping );
+            eventsManager.onEngineBoostChanged( oldValue, engineBoostMapping, tempBoostFlag, tempBoostFlag );
     }
     
     void decEngineBoostMapping( Engine engine )
@@ -282,7 +282,7 @@ public class TelemetryData
         this.engineBoostMapping = Math.max( (int)engine.getBoostRange().getMinValue(), engineBoostMapping - 1 );
         
         if ( engineBoostMapping != oldValue )
-            eventsManager.onEngineBoostMappingChanged( oldValue, engineBoostMapping );
+            eventsManager.onEngineBoostChanged( oldValue, engineBoostMapping, tempBoostFlag, tempBoostFlag );
     }
     
     void setTempBoostFlag( boolean tempBoostFlag )
@@ -291,7 +291,7 @@ public class TelemetryData
         this.tempBoostFlag = tempBoostFlag;
         
         if ( tempBoostFlag != oldValue )
-            eventsManager.onTemporaryEngineBoostStateChanged( tempBoostFlag );
+            eventsManager.onEngineBoostChanged( engineBoostMapping, engineBoostMapping, oldValue, tempBoostFlag );
     }
     
     public final boolean getTemporaryBoostFlag()

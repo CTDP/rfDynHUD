@@ -26,7 +26,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 /**
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public class ExpanderColumnCellRenderer extends JPanel implements TableCellRenderer
 {

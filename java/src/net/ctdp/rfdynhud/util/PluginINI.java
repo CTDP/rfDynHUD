@@ -25,7 +25,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
 /**
  * Abstraction of the main ini file for the plugin.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class PluginINI
 {

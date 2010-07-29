@@ -35,6 +35,12 @@ public class __WPrivilegedAccess
         widget.setLocalStore( localStore );
     }
     
+    @SuppressWarnings( "unchecked" )
+    public static final boolean hasLocalStore( StatefulWidget widget )
+    {
+        return ( widget.hasLocalStore() );
+    }
+    
     public static final boolean isInitialized( Widget widget )
     {
         return ( widget.isInitialized() );

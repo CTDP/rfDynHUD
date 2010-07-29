@@ -27,7 +27,7 @@ import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class VehicleScoringInfo
 {

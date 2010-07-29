@@ -24,7 +24,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  * The {@link Property} serves as a general data container and adapter.
  * You can use it to put data into a GUI component and live update it.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public abstract class Property
 {
@@ -37,6 +37,9 @@ public abstract class Property
     private final PropertyEditorType editorType;
     private final String buttonText;
     private final String buttonTooltip;
+    
+    Object cellRenderer = null;
+    Object cellEditor = null;
     
     public final Widget getWidget()
     {

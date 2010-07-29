@@ -31,7 +31,7 @@ import org.openmali.types.twodee.Rect2i;
  * The {@link TransformableTexture} keeps one {@link TextureImage2D}
  * and transformation parameters.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TransformableTexture
 {

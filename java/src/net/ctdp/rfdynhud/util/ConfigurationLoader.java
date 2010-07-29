@@ -41,7 +41,7 @@ import org.openmali.vecmath2.util.ColorUtils;
 /**
  * This utility class servs to load HUD configuration files.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ConfigurationLoader
 {

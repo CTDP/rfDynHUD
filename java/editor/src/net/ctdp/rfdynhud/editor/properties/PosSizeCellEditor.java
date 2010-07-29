@@ -35,7 +35,7 @@ import net.ctdp.rfdynhud.values.Size;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {

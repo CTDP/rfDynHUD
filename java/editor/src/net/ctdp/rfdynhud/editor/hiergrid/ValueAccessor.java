@@ -21,7 +21,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableModel;
 
 /**
- * @author Marvin Froehlich (aka Qudus)
+ * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
 public interface ValueAccessor
 {

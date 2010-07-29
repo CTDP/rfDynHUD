@@ -46,7 +46,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link TimingWidget} displays lap- and sector times and gaps.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class TimingWidget extends Widget
 {

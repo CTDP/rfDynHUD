@@ -34,7 +34,7 @@ import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class ArrayCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {

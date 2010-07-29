@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 /**
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 class VehicleScoringInfoCapsule
 {

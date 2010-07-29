@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.properties;
 /**
  * The {@link PropertyEditorType} indicates the kind of editor to be used for the {@link Property}.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public enum PropertyEditorType
 {

@@ -52,7 +52,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 /**
  * The {@link StandingsWidget} displays engine information.
  * 
- * @author Marvin Froehlich
+ * @author Marvin Froehlich (CTDP)
  */
 public class StandingsWidget extends StatefulWidget<Object, LocalStore>
 {
