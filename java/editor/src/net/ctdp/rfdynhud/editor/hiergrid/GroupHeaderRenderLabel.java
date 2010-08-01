@@ -26,12 +26,13 @@ import javax.swing.JLabel;
 /**
  * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
-public class KeyRenderLabel extends JLabel
+public class GroupHeaderRenderLabel extends JLabel
 {
     private static final long serialVersionUID = 1L;
     
     private int level = 0;
     private boolean[] lastInGroup = null;
+    private boolean expanded = false;
     
     public void setLevel( int level )
     {
@@ -41,6 +42,11 @@ public class KeyRenderLabel extends JLabel
     public void setLastInGroup( boolean[] lig )
     {
         this.lastInGroup = lig;
+    }
+    
+    public void setExpanded( boolean expanded )
+    {
+        this.expanded = expanded;
     }
     
     @Override
@@ -65,7 +71,7 @@ public class KeyRenderLabel extends JLabel
                 if ( i < level )
                     lig = lig && lastInGroup[level];
                 
-                if ( lig )
+                if ( lig && !expanded )
                 {
                     g2.drawLine( x, 0, x, getHeight() - 4 );
                     g2.drawLine( x, getHeight() - 4, x + 2, getHeight() - 4 );
@@ -80,7 +86,7 @@ public class KeyRenderLabel extends JLabel
         }
     }
     
-    public KeyRenderLabel()
+    public GroupHeaderRenderLabel()
     {
         super();
     }

@@ -112,13 +112,13 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     
     private void fillPropertiesList( FlaggedList props )
     {
-        FlaggedList general = new FlaggedList( "General", true );
+        DefaultWidgetPropertiesContainer propsCont = new DefaultWidgetPropertiesContainer( props );
         
-        general.add( defaultScaleType );
+        propsCont.addGroup( "General" );
         
-        props.add( general );
+        propsCont.addProperty( defaultScaleType );
         
-        __EDPrivilegedAccess.getEditorPresetsProperties( editor.getEditorPresets(), new DefaultWidgetPropertiesContainer( props ) );
+        __EDPrivilegedAccess.getEditorPresetsProperties( editor.getEditorPresets(), propsCont );
     }
     
     private Component createPropertiesEditor()

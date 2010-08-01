@@ -619,6 +619,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     if ( pn.equals( "x" ) || pn.equals( "y" ) || pn.equals( "width" ) || pn.equals( "height" ) )
                         m.fireTableCellUpdated( i, 2 );
                 }
+                else
+                {
+                    // For some reason group headers need to be fully updated.
+                    m.fireTableRowsUpdated( i, i );
+                }
             }
         }
     }
@@ -1247,7 +1252,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             //widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
             widget = createWidgetInstance( widgetClazz, widgetsConfig );
             copyPropertiesFromTemplate( widget );
-            widgetsConfig.addWidget( widget );
+            __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
             if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
                 widget.setAllPosAndSizeToPercents();
             else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )

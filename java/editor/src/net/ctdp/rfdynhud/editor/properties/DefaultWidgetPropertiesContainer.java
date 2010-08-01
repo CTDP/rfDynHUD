@@ -17,15 +17,17 @@
  */
 package net.ctdp.rfdynhud.editor.properties;
 
+import java.io.PrintStream;
+import java.util.Stack;
+
 import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 
 public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
 {
-    private final FlaggedList root;
-    private FlaggedList list;
-    private FlaggedList listL2 = null;
+    private final Stack<FlaggedList> groupStack = new Stack<FlaggedList>();
+    private FlaggedList currList = null;
     
     @Override
     protected void clearImpl()
@@ -34,46 +36,66 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
     }
     
     @Override
-    protected void addGroupImpl( String groupName, boolean initiallyExpanded, boolean level2 )
+    protected void addGroupImpl( String groupName, boolean initiallyExpanded, boolean pushed )
     {
-        if ( level2 )
+        if ( !pushed && ( groupStack.size() > 1 ) )
         {
-            if ( list == root )
-                throw new IllegalStateException( "No group for level 1 defined." );
-            
-            FlaggedList group = new FlaggedList( groupName, initiallyExpanded );
-            list.add( group );
-            listL2 = group;
+            groupStack.pop();
         }
-        else
-        {
-            FlaggedList group = new FlaggedList( groupName, initiallyExpanded );
-            root.add( group );
-            list = group;
-        }
+        
+        FlaggedList group = new FlaggedList( groupName, initiallyExpanded );
+        
+        FlaggedList parentGroup = groupStack.peek();
+        parentGroup.add( group );
+        groupStack.push( group );
+        currList = group;
     }
     
     @Override
-    protected void popGroupL2Impl()
+    protected void popGroupImpl()
     {
-        if ( listL2 == null )
-            throw new IllegalStateException( "No group for level 2 defined/active." );
-        
-        listL2 = null;
+        groupStack.pop();
+        currList = groupStack.peek();
     }
     
     @Override
     protected void addPropertyImpl( Property property )
     {
-        if ( listL2 != null )
-            listL2.add( property );
-        else
-            list.add( property );
+        currList.add( property );
+    }
+    
+    private void dump( FlaggedList group, PrintStream ps, int level )
+    {
+        for ( int i = 0; i < group.size(); i++ )
+        {
+            for ( int j = 0; j < level; j++ )
+                ps.print( "  " );
+            
+            Object o = group.get( i );
+            
+            if ( o instanceof FlaggedList )
+            {
+                ps.println( ( (FlaggedList)o ).getName() );
+                
+                dump( (FlaggedList)o, ps, level + 1 );
+            }
+            else
+            {
+                ps.println( (Property)o );
+            }
+        }
+    }
+    
+    @Override
+    public void dump( PrintStream ps )
+    {
+        dump( groupStack.get( 0 ), ps, 0 );
     }
     
     public DefaultWidgetPropertiesContainer( FlaggedList root )
     {
-        this.root = root;
-        this.list = root;
+        groupStack.push( root );
+        
+        this.currList = root;
     }
 }

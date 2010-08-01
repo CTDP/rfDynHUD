@@ -818,11 +818,18 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
+    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( font2 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
-        
-        propsCont.addProperty( font2 );
         
         propsCont.addGroup( "Specific" );
         

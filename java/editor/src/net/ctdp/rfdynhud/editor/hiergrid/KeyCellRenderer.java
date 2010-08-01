@@ -34,7 +34,10 @@ public class KeyCellRenderer extends KeyValueCellRenderer< KeyRenderLabel >
     {
         super.prepareComponent( component, table, value, isSelected, hasFocus, row, column );
         
-        component.setLevel( ( (HierarchicalTableModel)table.getModel() ).getLevel( row ) );
+        HierarchicalTableModel tm = (HierarchicalTableModel)table.getModel();
+        
+        component.setLevel( tm.getLevel( row ) );
+        component.setLastInGroup( tm.getLastInGroup( row ) );
         
         component.setText( String.valueOf( value ) );
     }

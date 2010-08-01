@@ -17,10 +17,19 @@
  */
 package net.ctdp.rfdynhud.properties;
 
+import java.io.PrintStream;
+
 public abstract class WidgetPropertiesContainer
 {
+    private int level = 0;
+    
     private int numGroups = 0;
     private int numProperties = 0;
+    
+    public final int getLevel()
+    {
+        return ( level );
+    }
     
     protected abstract void clearImpl();
     
@@ -32,10 +41,49 @@ public abstract class WidgetPropertiesContainer
         numProperties = 0;
     }
     
-    protected abstract void addGroupImpl( String groupName, boolean initiallyExpanded, boolean level2 );
+    protected abstract void addGroupImpl( String groupName, boolean initiallyExpanded, boolean pushed );
     
     /**
-     * Creates a new property group.
+     * Creates a new property group inside the current group (pushed one level down).
+     * 
+     * @param groupName
+     * @param initiallyExpanded
+     */
+    public final void pushGroup( String groupName, boolean initiallyExpanded )
+    {
+        addGroupImpl( groupName, initiallyExpanded, true );
+        
+        level++;
+        numGroups++;
+    }
+    
+    /**
+     * Creates a new property group inside the current group (pushed one level down).
+     * 
+     * @param groupName
+     */
+    public final void pushGroup( String groupName )
+    {
+        pushGroup( groupName, true );
+    }
+    
+    protected abstract void popGroupImpl();
+    
+    /**
+     * Finishes the current group and moves one level up.
+     */
+    public final void popGroup()
+    {
+        if ( level == 0 )
+            throw new IllegalStateException( "No group to pop." );
+        
+        popGroupImpl();
+        
+        level--;
+    }
+    
+    /**
+     * Creates a new property group on the same level.
      * 
      * @param groupName
      * @param initiallyExpanded
@@ -48,43 +96,13 @@ public abstract class WidgetPropertiesContainer
     }
     
     /**
-     * Creates a new property group (initially expanded).
+     * Creates a new property group on the same level (initially expanded).
      * 
      * @param groupName
      */
     public final void addGroup( String groupName )
     {
         addGroup( groupName, true );
-    }
-    
-    /**
-     * Creates a new property group.
-     * 
-     * @param groupName
-     * @param initiallyExpanded
-     */
-    public final void addGroupL2( String groupName, boolean initiallyExpanded )
-    {
-        addGroupImpl( groupName, initiallyExpanded, true );
-        
-        numGroups++;
-    }
-    
-    /**
-     * Creates a new property group (initially expanded).
-     * 
-     * @param groupName
-     */
-    public final void addGroupL2( String groupName )
-    {
-        addGroupL2( groupName, true );
-    }
-    
-    protected abstract void popGroupL2Impl();
-    
-    public final void popGroupL2()
-    {
-        popGroupL2Impl();
     }
     
     protected abstract void addPropertyImpl( Property property );
@@ -99,5 +117,24 @@ public abstract class WidgetPropertiesContainer
         addPropertyImpl( property );
         
         numProperties++;
+    }
+    
+    /**
+     * Dumps this container to the given {@link PrintStream}.
+     * 
+     * @param ps
+     */
+    public abstract void dump( PrintStream ps );
+    
+    /**
+     * Dumps this container to stdout.
+     */
+    public final void dump()
+    {
+        dump( System.out );
+    }
+    
+    protected WidgetPropertiesContainer()
+    {
     }
 }

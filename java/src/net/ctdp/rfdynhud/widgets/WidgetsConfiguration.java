@@ -175,12 +175,13 @@ public class WidgetsConfiguration implements Documented
      * Adds a new {@link Widget} to be drawn by this manager.
      * 
      * @param widget
+     * @param isLoading
      */
-    public void addWidget( Widget widget )
+    void addWidget( Widget widget, boolean isLoading )
     {
         widgets.add( widget );
         widgetsMap.put( widget.getName(), widget );
-        __WPrivilegedAccess.setConfiguration( this, widget );
+        __WPrivilegedAccess.setConfiguration( this, widget, isLoading );
         
         sortWidgets();
     }
@@ -191,7 +192,7 @@ public class WidgetsConfiguration implements Documented
      * @param widget
      */
     @SuppressWarnings( "unchecked" )
-    public void removeWidget( Widget widget )
+    void removeWidget( Widget widget )
     {
         widgets.remove( widget );
         widgetsMap.remove( widget.getName() );
@@ -203,14 +204,14 @@ public class WidgetsConfiguration implements Documented
             //    visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
         }
         
-        __WPrivilegedAccess.setConfiguration( null, widget );
+        __WPrivilegedAccess.setConfiguration( null, widget, false );
     }
     
     /**
      * Removes all {@link Widget}s and clears all name- and alias maps.
      */
     @SuppressWarnings( "unchecked" )
-    public void clear( LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
+    void clear( LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
     {
         if ( clearListener != null )
             clearListener.beforeWidgetsConfigurationCleared( this );
@@ -234,7 +235,7 @@ public class WidgetsConfiguration implements Documented
                     localStores.put( getLocalStoreKey( widget ), ( (StatefulWidget)widget ).getLocalStore() );
                 visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
                 
-                __WPrivilegedAccess.setConfiguration( null, widget );
+                __WPrivilegedAccess.setConfiguration( null, widget, false );
             }
         }
         

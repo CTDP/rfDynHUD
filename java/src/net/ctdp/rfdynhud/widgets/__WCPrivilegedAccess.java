@@ -20,9 +20,26 @@ package net.ctdp.rfdynhud.widgets;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputMappings;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener;
+import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class __WCPrivilegedAccess
 {
+    public static final void addWidget( WidgetsConfiguration config, Widget widget, boolean isLoading )
+    {
+        config.addWidget( widget, isLoading );
+    }
+    
+    public static final void removeWidget( WidgetsConfiguration config, Widget widget )
+    {
+        config.removeWidget( widget );
+    }
+    
+    public static final void clear( WidgetsConfiguration config, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
+    {
+        config.clear( gameData, editorPresets, clearListener );
+    }
+    
     public static final void setInputMappings( WidgetsConfiguration config, InputMappings inputMappings )
     {
         config.setInputMappings( inputMappings );

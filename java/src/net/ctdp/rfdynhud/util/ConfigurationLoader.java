@@ -55,7 +55,7 @@ public class ConfigurationLoader
      */
     private static void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
-        widgetsConfig.clear( gameData, editorPresets, clearListener );
+        __WCPrivilegedAccess.clear( widgetsConfig, gameData, editorPresets, clearListener );
         
         new AbstractIniParser()
         {
@@ -70,7 +70,7 @@ public class ConfigurationLoader
             {
                 if ( currentWidget != null )
                 {
-                    widgetsConfig.addWidget( currentWidget );
+                    __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
                     currentWidget = null;
                     widgetName = null;
                     badWidget = false;
@@ -216,7 +216,7 @@ public class ConfigurationLoader
             {
                 if ( currentWidget != null )
                 {
-                    widgetsConfig.addWidget( currentWidget );
+                    __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
                     currentWidget = null;
                 }
                 

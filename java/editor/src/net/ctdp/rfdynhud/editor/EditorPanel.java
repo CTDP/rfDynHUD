@@ -40,6 +40,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.openmali.types.twodee.Rect2i;
@@ -367,7 +368,7 @@ public class EditorPanel extends JPanel
         Logger.log( "Removing selected Widget of type \"" + selectedWidget.getClass().getName() + "\" and name \"" + selectedWidget.getName() + "\"..." );
         
         selectedWidget.clearRegion( true, overlay );
-        drawingManager.removeWidget( selectedWidget );
+        __WCPrivilegedAccess.removeWidget( drawingManager, selectedWidget );
         setSelectedWidget( null, false );
         editor.setDirtyFlag();
     }

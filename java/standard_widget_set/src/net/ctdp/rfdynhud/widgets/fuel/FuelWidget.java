@@ -572,6 +572,9 @@ public class FuelWidget extends Widget
         int textTop = -2;
         int textLeft = fuelBarWidth + 4;
         
+        if ( !displayFuelBar.getBooleanValue() && !displayTankSize.getBooleanValue() && !displayFuelLoad.getBooleanValue() && !displayFuelWeight.getBooleanValue() && !displayFuelLaps.getBooleanValue() )
+            textLeft = 0;
+        
         boolean b = displayFuelUsage.getBooleanValue();
         //if ( displayFuelUsage.getBooleanValue() )
         {
@@ -717,7 +720,9 @@ public class FuelWidget extends Widget
             //int fuelY = fuelHeaderString.getAbsY() + fuelHeaderString.getMaxHeight( true ) + 0;
             int fuelY = 0;
             int fuelHeight = height;
-            drawFuelBar( fuel, tankSize, texture, offsetX , offsetY + fuelY, fuelHeight );
+            
+            if ( displayFuelBar.getBooleanValue() || displayTankSize.getBooleanValue() || displayFuelLoad.getBooleanValue() || displayFuelWeight.getBooleanValue() || displayFuelLaps.getBooleanValue() )
+                drawFuelBar( fuel, tankSize, texture, offsetX , offsetY + fuelY, fuelHeight );
             
             if ( displayTankSize.getBooleanValue() )
                 fuelLoadString0.draw( offsetX, offsetY + fuelY, "(" + String.valueOf( tankSize ) + getFuelUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", (Color)null, texture );
@@ -939,11 +944,18 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
+    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( font2 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
-        
-        propsCont.addProperty( font2 );
         
         propsCont.addGroup( "Specific" );
         

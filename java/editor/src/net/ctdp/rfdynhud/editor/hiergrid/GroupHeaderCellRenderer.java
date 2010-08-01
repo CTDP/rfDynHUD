@@ -22,14 +22,13 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Insets;
 
-import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
 /**
  * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
-public class GroupHeaderCellRenderer extends KeyValueCellRenderer< JLabel >
+public class GroupHeaderCellRenderer extends KeyValueCellRenderer< GroupHeaderRenderLabel >
 {
     private static final long serialVersionUID = -1986974044855186348L;
     
@@ -53,12 +52,18 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer< JLabel >
      * {@inheritDoc}
      */
     @Override
-    protected void prepareComponent( JLabel component, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( GroupHeaderRenderLabel component, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         super.prepareComponent( component, table, value, isSelected, hasFocus, row, column );
         
         component.setForeground( Color.BLACK );
         component.setBackground( backgroundColor );
+        
+        HierarchicalTableModel tm = (HierarchicalTableModel)table.getModel();
+        
+        component.setLevel( tm.getLevel( row ) );
+        component.setLastInGroup( tm.getLastInGroup( row ) );
+        component.setExpanded( tm.getValueAt( row, 0 ) == Boolean.TRUE );
         
         if ( font == null )
         {
@@ -88,6 +93,6 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer< JLabel >
     
     public GroupHeaderCellRenderer()
     {
-        super( true, new JLabel() );
+        super( true, new GroupHeaderRenderLabel() );
     }
 }

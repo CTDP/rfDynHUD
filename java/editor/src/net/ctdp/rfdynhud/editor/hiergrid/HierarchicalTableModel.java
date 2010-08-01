@@ -35,9 +35,12 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
     private final String[] columnNames;
     
     private FlaggedList data;
-    private final ArrayList< Integer > levels = new ArrayList< Integer >();
+    private final ArrayList<Object> flatData = new ArrayList<Object>();
+    private final ArrayList<boolean[]> lastInGroup = new ArrayList<boolean[]>();
+    private final ArrayList<Integer> levels = new ArrayList<Integer>();
     
-    private int rowCount;
+    private final boolean[] ligTrace = new boolean[ 32 ];
+    
     private int columnCount;
     private boolean hasExpandableItems = false;
     
@@ -56,53 +59,63 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return ( 0 );
     }
     
-    private int computeRowCount( FlaggedList items, int level )
+    private boolean computeFlatData( FlaggedList items, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
     {
-        if ( level == 0 )
-        {
-            levels.clear();
-        }
-        
-        int rowCount = 0;
+        boolean hasExpandableItems = false;
         
         for ( int i = 0; i < items.size(); i++ )
         {
             Object item = items.get( i );
             
-            rowCount++;
+            flatData.add( item );
+            
+            ligTrace[level] = ( i == items.size() - 1 );
+            
+            if ( lastInGroup.size() < flatData.size() )
+            {
+                boolean[] lig = new boolean[ ligTrace.length ];
+                System.arraycopy( ligTrace, 0, lig, 0, level + 1 );
+                lastInGroup.add( lig );
+            }
+            else
+            {
+                boolean[] lig = lastInGroup.get( flatData.size() - 1 );
+                System.arraycopy( ligTrace, 0, lig, 0, level + 1 );
+            }
             
             levels.add( level );
             
             if ( item instanceof FlaggedList )
             {
+                hasExpandableItems = true;
+                
                 FlaggedList list = (FlaggedList)item;
                 
                 if ( list.getExpandFlag() )
                 {
-                    rowCount += computeRowCount( list, level + 1 );
+                    /*boolean result = */computeFlatData( list, level + 1, flatData, ligTrace, lastInGroup, levels );
                 }
             }
         }
         
-        return ( rowCount );
+        return ( hasExpandableItems );
+    }
+    
+    private void computeFlatData( FlaggedList items )
+    {
+        flatData.clear();
+        //lastInGroup.clear();
+        levels.clear();
+        
+        this.hasExpandableItems = computeFlatData( items, 0, flatData, ligTrace, lastInGroup, levels );
     }
     
     public void setData( FlaggedList data )
     {
         this.data = data;
-        this.rowCount = computeRowCount( data, 0 );
         this.columnCount = columnNames.length;
-        this.hasExpandableItems = false;
         
-        for ( int i = 0; i < data.size(); i++ )
-        {
-            if ( data.get( i ) instanceof FlaggedList )
-            {
-                this.hasExpandableItems = true;
-                
-                return;
-            }
-        }
+        computeFlatData( data );
     }
     
     /**
@@ -146,7 +159,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
     
     public int getRowCount()
     {
-        return ( rowCount );
+        return ( flatData.size() );
     }
     
     public int getColumnCount()
@@ -162,6 +175,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return ( levels.get( row ) );
     }
     
+    /*
     protected Object getValueAtRow( FlaggedList items, int rowOffset, int row )
     {
         for ( int i = 0; i < items.size(); i++ )
@@ -191,6 +205,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         
         return ( rowOffset );
     }
+    */
     
     @Override
     public void setValueAt( Object value, int row, int column )
@@ -198,10 +213,14 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         if ( value == null )
             throw new IllegalArgumentException( "value must not be null." );
         
+        /*
         Object rowData = getValueAtRow( data, 0, row );
         
         if ( rowData instanceof Integer )
             return;
+        */
+        
+        Object rowData = flatData.get( row );
         
         if ( hasExpandableItems )
         {
@@ -210,7 +229,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
                 if ( rowData instanceof FlaggedList )
                 {
                     ( (FlaggedList)rowData ).setExpandFlag( (Boolean)value );
-                    this.rowCount = computeRowCount( data, 0 );
+                    computeFlatData( data );
                     
                     fireTableDataChanged();
                 }
@@ -238,10 +257,14 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
     
     public Object getValueAt( int row, int column )
     {
+        /*
         Object rowData = getValueAtRow( data, 0, row );
         
         if ( rowData instanceof Integer )
             return ( null );
+        */
+        
+        Object rowData = flatData.get( row );
         
         if ( hasExpandableItems )
         {
@@ -271,19 +294,32 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
     
     public Object getRowAt( int row )
     {
+        /*
         Object rowData = getValueAtRow( data, 0, row );
         
         if ( rowData instanceof Integer )
             return ( null );
+        */
+        
+        Object rowData = flatData.get( row );
         
         return ( rowData );
     }
     
     public boolean isDataRow( int row )
     {
-        Object rowData = getValueAtRow( data, 0, row );
+        if ( ( row < 0 ) || ( row > flatData.size() ) )
+            return ( false );
+        
+        //Object rowData = getValueAtRow( data, 0, row );
+        Object rowData = flatData.get( row );
         
         return ( !( rowData instanceof FlaggedList ) );
+    }
+    
+    public boolean[] getLastInGroup( int row )
+    {
+        return ( lastInGroup.get( row ) );
     }
     
     @Override

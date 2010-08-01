@@ -29,6 +29,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.values.RelativePositioning;
+import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -112,12 +113,12 @@ public class WidgetMenuItem extends JMenuItem
             throw new RuntimeException( t );
         }
         
-        widgetsConfig1.addWidget( widget );
+        __WCPrivilegedAccess.addWidget( widgetsConfig1, widget, false );
         
         float aspect = (float)widget.getSize().getEffectiveWidth() / (float)widget.getSize().getEffectiveHeight();
         
-        widgetsConfig1.removeWidget( widget );
-        widgetsConfig2.addWidget( widget );
+        __WCPrivilegedAccess.removeWidget( widgetsConfig1, widget );
+        __WCPrivilegedAccess.addWidget( widgetsConfig2, widget, false );
         
         if ( aspect > ICON_ASPECT )
             widget.getSize().setEffectiveSize( ICON_WIDTH, (int)( ICON_WIDTH / aspect ) );

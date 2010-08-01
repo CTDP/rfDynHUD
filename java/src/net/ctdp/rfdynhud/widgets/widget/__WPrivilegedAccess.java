@@ -24,9 +24,12 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 public class __WPrivilegedAccess
 {
-    public static final void setConfiguration( WidgetsConfiguration config, Widget widget )
+    public static final void setConfiguration( WidgetsConfiguration config, Widget widget, boolean loading )
     {
         widget.setConfiguration( config );
+        
+        if ( !loading && ( config != null ) && ( widget instanceof AssembledWidget ) )
+            ( (AssembledWidget)widget ).arrangeParts();
     }
     
     @SuppressWarnings( "unchecked" )

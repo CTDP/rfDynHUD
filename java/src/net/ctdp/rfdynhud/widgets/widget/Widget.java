@@ -103,6 +103,8 @@ public abstract class Widget implements Documented
     
     private final DrawnStringFactory drawnStringFactory = new DrawnStringFactory();
     
+    private AssembledWidget masterWidget = null;
+    
     /**
      * Logs data to the plugin's log file.
      * 
@@ -264,6 +266,21 @@ public abstract class Widget implements Documented
         return ( config );
     }
     
+    void setMasterWidget( AssembledWidget masterWidget )
+    {
+        this.masterWidget = masterWidget;
+    }
+    
+    /**
+     * If this {@link Widget} is part of an {@link AssembledWidget}, this master {@link Widget} is returned.
+     * 
+     * @return the master {@link AssembledWidget} or <code>null</code>.
+     */
+    public final AssembledWidget getMasterWidget()
+    {
+        return ( masterWidget );
+    }
+    
     /**
      * Gets the InputActions, that can be bound with a Widget of this type.
      * "Override" this method to return your own custom actions.
@@ -315,9 +332,29 @@ public abstract class Widget implements Documented
         return ( initialized );
     }
     
+    protected void onDirtyFlagSet()
+    {
+    }
+    
+    void setDirtyFlag( boolean forwardCall )
+    {
+        boolean changed = !this.dirtyFlag;
+        
+        this.dirtyFlag = true;
+        
+        if ( forwardCall && ( masterWidget != null ) )
+            masterWidget.setDirtyFlag( false );
+        
+        if ( changed )
+            onDirtyFlagSet();
+    }
+    
     public void setDirtyFlag()
     {
         this.dirtyFlag = true;
+        
+        if ( masterWidget != null )
+            masterWidget.setDirtyFlag();
     }
     
     public final boolean getDirtyFlag( boolean reset )
@@ -330,10 +367,28 @@ public abstract class Widget implements Documented
         return ( result );
     }
     
-    public void forceReinitialization()
+    protected void onReinitializationForced()
     {
+    }
+    
+    void forceReinitialization( boolean forwardCall )
+    {
+        boolean changed = this.initialized;
+        
         this.initialized = false;
+        
+        if ( forwardCall && ( masterWidget != null ) )
+            masterWidget.forceReinitialization( false );
+        
         setDirtyFlag();
+        
+        if ( changed )
+            onReinitializationForced();
+    }
+    
+    public final void forceReinitialization()
+    {
+        forceReinitialization( true );
     }
     
     /**
@@ -602,12 +657,33 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * This method is called when a complete redraw has been forced.
+     */
+    protected void onCompleteRedrawForced()
+    {
+    }
+    
+    void forceCompleteRedraw( boolean forwardCall )
+    {
+        boolean changed = !this.needsCompleteRedraw;
+        
+        this.needsCompleteRedraw = true;
+        
+        if ( forwardCall && ( masterWidget != null ) )
+            masterWidget.forceCompleteRedraw( false );
+        
+        setDirtyFlag();
+        
+        if ( changed )
+            onCompleteRedrawForced();
+    }
+    
+    /**
      * Forces a complete redraw on the next render.
      */
-    public void forceCompleteRedraw()
+    public final void forceCompleteRedraw()
     {
-        this.needsCompleteRedraw = true;
-        setDirtyFlag();
+        forceCompleteRedraw( true );
     }
     
     /**
@@ -1193,11 +1269,14 @@ public abstract class Widget implements Documented
         size.saveWidthProperty( "width", "The width. Use negative values to make the Widget be sized relative to screen size.", writer );
         size.saveHeightProperty( "height", "The height. Use negative values to make the Widget be sized relative to screen size.", writer );
         writer.writeProperty( border, "The widget's border." );
-        writer.writeProperty( paddingTop, "top padding" );
-        writer.writeProperty( paddingLeft, "left padding" );
-        writer.writeProperty( paddingRight, "right padding" );
-        writer.writeProperty( paddingBottom, "bottom padding" );
-        writer.writeProperty( inputVisible, "The initial visibility." );
+        if ( masterWidget == null )
+        {
+            writer.writeProperty( paddingTop, "top padding" );
+            writer.writeProperty( paddingLeft, "left padding" );
+            writer.writeProperty( paddingRight, "right padding" );
+            writer.writeProperty( paddingBottom, "bottom padding" );
+            writer.writeProperty( inputVisible, "The initial visibility." );
+        }
         
         if ( hasBackgroundColor() )
         {
@@ -1244,6 +1323,27 @@ public abstract class Widget implements Documented
         propsCont.addProperty( property );
     }
     
+    /**
+     * 
+     * @param paddingTop
+     * @param paddingLeft
+     * @param paddingRight
+     * @param paddingBottom
+     * @param propsCont
+     * @param forceAll
+     */
+    protected void addPaddingPropertiesToContainer( IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom, WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.pushGroup( "Padding", false );
+        
+        propsCont.addProperty( paddingTop );
+        propsCont.addProperty( paddingLeft );
+        propsCont.addProperty( paddingRight );
+        propsCont.addProperty( paddingBottom );
+        
+        propsCont.popGroup();
+    }
+    
     
     /**
      * 
@@ -1276,6 +1376,16 @@ public abstract class Widget implements Documented
      * @param propsCont
      * @param forceAll
      */
+    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+    }
+    
+    /**
+     * Puts all editable properties to the editor.
+     * 
+     * @param propsCont
+     * @param forceAll
+     */
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "General" );
@@ -1290,21 +1400,17 @@ public abstract class Widget implements Documented
         propsCont.addProperty( size.createWidthProperty( "width" ) );
         propsCont.addProperty( size.createHeightProperty( "height" ) );
         
-        propsCont.addGroupL2( "Padding", false );
+        if ( masterWidget == null )
+        {
+            addPaddingPropertiesToContainer( paddingTop, paddingLeft, paddingRight, paddingBottom, propsCont, forceAll );
+        }
         
-        propsCont.addProperty( paddingTop );
-        propsCont.addProperty( paddingLeft );
-        propsCont.addProperty( paddingRight );
-        propsCont.addProperty( paddingBottom );
-        
-        propsCont.popGroupL2();
-        
-        if ( canHaveBorder() )
+        if ( ( masterWidget == null ) && ( border.getValue() != null ) && canHaveBorder() )
         {
             addBorderPropertyToContainer( border, propsCont, forceAll );
         }
         
-        if ( hasBackgroundColor() )
+        if ( ( masterWidget == null ) && ( hasBackgroundColor() ) )
         {
             addBackgroundColorPropertyToContainer( backgroundColor, propsCont, forceAll );
         }
@@ -1313,6 +1419,10 @@ public abstract class Widget implements Documented
         {
             addFontPropertiesToContainer( font, fontColor, propsCont, forceAll );
         }
+        
+        getPropertiesForParentGroup( propsCont, forceAll );
+        
+        //propsCont.dump();
     }
     
     private String getDocumentationSource( Class<?> clazz, Property property )

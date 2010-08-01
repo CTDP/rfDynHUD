@@ -17,9 +17,9 @@
  */
 package net.ctdp.rfdynhud.properties;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class FlatWidgetPropertiesContainer extends WidgetPropertiesContainer
 {
@@ -37,12 +37,12 @@ public class FlatWidgetPropertiesContainer extends WidgetPropertiesContainer
     }
     
     @Override
-    protected void addGroupImpl( String groupName, boolean initiallyExpanded, boolean level2 )
+    protected void addGroupImpl( String groupName, boolean initiallyExpanded, boolean pushed )
     {
     }
     
     @Override
-    protected void popGroupL2Impl()
+    protected void popGroupImpl()
     {
     }
     
@@ -50,5 +50,14 @@ public class FlatWidgetPropertiesContainer extends WidgetPropertiesContainer
     protected void addPropertyImpl( Property property )
     {
         properties.add( property );
+    }
+    
+    @Override
+    public void dump( PrintStream ps )
+    {
+        for ( int i = 0; i < properties.size(); i++ )
+        {
+            ps.println( properties.get( i ) );
+        }
     }
 }
