@@ -111,24 +111,21 @@ public class GameEventsManager implements ConfigurationClearListener
         return ( running );
     }
     
-    private void reloadPhysics( boolean isEditorMode, boolean onlyOnce )
+    private void reloadPhysics( boolean onlyOnce )
     {
         if ( !onlyOnce || !physicsLoadedOnce )
         {
-            if ( isEditorMode )
-                __GDPrivilegedAccess.loadEditorDefaults( gameData.getPhysics() );
-            else
-                __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getProfileInfo(), gameData.getTrackInfo(), gameData.getPhysics() );
+            __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getProfileInfo(), gameData.getTrackInfo(), gameData.getPhysics() );
             
             physicsLoadedOnce = true;
         }
     }
     
-    private boolean reloadSetup( boolean isEditorMode )
+    private boolean reloadSetup()
     {
         boolean result = false;
         
-        if ( __GDPrivilegedAccess.loadSetup( isEditorMode, gameData ) )
+        if ( VehicleSetupParser.loadSetup( gameData ) )
         {
             result = true;
         }
@@ -212,13 +209,13 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public byte onSessionStarted( EditorPresets editorPresets )
     {
-        //Logger.log( ">>> onSessionStarted" );
+        //Logger.log( ">>> onSessionStarted()" );
         //if ( currentSessionIsRace == Boolean.TRUE )
         if ( sessionRunning )
         {
             //Logger.log( "INFO: Got a call to StartSession() in already started RACE session. Looks like an rFactor bug. Ignoring this call." );
             Logger.log( "INFO: Got a call to StartSession() in already started session. Looks like an rFactor bug. Ignoring this call." );
-            return ( rfDynHUD.isInRenderMode() ? (byte)1 : (byte)0 );
+            return ( rfDynHUD.isInRenderMode() ? (byte)2 : (byte)0 );
         }
         
         this.sessionRunning = true;
@@ -247,8 +244,11 @@ public class GameEventsManager implements ConfigurationClearListener
             
             if ( gameData.getProfileInfo().isValid() )
             {
-                reloadPhysics( editorPresets != null, true );
-                reloadSetup( editorPresets != null );
+                if ( editorPresets == null )
+                {
+                    reloadPhysics( true );
+                    reloadSetup();
+                }
                 
                 __GDPrivilegedAccess.onSessionStarted( gameData, editorPresets );
                 
@@ -263,7 +263,7 @@ public class GameEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
-        //Logger.log( ">>> result: " + result );
+        //Logger.log( ">>> /onSessionStarted(), result: " + result );
         return ( result );
     }
     
@@ -284,7 +284,7 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public void onSessionEnded( EditorPresets editorPresets )
     {
-        //Logger.log( ">>> onSessionEnded" );
+        //Logger.log( ">>> onSessionEnded()" );
         this.waitingForGraphics = false;
         this.waitingForTelemetry = false;
         this.waitingForScoring = false;
@@ -332,7 +332,7 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public byte onRealtimeEntered( EditorPresets editorPresets )
     {
-        //Logger.log( ">>> onRealtimeEntered" );
+        //Logger.log( ">>> onRealtimeEntered()" );
         byte result = 0;
         
         this.isComingOutOfGarage = true;
@@ -343,7 +343,7 @@ public class GameEventsManager implements ConfigurationClearListener
         this.waitingForTelemetry = waitingForTelemetry || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForScoring = waitingForScoring || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
-        this.setupReloadTryTime = System.nanoTime() + 2000000000L;
+        this.setupReloadTryTime = System.nanoTime() + 5000000000L;
         this.waitingForData = ( editorPresets == null );
         
         if ( editorPresets == null )
@@ -361,13 +361,16 @@ public class GameEventsManager implements ConfigurationClearListener
             {
                 __GDPrivilegedAccess.setRealtimeMode( true, gameData, editorPresets );
                 
-                reloadPhysics( editorPresets != null, false );
-                
-                if ( reloadSetup( editorPresets != null ) )
+                if ( editorPresets == null )
                 {
-                    waitingForSetup = false;
+                    reloadPhysics( false );
                     
-                    widgetsManager.fireOnVehicleSetupUpdated( gameData, editorPresets );
+                    if ( reloadSetup() )
+                    {
+                        waitingForSetup = false;
+                        
+                        widgetsManager.fireOnVehicleSetupUpdated( gameData, editorPresets );
+                    }
                 }
                 
                 widgetsManager.fireOnRealtimeEntered( gameData, editorPresets );
@@ -381,7 +384,7 @@ public class GameEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
-        //Logger.log( ">>> result: " + result );
+        //Logger.log( ">>> /onRealtimeEntered(), result: " + result );
         return ( result );
     }
     
@@ -397,7 +400,7 @@ public class GameEventsManager implements ConfigurationClearListener
     
     public void onRealtimeExited( EditorPresets editorPresets )
     {
-        //Logger.log( ">>> onRealtimeExited" );
+        //Logger.log( ">>> onRealtimeExited()" );
         Logger.log( "Exited cockpit." );
         
         //realtimeStartTime = -1f;
@@ -528,7 +531,7 @@ public class GameEventsManager implements ConfigurationClearListener
         
         if ( waitingForSetup || waitingForSetup2 )
         {
-            if ( reloadSetup( false ) )
+            if ( reloadSetup() )
             {
                 waitingForSetup = false;
                 waitingForSetup2 = false;
@@ -595,7 +598,7 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public final byte onGraphicsInfoUpdated( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
     {
-        //Logger.log( ">>> onGraphicsInfoUpdated" );
+        //Logger.log( ">>> onGraphicsInfoUpdated()" );
         this.waitingForGraphics = false;
         
         byte result = 0;
@@ -649,7 +652,7 @@ public class GameEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
-        //Logger.log( ">>> result: " + result );
+        //Logger.log( ">>> /onGraphicsInfoUpdated(), result: " + result );
         return ( result );
     }
     
@@ -660,7 +663,7 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public final byte onTelemetryDataUpdated( EditorPresets editorPresets )
     {
-        //Logger.log( ">>> onTelemetryDataUpdated" );
+        //Logger.log( ">>> onTelemetryDataUpdated()" );
         byte result = 0;
         
         try
@@ -680,7 +683,7 @@ public class GameEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
-        //Logger.log( ">>> result: " + result );
+        //Logger.log( ">>> /onTelemetryDataUpdated(), result: " + result );
         return ( result );
     }
     
@@ -701,10 +704,15 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public final byte onScoringInfoUpdated( EditorPresets editorPresets )
     {
+        //Logger.log( ">>> onScoringInfoUpdated() (" + gameData.getScoringInfo().getNumVehicles() + ")" );
         if ( gameData.getScoringInfo().getNumVehicles() == 0 ) // What the hell is this again???
+        {
+            if ( rfDynHUD != null )
+                rfDynHUD.setRenderMode( false );
+            
             return ( 0 );
+        }
         
-        //Logger.log( ">>> onScoringInfoUpdated" );
         byte result = 0;
         
         try
@@ -773,7 +781,7 @@ public class GameEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( result != 0 );
         
-        //Logger.log( ">>> result: " + result );
+        //Logger.log( ">>> /onScoringInfoUpdated(), result: " + result );
         return ( result );
     }
     

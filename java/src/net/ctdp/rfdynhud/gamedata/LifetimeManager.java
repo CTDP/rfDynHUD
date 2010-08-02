@@ -107,6 +107,9 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         final VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
         final VehicleSetup setup = gameData.getSetup();
         
+        if ( !setup.isUpdatedInTimeScope() )
+            return;
+        
         double engineLifetime1 = engine.getSafeLifetimeTotal( oldRaceLengthPercentage );
         double engineLifetimeP = engine.getSafeLifetimeTotal( raceLengthPercentage );
         double d = engineLifetime1 - this.engineLifetime;
@@ -140,6 +143,9 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         final VehicleSetup setup = gameData.getSetup();
         final double raceLengthPercentage = scoringInfo.getRaceLengthPercentage();
+        
+        if ( !setup.isUpdatedInTimeScope() )
+            return;
         
         if ( ( scoringInfo.getSessionId() > lastSessionID ) || ( scoringInfo.getRealtimeEntredId() > lastEnteredRealtimeID ) )
         {

@@ -33,7 +33,7 @@ public class LiveGameData
     private boolean realtimeMode = false;
     
     private final VehiclePhysics physics = new VehiclePhysics();
-    private VehicleSetup setup = null;
+    private final VehicleSetup setup = new VehicleSetup();
     
     private final TelemetryData telemetryData;
     private final ScoringInfo scoringInfo;
@@ -224,11 +224,6 @@ public class LiveGameData
         return ( physics );
     }
     
-    void setSetup( VehicleSetup setup )
-    {
-        this.setup = setup;
-    }
-    
     public final VehicleSetup getSetup()
     {
         return ( setup );
@@ -289,6 +284,8 @@ public class LiveGameData
         this.profileInfo = new ProfileInfo();
         this.modInfo = new ModInfo( profileInfo );
         this.trackInfo = new TrackInfo( profileInfo );
+        
+        VehicleSetupParser.loadDefaultSetup( physics, setup );
         
         eventsManager.setGameData( this );
     }

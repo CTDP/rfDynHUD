@@ -58,9 +58,9 @@ public class __GDPrivilegedAccess
         }
     }
     
-    public static final void loadEditorDefaults( VehiclePhysics physics )
+    public static final void setUpdatedInTimescope( VehicleSetup setup )
     {
-        physics.loadEditorDefaults();
+        setup.updatedInTimeScope = true;
     }
     
     public static final void loadFromPhysicsFiles( ProfileInfo profileInfo, TrackInfo trackInfo, VehiclePhysics physics )
@@ -73,9 +73,9 @@ public class __GDPrivilegedAccess
         VehiclePhysicsParser.parsePhysicsFiles( cchFile, rFactorFolder, vehicleFilename, trackName, physics );
     }
     
-    public static final boolean loadSetup( boolean isEditorMode, LiveGameData gameData )
+    public static final boolean loadSetup( LiveGameData gameData )
     {
-        return ( VehicleSetupParser.loadSetup( isEditorMode, gameData ) );
+        return ( VehicleSetupParser.loadSetup( gameData ) );
     }
     
     public static final void applyEditorPresets( EditorPresets editorPresets, LiveGameData gameData )

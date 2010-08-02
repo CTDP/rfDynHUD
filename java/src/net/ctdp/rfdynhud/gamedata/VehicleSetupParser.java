@@ -884,13 +884,11 @@ class VehicleSetupParser
     private static File file = null;
     private static long lastLastModified = -1L;
     
-    private static final void loadSetup( String filename, Reader reader, LiveGameData gameData )
+    private static final void loadSetup( String filename, Reader reader, VehiclePhysics physics, VehicleSetup setup )
     {
-        VehicleSetup setup = new VehicleSetup();
-        
         try
         {
-            parseSetup( filename, reader, gameData.getPhysics(), setup );
+            parseSetup( filename, reader, physics, setup );
         }
         catch ( IOException e )
         {
@@ -898,30 +896,21 @@ class VehicleSetupParser
         }
         
         setup.updatedInTimeScope = true;
-        
-        gameData.setSetup( setup );
     }
     
-    static final boolean loadSetup( boolean isEditorMode, LiveGameData gameData )
+    static final void loadDefaultSetup( VehiclePhysics physics, VehicleSetup setup )
     {
-        if ( isEditorMode )
-        {
-            lastProfileUpdateId = -1L;
-            file = null;
-            lastLastModified = -1L;
-            
-            String resource = "/data/tempGarage.svm";
-            InputStream in = VehicleSetupParser.class.getResourceAsStream( resource );
-            if ( in == null )
-            {
-                Logger.log( "Error: Couldn't load editor default physics." );
-                return ( false );
-            }
-            loadSetup( "Resource: " + resource, new InputStreamReader( in ), gameData );
-            
-            return ( true );
-        }
+        lastProfileUpdateId = -1L;
+        file = null;
+        lastLastModified = -1L;
         
+        InputStream in = VehicleSetupParser.class.getClassLoader().getResourceAsStream( VehicleSetup.class.getPackage().getName().replace( '.', '/' ) + "/tempGarage.svm" );
+        
+        loadSetup( "Default setup", new InputStreamReader( in ), physics, setup );
+    }
+    
+    static final boolean loadSetup( LiveGameData gameData )
+    {
         if ( lastProfileUpdateId < gameData.getProfileInfo().getUpdateId() )
         {
             file = new File( gameData.getProfileInfo().getProfileFolder(), "tempGarage.svm" );
@@ -942,7 +931,7 @@ class VehicleSetupParser
         
         try
         {
-            loadSetup( file.getAbsolutePath(), new BufferedReader( new FileReader( file ) ), gameData );
+            loadSetup( file.getAbsolutePath(), new BufferedReader( new FileReader( file ) ), gameData.getPhysics(), gameData.getSetup() );
             
             lastLastModified = file.lastModified();
             

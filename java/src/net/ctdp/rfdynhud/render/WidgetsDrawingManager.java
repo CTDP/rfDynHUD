@@ -481,9 +481,12 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
+            Widget widget = getWidget( i );
+            
             try
             {
-                getWidget( i ).onVehicleSetupUpdated( gameData, editorPresets );
+                widget.forceAndSetDirty();
+                widget.onVehicleSetupUpdated( gameData, editorPresets );
             }
             catch ( Throwable t )
             {

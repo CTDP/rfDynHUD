@@ -864,18 +864,9 @@ class VehiclePhysicsParser
         
         private final ArrayList<Object[]> upgradesList = new ArrayList<Object[]>();
         
-        public final Object[][] getUpgradesList()
+        public final ArrayList<Object[]> getUpgradesList()
         {
-            if ( upgradesList.size() == 0 )
-                return ( null );
-            
-            Object[][] ul = new Object[ upgradesList.size() ][];
-            for ( int i = 0; i < upgradesList.size(); i++ )
-            {
-                ul[i] = upgradesList.get( i );
-            }
-            
-            return ( ul );
+            return ( upgradesList );
         }
         
         @Override
@@ -887,23 +878,40 @@ class VehiclePhysicsParser
             return ( true );
         }
         
+        public static final Object[] parseUpgradeSelection( String key, String value )
+        {
+            try
+            {
+                String[] params = value.split( "," );
+                
+                Object[] upgrade = new Object[ 1 + params.length ];
+                
+                upgrade[0] = key;
+                
+                for ( int i = 0; i < params.length; i++ )
+                    upgrade[1 + i] = Integer.valueOf( params[i] );
+                
+                return ( upgrade );
+            }
+            catch ( Throwable t )
+            {
+                Logger.log( t );
+                
+                return ( null );
+            }
+        }
+        
         @Override
         protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
         {
             if ( upgradeListStarted )
             {
-                if ( !key.equalsIgnoreCase( "Track Configuration" ) )
+                //if ( !key.equalsIgnoreCase( "Track Configuration" ) )
                 {
-                    String[] params = value.split( "," );
+                    Object[] upgrade = parseUpgradeSelection( key, value );
                     
-                    Object[] upgrade = new Object[ 1 + params.length ];
-                    
-                    upgrade[0] = key;
-                    
-                    for ( int i = 0; i < params.length; i++ )
-                        upgrade[1 + i] = Integer.valueOf( params[i] );
-                    
-                    upgradesList.add( upgrade );
+                    if ( upgrade != null )
+                        upgradesList.add( upgrade );
                 }
             }
             else if ( group == null )
@@ -1307,7 +1315,26 @@ class VehiclePhysicsParser
         }
     }
     
-    private static int getTrackConfiguration( File trackConfigBaseFile, String trackName )
+    private static void mergeForcedUpgrade( Object[] upgrade, ArrayList<Object[]> upgradesList )
+    {
+        String upgradeName = ( (String)upgrade[0] ).toLowerCase();
+        
+        for ( int i = 0; i < upgradesList.size(); i++ )
+        {
+            Object[] upgrade2 = upgradesList.get( i );
+            String upgradeName2 = ( (String)upgrade2[0] ).toLowerCase();
+            
+            if ( upgradeName2.equals( upgradeName ) )
+            {
+                upgradesList.set( i, upgrade );
+                return;
+            }
+        }
+        
+        upgradesList.add( upgrade );
+    }
+    
+    private static boolean loadForcedUpgrades( ArrayList<Object[]> upgradesList, File trackConfigBaseFile, String trackName )
     {
         trackName = trackName.toLowerCase();
         
@@ -1323,26 +1350,46 @@ class VehiclePhysicsParser
             {
                 line = line.trim();
                 
+                if ( ( line.length() == 0 ) || line.startsWith( "//" ) || line.startsWith( "#" ) )
+                    continue;
+                
                 if ( trackSectionFound )
                 {
-                    if ( line.toLowerCase().startsWith( "track configuration" ) )
+                    int ep = line.indexOf( '=' );
+                    
+                    if ( ep > 0 )
                     {
-                        int idx = line.indexOf( '=', 19 );
-                        if ( idx >= 0 )
-                        {
-                            return ( Integer.parseInt( line.substring( idx + 1 ).trim() ) );
-                        }
+                        String key = line.substring( 0, ep ).trim();
+                        String value = line.substring( ep + 1 ).trim();
+                        
+                        Object[] upgrade = CCHParser.parseUpgradeSelection( key, value );
+                        
+                        if ( upgrade != null )
+                            mergeForcedUpgrade( upgrade, upgradesList );
                     }
                 }
                 
-                trackSectionFound = ( line.toLowerCase().startsWith( "\"" + trackName + "\":" ) );
+                String lline = line.toLowerCase();
+                if ( lline.startsWith( "\"" ) && ( lline.indexOf( "\":" ) > 0 ) )
+                {
+                    // is track section
+                    
+                    if ( trackSectionFound )
+                    {
+                        // another track section has been started. We can quit parsing.
+                        
+                        return ( true );
+                    }
+                    
+                    trackSectionFound = ( lline.startsWith( "\"" + trackName + "\":" ) );
+                }
             }
             
-            return ( -1 );
+            return ( trackSectionFound );
         }
         catch ( IOException e )
         {
-            return ( -1 );
+            return ( false );
         }
         finally
         {
@@ -1353,64 +1400,60 @@ class VehiclePhysicsParser
         }
     }
     
-    private static Object[][] ensureTrackConfiguration( Object[][] upgradesList, File vehicleFolder, String trackName )
+    private static final boolean isTrackConfigsIni( File f )
     {
-        if ( upgradesList != null )
-        {
-            for ( Object[] oo : upgradesList )
-            {
-                if ( "TRACK CONFIGURATION".equals( oo[0] ) )
-                {
-                    return ( upgradesList );
-                }
-            }
-        }
+        String lower = f.getName().toLowerCase();
         
-        int trackConfig = -1;
+        return ( lower.startsWith( "trackconfigs" ) && lower.endsWith( ".ini" ) );
+    }
+    
+    private static void findAndLoadForcedUpgrades( ArrayList<Object[]> upgradesList, File vehicleFolder, String trackName )
+    {
+        boolean foundTrackConfigsIni = false;
+        boolean foundForTrack = false;
+        
         for ( File f : vehicleFolder.listFiles() )
         {
-            if ( f.getName().toLowerCase().startsWith( "trackconfigs" ) && f.getName().toLowerCase().endsWith( ".ini" ) )
+            if ( isTrackConfigsIni( f ) )
             {
-                trackConfig = getTrackConfiguration( f, trackName );
+                foundTrackConfigsIni = true;
                 
-                if ( trackConfig != -1 )
-                    break;
+                foundForTrack = loadForcedUpgrades( upgradesList, f, trackName ) || foundForTrack;
+                
+                //if ( foundForTrack )
+                //    break;
             }
         }
         
-        if ( trackConfig == -1 )
+        if ( foundTrackConfigsIni && !foundForTrack )
         {
-            // If we didn't find a matching track configuration, we try to find the joker...
+            // If we didn't find forced upgrades for the track name, we try to find the joker...
             
             for ( File f : vehicleFolder.listFiles() )
             {
-                if ( f.getName().toLowerCase().startsWith( "trackconfigs" ) && f.getName().toLowerCase().endsWith( ".ini" ) )
+                if ( isTrackConfigsIni( f ) )
                 {
-                    trackConfig = getTrackConfiguration( f, "*" );
+                    foundForTrack = loadForcedUpgrades( upgradesList, f, "*" ) || foundForTrack;
                     
-                    if ( trackConfig != -1 )
-                        break;
+                    //if ( foundForTrack )
+                    //    break;
                 }
             }
         }
+    }
+    
+    private static final Object[][] simplifyUpgradesList( ArrayList<Object[]> upgradesList )
+    {
+        if ( upgradesList.size() == 0 )
+            return ( null );
         
-        if ( trackConfig == -1 )
-            return ( upgradesList );
-        
-        Object[][] upgradesList2 = null;
-        if ( upgradesList == null )
+        Object[][] ul = new Object[ upgradesList.size() ][];
+        for ( int i = 0; i < upgradesList.size(); i++ )
         {
-            upgradesList2 = new Object[ 1 ][];
-        }
-        else
-        {
-            upgradesList2 = new Object[ upgradesList.length + 1 ][];
-            System.arraycopy( upgradesList, 0, upgradesList2, 0, upgradesList.length );
+            ul[i] = upgradesList.get( i );
         }
         
-        upgradesList2[upgradesList2.length - 1] = new Object[] { "TRACK CONFIGURATION", trackConfig };
-        
-        return ( upgradesList2 );
+        return ( ul );
     }
     
     public static void parsePhysicsFiles( File cchFile, File rFactorFolder, String vehicleFilename, String trackName, VehiclePhysics physics ) throws Throwable
@@ -1420,9 +1463,9 @@ class VehiclePhysicsParser
         CCHParser cchParser = new CCHParser( cchFile.getAbsolutePath(), vehicleFilename );
         cchParser.parse( cchFile );
         
-        Object[][] upgradesList = cchParser.getUpgradesList();
-        upgradesList = ensureTrackConfiguration( upgradesList, vehicleFile.getParentFile(), trackName );
+        ArrayList<Object[]> upgradesList = cchParser.getUpgradesList();
+        findAndLoadForcedUpgrades( upgradesList, vehicleFile.getParentFile(), trackName );
         
-        new VEHParser( vehicleFile, upgradesList, physics ).parse( vehicleFile );
+        new VEHParser( vehicleFile, simplifyUpgradesList( upgradesList ), physics ).parse( vehicleFile );
     }
 }

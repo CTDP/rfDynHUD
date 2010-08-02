@@ -195,7 +195,16 @@ public class TelemetryData
             if ( updateListeners != null )
             {
                 for ( int i = 0; i < updateListeners.length; i++ )
-                    updateListeners[i].onTelemetryDataUpdated( gameData, editorPresets );
+                {
+                    try
+                    {
+                        updateListeners[i].onTelemetryDataUpdated( gameData, editorPresets );
+                    }
+                    catch ( Throwable t )
+                    {
+                        Logger.log( t );
+                    }
+                }
             }
         }
         catch ( Throwable t )

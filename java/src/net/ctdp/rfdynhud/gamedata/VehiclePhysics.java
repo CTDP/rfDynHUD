@@ -1825,7 +1825,7 @@ public class VehiclePhysics
         this.fuelRange = new PhysicsSetting( ( measurementUnits == MeasurementUnits.IMPERIAL ) ? TelemetryData.LITERS_TO_GALONS : 1f, 0f );
     }
     
-    void loadEditorDefaults()
+    private void loadDefaults()
     {
     	try
     	{
@@ -1959,6 +1959,6 @@ public class VehiclePhysics
     public VehiclePhysics()
     {
         // We initialize with factory defaults, so that in case of parsing errors we at least have "some" values.
-        loadEditorDefaults();
+        loadDefaults();
     }
 }

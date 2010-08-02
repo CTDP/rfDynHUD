@@ -1722,8 +1722,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     editor.switchToGameResolution( dm.getWidth(), dm.getHeight() );
             }
             
-            __GDPrivilegedAccess.loadEditorDefaults( editor.gameData.getPhysics() );
-            __GDPrivilegedAccess.loadSetup( true, editor.gameData );
+            __GDPrivilegedAccess.setUpdatedInTimescope( editor.gameData.getSetup() );
             __GDPrivilegedAccess.updateInfo( editor.gameData );
             
             editor.eventsManager.onSessionStarted( editor.presets );
