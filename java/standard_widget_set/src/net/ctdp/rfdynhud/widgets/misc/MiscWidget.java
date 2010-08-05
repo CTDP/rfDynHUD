@@ -246,7 +246,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         
         {
             boolean b = displayTiming.getBooleanValue();
-            if ( ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() ) || ( !displayScoring.getBooleanValue() && !displayVelocity.getBooleanValue() ) )
+            if ( displayScoring.getBooleanValue() && displayVelocity.getBooleanValue() )
             {
                 lapString = dsf.newDrawnStringIf( b, "lapString", center, top, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
                 stintString = dsf.newDrawnStringIf( b, "stintString", null, lapString, center, 0, Alignment.CENTER, false, font, fontAntiAliased, fontColor );
@@ -268,9 +268,18 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         
         if ( displayVelocity.getBooleanValue() )
         {
-            absTopspeedString = dsf.newDrawnString( "absTopspeedString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
-            relTopspeedString = dsf.newDrawnString( "relTopspeedString", null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
-            velocityString = dsf.newDrawnString( "velocityString", null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+            if ( displayScoring.getBooleanValue() || displayTiming.getBooleanValue() )
+            {
+                absTopspeedString = dsf.newDrawnString( "absTopspeedString", right, top, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+                relTopspeedString = dsf.newDrawnString( "relTopspeedString", null, absTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+                velocityString = dsf.newDrawnString( "velocityString", null, relTopspeedString, right, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor );
+            }
+            else
+            {
+                absTopspeedString = dsf.newDrawnString( "absTopspeedString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                relTopspeedString = dsf.newDrawnString( "relTopspeedString", null, absTopspeedString, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                velocityString = dsf.newDrawnString( "velocityString", null, relTopspeedString, left, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            }
             
             velocityColWidths[0] = 0;
             velocityColWidths[1] = 0;
