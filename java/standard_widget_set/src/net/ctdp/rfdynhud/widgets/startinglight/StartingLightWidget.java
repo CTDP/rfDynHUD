@@ -187,9 +187,9 @@ public class StartingLightWidget extends Widget
     @Override
     public int getMaxWidth( LiveGameData gameData, TextureImage2D texture )
     {
-        loadImages( getEffectiveInnerHeight() );
+        loadImages( getInnerSize().getEffectiveHeight() );
         
-        return ( offImage.getWidth() * MAX_LIGHTS + getEffectiveWidth() - getEffectiveInnerWidth() );
+        return ( offImage.getWidth() * MAX_LIGHTS + getEffectiveWidth() - getInnerSize().getEffectiveWidth() );
     }
     
     @Override
@@ -201,7 +201,7 @@ public class StartingLightWidget extends Widget
             
             if ( newWidth != width )
             {
-                getSize().setEffectiveSize( getEffectiveWidth() - getEffectiveInnerWidth() + newWidth, getEffectiveHeight() );
+                getSize().setEffectiveSize( getEffectiveWidth() - getInnerSize().getEffectiveWidth() + newWidth, getEffectiveHeight() );
                 
                 return ( true );
             }

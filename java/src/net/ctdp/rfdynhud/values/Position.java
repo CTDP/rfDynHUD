@@ -103,7 +103,7 @@ public class Position
         if ( isWidgetPosition )
             return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
         
-        return ( widget.getEffectiveInnerWidth() );
+        return ( widget.getInnerSize().getEffectiveWidth() );
     }
     
     private final float getScaleHeight()
@@ -111,7 +111,7 @@ public class Position
         if ( isWidgetPosition )
             return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
         
-        return ( widget.getEffectiveInnerHeight() );
+        return ( widget.getInnerSize().getEffectiveHeight() );
     }
     
     private final float getHundretPercentWidth()
@@ -119,7 +119,7 @@ public class Position
         if ( isWidgetPosition )
             return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
         
-        return ( widget.getEffectiveInnerWidth() );
+        return ( widget.getInnerSize().getEffectiveWidth() );
     }
     
     /**

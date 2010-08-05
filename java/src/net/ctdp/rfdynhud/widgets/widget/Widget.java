@@ -47,6 +47,7 @@ import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.values.InnerSize;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
@@ -78,6 +79,7 @@ public abstract class Widget implements Documented
     
     private final Position position;
     private final Size size;
+    private final InnerSize innerSize;
     
     private final FontProperty font = new FontProperty( this, "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty backgroundColor = new ColorProperty( this, "backgroundColor", ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
@@ -442,24 +444,34 @@ public abstract class Widget implements Documented
         return ( size );
     }
     
+    /**
+     * Gets the inner size of the {@link Widget}.
+     * 
+     * @return the inner size of the {@link Widget}.
+     */
+    public final InnerSize getInnerSize()
+    {
+        return ( innerSize );
+    }
+    
+    /**
+     * Gets the result of getSize().getEffectiveWidth().
+     * 
+     * @return the result of getSize().getEffectiveWidth().
+     */
     public final int getEffectiveWidth()
     {
         return ( size.getEffectiveWidth() );
     }
     
-    public final int getEffectiveInnerWidth()
-    {
-        return ( size.getEffectiveWidth() - getBorder().getInnerLeftWidth() - getBorder().getInnerRightWidth() );
-    }
-    
+    /**
+     * Gets the result of getSize().getEffectiveHeight().
+     * 
+     * @return the result of getSize().getEffectiveHeight().
+     */
     public final int getEffectiveHeight()
     {
         return ( size.getEffectiveHeight() );
-    }
-    
-    public final int getEffectiveInnerHeight()
-    {
-        return ( size.getEffectiveHeight() - getBorder().getInnerTopHeight() - getBorder().getInnerBottomHeight() );
     }
     
     /**
@@ -1490,6 +1502,7 @@ public abstract class Widget implements Documented
     {
         this.name.setStringValue( name );
         this.size = Size.newGlobalSize( this, width, widthPercent, height, heightPercent );
+        this.innerSize = new InnerSize( size, border );
         this.position = Position.newGlobalPosition( this, RelativePositioning.TOP_LEFT, 0f, true, 0f, true, size );
         
         if ( !canHaveBorder() )

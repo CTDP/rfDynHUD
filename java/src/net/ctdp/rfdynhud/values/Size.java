@@ -117,7 +117,7 @@ public class Size implements AbstractSize
         if ( isWidgetSize )
             return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
         
-        return ( widget.getEffectiveInnerWidth() );
+        return ( widget.getInnerSize().getEffectiveWidth() );
     }
     
     private final float getScaleHeight()
@@ -125,7 +125,7 @@ public class Size implements AbstractSize
         if ( isWidgetSize )
             return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
         
-        return ( widget.getEffectiveInnerHeight() );
+        return ( widget.getInnerSize().getEffectiveHeight() );
     }
     
     private final float getHundretPercentWidth()
@@ -133,7 +133,7 @@ public class Size implements AbstractSize
         if ( isWidgetSize )
             return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
         
-        return ( widget.getEffectiveInnerWidth() );
+        return ( widget.getInnerSize().getEffectiveWidth() );
     }
     
     private void applyLimits()

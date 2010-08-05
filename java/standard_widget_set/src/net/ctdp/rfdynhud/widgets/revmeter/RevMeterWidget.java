@@ -97,7 +97,7 @@ public class RevMeterWidget extends Widget
                 float oldBgScaleX = backgroundScaleX;
                 float oldBgScaleY = backgroundScaleY;
                 
-                loadBackgroundImage( true, getEffectiveInnerWidth(), getEffectiveInnerHeight() );
+                loadBackgroundImage( true, getInnerSize().getEffectiveWidth(), getInnerSize().getEffectiveHeight() );
                 
                 float corrX = oldBgScaleX / backgroundScaleX;
                 float corrY = oldBgScaleY / backgroundScaleY;

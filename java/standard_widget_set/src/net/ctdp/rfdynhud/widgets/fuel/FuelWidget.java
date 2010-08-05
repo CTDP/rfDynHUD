@@ -607,7 +607,7 @@ public class FuelWidget extends Widget
         final boolean displayFuelBar = this.displayFuelBar.getBooleanValue();
         
         boolean showAnyAdditionalText = displayFuelUsage.getBooleanValue() || displayPitstopInfo.getBooleanValue();
-        int w = showAnyAdditionalText ? this.fuelBarWidth.getEffectiveWidth() : getEffectiveInnerWidth();
+        int w = showAnyAdditionalText ? this.fuelBarWidth.getEffectiveWidth() : getInnerSize().getEffectiveWidth();
         int h = height;
         
         int barHeight = displayFuelBar ? Math.min( (int)( h * fuel / tankSize ), h ) : 0;
