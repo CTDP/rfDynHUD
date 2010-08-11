@@ -27,6 +27,7 @@ import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class EditorPresets
 {
@@ -44,20 +45,20 @@ public class EditorPresets
         ;
     }
     
-    private final StringProperty driverName = new StringProperty( null, "driverName", "Mike Self" );
-    private final FloatProperty lastSector1Time = new FloatProperty( null, "lastSector1Time", 28.829182f, 0f, Float.MAX_VALUE );
-    private final FloatProperty lastSector2Time = new FloatProperty( null, "lastSector2Time", 29.413128f, 0f, Float.MAX_VALUE );
-    private final FloatProperty lastSector3Time = new FloatProperty( null, "lastSector3Time", 26.336235f, 0f, Float.MAX_VALUE );
-    private final FloatProperty currentSector1Time = new FloatProperty( null, "currentSector1Time", 29.138f, 0f, Float.MAX_VALUE );
-    private final FloatProperty currentSector2Time = new FloatProperty( null, "currentSector2Time", 27.988f, 0f, Float.MAX_VALUE );
-    private final FloatProperty currentSector3Time = new FloatProperty( null, "currentSector3Time", 26.440f, 0f, Float.MAX_VALUE );
-    private final EnumProperty<EngineBoostMapping> engineBoost = new EnumProperty<EngineBoostMapping>( null, "engineBoost", EngineBoostMapping.B5 );
-    private final IntProperty engineRPM = new IntProperty( null, "engineRPM", 3750, 0, 22000 );
-    private final IntProperty engineLifetime = new IntProperty( null, "engineLifetime", 1000, 0, Integer.MAX_VALUE );
-    private final FloatProperty brakeDiscThicknessFL = new FloatProperty( null, "brakeDiscThicknessFL", 0.021f, 0f, Float.MAX_VALUE );
-    private final FloatProperty brakeDiscThicknessFR = new FloatProperty( null, "brakeDiscThicknessFR", 0.0145f, 0f, Float.MAX_VALUE );
-    private final FloatProperty brakeDiscThicknessRL = new FloatProperty( null, "brakeDiscThicknessRL", 0.018f, 0f, Float.MAX_VALUE );
-    private final FloatProperty brakeDiscThicknessRR = new FloatProperty( null, "brakeDiscThicknessRR", 0.022f, 0f, Float.MAX_VALUE );
+    private final StringProperty driverName = new StringProperty( (Widget)null, "driverName", "Mike Self" );
+    private final FloatProperty lastSector1Time = new FloatProperty( (Widget)null, "lastSector1Time", 28.829182f, 0f, Float.MAX_VALUE );
+    private final FloatProperty lastSector2Time = new FloatProperty( (Widget)null, "lastSector2Time", 29.413128f, 0f, Float.MAX_VALUE );
+    private final FloatProperty lastSector3Time = new FloatProperty( (Widget)null, "lastSector3Time", 26.336235f, 0f, Float.MAX_VALUE );
+    private final FloatProperty currentSector1Time = new FloatProperty( (Widget)null, "currentSector1Time", 29.138f, 0f, Float.MAX_VALUE );
+    private final FloatProperty currentSector2Time = new FloatProperty( (Widget)null, "currentSector2Time", 27.988f, 0f, Float.MAX_VALUE );
+    private final FloatProperty currentSector3Time = new FloatProperty( (Widget)null, "currentSector3Time", 26.440f, 0f, Float.MAX_VALUE );
+    private final EnumProperty<EngineBoostMapping> engineBoost = new EnumProperty<EngineBoostMapping>( (Widget)null, "engineBoost", EngineBoostMapping.B5 );
+    private final IntProperty engineRPM = new IntProperty( (Widget)null, "engineRPM", 3750, 0, 22000 );
+    private final IntProperty engineLifetime = new IntProperty( (Widget)null, "engineLifetime", 1000, 0, Integer.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessFL = new FloatProperty( (Widget)null, "brakeDiscThicknessFL", 0.021f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessFR = new FloatProperty( (Widget)null, "brakeDiscThicknessFR", 0.0145f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessRL = new FloatProperty( (Widget)null, "brakeDiscThicknessRL", 0.018f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessRR = new FloatProperty( (Widget)null, "brakeDiscThicknessRR", 0.022f, 0f, Float.MAX_VALUE );
     
     private final float[] topSpeeds = new float[ 22 ];
     

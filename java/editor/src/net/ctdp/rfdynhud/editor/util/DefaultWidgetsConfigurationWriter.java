@@ -43,13 +43,13 @@ public class DefaultWidgetsConfigurationWriter implements WidgetsConfigurationWr
     @Override
     public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
     {
-        writer.writeSetting( property.getPropertyName(), property.getValue(), quoteValue, comment );
+        writer.writeSetting( property.getName(), property.getValue(), quoteValue, comment );
     }
     
     @Override
     public void writeProperty( Property property, String comment ) throws IOException
     {
-        writer.writeSetting( property.getPropertyName(), property.getValue(), comment );
+        writer.writeSetting( property.getName(), property.getValue(), comment );
     }
     
     public DefaultWidgetsConfigurationWriter( IniWriter writer )

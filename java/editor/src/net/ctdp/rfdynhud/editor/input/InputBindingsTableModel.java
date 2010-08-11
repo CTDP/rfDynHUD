@@ -273,6 +273,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         }
     }
     
+    @Override
     public void onWidgetSelected( Widget widget, boolean selectionChanged, boolean doubleClick )
     {
         int row = table.getSelectedRow();

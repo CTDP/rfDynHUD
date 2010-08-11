@@ -84,6 +84,7 @@ public class ArrayCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         //return ( panel );
     }
     
+    @Override
     public java.awt.Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         getTableCellRendererComponent( table, value, isSelected, true, row, column );
@@ -111,6 +112,7 @@ public class ArrayCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         
         combobox.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 if ( table != null )
@@ -122,6 +124,7 @@ public class ArrayCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         
         button.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 if ( prop != null )

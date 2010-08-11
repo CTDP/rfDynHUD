@@ -1111,6 +1111,7 @@ public class VehicleScoringInfo
     {
         public static final VSIPlaceComparator INSTANCE = new VSIPlaceComparator();
         
+        @Override
         public int compare( VehicleScoringInfo vsi1, VehicleScoringInfo vsi2 )
         {
             if ( vsi1.getPlace( false ) < vsi2.getPlace( false ) )

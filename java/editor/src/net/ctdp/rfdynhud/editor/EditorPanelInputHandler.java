@@ -93,6 +93,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         return ( null );
     }
     
+    @Override
     public void mousePressed( MouseEvent e )
     {
         // I have no idea, why this is necessary.
@@ -134,6 +135,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
+    @Override
     public void mouseReleased( MouseEvent e )
     {
         if ( e.getButton() == MouseEvent.BUTTON1 )
@@ -157,6 +159,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
+    @Override
     public void mouseClicked( MouseEvent e )
     {
         if ( ( e.getButton() == MouseEvent.BUTTON1 ) && ( editor.getEditorPanel().getSelectedWidget() != null ) )
@@ -165,14 +168,17 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
+    @Override
     public void mouseEntered( MouseEvent e )
     {
     }
     
+    @Override
     public void mouseExited( MouseEvent e )
     {
     }
     
+    @Override
     public void mouseMoved( MouseEvent e )
     {
         int x = e.getX();
@@ -417,6 +423,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         return ( widget.getPosition().setEffectivePosition( positioning, x, y ) );
     }
     
+    @Override
     public void mouseDragged( MouseEvent e )
     {
         if ( selectedWidget != null )
@@ -555,6 +562,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
+    @Override
     public void keyPressed( KeyEvent e )
     {
         switch ( e.getKeyCode() )
@@ -566,10 +574,12 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
+    @Override
     public void keyReleased( KeyEvent e )
     {
     }
     
+    @Override
     public void keyTyped( KeyEvent e )
     {
     }

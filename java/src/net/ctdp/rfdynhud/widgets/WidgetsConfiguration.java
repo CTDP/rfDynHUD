@@ -191,7 +191,7 @@ public class WidgetsConfiguration implements Documented
      * 
      * @param widget
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     void removeWidget( Widget widget )
     {
         widgets.remove( widget );
@@ -210,7 +210,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Removes all {@link Widget}s and clears all name- and alias maps.
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     void clear( LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
     {
         if ( clearListener != null )
@@ -304,7 +304,7 @@ public class WidgetsConfiguration implements Documented
         return ( inputMappings );
     }
     
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     void setJustLoaded( LiveGameData gameData, EditorPresets editorPresets )
     {
         this.id++;
@@ -918,7 +918,7 @@ public class WidgetsConfiguration implements Documented
     
     private String getDocumentationSource( Class<?> clazz, Property property )
     {
-        URL docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getPropertyName() + ".html" );
+        URL docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getName() + ".html" );
         
         if ( docURL == null )
         {
@@ -934,6 +934,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * {@inheritDoc}
      */
+    @Override
     public final String getDocumentationSource( Property property )
     {
         if ( property == null )

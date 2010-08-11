@@ -189,6 +189,7 @@ public class BorderSelector extends DefaultTableModel
         private JLabel imageLabel;
         private JLabel filenameLabel;
         
+        @Override
         public Component getListCellRendererComponent( JList list, Object value, int index, boolean isSelected, boolean cellHasFocus )
         {
             if ( isSelected )
@@ -272,6 +273,7 @@ public class BorderSelector extends DefaultTableModel
             return ( false );
         }
         
+        @Override
         public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
         {
             textField.setText( String.valueOf( value ) );
@@ -282,6 +284,7 @@ public class BorderSelector extends DefaultTableModel
             return ( textField );
         }
         
+        @Override
         public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
         {
             textField.setText( String.valueOf( value ) );
@@ -292,6 +295,7 @@ public class BorderSelector extends DefaultTableModel
             return ( textField );
         }
         
+        @Override
         public Object getCellEditorValue()
         {
             return ( textField.getText() );
@@ -336,6 +340,7 @@ public class BorderSelector extends DefaultTableModel
         private boolean selEventSuppressed = false;
         private int lastRow = -1;
         
+        @Override
         public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
         {
             selEventSuppressed = true;
@@ -347,6 +352,7 @@ public class BorderSelector extends DefaultTableModel
             return ( renderCombo );
         }
         
+        @Override
         public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
         {
             selEventSuppressed = true;
@@ -358,6 +364,7 @@ public class BorderSelector extends DefaultTableModel
             return ( editCombo );
         }
         
+        @Override
         public Object getCellEditorValue()
         {
             return ( renderCombo.getSelectedItem() );
@@ -422,6 +429,7 @@ public class BorderSelector extends DefaultTableModel
             } );
             editCombo.addItemListener( new ItemListener()
             {
+                @Override
                 public void itemStateChanged( ItemEvent e )
                 {
                     if ( selEventSuppressed )
@@ -463,6 +471,7 @@ public class BorderSelector extends DefaultTableModel
     {
         private static final long serialVersionUID = -2755085918674102181L;
         
+        @Override
         public Component getTableCellRendererComponent( final JTable table, Object value, boolean isSelected, boolean hasFocus, final int row, int column )
         {
             if ( row == 0 )
@@ -476,6 +485,7 @@ public class BorderSelector extends DefaultTableModel
             
             button.addActionListener( new ActionListener()
             {
+                @Override
                 public void actionPerformed( ActionEvent e )
                 {
                     Window window = (Window)table.getRootPane().getParent();
@@ -498,11 +508,13 @@ public class BorderSelector extends DefaultTableModel
             return ( true );
         }
         
+        @Override
         public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
         {
             return ( getTableCellRendererComponent( table, value, isSelected, true, row, column ) );
         }
         
+        @Override
         public Object getCellEditorValue()
         {
             return ( "" );
@@ -621,6 +633,7 @@ public class BorderSelector extends DefaultTableModel
         addAlias.setActionCommand( "" );
         addAlias.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 String initialValue = ( (JButton)e.getSource() ).getActionCommand();
@@ -666,6 +679,7 @@ public class BorderSelector extends DefaultTableModel
         JButton no = new JButton( "No Border" );
         no.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 valueTextField.setText( "" );
@@ -681,6 +695,7 @@ public class BorderSelector extends DefaultTableModel
         JButton ok = new JButton( "OK" );
         ok.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 somethingChanged = somethingChanged || !valueTextField.getText().equals( initialValue );
@@ -694,6 +709,7 @@ public class BorderSelector extends DefaultTableModel
         JButton cancel = new JButton( "Cancel" );
         cancel.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 valueTextField.setText( "" );

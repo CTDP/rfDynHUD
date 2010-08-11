@@ -285,6 +285,7 @@ public class StrategyTool
         
         cbxRaceLengthMulti.addItemListener( new ItemListener()
         {
+            @Override
             public void itemStateChanged( ItemEvent e )
             {
                 if ( e.getStateChange() == ItemEvent.SELECTED )
@@ -390,6 +391,7 @@ public class StrategyTool
         JButton computeButton = new JButton( "Compute" );
         computeButton.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 compute();
@@ -402,6 +404,7 @@ public class StrategyTool
         JButton closeButton = new JButton( "Close" );
         closeButton.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 requestClose();

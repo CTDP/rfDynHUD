@@ -191,6 +191,7 @@ public class InputMappingsManager
             
             Collections.sort( rawBindings, new Comparator<String[]>()
             {
+                @Override
                 public int compare( String[] o1, String[] o2 )
                 {
                     int cmp = o1[0].compareTo( o2[0] );

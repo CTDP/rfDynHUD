@@ -198,6 +198,7 @@ public class ImageSelector
         private JLabel label2 = null;
         private JPanel canvas = null;
         
+        @Override
         public Component getListCellRendererComponent( JList list, final Object value, int index, boolean isSelected, boolean cellHasFocus )
         {
             //if ( panel == null )
@@ -283,6 +284,7 @@ public class ImageSelector
             JButton no = new JButton( "No Image" );
             no.addActionListener( new ActionListener()
             {
+                @Override
                 public void actionPerformed( ActionEvent e )
                 {
                     selectedFile = "";
@@ -296,6 +298,7 @@ public class ImageSelector
         JButton ok = new JButton( "OK" );
         ok.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 dialog.setVisible( false );
@@ -305,6 +308,7 @@ public class ImageSelector
         JButton cancel = new JButton( "Cancel" );
         cancel.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 selectedFile = null;

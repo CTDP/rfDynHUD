@@ -56,6 +56,7 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<JLabel> implements 
         //return ( label );
     }
     
+    @Override
     public JLabel getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         //JLabel label = getTableCellRendererComponent( table, value, isSelected, true, row, column );

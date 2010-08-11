@@ -22,6 +22,7 @@ import java.io.FileFilter;
 
 public class IniFileFilter implements FileFilter
 {
+    @Override
     public boolean accept( File file )
     {
         String name = file.getName();

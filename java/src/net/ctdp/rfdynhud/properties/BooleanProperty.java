@@ -72,7 +72,7 @@ public class BooleanProperty extends Property
     
     public final boolean loadProperty( String key, String value )
     {
-        if ( key.equals( getPropertyName() ) )
+        if ( key.equals( getName() ) )
         {
             setValue( Boolean.parseBoolean( value ) );
             
@@ -82,32 +82,120 @@ public class BooleanProperty extends Property
         return ( false );
     }
     
-    BooleanProperty( WidgetsConfiguration widgetsConfig, String propertyName, String nameForDisplay, boolean defaultValue, boolean readonly )
+    /**
+     * 
+     * @param widgetsConfig
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param readonly
+     */
+    BooleanProperty( WidgetsConfiguration widgetsConfig, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
-        super( widgetsConfig, propertyName, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
+        super( widgetsConfig, name, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
         
         this.value = defaultValue;
     }
     
-    public BooleanProperty( Widget widget, String propertyName, String nameForDisplay, boolean defaultValue, boolean readonly )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param readonly
+     */
+    public BooleanProperty( Widget widget, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
-        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
+        super( widget, name, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
         
         this.value = defaultValue;
     }
     
-    public BooleanProperty( Widget widget, String propertyName, String nameForDisplay, boolean defaultValue )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     */
+    public BooleanProperty( Widget widget, String name, String nameForDisplay, boolean defaultValue )
     {
-        this( widget, propertyName, nameForDisplay, defaultValue, false );
+        this( widget, name, nameForDisplay, defaultValue, false );
     }
     
-    public BooleanProperty( Widget widget, String propertyName, boolean defaultValue, boolean readonly )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param readonly
+     */
+    public BooleanProperty( Widget widget, String name, boolean defaultValue, boolean readonly )
     {
-        this( widget, propertyName, propertyName, defaultValue, readonly );
+        this( widget, name, null, defaultValue, readonly );
     }
     
-    public BooleanProperty( Widget widget, String propertyName, boolean defaultValue )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     */
+    public BooleanProperty( Widget widget, String name, boolean defaultValue )
     {
-        this( widget, propertyName, defaultValue, false );
+        this( widget, name, defaultValue, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param readonly
+     */
+    public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
+    {
+        super( w2pf, name, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
+        
+        this.value = defaultValue;
+        
+        w2pf.addProperty( this );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     */
+    public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean defaultValue )
+    {
+        this( w2pf, name, nameForDisplay, defaultValue, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param readonly
+     */
+    public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, boolean defaultValue, boolean readonly )
+    {
+        this( w2pf, name, null, defaultValue, readonly );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     */
+    public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, boolean defaultValue )
+    {
+        this( w2pf, name, defaultValue, false );
     }
 }

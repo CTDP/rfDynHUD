@@ -282,6 +282,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getDocumentationSource( Property property )
     {
         if ( property == null )
@@ -290,7 +291,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         if ( __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) )
             return ( widgetsConfig.getDocumentationSource( property ) );
         
-        URL docURL = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getPropertyName() + ".html" );
+        URL docURL = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getName() + ".html" );
         
         if ( docURL == null )
             return ( "" );
@@ -301,6 +302,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     private Property currentDocedProperty = null;
     private Widget currentDocedWidget = null;
     
+    @Override
     public void onPropertySelected( Property property, int row )
     {
         if ( property == null )
@@ -446,7 +448,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         propsCont.addGroup( "Editor - General" );
         
-        propsCont.addProperty( new ListProperty<String, ArrayList<String>>( null, "screenshotSet", screenshotSet, getScreenshotSets() )
+        propsCont.addProperty( new ListProperty<String, ArrayList<String>>( (Widget)null, "screenshotSet", screenshotSet, getScreenshotSets() )
         {
             @Override
             public void setValue( Object value )
@@ -461,7 +463,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
         } );
         
-        propsCont.addProperty( new Property( null, "resolution", true, PropertyEditorType.STRING )
+        propsCont.addProperty( new Property( (Widget)null, "resolution", true, PropertyEditorType.STRING )
         {
             @Override
             public void setValue( Object value )
@@ -477,7 +479,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         getEditorPanel().getProperties( propsCont );
         
-        propsCont.addProperty( new ListProperty<String, ArrayList<String>>( null, "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
+        propsCont.addProperty( new ListProperty<String, ArrayList<String>>( (Widget)null, "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
         {
             @Override
             public void setValue( Object value )
@@ -1201,7 +1203,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 Property p0 = (Property)lstTemplate.get( i );
                 Property p1 = (Property)lstTarget.get( i );
                 
-                if ( !p0.getPropertyName().equals( "x" ) && !p0.getPropertyName().equals( "y" ) && !p0.getPropertyName().equals( "positioning" ) )
+                if ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) )
                     p1.setValue( p0.getValue() );
             }
         }

@@ -46,6 +46,7 @@ import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class EditorPresetsWindow extends JDialog implements PropertyChangeListener
 {
@@ -64,7 +65,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     
     private boolean setWindowSize = true;
     
-    private final EnumProperty<ScaleType> defaultScaleType = new EnumProperty<ScaleType>( null, "defaultScaleType", ScaleType.PERCENTS );
+    private final EnumProperty<ScaleType> defaultScaleType = new EnumProperty<ScaleType>( (Widget)null, "defaultScaleType", ScaleType.PERCENTS );
     
     public void setDontSetWindowSize()
     {
@@ -138,13 +139,13 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     @Override
     public void onPropertyChanged( Property property, Object oldValue, Object newValue, int row, int column )
     {
-        if ( !changed.containsKey( property.getPropertyName() ) )
+        if ( !changed.containsKey( property.getName() ) )
         {
-            changed.put( property.getPropertyName(), new ChangedProperty( property, oldValue, ++maxChangeId ) );
+            changed.put( property.getName(), new ChangedProperty( property, oldValue, ++maxChangeId ) );
         }
         else
         {
-            changed.get( property.getPropertyName() ).setChangeId( ++maxChangeId );
+            changed.get( property.getName() ).setChangeId( ++maxChangeId );
         }
         
         setDirtyFlag();

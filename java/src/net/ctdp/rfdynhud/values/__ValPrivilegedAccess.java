@@ -15,42 +15,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.render;
+package net.ctdp.rfdynhud.values;
+
+import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
  * Don't use this at home!
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class __RenderPrivilegedAccess
+public class __ValPrivilegedAccess
 {
-    public static TransformableTexture createMainTexture( int width, int height )
+    public static final void setWidget( Position position, Widget widget )
     {
-        return ( TransformableTexture.createMainTexture( width, height ) );
+        position.widget = widget;
     }
     
-    public static final void onWidgetCleared( DrawnStringFactory dsf )
+    public static final void setWidget( Size size, Widget widget )
     {
-        dsf.onWidgetCleared();
-    }
-    
-    public static final void setLastModified( long lastModified, ImageTemplate it )
-    {
-        it.lastModified = lastModified;
-    }
-    
-    public static final long getLastModified( ImageTemplate it )
-    {
-        return ( it.lastModified );
-    }
-    
-    public static final void setFileSize( long fileSize, ImageTemplate it )
-    {
-        it.fileSize = fileSize;
-    }
-    
-    public static final long getFileSize( ImageTemplate it )
-    {
-        return ( it.fileSize );
+        size.widget = widget;
     }
 }

@@ -23,6 +23,11 @@ import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
+/**
+ * Don't use this at home!
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class __WCPrivilegedAccess
 {
     public static final void addWidget( WidgetsConfiguration config, Widget widget, boolean isLoading )

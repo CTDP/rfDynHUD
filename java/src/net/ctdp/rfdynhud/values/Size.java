@@ -20,6 +20,9 @@ package net.ctdp.rfdynhud.values;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
@@ -36,8 +39,8 @@ public class Size implements AbstractSize
     private int bakedWidth = -1;
     private int bakedHeight = -1;
     
-    private final Widget widget;
-    private final boolean isWidgetSize;
+    /*final*/ Widget widget;
+    private final boolean isGlobalSize;
     
     /*
     public final Widget getWidget()
@@ -46,9 +49,9 @@ public class Size implements AbstractSize
     }
     */
     
-    public final boolean isWidgetSize()
+    public final boolean isGlobalSize()
     {
-        return ( isWidgetSize );
+        return ( isGlobalSize );
     }
     
     /**
@@ -98,7 +101,7 @@ public class Size implements AbstractSize
     
     private final float getMinWidth()
     {
-        if ( isWidgetSize )
+        if ( isGlobalSize )
             return ( widget.getMinWidth( null ) );
         
         return ( 10f );
@@ -106,7 +109,7 @@ public class Size implements AbstractSize
     
     private final float getMinHeight()
     {
-        if ( isWidgetSize )
+        if ( isGlobalSize )
             return ( widget.getMinHeight( null ) );
         
         return ( 10f );
@@ -114,7 +117,7 @@ public class Size implements AbstractSize
     
     private final float getScaleWidth()
     {
-        if ( isWidgetSize )
+        if ( isGlobalSize )
             return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
         
         return ( widget.getInnerSize().getEffectiveWidth() );
@@ -122,7 +125,7 @@ public class Size implements AbstractSize
     
     private final float getScaleHeight()
     {
-        if ( isWidgetSize )
+        if ( isGlobalSize )
             return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
         
         return ( widget.getInnerSize().getEffectiveHeight() );
@@ -130,7 +133,7 @@ public class Size implements AbstractSize
     
     private final float getHundretPercentWidth()
     {
-        if ( isWidgetSize )
+        if ( isGlobalSize )
             return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
         
         return ( widget.getInnerSize().getEffectiveWidth() );
@@ -315,6 +318,7 @@ public class Size implements AbstractSize
      * 
      * @return the effective Widget's width.
      */
+    @Override
     public final int getEffectiveWidth()
     {
         if ( bakedWidth >= 0 )
@@ -340,6 +344,7 @@ public class Size implements AbstractSize
      * 
      * @return the effective Widget's height.
      */
+    @Override
     public final int getEffectiveHeight()
     {
         if ( bakedHeight >= 0 )
@@ -633,6 +638,20 @@ public class Size implements AbstractSize
         return ( false );
     }
     
+    private static final boolean propExistsWithName( Property prop, String name, String nameForDisplay )
+    {
+        if ( prop == null )
+            return ( false );
+        
+        if ( !prop.getName().equals( name ) )
+            return ( false );
+        
+        if ( ( nameForDisplay == null ) && !prop.getName().equals( prop.getNameForDisplay() ) )
+            return ( false );
+        
+        return ( true );
+    }
+    
     /**
      * 
      * @param width
@@ -641,48 +660,53 @@ public class Size implements AbstractSize
     {
     }
     
+    private PosSizeProperty widthProp = null;
+    
     public PosSizeProperty createWidthProperty( String name, String nameForDisplay )
     {
-        boolean ro = isWidgetSize ? widget.hasFixedSize() : false;
-        
-        PosSizeProperty prop = new PosSizeProperty( widget, name, nameForDisplay, ro, true )
+        if ( !propExistsWithName( widthProp, name, nameForDisplay ) )
         {
-            @Override
-            public boolean isPercentage()
-            {
-                return ( !isPixelValue( width ) );
-            }
+            boolean ro = isGlobalSize ? widget.hasFixedSize() : false;
             
-            @Override
-            public void setValue( Object value )
+            widthProp = new PosSizeProperty( widget, name, nameForDisplay, ro, true )
             {
-                float width = ( (Number)value ).floatValue();
+                @Override
+                public boolean isPercentage()
+                {
+                    return ( !isPixelValue( width ) );
+                }
                 
-                set( width, getHeight() );
+                @Override
+                public void setValue( Object value )
+                {
+                    float width = ( (Number)value ).floatValue();
+                    
+                    set( width, getHeight() );
+                    
+                    onWidthPropertySet( width );
+                }
                 
-                onWidthPropertySet( width );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getWidth() );
-            }
-            
-            @Override
-            public void onButtonClicked( Object button )
-            {
-                flipWidthSign();
-            }
-            
-            @Override
-            public void onButton2Clicked( Object button )
-            {
-                flipWidthPercentagePx();
-            }
-        };
+                @Override
+                public Object getValue()
+                {
+                    return ( getWidth() );
+                }
+                
+                @Override
+                public void onButtonClicked( Object button )
+                {
+                    flipWidthSign();
+                }
+                
+                @Override
+                public void onButton2Clicked( Object button )
+                {
+                    flipWidthPercentagePx();
+                }
+            };
+        }
         
-        return ( prop );
+        return ( widthProp );
     }
     
     public PosSizeProperty createWidthProperty( String name )
@@ -698,48 +722,53 @@ public class Size implements AbstractSize
     {
     }
     
+    private PosSizeProperty heightProp = null;
+    
     public PosSizeProperty createHeightProperty( String name, String nameForDisplay )
     {
-        boolean ro = isWidgetSize ? widget.hasFixedSize() : false;
-        
-        PosSizeProperty prop = new PosSizeProperty( widget, name, nameForDisplay, ro, true )
+        if ( !propExistsWithName( heightProp, name, nameForDisplay ) )
         {
-            @Override
-            public boolean isPercentage()
-            {
-                return ( !isPixelValue( height ) );
-            }
+            boolean ro = isGlobalSize ? widget.hasFixedSize() : false;
             
-            @Override
-            public void setValue( Object value )
+            heightProp = new PosSizeProperty( widget, name, nameForDisplay, ro, true )
             {
-                float height = ( (Number)value ).floatValue();
+                @Override
+                public boolean isPercentage()
+                {
+                    return ( !isPixelValue( height ) );
+                }
                 
-                set( getWidth(), height );
+                @Override
+                public void setValue( Object value )
+                {
+                    float height = ( (Number)value ).floatValue();
+                    
+                    set( getWidth(), height );
+                    
+                    onHeightPropertySet( height );
+                }
                 
-                onHeightPropertySet( height );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getHeight() );
-            }
-            
-            @Override
-            public void onButtonClicked( Object button )
-            {
-                flipHeightSign();
-            }
-            
-            @Override
-            public void onButton2Clicked( Object button )
-            {
-                flipHeightPercentagePx();
-            }
-        };
+                @Override
+                public Object getValue()
+                {
+                    return ( getHeight() );
+                }
+                
+                @Override
+                public void onButtonClicked( Object button )
+                {
+                    flipHeightSign();
+                }
+                
+                @Override
+                public void onButton2Clicked( Object button )
+                {
+                    flipHeightPercentagePx();
+                }
+            };
+        }
         
-        return ( prop );
+        return ( heightProp );
     }
     
     public PosSizeProperty createHeightProperty( String name )
@@ -747,10 +776,10 @@ public class Size implements AbstractSize
         return ( createHeightProperty( name, name ) );
     }
     
-    protected Size( Widget widget, boolean isWidgetSize, float width, boolean widthPercent, float height, boolean heightPercent )
+    protected Size( Widget widget, boolean isGlobalSize, float width, boolean widthPercent, float height, boolean heightPercent )
     {
         this.widget = widget;
-        this.isWidgetSize = isWidgetSize;
+        this.isGlobalSize = isGlobalSize;
         
         this.width = widthPercent ? width * 0.01f : PIXEL_OFFSET + width;
         this.height = heightPercent ? height * 0.01f : PIXEL_OFFSET + height;
@@ -786,5 +815,48 @@ public class Size implements AbstractSize
     public static final Size newGlobalSize( Widget widget, float width, boolean widthPercent, float height, boolean heightPercent )
     {
         return ( new Size( widget, true, width, widthPercent, height, heightPercent ) );
+    }
+    
+    protected Size( WidgetToPropertyForwarder w2pf, boolean isGlobalSize, float width, boolean widthPercent, float height, boolean heightPercent )
+    {
+        this.widget = null;
+        this.isGlobalSize = isGlobalSize;
+        
+        this.width = widthPercent ? width * 0.01f : PIXEL_OFFSET + width;
+        this.height = heightPercent ? height * 0.01f : PIXEL_OFFSET + height;
+        
+        __PropsPrivilegedAccess.addSize( w2pf, this );
+    }
+    
+    /**
+     * Create a new size property for sizes local to a Widget's area.
+     * 
+     * @param w2pf
+     * @param width
+     * @param widthPercent
+     * @param height
+     * @param heightPercent
+     * 
+     * @return the new Size.
+     */
+    public static final Size newLocalSize( WidgetToPropertyForwarder w2pf, float width, boolean widthPercent, float height, boolean heightPercent )
+    {
+        return ( new Size( w2pf, false, width, widthPercent, height, heightPercent ) );
+    }
+    
+    /**
+     * Create a new size property for global positions on the whole screen area.
+     * 
+     * @param w2pf
+     * @param width
+     * @param widthPercent
+     * @param height
+     * @param heightPercent
+     * 
+     * @return the new Size.
+     */
+    public static final Size newGlobalSize( WidgetToPropertyForwarder w2pf, float width, boolean widthPercent, float height, boolean heightPercent )
+    {
+        return ( new Size( w2pf, true, width, widthPercent, height, heightPercent ) );
     }
 }

@@ -50,6 +50,7 @@ public class WidgetNameEditor extends AbstractCellEditor implements TableCellEdi
         } );
     }
     
+    @Override
     public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         initTextField();
@@ -66,6 +67,7 @@ public class WidgetNameEditor extends AbstractCellEditor implements TableCellEdi
         return ( textField );
     }
     
+    @Override
     public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         initTextField();
@@ -80,6 +82,7 @@ public class WidgetNameEditor extends AbstractCellEditor implements TableCellEdi
         return ( textField );
     }
     
+    @Override
     public Object getCellEditorValue()
     {
         return ( textField.getText() );

@@ -30,6 +30,7 @@ public class DeviceComponentEditor extends AbstractCellEditor implements TableCe
 {
     private static final long serialVersionUID = 8648826631392438892L;
     
+    @Override
     public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         String str = ( value == null ) ? "" : String.valueOf( value );
@@ -41,11 +42,13 @@ public class DeviceComponentEditor extends AbstractCellEditor implements TableCe
         return ( label );
     }
     
+    @Override
     public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         return ( null );
     }
     
+    @Override
     public Object getCellEditorValue()
     {
         return ( null );

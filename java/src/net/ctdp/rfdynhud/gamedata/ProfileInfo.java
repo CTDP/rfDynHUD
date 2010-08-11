@@ -29,6 +29,7 @@ public class ProfileInfo
 {
     private static final FileFilter DIRECTORY_FILE_FILTER = new FileFilter()
     {
+        @Override
         public boolean accept( File pathname )
         {
             return ( pathname.isDirectory() );

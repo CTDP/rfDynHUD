@@ -69,6 +69,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem open = new JMenuItem( "Open...", 0 );
         open.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.openConfig();
@@ -82,6 +83,7 @@ public class EditorMenuBar extends JMenuBar
         save.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_S, InputEvent.CTRL_MASK ) );
         save.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.saveConfig();
@@ -92,6 +94,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem saveAs = new JMenuItem( "Save As...", 5 );
         saveAs.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.saveConfigAs();
@@ -104,6 +107,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem close = new JMenuItem( "Close", 0 );
         close.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.onCloseRequested();
@@ -119,6 +123,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem snapSelWidgetToGrid = new JMenuItem( "Snap selected Widget to grid" );
         snapSelWidgetToGrid.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.snapSelectedWidgetToGrid();
@@ -133,6 +138,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem snapAllWidgetsToGrid = new JMenuItem( "Snap all Widgets to grid" );
         snapAllWidgetsToGrid.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.snapAllWidgetsToGrid();
@@ -148,6 +154,7 @@ public class EditorMenuBar extends JMenuBar
         //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
         removeItem.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.removeSelectedWidget();
@@ -173,6 +180,7 @@ public class EditorMenuBar extends JMenuBar
         final JMenuItem makeAllPixels = new JMenuItem( "Make all Widgets use Pixels" );
         makeAllPixels.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.makeAllWidgetsUsePixels();
@@ -183,6 +191,7 @@ public class EditorMenuBar extends JMenuBar
         final JMenuItem makeAllPercents = new JMenuItem( "Make all Widgets use Percents" );
         makeAllPercents.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.makeAllWidgetsUsePercents();
@@ -257,6 +266,7 @@ public class EditorMenuBar extends JMenuBar
             {
                 private final Class<Widget> widgetClazz = clazz;
                 
+                @Override
                 public void actionPerformed( ActionEvent e )
                 {
                     editor.addNewWidget( widgetClazz );
@@ -526,6 +536,7 @@ public class EditorMenuBar extends JMenuBar
         public final int h;
         public final float a;
         
+        @Override
         public int compareTo( DM o )
         {
             if ( this.a != o.a )
@@ -620,6 +631,7 @@ public class EditorMenuBar extends JMenuBar
                 final DM dm2 = dm;
                 item.addActionListener( new ActionListener()
                 {
+                    @Override
                     public void actionPerformed( ActionEvent e )
                     {
                         Logger.log( "Switching to resolution " + dm2.w + "x" + dm2.h + "..." );
@@ -673,6 +685,7 @@ public class EditorMenuBar extends JMenuBar
         {
             private long lastWhen = -1L;
             
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 if ( e.getWhen() < lastWhen + 1500L )
@@ -689,6 +702,7 @@ public class EditorMenuBar extends JMenuBar
         screenshotItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F12, 0 ) );
         screenshotItem.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.takeScreenshot();
@@ -701,6 +715,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem manangerItem = new JMenuItem( "Open Strategy Calculator..." );
         manangerItem.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 StrategyTool.showStrategyTool( editor.getMainWindow() );
@@ -713,6 +728,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem inputMgrItem = new JMenuItem( "Open InputBindingsManager..." );
         inputMgrItem.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 InputBindingsGUI.showInputBindingsGUI( editor );
@@ -726,6 +742,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem optionsItem = new JMenuItem( "Editor Presets..." );
         optionsItem.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.showPresetsWindow();
@@ -744,6 +761,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem help = new JMenuItem( "Help" );
         help.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 editor.showHelpWindow();
@@ -757,6 +775,7 @@ public class EditorMenuBar extends JMenuBar
         JMenuItem about = new JMenuItem( "About" );
         about.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 AboutPage.showAboutPage( editor.getMainWindow() );

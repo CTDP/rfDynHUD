@@ -56,11 +56,13 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
         return ( component );
     }
     
+    @Override
     public boolean isBorderOpaque()
     {
         return( false );
     }
     
+    @Override
     public Insets getBorderInsets( Component c )
     {
         if ( isKeyRenderer && ( level > 0 ) )
@@ -69,6 +71,7 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
         return ( new Insets( ( row == 0 ) ? 0 : 1, 2, 0, 0 ) );
     }
     
+    @Override
     public void paintBorder( Component c, Graphics g, int x, int y, int width, int height )
     {
         Color oldColor = g.getColor();
@@ -111,6 +114,7 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
         oldValue = value;
     }
     
+    @Override
     public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         HierarchicalTableModel model = (HierarchicalTableModel)table.getModel();

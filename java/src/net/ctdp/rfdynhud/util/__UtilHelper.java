@@ -20,6 +20,11 @@ package net.ctdp.rfdynhud.util;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Don't use this at home!
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class __UtilHelper
 {
     public static final File stripDotDots( String pathname )

@@ -157,11 +157,13 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return( null );
     }
     
+    @Override
     public int getRowCount()
     {
         return ( flatData.size() );
     }
     
+    @Override
     public int getColumnCount()
     {
         if ( hasExpandableItems )
@@ -176,6 +178,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
     }
     
     /*
+    @Override
     protected Object getValueAtRow( FlaggedList items, int rowOffset, int row )
     {
         for ( int i = 0; i < items.size(); i++ )
@@ -255,6 +258,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         fireTableDataChanged();
     }
     
+    @Override
     public Object getValueAt( int row, int column )
     {
         /*
@@ -335,10 +339,12 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return ( value != null );
     }
     
+    @Override
     public void mouseEntered( MouseEvent e )
     {
     }
     
+    @Override
     public void mousePressed( MouseEvent e )
     {
         JTable table = (JTable)e.getSource();
@@ -363,14 +369,17 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         }
     }
     
+    @Override
     public void mouseReleased( MouseEvent e )
     {
     }
     
+    @Override
     public void mouseClicked( MouseEvent e )
     {
     }
     
+    @Override
     public void mouseExited( MouseEvent e )
     {
     }

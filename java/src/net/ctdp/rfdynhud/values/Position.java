@@ -23,10 +23,18 @@ import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link Position} class is an abstraction of a positional value tuple.
+ * It can be used with percentual values or absolute pixels and can be global or Widget local.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class Position
 {
     private static final float PIXEL_OFFSET = 10f;
@@ -41,17 +49,17 @@ public class Position
     private int bakedY = -1;
     
     private final AbstractSize size;
-    private final Widget widget;
-    private final boolean isWidgetPosition;
+    /*final*/ Widget widget;
+    private final boolean isGlobalPosition;
     
     public final Widget getWidget()
     {
         return ( widget );
     }
     
-    public final boolean isWidgetPosition()
+    public final boolean isGlobalPosition()
     {
-        return ( isWidgetPosition );
+        return ( isGlobalPosition );
     }
     
     public final RelativePositioning getPositioning()
@@ -100,7 +108,7 @@ public class Position
     
     private final float getScaleWidth()
     {
-        if ( isWidgetPosition )
+        if ( isGlobalPosition )
             return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
         
         return ( widget.getInnerSize().getEffectiveWidth() );
@@ -108,7 +116,7 @@ public class Position
     
     private final float getScaleHeight()
     {
-        if ( isWidgetPosition )
+        if ( isGlobalPosition )
             return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
         
         return ( widget.getInnerSize().getEffectiveHeight() );
@@ -116,7 +124,7 @@ public class Position
     
     private final float getHundretPercentWidth()
     {
-        if ( isWidgetPosition )
+        if ( isGlobalPosition )
             return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
         
         return ( widget.getInnerSize().getEffectiveWidth() );
@@ -136,13 +144,13 @@ public class Position
             if ( positioning.isHCenter() )
             {
                 if ( isNegPixelValue( x ) )
-                    x = Math.max( -PIXEL_OFFSET - getScaleWidth() / 2f + ( isWidgetPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
+                    x = Math.max( -PIXEL_OFFSET - getScaleWidth() / 2f + ( isGlobalPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
                 else if ( isPosPixelValue( x ) )
-                    x = Math.min( +PIXEL_OFFSET + getScaleWidth() / 2f - ( isWidgetPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
+                    x = Math.min( +PIXEL_OFFSET + getScaleWidth() / 2f - ( isGlobalPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
                 else if ( x < 0f )
-                    x = Math.max( -0.5f + ( isWidgetPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
+                    x = Math.max( -0.5f + ( isGlobalPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
                 else if ( x > 0f )
-                    x = Math.min( +0.5f - ( isWidgetPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
+                    x = Math.min( +0.5f - ( isGlobalPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
             }
             else if ( isPixelValue( x ) )
             {
@@ -156,13 +164,13 @@ public class Position
             if ( positioning.isVCenter() )
             {
                 if ( isNegPixelValue( y ) )
-                    y = Math.max( -PIXEL_OFFSET - getScaleHeight() / 2f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
+                    y = Math.max( -PIXEL_OFFSET - getScaleHeight() / 2f + ( isGlobalPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
                 else if ( isPosPixelValue( y ) )
-                    y = Math.min( +PIXEL_OFFSET + getScaleHeight() / 2f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
+                    y = Math.min( +PIXEL_OFFSET + getScaleHeight() / 2f - ( isGlobalPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
                 else if ( y < 0f )
-                    y = Math.max( -0.5f + ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
+                    y = Math.max( -0.5f + ( isGlobalPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
                 else if ( y > 0f )
-                    y = Math.min( +0.5f - ( isWidgetPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
+                    y = Math.min( +0.5f - ( isGlobalPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
             }
             else if ( isPixelValue( y ) )
             {
@@ -252,7 +260,7 @@ public class Position
         float scaleW = getScaleWidth();
         float scaleH = getScaleHeight();
         
-        if ( isWidgetPosition && !isPixelValue( this.x ) )
+        if ( isGlobalPosition && !isPixelValue( this.x ) )
         {
             if ( positioning.isRight() )
                 x = (int)Math.max( scaleW - getHundretPercentWidth() - widget.getSize().getEffectiveWidth(), x );
@@ -670,6 +678,20 @@ public class Position
         return ( false );
     }
     
+    private static final boolean propExistsWithName( Property prop, String name, String nameForDisplay )
+    {
+        if ( prop == null )
+            return ( false );
+        
+        if ( !prop.getName().equals( name ) )
+            return ( false );
+        
+        if ( ( nameForDisplay == null ) && !prop.getName().equals( prop.getNameForDisplay() ) )
+            return ( false );
+        
+        return ( true );
+    }
+    
     /**
      * 
      * @param positioning
@@ -678,37 +700,42 @@ public class Position
     {
     }
     
-    public Property createPositioningProperty( String name, String nameForDisplay )
+    private Property posProp = null;
+    
+    public Property getPositioningProperty( String name, String nameForDisplay )
     {
-        Property prop = new Property( widget, name, nameForDisplay, PropertyEditorType.ENUM )
+        if ( !propExistsWithName( posProp, name, nameForDisplay ) )
         {
-            @Override
-            public void setValue( Object value )
+            posProp = new Property( widget, name, nameForDisplay, PropertyEditorType.ENUM )
             {
-                if ( positioning == value )
-                    return;
+                @Override
+                public void setValue( Object value )
+                {
+                    if ( positioning == value )
+                        return;
+                    
+                    int currX = getEffectiveX();
+                    int currY = getEffectiveY();
+                    
+                    setEffectivePosition( (RelativePositioning)value, currX, currY );
+                    
+                    onPositioningPropertySet( (RelativePositioning)value );
+                }
                 
-                int currX = getEffectiveX();
-                int currY = getEffectiveY();
-                
-                setEffectivePosition( (RelativePositioning)value, currX, currY );
-                
-                onPositioningPropertySet( (RelativePositioning)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getPositioning() );
-            }
-        };
+                @Override
+                public Object getValue()
+                {
+                    return ( getPositioning() );
+                }
+            };
+        }
         
-        return ( prop );
+        return ( posProp );
     }
     
-    public Property createPositioningProperty( String name )
+    public final Property getPositioningProperty( String name )
     {
-        return ( createPositioningProperty( name, name ) );
+        return ( getPositioningProperty( name, null ) );
     }
     
     /**
@@ -719,45 +746,50 @@ public class Position
     {
     }
     
-    public PosSizeProperty createXProperty( String name, String nameForDisplay )
+    private PosSizeProperty xProp = null;
+    
+    public PosSizeProperty getXProperty( String name, String nameForDisplay )
     {
-        PosSizeProperty prop = new PosSizeProperty( widget, name, nameForDisplay, false, false )
+        if ( !propExistsWithName( xProp, name, nameForDisplay ) )
         {
-            @Override
-            public boolean isPercentage()
+            xProp = new PosSizeProperty( widget, name, nameForDisplay, false, false )
             {
-                return ( !isPixelValue( x ) );
-            }
-            
-            @Override
-            public void setValue( Object value )
-            {
-                float x = ( (Number)value ).floatValue();
+                @Override
+                public boolean isPercentage()
+                {
+                    return ( !isPixelValue( x ) );
+                }
                 
-                set( x, getY() );
+                @Override
+                public void setValue( Object value )
+                {
+                    float x = ( (Number)value ).floatValue();
+                    
+                    set( x, getY() );
+                    
+                    onXPropertySet( x );
+                }
                 
-                onXPropertySet( x );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getX() );
-            }
-            
-            @Override
-            public void onButtonClicked( Object button )
-            {
-                flipXPercentagePx();
-            }
-        };
+                @Override
+                public Object getValue()
+                {
+                    return ( getX() );
+                }
+                
+                @Override
+                public void onButtonClicked( Object button )
+                {
+                    flipXPercentagePx();
+                }
+            };
+        }
         
-        return ( prop );
+        return ( xProp );
     }
     
-    public PosSizeProperty createXProperty( String name )
+    public final PosSizeProperty getXProperty( String name )
     {
-        return ( createXProperty( name, name ) );
+        return ( getXProperty( name, null ) );
     }
     
     /**
@@ -768,51 +800,56 @@ public class Position
     {
     }
     
-    public PosSizeProperty createYProperty( String name, String nameFordisplay )
+    private PosSizeProperty yProp = null;
+    
+    public PosSizeProperty getYProperty( String name, String nameForDisplay )
     {
-        PosSizeProperty prop = new PosSizeProperty( widget, name, nameFordisplay, false, false )
+        if ( !propExistsWithName( yProp, name, nameForDisplay ) )
         {
-            @Override
-            public boolean isPercentage()
+            yProp = new PosSizeProperty( widget, name, nameForDisplay, false, false )
             {
-                return ( !isPixelValue( y ) );
-            }
-            
-            @Override
-            public void setValue( Object value )
-            {
-                float y = ( (Number)value ).floatValue();
+                @Override
+                public boolean isPercentage()
+                {
+                    return ( !isPixelValue( y ) );
+                }
                 
-                set( getX(), y );
+                @Override
+                public void setValue( Object value )
+                {
+                    float y = ( (Number)value ).floatValue();
+                    
+                    set( getX(), y );
+                    
+                    onYPropertySet( y );
+                }
                 
-                onYPropertySet( y );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getY() );
-            }
-            
-            @Override
-            public void onButtonClicked( Object button )
-            {
-                flipYPercentagePx();
-            }
-        };
+                @Override
+                public Object getValue()
+                {
+                    return ( getY() );
+                }
+                
+                @Override
+                public void onButtonClicked( Object button )
+                {
+                    flipYPercentagePx();
+                }
+            };
+        }
         
-        return ( prop );
+        return ( yProp );
     }
     
-    public PosSizeProperty createYProperty( String name )
+    public final PosSizeProperty getYProperty( String name )
     {
-        return ( createYProperty( name, name ) );
+        return ( getYProperty( name, null ) );
     }
     
-    protected Position( Widget widget, boolean isWidgetPosition, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
+    protected Position( Widget widget, boolean isGlobalPosition, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
     {
         this.widget = widget;
-        this.isWidgetPosition = isWidgetPosition;
+        this.isGlobalPosition = isGlobalPosition;
         
         this.positioning = positioning;
         this.x = xPercent ? x * 0.01f : PIXEL_OFFSET + x;
@@ -855,5 +892,55 @@ public class Position
     public static final Position newGlobalPosition( Widget widget, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
     {
         return ( new Position( widget, true, positioning, x, xPercent, y, yPercent, size ) );
+    }
+    
+    protected Position( WidgetToPropertyForwarder w2pf, boolean isGlobalPosition, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
+    {
+        this.widget = null;
+        this.isGlobalPosition = isGlobalPosition;
+        
+        this.positioning = positioning;
+        this.x = xPercent ? x * 0.01f : PIXEL_OFFSET + x;
+        this.y = yPercent ? y * 0.01f : PIXEL_OFFSET + y;
+        
+        this.size = size;
+        
+        __PropsPrivilegedAccess.addPosition( w2pf, this );
+    }
+    
+    /**
+     * Create a new positional property for positions local to a Widget's area.
+     * 
+     * @param w2pf
+     * @param positioning
+     * @param x
+     * @param xPercent interpret 'x' as percents?
+     * @param y
+     * @param yPercent interpret 'y' as percents?
+     * @param size the size for the area
+     * 
+     * @return the new Position.
+     */
+    public static final Position newLocalPosition( WidgetToPropertyForwarder w2pf, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
+    {
+        return ( new Position( w2pf, false, positioning, x, xPercent, y, yPercent, size ) );
+    }
+    
+    /**
+     * Create a new positional property for global positions on the whole screen area.
+     * 
+     * @param w2pf
+     * @param positioning
+     * @param x
+     * @param xPercent interpret 'x' as percents?
+     * @param y
+     * @param yPercent interpret 'y' as percents?
+     * @param size the size for the area
+     * 
+     * @return the new Position.
+     */
+    public static final Position newGlobalPosition( WidgetToPropertyForwarder w2pf, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
+    {
+        return ( new Position( w2pf, true, positioning, x, xPercent, y, yPercent, size ) );
     }
 }

@@ -85,7 +85,7 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
     
     public final boolean loadProperty( String key, String value )
     {
-        if ( key.equals( getPropertyName() ) )
+        if ( key.equals( getName() ) )
         {
             for ( E e : this.list )
             {
@@ -103,31 +103,142 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
         return ( false );
     }
     
-    public ListProperty( Widget widget, String propertyName, String nameForDisplay, E defaultValue, L list, boolean readonly, String buttonText )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param list
+     * @param readonly
+     * @param buttonText
+     */
+    public ListProperty( Widget widget, String name, String nameForDisplay, E defaultValue, L list, boolean readonly, String buttonText )
     {
-        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.LIST, buttonText, null );
+        super( widget, name, nameForDisplay, readonly, PropertyEditorType.LIST, buttonText, null );
         
         this.value = defaultValue;
         this.list = list;
     }
     
-    public ListProperty( Widget widget, String propertyName, String nameForDisplay, E defaultValue, L list, boolean readonly )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param list
+     * @param readonly
+     */
+    public ListProperty( Widget widget, String name, String nameForDisplay, E defaultValue, L list, boolean readonly )
     {
-        this( widget, propertyName, nameForDisplay, defaultValue, list, readonly, null );
+        this( widget, name, nameForDisplay, defaultValue, list, readonly, null );
     }
     
-    public ListProperty( Widget widget, String propertyName, String nameForDisplay, E defaultValue, L list )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param list
+     */
+    public ListProperty( Widget widget, String name, String nameForDisplay, E defaultValue, L list )
     {
-        this( widget, propertyName, nameForDisplay, defaultValue, list, false );
+        this( widget, name, nameForDisplay, defaultValue, list, false );
     }
     
-    public ListProperty( Widget widget, String propertyName, E defaultValue, L list, boolean readonly )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param list
+     * @param readonly
+     */
+    public ListProperty( Widget widget, String name, E defaultValue, L list, boolean readonly )
     {
-        this( widget, propertyName, propertyName, defaultValue, list, readonly );
+        this( widget, name, null, defaultValue, list, readonly );
     }
     
-    public ListProperty( Widget widget, String propertyName, E defaultValue, L list )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param list
+     */
+    public ListProperty( Widget widget, String name, E defaultValue, L list )
     {
-        this( widget, propertyName, defaultValue, list, false );
+        this( widget, name, defaultValue, list, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param list
+     * @param readonly
+     * @param buttonText
+     */
+    public ListProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, L list, boolean readonly, String buttonText )
+    {
+        this( (Widget)null, name, nameForDisplay, defaultValue, list, readonly, buttonText );
+        
+        w2pf.addProperty( this );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param list
+     * @param readonly
+     */
+    public ListProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, L list, boolean readonly )
+    {
+        this( w2pf, name, nameForDisplay, defaultValue, list, readonly, null );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param list
+     */
+    public ListProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, L list )
+    {
+        this( w2pf, name, nameForDisplay, defaultValue, list, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param list
+     * @param readonly
+     */
+    public ListProperty( WidgetToPropertyForwarder w2pf, String name, E defaultValue, L list, boolean readonly )
+    {
+        this( w2pf, name, null, defaultValue, list, readonly );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param list
+     */
+    public ListProperty( WidgetToPropertyForwarder w2pf, String name, E defaultValue, L list )
+    {
+        this( w2pf, name, defaultValue, list, false );
     }
 }

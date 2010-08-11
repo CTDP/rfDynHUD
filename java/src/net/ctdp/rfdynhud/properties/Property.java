@@ -29,7 +29,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 public abstract class Property
 {
     protected final WidgetsConfiguration widgetsConfig;
-    protected final Widget widget;
+    protected /*final*/ Widget widget;
     
     private final String name;
     private final String nameForDisplay;
@@ -46,7 +46,7 @@ public abstract class Property
         return ( widget );
     }
     
-    public final String getPropertyName()
+    public final String getName()
     {
         return ( name );
     }
@@ -106,7 +106,7 @@ public abstract class Property
     @Override
     public String toString()
     {
-        return ( this.getClass().getSimpleName() + "( \"" + getPropertyName() + "\" = \"" + String.valueOf( getValue() ) + "\" )" );
+        return ( this.getClass().getSimpleName() + "( \"" + getName() + "\" = \"" + String.valueOf( getValue() ) + "\" )" );
     }
     
     /**
@@ -134,8 +134,8 @@ public abstract class Property
     /**
      * 
      * @param widget
-     * @param name
-     * @param nameForDisplay
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param readonly
      * @param editorType
      * @param buttonText
@@ -153,11 +153,26 @@ public abstract class Property
         this.buttonTooltip = buttonTooltip;
     }
     
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param readonly
+     * @param editorType
+     */
     public Property( Widget widget, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType )
     {
         this( widget, name, nameForDisplay, readonly, editorType, null, null );
     }
     
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param editorType
+     */
     public Property( Widget widget, String name, String nameForDisplay, PropertyEditorType editorType )
     {
         this( widget, name, nameForDisplay, false, editorType, null, null );
@@ -173,7 +188,7 @@ public abstract class Property
      */
     public Property( Widget widget, String name, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
-        this( widget, name, name, readonly, editorType, buttonText, buttonTooltip );
+        this( widget, name, null, readonly, editorType, buttonText, buttonTooltip );
     }
     
     public Property( Widget widget, String name, boolean readonly, PropertyEditorType editorType )
@@ -184,5 +199,77 @@ public abstract class Property
     public Property( Widget widget, String name, PropertyEditorType editorType )
     {
         this( widget, name, false, editorType, null, null );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param readonly
+     * @param editorType
+     * @param buttonText
+     * @param buttonTooltip
+     */
+    public Property( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
+    {
+        this.widgetsConfig = null;
+        this.widget = null;
+        this.name = name;
+        this.nameForDisplay = ( nameForDisplay == null ) ? name : nameForDisplay;
+        this.readonly = readonly;
+        this.editorType = editorType;
+        this.buttonText = buttonText;
+        this.buttonTooltip = buttonTooltip;
+        
+        w2pf.addProperty( this );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param readonly
+     * @param editorType
+     */
+    public Property( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType )
+    {
+        this( w2pf, name, nameForDisplay, readonly, editorType, null, null );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param editorType
+     */
+    public Property( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, PropertyEditorType editorType )
+    {
+        this( w2pf, name, nameForDisplay, false, editorType, null, null );
+    }
+    
+    /**
+     * @param w2pf
+     * @param name
+     * @param readonly
+     * @param editorType
+     * @param buttonText
+     * @param buttonTooltip
+     */
+    public Property( WidgetToPropertyForwarder w2pf, String name, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
+    {
+        this( w2pf, name, null, readonly, editorType, buttonText, buttonTooltip );
+    }
+    
+    public Property( WidgetToPropertyForwarder w2pf, String name, boolean readonly, PropertyEditorType editorType )
+    {
+        this( w2pf, name, readonly, editorType, null, null );
+    }
+    
+    public Property( WidgetToPropertyForwarder w2pf, String name, PropertyEditorType editorType )
+    {
+        this( w2pf, name, false, editorType, null, null );
     }
 }

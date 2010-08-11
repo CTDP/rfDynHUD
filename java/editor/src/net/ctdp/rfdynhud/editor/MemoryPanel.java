@@ -115,6 +115,7 @@ public class MemoryPanel extends JPanel implements Runnable
         return ( result );
     }
     
+    @Override
     public void run()
     {
         while ( !runningIndicator.isEditorRunning() )

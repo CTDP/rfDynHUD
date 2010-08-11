@@ -78,6 +78,10 @@ public class GameEventsManager implements ConfigurationClearListener
         this.gameData = gameData;
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig )
     {
         int n = widgetsConfig.getNumWidgets();

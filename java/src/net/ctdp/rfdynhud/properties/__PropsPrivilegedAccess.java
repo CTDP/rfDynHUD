@@ -17,10 +17,27 @@
  */
 package net.ctdp.rfdynhud.properties;
 
+import net.ctdp.rfdynhud.values.Position;
+import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
+/**
+ * Don't use this at home!
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class __PropsPrivilegedAccess
 {
+    public static final void addPosition( WidgetToPropertyForwarder w2pf, Position position )
+    {
+        w2pf.addPosition( position );
+    }
+    
+    public static final void addSize( WidgetToPropertyForwarder w2pf, Size size )
+    {
+        w2pf.addSize( size );
+    }
+    
     public static final BooleanProperty newBooleanProperty( WidgetsConfiguration widgetsConfig, String propertyName, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
         return ( new BooleanProperty( widgetsConfig, propertyName, nameForDisplay, defaultValue, readonly ) );

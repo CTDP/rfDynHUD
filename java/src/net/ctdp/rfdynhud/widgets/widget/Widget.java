@@ -1406,9 +1406,9 @@ public abstract class Widget implements Documented
         propsCont.addProperty( name );
         
         propsCont.addProperty( inputVisible );
-        propsCont.addProperty( position.createPositioningProperty( "positioning" ) );
-        propsCont.addProperty( position.createXProperty( "x" ) );
-        propsCont.addProperty( position.createYProperty( "y" ) );
+        propsCont.addProperty( position.getPositioningProperty( "positioning" ) );
+        propsCont.addProperty( position.getXProperty( "x" ) );
+        propsCont.addProperty( position.getYProperty( "y" ) );
         propsCont.addProperty( size.createWidthProperty( "width" ) );
         propsCont.addProperty( size.createHeightProperty( "height" ) );
         
@@ -1444,7 +1444,7 @@ public abstract class Widget implements Documented
         if ( property == null )
             docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/widget.html" );
         else
-            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getPropertyName() + ".html" );
+            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getName() + ".html" );
         
         if ( docURL == null )
         {
@@ -1460,6 +1460,7 @@ public abstract class Widget implements Documented
     /**
      * {@inheritDoc}
      */
+    @Override
     public final String getDocumentationSource( Property property )
     {
         return ( getDocumentationSource( this.getClass(), property ) );

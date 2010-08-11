@@ -53,25 +53,105 @@ public class ImageProperty extends StringProperty
         return ( TextureManager.getImage( getImageName() ) );
     }
     
-    public ImageProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param readonly
+     * @param noImageAllowed
+     */
+    public ImageProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
-        super( widget, propertyName, nameForDisplay, defaultValue, true, readonly, PropertyEditorType.IMAGE );
+        super( widget, name, nameForDisplay, defaultValue, true, readonly, PropertyEditorType.IMAGE );
         
         this.noImageAllowed = noImageAllowed;
     }
     
-    public ImageProperty( Widget widget, String propertyName, String nameForDisplay, String defaultValue )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     */
+    public ImageProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
-        this( widget, propertyName, nameForDisplay, defaultValue, false, false );
+        this( widget, name, nameForDisplay, defaultValue, false, false );
     }
     
-    public ImageProperty( Widget widget, String propertyName, String defaultValue, boolean readonly )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param readonly
+     */
+    public ImageProperty( Widget widget, String name, String defaultValue, boolean readonly )
     {
-        this( widget, propertyName, propertyName, defaultValue, readonly, false );
+        this( widget, name, null, defaultValue, readonly, false );
     }
     
-    public ImageProperty( Widget widget, String propertyName, String defaultValue )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     */
+    public ImageProperty( Widget widget, String name, String defaultValue )
     {
-        this( widget, propertyName, defaultValue, false );
+        this( widget, name, defaultValue, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param readonly
+     * @param noImageAllowed
+     */
+    public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
+    {
+        this( (Widget)null, name, nameForDisplay, defaultValue, readonly, noImageAllowed );
+        
+        w2pf.addProperty( this );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     */
+    public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
+    {
+        this( w2pf, name, nameForDisplay, defaultValue, false, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param readonly
+     */
+    public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
+    {
+        this( w2pf, name, null, defaultValue, readonly, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     */
+    public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
+    {
+        this( w2pf, name, defaultValue, false );
     }
 }

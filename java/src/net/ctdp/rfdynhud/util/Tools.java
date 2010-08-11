@@ -52,7 +52,7 @@ public class Tools
         return ( o1.equals( o2 ) );
     }
     
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final int compareObjects( Comparable o1, Comparable o2 )
     {
         if ( o1 == o2 )

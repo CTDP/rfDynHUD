@@ -272,7 +272,7 @@ public class EditorTable extends HierarchicalTable
             
             if ( ( editor != null ) && ( ( property.getWidget() != null ) || __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) ) )
             {
-                editor.onWidgetChanged( property.getWidget(), property.getPropertyName() );
+                editor.onWidgetChanged( property.getWidget(), property.getName() );
             }
         }
         
@@ -307,6 +307,7 @@ public class EditorTable extends HierarchicalTable
         
         getSelectionModel().addListSelectionListener( new ListSelectionListener()
         {
+            @Override
             public void valueChanged( ListSelectionEvent e )
             {
                 if ( !e.getValueIsAdjusting() && ( selectionListeners != null ) )

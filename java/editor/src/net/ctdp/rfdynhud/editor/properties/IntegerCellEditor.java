@@ -62,6 +62,7 @@ public class IntegerCellEditor extends KeyValueCellRenderer<JPanel> implements T
         //return ( panel );
     }
     
+    @Override
     public java.awt.Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         getTableCellRendererComponent( table, value, isSelected, true, row, column );
@@ -92,6 +93,7 @@ public class IntegerCellEditor extends KeyValueCellRenderer<JPanel> implements T
         
         textfield.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 finalizeEdit( table );
@@ -102,6 +104,7 @@ public class IntegerCellEditor extends KeyValueCellRenderer<JPanel> implements T
         
         button.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 if ( prop != null )

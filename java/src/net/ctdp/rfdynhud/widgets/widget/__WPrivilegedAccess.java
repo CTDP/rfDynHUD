@@ -22,6 +22,11 @@ import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
+/**
+ * Don't use this at home!
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class __WPrivilegedAccess
 {
     public static final void setConfiguration( WidgetsConfiguration config, Widget widget, boolean loading )
@@ -32,13 +37,13 @@ public class __WPrivilegedAccess
             ( (AssembledWidget)widget ).arrangeParts();
     }
     
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final void setLocalStore( Object localStore, StatefulWidget widget )
     {
         widget.setLocalStore( localStore );
     }
     
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     public static final boolean hasLocalStore( StatefulWidget widget )
     {
         return ( widget.hasLocalStore() );

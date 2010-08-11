@@ -19,6 +19,11 @@ package net.ctdp.rfdynhud.input;
 
 import java.net.URL;
 
+/**
+ * Don't use this at home!
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class __InpPrivilegedAccess
 {
     public static final InputAction createInputAction( String name, Boolean acceptedState, boolean isWidgetAction, InputActionConsumer consumer, URL doc )

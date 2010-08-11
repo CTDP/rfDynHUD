@@ -38,6 +38,7 @@ public class KeyCellRenderer extends AbstractCellEditor implements TableCellRend
     
     private final JLabel label = new JLabel();
     
+    @Override
     public JLabel getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         label.setBackground( table.getBackground() );
@@ -51,6 +52,7 @@ public class KeyCellRenderer extends AbstractCellEditor implements TableCellRend
         return ( label );
     }
     
+    @Override
     public JLabel getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         JLabel label = getTableCellRendererComponent( table, value, isSelected, true, row, column );
@@ -67,6 +69,7 @@ public class KeyCellRenderer extends AbstractCellEditor implements TableCellRend
         return ( false );
     }
     
+    @Override
     public Object getCellEditorValue()
     {
         return ( label.getText() );

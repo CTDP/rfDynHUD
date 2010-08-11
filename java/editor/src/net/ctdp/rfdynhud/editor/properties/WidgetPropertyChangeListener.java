@@ -26,19 +26,19 @@ public class WidgetPropertyChangeListener implements PropertyChangeListener
     
     static final boolean needsAreaClear( Property p )
     {
-        if ( p.getPropertyName().equals( "x" ) )
+        if ( p.getName().equals( "x" ) )
             return ( true );
         
-        if ( p.getPropertyName().equals( "y" ) )
+        if ( p.getName().equals( "y" ) )
             return ( true );
         
-        if ( p.getPropertyName().equals( "width" ) )
+        if ( p.getName().equals( "width" ) )
             return ( true );
         
-        if ( p.getPropertyName().equals( "height" ) )
+        if ( p.getName().equals( "height" ) )
             return ( true );
         
-        if ( p.getPropertyName().equals( "initialVisibility" ) )
+        if ( p.getName().equals( "initialVisibility" ) )
             return ( true );
         
         return ( false );

@@ -89,6 +89,7 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         gui = null;
     }
     
+    @Override
     public void onPollingFinished( boolean canceled, String deviceComponent )
     {
         if ( canceled )
@@ -123,6 +124,7 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         save.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_S, InputEvent.CTRL_MASK ) );
         save.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 if ( inputBindingsTableModel.getDirtyFlag() )
@@ -138,6 +140,7 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         JMenuItem close = new JMenuItem( "Close", 0 );
         close.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 close();
@@ -278,6 +281,7 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         
         this.listener = new AWTEventListener()
         {
+            @Override
             public void eventDispatched( AWTEvent event )
             {
                 if ( event instanceof KeyEvent )

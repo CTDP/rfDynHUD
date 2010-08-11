@@ -80,10 +80,10 @@ public class EditorPanel extends JPanel
         this.bgImageReloadSuppressed = suppressed;
     }
     
-    private final IntProperty railDistanceX = new IntProperty( null, "railDistanceX", 10, 0, 100 );
-    private final IntProperty railDistanceY = new IntProperty( null, "railDistanceY", 10, 0, 100 );
+    private final IntProperty railDistanceX = new IntProperty( (Widget)null, "railDistanceX", 10, 0, 100 );
+    private final IntProperty railDistanceY = new IntProperty( (Widget)null, "railDistanceY", 10, 0, 100 );
     
-    private final BooleanProperty drawGrid = new BooleanProperty( null, "drawGrid", false )
+    private final BooleanProperty drawGrid = new BooleanProperty( (Widget)null, "drawGrid", false )
     {
         @Override
         protected void onValueChanged( boolean newValue )
@@ -93,7 +93,7 @@ public class EditorPanel extends JPanel
         }
     };
     
-    private final IntProperty gridOffsetX = new IntProperty( null, "gridOffsetX", 0 )
+    private final IntProperty gridOffsetX = new IntProperty( (Widget)null, "gridOffsetX", 0 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -103,7 +103,7 @@ public class EditorPanel extends JPanel
         }
     };
     
-    private final IntProperty gridOffsetY = new IntProperty( null, "gridOffsetY", 0 )
+    private final IntProperty gridOffsetY = new IntProperty( (Widget)null, "gridOffsetY", 0 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -113,7 +113,7 @@ public class EditorPanel extends JPanel
         }
     };
     
-    private final IntProperty gridSizeX = new IntProperty( null, "gridSizeX", 10, 0, 5000 )
+    private final IntProperty gridSizeX = new IntProperty((Widget) null, "gridSizeX", 10, 0, 5000 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -123,7 +123,7 @@ public class EditorPanel extends JPanel
         }
     };
     
-    private final IntProperty gridSizeY = new IntProperty( null, "gridSizeY", 10, 0, 5000 )
+    private final IntProperty gridSizeY = new IntProperty( (Widget)null, "gridSizeY", 10, 0, 5000 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )

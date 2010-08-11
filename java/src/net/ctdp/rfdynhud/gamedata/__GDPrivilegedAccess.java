@@ -26,6 +26,11 @@ import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
+/**
+ * Don't use this at home!
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class __GDPrivilegedAccess
 {
     public static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = FuelUsageRecorder.INPUT_ACTION_RESET_FUEL_CONSUMPTION;

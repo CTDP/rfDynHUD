@@ -83,7 +83,7 @@ public class ArrayProperty<E extends Object> extends Property
     
     public final boolean loadProperty( String key, String value )
     {
-        if ( key.equals( getPropertyName() ) )
+        if ( key.equals( getName() ) )
         {
             for ( E e : this.array )
             {
@@ -101,31 +101,143 @@ public class ArrayProperty<E extends Object> extends Property
         return ( false );
     }
     
-    public ArrayProperty( Widget widget, String propertyName, String nameForDisplay, E defaultValue, E[] array, boolean readonly, String buttonText )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param array
+     * @param readonly
+     * @param buttonText
+     */
+    public ArrayProperty( Widget widget, String name, String nameForDisplay, E defaultValue, E[] array, boolean readonly, String buttonText )
     {
-        super( widget, propertyName, nameForDisplay, readonly, PropertyEditorType.ARRAY, buttonText, null );
+        super( widget, name, nameForDisplay, readonly, PropertyEditorType.ARRAY, buttonText, null );
         
         this.value = defaultValue;
         this.array = array;
     }
     
-    public ArrayProperty( Widget widget, String propertyName, String nameForDisplay, E defaultValue, E[] array, boolean readonly )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param array
+     * @param readonly
+     */
+    public ArrayProperty( Widget widget, String name, String nameForDisplay, E defaultValue, E[] array, boolean readonly )
     {
-        this( widget, propertyName, nameForDisplay, defaultValue, array, readonly, null );
+        this( widget, name, nameForDisplay, defaultValue, array, readonly, null );
     }
     
-    public ArrayProperty( Widget widget, String propertyName, String nameForDisplay, E defaultValue, E[] array )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param array
+     */
+    public ArrayProperty( Widget widget, String name, String nameForDisplay, E defaultValue, E[] array )
     {
-        this( widget, propertyName, nameForDisplay, defaultValue, array, false );
+        this( widget, name, nameForDisplay, defaultValue, array, false );
     }
     
-    public ArrayProperty( Widget widget, String propertyName, E defaultValue, E[] array, boolean readonly )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param array
+     * @param readonly
+     */
+    public ArrayProperty( Widget widget, String name, E defaultValue, E[] array, boolean readonly )
     {
-        this( widget, propertyName, propertyName, defaultValue, array, readonly );
+        this( widget, name, null, defaultValue, array, readonly );
     }
     
-    public ArrayProperty( Widget widget, String propertyName, E defaultValue, E[] array )
+    /**
+     * 
+     * @param widget
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param array
+     */
+    public ArrayProperty( Widget widget, String name, E defaultValue, E[] array )
     {
-        this( widget, propertyName, defaultValue, array, false );
+        this( widget, name, defaultValue, array, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param array
+     * @param readonly
+     * @param buttonText
+     */
+    public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, E[] array, boolean readonly, String buttonText )
+    {
+        super( w2pf, name, nameForDisplay, readonly, PropertyEditorType.ARRAY, buttonText, null );
+        
+        this.value = defaultValue;
+        this.array = array;
+        
+        w2pf.addProperty( this );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue
+     * @param array
+     * @param readonly
+     */
+    public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, E[] array, boolean readonly )
+    {
+        this( w2pf, name, nameForDisplay, defaultValue, array, readonly, null );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param array
+     */
+    public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, E[] array )
+    {
+        this( w2pf, name, nameForDisplay, defaultValue, array, false );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param array
+     * @param readonly
+     */
+    public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, E defaultValue, E[] array, boolean readonly )
+    {
+        this( w2pf, name, null, defaultValue, array, readonly );
+    }
+    
+    /**
+     * 
+     * @param w2pf
+     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param defaultValue
+     * @param array
+     */
+    public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, E defaultValue, E[] array )
+    {
+        this( w2pf, name, defaultValue, array, false );
     }
 }

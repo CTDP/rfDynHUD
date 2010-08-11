@@ -980,9 +980,9 @@ public class FuelWidget extends Widget
         
         propsCont.addProperty( lowFuelWarningImageNameOff );
         propsCont.addProperty( lowFuelWarningImageNameOn );
-        propsCont.addProperty( lowFuelWarningImagePosition.createPositioningProperty( "lowFuelWarningImagePositioning", "imagePositioning" ) );
-        propsCont.addProperty( lowFuelWarningImagePosition.createXProperty( "lowFuelWarningImagePositionX", "imagePosX" ) );
-        propsCont.addProperty( lowFuelWarningImagePosition.createYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) );
+        propsCont.addProperty( lowFuelWarningImagePosition.getPositioningProperty( "lowFuelWarningImagePositioning", "imagePositioning" ) );
+        propsCont.addProperty( lowFuelWarningImagePosition.getXProperty( "lowFuelWarningImagePositionX", "imagePosX" ) );
+        propsCont.addProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) );
         //propsCont.addProperty( lowFuelWarningImageSize.createWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) );
         propsCont.addProperty( lowFuelWarningImageSize.createHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) );
         propsCont.addProperty( lowFuelBlinkTime );

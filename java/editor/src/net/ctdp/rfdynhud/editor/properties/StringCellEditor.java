@@ -87,6 +87,7 @@ public class StringCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
         //return ( panel );
     }
     
+    @Override
     public java.awt.Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         getTableCellRendererComponent( table, value, isSelected, true, row, column );
@@ -116,6 +117,7 @@ public class StringCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
         
         textfield.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 finalizeEdit( table );
@@ -126,6 +128,7 @@ public class StringCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
         
         button.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 if ( prop != null )

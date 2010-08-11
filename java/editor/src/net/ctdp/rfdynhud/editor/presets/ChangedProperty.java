@@ -56,13 +56,13 @@ public class ChangedProperty implements Comparable<ChangedProperty>
         if ( !( o instanceof ChangedProperty ) )
             return ( false );
         
-        return ( property.getPropertyName().equals( ( (ChangedProperty)o ).property.getPropertyName() ) );
+        return ( property.getName().equals( ( (ChangedProperty)o ).property.getName() ) );
     }
     
     @Override
     public int hashCode()
     {
-        return ( property.getPropertyName().hashCode() );
+        return ( property.getName().hashCode() );
     }
     
     @Override

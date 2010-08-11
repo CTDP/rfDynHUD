@@ -22,6 +22,11 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
+/**
+ * Don't use this at home!
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class __EDPrivilegedAccess
 {
     public static boolean isEditorMode = false;

@@ -55,6 +55,7 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
         }
     }
     
+    @Override
     public JComboBox getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         initCombo();
@@ -92,6 +93,7 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
         }
     }
     
+    @Override
     public JComboBox getTableCellEditorComponent( JTable table, Object value, boolean isSelected, final int row, final int column )
     {
         showInputActionDoc( value );
@@ -117,6 +119,7 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
         return ( combo );
     }
     
+    @Override
     public Object getCellEditorValue()
     {
         return ( combo.getSelectedItem() );

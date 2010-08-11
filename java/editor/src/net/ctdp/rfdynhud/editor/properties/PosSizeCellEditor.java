@@ -97,6 +97,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
         //return ( panel );
     }
     
+    @Override
     public java.awt.Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         getTableCellRendererComponent( table, value, isSelected, true, row, column );
@@ -135,6 +136,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
         
         textfield.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 if ( table != null )
@@ -149,6 +151,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
         
         button1.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 if ( prop != null )
@@ -170,6 +173,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<JPanel> implements T
         
         button2.addActionListener( new java.awt.event.ActionListener()
         {
+            @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
                 if ( prop != null )
