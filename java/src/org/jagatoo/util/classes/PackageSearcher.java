@@ -401,6 +401,7 @@ public class PackageSearcher
         
         Collections.sort( packages, new Comparator<String>()
         {
+            @Override
             public int compare( String p1, String p2 )
             {
                 return ( p1.compareTo( p2 ) );

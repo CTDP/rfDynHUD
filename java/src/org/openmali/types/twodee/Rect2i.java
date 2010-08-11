@@ -74,6 +74,7 @@ public class Rect2i implements Positioned2i, Sized2i
      * 
      * @return true, if the location actually has changed
      */
+    @Override
     public Rect2i setLocation( int left, int top )
     {
         if ( ( left == this.left ) && ( top == this.top ) )
@@ -114,6 +115,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * @return the upper-left corner's x-coordinate
      */
+    @Override
     public final int getLeft()
     {
         return ( left );
@@ -122,6 +124,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * @return the upper-left corner's y-coordinate
      */
+    @Override
     public final int getTop()
     {
         return ( top );
@@ -130,6 +133,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * {@inheritDoc}
      */
+    @Override
     public Rect2i setSize( int width, int height )
     {
         if ( ( width == this.width ) && ( height == this.height ) )
@@ -146,6 +150,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setWidth( int width )
     {
         setSize( width, this.height );
@@ -154,6 +159,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setHeight( int height )
     {
         setSize( this.width, height );
@@ -162,6 +168,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * @return the rectangle's width
      */
+    @Override
     public final int getWidth()
     {
         return ( width );
@@ -170,6 +177,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * @return the rectangle's height
      */
+    @Override
     public final int getHeight()
     {
         return ( height );
@@ -178,6 +186,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * {@inheritDoc}
      */
+    @Override
     public final float getAspect()
     {
         if ( getHeight() != 0 )
@@ -197,6 +206,7 @@ public class Rect2i implements Positioned2i, Sized2i
     /**
      * {@inheritDoc}
      */
+    @Override
     public final Rect2i setSize( Sized2iRO size )
     {
         return ( setSize( size.getWidth(), size.getHeight() ) );

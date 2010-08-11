@@ -50,6 +50,7 @@ public class SuperClassCriterium implements ClassSearchCriterium
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean check( Class<?> clazz )
     {
         if ( ( getSuper().isAssignableFrom( clazz ) ) && ( clazz != getSuper() ) )

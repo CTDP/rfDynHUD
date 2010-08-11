@@ -49,6 +49,7 @@ public class AnnotationCriterium implements ClassSearchCriterium
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean check( Class<?> clazz )
     {
         if ( clazz.getAnnotation( getAnnotation() ) != null )

@@ -188,6 +188,7 @@ public class ClassSearcher
         classes.addAll( tmp );
         Collections.sort( classes, new Comparator<Class<?>>()
         {
+            @Override
             public int compare( Class<?> c1, Class< ? > c2 )
             {
                 return ( c1.getName().compareTo( c2.getName() ) );
