@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
@@ -57,18 +58,18 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( captionBackgroundColor1st.loadProperty( key, value ) );
-        else if ( dataBackgroundColor1st.loadProperty( key, value ) );
-        else if ( dataBackgroundColorFastest.loadProperty( key, value ) );
-        else if ( dataBackgroundColorFaster.loadProperty( key, value ) );
-        else if ( dataBackgroundColorSlower.loadProperty( key, value ) );
-        else if ( dataColorFastest.loadProperty( key, value ) );
-        else if ( dataColorFaster.loadProperty( key, value ) );
-        else if ( dataColorSlower.loadProperty( key, value ) );
+        if ( loader.loadProperty( captionBackgroundColor1st ) );
+        else if ( loader.loadProperty( dataBackgroundColor1st ) );
+        else if ( loader.loadProperty( dataBackgroundColorFastest ) );
+        else if ( loader.loadProperty( dataBackgroundColorFaster ) );
+        else if ( loader.loadProperty( dataBackgroundColorSlower ) );
+        else if ( loader.loadProperty( dataColorFastest ) );
+        else if ( loader.loadProperty( dataColorFaster ) );
+        else if ( loader.loadProperty( dataColorSlower ) );
     }
     
     /**

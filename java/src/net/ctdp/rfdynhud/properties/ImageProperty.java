@@ -21,8 +21,15 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.util.TextureManager;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
+/**
+ * The {@link ImageProperty} serves for customizing an image.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class ImageProperty extends StringProperty
 {
+    public static final boolean DEFAULT_NO_IMAGE_ALOWED = false;
+    
     private final boolean noImageAllowed;
     
     public final boolean getNoImageAllowed()
@@ -78,7 +85,7 @@ public class ImageProperty extends StringProperty
      */
     public ImageProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
-        this( widget, name, nameForDisplay, defaultValue, false, false );
+        this( widget, name, nameForDisplay, defaultValue, false, DEFAULT_NO_IMAGE_ALOWED );
     }
     
     /**
@@ -90,7 +97,7 @@ public class ImageProperty extends StringProperty
      */
     public ImageProperty( Widget widget, String name, String defaultValue, boolean readonly )
     {
-        this( widget, name, null, defaultValue, readonly, false );
+        this( widget, name, null, defaultValue, readonly, DEFAULT_NO_IMAGE_ALOWED );
     }
     
     /**
@@ -129,7 +136,7 @@ public class ImageProperty extends StringProperty
      */
     public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
     {
-        this( w2pf, name, nameForDisplay, defaultValue, false, false );
+        this( w2pf, name, nameForDisplay, defaultValue, false, DEFAULT_NO_IMAGE_ALOWED );
     }
     
     /**
@@ -141,7 +148,7 @@ public class ImageProperty extends StringProperty
      */
     public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
     {
-        this( w2pf, name, null, defaultValue, readonly, false );
+        this( w2pf, name, null, defaultValue, readonly, DEFAULT_NO_IMAGE_ALOWED );
     }
     
     /**

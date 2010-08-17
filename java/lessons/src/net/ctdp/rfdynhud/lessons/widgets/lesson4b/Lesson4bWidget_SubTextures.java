@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -155,12 +156,12 @@ public class Lesson4bWidget_SubTextures extends Widget
     }
     
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( subImage.loadProperty( key, value ) );
-        else if ( myFontColor.loadProperty( key, value ) );
+        if ( loader.loadProperty( subImage ) );
+        else if ( loader.loadProperty( myFontColor ) );
     }
     
     @Override

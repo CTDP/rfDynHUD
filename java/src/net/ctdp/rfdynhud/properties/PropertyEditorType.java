@@ -36,5 +36,6 @@ public enum PropertyEditorType
     COLOR,
     IMAGE,
     BORDER,
+    BACKGROUND,
     ;
 }

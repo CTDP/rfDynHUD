@@ -24,36 +24,68 @@ import org.jagatoo.util.ini.IniWriter;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
+/**
+ * Default implementation of a {@link WidgetsConfigurationWriter}.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class DefaultWidgetsConfigurationWriter implements WidgetsConfigurationWriter
 {
     private final IniWriter writer;
     
+    private String keyPrefix = null;
+    
+    public void setKeyPrefix( String prefix )
+    {
+        this.keyPrefix = prefix;
+    }
+    
+    public final String getKeyPrefix()
+    {
+        return ( keyPrefix );
+    }
+    
     @Override
     public void writeProperty( String key, Object value, String comment ) throws IOException
     {
-        writer.writeSetting( key, value, comment );
+        if ( keyPrefix == null )
+            writer.writeSetting( key, value, comment );
+        else
+            writer.writeSetting( keyPrefix + key, value, comment );
     }
     
     @Override
     public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException
     {
-        writer.writeSetting( key, value, quoteValue, comment );
+        if ( keyPrefix == null )
+            writer.writeSetting( key, value, quoteValue, comment );
+        else
+            writer.writeSetting( keyPrefix + key, value, quoteValue, comment );
     }
     
     @Override
     public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
     {
-        writer.writeSetting( property.getName(), property.getValue(), quoteValue, comment );
+        if ( keyPrefix == null )
+            writer.writeSetting( property.getName(), property.getValueForConfigurationFile(), quoteValue, comment );
+        else
+            writer.writeSetting( keyPrefix + property.getName(), property.getValueForConfigurationFile(), quoteValue, comment );
     }
     
     @Override
-    public void writeProperty( Property property, String comment ) throws IOException
+    public final void writeProperty( Property property, String comment ) throws IOException
     {
-        writer.writeSetting( property.getName(), property.getValue(), comment );
+        writeProperty( property, property.quoteValueInConfigurationFile(), comment );
+    }
+    
+    public DefaultWidgetsConfigurationWriter( IniWriter writer, String keyPrefix )
+    {
+        this.writer = writer;
+        this.keyPrefix = keyPrefix;
     }
     
     public DefaultWidgetsConfigurationWriter( IniWriter writer )
     {
-        this.writer = writer;
+        this( writer, null );
     }
 }

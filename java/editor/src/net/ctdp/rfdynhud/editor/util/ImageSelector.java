@@ -36,10 +36,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -60,39 +57,41 @@ import javax.swing.event.ListSelectionListener;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ImageSelector
+public class ImageSelector extends JPanel
 {
-    private JDialog dialog = null;
+    private static final long serialVersionUID = 2419977725722070480L;
+    
+    private JList createList( File folder )
+    {
+        final JList list = new JList( new ImageListModel( folder ) );
+        list.setFixedCellHeight( 50 );
+        list.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        list.setCellRenderer( new ListItem() );
+        list.addListSelectionListener( new ListSelectionListener()
+        {
+            @Override
+            public void valueChanged( ListSelectionEvent e )
+            {
+                JList list = (JList)e.getSource();
+                Object value = list.getSelectedValue();
+                
+                selectedFile = (String)value;
+            }
+        } );
+        
+        return ( list );
+    }
+    
+    private final JList list;
+    
     private final File folder;
     
     private String selectedFile = null;
     
-    /*
-    public void setSelectedFile( File file )
+    public void update()
     {
-        if ( !file.getAbsolutePath().startsWith( folder.getAbsolutePath() ) )
-            throw new IllegalArgumentException( "The given file is not in the search folder." );
-        
-        if ( !file.exists() )
-            this.selectedFile = null;
-        else
-            this.selectedFile = file;
+        ( (ImageListModel)list.getModel() ).update();
     }
-    
-    public void setSelectedFile( String filename )
-    {
-        File file = new File( filename );
-        if ( file.isAbsolute() )
-            setSelectedFile( file );
-        else
-            setSelectedFile( new File( folder, filename ) );
-    }
-    
-    public final File getSelectedFile()
-    {
-        return ( selectedFile );
-    }
-    */
     
     public void setSelectedFile( String name )
     {
@@ -115,6 +114,15 @@ public class ImageSelector
         }
         
         this.selectedFile = name;
+        
+        ImageListModel model = (ImageListModel)list.getModel();
+        
+        int selIndex = ( selectedFile == null ) ? -1 : model.getIndexOf( selectedFile );
+        if ( selIndex >= 0 )
+        {
+            list.setSelectedIndex( selIndex );
+            list.scrollRectToVisible( list.getCellBounds( selIndex, selIndex ) );
+        }
     }
     
     public String getSelectedFile()
@@ -122,39 +130,28 @@ public class ImageSelector
         return ( selectedFile );
     }
     
-    private void readFilenames( File folder, String prefix, List<String> filenames )
-    {
-        for ( File f : folder.listFiles( ImageFileFilter.INSTANCE ) )
-        {
-            if ( f.isDirectory() )
-            {
-                if ( prefix == null )
-                    readFilenames( f, f.getName(), filenames );
-                else
-                    readFilenames( f, prefix + "/" + f.getName(), filenames );
-            }
-            else
-            {
-                if ( prefix == null )
-                    filenames.add( f.getName() );
-                else
-                    filenames.add( prefix + "/" + f.getName() );
-            }
-        }
-    }
-    
-    private HashMap<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
+    private static HashMap<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
+    private static HashMap<String, Long> cache2 = new HashMap<String, Long>();
     
     private BufferedImage getImageFromCache( String name )
     {
         BufferedImage bi = cache.get( name );
+        File file = new File( folder, name );
+        if ( bi != null )
+        {
+            Long lastModified = cache2.get( name );
+            
+            if ( lastModified.longValue() != file.lastModified() )
+                bi = null;
+        }
+        
         if ( bi == null )
         {
-            File file = new File( folder, name );
             try
             {
                 bi = ImageIO.read( file );
                 cache.put( name, bi );
+                cache2.put( name, file.lastModified() );
             }
             catch ( IOException e )
             {
@@ -243,26 +240,9 @@ public class ImageSelector
     
     private String showDialog( Window owner, boolean noImageAllowed )
     {
-        final Vector<String> files = new Vector<String>();
-        readFilenames( folder, null, files );
-        Collections.sort( files );
+        update();
         
-        final JList list = new JList( files );
-        list.setFixedCellHeight( 50 );
-        list.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
-        list.setCellRenderer( new ListItem() );
-        list.addListSelectionListener( new ListSelectionListener()
-        {
-            @Override
-            public void valueChanged( ListSelectionEvent e )
-            {
-                JList list = (JList)e.getSource();
-                Object value = list.getSelectedValue();
-                
-                selectedFile = (String)value;
-            }
-        } );
-        
+        final JDialog dialog;
         if ( owner instanceof Frame )
             dialog = new JDialog( (Frame)owner );
         else if ( owner instanceof Dialog )
@@ -275,7 +255,7 @@ public class ImageSelector
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout( new BorderLayout() );
         
-        contentPane.add( new JScrollPane( list ), BorderLayout.CENTER );
+        contentPane.add( this, BorderLayout.CENTER );
         
         JPanel footer = new JPanel( new BorderLayout() );
         if ( noImageAllowed )
@@ -328,12 +308,7 @@ public class ImageSelector
             @Override
             public void windowOpened( WindowEvent e )
             {
-                int selIndex = ( selectedFile == null ) ? -1 : Collections.binarySearch( files, selectedFile );
-                if ( selIndex >= 0 )
-                {
-                    list.setSelectedIndex( selIndex );
-                    list.scrollRectToVisible( list.getCellBounds( selIndex, selIndex ) );
-                }
+                setSelectedFile( getSelectedFile() );
             }
         } );
         
@@ -370,8 +345,10 @@ public class ImageSelector
         return ( showDialog( owner, noImageAllowed ) );
     }
     
-    public ImageSelector( File folder )
+    public ImageSelector( File folder, String selectedFile )
     {
+        super( new BorderLayout() );
+        
         if ( !folder.exists() )
             throw new IllegalArgumentException( "folder \"" + folder.getAbsolutePath() + "\" doesn't exist." );
         
@@ -379,6 +356,18 @@ public class ImageSelector
             throw new IllegalArgumentException( "folder \"" + folder.getAbsolutePath() + "\" is not a folder." );
         
         this.folder = folder;
+        
+        this.list = createList( folder );
+        
+        this.add( new JScrollPane( list ), BorderLayout.CENTER );
+        
+        if ( selectedFile != null )
+            setSelectedFile( selectedFile );
+    }
+    
+    public ImageSelector( File folder )
+    {
+        this( folder, null );
     }
     
     public ImageSelector( String folder )

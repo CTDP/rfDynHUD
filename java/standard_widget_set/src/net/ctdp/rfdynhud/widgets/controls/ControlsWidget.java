@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -251,17 +252,17 @@ public class ControlsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( displayClutch.loadProperty( key, value ) );
-        else if ( clutchColor.loadProperty( key, value ) );
-        else if ( displayBrake.loadProperty( key, value ) );
-        else if ( brakeColor.loadProperty( key, value ) );
-        else if ( displayThrottle.loadProperty( key, value ) );
-        else if ( throttleColor.loadProperty( key, value ) );
-        else if ( gap.loadProperty( key, value ) );
+        if ( loader.loadProperty( displayClutch ) );
+        else if ( loader.loadProperty( clutchColor ) );
+        else if ( loader.loadProperty( displayBrake ) );
+        else if ( loader.loadProperty( brakeColor ) );
+        else if ( loader.loadProperty( displayThrottle ) );
+        else if ( loader.loadProperty( throttleColor ) );
+        else if ( loader.loadProperty( gap ) );
     }
     
     /**

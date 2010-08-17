@@ -61,7 +61,7 @@ import javax.swing.text.html.HTMLDocument;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
@@ -73,6 +73,7 @@ import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.editor.util.EditorPropertyLoader;
 import net.ctdp.rfdynhud.editor.util.SaveAsDialog;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
@@ -97,6 +98,7 @@ import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.TextureManager;
 import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -457,7 +459,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
             
             @Override
-            public Object getValue()
+            public String getValue()
             {
                 return ( screenshotSet );
             }
@@ -474,6 +476,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             public Object getValue()
             {
                 return ( gameResolution.getResolutionString() );
+            }
+            
+            @Override
+            public void loadValue( String value )
+            {
             }
         } );
         
@@ -504,7 +511,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
             
             @Override
-            public Object getValue()
+            public String getValue()
             {
                 return ( getCurrentTemplateFileForProperty() );
             }
@@ -531,32 +538,32 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         widgetsConfig.getProperties( propsCont, false );
     }
     
-    private static void readExpandFlags( FlaggedList list, String keyPrefix, HashMap<String, Boolean> map )
+    private static void readExpandFlags( GridItemsContainer list, String keyPrefix, HashMap<String, Boolean> map )
     {
         for ( int i = 0; i < list.size(); i++ )
         {
-            if ( list.get( i ) instanceof FlaggedList )
+            if ( list.get( i ) instanceof GridItemsContainer )
             {
-                FlaggedList fl = (FlaggedList)list.get( i );
-                map.put( keyPrefix + fl.getName(), fl.getExpandFlag() );
+                GridItemsContainer gic = (GridItemsContainer)list.get( i );
+                map.put( keyPrefix + gic.getName(), gic.getExpandFlag() );
                 
-                readExpandFlags( fl, keyPrefix, map );
+                readExpandFlags( gic, keyPrefix, map );
             }
         }
     }
     
-    private static void restoreExpandFlags( FlaggedList list, String keyPrefix, HashMap<String, Boolean> map )
+    private static void restoreExpandFlags( GridItemsContainer list, String keyPrefix, HashMap<String, Boolean> map )
     {
         for ( int i = 0; i < list.size(); i++ )
         {
-            if ( list.get( i ) instanceof FlaggedList )
+            if ( list.get( i ) instanceof GridItemsContainer )
             {
-                FlaggedList fl = (FlaggedList)list.get( i );
-                Boolean b = map.get( keyPrefix + fl.getName() );
+                GridItemsContainer gic = (GridItemsContainer)list.get( i );
+                Boolean b = map.get( keyPrefix + gic.getName() );
                 if ( b != null )
-                    fl.setExpandFlag( b.booleanValue() );
+                    gic.setExpandFlag( b.booleanValue() );
                 
-                restoreExpandFlags( fl, keyPrefix, map );
+                restoreExpandFlags( gic, keyPrefix, map );
             }
         }
     }
@@ -565,7 +572,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         editorPanel.setSelectedWidget( widget, doubleClick );
         
-        FlaggedList propsList = propsEditor.getPropertiesList();
+        GridItemsContainer propsList = propsEditor.getPropertiesList();
         
         HashMap<String, Boolean> expandedRows = new HashMap<String, Boolean>();
         readExpandFlags( propsList, "", expandedRows );
@@ -786,6 +793,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         if ( !userSettingsFile.exists() )
             return ( result );
         
+        final EditorPropertyLoader loader = new EditorPropertyLoader();
+        
         try
         {
             new AbstractIniParser()
@@ -793,13 +802,15 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 @Override
                 protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                 {
+                    loader.setCurrentSetting( key, value );
+                    
                     if ( group == null )
                     {
                         
                     }
                     else if ( group.equals( "General" ) )
                     {
-                        getEditorPanel().loadProperty( key, value );
+                        getEditorPanel().loadProperty( loader );
                         
                         if ( key.equals( "screenshotSet" ) )
                         {
@@ -947,7 +958,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     }
                     else if ( group.equals( "EditorPresets" ) )
                     {
-                        __EDPrivilegedAccess.loadProperty( presets, key, value );
+                        __EDPrivilegedAccess.loadProperty( presets, loader );
                     }
                     
                     return ( true );
@@ -979,7 +990,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         {
             this.templateConfig = new WidgetsConfiguration();
             
-            ConfigurationLoader.forceLoadConfiguration( templateConfigFile, templateConfig, gameData, presets, null );
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), templateConfigFile, templateConfig, gameData, presets, null );
             
             this.currentTemplateFile = templateConfigFile;
             this.lastTemplateConfigModified = templateConfigFile.lastModified();
@@ -998,7 +1009,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 widgetsConfig.getWidget( i ).clearRegion( true, getOverlayTexture() );
             }
             
-            ConfigurationLoader.forceLoadConfiguration( configFile, widgetsConfig, gameData, presets, null );
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), configFile, widgetsConfig, gameData, presets, null );
             
             currentConfigFile = configFile;
             
@@ -1605,6 +1616,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         this.widgetsConfig = drawingManager;
         this.eventsManager = new GameEventsManager( null, drawingManager );
         this.gameData = new LiveGameData( drawingManager.getGameResolution(), eventsManager );
+        eventsManager.setGameData( this.gameData );
         __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
         eventsManager.setGameData( gameData );
         
@@ -1742,7 +1754,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else
-                    ConfigurationLoader.loadFactoryDefaults( editor.widgetsConfig, editor.gameData, editor.presets, null );
+                    __UtilPrivilegedAccess.loadFactoryDefaults( new ConfigurationLoader(), editor.widgetsConfig, editor.gameData, editor.presets, null );
             }
             
             editor.eventsManager.onRealtimeEntered( editor.presets );

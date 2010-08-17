@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -205,17 +206,17 @@ public class EditorPanel extends JPanel
         writer.writeProperty( gridSizeY, null );
     }
     
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
         bgImageReloadSuppressed = true;
         
-        if ( railDistanceX.loadProperty( key, value ) );
-        else if ( railDistanceY.loadProperty( key, value ) );
-        else if ( drawGrid.loadProperty( key, value ) );
-        else if ( gridOffsetX.loadProperty( key, value ) );
-        else if ( gridOffsetY.loadProperty( key, value ) );
-        else if ( gridSizeX.loadProperty( key, value ) );
-        else if ( gridSizeY.loadProperty( key, value ) );
+        if ( loader.loadProperty( railDistanceX ) );
+        else if ( loader.loadProperty( railDistanceY ) );
+        else if ( loader.loadProperty( drawGrid ) );
+        else if ( loader.loadProperty( gridOffsetX ) );
+        else if ( loader.loadProperty( gridOffsetY ) );
+        else if ( loader.loadProperty( gridSizeX ) );
+        else if ( loader.loadProperty( gridSizeY ) );
         
         bgImageReloadSuppressed = false;
     }

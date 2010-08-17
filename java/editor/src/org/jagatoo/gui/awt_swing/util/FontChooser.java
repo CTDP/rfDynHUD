@@ -361,6 +361,7 @@ public class FontChooser extends JPanel
         {
             //private int revertIndex = -1;
             
+            @Override
             public void itemStateChanged( ItemEvent e )
             {
                 if ( isRefillingNameCombo || nameSelectionIgnored )
@@ -422,6 +423,7 @@ public class FontChooser extends JPanel
         } );
         combo.addPopupMenuListener( new PopupMenuListener()
         {
+            @Override
             public void popupMenuWillBecomeVisible( PopupMenuEvent e )
             {
                 if ( isRefillingNameCombo )
@@ -438,10 +440,12 @@ public class FontChooser extends JPanel
                 }
             }
             
+            @Override
             public void popupMenuWillBecomeInvisible( PopupMenuEvent e )
             {
             }
             
+            @Override
             public void popupMenuCanceled( PopupMenuEvent e )
             {
             }
@@ -487,6 +491,7 @@ public class FontChooser extends JPanel
         
         add.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 String initialValue = ( (JButton)e.getSource() ).getActionCommand();
@@ -519,6 +524,7 @@ public class FontChooser extends JPanel
         
         remove.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 if ( combo.getSelectedIndex() < 1 )
@@ -838,6 +844,7 @@ public class FontChooser extends JPanel
             
             fontChooser.getOKButton().addActionListener( new ActionListener()
             {
+                @Override
                 public void actionPerformed( ActionEvent e )
                 {
                     if ( getSelectedFontName() == null )
@@ -858,6 +865,7 @@ public class FontChooser extends JPanel
             
             fontChooser.getCancelButton().addActionListener( new ActionListener()
             {
+                @Override
                 public void actionPerformed( ActionEvent e )
                 {
                     FontChooserDialog.this.getFontChooser().setSelectedFont( null, 0 );

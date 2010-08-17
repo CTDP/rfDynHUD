@@ -20,14 +20,15 @@ package net.ctdp.rfdynhud.editor.properties;
 import java.io.PrintStream;
 import java.util.Stack;
 
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
+import net.ctdp.rfdynhud.editor.hiergrid.impl.GridItemsContainerImpl;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 
 public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
 {
-    private final Stack<FlaggedList> groupStack = new Stack<FlaggedList>();
-    private FlaggedList currList = null;
+    private final Stack<GridItemsContainer> groupStack = new Stack<GridItemsContainer>();
+    private GridItemsContainer currList = null;
     
     @Override
     protected void clearImpl()
@@ -43,9 +44,9 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
             groupStack.pop();
         }
         
-        FlaggedList group = new FlaggedList( groupName, initiallyExpanded );
+        GridItemsContainer group = new GridItemsContainerImpl( groupName, initiallyExpanded );
         
-        FlaggedList parentGroup = groupStack.peek();
+        GridItemsContainer parentGroup = groupStack.peek();
         parentGroup.add( group );
         groupStack.push( group );
         currList = group;
@@ -64,7 +65,7 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
         currList.add( property );
     }
     
-    private void dump( FlaggedList group, PrintStream ps, int level )
+    private void dump( GridItemsContainer group, PrintStream ps, int level )
     {
         for ( int i = 0; i < group.size(); i++ )
         {
@@ -73,11 +74,11 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
             
             Object o = group.get( i );
             
-            if ( o instanceof FlaggedList )
+            if ( o instanceof GridItemsContainer )
             {
-                ps.println( ( (FlaggedList)o ).getName() );
+                ps.println( ( (GridItemsContainer)o ).getName() );
                 
-                dump( (FlaggedList)o, ps, level + 1 );
+                dump( (GridItemsContainer)o, ps, level + 1 );
             }
             else
             {
@@ -92,7 +93,7 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
         dump( groupStack.get( 0 ), ps, 0 );
     }
     
-    public DefaultWidgetPropertiesContainer( FlaggedList root )
+    public DefaultWidgetPropertiesContainer( GridItemsContainer root )
     {
         groupStack.push( root );
         

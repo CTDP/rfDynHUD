@@ -23,6 +23,14 @@ import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link ListProperty} serves for customizing a value from a list.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ * 
+ * @param <E> the list element type
+ * @param <L> the list type
+ */
 public class ListProperty<E extends Object, L extends Collection<E>> extends Property
 {
     private L list;
@@ -78,29 +86,26 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public E getValue()
     {
         return ( getSelectedValue() );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
+        for ( E e : this.list )
         {
-            for ( E e : this.list )
+            if ( Tools.objectsEqual( value, e ) )
             {
-                if ( Tools.objectsEqual( value, e ) )
-                {
-                    setValue( e );
-                    
-                    return ( true );
-                }
+                setValue( e );
+                
+                return;
             }
-            
-            return ( true );
         }
-        
-        return ( false );
     }
     
     /**

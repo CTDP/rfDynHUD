@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.widgets.widget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -28,6 +29,7 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -36,9 +38,135 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
-public abstract class AssembledWidget extends Widget
+public abstract class AssembledWidget extends StatefulWidget<Object, Object>
 {
+    static class AssembledGeneralStore
+    {
+        @SuppressWarnings( "rawtypes" )
+        private final HashMap<StatefulWidget, Object> generalStores = new HashMap<StatefulWidget, Object>();
+    }
+    
+    static class AssembledLocalStore
+    {
+        @SuppressWarnings( "rawtypes" )
+        private final HashMap<StatefulWidget, Object> localStores = new HashMap<StatefulWidget, Object>();
+    }
+    
     protected final Widget[] parts;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings( "rawtypes" )
+    boolean hasGeneralStore()
+    {
+        if ( super.hasGeneralStore() )
+            return ( true );
+        
+        for ( int i = 0; i < parts.length; i++ )
+        {
+            Widget part = parts[i];
+            
+            if ( ( part instanceof StatefulWidget ) && ( (StatefulWidget)part ).hasGeneralStore() )
+                return ( true );
+        }
+        
+        return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected final AssembledGeneralStore createGeneralStore()
+    {
+        return ( new AssembledGeneralStore() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    void setGeneralStore( Object generalStore )
+    {
+        super.setGeneralStore( generalStore );
+        
+        if ( generalStore != null )
+        {
+            AssembledGeneralStore ags = (AssembledGeneralStore)generalStore;
+            
+            for ( int i = 0; i < parts.length; i++ )
+            {
+                Widget part = parts[i];
+                
+                if ( part instanceof StatefulWidget )
+                {
+                    StatefulWidget sw = (StatefulWidget)part;
+                    
+                    sw.setGeneralStore( ags.generalStores.get( sw ) );
+                }
+            }
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings( "rawtypes" )
+    boolean hasLocalStore()
+    {
+        if ( super.hasLocalStore() )
+            return ( true );
+        
+        for ( int i = 0; i < parts.length; i++ )
+        {
+            Widget part = parts[i];
+            
+            if ( ( part instanceof StatefulWidget ) && ( (StatefulWidget)part ).hasLocalStore() )
+                return ( true );
+        }
+        
+        return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected final AssembledLocalStore createLocalStore()
+    {
+        return ( new AssembledLocalStore() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    void setLocalStore( Object localStore )
+    {
+        super.setLocalStore( localStore );
+        
+        if ( localStore != null )
+        {
+            AssembledLocalStore als = (AssembledLocalStore)localStore;
+            
+            for ( int i = 0; i < parts.length; i++ )
+            {
+                Widget part = parts[i];
+                
+                if ( part instanceof StatefulWidget )
+                {
+                    StatefulWidget sw = (StatefulWidget)part;
+                    
+                    sw.setLocalStore( als.localStores.get( sw ) );
+                }
+            }
+        }
+    }
     
     /**
      * This method is called when the configuration has been loaded.
@@ -361,7 +489,9 @@ public abstract class AssembledWidget extends Widget
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].beforeConfigurationCleared( widgetsConfig, gameData, editorPresets );
+            Widget part = parts[i];
+            
+            part.beforeConfigurationCleared( widgetsConfig, gameData, editorPresets );
         }
     }
     
@@ -551,20 +681,6 @@ public abstract class AssembledWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onEngineBoostChanged( int oldBoost, int newBoost, boolean oldTempBoost, boolean newTempBoost )
-    {
-        super.onEngineBoostChanged( oldBoost, newBoost, oldTempBoost, newTempBoost );
-        
-        for ( int i = 0; i < parts.length; i++ )
-        {
-            parts[i].onEngineBoostChanged( oldBoost, newBoost, oldTempBoost, newTempBoost );
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
     {
         super.onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
@@ -713,9 +829,9 @@ public abstract class AssembledWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
     }
     
     /**
@@ -746,6 +862,8 @@ public abstract class AssembledWidget extends Widget
         return ( false );
     }
     
+    protected abstract Widget[] initParts( float width, boolean widthPercent, float height, boolean heightPercent );
+    
     /**
      * Creates a new Widget.
      * 
@@ -754,13 +872,12 @@ public abstract class AssembledWidget extends Widget
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
      * @param heightPercent height parameter treated as percents
-     * @param parts
      */
-    protected AssembledWidget( String name, float width, boolean widthPercent, float height, boolean heightPercent, Widget[] parts )
+    protected AssembledWidget( String name, float width, boolean widthPercent, float height, boolean heightPercent )
     {
         super( name, width, widthPercent, height, heightPercent );
         
-        this.parts = parts;
+        this.parts = initParts( width, widthPercent, height, heightPercent );
         
         for ( int i = 0; i < parts.length; i++ )
         {
@@ -778,10 +895,9 @@ public abstract class AssembledWidget extends Widget
      * @param name
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
-     * @param parts
      */
-    protected AssembledWidget( String name, float width, float height, Widget[] parts )
+    protected AssembledWidget( String name, float width, float height )
     {
-        this( name, width, true, height, true, parts );
+        this( name, width, true, height, true );
     }
 }

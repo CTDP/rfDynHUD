@@ -21,6 +21,11 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link BooleanProperty} serves for customizing a primitive boolean value.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class BooleanProperty extends Property
 {
     private boolean value;
@@ -65,21 +70,18 @@ public class BooleanProperty extends Property
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public Boolean getValue()
     {
         return ( getBooleanValue() );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
-        {
-            setValue( Boolean.parseBoolean( value ) );
-            
-            return ( true );
-        }
-        
-        return ( false );
+        setValue( Boolean.parseBoolean( value ) );
     }
     
     /**

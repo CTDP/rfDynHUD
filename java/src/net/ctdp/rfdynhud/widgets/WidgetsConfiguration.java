@@ -33,6 +33,7 @@ import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputMappings;
+import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
@@ -41,6 +42,7 @@ import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
+import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.StringUtil;
@@ -554,6 +556,12 @@ public class WidgetsConfiguration implements Documented
                 if ( ( colorProp.getValue() != null ) && colorProp.getValue().equals( oldName ) )
                     colorProp.setValue( newName );
             }
+            else if ( ( prop instanceof BackgroundProperty ) && ( (BackgroundProperty)prop ).getBackgroundType().isColor() )
+            {
+                ColorProperty colorProp = ( (BackgroundProperty)prop ).getColorProperty();
+                if ( ( colorProp.getValue() != null ) && colorProp.getValue().equals( oldName ) )
+                    colorProp.setValue( newName );
+            }
         }
     }
     
@@ -895,12 +903,11 @@ public class WidgetsConfiguration implements Documented
     /**
      * Loads (and parses) a certain property from a config file.
      * 
-     * @param key
-     * @param value
+     * @param loader
      */
-    public void loadProperty( String key, String value )
+    public void loadProperty( ConfigurationLoader loader )
     {
-        if ( useClassScoring.loadProperty( key, value ) );
+        if ( loader.loadProperty( useClassScoring ) );
     }
     
     /**

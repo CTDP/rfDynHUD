@@ -15,24 +15,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.util;
-
-import java.io.IOException;
-
-import net.ctdp.rfdynhud.properties.Property;
+package net.ctdp.rfdynhud.properties;
 
 /**
- * Writes properties to a configuration file.
+ * The {@link PropertyLoader} loads properties from a configuration file.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public interface WidgetsConfigurationWriter
+public interface PropertyLoader
 {
-    public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException;
+    public String getCurrentKey();
     
-    public void writeProperty( String key, Object value, String comment ) throws IOException;
+    public String getCurrentValue();
     
-    public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException;
-    
-    public void writeProperty( Property property, String comment ) throws IOException;
+    public boolean loadProperty( Property property );
 }

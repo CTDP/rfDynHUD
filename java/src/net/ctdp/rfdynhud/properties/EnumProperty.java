@@ -20,6 +20,13 @@ package net.ctdp.rfdynhud.properties;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link EnumProperty} serves for customizing a value from an enum.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ * 
+ * @param <E> the enum type
+ */
 public class EnumProperty<E extends Enum<E>> extends Property
 {
     private E value;
@@ -69,29 +76,26 @@ public class EnumProperty<E extends Enum<E>> extends Property
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public E getValue()
     {
         return ( getEnumValue() );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
+        for ( Enum<?> e : this.value.getClass().getEnumConstants() )
         {
-            for ( Enum<?> e : this.value.getClass().getEnumConstants() )
+            if ( e.name().equals( value ) )
             {
-                if ( e.name().equals( value ) )
-                {
-                    setValue( e );
-                    
-                    return ( true );
-                }
+                setValue( e );
+                
+                return;
             }
-            
-            return ( true );
         }
-        
-        return ( false );
     }
     
     /**

@@ -30,15 +30,15 @@ import javax.swing.table.TableCellEditor;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
-import net.ctdp.rfdynhud.properties.ColorProperty;
-
-import org.jagatoo.gui.awt_swing.util.ColorChooser;
+import net.ctdp.rfdynhud.editor.util.BackgroundSelector;
+import net.ctdp.rfdynhud.properties.BackgroundProperty;
+import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
+public class BackgroundCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -49,9 +49,9 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
     private JTable table = null;
     private int row = -1;
     private int column = -1;
-    private ColorProperty prop = null;
+    private BackgroundProperty prop = null;
     
-    private ColorChooser colorChooser = null;
+    private static BackgroundSelector backgroundSelector = null;
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
@@ -62,14 +62,14 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         super.prepareComponent( panel, table, value, isSelected, hasFocus, row, column );
         
         //this.prop = ( (PropertiesEditor)table.getModel() ).getProperty( row );
-        this.prop = (ColorProperty)( (HierarchicalTableModel)table.getModel() ).getRowAt( row );
+        this.prop = (BackgroundProperty)( (HierarchicalTableModel)table.getModel() ).getRowAt( row );
         
         if ( prop.getButtonText() == null )
         {
             //button.setVisible( false );
             button.setVisible( true );
             button.setText( "..." );
-            button.setToolTipText( "Choose a Color" );
+            button.setToolTipText( "Choose a Background" );
         }
         else
         {
@@ -91,17 +91,25 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         }
         */
         
-        Color color = prop.getColor();
-        
-        if ( ( color.getRed() < 50 ) && ( color.getGreen() < 50 ) && ( color.getBlue() < 50 ) && ( color.getAlpha() > 50 ) )
-            label.setForeground( Color.WHITE );
+        if ( prop.getBackgroundType().isColor() )
+        {
+            Color color = prop.getColorValue();
+            
+            if ( ( color.getRed() < 50 ) && ( color.getGreen() < 50 ) && ( color.getBlue() < 50 ) && ( color.getAlpha() > 50 ) )
+                label.setForeground( Color.WHITE );
+            else
+                label.setForeground( Color.BLACK );
+            
+            label.setBackground( color );
+        }
         else
-            label.setForeground( Color.BLACK );
+        {
+            label.setForeground( Color.WHITE );
+        }
         
-        label.setBackground( color );
         label.setFont( table.getFont() );
         
-        label.setText( (String)value );
+        label.setText( String.valueOf( value ) );
         
         this.table = table;
         this.row = row;
@@ -142,7 +150,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
     {
     }
     
-    public ColorCellEditor()
+    public BackgroundCellEditor()
     {
         super( false, null );
         
@@ -155,20 +163,39 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
             {
                 if ( prop != null )
                 {
-                    JFrame frame = (JFrame)table.getRootPane().getParent();
-                    if ( colorChooser == null )
+                    if ( backgroundSelector == null )
                     {
-                        colorChooser = new ColorChooser( (String)prop.getValue(), prop.getWidget().getConfiguration() );
+                        backgroundSelector = new BackgroundSelector( null, null, null, prop.getWidget().getConfiguration() );
                     }
                     
-                    String result = colorChooser.showDialog( frame, (String)prop.getValue(), prop.getWidget().getConfiguration() );
+                    JFrame frame = (JFrame)table.getRootPane().getParent();
+                    
+                    String startColor = ( prop.getColorProperty() != null ) ? prop.getColorProperty().getColorKey() : null;
+                    String startImage = ( prop.getImageProperty() != null ) ? prop.getImageProperty().getImageName() : null;
+                    
+                    Object[] result = backgroundSelector.showDialog( frame, prop.getBackgroundType(), startColor, startImage, prop.getWidget().getConfiguration() );
                     
                     if ( result != null )
                     {
-                        prop.setValue( result );
+                        BackgroundType backgroundType = (BackgroundType)result[0];
+                        String selColor = (String)result[1];
+                        String selImage = (String)result[2];
                         
-                        label.setText( (String)prop.getValue() );
+                        if ( backgroundType.isColor() )
+                        {
+                            prop.setValue( "image:" + selImage );
+                            prop.setValue( "color:" + selColor );
+                        }
+                        else if ( backgroundType.isImage() )
+                        {
+                            prop.setValue( "color:" + selColor );
+                            prop.setValue( "image:" + selImage );
+                        }
+                        
+                        label.setText( String.valueOf( prop.getValue() ) );
+                        
                         table.setValueAt( getCellEditorValue(), row, column );
+                        prop.setValue( getCellEditorValue() );
                         ( (EditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
                     }
                     

@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
@@ -270,14 +271,14 @@ public class StartingLightWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( offImageProp.loadProperty( key, value ) );
-        else if ( onImageProp.loadProperty( key, value ) );
-        else if ( numRows.loadProperty( key, value ) );
-        else if ( visibleTimeAfterLightsOff.loadProperty( key, value ) );
+        if ( loader.loadProperty( offImageProp ) );
+        else if ( loader.loadProperty( onImageProp ) );
+        else if ( loader.loadProperty( numRows ) );
+        else if ( loader.loadProperty( visibleTimeAfterLightsOff ) );
     }
     
     /**

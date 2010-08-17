@@ -28,10 +28,12 @@ import javax.swing.JOptionPane;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener;
+import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -43,8 +45,55 @@ import org.openmali.vecmath2.util.ColorUtils;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ConfigurationLoader
+public class ConfigurationLoader implements PropertyLoader
 {
+    private String keyPrefix = null;
+    
+    private String currentKey = null;
+    private String currentValue = null;
+    
+    private String effectiveKey = null;
+    
+    public void setKeyPrefix( String prefix )
+    {
+        this.keyPrefix = prefix;
+        
+        if ( keyPrefix == null )
+            effectiveKey = currentKey;
+        else
+            effectiveKey = currentKey.substring( keyPrefix.length() );
+    }
+    
+    public final String getKeyPrefix()
+    {
+        return ( keyPrefix );
+    }
+    
+    @Override
+    public final String getCurrentKey()
+    {
+        return ( effectiveKey );
+    }
+    
+    @Override
+    public final String getCurrentValue()
+    {
+        return ( currentValue );
+    }
+    
+    @Override
+    public boolean loadProperty( Property property )
+    {
+        if ( property.isMatchingKey( effectiveKey ) )
+        {
+            property.loadValue( currentValue );
+            
+            return ( true );
+        }
+        
+        return ( false );
+    }
+    
     /**
      * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
      * 
@@ -53,9 +102,14 @@ public class ConfigurationLoader
      * 
      * @throws IOException
      */
-    private static void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         __WCPrivilegedAccess.clear( widgetsConfig, gameData, editorPresets, clearListener );
+        
+        currentKey = null;
+        currentValue = null;
+        keyPrefix = null;
+        effectiveKey = null;
         
         new AbstractIniParser()
         {
@@ -92,9 +146,13 @@ public class ConfigurationLoader
                     //throw new ParsingException( "Found setting before the first group started (line " + lineNr + ")." );
                     Logger.log( "WARNING: Found setting before the first group started (line " + lineNr + ")." );
                 
+                currentKey = key;
+                currentValue = value;
+                setKeyPrefix( keyPrefix );
+                
                 if ( group.equals( "Global" ) )
                 {
-                    widgetsConfig.loadProperty( key, value );
+                    widgetsConfig.loadProperty( ConfigurationLoader.this );
                 }
                 else if ( group.equals( "NamedColors" ) )
                 {
@@ -198,7 +256,7 @@ public class ConfigurationLoader
                     {
                         try
                         {
-                            currentWidget.loadProperty( key, value );
+                            currentWidget.loadProperty( ConfigurationLoader.this );
                         }
                         catch ( Throwable t )
                         {
@@ -227,6 +285,11 @@ public class ConfigurationLoader
             }
         }.parse( reader );
         
+        currentKey = null;
+        currentValue = null;
+        keyPrefix = null;
+        effectiveKey = null;
+        
         __WCPrivilegedAccess.sortWidgets( widgetsConfig );
         __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, editorPresets );
     }
@@ -235,12 +298,7 @@ public class ConfigurationLoader
     private static long lastModified = -1L;
     private static boolean isFirstLoadAttempt = true;
     
-    public static final File getCurrentlyLoadedConfigFile()
-    {
-        return ( currentlyLoadedConfigFile );
-    }
-    
-    private static File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         Logger.log( "Loading configuration file from \"" + file.getAbsolutePath() + "\"" );
         
@@ -254,7 +312,7 @@ public class ConfigurationLoader
         return ( currentlyLoadedConfigFile );
     }
     
-    private static File load( File currentlyLoadedConfigFile, long lastModified, File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private File load( File currentlyLoadedConfigFile, long lastModified, File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         if ( currentlyLoadedConfigFile == null )
             return ( _loadConfiguration( configFile, widgetsConfig, gameData, editorPresets, clearListener ) );
@@ -267,7 +325,7 @@ public class ConfigurationLoader
         return ( currentlyLoadedConfigFile );
     }
     
-    private static boolean load( File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private boolean load( File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
         long old_lastModified = lastModified;
@@ -294,40 +352,7 @@ public class ConfigurationLoader
      * 
      * @throws IOException
      */
-    public static File loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
-    {
-        if ( load( file, widgetsConfig, gameData, editorPresets, clearListener ) )
-            return ( currentlyLoadedConfigFile );
-        
-        return ( null );
-    }
-    
-    /**
-     * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
-     * 
-     * @param filename
-     * @param widgetsConfig
-     * 
-     * @return the file, from which the configuration has been loaded.
-     * 
-     * @throws IOException
-     */
-    public static File loadConfiguration( String filename, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
-    {
-        return ( loadConfiguration( new File( filename ), widgetsConfig, gameData, editorPresets, clearListener ) );
-    }
-    
-    /**
-     * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
-     * 
-     * @param file
-     * @param widgetsConfig
-     * 
-     * @return the file, from which the configuration has been loaded.
-     * 
-     * @throws IOException
-     */
-    public static File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         currentlyLoadedConfigFile = null;
         lastModified = -1L;
@@ -338,22 +363,7 @@ public class ConfigurationLoader
         return ( null );
     }
     
-    /**
-     * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
-     * 
-     * @param filename
-     * @param widgetsConfig
-     * 
-     * @return the file, from which the configuration has been loaded.
-     * 
-     * @throws IOException
-     */
-    public static File forceLoadConfiguration( String filename, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
-    {
-        return ( forceLoadConfiguration( new File( filename ), widgetsConfig, gameData, editorPresets, clearListener ) );
-    }
-    
-    public static void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
     {
         Logger.log( "Loading factory default configuration." );
         
@@ -388,7 +398,7 @@ public class ConfigurationLoader
      * 
      * @return the file, from which the configuration has been loaded.
      */
-    public static Boolean reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener, boolean force )
+    Boolean reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener, boolean force )
     {
         if ( force || !widgetsConfig.isValid() )
         {

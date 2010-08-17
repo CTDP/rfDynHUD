@@ -34,7 +34,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
     
     private final String[] columnNames;
     
-    private FlaggedList data;
+    private GridItemsContainer data;
     private final ArrayList<Object> flatData = new ArrayList<Object>();
     private final ArrayList<boolean[]> lastInGroup = new ArrayList<boolean[]>();
     private final ArrayList<Integer> levels = new ArrayList<Integer>();
@@ -59,7 +59,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return ( 0 );
     }
     
-    private boolean computeFlatData( FlaggedList items, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
+    private boolean computeFlatData( GridItemsContainer items, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
     {
         boolean hasExpandableItems = false;
         
@@ -85,11 +85,11 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
             
             levels.add( level );
             
-            if ( item instanceof FlaggedList )
+            if ( item instanceof GridItemsContainer )
             {
                 hasExpandableItems = true;
                 
-                FlaggedList list = (FlaggedList)item;
+                GridItemsContainer list = (GridItemsContainer)item;
                 
                 if ( list.getExpandFlag() )
                 {
@@ -101,7 +101,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return ( hasExpandableItems );
     }
     
-    private void computeFlatData( FlaggedList items )
+    private void computeFlatData( GridItemsContainer items )
     {
         flatData.clear();
         //lastInGroup.clear();
@@ -110,7 +110,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         this.hasExpandableItems = computeFlatData( items, 0, flatData, ligTrace, lastInGroup, levels );
     }
     
-    public void setData( FlaggedList data )
+    public void setData( GridItemsContainer data )
     {
         this.data = data;
         this.columnCount = columnNames.length;
@@ -229,9 +229,9 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         {
             if ( column == 0 )
             {
-                if ( rowData instanceof FlaggedList )
+                if ( rowData instanceof GridItemsContainer )
                 {
-                    ( (FlaggedList)rowData ).setExpandFlag( (Boolean)value );
+                    ( (GridItemsContainer)rowData ).setExpandFlag( (Boolean)value );
                     computeFlatData( data );
                     
                     fireTableDataChanged();
@@ -240,7 +240,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
                 return;
             }
             
-            if ( rowData instanceof FlaggedList )
+            if ( rowData instanceof GridItemsContainer )
             {
                 if ( column == 1 )
                     return;
@@ -274,15 +274,15 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         {
             if ( column == 0 )
             {
-                if ( rowData instanceof FlaggedList )
+                if ( rowData instanceof GridItemsContainer )
                 {
-                    return ( ( (FlaggedList)rowData ).getExpandFlag() );
+                    return ( ( (GridItemsContainer)rowData ).getExpandFlag() );
                 }
                 
                 return ( null );
             }
             
-            if ( rowData instanceof FlaggedList )
+            if ( rowData instanceof GridItemsContainer )
             {
                 if ( column == 1 )
                     return ( rowData );
@@ -318,7 +318,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         //Object rowData = getValueAtRow( data, 0, row );
         Object rowData = flatData.get( row );
         
-        return ( !( rowData instanceof FlaggedList ) );
+        return ( !( rowData instanceof GridItemsContainer ) );
     }
     
     public boolean[] getLastInGroup( int row )
@@ -406,7 +406,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         }
     }
     
-    public HierarchicalTableModel( FlaggedList data, ValueAccessor accessor, int columnCount )
+    public HierarchicalTableModel( GridItemsContainer data, ValueAccessor accessor, int columnCount )
     {
         super();
         
@@ -417,7 +417,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         this.accessor = accessor;
     }
     
-    public HierarchicalTableModel( FlaggedList data, ValueAccessor accessor, String... columnNames )
+    public HierarchicalTableModel( GridItemsContainer data, ValueAccessor accessor, String... columnNames )
     {
         super();
         

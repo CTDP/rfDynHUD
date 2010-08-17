@@ -33,6 +33,7 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -1067,45 +1068,47 @@ public class WearWidget extends Widget
         writer.writeProperty( font2, "The used (smaller) font." );
         
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
-        engineHeight.saveHeightProperty( "engineHeight", "The height of the engine bar.", writer );
+        writer.writeProperty( engineHeight.getHeightProperty( "engineHeight" ), "The height of the engine bar." );
         writer.writeProperty( hundredPercentBase, "The value range to be used as 100% base." );
         writer.writeProperty( displayWearPercent, "Display wear in percentage numbers?" );
         writer.writeProperty( estimationImageName, "Image to display where the engine is expected to explode." );
         
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
         writer.writeProperty( displayCompoundName, "Display the tire compound name in the header?" );
-        tireSize.saveWidthProperty( "tireWidth", "The width of a tire image.", writer );
-        tireSize.saveHeightProperty( "tireHeight", "The height of a tire image.", writer );
+        writer.writeProperty( tireSize.getWidthProperty( "tireWidth" ), "The width of a tire image." );
+        writer.writeProperty( tireSize.getHeightProperty( "tireHeight" ), "The height of a tire image." );
         writer.writeProperty( swapTireWearGripMeaning, "Swap bar and line display for wear and grip?" );
         
         writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
-        brakeSize.saveWidthProperty( "brakeWidth", "The width of a brake image.", writer );
-        brakeSize.saveHeightProperty( "brakeHeight", "The height of a brake image.", writer );
+        writer.writeProperty( brakeSize.getWidthProperty( "brakeWidth" ), "The width of a brake image." );
+        writer.writeProperty( brakeSize.getHeightProperty( "brakeHeight" ), "The height of a brake image." );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( font2.loadProperty( key, value ) );
+        if ( loader.loadProperty( font2 ) );
         
-        else if ( displayEngine.loadProperty( key, value ) );
-        else if ( engineHeight.loadProperty( key, value, null, "engineHeight" ) );
-        else if ( hundredPercentBase.loadProperty( key, value ) );
-        else if ( displayWearPercent.loadProperty( key, value ) );
-        else if ( estimationImageName.loadProperty( key, value ) );
+        else if ( loader.loadProperty( displayEngine ) );
+        else if ( loader.loadProperty( engineHeight.getHeightProperty( "engineHeight" ) ) );
+        else if ( loader.loadProperty( hundredPercentBase ) );
+        else if ( loader.loadProperty( displayWearPercent ) );
+        else if ( loader.loadProperty( estimationImageName ) );
         
-        else if ( displayTires.loadProperty( key, value ) );
-        else if ( displayCompoundName.loadProperty( key, value ) );
-        else if ( tireSize.loadProperty( key, value, "tireWidth", "tireHeight" ) );
-        else if ( swapTireWearGripMeaning.loadProperty( key, value ) );
+        else if ( loader.loadProperty( displayTires ) );
+        else if ( loader.loadProperty( displayCompoundName ) );
+        else if ( loader.loadProperty( tireSize.getWidthProperty( "tireWidth" ) ) );
+        else if ( loader.loadProperty( tireSize.getHeightProperty( "tireHeight" ) ) );
+        else if ( loader.loadProperty( swapTireWearGripMeaning ) );
         
-        else if ( displayBrakes.loadProperty( key, value ) );
-        else if ( brakeSize.loadProperty( key, value, "brakeWidth", "brakeHeight" ) );
+        else if ( loader.loadProperty( displayBrakes ) );
+        else if ( loader.loadProperty( brakeSize.getWidthProperty( "brakeWidth" ) ) );
+        else if ( loader.loadProperty( brakeSize.getHeightProperty( "brakeHeight" ) ) );
     }
     
     /**
@@ -1128,7 +1131,7 @@ public class WearWidget extends Widget
         propsCont.addGroup( "Engine" );
         
         propsCont.addProperty( displayEngine );
-        propsCont.addProperty( engineHeight.createHeightProperty( "engineHeight" ) );
+        propsCont.addProperty( engineHeight.getHeightProperty( "engineHeight" ) );
         propsCont.addProperty( hundredPercentBase );
         propsCont.addProperty( displayWearPercent );
         propsCont.addProperty( estimationImageName );
@@ -1137,15 +1140,15 @@ public class WearWidget extends Widget
         
         propsCont.addProperty( displayTires );
         propsCont.addProperty( displayCompoundName );
-        propsCont.addProperty( tireSize.createWidthProperty( "tireWidth" ) );
-        propsCont.addProperty( tireSize.createHeightProperty( "tireHeight" ) );
+        propsCont.addProperty( tireSize.getWidthProperty( "tireWidth" ) );
+        propsCont.addProperty( tireSize.getHeightProperty( "tireHeight" ) );
         propsCont.addProperty( swapTireWearGripMeaning );
         
         propsCont.addGroup( "Brakes" );
         
         propsCont.addProperty( displayBrakes );
-        propsCont.addProperty( brakeSize.createWidthProperty( "brakeWidth" ) );
-        propsCont.addProperty( brakeSize.createHeightProperty( "brakeHeight" ) );
+        propsCont.addProperty( brakeSize.getWidthProperty( "brakeWidth" ) );
+        propsCont.addProperty( brakeSize.getHeightProperty( "brakeHeight" ) );
     }
     
     public WearWidget( String name )

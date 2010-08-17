@@ -23,6 +23,7 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
 import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -141,12 +142,12 @@ public class Lesson4aWidget_Images extends Widget
     }
     
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( backgroundImage.loadProperty( key, value ) );
-        else if ( image2.loadProperty( key, value ) );
+        if ( loader.loadProperty( backgroundImage ) );
+        else if ( loader.loadProperty( image2 ) );
     }
     
     @Override

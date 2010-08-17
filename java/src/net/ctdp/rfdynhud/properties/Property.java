@@ -100,6 +100,41 @@ public abstract class Property
     {
     }
     
+    public Boolean quoteValueInConfigurationFile()
+    {
+        return ( null );
+    }
+    
+    /**
+     * Gets the value prepared for the configuration file.
+     * This can be a String or some other primitive value.
+     * 
+     * @return the value prepared for the configuration file.
+     */
+    public Object getValueForConfigurationFile()
+    {
+        return ( getValue() );
+    }
+    
+    /**
+     * Checks whether the given key (from the configuration file) belongs to this {@link Property}.
+     * 
+     * @param key
+     * 
+     * @return whether the given key (from the configuration file) belongs to this {@link Property}.
+     */
+    public boolean isMatchingKey( String key )
+    {
+        return ( key.equals( name ) );
+    }
+    
+    /**
+     * Loads the value from the configuration file.
+     * 
+     * @param value
+     */
+    public abstract void loadValue( String value );
+    
     /**
      * {@inheritDoc}
      */

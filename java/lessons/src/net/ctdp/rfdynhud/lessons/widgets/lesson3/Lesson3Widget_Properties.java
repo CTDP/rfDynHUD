@@ -27,6 +27,7 @@ import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -176,9 +177,9 @@ public class Lesson3Widget_Properties extends Widget
     }
     
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
         /*
          * Here we load our properties from the configuration file.
@@ -186,10 +187,10 @@ public class Lesson3Widget_Properties extends Widget
          * this trick with if/else if and a trailing semicolon.
          */
         
-        if ( coldColor.loadProperty( key, value ) );
-        else if ( hotColor.loadProperty( key, value ) );
-        else if ( myFont.loadProperty( key, value ) );
-        else if ( myEnum.loadProperty( key, value ) );
+        if ( loader.loadProperty( coldColor ) );
+        else if ( loader.loadProperty( hotColor ) );
+        else if ( loader.loadProperty( myFont ) );
+        else if ( loader.loadProperty( myEnum ) );
     }
     
     @Override

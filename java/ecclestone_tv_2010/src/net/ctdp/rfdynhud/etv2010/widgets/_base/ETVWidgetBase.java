@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -81,12 +82,12 @@ public abstract class ETVWidgetBase extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( captionBackgroundColor.loadProperty( key, value ) );
-        else if ( captionColor.loadProperty( key, value ) );
+        if ( loader.loadProperty( captionBackgroundColor ) );
+        else if ( loader.loadProperty( captionColor ) );
     }
     
     /**

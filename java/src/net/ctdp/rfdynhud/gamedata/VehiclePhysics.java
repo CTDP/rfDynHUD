@@ -1823,6 +1823,9 @@ public class VehiclePhysics
         }
         
         this.fuelRange = new PhysicsSetting( ( measurementUnits == MeasurementUnits.IMPERIAL ) ? TelemetryData.LITERS_TO_GALONS : 1f, 0f );
+        this.fuelRange.baseValue = this.fuelRangeL.baseValue;
+        this.fuelRange.numSteps = this.fuelRangeL.numSteps;
+        this.fuelRange.stepSize = this.fuelRangeL.stepSize;
     }
     
     private void loadDefaults()
@@ -1831,7 +1834,8 @@ public class VehiclePhysics
     	{
     	    wheelDrive = WheelDrive.REAR;
     	    
-	        fuelRange.set( 6.0f, 1.0f, 127 );
+	        fuelRangeL.set( 6.0f, 1.0f, 127 );
+            fuelRange.set( 6.0f, 1.0f, 127 );
 	        frontWingRange.set( 14.0f, 0.25f, 65 );
 	        
 	        engine.revLimitRange.set( 20000.0f, 250f, 9 );

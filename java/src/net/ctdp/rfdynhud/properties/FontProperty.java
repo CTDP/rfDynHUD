@@ -27,6 +27,11 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link FontProperty} serves for customizing a font value.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class FontProperty extends Property
 {
     public static final String STANDARD_FONT_NAME = "StandardFont";
@@ -205,21 +210,18 @@ public class FontProperty extends Property
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public String getValue()
     {
         return ( fontKey );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
-        {
-            setValue( value );
-            
-            return ( true );
-        }
-        
-        return ( false );
+        setValue( value );
     }
     
     /**

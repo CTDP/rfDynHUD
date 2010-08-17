@@ -20,6 +20,11 @@ package net.ctdp.rfdynhud.properties;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link StringProperty} serves for customizing a simple String value.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class StringProperty extends Property
 {
     private final boolean forceTrimOnSet;
@@ -65,28 +70,25 @@ public class StringProperty extends Property
     @Override
     public void setValue( Object value )
     {
-        setStringValue( (String)value );
+        setStringValue( String.valueOf( value ) );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public String getValue()
     {
         return ( getStringValue() );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
-        {
-            setValue( value );
-            
-            return ( true );
-        }
-        
-        return ( false );
+        setValue( value );
     }
     
     /**

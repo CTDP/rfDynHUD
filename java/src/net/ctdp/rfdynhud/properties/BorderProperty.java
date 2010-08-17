@@ -23,6 +23,11 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link BorderProperty} serves for customizing a border.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class BorderProperty extends Property
 {
     public static final String DEFAULT_BORDER_NAME = "StandardBorder";
@@ -129,21 +134,18 @@ public class BorderProperty extends Property
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public String getValue()
     {
         return ( borderName );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
-        {
-            setValue( value );
-            
-            return ( true );
-        }
-        
-        return ( false );
+        setValue( value );
     }
     
     /**

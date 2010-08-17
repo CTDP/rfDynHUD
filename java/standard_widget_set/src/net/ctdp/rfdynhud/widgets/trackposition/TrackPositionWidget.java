@@ -30,8 +30,8 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
-import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
@@ -54,8 +54,19 @@ public class TrackPositionWidget extends Widget
     private static final int LINE_THICKNESS = 1;
     private static final int BASE_LINE_PADDING = 30;
     
-    private int baseItemRadius = 9;
-    private int itemRadius = baseItemRadius;
+    private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            super.onValueChanged( oldValue, newValue );
+            
+            itemRadius = Math.round( newValue * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+            
+            forceAndSetDirty();
+        }
+    };
+    private int itemRadius = baseItemRadius.getIntValue();
     
     private final ColorProperty lineColor = new ColorProperty( this, "lineColor", "#FFFFFF" );
     
@@ -137,13 +148,6 @@ public class TrackPositionWidget extends Widget
         return ( getConfiguration().getUseClassScoring() );
     }
     
-    public void setItemRadius( int radius )
-    {
-        this.baseItemRadius = radius;
-        
-        forceAndSetDirty();
-    }
-    
     private void initMaxDisplayedVehicles( boolean isEditorMode, ModInfo modInfo )
     {
         if ( isEditorMode )
@@ -199,7 +203,7 @@ public class TrackPositionWidget extends Widget
             itemTextures = new TransformableTexture[ maxDisplayedVehicles ];
         }
         
-        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+        itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         if ( itemTextures[0] == null )
             itemTextures[0] = new TransformableTexture( 1, 1, isEditorMode );
@@ -355,7 +359,7 @@ public class TrackPositionWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( lineColor, "Color for the base line." );
-        writer.writeProperty( "itemRadius", baseItemRadius, "The abstract radius for any displayed driver item." );
+        writer.writeProperty( baseItemRadius, "The abstract radius for any displayed driver item." );
         writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
@@ -373,24 +377,23 @@ public class TrackPositionWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( lineColor.loadProperty( key, value ) );
-        else if ( key.equals( "itemRadius" ) )
-            this.baseItemRadius = Integer.parseInt( value );
-        else if ( markColorNormal.loadProperty( key, value ) );
-        else if ( markColorLeader.loadProperty( key, value ) );
-        else if ( markColorMe.loadProperty( key, value ) );
-        else if ( useMyColorForMe1st.loadProperty( key, value ) );
-        else if ( markColorNextInFront.loadProperty( key, value ) );
-        else if ( markColorNextBehind.loadProperty( key, value ) );
-        else if ( displayPositionNumbers.loadProperty( key, value ) );
-        else if ( displayNameLabels.loadProperty( key, value ) );
-        else if ( nameLabelPos.loadProperty( key, value ) );
-        else if ( nameLabelFont.loadProperty( key, value ) );
-        else if ( nameLabelFontColor.loadProperty( key, value ) );
+        if ( loader.loadProperty( lineColor ) );
+        else if ( loader.loadProperty( baseItemRadius ) );
+        else if ( loader.loadProperty( markColorNormal ) );
+        else if ( loader.loadProperty( markColorLeader ) );
+        else if ( loader.loadProperty( markColorMe ) );
+        else if ( loader.loadProperty( useMyColorForMe1st ) );
+        else if ( loader.loadProperty( markColorNextInFront ) );
+        else if ( loader.loadProperty( markColorNextBehind ) );
+        else if ( loader.loadProperty( displayPositionNumbers ) );
+        else if ( loader.loadProperty( displayNameLabels ) );
+        else if ( loader.loadProperty( nameLabelPos ) );
+        else if ( loader.loadProperty( nameLabelFont ) );
+        else if ( loader.loadProperty( nameLabelFontColor ) );
     }
     
     /**
@@ -405,20 +408,7 @@ public class TrackPositionWidget extends Widget
         
         propsCont.addProperty( lineColor );
         
-        propsCont.addProperty( new Property( this, "itemRadius", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setItemRadius( (Integer)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( baseItemRadius );
-            }
-        } );
+        propsCont.addProperty( baseItemRadius );
         
         propsCont.addProperty( markColorNormal );
         propsCont.addProperty( markColorLeader );

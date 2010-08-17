@@ -17,8 +17,16 @@
  */
 package net.ctdp.rfdynhud.properties;
 
+import net.ctdp.rfdynhud.values.Position;
+import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
+/**
+ * The {@link PosSizeProperty} is utilized by the {@link Position} and {@link Size} classes to customize positional and size values.
+ * This class is not meant to be used by a Widget programmer directly.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public abstract class PosSizeProperty extends Property
 {
     private static final String FLIP_TEXT = "flip";

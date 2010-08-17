@@ -40,8 +40,7 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
@@ -66,8 +65,19 @@ public class MapWidget extends Widget
     private boolean isBgClean = false;
     private Track track = null;
     private float scale = 1f;
-    private int baseItemRadius = 9;
-    private int itemRadius = baseItemRadius;
+    private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            super.onValueChanged( oldValue, newValue );
+            
+            itemRadius = Math.round( newValue * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+            
+            forceAndSetDirty();
+        }
+    };
+    private int itemRadius = baseItemRadius.getIntValue();
     
     private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
     
@@ -184,13 +194,6 @@ public class MapWidget extends Widget
         return ( getConfiguration().getUseClassScoring() );
     }
     
-    private void setItemRadius( int radius )
-    {
-        this.baseItemRadius = radius;
-        
-        forceAndSetDirty();
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -268,7 +271,7 @@ public class MapWidget extends Widget
             subTextures[0] = new TransformableTexture( widgetWidth, widgetHeight, isEditorMode );
         }
         
-        itemRadius = Math.round( baseItemRadius * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+        itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         if ( subTextures[subTexOff] == null )
             subTextures[subTexOff] = new TransformableTexture( 1, 1, isEditorMode );
@@ -712,7 +715,7 @@ public class MapWidget extends Widget
         writer.writeProperty( roadBoundaryColorSec3, "The color used for the road boundary and sector 3 in #RRGGBBAA (hex)." );
         writer.writeProperty( pitlaneColor, "The color used for the pitlane in #RRGGBBAA (hex)." );
         writer.writeProperty( roadWidth, "The width of the roadin absolute pixels." );
-        writer.writeProperty( "itemRadius", baseItemRadius, "The abstract radius for any displayed driver item." );
+        writer.writeProperty( baseItemRadius, "The abstract radius for any displayed driver item." );
         writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
@@ -730,32 +733,31 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( rotationEnabled.loadProperty( key, value ) );
-        else if ( roadColorSec1.loadProperty( key, value ) );
-        else if ( roadBoundaryColorSec1.loadProperty( key, value ) );
-        else if ( roadColorSec2.loadProperty( key, value ) );
-        else if ( roadBoundaryColorSec2.loadProperty( key, value ) );
-        else if ( roadColorSec3.loadProperty( key, value ) );
-        else if ( roadBoundaryColorSec3.loadProperty( key, value ) );
-        else if ( pitlaneColor.loadProperty( key, value ) );
-        else if ( roadWidth.loadProperty( key, value ) );
-        if ( key.equals( "itemRadius" ) )
-            this.baseItemRadius = Integer.parseInt( value );
-        else if ( markColorNormal.loadProperty( key, value ) );
-        else if ( markColorLeader.loadProperty( key, value ) );
-        else if ( markColorMe.loadProperty( key, value ) );
-        else if ( useMyColorForMe1st.loadProperty( key, value ) );
-        else if ( markColorNextInFront.loadProperty( key, value ) );
-        else if ( markColorNextBehind.loadProperty( key, value ) );
-        else if ( displayPositionNumbers.loadProperty( key, value ) );
-        else if ( displayNameLabels.loadProperty( key, value ) );
-        else if ( nameLabelPos.loadProperty( key, value ) );
-        else if ( nameLabelFont.loadProperty( key, value ) );
-        else if ( nameLabelFontColor.loadProperty( key, value ) );
+        if ( loader.loadProperty( rotationEnabled ) );
+        else if ( loader.loadProperty( roadColorSec1 ) );
+        else if ( loader.loadProperty( roadBoundaryColorSec1 ) );
+        else if ( loader.loadProperty( roadColorSec2 ) );
+        else if ( loader.loadProperty( roadBoundaryColorSec2 ) );
+        else if ( loader.loadProperty( roadColorSec3 ) );
+        else if ( loader.loadProperty( roadBoundaryColorSec3 ) );
+        else if ( loader.loadProperty( pitlaneColor ) );
+        else if ( loader.loadProperty( roadWidth ) );
+        else if ( loader.loadProperty( baseItemRadius ) );
+        else if ( loader.loadProperty( markColorNormal ) );
+        else if ( loader.loadProperty( markColorLeader ) );
+        else if ( loader.loadProperty( markColorMe ) );
+        else if ( loader.loadProperty( useMyColorForMe1st ) );
+        else if ( loader.loadProperty( markColorNextInFront ) );
+        else if ( loader.loadProperty( markColorNextBehind ) );
+        else if ( loader.loadProperty( displayPositionNumbers ) );
+        else if ( loader.loadProperty( displayNameLabels ) );
+        else if ( loader.loadProperty( nameLabelPos ) );
+        else if ( loader.loadProperty( nameLabelFont ) );
+        else if ( loader.loadProperty( nameLabelFontColor ) );
     }
     
     /**
@@ -783,20 +785,7 @@ public class MapWidget extends Widget
         
         propsCont.addGroup( "Items" );
         
-        propsCont.addProperty( new Property( this, "itemRadius", "radius", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setItemRadius( (Integer)value );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( baseItemRadius );
-            }
-        } );
+        propsCont.addProperty( baseItemRadius );
         
         propsCont.addProperty( markColorNormal );
         propsCont.addProperty( markColorLeader );

@@ -42,6 +42,7 @@ import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -162,7 +163,7 @@ public class RevMeterWidget extends Widget
         }
         
         @Override
-        public Object getValue()
+        public Float getValue()
         {
             return ( super.getFloatValue() * 180f / (float)Math.PI );
         }
@@ -176,7 +177,7 @@ public class RevMeterWidget extends Widget
         }
         
         @Override
-        public Object getValue()
+        public Float getValue()
         {
             return ( super.getFloatValue() * 180f / (float)Math.PI );
         }
@@ -1252,10 +1253,10 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( rpmJoinString2, "The String to use to join the current and max RPM." );
     }
     
-    private boolean loadShiftLightProperty( String key, String value )
+    private boolean loadShiftLightProperty( PropertyLoader loader )
     {
         for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
-            if ( shiftLights[i].loadProperty( key, value ) )
+            if ( shiftLights[i].loadProperty( loader ) )
                 return ( true );
         
         return ( false );
@@ -1265,76 +1266,76 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( hideWhenViewingOtherCar.loadProperty( key, value ) );
-        else if ( backgroundImageName.loadProperty( key, value ) );
-        else if ( needleImageName.loadProperty( key, value ) );
-        else if ( needleAxisBottomOffset.loadProperty( key, value ) );
-        else if ( needleRotationForZeroRPM.loadProperty( key, value ) );
-        else if ( needleRotationForMaxRPM.loadProperty( key, value ) );
-        else if ( numShiftLights.loadProperty( key, value ) )
+        if ( loader.loadProperty( hideWhenViewingOtherCar ) );
+        else if ( loader.loadProperty( backgroundImageName ) );
+        else if ( loader.loadProperty( needleImageName ) );
+        else if ( loader.loadProperty( needleAxisBottomOffset ) );
+        else if ( loader.loadProperty( needleRotationForZeroRPM ) );
+        else if ( loader.loadProperty( needleRotationForMaxRPM ) );
+        else if ( loader.loadProperty( numShiftLights ) )
         {
             for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
                 shiftLights[i] = new ShiftLight( this, i + 1 );
         }
-        else if ( loadShiftLightProperty( key, value ) );
-        else if ( displayRevMarkers.loadProperty( key, value ) );
-        else if ( displayRevMarkerNumbers.loadProperty( key, value ) );
-        else if ( useMaxRevLimit.loadProperty( key, value ) );
-        else if ( revMarkersInnerRadius.loadProperty( key, value ) );
-        else if ( revMarkersLength.loadProperty( key, value ) );
-        else if ( revMarkersBigStep.loadProperty( key, value ) );
-        else if ( revMarkersSmallStep.loadProperty( key, value ) );
-        else if ( revMarkersColor.loadProperty( key, value ) );
-        else if ( revMarkersMediumColor.loadProperty( key, value ) );
-        else if ( revMarkersHighColor.loadProperty( key, value ) );
-        else if ( fillHighBackground.loadProperty( key, value ) );
-        else if ( interpolateMarkerColors.loadProperty( key, value ) );
-        else if ( revMarkersFont.loadProperty( key, value ) );
-        else if ( revMarkersFontColor.loadProperty( key, value ) );
-        else if ( gearBackgroundImageName.loadProperty( key, value ) );
-        else if ( gearPosX.loadProperty( key, value ) );
-        else if ( gearPosY.loadProperty( key, value ) );
-        else if ( gearFont.loadProperty( key, value ) );
-        else if ( gearFontColor.loadProperty( key, value ) );
-        else if ( displayBoostBar.loadProperty( key, value ) );
-        else if ( boostBarPosX.loadProperty( key, value ) );
-        else if ( boostBarPosY.loadProperty( key, value ) );
-        else if ( boostBarWidth.loadProperty( key, value ) );
-        else if ( boostBarHeight.loadProperty( key, value ) );
-        else if ( displayBoostNumber.loadProperty( key, value ) );
-        else if ( boostNumberBackgroundImageName.loadProperty( key, value ) );
-        else if ( boostNumberPosX.loadProperty( key, value ) );
-        else if ( boostNumberPosY.loadProperty( key, value ) );
-        else if ( boostNumberFont.loadProperty( key, value ) );
-        else if ( boostNumberFontColor.loadProperty( key, value ) );
-        else if ( displayVelocity.loadProperty( key, value ) );
-        else if ( velocityBackgroundImageName.loadProperty( key, value ) );
-        else if ( velocityPosX.loadProperty( key, value ) );
-        else if ( velocityPosY.loadProperty( key, value ) );
-        else if ( velocityFont.loadProperty( key, value ) );
-        else if ( velocityFontColor.loadProperty( key, value ) );
-        else if ( displayRPMString1.loadProperty( key, value ) );
-        else if ( displayCurrRPM1.loadProperty( key, value ) );
-        else if ( displayMaxRPM1.loadProperty( key, value ) );
-        else if ( useBoostRevLimit1.loadProperty( key, value ) );
-        else if ( rpmPosX1.loadProperty( key, value ) );
-        else if ( rpmPosY1.loadProperty( key, value ) );
-        else if ( rpmFont1.loadProperty( key, value ) );
-        else if ( rpmFontColor1.loadProperty( key, value ) );
-        else if ( rpmJoinString1.loadProperty( key, value ) );
-        else if ( displayRPMString2.loadProperty( key, value ) );
-        else if ( displayCurrRPM2.loadProperty( key, value ) );
-        else if ( displayMaxRPM2.loadProperty( key, value ) );
-        else if ( useBoostRevLimit2.loadProperty( key, value ) );
-        else if ( rpmPosX2.loadProperty( key, value ) );
-        else if ( rpmPosY2.loadProperty( key, value ) );
-        else if ( rpmFont2.loadProperty( key, value ) );
-        else if ( rpmFontColor2.loadProperty( key, value ) );
-        else if ( rpmJoinString2.loadProperty( key, value ) );
+        else if ( loadShiftLightProperty( loader ) );
+        else if ( loader.loadProperty( displayRevMarkers ) );
+        else if ( loader.loadProperty( displayRevMarkerNumbers ) );
+        else if ( loader.loadProperty( useMaxRevLimit ) );
+        else if ( loader.loadProperty( revMarkersInnerRadius ) );
+        else if ( loader.loadProperty( revMarkersLength ) );
+        else if ( loader.loadProperty( revMarkersBigStep ) );
+        else if ( loader.loadProperty( revMarkersSmallStep ) );
+        else if ( loader.loadProperty( revMarkersColor ) );
+        else if ( loader.loadProperty( revMarkersMediumColor ) );
+        else if ( loader.loadProperty( revMarkersHighColor ) );
+        else if ( loader.loadProperty( fillHighBackground ) );
+        else if ( loader.loadProperty( interpolateMarkerColors ) );
+        else if ( loader.loadProperty( revMarkersFont ) );
+        else if ( loader.loadProperty( revMarkersFontColor ) );
+        else if ( loader.loadProperty( gearBackgroundImageName ) );
+        else if ( loader.loadProperty( gearPosX ) );
+        else if ( loader.loadProperty( gearPosY ) );
+        else if ( loader.loadProperty( gearFont ) );
+        else if ( loader.loadProperty( gearFontColor ) );
+        else if ( loader.loadProperty( displayBoostBar ) );
+        else if ( loader.loadProperty( boostBarPosX ) );
+        else if ( loader.loadProperty( boostBarPosY ) );
+        else if ( loader.loadProperty( boostBarWidth ) );
+        else if ( loader.loadProperty( boostBarHeight ) );
+        else if ( loader.loadProperty( displayBoostNumber ) );
+        else if ( loader.loadProperty( boostNumberBackgroundImageName ) );
+        else if ( loader.loadProperty( boostNumberPosX ) );
+        else if ( loader.loadProperty( boostNumberPosY ) );
+        else if ( loader.loadProperty( boostNumberFont ) );
+        else if ( loader.loadProperty( boostNumberFontColor ) );
+        else if ( loader.loadProperty( displayVelocity ) );
+        else if ( loader.loadProperty( velocityBackgroundImageName ) );
+        else if ( loader.loadProperty( velocityPosX ) );
+        else if ( loader.loadProperty( velocityPosY ) );
+        else if ( loader.loadProperty( velocityFont ) );
+        else if ( loader.loadProperty( velocityFontColor ) );
+        else if ( loader.loadProperty( displayRPMString1 ) );
+        else if ( loader.loadProperty( displayCurrRPM1 ) );
+        else if ( loader.loadProperty( displayMaxRPM1 ) );
+        else if ( loader.loadProperty( useBoostRevLimit1 ) );
+        else if ( loader.loadProperty( rpmPosX1 ) );
+        else if ( loader.loadProperty( rpmPosY1 ) );
+        else if ( loader.loadProperty( rpmFont1 ) );
+        else if ( loader.loadProperty( rpmFontColor1 ) );
+        else if ( loader.loadProperty( rpmJoinString1 ) );
+        else if ( loader.loadProperty( displayRPMString2 ) );
+        else if ( loader.loadProperty( displayCurrRPM2 ) );
+        else if ( loader.loadProperty( displayMaxRPM2 ) );
+        else if ( loader.loadProperty( useBoostRevLimit2 ) );
+        else if ( loader.loadProperty( rpmPosX2 ) );
+        else if ( loader.loadProperty( rpmPosY2 ) );
+        else if ( loader.loadProperty( rpmFont2 ) );
+        else if ( loader.loadProperty( rpmFontColor2 ) );
+        else if ( loader.loadProperty( rpmJoinString2 ) );
     }
     
     /**

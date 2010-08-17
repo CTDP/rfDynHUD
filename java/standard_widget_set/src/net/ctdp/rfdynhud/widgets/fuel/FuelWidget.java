@@ -33,6 +33,7 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -903,11 +904,11 @@ public class FuelWidget extends Widget
         
         writer.writeProperty( lowFuelWarningImageNameOff, "Image name for the off-state of the low fuel warning." );
         writer.writeProperty( lowFuelWarningImageNameOn, "Image name for the on-state of the low fuel warning." );
-        lowFuelWarningImagePosition.savePositioningProperty( "lowFuelWarningImagePositioning", "Positioning type for the low-fuel-warning image.", writer );
-        lowFuelWarningImagePosition.saveXProperty( "lowFuelWarningImagePositionX", "X-position for the low-fuel-warning image.", writer );
-        lowFuelWarningImagePosition.saveYProperty( "lowFuelWarningImagePositionY", "Y-position for the low-fuel-warning image.", writer );
-        //lowFuelWarningImageSize.saveWidthProperty( "lowFuelWarningImageWidth", "Width for the low-fuel-warning image.", writer );
-        lowFuelWarningImageSize.saveHeightProperty( "lowFuelWarningImageHeight", "Height for the low-fuel-warning image.", writer );
+        writer.writeProperty( lowFuelWarningImagePosition.getPositioningProperty( "lowFuelWarningImagePositioning" ), "Positioning type for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePosition.getXProperty( "lowFuelWarningImagePositionX" ), "X-position for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY" ), "Y-position for the low-fuel-warning image." );
+        //writer.writeProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth" ), "Width for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight" ), "Height for the low-fuel-warning image." );
         writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
     }
     
@@ -915,29 +916,32 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( font2.loadProperty( key, value ) );
-        else if ( fuelBarBackground.loadProperty( key, value ) );
-        else if ( fuelBarColor.loadProperty( key, value ) );
-        else if ( tankSizeFont.loadProperty( key, value ) );
-        else if ( fuelFont.loadProperty( key, value ) );
-        else if ( fuelFontColor.loadProperty( key, value ) );
-        else if ( roundUpRemainingLaps.loadProperty( key, value ) );
-        else if ( displayFuelBar.loadProperty( key, value ) );
-        else if ( displayTankSize.loadProperty( key, value ) );
-        else if ( displayFuelLoad.loadProperty( key, value ) );
-        else if ( displayFuelWeight.loadProperty( key, value ) );
-        else if ( displayFuelLaps.loadProperty( key, value ) );
-        else if ( displayFuelUsage.loadProperty( key, value ) );
-        else if ( displayPitstopInfo.loadProperty( key, value ) );
-        else if ( lowFuelWarningImageNameOff.loadProperty( key, value ) );
-        else if ( lowFuelWarningImageNameOn.loadProperty( key, value ) );
-        else if ( lowFuelWarningImagePosition.loadProperty( key, value, "lowFuelWarningImagePositioning", "lowFuelWarningImagePositionX", "lowFuelWarningImagePositionY" ) );
-        else if ( lowFuelWarningImageSize.loadProperty( key, value, "lowFuelWarningImageWidth", "lowFuelWarningImageHeight" ) );
-        else if ( lowFuelBlinkTime.loadProperty( key, value ) );
+        if ( loader.loadProperty( font2 ) );
+        else if ( loader.loadProperty( fuelBarBackground ) );
+        else if ( loader.loadProperty( fuelBarColor ) );
+        else if ( loader.loadProperty( tankSizeFont ) );
+        else if ( loader.loadProperty( fuelFont ) );
+        else if ( loader.loadProperty( fuelFontColor ) );
+        else if ( loader.loadProperty( roundUpRemainingLaps ) );
+        else if ( loader.loadProperty( displayFuelBar ) );
+        else if ( loader.loadProperty( displayTankSize ) );
+        else if ( loader.loadProperty( displayFuelLoad ) );
+        else if ( loader.loadProperty( displayFuelWeight ) );
+        else if ( loader.loadProperty( displayFuelLaps ) );
+        else if ( loader.loadProperty( displayFuelUsage ) );
+        else if ( loader.loadProperty( displayPitstopInfo ) );
+        else if ( loader.loadProperty( lowFuelWarningImageNameOff ) );
+        else if ( loader.loadProperty( lowFuelWarningImageNameOn ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePosition.getPositioningProperty( "lowFuelWarningImagePositioning", "imagePositioning" ) ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePosition.getXProperty( "lowFuelWarningImagePositionX", "imagePosX" ) ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) ) );
+        //else if ( loader.loadProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) ) );
+        else if ( loader.loadProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) ) );
+        else if ( loader.loadProperty( lowFuelBlinkTime ) );
     }
     
     /**
@@ -983,8 +987,8 @@ public class FuelWidget extends Widget
         propsCont.addProperty( lowFuelWarningImagePosition.getPositioningProperty( "lowFuelWarningImagePositioning", "imagePositioning" ) );
         propsCont.addProperty( lowFuelWarningImagePosition.getXProperty( "lowFuelWarningImagePositionX", "imagePosX" ) );
         propsCont.addProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) );
-        //propsCont.addProperty( lowFuelWarningImageSize.createWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) );
-        propsCont.addProperty( lowFuelWarningImageSize.createHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) );
+        //propsCont.addProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) );
+        propsCont.addProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) );
         propsCont.addProperty( lowFuelBlinkTime );
     }
     

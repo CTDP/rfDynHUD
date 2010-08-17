@@ -18,98 +18,77 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
- * The {@link IntProperty} serves for customizing a primitive int value.
+ * The {@link DelayProperty} serves for customizing a time delay.
+ * A time delay is always measured in nano seconds internally.
+ * This property provides the value in other units like millisoconds for easier use.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class IntProperty extends Property
+public class DelayProperty extends IntProperty
 {
-    private int value;
-    
-    private final int minValue;
-    private final int maxValue;
-    
-    public final int getMinValue()
+    public static enum DisplayUnits
     {
-        return ( minValue );
+        MILLISECONDS,
+        SECONDS,
+        ;
     }
     
-    public final int getMaxValue()
-    {
-        return ( maxValue );
-    }
+    private final DisplayUnits displayUnits;
     
-    protected int fixValue( int value )
+    private long delay;
+    
+    /**
+     * Gets the used {@link DisplayUnits}.
+     * 
+     * @return the used {@link DisplayUnits}.
+     */
+    public final DisplayUnits getDisplayUnits()
     {
-        return ( Math.max( minValue, Math.min( value, maxValue ) ) );
+        return ( displayUnits );
     }
     
     /**
+     * This method is utilized to derive the delay value from the property value.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param value the property value
+     * @param displayUnits the used {@link DisplayUnits}
+     * 
+     * @return the derived delay value.
      */
+    protected long deriveDelay( int value, DisplayUnits displayUnits )
+    {
+        switch ( displayUnits )
+        {
+            case MILLISECONDS:
+                return ( value * 1000000L );
+            case SECONDS:
+                return ( value * 1000000000L );
+        }
+        
+        throw new Error( "Unsupported DisplayUnits " + displayUnits );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void onValueChanged( int oldValue, int newValue )
     {
-    }
-    
-    public void setIntValue( int value )
-    {
-        value = fixValue( value );
+        super.onValueChanged( oldValue, newValue );
         
-        if ( value == this.value )
-            return;
-        
-        int oldValue = this.value;
-        this.value = value;
-        
-        if ( widget != null )
-            widget.forceAndSetDirty();
-        
-        onValueChanged( oldValue, value );
-        
-        if ( widget != null )
-            __WPrivilegedAccess.onPropertyChanged( this, oldValue, value, widget );
-    }
-    
-    public final int getIntValue()
-    {
-        return ( value );
-    }
-    
-    public final float getFloatValue()
-    {
-        return ( value );
+        this.delay = deriveDelay( newValue, displayUnits );
     }
     
     /**
-     * {@inheritDoc}
+     * The actual delay values in nanoseconds.
+     * 
+     * @return actual delay values in nanoseconds.
      */
-    @Override
-    public void setValue( Object value )
+    public final long getDelay()
     {
-        setIntValue( ( (Number)value ).intValue() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Integer getValue()
-    {
-        return ( getIntValue() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadValue( String value )
-    {
-        setValue( Integer.parseInt( value ) );
+        return ( delay );
     }
     
     /**
@@ -117,18 +96,18 @@ public class IntProperty extends Property
      * @param widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param displayUnits
      * @param defaultValue
      * @param minValue
      * @param maxValue
      * @param readonly
      */
-    public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
+    public DelayProperty( Widget widget, String name, String nameForDisplay, DisplayUnits displayUnits, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.INTEGER, null, null );
+        super( widget, name, nameForDisplay, defaultValue, minValue, maxValue, readonly );
         
-        this.value = defaultValue;
-        this.minValue = minValue;
-        this.maxValue = maxValue;
+        this.displayUnits = displayUnits;
+        this.delay = deriveDelay( getIntValue(), displayUnits );
     }
     
     /**
@@ -136,12 +115,13 @@ public class IntProperty extends Property
      * @param widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param displayUnits
      * @param defaultValue
      * @param readonly
      */
-    public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue, boolean readonly )
+    public DelayProperty( Widget widget, String name, String nameForDisplay, DisplayUnits displayUnits, int defaultValue, boolean readonly )
     {
-        this( widget, name, nameForDisplay, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, readonly );
+        this( widget, name, nameForDisplay, displayUnits, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, readonly );
     }
     
     /**
@@ -149,47 +129,51 @@ public class IntProperty extends Property
      * @param widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param displayUnits
      * @param defaultValue
      */
-    public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue )
+    public DelayProperty( Widget widget, String name, String nameForDisplay, DisplayUnits displayUnits, int defaultValue )
     {
-        this( widget, name, nameForDisplay, defaultValue, false );
+        this( widget, name, nameForDisplay, displayUnits, defaultValue, false );
     }
     
     /**
      * 
      * @param widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param displayUnits
      * @param defaultValue
      * @param readonly
      */
-    public IntProperty( Widget widget, String name, int defaultValue, boolean readonly )
+    public DelayProperty( Widget widget, String name, DisplayUnits displayUnits, int defaultValue, boolean readonly )
     {
-        this( widget, name, null, defaultValue, readonly );
+        this( widget, name, null, displayUnits, defaultValue, readonly );
     }
     
     /**
      * 
      * @param widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param displayUnits
      * @param defaultValue
      */
-    public IntProperty( Widget widget, String name, int defaultValue )
+    public DelayProperty( Widget widget, String name, DisplayUnits displayUnits, int defaultValue )
     {
-        this( widget, name, defaultValue, false );
+        this( widget, name, displayUnits, defaultValue, false );
     }
     
     /**
      * 
      * @param widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param displayUnits
      * @param defaultValue
      * @param minValue
      * @param maxValue
      */
-    public IntProperty( Widget widget, String name, int defaultValue, int minValue, int maxValue )
+    public DelayProperty( Widget widget, String name, DisplayUnits displayUnits, int defaultValue, int minValue, int maxValue )
     {
-        this( widget, name, null, defaultValue, minValue, maxValue, false );
+        this( widget, name, null, displayUnits, defaultValue, minValue, maxValue, false );
     }
     
     /**
@@ -197,14 +181,15 @@ public class IntProperty extends Property
      * @param w2pf
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param displayUnits
      * @param defaultValue
      * @param minValue
      * @param maxValue
      * @param readonly
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
+    public DelayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, DisplayUnits displayUnits, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
-        this( (Widget)null, name, nameForDisplay, defaultValue, minValue, maxValue, readonly );
+        this( (Widget)null, name, nameForDisplay, displayUnits, defaultValue, minValue, maxValue, readonly );
         
         w2pf.addProperty( this );
     }
@@ -214,12 +199,13 @@ public class IntProperty extends Property
      * @param w2pf
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param displayUnits
      * @param defaultValue
      * @param readonly
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue, boolean readonly )
+    public DelayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, DisplayUnits displayUnits, int defaultValue, boolean readonly )
     {
-        this( w2pf, name, nameForDisplay, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, readonly );
+        this( w2pf, name, nameForDisplay, displayUnits, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, readonly );
     }
     
     /**
@@ -227,46 +213,50 @@ public class IntProperty extends Property
      * @param w2pf
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param displayUnits
      * @param defaultValue
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue )
+    public DelayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, DisplayUnits displayUnits, int defaultValue )
     {
-        this( w2pf, name, nameForDisplay, defaultValue, false );
+        this( w2pf, name, nameForDisplay, displayUnits, defaultValue, false );
     }
     
     /**
      * 
      * @param w2pf
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param displayUnits
      * @param defaultValue
      * @param readonly
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue, boolean readonly )
+    public DelayProperty( WidgetToPropertyForwarder w2pf, String name, DisplayUnits displayUnits, int defaultValue, boolean readonly )
     {
-        this( w2pf, name, null, defaultValue, readonly );
+        this( w2pf, name, null, displayUnits, defaultValue, readonly );
     }
     
     /**
      * 
      * @param w2pf
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param displayUnits
      * @param defaultValue
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue )
+    public DelayProperty( WidgetToPropertyForwarder w2pf, String name, DisplayUnits displayUnits, int defaultValue )
     {
-        this( w2pf, name, defaultValue, false );
+        this( w2pf, name, displayUnits, defaultValue, false );
     }
     
     /**
      * 
      * @param w2pf
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
+     * @param displayUnits
      * @param defaultValue
      * @param minValue
      * @param maxValue
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue, int minValue, int maxValue )
+    public DelayProperty( WidgetToPropertyForwarder w2pf, String name, DisplayUnits displayUnits, int defaultValue, int minValue, int maxValue )
     {
-        this( w2pf, name, null, defaultValue, minValue, maxValue, false );
+        this( w2pf, name, null, displayUnits, defaultValue, minValue, maxValue, false );
     }
 }

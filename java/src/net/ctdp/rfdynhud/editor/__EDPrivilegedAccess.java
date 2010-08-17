@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.editor;
 
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
@@ -41,8 +42,8 @@ public class __EDPrivilegedAccess
         editorPresets.saveProperties( writer );
     }
     
-    public static final void loadProperty( EditorPresets editorPresets, String key, String value )
+    public static final void loadProperty( EditorPresets editorPresets, PropertyLoader loader )
     {
-        editorPresets.loadProperty( key, value );
+        editorPresets.loadProperty( loader );
     }
 }

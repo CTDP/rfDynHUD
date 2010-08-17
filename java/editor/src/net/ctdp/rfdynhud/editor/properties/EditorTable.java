@@ -70,6 +70,7 @@ public class EditorTable extends HierarchicalTable
     //private final ColorCellEditor colorEditor = new ColorCellEditor();
     //private final ImageNameCellEditor imageEditor = new ImageNameCellEditor();
     //private final BorderCellEditor borderEditor = new BorderCellEditor();
+    //private final BackgroundCellEditor backgroundEditor = new BackgroundCellEditor();
     
     public void addPropertySelectionListener( PropertySelectionListener l )
     {
@@ -151,6 +152,10 @@ public class EditorTable extends HierarchicalTable
                     //result = borderEditor;
                     result = new BorderCellEditor();
                     break;
+                case BACKGROUND:
+                    //result = backgroundEditor;
+                    result = new BackgroundCellEditor();
+                    break;
                 default:
                     result = super.getCellRenderer( row, column );
                     break;
@@ -231,6 +236,10 @@ public class EditorTable extends HierarchicalTable
                 case BORDER:
                     //result = borderEditor;
                     result = new BorderCellEditor();
+                    break;
+                case BACKGROUND:
+                    //result = backgroundEditor;
+                    result = new BackgroundCellEditor();
                     break;
                 default:
                     result = super.getCellEditor( row, column );

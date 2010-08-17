@@ -22,6 +22,7 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TransformableTexture;
@@ -227,17 +228,17 @@ public class ShiftLight
         writer.writeProperty( activationRPM, "The RPM (rounds per minute) to subtract from the maximum for the level to display shoft light on" );
     }
     
-    public boolean loadProperty( String key, String value )
+    public boolean loadProperty( PropertyLoader loader )
     {
-        if ( imageNameOff.loadProperty( key, value ) )
+        if ( loader.loadProperty( imageNameOff ) )
             return ( true );
-        if ( imageNameOn.loadProperty( key, value ) )
+        if ( loader.loadProperty( imageNameOn ) )
             return ( true );
-        if ( posX.loadProperty( key, value ) )
+        if ( loader.loadProperty( posX ) )
             return ( true );
-        if ( posY.loadProperty( key, value ) )
+        if ( loader.loadProperty( posY ) )
             return ( true );
-        if ( activationRPM.loadProperty( key, value ) )
+        if ( loader.loadProperty( activationRPM ) )
             return ( true );
         
         return ( false );

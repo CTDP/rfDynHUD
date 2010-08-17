@@ -25,6 +25,11 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.openmali.vecmath2.util.ColorUtils;
 
+/**
+ * The {@link ColorProperty} serves for customizing a color value.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class ColorProperty extends Property
 {
     public static final String STANDARD_BACKGROUND_COLOR_NAME = "StandardBackground";
@@ -140,21 +145,18 @@ public class ColorProperty extends Property
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public String getValue()
     {
         return ( colorKey );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
-        {
-            setValue( value );
-            
-            return ( true );
-        }
-        
-        return ( false );
+        setValue( value );
     }
     
     /**

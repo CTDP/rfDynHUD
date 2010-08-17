@@ -42,6 +42,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
@@ -54,6 +55,8 @@ import org.openmali.vecmath2.util.ColorUtils;
 public class ColorChooser extends JPanel
 {
     private static final long serialVersionUID = 1202318317652636738L;
+    
+    private JDialog dialog = null;
     
     private class ComponentSelector extends JPanel
     {
@@ -85,6 +88,7 @@ public class ColorChooser extends JPanel
             
             slider.addChangeListener( new ChangeListener()
             {
+                @Override
                 public void stateChanged( ChangeEvent e )
                 {
                     textField.setText( String.valueOf( slider.getValue() ) );
@@ -94,6 +98,7 @@ public class ColorChooser extends JPanel
             
             textField.addActionListener( new ActionListener()
             {
+                @Override
                 public void actionPerformed( ActionEvent e )
                 {
                     try
@@ -157,9 +162,6 @@ public class ColorChooser extends JPanel
     private String selectedColor;
     private boolean valueChanged = false;
     
-    private JButton okButton;
-    private JButton cancelButton;
-    
     private String composeSelectedColor()
     {
         return ( ColorUtils.colorToHex( redSelector.getValue(), greenSelector.getValue(), blueSelector.getValue(), alphaSelector.getValue() ) );
@@ -194,6 +196,28 @@ public class ColorChooser extends JPanel
         setSelectedColor( color, true );
     }
     
+    public void setSelectedColorFromKey( String colorKey, WidgetsConfiguration widgetsConfig )
+    {
+        Color color = widgetsConfig.getNamedColor( colorKey );
+        boolean isName = ( color != null );
+        if ( isName )
+        {
+            refillNameCombo( widgetsConfig, combo, colorKey );
+            if ( colorKey == null )
+                combo.setSelectedIndex( 0 );
+        }
+        else
+        {
+            refillNameCombo( widgetsConfig, combo, null );
+            
+            color = ColorUtils.hexToColor( colorKey, false );
+            if ( color == null )
+                color = ColorProperty.FALLBACK_COLOR;
+        }
+        
+        setSelectedColor( color );
+    }
+    
     /**
      * Gets the selected Color.
      * 
@@ -212,6 +236,21 @@ public class ColorChooser extends JPanel
         return ( (String)combo.getSelectedItem() );
     }
     
+    /**
+     * Gets the selected value for the property.
+     * 
+     * @return the selected value for the property.
+     */
+    public final String getSelectedValue()
+    {
+        String selColorName = getSelectedColorName();
+        
+        if ( selColorName == null )
+            return ( getSelectedColor() );
+        
+        return ( selColorName );
+    }
+    
     public final boolean getValueChanged()
     {
         return ( valueChanged );
@@ -220,16 +259,6 @@ public class ColorChooser extends JPanel
     private void updateSelectedColorFromSelectors()
     {
         setSelectedColor( new Color( redSelector.getValue(), greenSelector.getValue(), blueSelector.getValue(), alphaSelector.getValue() ) );
-    }
-    
-    public final JButton getOKButton()
-    {
-        return ( okButton );
-    }
-    
-    public final JButton getCancelButton()
-    {
-        return ( cancelButton );
     }
     
     private boolean isRefillingNameCombo = false;
@@ -269,6 +298,11 @@ public class ColorChooser extends JPanel
             if ( prop instanceof ColorProperty )
             {
                 ColorProperty colorProp = (ColorProperty)prop;
+                colorProp.setValue( colorProp.getValue() );
+            }
+            else if ( ( prop instanceof BackgroundProperty ) && ( (BackgroundProperty)prop ).getBackgroundType().isColor() )
+            {
+                ColorProperty colorProp = ( (BackgroundProperty)prop ).getColorProperty();
                 colorProp.setValue( colorProp.getValue() );
             }
         }
@@ -325,10 +359,15 @@ public class ColorChooser extends JPanel
                 
                 for ( Property prop : wpc.getList() )
                 {
+                    ColorProperty colorProp = null;
+                    
                     if ( prop instanceof ColorProperty )
+                        colorProp = (ColorProperty)prop;
+                    else if ( prop instanceof BackgroundProperty )
+                        colorProp = ( (BackgroundProperty)prop ).getColorProperty();
+                    
+                    if ( colorProp != null )
                     {
-                        ColorProperty colorProp = (ColorProperty)prop;
-                        
                         if ( colorKey.equals( colorProp.getColorKey() ) )
                         {
                             colorProp.refresh();
@@ -352,7 +391,7 @@ public class ColorChooser extends JPanel
         return ( false );
     }
     
-    protected JPanel createNamedFontSelector( String currentNamedColor, final WidgetsConfiguration widgetsConfig )
+    protected JPanel createNamedColorSelector( String currentNamedColor, final WidgetsConfiguration widgetsConfig )
     {
         JPanel panel = new JPanel( new BorderLayout() );
         
@@ -373,6 +412,7 @@ public class ColorChooser extends JPanel
         {
             //private int revertIndex = -1;
             
+            @Override
             public void itemStateChanged( ItemEvent e )
             {
                 if ( isRefillingNameCombo || nameSelectionIgnored )
@@ -414,6 +454,7 @@ public class ColorChooser extends JPanel
         } );
         combo.addPopupMenuListener( new PopupMenuListener()
         {
+            @Override
             public void popupMenuWillBecomeVisible( PopupMenuEvent e )
             {
                 if ( isRefillingNameCombo )
@@ -430,10 +471,12 @@ public class ColorChooser extends JPanel
                 }
             }
             
+            @Override
             public void popupMenuWillBecomeInvisible( PopupMenuEvent e )
             {
             }
             
+            @Override
             public void popupMenuCanceled( PopupMenuEvent e )
             {
             }
@@ -479,6 +522,7 @@ public class ColorChooser extends JPanel
         
         add.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 String initialValue = ( (JButton)e.getSource() ).getActionCommand();
@@ -511,6 +555,7 @@ public class ColorChooser extends JPanel
         
         remove.addActionListener( new ActionListener()
         {
+            @Override
             public void actionPerformed( ActionEvent e )
             {
                 if ( combo.getSelectedIndex() < 1 )
@@ -744,17 +789,114 @@ public class ColorChooser extends JPanel
         return ( panel );
     }
     
-    private JPanel createButtonsPanel()
+    private JDialog initDialog( Window owner, String title )
     {
-        JPanel p = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
+        if ( owner instanceof java.awt.Dialog )
+            dialog = new JDialog( (java.awt.Dialog)owner, title );
+        else
+            dialog = new JDialog( (java.awt.Frame)owner, title );
         
-        okButton = new JButton( "OK" );
-        p.add( okButton );
+        return ( dialog );
+    }
+    
+    private String showDialog( Window owner, String title, final String startColor, final WidgetsConfiguration widgetsConfig )
+    {
+        setSelectedColorFromKey( startColor, widgetsConfig );
         
-        cancelButton = new JButton( "Cancel" );
-        p.add( cancelButton );
+        if ( ( dialog == null ) || ( dialog.getOwner() != owner ) )
+        {
+            dialog = initDialog( owner, title );
+            
+            JPanel contentPane = (JPanel)dialog.getContentPane();
+            
+            contentPane.setLayout( new BorderLayout() );
+            
+            contentPane.add( this, BorderLayout.CENTER );
+            
+            JPanel footer = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
+            
+            JButton okButton = new JButton( "OK" );
+            footer.add( okButton );
+            
+            JButton cancelButton = new JButton( "Cancel" );
+            footer.add( cancelButton );
+            
+            contentPane.add( footer, BorderLayout.SOUTH );
+            
+            dialog.pack();
+            dialog.setResizable( false );
+            
+            dialog.addWindowListener( new WindowAdapter()
+            {
+                @Override
+                public void windowClosing( WindowEvent e )
+                {
+                    //setSelectedColor( null );
+                }
+            } );
+            
+            okButton.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    if ( getSelectedColorName() == null )
+                    {
+                        valueChanged = !startColor.equals( getSelectedColor() );                            
+                    }
+                    else
+                    {
+                        Color color = ColorUtils.hexToColor( composeSelectedColor() );
+                        setSelectedColor( color );
+                        valueChanged = applyNamedColor( getSelectedColorName(), color, widgetsConfig ) || !getSelectedColorName().equals( startColor );
+                        
+                        setAllWidgetsDirty( widgetsConfig );
+                    }
+                    
+                    dialog.setVisible( false );
+                }
+            } );
+            
+            cancelButton.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    setSelectedColor( null );
+                    dialog.setVisible( false );
+                }
+            } );
+            
+            dialog.setModal( true );
+            dialog.setLocationRelativeTo( (Window)owner );
+        }
         
-        return ( p );
+        dialog.setVisible( true );
+        
+        if ( !getValueChanged() )
+            return ( null );
+        
+        return ( getSelectedValue() );
+    }
+    
+    public String showDialog( java.awt.Frame owner, String title, String startColor, WidgetsConfiguration widgetsConfig )
+    {
+        return ( showDialog( (Window)owner, title, startColor, widgetsConfig ) );
+    }
+    
+    public String showDialog( java.awt.Frame owner, String startColor, WidgetsConfiguration widgetsConfig )
+    {
+        return ( showDialog( owner, "Select a Color", startColor, widgetsConfig ) );
+    }
+    
+    public String showDialog( java.awt.Dialog owner, String title, String startColor, WidgetsConfiguration widgetsConfig )
+    {
+        return ( showDialog( (Window)owner, title, startColor, widgetsConfig ) );
+    }
+    
+    public String showDialog( java.awt.Dialog owner, String startColor, WidgetsConfiguration widgetsConfig )
+    {
+        return ( showDialog( owner, "Select a Color", startColor, widgetsConfig ) );
     }
     
     public ColorChooser( String startColor, WidgetsConfiguration widgetsConfig )
@@ -772,11 +914,10 @@ public class ColorChooser extends JPanel
                 color = ColorProperty.FALLBACK_COLOR;
         }
         
-        main.add( createNamedFontSelector( isName ? startColor : null, widgetsConfig ), BorderLayout.NORTH );
+        main.add( createNamedColorSelector( isName ? startColor : null, widgetsConfig ), BorderLayout.NORTH );
         
         main.add( createWestPanel( color ), BorderLayout.WEST );
         main.add( createEastPanel( color ), BorderLayout.CENTER );
-        main.add( createButtonsPanel(), BorderLayout.SOUTH );
         
         main.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
         
@@ -785,134 +926,5 @@ public class ColorChooser extends JPanel
         this.setPreferredSize( new Dimension( 400, 270 ) );
         
         updateSelectedColorFromSelectors();
-    }
-    
-    public static class ColorChooserDialog extends JDialog
-    {
-        private static final long serialVersionUID = 3853781746419856706L;
-        
-        private final ColorChooser colorChooser;
-        
-        public final ColorChooser getColorChooser()
-        {
-            return ( colorChooser );
-        }
-        
-        /**
-         * Gets the selected Color.
-         * 
-         * @return the selected Color.
-         */
-        public final String getSelectedColor()
-        {
-            return ( getColorChooser().getSelectedColor() );
-        }
-        
-        public final String getSelectedColorName()
-        {
-            return ( getColorChooser().getSelectedColorName() );
-        }
-        
-        public final boolean getValueChanged()
-        {
-            return ( getColorChooser().getValueChanged() );
-        }
-        
-        private void init( final ColorChooser colorChooser, final String startColor, final WidgetsConfiguration widgetsConfig )
-        {
-            this.setContentPane( colorChooser );
-            this.pack();
-            this.setResizable( false );
-            
-            this.addWindowListener( new WindowAdapter()
-            {
-                @Override
-                public void windowClosing( WindowEvent e )
-                {
-                    //d.getFontChooser().setSelectedFont( null );
-                }
-            } );
-            
-            colorChooser.getOKButton().addActionListener( new ActionListener()
-            {
-                public void actionPerformed( ActionEvent e )
-                {
-                    if ( getSelectedColorName() == null )
-                    {
-                        colorChooser.valueChanged = !startColor.equals( getSelectedColor() );                            
-                    }
-                    else
-                    {
-                        Color color = ColorUtils.hexToColor( colorChooser.composeSelectedColor() );
-                        colorChooser.setSelectedColor( color );
-                        colorChooser.valueChanged = applyNamedColor( getSelectedColorName(), color, widgetsConfig ) || !getSelectedColorName().equals( startColor );
-                        
-                        colorChooser.setAllWidgetsDirty( widgetsConfig );
-                    }
-                    
-                    ColorChooserDialog.this.setVisible( false );
-                }
-            } );
-            
-            colorChooser.getCancelButton().addActionListener( new ActionListener()
-            {
-                public void actionPerformed( ActionEvent e )
-                {
-                    ColorChooserDialog.this.getColorChooser().setSelectedColor( null );
-                    ColorChooserDialog.this.setVisible( false );
-                }
-            } );
-            
-            this.setModal( true );
-        }
-        
-        public ColorChooserDialog( java.awt.Dialog owner, String title, ColorChooser colorChooser, String startColor, WidgetsConfiguration widgetsConfig )
-        {
-            super ( owner, title );
-            
-            init( colorChooser, startColor, widgetsConfig );
-            
-            this.colorChooser = colorChooser;
-        }
-        
-        public ColorChooserDialog( java.awt.Frame owner, String title, ColorChooser colorChooser, String startColor, WidgetsConfiguration widgetsConfig )
-        {
-            super ( owner, title );
-            
-            init( colorChooser, startColor, widgetsConfig );
-            
-            this.colorChooser = colorChooser;
-        }
-    }
-    
-    private static ColorChooserDialog getAsDialogInternal( Object owner, String title, String startColor, WidgetsConfiguration widgetsConfig )
-    {
-        final ColorChooserDialog d;
-        if ( owner instanceof java.awt.Dialog )
-            d = new ColorChooserDialog( (java.awt.Dialog)owner, title, new ColorChooser( startColor, widgetsConfig ), startColor, widgetsConfig );
-        else
-            d = new ColorChooserDialog( (java.awt.Frame)owner, title, new ColorChooser( startColor, widgetsConfig ), startColor, widgetsConfig );
-        
-        return ( d );
-    }
-    
-    public static ColorChooserDialog getAsDialog( java.awt.Frame owner, String title, String startColor, WidgetsConfiguration widgetsConfig )
-    {
-        return ( getAsDialogInternal( owner, title, startColor, widgetsConfig ) );
-    }
-    
-    public static ColorChooserDialog getAsDialog( java.awt.Frame owner, String startColor, WidgetsConfiguration widgetsConfig )
-    {
-        return ( getAsDialog( owner, "Select a Color", startColor, widgetsConfig ) );
-    }
-    
-    public static ColorChooserDialog getAsDialog( java.awt.Dialog owner, String title, String startColor, WidgetsConfiguration widgetsConfig )
-    {
-        return ( getAsDialogInternal( owner, title, startColor, widgetsConfig ) );
-    }
-    
-    public static ColorChooserDialog getAsDialog( java.awt.Dialog owner, String startColor, WidgetsConfiguration widgetsConfig )
-    {
-        return ( getAsDialog( owner, "Select a Color", startColor, widgetsConfig ) );
     }
 }

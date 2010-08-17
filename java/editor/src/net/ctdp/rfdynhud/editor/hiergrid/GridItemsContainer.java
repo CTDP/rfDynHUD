@@ -15,24 +15,41 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.util;
-
-import java.io.IOException;
-
-import net.ctdp.rfdynhud.properties.Property;
+package net.ctdp.rfdynhud.editor.hiergrid;
 
 /**
- * Writes properties to a configuration file.
+ * The {@link GridItemsContainer} keeps items for the hierarchical grid (properties and groups, which are {@link GridItemsContainer}s themselfes).
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public interface WidgetsConfigurationWriter
+public interface GridItemsContainer
 {
-    public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException;
+    /**
+     * Gets the name of this container.
+     * 
+     * @return the name of this container.
+     */
+    public String getName();
     
-    public void writeProperty( String key, Object value, String comment ) throws IOException;
+    /**
+     * Sets the expand flag for this container.
+     * 
+     * @param flag
+     */
+    public void setExpandFlag( boolean flag );
     
-    public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException;
+    /**
+     * Gets the expand flag for this container.
+     * 
+     * @return the expand flag for this container.
+     */
+    public boolean getExpandFlag();
     
-    public void writeProperty( Property property, String comment ) throws IOException;
+    public int size();
+    
+    public boolean add( Object o );
+    
+    public Object get( int index );
+    
+    public void clear();
 }

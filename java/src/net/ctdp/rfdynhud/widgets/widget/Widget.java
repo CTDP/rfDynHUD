@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
@@ -329,11 +330,6 @@ public abstract class Widget implements Documented
         return ( subTextures );
     }
     
-    final boolean isInitialized()
-    {
-        return ( initialized );
-    }
-    
     protected void onDirtyFlagSet()
     {
     }
@@ -371,6 +367,11 @@ public abstract class Widget implements Documented
     
     protected void onReinitializationForced()
     {
+    }
+    
+    final boolean isInitialized()
+    {
+        return ( initialized );
     }
     
     void forceReinitialization( boolean forwardCall )
@@ -425,9 +426,9 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Gets, whether this Widget has a fixed (unmodifiable) size.
+     * Gets, whether this {@link Widget} has a fixed (unmodifiable) size.
      * 
-     * @return whether this Widget has a fixed (unmodifiable) size.
+     * @return whether this {@link Widget} has a fixed (unmodifiable) size.
      */
     public boolean hasFixedSize()
     {
@@ -435,9 +436,9 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Gets this Widget's size.
+     * Gets this {@link Widget}'s size.
      * 
-     * @return this Widget's width.
+     * @return this {@link Widget}'s width.
      */
     public final Size getSize()
     {
@@ -576,7 +577,7 @@ public abstract class Widget implements Documented
         return ( backgroundColor.getColorKey() != null );
     }
     
-    protected final FontProperty getFontProperty()
+    public final FontProperty getFontProperty()
     {
         return ( font );
     }
@@ -591,7 +592,7 @@ public abstract class Widget implements Documented
         return ( font.isAntiAliased() );
     }
     
-    protected final ColorProperty getFontColorProperty()
+    public final ColorProperty getFontColorProperty()
     {
         return ( fontColor );
     }
@@ -1019,18 +1020,6 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * This event method is invoked when the engine boost mapping or temporary boost has changed.
-     * 
-     * @param oldBoost
-     * @param newBoost
-     * @param oldTempBoost
-     * @param newTempBoost
-     */
-    public void onEngineBoostChanged( int oldBoost, int newBoost, boolean oldTempBoost, boolean newTempBoost )
-    {
-    }
-    
-    /**
      * This event is fired, when a bound input component has changed its state.
      * 
      * @param action
@@ -1275,11 +1264,11 @@ public abstract class Widget implements Documented
      */
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
-        position.savePositioningProperty( "positioning", "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT.", writer );
-        position.saveXProperty( "x", "The x-coordinate for the position.", writer );
-        position.saveYProperty( "y", "The y-coordinate for the position.", writer );
-        size.saveWidthProperty( "width", "The width. Use negative values to make the Widget be sized relative to screen size.", writer );
-        size.saveHeightProperty( "height", "The height. Use negative values to make the Widget be sized relative to screen size.", writer );
+        writer.writeProperty( position.getPositioningProperty( "positioning" ), "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT." );
+        writer.writeProperty( position.getXProperty( "x" ), "The x-coordinate for the position." );
+        writer.writeProperty( position.getYProperty( "y" ), "The y-coordinate for the position." );
+        writer.writeProperty( size.getWidthProperty( "width" ), "The width. Use negative values to make the Widget be sized relative to screen size." );
+        writer.writeProperty( size.getHeightProperty( "height" ), "The height. Use negative values to make the Widget be sized relative to screen size." );
         writer.writeProperty( border, "The widget's border." );
         if ( masterWidget == null )
         {
@@ -1305,23 +1294,25 @@ public abstract class Widget implements Documented
     /**
      * Loads (and parses) a certain property from a config file.
      * 
-     * @param key
-     * @param value
+     * @param loader
      */
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        if ( name.loadProperty( key, value ) );
-        else if ( position.loadProperty( key, value, "positioning", "x", "y" ) );
-        else if ( size.loadProperty( key, value, "width", "height" ) );
-        else if ( canHaveBorder() && border.loadProperty( key, value ) );
-        else if ( paddingTop.loadProperty( key, value ) );
-        else if ( paddingLeft.loadProperty( key, value ) );
-        else if ( paddingRight.loadProperty( key, value ) );
-        else if ( paddingBottom.loadProperty( key, value ) );
-        else if ( inputVisible.loadProperty( key, value ) );
-        else if ( backgroundColor.loadProperty( key, value ) );
-        else if ( font.loadProperty( key, value ) );
-        else if ( fontColor.loadProperty( key, value ) );
+        if ( loader.loadProperty( name ) );
+        else if ( loader.loadProperty( position.getPositioningProperty( "positioning" ) ) );
+        else if ( loader.loadProperty( position.getXProperty( "x" ) ) );
+        else if ( loader.loadProperty( position.getYProperty( "y" ) ) );
+        else if ( loader.loadProperty( size.getWidthProperty( "width" ) ) );
+        else if ( loader.loadProperty( size.getHeightProperty( "height" ) ) );
+        else if ( canHaveBorder() && loader.loadProperty( border ) );
+        else if ( loader.loadProperty( paddingTop ) );
+        else if ( loader.loadProperty( paddingLeft ) );
+        else if ( loader.loadProperty( paddingRight ) );
+        else if ( loader.loadProperty( paddingBottom ) );
+        else if ( loader.loadProperty( inputVisible ) );
+        else if ( loader.loadProperty( backgroundColor ) );
+        else if ( loader.loadProperty( font ) );
+        else if ( loader.loadProperty( fontColor ) );
     }
     
     /**
@@ -1409,8 +1400,8 @@ public abstract class Widget implements Documented
         propsCont.addProperty( position.getPositioningProperty( "positioning" ) );
         propsCont.addProperty( position.getXProperty( "x" ) );
         propsCont.addProperty( position.getYProperty( "y" ) );
-        propsCont.addProperty( size.createWidthProperty( "width" ) );
-        propsCont.addProperty( size.createHeightProperty( "height" ) );
+        propsCont.addProperty( size.getWidthProperty( "width" ) );
+        propsCont.addProperty( size.getHeightProperty( "height" ) );
         
         if ( masterWidget == null )
         {
@@ -1491,7 +1482,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Creates a new Widget.
+     * Creates a new {@link Widget}.
      * 
      * @param name
      * @param width negative numbers for (screen_width - width)
@@ -1511,7 +1502,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Creates a new Widget.
+     * Creates a new {@link Widget}.
      * 
      * @param name
      * @param width negative numbers for (screen_width - width)

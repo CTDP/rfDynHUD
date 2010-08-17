@@ -19,7 +19,8 @@ package net.ctdp.rfdynhud.editor.properties;
 
 import java.util.ArrayList;
 
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
+import net.ctdp.rfdynhud.editor.hiergrid.impl.GridItemsContainerImpl;
 import net.ctdp.rfdynhud.properties.Property;
 
 /**
@@ -30,7 +31,7 @@ public class PropertiesEditor
 {
     private static final long serialVersionUID = -1723298567515621091L;
     
-    private FlaggedList properties;
+    private GridItemsContainer properties;
     
     private final ArrayList<PropertyChangeListener> changeListeners = new ArrayList<PropertyChangeListener>();
     
@@ -57,7 +58,7 @@ public class PropertiesEditor
         properties.clear();
     }
     
-    public final FlaggedList getPropertiesList()
+    public final GridItemsContainer getPropertiesList()
     {
         return ( properties );
     }
@@ -67,7 +68,7 @@ public class PropertiesEditor
         properties.add( p );
     }
     
-    public void addProperties( FlaggedList props )
+    public void addProperties( GridItemsContainer props )
     {
         properties.add( props );
     }
@@ -88,6 +89,6 @@ public class PropertiesEditor
     {
         super();
         
-        this.properties = new FlaggedList( "properties::" );
+        this.properties = new GridItemsContainerImpl( "properties::" );
     }
 }

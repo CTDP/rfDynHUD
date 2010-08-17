@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -618,13 +619,13 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( displayEveryXLaps.loadProperty( key, value ) );
-        else if ( visibleTime.loadProperty( key, value ) );
-        else if ( preferNextInFront.loadProperty( key, value ) );
+        if ( loader.loadProperty( displayEveryXLaps ) );
+        else if ( loader.loadProperty( visibleTime ) );
+        else if ( loader.loadProperty( preferNextInFront ) );
     }
     
     /**

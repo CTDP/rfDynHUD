@@ -21,6 +21,13 @@ import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link ArrayProperty} serves for customizing a value from an array.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ * 
+ * @param <E> the array element type
+ */
 public class ArrayProperty<E extends Object> extends Property
 {
     private E[] array;
@@ -76,29 +83,26 @@ public class ArrayProperty<E extends Object> extends Property
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public E getValue()
     {
         return ( getSelectedValue() );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
+        for ( E e : this.array )
         {
-            for ( E e : this.array )
+            if ( Tools.objectsEqual( value, e ) )
             {
-                if ( Tools.objectsEqual( value, e ) )
-                {
-                    setValue( e );
-                    
-                    return ( true );
-                }
+                setValue( e );
+                
+                return;
             }
-            
-            return ( true );
         }
-        
-        return ( false );
     }
     
     /**

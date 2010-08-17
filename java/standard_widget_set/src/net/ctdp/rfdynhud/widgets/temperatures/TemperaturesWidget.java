@@ -22,25 +22,26 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
+import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
+import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.WheelPart;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
-import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
-import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
+import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
-import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.Size;
@@ -68,15 +69,7 @@ public class TemperaturesWidget extends Widget
     private final Size tireSize = Size.newLocalSize( this, 10.0f, true, 10.0f, true );
     private final Size brakeSize = Size.newLocalSize( this, 7.0f, true, 20.0f, true );
     
-    private final IntProperty brakeTempsPeekDelayProp = new IntProperty( this, "brakeTempsPeekDelay", 7000, 0, 20000 )
-    {
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            brakeTempsPeekDelay = newValue * 1000000L;
-        }
-    };
-    private long brakeTempsPeekDelay = brakeTempsPeekDelayProp.getIntValue() * 1000000L;
+    private final DelayProperty brakeTempsPeekDelay = new DelayProperty( this, "brakeTempsPeekDelay", DelayProperty.DisplayUnits.MILLISECONDS, 7000, 0, 20000 );
     
     private DrawnString engineHeaderString = null;
     private DrawnString engineWaterTempString = null;
@@ -726,7 +719,7 @@ public class TemperaturesWidget extends Widget
                 brakesUpdateAllowed = true;
                 lastBrakeTempTime = gameData.getScoringInfo().getSessionNanos();
             }
-            else if ( lastBrakeTempTime + brakeTempsPeekDelay < gameData.getScoringInfo().getSessionNanos() )
+            else if ( lastBrakeTempTime + brakeTempsPeekDelay.getDelay() < gameData.getScoringInfo().getSessionNanos() )
             {
                 brakesUpdateAllowed = true;
             }
@@ -785,33 +778,35 @@ public class TemperaturesWidget extends Widget
         writer.writeProperty( font2, "The used (smaller) font." );
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
         writer.writeProperty( displayWaterTemp, "Display water temperature?" );
-        engineHeight.saveHeightProperty( "engineHeight", "The height of the engine bar.", writer );
+        writer.writeProperty( engineHeight.getHeightProperty( "engineHeight" ), "The height of the engine bar." );
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
-        tireSize.saveWidthProperty( "tireWidth", "The width of a tire image.", writer );
-        tireSize.saveHeightProperty( "tireHeight", "The height of a tire image.", writer );
+        writer.writeProperty( tireSize.getWidthProperty( "tireWidth" ), "The width of a tire image." );
+        writer.writeProperty( tireSize.getHeightProperty( "tireHeight" ), "The height of a tire image." );
         writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
-        brakeSize.saveWidthProperty( "brakeWidth", "The width of a brake image.", writer );
-        brakeSize.saveHeightProperty( "brakeHeight", "The height of a brake image.", writer );
-        writer.writeProperty( brakeTempsPeekDelayProp, "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
+        writer.writeProperty( brakeSize.getWidthProperty( "brakeWidth" ), "The width of a brake image." );
+        writer.writeProperty( brakeSize.getHeightProperty( "brakeHeight" ), "The height of a brake image." );
+        writer.writeProperty( brakeTempsPeekDelay, "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( font2.loadProperty( key, value ) );
-        else if ( displayEngine.loadProperty( key, value ) );
-        else if ( displayWaterTemp.loadProperty( key, value ) );
-        else if ( engineHeight.loadProperty( key, value, "sdfsdfsdfsdf", "engineHeight" ) );
-        else if ( displayTires.loadProperty( key, value ) );
-        else if ( tireSize.loadProperty( key, value, "tireWidth", "tireHeight" ) );
-        else if ( displayBrakes.loadProperty( key, value ) );
-        else if ( brakeSize.loadProperty( key, value, "brakeWidth", "brakeHeight" ) );
-        else if ( brakeTempsPeekDelayProp.loadProperty( key, value ) );
+        if ( loader.loadProperty( font2 ) );
+        else if ( loader.loadProperty( displayEngine ) );
+        else if ( loader.loadProperty( displayWaterTemp ) );
+        else if ( loader.loadProperty( engineHeight.getHeightProperty( "engineHeight" ) ) );
+        else if ( loader.loadProperty( displayTires ) );
+        else if ( loader.loadProperty( tireSize.getWidthProperty( "tireWidth" ) ) );
+        else if ( loader.loadProperty( tireSize.getHeightProperty( "tireHeight" ) ) );
+        else if ( loader.loadProperty( displayBrakes ) );
+        else if ( loader.loadProperty( brakeSize.getWidthProperty( "brakeWidth" ) ) );
+        else if ( loader.loadProperty( brakeSize.getHeightProperty( "brakeHeight" ) ) );
+        else if ( loader.loadProperty( brakeTempsPeekDelay ) );
     }
     
     /**
@@ -835,14 +830,14 @@ public class TemperaturesWidget extends Widget
         
         propsCont.addProperty( displayEngine );
         propsCont.addProperty( displayWaterTemp );
-        propsCont.addProperty( engineHeight.createHeightProperty( "engineHeight" ) );
+        propsCont.addProperty( engineHeight.getHeightProperty( "engineHeight" ) );
         propsCont.addProperty( displayTires );
-        propsCont.addProperty( tireSize.createWidthProperty( "tireWidth" ) );
-        propsCont.addProperty( tireSize.createHeightProperty( "tireHeight" ) );
+        propsCont.addProperty( tireSize.getWidthProperty( "tireWidth" ) );
+        propsCont.addProperty( tireSize.getHeightProperty( "tireHeight" ) );
         propsCont.addProperty( displayBrakes );
-        propsCont.addProperty( brakeSize.createWidthProperty( "brakeWidth" ) );
-        propsCont.addProperty( brakeSize.createHeightProperty( "brakeHeight" ) );
-        propsCont.addProperty( brakeTempsPeekDelayProp );
+        propsCont.addProperty( brakeSize.getWidthProperty( "brakeWidth" ) );
+        propsCont.addProperty( brakeSize.getHeightProperty( "brakeHeight" ) );
+        propsCont.addProperty( brakeTempsPeekDelay );
     }
     
     public TemperaturesWidget( String name )

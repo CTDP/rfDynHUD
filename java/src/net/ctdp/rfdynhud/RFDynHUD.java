@@ -225,6 +225,7 @@ public class RFDynHUD
         this.eventsManager = new GameEventsManager( this, drawingManager );
         
         this.gameData = new LiveGameData( drawingManager.getGameResolution(), eventsManager );
+        eventsManager.setGameData( this.gameData );
         this.gameData_CPP_Adapter = new _LiveGameData_CPP_Adapter( gameData );
         
         eventsManager.setGameData( gameData );

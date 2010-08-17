@@ -29,6 +29,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -981,16 +982,16 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( displayAbsFastest.loadProperty( key, value ) );
-        else if ( cumulativeSectors.loadProperty( key, value ) );
-        else if ( forceCurrentCumulSectors.loadProperty( key, value ) );
-        else if ( lastLapDisplayDelay.loadProperty( key, value ) );
-        else if ( slowerColor.loadProperty( key, value ) );
-        else if ( fasterColor.loadProperty( key, value ) );
+        if ( loader.loadProperty( displayAbsFastest ) );
+        else if ( loader.loadProperty( cumulativeSectors ) );
+        else if ( loader.loadProperty( forceCurrentCumulSectors ) );
+        else if ( loader.loadProperty( lastLapDisplayDelay ) );
+        else if ( loader.loadProperty( slowerColor ) );
+        else if ( loader.loadProperty( fasterColor ) );
     }
     
     /**

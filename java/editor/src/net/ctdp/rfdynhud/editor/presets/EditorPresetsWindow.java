@@ -38,7 +38,7 @@ import javax.swing.JScrollPane;
 
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
-import net.ctdp.rfdynhud.editor.hiergrid.FlaggedList;
+import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.EditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
@@ -111,7 +111,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
         return ( !changed.isEmpty() );
     }
     
-    private void fillPropertiesList( FlaggedList props )
+    private void fillPropertiesList( GridItemsContainer props )
     {
         DefaultWidgetPropertiesContainer propsCont = new DefaultWidgetPropertiesContainer( props );
         

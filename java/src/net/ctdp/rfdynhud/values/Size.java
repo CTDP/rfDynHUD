@@ -17,13 +17,10 @@
  */
 package net.ctdp.rfdynhud.values;
 
-import java.io.IOException;
-
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -594,50 +591,6 @@ public class Size implements AbstractSize
     }
     */
     
-    public void saveWidthProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
-    {
-        writer.writeProperty( key, unparseValue( getWidth() ), false, comment );
-    }
-    
-    public void saveHeightProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
-    {
-        writer.writeProperty( key, unparseValue( getHeight() ), false, comment );
-    }
-    
-    public void saveProperty( String widthKey, String widthComment, String heightKey, String heightComment, WidgetsConfigurationWriter writer ) throws IOException
-    {
-        if ( widthKey != null )
-            saveWidthProperty( widthKey, widthComment, writer );
-        
-        if ( heightKey != null )
-            saveHeightProperty( heightKey, heightComment, writer );
-    }
-    
-    public boolean loadProperty( String key, String value, String widthKey, String heightKey )
-    {
-        if ( key.equals( widthKey ) )
-        {
-            if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
-                value += "px";
-            
-            setWidth( parseValue( value, !isPixelValue( width ) ) );
-            
-            return ( true );
-        }
-        
-        if ( key.equals( heightKey ) )
-        {
-            if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
-                value += "px";
-            
-            setHeight( parseValue( value, !isPixelValue( height ) ) );
-            
-            return ( true );
-        }
-        
-        return ( false );
-    }
-    
     private static final boolean propExistsWithName( Property prop, String name, String nameForDisplay )
     {
         if ( prop == null )
@@ -662,7 +615,7 @@ public class Size implements AbstractSize
     
     private PosSizeProperty widthProp = null;
     
-    public PosSizeProperty createWidthProperty( String name, String nameForDisplay )
+    public PosSizeProperty getWidthProperty( String name, String nameForDisplay )
     {
         if ( !propExistsWithName( widthProp, name, nameForDisplay ) )
         {
@@ -703,15 +656,36 @@ public class Size implements AbstractSize
                 {
                     flipWidthPercentagePx();
                 }
+                
+                @Override
+                public Boolean quoteValueInConfigurationFile()
+                {
+                    return ( false );
+                }
+                
+                @Override
+                public Object getValueForConfigurationFile()
+                {
+                    return ( unparseValue( getWidth() ) );
+                }
+                
+                @Override
+                public void loadValue( String value )
+                {
+                    if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
+                        value += "px";
+                    
+                    setWidth( parseValue( value, !isPixelValue( width ) ) );
+                }
             };
         }
         
         return ( widthProp );
     }
     
-    public PosSizeProperty createWidthProperty( String name )
+    public PosSizeProperty getWidthProperty( String name )
     {
-        return ( createWidthProperty( name, name ) );
+        return ( getWidthProperty( name, name ) );
     }
     
     /**
@@ -724,7 +698,7 @@ public class Size implements AbstractSize
     
     private PosSizeProperty heightProp = null;
     
-    public PosSizeProperty createHeightProperty( String name, String nameForDisplay )
+    public PosSizeProperty getHeightProperty( String name, String nameForDisplay )
     {
         if ( !propExistsWithName( heightProp, name, nameForDisplay ) )
         {
@@ -765,15 +739,36 @@ public class Size implements AbstractSize
                 {
                     flipHeightPercentagePx();
                 }
+                
+                @Override
+                public Boolean quoteValueInConfigurationFile()
+                {
+                    return ( false );
+                }
+                
+                @Override
+                public Object getValueForConfigurationFile()
+                {
+                    return ( unparseValue( getHeight() ) );
+                }
+                
+                @Override
+                public void loadValue( String value )
+                {
+                    if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
+                        value += "px";
+                    
+                    setHeight( parseValue( value, !isPixelValue( height ) ) );
+                }
             };
         }
         
         return ( heightProp );
     }
     
-    public PosSizeProperty createHeightProperty( String name )
+    public PosSizeProperty getHeightProperty( String name )
     {
-        return ( createHeightProperty( name, name ) );
+        return ( getHeightProperty( name, name ) );
     }
     
     protected Size( Widget widget, boolean isGlobalSize, float width, boolean widthPercent, float height, boolean heightPercent )

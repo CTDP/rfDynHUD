@@ -56,8 +56,6 @@ public class TelemetryData
     
     private final LiveGameData gameData;
     
-    private final GameEventsManager eventsManager;
-    
     private float engineBaseMaxRPM = 1000.12345f;
     private float engineMaxRPM = 1000.12345f;
     
@@ -278,29 +276,17 @@ public class TelemetryData
     
     void incEngineBoostMapping( Engine engine )
     {
-        int oldValue = this.engineBoostMapping;
         this.engineBoostMapping = Math.min( engineBoostMapping + 1, (int)engine.getBoostRange().getMaxValue() );
-        
-        if ( engineBoostMapping != oldValue )
-            eventsManager.onEngineBoostChanged( oldValue, engineBoostMapping, tempBoostFlag, tempBoostFlag );
     }
     
     void decEngineBoostMapping( Engine engine )
     {
-        int oldValue = this.engineBoostMapping;
         this.engineBoostMapping = Math.max( (int)engine.getBoostRange().getMinValue(), engineBoostMapping - 1 );
-        
-        if ( engineBoostMapping != oldValue )
-            eventsManager.onEngineBoostChanged( oldValue, engineBoostMapping, tempBoostFlag, tempBoostFlag );
     }
     
     void setTempBoostFlag( boolean tempBoostFlag )
     {
-        boolean oldValue = this.tempBoostFlag;
         this.tempBoostFlag = tempBoostFlag;
-        
-        if ( tempBoostFlag != oldValue )
-            eventsManager.onEngineBoostChanged( engineBoostMapping, engineBoostMapping, oldValue, tempBoostFlag );
     }
     
     public final boolean getTemporaryBoostFlag()
@@ -1044,10 +1030,9 @@ public class TelemetryData
     
     // unsigned char mExpansion[32];
     
-    TelemetryData( LiveGameData gameData, GameEventsManager eventsManager )
+    TelemetryData( LiveGameData gameData )
     {
         this.gameData = gameData;
-        this.eventsManager = eventsManager;
         
         registerListener( TopspeedRecorder.MASTER_TOPSPEED_RECORDER );
         registerListener( LifetimeManager.INSTANCE );

@@ -17,15 +17,12 @@
  */
 package net.ctdp.rfdynhud.values;
 
-import java.io.IOException;
-
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -619,65 +616,6 @@ public class Position
     }
     */
     
-    public void savePositioningProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
-    {
-        writer.writeProperty( key, getPositioning(), comment );
-    }
-    
-    public void saveXProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
-    {
-        writer.writeProperty( key, unparseValue( getX() ), false, comment );
-    }
-    
-    public void saveYProperty( String key, String comment, WidgetsConfigurationWriter writer ) throws IOException
-    {
-        writer.writeProperty( key, unparseValue( getY() ), false, comment );
-    }
-    
-    public void saveProperty( String positioningKey, String positioningComment, String xKey, String xComment, String yKey, String yComment, WidgetsConfigurationWriter writer ) throws IOException
-    {
-        if ( positioningKey != null )
-            savePositioningProperty( positioningKey, positioningComment, writer );
-        
-        if ( xKey != null )
-            saveXProperty( xKey, xComment, writer );
-        
-        if ( yKey != null )
-            saveYProperty( yKey, yComment, writer );
-    }
-    
-    public boolean loadProperty( String key, String value, String positioningKey, String xKey, String yKey )
-    {
-        if ( key.equals( positioningKey ) )
-        {
-            set( RelativePositioning.valueOf( value ), getX(), getY() );
-            
-            return ( true );
-        }
-        
-        if ( key.equals( xKey ) )
-        {
-            if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
-                value += "px";
-            
-            setX( parseValue( value, !isPixelValue( x ) ) );
-            
-            return ( true );
-        }
-        
-        if ( key.equals( yKey ) )
-        {
-            if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
-                value += "px";
-            
-            setY( parseValue( value, !isPixelValue( y ) ) );
-            
-            return ( true );
-        }
-        
-        return ( false );
-    }
-    
     private static final boolean propExistsWithName( Property prop, String name, String nameForDisplay )
     {
         if ( prop == null )
@@ -726,6 +664,12 @@ public class Position
                 public Object getValue()
                 {
                     return ( getPositioning() );
+                }
+                
+                @Override
+                public void loadValue( String value )
+                {
+                    Position.this.set( RelativePositioning.valueOf( value ), getX(), getY() );
                 }
             };
         }
@@ -781,6 +725,27 @@ public class Position
                 {
                     flipXPercentagePx();
                 }
+                
+                @Override
+                public Boolean quoteValueInConfigurationFile()
+                {
+                    return ( false );
+                }
+                
+                @Override
+                public Object getValueForConfigurationFile()
+                {
+                    return ( unparseValue( getX() ) );
+                }
+                
+                @Override
+                public void loadValue( String value )
+                {
+                    if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
+                        value += "px";
+                    
+                    setX( parseValue( value, !isPixelValue( x ) ) );
+                }
             };
         }
         
@@ -834,6 +799,27 @@ public class Position
                 public void onButtonClicked( Object button )
                 {
                     flipYPercentagePx();
+                }
+                
+                @Override
+                public Boolean quoteValueInConfigurationFile()
+                {
+                    return ( false );
+                }
+                
+                @Override
+                public Object getValueForConfigurationFile()
+                {
+                    return ( unparseValue( getY() ) );
+                }
+                
+                @Override
+                public void loadValue( String value )
+                {
+                    if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
+                        value += "px";
+                    
+                    setY( parseValue( value, !isPixelValue( y ) ) );
                 }
             };
         }

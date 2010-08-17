@@ -152,7 +152,7 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
         if ( table == null )
             return;
         
-        int selRow = table.getEditingRow();
+        int selRow = row; //table.getEditingRow();
         int selCol = table.getEditingColumn();
         table.editingStopped( null );
         table.setValueAt( getCellEditorValue(), selRow, selCol );

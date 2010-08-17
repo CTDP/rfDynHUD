@@ -20,6 +20,11 @@ package net.ctdp.rfdynhud.properties;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
+/**
+ * The {@link FloatProperty} serves for customizing a primitive float value.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class FloatProperty extends Property
 {
     private float value;
@@ -101,21 +106,18 @@ public class FloatProperty extends Property
      * {@inheritDoc}
      */
     @Override
-    public Object getValue()
+    public Float getValue()
     {
         return ( getFloatValue() );
     }
     
-    public final boolean loadProperty( String key, String value )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( String value )
     {
-        if ( key.equals( getName() ) )
-        {
-            setValue( Float.parseFloat( value ) );
-            
-            return ( true );
-        }
-        
-        return ( false );
+        setValue( Float.parseFloat( value ) );
     }
     
     /**

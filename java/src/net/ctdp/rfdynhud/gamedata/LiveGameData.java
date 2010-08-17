@@ -276,7 +276,7 @@ public class LiveGameData
         registerListener( DataCache.INSTANCE );
         
         this.gameResolution = gameResolution;
-        this.telemetryData = new TelemetryData( this, eventsManager );
+        this.telemetryData = new TelemetryData( this );
         this.scoringInfo = new ScoringInfo( this, eventsManager );
         this.graphicsInfo = new GraphicsInfo( this );
         this.commentaryInfo = new CommentaryRequestInfo( this );
@@ -286,7 +286,5 @@ public class LiveGameData
         this.trackInfo = new TrackInfo( profileInfo );
         
         VehicleSetupParser.loadDefaultSetup( physics, setup );
-        
-        eventsManager.setGameData( this );
     }
 }

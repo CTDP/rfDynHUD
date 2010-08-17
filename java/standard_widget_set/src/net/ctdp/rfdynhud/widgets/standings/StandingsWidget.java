@@ -32,6 +32,7 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -1024,23 +1025,23 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( fontColor_me.loadProperty( key, value ) );
-        else if ( fontColor_out.loadProperty( key, value ) );
-        else if ( fontColor_finished.loadProperty( key, value ) );
-        else if ( useAutoWidth.loadProperty( key, value ) );
-        else if ( initialView.loadProperty( key, value ) );
-        //else if ( allowAbsTimesView.loadProperty( key, value ) );
-        //else if ( allowRelToLeaderView.loadProperty( key, value ) );
-        //else if ( allowRelToMeView.loadProperty( key, value ) );
-        else if ( forceLeaderDisplayed.loadProperty( key, value ) );
-        else if ( nameDisplayType.loadProperty( key, value ) );
-        else if ( showLapsOrStops.loadProperty( key, value ) );
-        else if ( abbreviate.loadProperty( key, value ) );
-        else if ( showTopspeeds.loadProperty( key, value ) );
+        if ( loader.loadProperty( fontColor_me ) );
+        else if ( loader.loadProperty( fontColor_out ) );
+        else if ( loader.loadProperty( fontColor_finished ) );
+        else if ( loader.loadProperty( useAutoWidth ) );
+        else if ( loader.loadProperty( initialView ) );
+        //else if ( loader.loadProperty( allowAbsTimesView ) );
+        //else if ( loader.loadProperty( allowRelToLeaderView ) );
+        //else if ( loader.loadProperty( allowRelToMeView ) );
+        else if ( loader.loadProperty( forceLeaderDisplayed ) );
+        else if ( loader.loadProperty( nameDisplayType ) );
+        else if ( loader.loadProperty( showLapsOrStops ) );
+        else if ( loader.loadProperty( abbreviate ) );
+        else if ( loader.loadProperty( showTopspeeds ) );
     }
     
     /**

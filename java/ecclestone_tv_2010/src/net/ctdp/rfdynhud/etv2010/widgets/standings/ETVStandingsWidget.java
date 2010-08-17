@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -482,7 +483,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
         writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
-        itemHeight.saveHeightProperty( "itemHeight", "The height of one item.", writer );
+        writer.writeProperty( itemHeight.getHeightProperty( "itemHeight" ), "The height of one item." );
         writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
         writer.writeProperty( showFastestLapsInRace, "Display fastest lap flags in race session?" );
     }
@@ -491,15 +492,15 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( captionBackgroundColor1st.loadProperty( key, value ) );
-        else if ( dataBackgroundColor1st.loadProperty( key, value ) );
-        else if ( itemHeight.loadProperty( key, value, null, "itemHeight" ) );
-        else if ( forceLeaderDisplayed.loadProperty( key, value ) );
-        else if ( showFastestLapsInRace.loadProperty( key, value ) );
+        if ( loader.loadProperty( captionBackgroundColor1st ) );
+        else if ( loader.loadProperty( dataBackgroundColor1st ) );
+        else if ( loader.loadProperty( itemHeight.getHeightProperty( "itemHeight" ) ) );
+        else if ( loader.loadProperty( forceLeaderDisplayed ) );
+        else if ( loader.loadProperty( showFastestLapsInRace ) );
     }
     
     /**
@@ -515,7 +516,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( itemHeight.createHeightProperty( "itemHeight" ) );
+        propsCont.addProperty( itemHeight.getHeightProperty( "itemHeight" ) );
         propsCont.addProperty( forceLeaderDisplayed );
         propsCont.addProperty( showFastestLapsInRace );
     }

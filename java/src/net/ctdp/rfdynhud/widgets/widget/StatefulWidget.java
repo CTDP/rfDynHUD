@@ -41,7 +41,7 @@ import java.util.HashMap;
  */
 public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
 {
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     private static final HashMap<Class<? extends StatefulWidget>, Object> generalStores = new HashMap<Class<? extends StatefulWidget>, Object>();
     private GeneralStore generalStore = null;
     private LocalStore localStore = null;
@@ -53,10 +53,20 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
      */
     protected abstract GeneralStore createGeneralStore();
     
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     protected Class<? extends StatefulWidget> getGeneralStoreKey()
     {
         return ( this.getClass() );
+    }
+    
+    boolean hasGeneralStore()
+    {
+        return ( generalStore != null );
+    }
+    
+    void setGeneralStore( GeneralStore generalStore )
+    {
+        this.generalStore = generalStore;
     }
     
     /**
@@ -64,7 +74,7 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
      * 
      * @return a value store object for all {@link StatefulWidget}s of this class.
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public final GeneralStore getGeneralStore()
     {
         if ( generalStore == null )
@@ -72,11 +82,11 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
             final Class<? extends StatefulWidget> key = getGeneralStoreKey();
             if ( !generalStores.containsKey( key ) )
             {
-                generalStore = createGeneralStore();
+                GeneralStore generalStore = createGeneralStore();
                 generalStores.put( key, generalStore );
             }
             
-            generalStore = (GeneralStore)generalStores.get( key );
+            setGeneralStore( (GeneralStore)generalStores.get( key ) );
         }
         
         return ( generalStore );
@@ -89,12 +99,12 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
      */
     protected abstract LocalStore createLocalStore();
     
-    final void setLocalStore( LocalStore localStore )
+    void setLocalStore( LocalStore localStore )
     {
         this.localStore = localStore;
     }
     
-    final boolean hasLocalStore()
+    boolean hasLocalStore()
     {
         return ( localStore != null );
     }

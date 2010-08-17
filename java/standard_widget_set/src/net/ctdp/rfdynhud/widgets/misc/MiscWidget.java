@@ -23,18 +23,18 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
-import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.DelayProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
@@ -54,7 +54,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class MiscWidget extends StatefulWidget<Object, LocalStore>
 {
-    private long relTopspeedResetDelay = 10000000000L; // ten seconds
+    private final DelayProperty relTopspeedResetDelay = new DelayProperty( this, "relTopspeedResetDelay", DelayProperty.DisplayUnits.MILLISECONDS, 10000, 0, 60000 ); // ten seconds
     
     private final BooleanProperty displayScoring = new BooleanProperty( this, "displayScoring", true );
     private final BooleanProperty displayTiming = new BooleanProperty( this, "displayTiming", true );
@@ -127,16 +127,6 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
     public LocalStore createLocalStore()
     {
         return ( new LocalStore() );
-    }
-    
-    public void setRelTopspeedResetDelay( int delay )
-    {
-        this.relTopspeedResetDelay = delay * 1000000L;
-    }
-    
-    public final int getRelTopspeedResetDelay()
-    {
-        return ( (int)( relTopspeedResetDelay / 1000000L ) );
     }
     
     /**
@@ -552,7 +542,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 relTopspeed = floatVelocity;
                 ( (LocalStore)getLocalStore() ).lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
-            else if ( ( ( (LocalStore)getLocalStore() ).lastRelTopspeedTime + relTopspeedResetDelay < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
+            else if ( ( ( (LocalStore)getLocalStore() ).lastRelTopspeedTime + relTopspeedResetDelay.getDelay() < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
             {
                 relTopspeed = floatVelocity;
                 oldRelTopspeed = -1f;
@@ -617,22 +607,21 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         writer.writeProperty( displayScoring, "Display the scoring part of the Widget?" );
         writer.writeProperty( displayTiming, "Display the timing part of the Widget?" );
         writer.writeProperty( displayVelocity, "Display the velocity and top speed part of the Widget?" );
-        writer.writeProperty( "relTopspeedResetDelay", getRelTopspeedResetDelay(), "The delay after which the relative topspeed is resetted (in milliseconds)." );
+        writer.writeProperty( relTopspeedResetDelay, "The delay after which the relative topspeed is resetted (in milliseconds)." );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void loadProperty( String key, String value )
+    public void loadProperty( PropertyLoader loader )
     {
-        super.loadProperty( key, value );
+        super.loadProperty( loader );
         
-        if ( displayScoring.loadProperty( key, value ) );
-        else if ( displayTiming.loadProperty( key, value ) );
-        else if ( displayVelocity.loadProperty( key, value ) );
-        else if ( key.equals( "relTopspeedResetDelay" ) )
-            this.relTopspeedResetDelay = Integer.parseInt( value ) * 1000000L;
+        if ( loader.loadProperty( displayScoring ) );
+        else if ( loader.loadProperty( displayTiming ) );
+        else if ( loader.loadProperty( displayVelocity ) );
+        else if ( loader.loadProperty( relTopspeedResetDelay ) );
     }
     
     /**
@@ -649,20 +638,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         propsCont.addProperty( displayTiming );
         propsCont.addProperty( displayVelocity );
         
-        propsCont.addProperty( new Property( this, "relTopspeedResetDelay", PropertyEditorType.INTEGER )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-                setRelTopspeedResetDelay( ( (Number)value ).intValue() );
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( getRelTopspeedResetDelay() );
-            }
-        } );
+        propsCont.addProperty( relTopspeedResetDelay );
     }
     
     public MiscWidget( String name )

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
@@ -54,6 +55,13 @@ public class ConfigurationSaver
                 if ( prop instanceof ColorProperty )
                 {
                     String colorKey = ( (ColorProperty)prop ).getColorKey();
+                    
+                    if ( widgetsConfig.getNamedColor( colorKey ) != null )
+                        result.add( colorKey );
+                }
+                else if ( ( prop instanceof BackgroundProperty ) && ( (BackgroundProperty)prop ).getBackgroundType().isColor() )
+                {
+                    String colorKey = ( (BackgroundProperty)prop ).getColorProperty().getColorKey();
                     
                     if ( widgetsConfig.getNamedColor( colorKey ) != null )
                         result.add( colorKey );

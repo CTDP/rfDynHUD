@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
+import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener;
@@ -178,7 +179,7 @@ public class GameEventsManager implements ConfigurationClearListener
             SessionType sessionType = gameData.getScoringInfo().getSessionType();
             VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
             String vehicleClass = vsi.getVehicleClass();
-            Boolean result2 = ConfigurationLoader.reloadConfiguration( smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, sessionType, widgetsManager, gameData, editorPresets, this, force );
+            Boolean result2 = __UtilPrivilegedAccess.reloadConfiguration( new ConfigurationLoader(), smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, sessionType, widgetsManager, gameData, editorPresets, this, force );
             
             if ( result2 == null )
             {
@@ -834,19 +835,6 @@ public class GameEventsManager implements ConfigurationClearListener
             if ( vsi.isLapJustStarted() )
                 widgetsManager.fireOnLapStarted( vsi, gameData, editorPresets );
         }
-    }
-    
-    /**
-     * This event method is invoked when the engine boost mapping or temporary boost has changed.
-     * 
-     * @param oldBoost
-     * @param newBoost
-     * @param oldTempBoost
-     * @param newTempBoost
-     */
-    public void onEngineBoostChanged( int oldBoost, int newBoost, boolean oldTempBoost, boolean newTempBoost )
-    {
-        widgetsManager.fireOnEngineBoostChanged( oldBoost, newBoost, oldTempBoost, newTempBoost );
     }
     
     /**

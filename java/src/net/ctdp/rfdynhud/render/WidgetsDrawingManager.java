@@ -542,30 +542,6 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     }
     
     /**
-     * This event method is invoked when the engine boost mapping or temporary boost has changed.
-     * 
-     * @param oldBoost
-     * @param newBoost
-     * @param oldTempBoost
-     * @param newTempBoost
-     */
-    public void fireOnEngineBoostChanged( int oldBoost, int newBoost, boolean oldTempBoost, boolean newTempBoost )
-    {
-        int numWidgets = getNumWidgets();
-        for ( int i = 0; i < numWidgets; i++ )
-        {
-            try
-            {
-                getWidget( i ).onEngineBoostChanged( oldBoost, newBoost, oldTempBoost, newTempBoost );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
      * This method is fired by the {@link InputMappingsManager},
      * if the state of a bound input component has changed.
      * 

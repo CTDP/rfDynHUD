@@ -197,7 +197,7 @@ public class HierarchicalTable extends JTable
             return ( rect );
         }
         
-        if ( value instanceof FlaggedList )
+        if ( value instanceof GridItemsContainer )
         {
             Rectangle rect = super.getCellRect( row, column, includeSpacing );
             
@@ -264,7 +264,7 @@ public class HierarchicalTable extends JTable
         return ( null );
     }
     
-    private static HierarchicalTableModel createModel( FlaggedList data, ValueAccessor accessor, int columnCount )
+    private static HierarchicalTableModel createModel( GridItemsContainer data, ValueAccessor accessor, int columnCount )
     {
         return ( new HierarchicalTableModel( data, accessor, columnCount ) );
     }
@@ -291,7 +291,7 @@ public class HierarchicalTable extends JTable
         */
     }
     
-    public HierarchicalTable( FlaggedList data, ValueAccessor accessor, int columnCount, Image minusImage, Image plusImage )
+    public HierarchicalTable( GridItemsContainer data, ValueAccessor accessor, int columnCount, Image minusImage, Image plusImage )
     {
         super( createModel( data, accessor, columnCount ) );
         
@@ -334,7 +334,7 @@ public class HierarchicalTable extends JTable
         }
     }
     
-    public HierarchicalTable( FlaggedList data, ValueAccessor accessor, int columnCount )
+    public HierarchicalTable( GridItemsContainer data, ValueAccessor accessor, int columnCount )
     {
         this( data, accessor, columnCount, getDefaultCollapseImage(), getDefaultExpandImage() );
     }

@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
@@ -226,22 +227,22 @@ public class EditorPresets
         writer.writeProperty( brakeDiscThicknessRR, null );
     }
     
-    void loadProperty( String key, String value )
+    void loadProperty( PropertyLoader loader )
     {
-        if ( driverName.loadProperty( key, value ) );
-        else if ( lastSector1Time.loadProperty( key, value ) );
-        else if ( lastSector2Time.loadProperty( key, value ) );
-        else if ( lastSector3Time.loadProperty( key, value ) );
-        else if ( currentSector1Time.loadProperty( key, value ) );
-        else if ( currentSector2Time.loadProperty( key, value ) );
-        else if ( currentSector3Time.loadProperty( key, value ) );
-        else if ( engineBoost.loadProperty( key, value ) );
-        else if ( engineRPM.loadProperty( key, value ) );
-        else if ( engineLifetime.loadProperty( key, value ) );
-        else if ( brakeDiscThicknessFL.loadProperty( key, value ) );
-        else if ( brakeDiscThicknessFR.loadProperty( key, value ) );
-        else if ( brakeDiscThicknessRL.loadProperty( key, value ) );
-        else if ( brakeDiscThicknessRR.loadProperty( key, value ) );
+        if ( loader.loadProperty( driverName ) );
+        else if ( loader.loadProperty( lastSector1Time ) );
+        else if ( loader.loadProperty( lastSector2Time ) );
+        else if ( loader.loadProperty( lastSector3Time ) );
+        else if ( loader.loadProperty( currentSector1Time ) );
+        else if ( loader.loadProperty( currentSector2Time ) );
+        else if ( loader.loadProperty( currentSector3Time ) );
+        else if ( loader.loadProperty( engineBoost ) );
+        else if ( loader.loadProperty( engineRPM ) );
+        else if ( loader.loadProperty( engineLifetime ) );
+        else if ( loader.loadProperty( brakeDiscThicknessFL ) );
+        else if ( loader.loadProperty( brakeDiscThicknessFR ) );
+        else if ( loader.loadProperty( brakeDiscThicknessRL ) );
+        else if ( loader.loadProperty( brakeDiscThicknessRR ) );
     }
     
     public EditorPresets()
