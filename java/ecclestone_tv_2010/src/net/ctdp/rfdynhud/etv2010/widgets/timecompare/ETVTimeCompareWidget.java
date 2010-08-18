@@ -424,61 +424,62 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
-        texture.clear( offsetX, offsetY, width, height, true, null );
+        if ( getMasterWidget() == null )
+            texture.clear( offsetX, offsetY, width, height, true, null );
         
         //int positionWidth2 = ETVUtils.TRIANGLE_WIDTH + positionWidth + ETVUtils.TRIANGLE_WIDTH;
         //int dataWidthNames2 = ETVUtils.TRIANGLE_WIDTH + dataWidthNames + ETVUtils.TRIANGLE_WIDTH;
         int dataWidthTimes2 = ETVUtils.TRIANGLE_WIDTH + dataWidthTimes + ETVUtils.TRIANGLE_WIDTH;
         
         Color captionBgColor = captionBackgroundColor.getColor();
-        Color dataBgColor = getBackgroundColor();
+        Color dataBgColor = getBackground().getColor();
         if ( vsi.getPlace( getUseClassScoring() ) == 1 )
             captionBgColor = captionBackgroundColor1st.getColor();
         
         ETVUtils.drawLabeledDataBackground( offsetX + ETVUtils.TRIANGLE_WIDTH, offsetY + 1 * ( rowHeight + ETVUtils.ITEM_GAP ), namesWidth - ETVUtils.TRIANGLE_WIDTH / 2, rowHeight, "00", getFont(), captionBgColor, dataBgColor, texture, false );
-        positionString1.draw( offsetX, offsetY, String.valueOf( vsi.getPlace( getUseClassScoring() ) ), texture );
-        drivernameString1.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture );
+        positionString1.draw( offsetX, offsetY, String.valueOf( vsi.getPlace( getUseClassScoring() ) ), texture, false );
+        drivernameString1.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture, false );
         
         captionBgColor = captionBackgroundColor.getColor();
-        dataBgColor = getBackgroundColor();
+        dataBgColor = getBackground().getColor();
         if ( vsi.getPlace( getUseClassScoring() ) == 1 )
             captionBgColor = captionBackgroundColor1st.getColor();
         
         ETVUtils.drawLabeledDataBackground( offsetX, offsetY + 2 * ( rowHeight + ETVUtils.ITEM_GAP ), namesWidth - ETVUtils.TRIANGLE_WIDTH / 2, rowHeight, "00", getFont(), captionBgColor, dataBgColor, texture, false );
-        positionString2.draw( offsetX, offsetY, String.valueOf( relVSI.getPlace( getUseClassScoring() ) ), texture );
-        drivernameString2.draw( offsetX, offsetY, relVSI.getDriverNameShort(), texture );
+        positionString2.draw( offsetX, offsetY, String.valueOf( relVSI.getPlace( getUseClassScoring() ) ), texture, false );
+        drivernameString2.draw( offsetX, offsetY, relVSI.getDriverNameShort(), texture, false );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 + 0 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
-        lapCaptionString1.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 2 ), texture );
+        lapCaptionString1.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 2 ), texture, false );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
-        lapCaptionString2.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 1 ), texture );
+        lapCaptionString2.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 1 ), texture, false );
         
         ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP + ETVUtils.TRIANGLE_WIDTH / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY, dataWidthTimes2, rowHeight, captionBackgroundColor.getColor(), texture, false );
-        lapCaptionString3.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 0 ), texture );
+        lapCaptionString3.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 0 ), texture, false );
         
         float laptime1 = isEditorMode ? 84.567f : getLaptime( vsi, vsi.getLapsCompleted() - 2 );
         
-        ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + 0 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
+        ETVUtils.drawDataBackground( offsetX + namesWidth + ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + 0 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, dataBgColor, texture, false );
         if ( laptime1 > 0f )
         {
-            laptimeString1.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime1 ), texture );
+            laptimeString1.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime1 ), texture, false );
         }
         
         float laptime2 = isEditorMode ? editorPresets.getLastLapTime() : getLaptime( vsi, vsi.getLapsCompleted() - 1 );
         
-        ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
+        ETVUtils.drawDataBackground( offsetX + namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - ETVUtils.TRIANGLE_WIDTH + 1 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, dataBgColor, texture, false );
         if ( laptime2 > 0f )
         {
-            laptimeString2.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime2 ), texture );
+            laptimeString2.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime2 ), texture, false );
         }
         
         float laptime3 = isEditorMode ? editorPresets.getCurrentLapTime() : getLaptime( vsi, vsi.getLapsCompleted() - 0 );
         
-        ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, getBackgroundColor(), texture, false );
+        ETVUtils.drawDataBackground( offsetX + namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 - 2 * ETVUtils.TRIANGLE_WIDTH + 2 * dataWidthTimes2, offsetY + rowHeight + ETVUtils.ITEM_GAP, dataWidthTimes2, rowHeight, dataBgColor, texture, false );
         if ( laptime3 > 0f )
         {
-            laptimeString3.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime3 ), texture );
+            laptimeString3.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime3 ), texture, false );
         }
         
         float gap1, gap2, gap3;
@@ -539,7 +540,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         Color dataColor = dataColorFaster.getColor();
         if ( gapStr1 == null )
         {
-            dataBgColor = getBackgroundColor();
+            dataBgColor = getBackground().getColor();
             dataColor = getFontColor();
         }
         else if ( gap1 < 0f )
@@ -552,14 +553,14 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         if ( gapStr1 != null )
         {
             gapString1.resetClearRect();
-            gapString1.draw( offsetX, offsetY, gapStr1, null, dataColor, texture );
+            gapString1.draw( offsetX, offsetY, gapStr1, dataColor, texture, false );
         }
         
         dataBgColor = dataBackgroundColorFaster.getColor();
         dataColor = dataColorFaster.getColor();
         if ( gapStr2 == null )
         {
-            dataBgColor = getBackgroundColor();
+            dataBgColor = getBackground().getColor();
             dataColor = getFontColor();
         }
         else if ( gap2 < 0f )
@@ -572,14 +573,14 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         if ( gapStr2 != null )
         {
             gapString2.resetClearRect();
-            gapString2.draw( offsetX, offsetY, gapStr2, null, dataColor, texture );
+            gapString2.draw( offsetX, offsetY, gapStr2, dataColor, texture, false );
         }
         
         dataBgColor = dataBackgroundColorFaster.getColor();
         dataColor = dataColorFaster.getColor();
         if ( gapStr3 == null )
         {
-            dataBgColor = getBackgroundColor();
+            dataBgColor = getBackground().getColor();
             dataColor = getFontColor();
         }
         else if ( gap3 < 0f )
@@ -592,7 +593,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         if ( gapStr3 != null )
         {
             gapString3.resetClearRect();
-            gapString3.draw( offsetX, offsetY, gapStr3, null, dataColor, texture );
+            gapString3.draw( offsetX, offsetY, gapStr3, dataColor, texture, false );
         }
     }
     

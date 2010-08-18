@@ -104,7 +104,8 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<JPanel> implement
         }
         else
         {
-            label.setForeground( Color.WHITE );
+            label.setBackground( Color.WHITE );
+            label.setForeground( Color.BLACK );
         }
         
         label.setFont( table.getFont() );
@@ -181,16 +182,7 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<JPanel> implement
                         String selColor = (String)result[1];
                         String selImage = (String)result[2];
                         
-                        if ( backgroundType.isColor() )
-                        {
-                            prop.setValue( "image:" + selImage );
-                            prop.setValue( "color:" + selColor );
-                        }
-                        else if ( backgroundType.isImage() )
-                        {
-                            prop.setValue( "color:" + selColor );
-                            prop.setValue( "image:" + selImage );
-                        }
+                        prop.setValues( backgroundType, selColor, selImage );
                         
                         label.setText( String.valueOf( prop.getValue() ) );
                         

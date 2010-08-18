@@ -123,6 +123,7 @@ public class FontProperty extends Property
                 if ( widget != null )
                     widget.forceAndSetDirty();
                 
+                onValueChanged();
                 onValueChanged( oldValue, fontKey );
                 
                 if ( widget != null )

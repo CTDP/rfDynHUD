@@ -579,8 +579,6 @@ public class TemperaturesWidget extends Widget
     @Override
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final Color backgroundColor = getBackgroundColor();
-        
         final TelemetryData telemData = gameData.getTelemetryData();
         final VehiclePhysics physics = gameData.getPhysics();
         final VehicleSetup setup = gameData.getSetup();
@@ -588,12 +586,12 @@ public class TemperaturesWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displayEngine.getBooleanValue() )
-                engineHeaderString.draw( offsetX, offsetY, "(" + NumberUtil.formatFloat( gameData.getPhysics().getEngine().getOptimumOilTemperature(), 1, true ) + getTempUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", backgroundColor, texture );
+                engineHeaderString.draw( offsetX, offsetY, "(" + NumberUtil.formatFloat( gameData.getPhysics().getEngine().getOptimumOilTemperature(), 1, true ) + getTempUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", texture );
             TireCompound tireCompound = setup.getGeneral().getFrontTireCompound();
             if ( displayTires.getBooleanValue() )
-                tiresHeaderString.draw( offsetX, offsetY, tireCompound.getName() + " (" + NumberUtil.formatFloat( tireCompound.getWheel( Wheel.FRONT_LEFT ).getOptimumTemperature(), 1, true ) + getTempUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", backgroundColor, texture );
+                tiresHeaderString.draw( offsetX, offsetY, tireCompound.getName() + " (" + NumberUtil.formatFloat( tireCompound.getWheel( Wheel.FRONT_LEFT ).getOptimumTemperature(), 1, true ) + getTempUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", texture );
             if ( displayBrakes.getBooleanValue() )
-                brakesHeaderString.draw( offsetX, offsetY, Loc.brakes_header_prefix + ":", backgroundColor, texture );
+                brakesHeaderString.draw( offsetX, offsetY, Loc.brakes_header_prefix + ":", texture );
         }
         
         if ( displayEngine.getBooleanValue() )
@@ -606,7 +604,7 @@ public class TemperaturesWidget extends Widget
                     oldWaterTemp = waterTemp;
                     
                     String string = String.valueOf( waterTemp / 10f );
-                    engineWaterTempString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    engineWaterTempString.draw( offsetX, offsetY, string, texture );
                 }
             }
             
@@ -616,7 +614,7 @@ public class TemperaturesWidget extends Widget
                 oldOilTemp = oilTemp;
                 
                 String string = String.valueOf( oilTemp / 10f );
-                engineOilTempString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                engineOilTempString.draw( offsetX, offsetY, string, texture );
                 
                 int engineWidth;
                 if ( displayWaterTemp.getBooleanValue() )
@@ -644,10 +642,10 @@ public class TemperaturesWidget extends Widget
                 
                 float temp = tireTempFL / 10f;
                 String string = String.valueOf( temp );
-                tireTempFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                tireTempFLString.draw( offsetX, offsetY, string, texture );
                 float diff = Math.round( tireTempFL - wheel.getOptimumTemperature() * 10f ) / 10f;
                 string = ( diff >= 0f ? "+" : "" ) + diff;
-                tireTempFLString2.draw( offsetX, offsetY, string, backgroundColor, texture );
+                tireTempFLString2.draw( offsetX, offsetY, string, texture );
                 
                 
                 drawTire( telemData, Wheel.FRONT_LEFT, wheel, texture, offsetX + tireTempFLString.getAbsX() + 3, offsetY + tireTempFLString.getAbsY() + 2 );
@@ -662,10 +660,10 @@ public class TemperaturesWidget extends Widget
                 
                 float temp = tireTempFR / 10f;
                 String string = String.valueOf( temp );
-                tireTempFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                tireTempFRString.draw( offsetX, offsetY, string, texture );
                 float diff = Math.round( tireTempFR - wheel.getOptimumTemperature() * 10f ) / 10f;
                 string = ( diff >= 0f ? "+" : "" ) + diff;
-                tireTempFRString2.draw( offsetX, offsetY, string, backgroundColor, texture );
+                tireTempFRString2.draw( offsetX, offsetY, string, texture );
                 
                 drawTire( telemData, Wheel.FRONT_RIGHT, wheel, texture, offsetX + tireTempFRString.getAbsX() - tireWidth - 3, offsetY + tireTempFRString.getAbsY() + 2 );
             }
@@ -679,10 +677,10 @@ public class TemperaturesWidget extends Widget
                 
                 float temp = tireTempRL / 10f;
                 String string = String.valueOf( temp );
-                tireTempRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                tireTempRLString.draw( offsetX, offsetY, string, texture );
                 float diff = Math.round( tireTempRL - wheel.getOptimumTemperature() * 10f ) / 10f;
                 string = ( diff >= 0f ? "+" : "" ) + diff;
-                tireTempRLString2.draw( offsetX, offsetY, string, backgroundColor, texture );
+                tireTempRLString2.draw( offsetX, offsetY, string, texture );
                 
                 drawTire( telemData, Wheel.REAR_LEFT, wheel, texture, offsetX + tireTempRLString.getAbsX() + 3, offsetY + tireTempRLString.getAbsY() + 2 );
             }
@@ -696,10 +694,10 @@ public class TemperaturesWidget extends Widget
                 
                 float temp = tireTempRR / 10f;
                 String string = String.valueOf( temp );
-                tireTempRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                tireTempRRString.draw( offsetX, offsetY, string, texture );
                 float diff = Math.round( tireTempRR - wheel.getOptimumTemperature() * 10f ) / 10f;
                 string = ( diff >= 0f ? "+" : "" ) + diff;
-                tireTempRRString2.draw( offsetX, offsetY, string, backgroundColor, texture );
+                tireTempRRString2.draw( offsetX, offsetY, string, texture );
                 
                 drawTire( telemData, Wheel.REAR_RIGHT, wheel, texture, offsetX + tireTempRRString.getAbsX() - tireWidth - 3, offsetY + tireTempRRString.getAbsY() + 2 );
             }
@@ -729,7 +727,7 @@ public class TemperaturesWidget extends Widget
                 oldBrakeTemps[0] = brakeTempFL;
                 
                 String string = String.valueOf( brakeTempFL );
-                brakeTempFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                brakeTempFLString.draw( offsetX, offsetY, string, texture );
                 
                 drawBrake( brakeTempFL, physics.getBrakes().getBrake( Wheel.FRONT_LEFT ), texture, offsetX + brakeTempFLString.getAbsX() + 3, offsetY + brakeTempFLString.getAbsY() );
             }
@@ -739,7 +737,7 @@ public class TemperaturesWidget extends Widget
                 oldBrakeTemps[1] = brakeTempFR;
                 
                 String string = String.valueOf( brakeTempFR );
-                brakeTempFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                brakeTempFRString.draw( offsetX, offsetY, string, texture );
                 
                 drawBrake( brakeTempFR, physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ), texture, offsetX + brakeTempFRString.getAbsX() - brakeWidth - 3, offsetY + brakeTempFRString.getAbsY() );
             }
@@ -749,7 +747,7 @@ public class TemperaturesWidget extends Widget
                 oldBrakeTemps[2] = brakeTempRL;
                 
                 String string = String.valueOf( brakeTempRL );
-                brakeTempRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                brakeTempRLString.draw( offsetX, offsetY, string, texture );
                 
                 drawBrake( brakeTempRL, physics.getBrakes().getBrake( Wheel.REAR_LEFT ), texture, offsetX + brakeTempRLString.getAbsX() + 3, offsetY + brakeTempRLString.getAbsY() );
             }
@@ -759,7 +757,7 @@ public class TemperaturesWidget extends Widget
                 oldBrakeTemps[3] = brakeTempRR;
                 
                 String string = String.valueOf( brakeTempRR );
-                brakeTempRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                brakeTempRRString.draw( offsetX, offsetY, string, texture );
                 
                 drawBrake( brakeTempRR, physics.getBrakes().getBrake( Wheel.REAR_RIGHT ), texture, offsetX + brakeTempRRString.getAbsX() - brakeWidth - 3, offsetY + brakeTempRRString.getAbsY() );
             }

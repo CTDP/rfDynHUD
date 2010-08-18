@@ -97,8 +97,7 @@ public class FontChooser extends JPanel
     private String selectedFont;
     private boolean valueChanged = false;
     
-    private JButton okButton;
-    private JButton cancelButton;
+    private JDialog dialog = null;
     
     protected void applySelectedFont( String fontString, int gameResY )
     {
@@ -147,6 +146,29 @@ public class FontChooser extends JPanel
             sampleLabel.setFont( FontUtils.parseFont( fontString, gameResY, false, true ) );
         
         this.selectedFont = fontString;
+    }
+    
+    public void setSelectedFontFromKey( String fontKey, WidgetsConfiguration widgetsConfig )
+    {
+        Font font = widgetsConfig.getNamedFont( fontKey );
+        boolean isName = ( font != null );
+        if ( isName )
+        {
+            refillNameCombo( widgetsConfig, combo, fontKey );
+            if ( fontKey == null )
+                combo.setSelectedIndex( 0 );
+            
+            fontKey = widgetsConfig.getNamedFontString( fontKey );
+        }
+        else
+        {
+            refillNameCombo( widgetsConfig, combo, null );
+            combo.setSelectedIndex( 0 );
+        }
+        
+        applySelectedFont( fontKey, widgetsConfig.getGameResolution().getViewportHeight() );
+        
+        valueChanged = false;
     }
     
     /**
@@ -203,19 +225,24 @@ public class FontChooser extends JPanel
         return ( antiAliasedBox.isSelected() );
     }
     
+    /**
+     * Gets the selected value for the property.
+     * 
+     * @return the selected value for the property.
+     */
+    public final String getSelectedValue()
+    {
+        String selFontName = getSelectedFontName();
+        
+        if ( selFontName == null )
+            return ( getSelectedFont() );
+        
+        return ( selFontName );
+    }
+    
     public final boolean getValueChanged()
     {
         return ( valueChanged );
-    }
-    
-    public final JButton getOKButton()
-    {
-        return ( okButton );
-    }
-    
-    public final JButton getCancelButton()
-    {
-        return ( cancelButton );
     }
     
     private boolean isRefillingNameCombo = false;
@@ -722,19 +749,118 @@ public class FontChooser extends JPanel
         return ( panel );
     }
     
-    private JPanel createButtonsPanel()
+    private JDialog initDialog( Window owner, String title )
     {
-        JPanel p = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
+        if ( owner instanceof java.awt.Dialog )
+            dialog = new JDialog( (java.awt.Dialog)owner, title );
+        else if ( owner instanceof java.awt.Frame )
+            dialog = new JDialog( (java.awt.Frame)owner, title );
+        else
+            dialog = new JDialog( owner, title );
         
-        p.setBorder( new EmptyBorder( 0, 5, 5, 5 ) );
+        dialog.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
         
-        okButton = new JButton( "OK" );
-        p.add( okButton );
+        return ( dialog );
+    }
+    
+    private String showDialog( Window owner, String title, final String startFont, final WidgetsConfiguration widgetsConfig )
+    {
+        setSelectedFontFromKey( startFont, widgetsConfig );
         
-        cancelButton = new JButton( "Cancel" );
-        p.add( cancelButton );
+        if ( ( dialog == null ) || ( dialog.getOwner() != owner ) )
+        {
+            dialog = initDialog( owner, title );
+            
+            JPanel contentPane = (JPanel)dialog.getContentPane();
+            
+            contentPane.setLayout( new BorderLayout() );
+            
+            contentPane.add( this, BorderLayout.CENTER );
+            
+            JPanel footer = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
+            
+            JButton okButton = new JButton( "OK" );
+            footer.add( okButton );
+            
+            JButton cancelButton = new JButton( "Cancel" );
+            footer.add( cancelButton );
+            
+            contentPane.add( footer, BorderLayout.SOUTH );
+            
+            dialog.pack();
+            dialog.setResizable( false );
+            
+            dialog.addWindowListener( new WindowAdapter()
+            {
+                @Override
+                public void windowClosing( WindowEvent e )
+                {
+                    setSelectedFont( null, 0 );
+                    dialog.setVisible( false );
+                }
+            } );
+            
+            okButton.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    if ( getSelectedFontName() == null )
+                    {
+                        valueChanged = !startFont.equals( getSelectedFont() );                            
+                    }
+                    else
+                    {
+                        setSelectedFont( composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
+                        valueChanged = applyNamedFont( getSelectedFontName(), getSelectedFont(), widgetsConfig ) || !getSelectedFontName().equals( startFont );
+                        
+                        setAllWidgetsDirty( widgetsConfig );
+                    }
+                    
+                    dialog.setVisible( false );
+                }
+            } );
+            
+            cancelButton.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    setSelectedFont( null, 0 );
+                    dialog.setVisible( false );
+                }
+            } );
+            
+            dialog.setModal( true );
+            dialog.setLocationRelativeTo( owner );
+        }
         
-        return ( p );
+        dialog.setVisible( true );
+        
+        if ( !getValueChanged() )
+            return ( null );
+        
+        return ( getSelectedValue() );
+    }
+    
+    public String showDialog( java.awt.Frame owner, String title, String startFont, WidgetsConfiguration widgetsConfig )
+    {
+        return ( showDialog( (Window)owner, title, startFont, widgetsConfig ) );
+    }
+    
+    public String showDialog( java.awt.Frame owner, String startFont, WidgetsConfiguration widgetsConfig )
+    {
+        return ( showDialog( owner, "Select a Font", startFont, widgetsConfig ) );
+    }
+    
+    public String showDialog( java.awt.Dialog owner, String title, String startFont, WidgetsConfiguration widgetsConfig )
+    {
+        return ( showDialog( (Window)owner, title, startFont, widgetsConfig ) );
+    }
+    
+    public String showDialog( java.awt.Dialog owner, String startFont, WidgetsConfiguration widgetsConfig )
+    {
+        return ( showDialog( owner, "Select a Font", startFont, widgetsConfig ) );
     }
     
     public FontChooser( String startFont, WidgetsConfiguration widgetsConfig )
@@ -788,141 +914,10 @@ public class FontChooser extends JPanel
         
         wrapper.add( main, BorderLayout.CENTER );
         
-        wrapper.add( createButtonsPanel(), BorderLayout.SOUTH );
+        //wrapper.add( createButtonsPanel(), BorderLayout.SOUTH );
         
         this.add( wrapper );
         
         this.setPreferredSize( new Dimension( 600, 350 ) );
-    }
-    
-    public static class FontChooserDialog extends JDialog
-    {
-        private static final long serialVersionUID = 3853781746419856706L;
-        
-        private final FontChooser fontChooser;
-        
-        public final FontChooser getFontChooser()
-        {
-            return ( fontChooser );
-        }
-        
-        /**
-         * Gets the selected Font.
-         * 
-         * @return the selected Font.
-         */
-        public final String getSelectedFont()
-        {
-            return ( getFontChooser().getSelectedFont() );
-        }
-        
-        public final String getSelectedFontName()
-        {
-            return ( getFontChooser().getSelectedFontName() );
-        }
-        
-        public final boolean getValueChanged()
-        {
-            return ( getFontChooser().getValueChanged() );
-        }
-        
-        private void init( final FontChooser fontChooser, final String startFont, final WidgetsConfiguration widgetsConfig )
-        {
-            fontChooser.setSelectedFont( fontChooser.composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
-            
-            this.setContentPane( fontChooser );
-            this.pack();
-            
-            this.addWindowListener( new WindowAdapter()
-            {
-                @Override
-                public void windowClosing( WindowEvent e )
-                {
-                    //d.getFontChooser().setSelectedFont( null );
-                }
-            } );
-            
-            fontChooser.getOKButton().addActionListener( new ActionListener()
-            {
-                @Override
-                public void actionPerformed( ActionEvent e )
-                {
-                    if ( getSelectedFontName() == null )
-                    {
-                        fontChooser.valueChanged = !startFont.equals( getSelectedFont() );                            
-                    }
-                    else
-                    {
-                        fontChooser.setSelectedFont( fontChooser.composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
-                        fontChooser.valueChanged = applyNamedFont( getSelectedFontName(), getSelectedFont(), widgetsConfig ) || !getSelectedFontName().equals( startFont );
-                        
-                        fontChooser.setAllWidgetsDirty( widgetsConfig );
-                    }
-                    
-                    FontChooserDialog.this.setVisible( false );
-                }
-            } );
-            
-            fontChooser.getCancelButton().addActionListener( new ActionListener()
-            {
-                @Override
-                public void actionPerformed( ActionEvent e )
-                {
-                    FontChooserDialog.this.getFontChooser().setSelectedFont( null, 0 );
-                    FontChooserDialog.this.setVisible( false );
-                }
-            } );
-            
-            this.setModal( true );
-        }
-        
-        public FontChooserDialog( java.awt.Dialog owner, String title, FontChooser fontChooser, String startFont, WidgetsConfiguration widgetsConfig )
-        {
-            super ( owner, title );
-            
-            init( fontChooser, startFont, widgetsConfig );
-            
-            this.fontChooser = fontChooser;
-        }
-        
-        public FontChooserDialog( java.awt.Frame owner, String title, FontChooser fontChooser, String startFont, WidgetsConfiguration widgetsConfig )
-        {
-            super ( owner, title );
-            
-            init( fontChooser, startFont, widgetsConfig );
-            
-            this.fontChooser = fontChooser;
-        }
-    }
-    
-    private static FontChooserDialog getAsDialogInternal( Object owner, String title, String startFont, WidgetsConfiguration widgetsConfig )
-    {
-        final FontChooserDialog d;
-        if ( owner instanceof java.awt.Dialog )
-            d = new FontChooserDialog( (java.awt.Dialog)owner, title, new FontChooser( startFont, widgetsConfig ), startFont, widgetsConfig );
-        else
-            d = new FontChooserDialog( (java.awt.Frame)owner, title, new FontChooser( startFont, widgetsConfig ), startFont, widgetsConfig );
-        
-        return ( d );
-    }
-    
-    public static FontChooserDialog getAsDialog( java.awt.Frame owner, String title, String startFont, WidgetsConfiguration widgetsConfig )
-    {
-        return ( getAsDialogInternal( owner, title, startFont, widgetsConfig ) );
-    }
-    
-    public static FontChooserDialog getAsDialog( java.awt.Frame owner, String startFont, WidgetsConfiguration widgetsConfig )
-    {
-        return ( getAsDialog( owner, "Select a Font", startFont, widgetsConfig ) );
-    }
-    
-    public static FontChooserDialog getAsDialog( java.awt.Dialog owner, String title, String startFont, WidgetsConfiguration widgetsConfig )
-    {
-        return ( getAsDialogInternal( owner, title, startFont, widgetsConfig ) );
-    }
-    
-    public static FontChooserDialog getAsDialog( java.awt.Dialog owner, String startFont, WidgetsConfiguration widgetsConfig )
-    {
-        return ( getAsDialog( owner, "Select a Font", startFont, widgetsConfig ) );
     }
 }

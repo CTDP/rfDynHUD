@@ -215,7 +215,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         if ( sectorYellowFlag.hasChanged() )
             changed = true;
         
-        dataBgColor = getBackgroundColor();
+        dataBgColor = getBackground().getColor(); // TODO: handle bg-image
         dataFontColor = getFontColor();
         if ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( gamePhase.getValue() == GamePhase.FULL_COURSE_YELLOW ) || sectorYellowFlag.getValue() )
         {
@@ -280,7 +280,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         
         if ( needsCompleteRedraw )
         {
-            captionString.draw( offsetX, offsetY, caption, captionBackgroundColor.getColor(), texture );
+            captionString.draw( offsetX, offsetY, caption, texture, captionBackgroundColor.getColor() );
         }
         
         if ( sessionLimit == SessionLimit.TIME )
@@ -293,13 +293,13 @@ public class ETVSessionStateWidget extends ETVWidgetBase
                 gamePhase.setUnchanged();
                 
                 if ( gamePhase.getValue() == GamePhase.SESSION_OVER )
-                    stateString.draw( offsetX, offsetY, "00:00:00", dataBgColor, dataFontColor, texture );
+                    stateString.draw( offsetX, offsetY, "00:00:00", dataFontColor, texture, dataBgColor );
                 else if ( scoringInfo.getSessionType().isRace() && ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( endTime < 0f ) || ( endTime > 3000000f ) ) )
-                    stateString.draw( offsetX, offsetY, "--:--:--", dataBgColor, dataFontColor, texture );
+                    stateString.draw( offsetX, offsetY, "--:--:--", dataFontColor, texture, dataBgColor );
                 else if ( scoringInfo.getSessionType().isTestDay() || ( endTime < 0f ) || ( endTime > 3000000f ) )
-                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), dataBgColor, dataFontColor, texture );
+                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), dataFontColor, texture, dataBgColor );
                 else
-                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( endTime - sessionTime.getValue(), true, false ), dataBgColor, dataFontColor, texture );
+                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( endTime - sessionTime.getValue(), true, false ), dataFontColor, texture, dataBgColor );
             }
         }
         else
@@ -316,7 +316,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
                 int maxLaps = scoringInfo.getMaxLaps();
                 String maxLapsStr = ( maxLaps < 10000 ) ? String.valueOf( maxLaps ) : "--";
                 
-                stateString.drawColumns( offsetX, offsetY, new String[] { lap.getValueAsString(), "/", maxLapsStr }, colAligns, colPadding, colWidths, dataBgColor, dataFontColor, texture );
+                stateString.drawColumns( offsetX, offsetY, new String[] { lap.getValueAsString(), "/", maxLapsStr }, colAligns, colPadding, colWidths, dataFontColor, texture, dataBgColor );
             }
         }
     }

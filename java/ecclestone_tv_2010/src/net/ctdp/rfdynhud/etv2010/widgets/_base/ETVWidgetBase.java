@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.etv2010.widgets._base;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
+import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -104,6 +105,12 @@ public abstract class ETVWidgetBase extends Widget
         propsCont.addProperty( captionColor );
     }
     
+    @Override
+    protected boolean canHaveBorder()
+    {
+        return ( false );
+    }
+    
     /*
     @Override
     protected boolean hasText()
@@ -113,16 +120,15 @@ public abstract class ETVWidgetBase extends Widget
     */
     
     @Override
-    protected boolean canHaveBorder()
+    protected String getInitialBackground()
     {
-        return ( false );
+        return ( BackgroundProperty.COLOR_INDICATOR + ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
     }
     
     public ETVWidgetBase( String name, float width, float height )
     {
         super( name, width, true, height, true );
         
-        getBackgroundColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
         getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );
         getFontProperty().setValue( ETVUtils.ETV_STYLE_FONT );
     }

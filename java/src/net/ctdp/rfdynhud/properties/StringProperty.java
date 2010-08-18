@@ -53,6 +53,7 @@ public class StringProperty extends Property
         if ( widget != null )
             widget.forceAndSetDirty();
         
+        onValueChanged();
         onValueChanged( oldValue, value );
         
         if ( widget != null )

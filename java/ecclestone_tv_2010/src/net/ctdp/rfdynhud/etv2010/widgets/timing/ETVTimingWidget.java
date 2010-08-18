@@ -305,8 +305,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         int dataWidth2 = ETVUtils.TRIANGLE_WIDTH + dataWidth + ETVUtils.TRIANGLE_WIDTH;
         
-        ETVUtils.drawDataBackground( 2 * ETVUtils.TRIANGLE_WIDTH, 0 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidth2, rowHeight, getBackgroundColor(), cacheTexture, false );
-        ETVUtils.drawDataBackground( 1 * ETVUtils.TRIANGLE_WIDTH, 1 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidth2, rowHeight, getBackgroundColor(), cacheTexture, false );
+        ETVUtils.drawDataBackground( 2 * ETVUtils.TRIANGLE_WIDTH, 0 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidth2, rowHeight, getBackground().getColor(), cacheTexture, false );
+        ETVUtils.drawDataBackground( 1 * ETVUtils.TRIANGLE_WIDTH, 1 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidth2, rowHeight, getBackground().getColor(), cacheTexture, false );
         
         if ( ( editorPresets != null ) || ( referenceTimeAbs != null ) )
         {
@@ -314,7 +314,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             if ( referencePlace == 1 )
                 capBgColor = captionBackgroundColor1st.getColor();
             
-            Color dataBgColor = getBackgroundColor();
+            Color dataBgColor = getBackground().getColor(); // TODO: handle bg-image
             if ( editorPresets != null )
             {
                 switch ( vsi.getSector() )
@@ -395,7 +395,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         ETVUtils.drawDataBackground( width - 4 * ETVUtils.TRIANGLE_WIDTH - bigPositionWidth, 0, 4 * ETVUtils.TRIANGLE_WIDTH + bigPositionWidth, 2 * rowHeight + ETVUtils.ITEM_GAP, 2, capBgColor, cacheTexture, false );
         
         drivernameString.resetClearRect();
-        drivernameString.draw( 0, 0, vsi.getDriverNameShort(), Color.RED, cacheTexture );
+        drivernameString.draw( 0, 0, vsi.getDriverNameShort(), cacheTexture, Color.RED );
         
         texture.clear( cacheTexture, offsetX, offsetY, true, null );
     }
@@ -411,7 +411,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         if ( needsCompleteRedraw || ( clock1 && ownPlace.hasChanged() ) )
         {
-            bigPositionString.draw( offsetX, offsetY, ownPlace.getValueAsString(), cacheTexture, offsetX, offsetY, captionColor.getColor(), texture );
+            bigPositionString.draw( offsetX, offsetY, ownPlace.getValueAsString(), captionColor.getColor(), texture, cacheTexture, offsetX, offsetY );
         }
         
         LapState ls = lapState.getValue();
@@ -459,7 +459,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             if ( ownLaptime.isValid() )
                 laptimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( ownLaptime.getValue() ), cacheTexture, texture );
             else
-                laptimeString.draw( offsetX, offsetY, "", cacheTexture, offsetX, offsetY, texture );
+                laptimeString.draw( offsetX, offsetY, "", texture, cacheTexture, offsetX, offsetY );
         }
         
         if ( ( editorPresets != null ) || ( referenceTimeAbs != null ) )
@@ -468,7 +468,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             
             if ( needsCompleteRedraw || ( clock1 && relPlace.hasChanged() ) )
             {
-                relPositionString.draw( offsetX, offsetY, relPlace.getValueAsString(), cacheTexture, offsetX, offsetY, texture );
+                relPositionString.draw( offsetX, offsetY, relPlace.getValueAsString(), texture, cacheTexture, offsetX, offsetY );
             }
             
             Color dataColor = getFontColor();
@@ -574,13 +574,13 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
                 if ( relLaptime.isValid() )
                 {
                     if ( ls.isAfterSectorStart() || ( editorPresets != null ) )
-                        relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( relLaptime.getValue() ), cacheTexture, offsetX, offsetY, dataColor, texture );
+                        relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( relLaptime.getValue() ), dataColor, texture, cacheTexture, offsetX, offsetY );
                     else if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
-                        relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( relLaptime.getValue() ), cacheTexture, offsetX, offsetY, texture );
+                        relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( relLaptime.getValue() ), texture, cacheTexture, offsetX, offsetY );
                 }
                 else
                 {
-                    relTimeString.draw( offsetX, offsetY, "", cacheTexture, offsetX, offsetY, texture );
+                    relTimeString.draw( offsetX, offsetY, "", texture, cacheTexture, offsetX, offsetY );
                 }
             }
         }

@@ -19,10 +19,8 @@ package net.ctdp.rfdynhud.editor.util;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,9 +59,14 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
     
     private boolean cancelled = false;
     
+    private JDialog dialog = null;
+    
     @Override
     public void stateChanged( ChangeEvent e )
     {
+        if ( this.getRootPane() == null )
+            return;
+        
         JDialog frame = (JDialog)this.getRootPane().getParent();
         
         if ( getSelectedIndex() == 0 )
@@ -82,20 +85,80 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         }
     }
     
+    private JDialog initDialog( Window owner, String title )
+    {
+        if ( owner instanceof java.awt.Dialog )
+            dialog = new JDialog( (java.awt.Dialog)owner, title );
+        else if ( owner instanceof java.awt.Frame )
+            dialog = new JDialog( (java.awt.Frame)owner, title );
+        else
+            dialog = new JDialog( owner, title );
+        
+        dialog.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
+        
+        return ( dialog );
+    }
+    
     public Object[] showDialog( Window owner, BackgroundType startType, String startColor, String startImage, WidgetsConfiguration widgetsConfig )
     {
         imageSelector.update();
         
-        final JDialog dialog;
-        if ( owner instanceof Frame )
-            dialog = new JDialog( (Frame)owner );
-        else if ( owner instanceof Dialog )
-            dialog = new JDialog( (Dialog)owner );
-        else
-            dialog = new JDialog( owner );
-        
-        dialog.setTitle( "Select a background..." );
-        
+        if ( ( dialog == null ) || ( dialog.getOwner() != owner ) )
+        {
+            dialog = initDialog( owner, "Select a background..." );
+            
+            Container contentPane = dialog.getContentPane();
+            contentPane.setLayout( new BorderLayout() );
+            
+            contentPane.add( this, BorderLayout.CENTER );
+            
+            JPanel footer = new JPanel( new BorderLayout() );
+            JPanel footer3 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 5 ) );
+            JButton ok = new JButton( "OK" );
+            ok.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    dialog.setVisible( false );
+                }
+            } );
+            footer3.add( ok );
+            JButton cancel = new JButton( "Cancel" );
+            cancel.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    cancelled = true;
+                    dialog.setVisible( false );
+                }
+            } );
+            footer3.add( cancel );
+            footer.add( footer3, BorderLayout.EAST );
+            
+            contentPane.add( footer, BorderLayout.SOUTH );
+            
+            dialog.addWindowListener( new WindowAdapter()
+            {
+                @Override
+                public void windowClosing( WindowEvent e )
+                {
+                    cancelled = true;
+                    dialog.setVisible( false );
+                }
+            } );
+            
+            imageSelectorSize = new Dimension( 416, 500 );
+            
+            if ( startType.isColor() )
+                dialog.setSize( COLOR_CHOOSER_SIZE );
+            else if ( startType.isImage() )
+                dialog.setSize( imageSelectorSize );
+            
+            dialog.setModal( true );
+            dialog.setLocationRelativeTo( owner );
+        }
         
         if ( startType == null )
             startType = BackgroundType.COLOR;
@@ -121,50 +184,6 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         
         colorChooser.setSelectedColorFromKey( startColor, widgetsConfig );
         imageSelector.setSelectedFile( startImage );
-        
-        
-        Container contentPane = dialog.getContentPane();
-        contentPane.setLayout( new BorderLayout() );
-        
-        contentPane.add( this, BorderLayout.CENTER );
-        
-        JPanel footer = new JPanel( new BorderLayout() );
-        JPanel footer3 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 5 ) );
-        JButton ok = new JButton( "OK" );
-        ok.addActionListener( new ActionListener()
-        {
-            @Override
-            public void actionPerformed( ActionEvent e )
-            {
-                dialog.setVisible( false );
-            }
-        } );
-        footer3.add( ok );
-        JButton cancel = new JButton( "Cancel" );
-        cancel.addActionListener( new ActionListener()
-        {
-            @Override
-            public void actionPerformed( ActionEvent e )
-            {
-                cancelled = true;
-                dialog.setVisible( false );
-            }
-        } );
-        footer3.add( cancel );
-        footer.add( footer3, BorderLayout.EAST );
-        
-        contentPane.add( footer, BorderLayout.SOUTH );
-        
-        dialog.setLocationRelativeTo( owner );
-        dialog.setModal( true );
-        dialog.addWindowListener( new WindowAdapter()
-        {
-            @Override
-            public void windowOpened( WindowEvent e )
-            {
-                //setSelectedFile( getSelectedFile() );
-            }
-        } );
         
         cancelled = false;
         

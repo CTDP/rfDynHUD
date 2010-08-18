@@ -51,6 +51,7 @@ public class EnumProperty<E extends Enum<E>> extends Property
         if ( widget != null )
             widget.forceAndSetDirty();
         
+        onValueChanged();
         onValueChanged( oldValue, value );
         
         if ( widget != null )

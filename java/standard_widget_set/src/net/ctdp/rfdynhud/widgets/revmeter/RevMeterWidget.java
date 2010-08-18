@@ -1016,16 +1016,16 @@ public class RevMeterWidget extends Widget
             if ( gearBackgroundTexture == null )
             {
                 if ( backgroundTexture == null )
-                    gearString.draw( offsetX, offsetY, string, ColorUtils.BLACK_TRANSPARENT, texture );
+                    gearString.draw( offsetX, offsetY, string, texture, ColorUtils.BLACK_TRANSPARENT );
                 else
-                    gearString.draw( offsetX, offsetY, string, backgroundTexture, texture );
+                    gearString.draw( offsetX, offsetY, string, texture, backgroundTexture );
             }
             else
             {
                 if ( needsCompleteRedraw )
                     gearBackgroundTexture.getTexture().clear( gearBackgroundTexture_bak, true, null );
                 
-                gearString.draw( 0, 0, string, gearBackgroundTexture_bak, 0, 0, gearBackgroundTexture.getTexture() );
+                gearString.draw( 0, 0, string, gearBackgroundTexture.getTexture(), gearBackgroundTexture_bak, 0, 0 );
             }
         }
         
@@ -1037,16 +1037,16 @@ public class RevMeterWidget extends Widget
                 if ( boostNumberBackgroundTexture == null )
                 {
                     if ( backgroundTexture == null )
-                        boostString.draw( offsetX, offsetY, boost.getValueAsString(), ColorUtils.BLACK_TRANSPARENT, texture );
+                        boostString.draw( offsetX, offsetY, boost.getValueAsString(), texture, ColorUtils.BLACK_TRANSPARENT );
                     else
-                        boostString.draw( offsetX, offsetY, boost.getValueAsString(), backgroundTexture, texture );
+                        boostString.draw( offsetX, offsetY, boost.getValueAsString(), texture, backgroundTexture );
                 }
                 else
                 {
                     if ( needsCompleteRedraw )
                         boostNumberBackgroundTexture.getTexture().clear( boostNumberBackgroundTexture_bak, true, null );
                     
-                    boostString.draw( 0, 0, boost.getValueAsString(), boostNumberBackgroundTexture_bak, 0, 0, boostNumberBackgroundTexture.getTexture() );
+                    boostString.draw( 0, 0, boost.getValueAsString(), boostNumberBackgroundTexture.getTexture(), boostNumberBackgroundTexture_bak, 0, 0 );
                 }
             }
             
@@ -1075,16 +1075,16 @@ public class RevMeterWidget extends Widget
                 if ( velocityBackgroundTexture == null )
                 {
                     if ( backgroundTexture == null )
-                        velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, ColorUtils.BLACK_TRANSPARENT, texture );
+                        velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, texture, ColorUtils.BLACK_TRANSPARENT );
                     else
-                        velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, backgroundTexture, offsetX, offsetY, texture );
+                        velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, texture, backgroundTexture, offsetX, offsetY );
                 }
                 else
                 {
                     if ( needsCompleteRedraw )
                         velocityBackgroundTexture.getTexture().clear( velocityBackgroundTexture_bak, true, null );
                     
-                    velocityString.draw( (int)( -fw / 2.0 ), 0, string, velocityBackgroundTexture_bak, 0, 0, velocityBackgroundTexture.getTexture() );
+                    velocityString.draw( (int)( -fw / 2.0 ), 0, string, velocityBackgroundTexture.getTexture(), velocityBackgroundTexture_bak, 0, 0 );
                 }
             }
         }
@@ -1117,9 +1117,9 @@ public class RevMeterWidget extends Widget
             }
             
             if ( backgroundTexture == null )
-                rpmString1.draw( offsetX, offsetY, string, ColorUtils.BLACK_TRANSPARENT, texture );
+                rpmString1.draw( offsetX, offsetY, string, texture, ColorUtils.BLACK_TRANSPARENT );
             else
-                rpmString1.draw( offsetX, offsetY, string, backgroundTexture, texture );
+                rpmString1.draw( offsetX, offsetY, string, texture, backgroundTexture );
         }
         
         if ( displayRPMString2.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
@@ -1142,9 +1142,9 @@ public class RevMeterWidget extends Widget
             }
             
             if ( backgroundTexture == null )
-                rpmString2.draw( offsetX, offsetY, string, ColorUtils.BLACK_TRANSPARENT, texture );
+                rpmString2.draw( offsetX, offsetY, string, texture, ColorUtils.BLACK_TRANSPARENT );
             else
-                rpmString2.draw( offsetX, offsetY, string, backgroundTexture, texture );
+                rpmString2.draw( offsetX, offsetY, string, texture, backgroundTexture );
         }
         
         {
@@ -1459,11 +1459,15 @@ public class RevMeterWidget extends Widget
         return ( false );
     }
     
+    @Override
+    protected boolean canHaveBackground()
+    {
+        return ( false );
+    }
+    
     public RevMeterWidget( String name )
     {
         super( name, 16.3125f, 21.75f );
-        
-        getBackgroundColorProperty().setColor( (String)null );
         
         numShiftLights.setIntValue( 2 );
     }

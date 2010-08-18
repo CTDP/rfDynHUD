@@ -79,6 +79,7 @@ public class ColorProperty extends Property
         if ( widget != null )
             widget.forceAndSetDirty();
         
+        onValueChanged();
         onValueChanged( oldValue, colorKey );
         
         if ( widget != null )

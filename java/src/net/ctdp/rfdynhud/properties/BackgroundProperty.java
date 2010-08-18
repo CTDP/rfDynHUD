@@ -30,6 +30,9 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class BackgroundProperty extends Property
 {
+    public static final String COLOR_INDICATOR = "color:";
+    public static final String IMAGE_INDICATOR = "image:";
+    
     public static enum BackgroundType
     {
         COLOR,
@@ -60,7 +63,7 @@ public class BackgroundProperty extends Property
     private ColorProperty color = null;
     private ImageProperty image = null;
     
-    private BackgroundType backgroundType;
+    private BackgroundType backgroundType = null;
     
     /**
      * Gets the current type of this background.
@@ -72,16 +75,33 @@ public class BackgroundProperty extends Property
         return ( backgroundType );
     }
     
-    private void setPropertyFromValue( String value )
+    /**
+     * 
+     * @param oldBGType
+     * @param newBGType
+     * @param oldValue
+     * @param newValue
+     */
+    protected void onValueChanged( BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
+    {
+    }
+    
+    private boolean setPropertyFromValue( String value, boolean suppressEvent )
     {
         if ( value == null )
             throw new IllegalArgumentException( "value must not be null." );
         
         value = value.trim();
         
-        if ( value.startsWith( "color:" ) )
+        if ( ( getBackgroundType() != null ) && value.equals( getValue() ) )
+            return ( false );
+        
+        BackgroundType oldBGType = this.backgroundType;
+        String oldValue = ( oldBGType == null ) ? null : ( oldBGType.isColor() ? this.getColorProperty().getColorKey() : this.getImageProperty().getImageName() );
+        
+        if ( value.startsWith( BackgroundProperty.COLOR_INDICATOR ) )
         {
-            value = value.substring( 6 ).trim();
+            value = value.substring( BackgroundProperty.COLOR_INDICATOR.length() ).trim();
             
             if ( color == null )
                 this.color = new ColorProperty( widget, getName(), getNameForDisplay(), value, false );
@@ -92,10 +112,16 @@ public class BackgroundProperty extends Property
                 this.image = new ImageProperty( widget, getName(), getNameForDisplay(), "default_rev_meter_bg.png", false, false );
             
             this.backgroundType = BackgroundType.COLOR;
+            
+            if ( !suppressEvent )
+            {
+                onValueChanged();
+                onValueChanged( oldBGType, backgroundType, oldValue, value );
+            }
         }
-        else if ( value.startsWith( "image:" ) )
+        else if ( value.startsWith( BackgroundProperty.IMAGE_INDICATOR ) )
         {
-            value = value.substring( 6 ).trim();
+            value = value.substring( BackgroundProperty.IMAGE_INDICATOR.length() ).trim();
             
             if ( color == null )
                 this.color = new ColorProperty( widget, getName(), getNameForDisplay(), "StandardBackground", false );
@@ -106,11 +132,19 @@ public class BackgroundProperty extends Property
                 this.image.setImageName( value );
             
             this.backgroundType = BackgroundType.IMAGE;
+            
+            if ( !suppressEvent )
+            {
+                onValueChanged();
+                onValueChanged( oldBGType, backgroundType, oldValue, value );
+            }
         }
         else
         {
-            throw new IllegalArgumentException( "The value must either start with \"color:\" or \"image:\"." );
+            throw new IllegalArgumentException( "The value must either start with \"" + BackgroundProperty.COLOR_INDICATOR + "\" or \"" + BackgroundProperty.IMAGE_INDICATOR + ":\"." );
         }
+        
+        return ( true );
     }
     
     /**
@@ -139,7 +173,40 @@ public class BackgroundProperty extends Property
     @Override
     public void setValue( Object value )
     {
-        setPropertyFromValue( String.valueOf( value ) );
+        setPropertyFromValue( String.valueOf( value ), false );
+    }
+    
+    public void setValues( BackgroundType type, String colorValue, String imageValue )
+    {
+        BackgroundType oldBGType = getBackgroundType();
+        String oldValue = null;
+        if ( oldBGType.isColor() )
+            oldValue = getColorProperty().getValue();
+        else if ( oldBGType.isImage() )
+            oldValue = getImageProperty().getValue();
+        
+        if ( type.isColor() )
+        {
+            if ( colorValue.equals( oldValue ) )
+                return;
+            
+            setPropertyFromValue( IMAGE_INDICATOR + imageValue, true );
+            setPropertyFromValue( COLOR_INDICATOR + colorValue, true );
+            
+            onValueChanged();
+            onValueChanged( oldBGType, backgroundType, oldValue, colorValue );
+        }
+        else if ( type.isImage() )
+        {
+            if ( imageValue.equals( oldValue ) )
+                return;
+            
+            setPropertyFromValue( COLOR_INDICATOR + colorValue, true );
+            setPropertyFromValue( IMAGE_INDICATOR + imageValue, true );
+            
+            onValueChanged();
+            onValueChanged( oldBGType, backgroundType, oldValue, imageValue );
+        }
     }
     
     /**
@@ -149,10 +216,10 @@ public class BackgroundProperty extends Property
     public String getValue()
     {
         if ( getBackgroundType().isColor() )
-            return ( "color:" + getColorProperty().getValue() );
+            return ( BackgroundProperty.COLOR_INDICATOR + getColorProperty().getValue() );
         
         if ( getBackgroundType().isImage() )
-            return ( "image:" + getImageProperty().getValue() );
+            return ( BackgroundProperty.IMAGE_INDICATOR + getImageProperty().getValue() );
         
         throw new Error( "Unreachable code" );
     }
@@ -161,7 +228,7 @@ public class BackgroundProperty extends Property
      * Gets the {@link Color} from this {@link BackgroundProperty}.
      * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@value BackgroundType#COLOR}.
      * 
-     * @return the {@link Color} from this {@link Background}.
+     * @return the {@link Color} from this {@link BackgroundProperty}.
      */
     public final Color getColorValue()
     {
@@ -175,7 +242,7 @@ public class BackgroundProperty extends Property
      * Gets the {@link Color} from this {@link BackgroundProperty}.
      * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@value BackgroundType#COLOR}.
      * 
-     * @return the {@link Color} from this {@link Background}.
+     * @return the {@link Color} from this {@link BackgroundProperty}.
      */
     public final ImageTemplate getImageValue()
     {
@@ -191,7 +258,7 @@ public class BackgroundProperty extends Property
     @Override
     public void loadValue( String value )
     {
-        setPropertyFromValue( value );
+        setPropertyFromValue( value, false );
     }
     
     /**
@@ -205,7 +272,7 @@ public class BackgroundProperty extends Property
     {
         super( widget, name, nameForDisplay, false, PropertyEditorType.BACKGROUND );
         
-        setPropertyFromValue( defaultValue );
+        setPropertyFromValue( defaultValue, true );
     }
     
     /**

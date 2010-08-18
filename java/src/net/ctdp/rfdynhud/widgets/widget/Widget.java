@@ -28,6 +28,7 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
@@ -82,8 +83,35 @@ public abstract class Widget implements Documented
     private final Size size;
     private final InnerSize innerSize;
     
+    /**
+     * Gets the initial value for the background property.
+     * 
+     * @return the initial value for the background property.
+     */
+    protected String getInitialBackground()
+    {
+        return ( BackgroundProperty.COLOR_INDICATOR + ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
+    }
+    
+    /**
+     * This method is invoked when the background has changed.
+     * 
+     * @param deltaScaleX the x-scale factor in as a difference between the old background image and the new one or -1 of no background image was selected
+     * @param deltaScaleY the y-scale factor in as a difference between the old background image and the new one or -1 of no background image was selected
+     */
+    protected void onBackgroundChanged( float deltaScaleX, float deltaScaleY ) {}
+    private final BackgroundProperty backgroundProperty = canHaveBackground() ? new BackgroundProperty( this, "background", getInitialBackground() )
+    {
+        @Override
+        protected void onValueChanged( BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
+        {
+            if ( background != null )
+                background.onPropertyValueChanged( Widget.this, newBGType, oldValue, newValue );
+        }
+    } : null;
+    private final WidgetBackground background = canHaveBackground() ? new WidgetBackground( this, backgroundProperty ) : null;
+    
     private final FontProperty font = new FontProperty( this, "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty backgroundColor = new ColorProperty( this, "backgroundColor", ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
     private final ColorProperty fontColor = new ColorProperty( this, "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
     
     private final IntProperty paddingTop = new IntProperty( this, "paddingTop", "top", 0, 0, 1000, false );
@@ -104,7 +132,7 @@ public abstract class Widget implements Documented
     
     private TransformableTexture[] subTextures = null;
     
-    private final DrawnStringFactory drawnStringFactory = new DrawnStringFactory();
+    private final DrawnStringFactory drawnStringFactory = new DrawnStringFactory( this );
     
     private AssembledWidget masterWidget = null;
     
@@ -207,6 +235,11 @@ public abstract class Widget implements Documented
         if ( wc != null )
         {
             __WCPrivilegedAccess.sortWidgets( wc );
+        }
+        
+        if ( getBackground() != null )
+        {
+            getBackground().onWidgetSizeChanged( this );
         }
     }
     
@@ -557,24 +590,19 @@ public abstract class Widget implements Documented
         size.setHeightToPixels();
     }
     
-    protected final ColorProperty getBackgroundColorProperty()
+    protected final BackgroundProperty getBackgroundProperty()
     {
-        return ( backgroundColor );
+        return ( backgroundProperty );
     }
     
     /**
-     * Gets the {@link Widget}'s background color.
+     * Gets the {@link Widget}'s background.
      * 
-     * @return the {@link Widget}'s background color.
+     * @return the {@link Widget}'s background.
      */
-    protected final Color getBackgroundColor()
+    protected final WidgetBackground getBackground()
     {
-        return ( backgroundColor.getColor() );
-    }
-    
-    protected final boolean hasBackgroundColor()
-    {
-        return ( backgroundColor.getColorKey() != null );
+        return ( background );
     }
     
     public final FontProperty getFontProperty()
@@ -657,16 +685,6 @@ public abstract class Widget implements Documented
     public final BorderWrapper getBorder()
     {
         return ( border.getBorder() );
-    }
-    
-    /**
-     * Gets whether this {@link Widget} has a border or not.
-     * 
-     * @return whether this {@link Widget} has a border or not.
-     */
-    public final boolean hasBorder()
-    {
-        return ( getBorder().hasBorder() );
     }
     
     /**
@@ -1071,6 +1089,58 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * Clears the given part of the {@link Widget} area with the current background.
+     * 
+     * @param texture the target texture
+     * @param offsetX the x offset of the {@link Widget} on the drawing texture
+     * @param offsetY the y offset of the {@link Widget} on the drawing texture
+     * @param localX the x coordinate of the upper left corner of the area to be cleared relative to the Widget's location
+     * @param localY the y coordinate of the upper left corner of the area to be cleared relative to the Widget's location
+     * @param width the width of the area to be cleared
+     * @param height the height of the area to be cleared
+     * @param markDirty if true, the pixel is marked dirty
+     * @param dirtyRect if non null, the dirty rect is written to this instance
+     * 
+     * @return <code>true</code>, if this Widgets defines a background to clear with, <code>false</code> otherwise.
+     */
+    public boolean clearBackgroundRegion( TextureImage2D texture, int offsetX, int offsetY, int localX, int localY, int width, int height, boolean markDirty, Rect2i dirtyRect )
+    {
+        if ( getMasterWidget() != null )
+        {
+            int effX = getPosition().getEffectiveX();
+            int effY = getPosition().getEffectiveY();
+            
+            return ( getMasterWidget().clearBackgroundRegion( texture, offsetX - effX, offsetY - effY, localX + effX, localY + effY, width, height, markDirty, dirtyRect ) );
+        }
+        
+        final WidgetBackground background = getBackground();
+        
+        if ( background == null )
+        {
+            if ( dirtyRect != null )
+                dirtyRect.set( -1, -1, 0, 0 );
+            
+            return ( false );
+        }
+        
+        if ( background.getType().isColor() )
+        {
+            texture.clear( background.getColor(), offsetX + localX, offsetY + localY, width, height, markDirty, dirtyRect );
+            
+            return ( true );
+        }
+        
+        if ( background.getType().isImage() )
+        {
+            texture.clear( background.getTexture(), localX, localY, width, height, offsetX + localX, offsetY + localY, markDirty, dirtyRect );
+            
+            return ( true );
+        }
+        
+        return ( false );
+    }
+    
+    /**
      * This method is called once to initialized {@link DrawnString}s used on this Widget.
      * 
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
@@ -1120,9 +1190,9 @@ public abstract class Widget implements Documented
      */
     protected void drawBorder( boolean isEditorMode, BorderWrapper border, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( border.hasBorder() && ( texture != null ) )
+        if ( hasBorder() && ( texture != null ) )
         {
-            border.drawBorder( getBackgroundColor(), texture, offsetX, offsetY, width, height );
+            border.drawBorder( background.getColor(), texture, offsetX, offsetY, width, height );
         }
     }
     
@@ -1137,8 +1207,17 @@ public abstract class Widget implements Documented
      */
     protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( hasBackgroundColor() && ( texture != null ) )
-            texture.clear( getBackgroundColor(), offsetX, offsetY, width, height, true, null );
+        if ( ( texture != null ) && ( background != null ) )
+        {
+            if ( background.getType().isColor() )
+            {
+                texture.clear( background.getColor(), offsetX, offsetY, width, height, true, null );
+            }
+            else if ( background.getType().isImage() )
+            {
+                texture.clear( background.getTexture(), offsetX, offsetY, width, height, true, null );
+            }
+        }
     }
     
     /**
@@ -1279,9 +1358,9 @@ public abstract class Widget implements Documented
             writer.writeProperty( inputVisible, "The initial visibility." );
         }
         
-        if ( hasBackgroundColor() )
+        if ( backgroundProperty != null )
         {
-            writer.writeProperty( backgroundColor, "The Widget's background color in the format #RRGGBBAA (hex)." );
+            writer.writeProperty( backgroundProperty, "The Widget's background color in the format #RRGGBBAA (hex)." );
         }
         
         if ( hasText() )
@@ -1304,13 +1383,13 @@ public abstract class Widget implements Documented
         else if ( loader.loadProperty( position.getYProperty( "y" ) ) );
         else if ( loader.loadProperty( size.getWidthProperty( "width" ) ) );
         else if ( loader.loadProperty( size.getHeightProperty( "height" ) ) );
-        else if ( canHaveBorder() && loader.loadProperty( border ) );
+        else if ( loader.loadProperty( border ) );
         else if ( loader.loadProperty( paddingTop ) );
         else if ( loader.loadProperty( paddingLeft ) );
         else if ( loader.loadProperty( paddingRight ) );
         else if ( loader.loadProperty( paddingBottom ) );
         else if ( loader.loadProperty( inputVisible ) );
-        else if ( loader.loadProperty( backgroundColor ) );
+        else if ( ( backgroundProperty != null ) && loader.loadProperty( backgroundProperty ) );
         else if ( loader.loadProperty( font ) );
         else if ( loader.loadProperty( fontColor ) );
     }
@@ -1354,7 +1433,7 @@ public abstract class Widget implements Documented
      * @param propsCont
      * @param forceAll
      */
-    protected void addBackgroundColorPropertyToContainer( ColorProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addBackgroundPropertyToContainer( BackgroundProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( property );
     }
@@ -1408,14 +1487,14 @@ public abstract class Widget implements Documented
             addPaddingPropertiesToContainer( paddingTop, paddingLeft, paddingRight, paddingBottom, propsCont, forceAll );
         }
         
-        if ( ( masterWidget == null ) && ( border.getValue() != null ) && canHaveBorder() )
+        if ( ( masterWidget == null ) && hasBorder() )
         {
             addBorderPropertyToContainer( border, propsCont, forceAll );
         }
         
-        if ( ( masterWidget == null ) && ( hasBackgroundColor() ) )
+        if ( ( masterWidget == null ) && ( backgroundProperty != null ) )
         {
-            addBackgroundColorPropertyToContainer( backgroundColor, propsCont, forceAll );
+            addBackgroundPropertyToContainer( backgroundProperty, propsCont, forceAll );
         }
         
         if ( hasText() )
@@ -1460,6 +1539,48 @@ public abstract class Widget implements Documented
     
     
     /**
+     * Defines, if this Widget type can have a border.
+     * 
+     * @return if this Widget type can have a border.
+     */
+    protected boolean canHaveBorder()
+    {
+        return ( true );
+    }
+    
+    /**
+     * Defines, if this Widget type can have a background.
+     * 
+     * @return if this Widget type can have a background.
+     */
+    protected boolean canHaveBackground()
+    {
+        return ( true );
+    }
+    
+    /**
+     * Gets whether this {@link Widget} has a border or not.
+     * 
+     * @return whether this {@link Widget} has a border or not.
+     */
+    protected final boolean hasBorder()
+    {
+        if ( !canHaveBorder() )
+            return ( false );
+        
+        if ( !getBorder().hasBorder() )
+            return ( false );
+        
+        /*
+        if ( background == null )
+            return ( false );
+        
+        return ( background.getType().isColor() );
+        */
+        return ( true );
+    }
+    
+    /**
      * Defines, if a Widget type (potentially) contains any text.
      * If <code>false</code>, the editor won't provide font or font-color selection.
      * Should return a contant value.
@@ -1467,16 +1588,6 @@ public abstract class Widget implements Documented
      * @return if this Widget can contain any text.
      */
     protected boolean hasText()
-    {
-        return ( true );
-    }
-    
-    /**
-     * Defines, if this Widget type can have a border.
-     * 
-     * @return if this Widget type can have a border.
-     */
-    protected boolean canHaveBorder()
     {
         return ( true );
     }

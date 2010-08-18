@@ -106,26 +106,29 @@ public class WidgetMenuItem extends JMenuItem
         //this.widgetClass = widgetClass;
         try
         {
-            this.widget = RFDynHUDEditor.createWidgetInstance( widgetClass, null );
+            this.widget = RFDynHUDEditor.createWidgetInstance( widgetClass, null, true );
         }
         catch ( Throwable t )
         {
             throw new RuntimeException( t );
         }
         
-        __WCPrivilegedAccess.addWidget( widgetsConfig1, widget, false );
-        
-        float aspect = (float)widget.getSize().getEffectiveWidth() / (float)widget.getSize().getEffectiveHeight();
-        
-        __WCPrivilegedAccess.removeWidget( widgetsConfig1, widget );
-        __WCPrivilegedAccess.addWidget( widgetsConfig2, widget, false );
-        
-        if ( aspect > ICON_ASPECT )
-            widget.getSize().setEffectiveSize( ICON_WIDTH, (int)( ICON_WIDTH / aspect ) );
-        else
-            widget.getSize().setEffectiveSize( (int)( ICON_HEIGHT * aspect ), ICON_HEIGHT );
-        
-        widget.getPosition().setEffectivePosition( RelativePositioning.TOP_LEFT, 0, ( ICON_HEIGHT - widget.getEffectiveHeight() ) / 2 );
+        if ( widget != null )
+        {
+            __WCPrivilegedAccess.addWidget( widgetsConfig1, widget, false );
+            
+            float aspect = (float)widget.getSize().getEffectiveWidth() / (float)widget.getSize().getEffectiveHeight();
+            
+            __WCPrivilegedAccess.removeWidget( widgetsConfig1, widget );
+            __WCPrivilegedAccess.addWidget( widgetsConfig2, widget, false );
+            
+            if ( aspect > ICON_ASPECT )
+                widget.getSize().setEffectiveSize( ICON_WIDTH, (int)( ICON_WIDTH / aspect ) );
+            else
+                widget.getSize().setEffectiveSize( (int)( ICON_HEIGHT * aspect ), ICON_HEIGHT );
+            
+            widget.getPosition().setEffectivePosition( RelativePositioning.TOP_LEFT, 0, ( ICON_HEIGHT - widget.getEffectiveHeight() ) / 2 );
+        }
         
         this.texture = TextureImage2D.createOfflineTexture( ICON_WIDTH, ICON_HEIGHT, true );
         

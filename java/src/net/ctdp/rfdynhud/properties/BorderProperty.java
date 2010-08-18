@@ -76,6 +76,7 @@ public class BorderProperty extends Property
         if ( widget != null )
             widget.forceAndSetDirty();
         
+        onValueChanged();
         onValueChanged( oldValue, borderName );
         
         if ( widget != null )
@@ -143,9 +144,24 @@ public class BorderProperty extends Property
      * {@inheritDoc}
      */
     @Override
+    public Object getValueForConfigurationFile()
+    {
+        if ( borderName == null )
+            return ( "N/A" );
+        
+        return ( super.getValueForConfigurationFile() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void loadValue( String value )
     {
-        setValue( value );
+        if ( ( value == null ) || value.equals( "N/A" ) )
+            setBorder( null );
+        else
+            setBorder( value );
     }
     
     /**

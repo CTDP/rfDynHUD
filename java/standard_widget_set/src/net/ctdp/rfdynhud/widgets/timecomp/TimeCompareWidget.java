@@ -216,8 +216,6 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
     @Override
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final java.awt.Color backgroundColor = getBackgroundColor();
-        
         LocalStore store = getLocalStore();
         
         int padding = 10;
@@ -227,16 +225,16 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
             if ( displaySectors.getBooleanValue() )
             {
                 if ( abbreviate.getBooleanValue() )
-                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, padding, colWidths, backgroundColor, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, padding, colWidths, texture );
                 else
-                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, padding, colWidths, backgroundColor, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, padding, colWidths, texture );
             }
             else
             {
                 if ( abbreviate.getBooleanValue() )
-                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, padding, colWidths, backgroundColor, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, padding, colWidths, texture );
                 else
-                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, padding, colWidths, backgroundColor, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, padding, colWidths, texture );
             }
         }
         
@@ -267,7 +265,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
                     lastDspIdx = i;
                 }
                 
-                timeStrings[i].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, backgroundColor, texture );
+                timeStrings[i].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, texture );
             }
             
             Laptime lt = ( lastDspIdx >= 0 ) ? store.displayedLaps[lastDspIdx] : null;
@@ -290,7 +288,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
                     s = new String[] { Loc.footer_gap, "-:--.---" };
             }
             
-            timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, backgroundColor, texture );
+            timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, texture );
         }
     }
     

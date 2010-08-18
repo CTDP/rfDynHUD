@@ -138,13 +138,19 @@ public class ImageWidget extends Widget
     }
     
     @Override
-    protected boolean hasText()
+    protected boolean canHaveBorder()
     {
         return ( false );
     }
     
     @Override
-    protected boolean canHaveBorder()
+    protected boolean canHaveBackground()
+    {
+        return ( false );
+    }
+    
+    @Override
+    protected boolean hasText()
     {
         return ( false );
     }
@@ -152,7 +158,5 @@ public class ImageWidget extends Widget
     public ImageWidget( String name )
     {
         super( name, 17.0f, 8.6f );
-        
-        getBackgroundColorProperty().setColor( (String)null );
     }
 }

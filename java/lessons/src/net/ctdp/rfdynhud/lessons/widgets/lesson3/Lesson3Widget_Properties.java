@@ -151,7 +151,7 @@ public class Lesson3Widget_Properties extends Widget
             else if ( v.getValue() > 80.0f )
                 color = hotColor.getColor();
             
-            ds.draw( offsetX, offsetY, tireTempFL, null, color, texture );
+            ds.draw( offsetX, offsetY, tireTempFL, color, texture );
         }
         
         if ( needsCompleteRedraw )

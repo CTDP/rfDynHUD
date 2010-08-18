@@ -765,8 +765,6 @@ public class WearWidget extends Widget
     @Override
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final Color backgroundColor = getBackgroundColor();
-        
         final VehiclePhysics physics = gameData.getPhysics();
         final TelemetryData telemData = gameData.getTelemetryData();
         final VehicleSetup setup = gameData.getSetup();
@@ -780,16 +778,16 @@ public class WearWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displayEngine.getBooleanValue() )
-                engineHeaderString.draw( offsetX, offsetY, Loc.engine_header_prefix + ":", backgroundColor, texture );
+                engineHeaderString.draw( offsetX, offsetY, Loc.engine_header_prefix + ":", texture );
             if ( displayTires.getBooleanValue() )
             {
                 if ( displayCompoundName.getBooleanValue() )
-                    tiresHeaderString.draw( offsetX, offsetY, " " + setup.getGeneral().getFrontTireCompound().getName(), backgroundColor, texture );
+                    tiresHeaderString.draw( offsetX, offsetY, " " + setup.getGeneral().getFrontTireCompound().getName(), texture );
                 else
-                    tiresHeaderString.draw( offsetX, offsetY, "", backgroundColor, texture );
+                    tiresHeaderString.draw( offsetX, offsetY, "", texture );
             }
             if ( db )
-                brakesHeaderString.draw( offsetX, offsetY, Loc.brakes_header_prefix + ":", backgroundColor, texture );
+                brakesHeaderString.draw( offsetX, offsetY, Loc.brakes_header_prefix + ":", texture );
         }
         
         if ( displayEngine.getBooleanValue() )
@@ -824,10 +822,10 @@ public class WearWidget extends Widget
                 int engineWidth;
                 if ( getDisplayWearPercent_engine() )
                 {
-                    engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( engineLifetime.getValue() * 100f, 1, true ), backgroundColor, texture );
+                    engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( engineLifetime.getValue() * 100f, 1, true ), texture );
                     final float variancePercent = getEngineMinLifetimePercent( physics.getEngine(), raceLengthPercentage, hundredPercentBase );
                     if ( variancePercent > 0.001f )
-                        engineVarianceString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
+                        engineVarianceString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
                     
                     //engineWidth = width - engineHeaderString.getAbsX() - 5 - Math.max( engineVarianceString.getLastWidth(), engineWearString.getLastWidth() );
                     engineWidth = width - engineHeaderString.getAbsX() - 0 - engineWearStringMaxWidth;
@@ -860,9 +858,9 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_tires() )
                 {
                     String string = String.valueOf( tireWearFL );
-                    tireWearFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    tireWearFLString.draw( offsetX, offsetY, string, texture );
                     string = String.valueOf( grip );
-                    tireGripFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    tireGripFLString.draw( offsetX, offsetY, string, texture );
                     
                     left = tireWearFLString.getAbsX() + 3;
                     top = tireWearFLString.getAbsY() + 2;
@@ -886,9 +884,9 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_tires() )
                 {
                     String string = String.valueOf( tireWearFR );
-                    tireWearFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    tireWearFRString.draw( offsetX, offsetY, string, texture );
                     string = String.valueOf( grip );
-                    tireGripFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    tireGripFRString.draw( offsetX, offsetY, string, texture );
                     
                     left = tireWearFRString.getAbsX() - tireWidth - 3;
                     top = tireWearFRString.getAbsY() + 2;
@@ -912,9 +910,9 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_tires() )
                 {
                     String string = String.valueOf( tireWearRL );
-                    tireWearRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    tireWearRLString.draw( offsetX, offsetY, string, texture );
                     string = String.valueOf( grip );
-                    tireGripRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    tireGripRLString.draw( offsetX, offsetY, string, texture );
                     
                     left = tireWearRLString.getAbsX() + 3;
                     top = tireWearRLString.getAbsY() + 2;
@@ -938,9 +936,9 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_tires() )
                 {
                     String string = String.valueOf( tireWearRR );
-                    tireWearRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    tireWearRRString.draw( offsetX, offsetY, string, texture );
                     string = String.valueOf( grip );
-                    tireGripRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    tireGripRRString.draw( offsetX, offsetY, string, texture );
                     
                     left = tireWearRRString.getAbsX() - tireWidth - 3;
                     top = tireWearRRString.getAbsY() + 2;
@@ -967,10 +965,10 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_brakes() )
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearFL.getValue() * 100f, 1, true );
-                    brakeWearFLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    brakeWearFLString.draw( offsetX, offsetY, string, texture );
                     float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                     if ( variancePercent > 0.000001f )
-                        brakeWearVarianceFLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
+                        brakeWearVarianceFLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
                     
                     left = brakeWearFLString.getAbsX() + 3;
                     top = brakeWearFLString.getAbsY();
@@ -992,10 +990,10 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_brakes() )
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearFR.getValue() * 100f, 1, true );
-                    brakeWearFRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    brakeWearFRString.draw( offsetX, offsetY, string, texture );
                     float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                     if ( variancePercent > 0.000001f )
-                        brakeWearVarianceFRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
+                        brakeWearVarianceFRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
                     
                     left = brakeWearFRString.getAbsX() - brakeWidth - 3;
                     top = brakeWearFRString.getAbsY();
@@ -1017,10 +1015,10 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_brakes() )
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearRL.getValue() * 100f, 1, true );
-                    brakeWearRLString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    brakeWearRLString.draw( offsetX, offsetY, string, texture );
                     float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                     if ( variancePercent > 0.000001f )
-                        brakeWearVarianceRLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
+                        brakeWearVarianceRLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
                     
                     left = brakeWearRLString.getAbsX() + 3;
                     top = brakeWearRLString.getAbsY();
@@ -1042,10 +1040,10 @@ public class WearWidget extends Widget
                 if ( getDisplayWearPercent_brakes() )
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearRR.getValue() * 100f, 1, true );
-                    brakeWearRRString.draw( offsetX, offsetY, string, backgroundColor, texture );
+                    brakeWearRRString.draw( offsetX, offsetY, string, texture );
                     float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                     if ( variancePercent > 0.000001f )
-                        brakeWearVarianceRRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), backgroundColor, texture );
+                        brakeWearVarianceRRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
                     
                     left = brakeWearRRString.getAbsX() - brakeWidth - 3;
                     top = brakeWearRRString.getAbsY();

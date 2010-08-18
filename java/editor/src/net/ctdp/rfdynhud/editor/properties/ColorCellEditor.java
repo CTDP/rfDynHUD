@@ -51,7 +51,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
     private int column = -1;
     private ColorProperty prop = null;
     
-    private ColorChooser colorChooser = null;
+    private static ColorChooser colorChooser = null;
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )

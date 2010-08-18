@@ -56,6 +56,7 @@ public class IniWriter
     private int minEqualSignPosition = -1;
     private int minValuePosition = -1;
     private int minCommentPosition = -1;
+    private String nullValue = "N/A";
     
     private boolean isFirstLine = true;
     private boolean isInGroup = false;
@@ -196,6 +197,29 @@ public class IniWriter
     }
     
     /**
+     * Sets the String to be written for a null value.
+     * 
+     * @param nullValue
+     */
+    public void setNullValue( String nullValue )
+    {
+        if ( nullValue == null )
+            throw new IllegalArgumentException( "nullValue must not be null." );
+        
+        this.nullValue = nullValue;
+    }
+    
+    /**
+     * Gets the String to be written for a null value.
+     * 
+     * @return the String to be written for a null value.
+     */
+    public final String getNullValue()
+    {
+        return ( nullValue );
+    }
+    
+    /**
      * Writes a new Group to the file.
      * 
      * @param group
@@ -273,7 +297,7 @@ public class IniWriter
         
         if ( value == null )
         {
-            value = "N/A";
+            value = getNullValue();
         }
         else if ( ( value instanceof Number ) || ( value instanceof Boolean ) )
         {

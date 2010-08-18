@@ -216,6 +216,8 @@ public class ColorChooser extends JPanel
         }
         
         setSelectedColor( color );
+        
+        valueChanged = false;
     }
     
     /**
@@ -793,8 +795,12 @@ public class ColorChooser extends JPanel
     {
         if ( owner instanceof java.awt.Dialog )
             dialog = new JDialog( (java.awt.Dialog)owner, title );
-        else
+        else if ( owner instanceof java.awt.Frame )
             dialog = new JDialog( (java.awt.Frame)owner, title );
+        else
+            dialog = new JDialog( owner, title );
+        
+        dialog.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
         
         return ( dialog );
     }
@@ -831,7 +837,8 @@ public class ColorChooser extends JPanel
                 @Override
                 public void windowClosing( WindowEvent e )
                 {
-                    //setSelectedColor( null );
+                    setSelectedColor( null );
+                    dialog.setVisible( false );
                 }
             } );
             
@@ -868,7 +875,7 @@ public class ColorChooser extends JPanel
             } );
             
             dialog.setModal( true );
-            dialog.setLocationRelativeTo( (Window)owner );
+            dialog.setLocationRelativeTo( owner );
         }
         
         dialog.setVisible( true );

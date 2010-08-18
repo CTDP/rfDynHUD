@@ -418,9 +418,12 @@ public class EditorMenuBar extends JMenuBar
             
             try
             {
-                Widget widget = RFDynHUDEditor.createWidgetInstance( clazz, null );
-                instances.put( clazz, widget );
-                widgetPackages.add( widget.getWidgetPackage() );
+                Widget widget = RFDynHUDEditor.createWidgetInstance( clazz, null, false );
+                if ( widget != null )
+                {
+                    instances.put( clazz, widget );
+                    widgetPackages.add( widget.getWidgetPackage() );
+                }
             }
             catch ( Throwable t )
             {

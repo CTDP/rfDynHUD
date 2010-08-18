@@ -146,7 +146,7 @@ public class Lesson4cWidget_SubTextures extends Widget
         
         if ( needsCompleteRedraw || ( clock1 && lapNumber.hasChanged() ) )
         {
-            lapString.draw( 0, 0, lapNumber.getValueAsString(), cache,  subTextures[0].getTexture() );
+            lapString.draw( 0, 0, lapNumber.getValueAsString(), cache, subTextures[0].getTexture() );
         }
     }
     

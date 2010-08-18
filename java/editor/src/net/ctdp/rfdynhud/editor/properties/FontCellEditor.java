@@ -32,7 +32,6 @@ import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 
 import org.jagatoo.gui.awt_swing.util.FontChooser;
-import org.jagatoo.gui.awt_swing.util.FontChooser.FontChooserDialog;
 
 /**
  * 
@@ -50,6 +49,8 @@ public class FontCellEditor extends KeyValueCellRenderer<JPanel> implements Tabl
     private int row = -1;
     private int column = -1;
     private FontProperty prop = null;
+    
+    private static FontChooser fontChooser = null;
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
@@ -142,32 +143,20 @@ public class FontCellEditor extends KeyValueCellRenderer<JPanel> implements Tabl
             {
                 if ( prop != null )
                 {
-                    //model.setSelectedItem( prop.getValue() );
-                    //JFrame frame = (JFrame)button.getRootPane().getParent();
                     JFrame frame = (JFrame)table.getRootPane().getParent();
-                    FontChooserDialog d = FontChooser.getAsDialog( frame, (String)prop.getValue(), prop.getWidget().getConfiguration() );
-                    d.setLocationRelativeTo( frame );
-                    d.setVisible( true );
-                    
-                    String selFont = d.getSelectedFont();
-                    if ( selFont != null )
+                    if ( fontChooser == null )
                     {
-                        String selFontName = d.getSelectedFontName();
+                        fontChooser = new FontChooser( (String)prop.getValue(), prop.getWidget().getConfiguration() );
+                    }
+                    
+                    String result = fontChooser.showDialog( frame, (String)prop.getValue(), prop.getWidget().getConfiguration() );
+                    
+                    if ( result != null )
+                    {
+                        prop.setValue( result );
                         
-                        if ( selFontName != null )
-                            label.setText( selFontName );
-                        else
-                            label.setText( selFont );
-                    }
-                    else
-                    {
                         label.setText( (String)prop.getValue() );
-                    }
-                    
-                    if ( d.getValueChanged() )
-                    {
                         table.setValueAt( getCellEditorValue(), row, column );
-                        prop.setValue( getCellEditorValue() );
                         ( (EditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
                     }
                     

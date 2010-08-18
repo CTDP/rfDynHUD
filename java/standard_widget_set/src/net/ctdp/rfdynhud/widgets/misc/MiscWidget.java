@@ -320,8 +320,6 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
     @Override
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final java.awt.Color backgroundColor = getBackgroundColor();
-        
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
@@ -352,13 +350,13 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 if ( scoringInfo.getSessionType().isRace() )
                 {
                     if ( leaderValid )
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_leader_prefix + ":", leaderName }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_leader_prefix + ":", leaderName }, scoringAlignment, padding, scoringColWidths, texture );
                     else
-                        scoringString1.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_leader_prefix + ":", Loc.scoring_leader_na }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                        scoringString1.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_leader_prefix + ":", Loc.scoring_leader_na }, scoringAlignment, padding, scoringColWidths, texture );
                 }
                 else
                 {
-                    scoringString1.draw( offsetX, offsetY, "", backgroundColor, texture );
+                    scoringString1.draw( offsetX, offsetY, "", texture );
                 }
             }
             
@@ -371,9 +369,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 }
                 
                 if ( place.isValid() )
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", place.getValueAsString() + "/" + ( getConfiguration().getUseClassScoring() ? vsi.getNumVehiclesInSameClass() : scoringInfo.getNumVehicles() ) }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", place.getValueAsString() + "/" + ( getConfiguration().getUseClassScoring() ? vsi.getNumVehiclesInSameClass() : scoringInfo.getNumVehicles() ) }, scoringAlignment, padding, scoringColWidths, texture );
                 else
-                    scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString2.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, scoringColWidths, texture );
             }
             
             if ( needsCompleteRedraw || fastestLap.hasValidityChanged() || fastestLap.hasChanged() )
@@ -385,9 +383,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 }
                 
                 if ( fastestLap.isValid() )
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsLaptimeString( fastestLap.getValue() ) + " (" + fastestLapper + ")" }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsLaptimeString( fastestLap.getValue() ) + " (" + fastestLapper + ")" }, scoringAlignment, padding, scoringColWidths, texture );
                 else
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, scoringColWidths, backgroundColor, texture );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, scoringColWidths, texture );
             }
         }
         
@@ -504,7 +502,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                     colWidthsUpdated = true;
                 }
                 
-                lapString.drawColumns( offsetX, offsetY, lapStringValue, timingAlignment, padding, timingColWidths, backgroundColor, texture );
+                lapString.drawColumns( offsetX, offsetY, lapStringValue, timingAlignment, padding, timingColWidths, texture );
             }
             
             if ( needsStintRedraw )
@@ -516,7 +514,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                     colWidthsUpdated = true;
                 }
                 
-                stintString.drawColumns( offsetX, offsetY, stintStringValue, timingAlignment, padding, timingColWidths, backgroundColor, texture );
+                stintString.drawColumns( offsetX, offsetY, stintStringValue, timingAlignment, padding, timingColWidths, texture );
             }
             
             if ( needsTimeRedraw )
@@ -528,7 +526,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                     colWidthsUpdated = true;
                 }
                 
-                sessionTimeString.drawColumns( offsetX, offsetY, sessionTimeStringValue, timingAlignment, padding, timingColWidths, backgroundColor, texture );
+                sessionTimeString.drawColumns( offsetX, offsetY, sessionTimeStringValue, timingAlignment, padding, timingColWidths, texture );
             }
         }
         
@@ -578,19 +576,19 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 
                 updateAbs = false;
                 oldAbsTopspeed = topspeed;
-                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed1_prefix + ":", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed1_prefix + ":", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( relTopspeed > oldRelTopspeed ) ) )
             {
                 oldRelTopspeed = relTopspeed;
-                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed2_prefix + ":", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                relTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed2_prefix + ":", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( velocity != oldVelocity ) ) )
             {
                 oldVelocity = velocity;
-                velocityString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_velocity_prefix + ":", String.valueOf( velocity ), speedUnits }, velocityAlignment, padding, velocityColWidths, backgroundColor, texture );
+                velocityString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_velocity_prefix + ":", String.valueOf( velocity ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );
             }
         }
     }

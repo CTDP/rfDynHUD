@@ -39,7 +39,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1247,11 +1246,33 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         copyPropertiesFromTemplate( pcTemplate.getList(), pcTarget.getList() );
     }
     
-    public static Widget createWidgetInstance( Class<Widget> widgetClass, WidgetsConfiguration widgetsConfig ) throws InvocationTargetException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, NoSuchMethodException
+    private static final Throwable getRootCause( Throwable t )
+    {
+        if ( t.getCause() == null )
+            return ( t );
+        
+        return ( getRootCause( t.getCause() ) );
+    }
+    
+    public static Widget createWidgetInstance( Class<Widget> widgetClass, WidgetsConfiguration widgetsConfig, boolean showMessage )// throws IllegalArgumentException, SecurityException
     {
         String name = ( widgetsConfig != null ) ? widgetsConfig.findFreeName( widgetClass.getSimpleName() ) : "";
         
-        return ( (Widget)widgetClass.getConstructor( String.class ).newInstance( name ) );
+        try
+        {
+            return ( (Widget)widgetClass.getConstructor( String.class ).newInstance( name ) );
+        }
+        catch ( Throwable t )
+        {
+            if ( showMessage )
+                JOptionPane.showMessageDialog( null, "Cannot create Widget instance of type " + widgetClass.getName() + ". See log for more info." );
+            else
+                Logger.log( "Cannot create Widget instance of type " + widgetClass.getName() );
+            
+            Logger.log( getRootCause( t ) );
+            
+            return ( null );
+        }
     }
     
     public Widget addNewWidget( Class<Widget> widgetClazz )
@@ -1263,24 +1284,27 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
             
             //widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
-            widget = createWidgetInstance( widgetClazz, widgetsConfig );
-            copyPropertiesFromTemplate( widget );
-            __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
-            if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
-                widget.setAllPosAndSizeToPercents();
-            else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
-                widget.setAllPosAndSizeToPixels();
-            
-            int vpw = Math.min( editorScrollPane.getViewport().getExtentSize().width, gameResolution.getViewportWidth() );
-            int vph = Math.min( editorScrollPane.getViewport().getExtentSize().height, gameResolution.getViewportHeight() );
-            int x = editorScrollPane.getHorizontalScrollBar().getValue() + ( vpw - widget.getSize().getEffectiveWidth() ) / 2;
-            int y = editorScrollPane.getVerticalScrollBar().getValue() + ( vph - widget.getSize().getEffectiveHeight() ) / 2;
-            
-            widget.getPosition().setEffectivePosition( x, y );
-            onWidgetSelected( widget, false );
-            getEditorPanel().repaint();
-            
-            setDirtyFlag();
+            widget = createWidgetInstance( widgetClazz, widgetsConfig, false );
+            if ( widget != null )
+            {
+                copyPropertiesFromTemplate( widget );
+                __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
+                if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
+                    widget.setAllPosAndSizeToPercents();
+                else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
+                    widget.setAllPosAndSizeToPixels();
+                
+                int vpw = Math.min( editorScrollPane.getViewport().getExtentSize().width, gameResolution.getViewportWidth() );
+                int vph = Math.min( editorScrollPane.getViewport().getExtentSize().height, gameResolution.getViewportHeight() );
+                int x = editorScrollPane.getHorizontalScrollBar().getValue() + ( vpw - widget.getSize().getEffectiveWidth() ) / 2;
+                int y = editorScrollPane.getVerticalScrollBar().getValue() + ( vph - widget.getSize().getEffectiveHeight() ) / 2;
+                
+                widget.getPosition().setEffectivePosition( x, y );
+                onWidgetSelected( widget, false );
+                getEditorPanel().repaint();
+                
+                setDirtyFlag();
+            }
         }
         catch ( Throwable t )
         {

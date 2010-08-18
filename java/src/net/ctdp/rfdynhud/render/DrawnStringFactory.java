@@ -20,9 +20,12 @@ package net.ctdp.rfdynhud.render;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 public class DrawnStringFactory
 {
+    private final Widget widget;
+    
     private final HashMap<String, DrawnString> map = new HashMap<String, DrawnString>();
     
     void onWidgetCleared()
@@ -51,7 +54,7 @@ public class DrawnStringFactory
      */
     public final DrawnString newDrawnString( String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
-        DrawnString ds = new DrawnString( name, xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
+        DrawnString ds = new DrawnString( widget, name, xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
         
         if ( name != null )
             map.put( name, ds );
@@ -210,7 +213,7 @@ public class DrawnStringFactory
             return ( null );
         }
         
-        DrawnString ds = new DrawnString( name, xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
+        DrawnString ds = new DrawnString( widget, name, xRelativeTo, yRelativeTo, x, y, alignment, y_at_baseline, font, fontAntiAliased, fontColor, prefix, postfix );
         
         if ( name != null )
             map.put( name, ds );
@@ -346,5 +349,10 @@ public class DrawnStringFactory
     public final DrawnString newDrawnStringIf( boolean condition, String name, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
         return ( newDrawnStringIf( condition, name, x, y, Alignment.LEFT, true, font, fontAntiAliased, fontColor ) );
+    }
+    
+    public DrawnStringFactory( Widget widget )
+    {
+        this.widget = widget;
     }
 }

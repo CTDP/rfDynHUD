@@ -990,7 +990,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
                         break;
                 }
                 
-                positionStrings[i].drawColumns( offsetX, offsetY, currPosStrings[i], colAligns, colPadding, colWidths, getBackgroundColor(), fc, texture );
+                positionStrings[i].drawColumns( offsetX, offsetY, currPosStrings[i], colAligns, colPadding, colWidths, fc, texture );
                 
                 oldPosStrings[i] = currPosStrings[i];
             }

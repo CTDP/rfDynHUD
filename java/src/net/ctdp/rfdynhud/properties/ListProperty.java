@@ -61,6 +61,7 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
         if ( widget != null )
             widget.forceAndSetDirty();
         
+        onValueChanged();
         onValueChanged( oldValue, value );
         
         if ( widget != null )

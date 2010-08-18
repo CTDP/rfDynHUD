@@ -142,7 +142,7 @@ public class Lesson4bWidget_SubTextures extends Widget
             /*
              * We draw the lap number on the sub texture using our cached texture as clear image.
              */
-            lapString.draw( 0, 0, lapNumber.getValueAsString(), cache,  subTextures[0].getTexture() );
+            lapString.draw( 0, 0, lapNumber.getValueAsString(), cache, subTextures[0].getTexture() );
         }
     }
     

@@ -768,34 +768,6 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
-    {
-        if ( hasBackgroundColor() && ( texture != null ) )
-        {
-            texture.clear( getBackgroundColor(), offsetX, offsetY, width, height, true, null );
-            
-            /*
-            Widget part;
-            
-            for ( int i = 0; i < parts.length; i++ )
-            {
-                part = parts[i];
-                
-                int offsetX2 = offsetX + part.getPosition().getEffectiveX();
-                int offsetY2 = offsetY + part.getPosition().getEffectiveY();
-                int width2 = part.getEffectiveWidth();
-                int height2 = part.getEffectiveHeight();
-                
-                part.clearBackground( gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );
-            }
-            */
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Widget part;
@@ -885,7 +857,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
             
             parts[i].getBorderProperty().setBorder( null );
             parts[i].setPadding( 0, 0, 0, 0 );
-            parts[i].getBackgroundColorProperty().setColor( (String)null );
+            //parts[i].getBackgroundColorProperty().setColor( (String)null );
         }
     }
     

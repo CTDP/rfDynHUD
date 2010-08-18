@@ -811,11 +811,15 @@ public class MapWidget extends Widget
         return ( false );
     }
     
+    @Override
+    protected boolean canHaveBackground()
+    {
+        return ( false );
+    }
+    
     public MapWidget( String name )
     {
         super( name, 16f, 24f );
-        
-        getBackgroundColorProperty().setColor( (String)null );
         
         getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
         getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );

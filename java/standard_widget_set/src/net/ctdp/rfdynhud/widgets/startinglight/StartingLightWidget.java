@@ -242,7 +242,7 @@ public class StartingLightWidget extends Widget
                 else
                     img = offImage;
                 
-                texture.clear( getBackgroundColor(), offsetX + offX2, offsetY, img.getWidth(), height, true, null );
+                clearBackgroundRegion( texture, offsetX, offsetY, offX2, 0, img.getWidth(), height, true, null );
                 
                 for ( int j = 0; j < numRows.getIntValue(); j++ )
                     texture.drawImage( img, offsetX + offX2, offsetY + j * img.getHeight(), false, null );

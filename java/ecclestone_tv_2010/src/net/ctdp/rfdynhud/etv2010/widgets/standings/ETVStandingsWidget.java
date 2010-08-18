@@ -226,6 +226,8 @@ public class ETVStandingsWidget extends ETVWidgetBase
         int itemHeight = this.itemHeight.getEffectiveHeight();
         maxNumItems = ( height + ETVUtils.ITEM_GAP ) / ( itemHeight + ETVUtils.ITEM_GAP );
         
+        java.awt.Color backgroundColor = getBackground().getColor();
+        
         vehicleScoringInfos = new VehicleScoringInfo[ maxNumItems ];
         
         if ( ( itemClearImage == null ) || ( itemClearImage.getWidth() != width ) || ( itemClearImage.getHeight() != itemHeight * 2 ) )
@@ -233,7 +235,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             itemClearImage = TextureImage2D.createOfflineTexture( width, itemHeight * 2, true );
             
             ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
-            ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), getBackgroundColor(), itemClearImage, true );
+            ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), backgroundColor, itemClearImage, true );
         }
         else
         {
@@ -241,7 +243,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         }
         
         ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
-        ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), getBackgroundColor(), itemClearImage, true );
+        ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), backgroundColor, itemClearImage, true );
         
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setFont( getFont() );
@@ -287,7 +289,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         {
             for ( int i = 0; i < NUM_FLAG_TEXTURES; i++ )
             {
-                ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), getBackgroundColor(), flagTextures[i].getTexture(), true );
+                ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), backgroundColor, flagTextures[i].getTexture(), true );
                 
                 laptimes[i] = new FloatValue();
                 laptimeStrings[i] = dsf.newDrawnString( "laptimeStrings" + i, flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
@@ -396,12 +398,12 @@ public class ETVStandingsWidget extends ETVWidgetBase
             positions[i].update( place );
             
             if ( ( needsCompleteRedraw || visibilityChanged || positions[i].hasChanged() ) && visible )
-                captionStrings[i].draw( offsetX, offsetY + offsetY2, positions[i].getValueAsString(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
+                captionStrings[i].draw( offsetX, offsetY + offsetY2, positions[i].getValueAsString(), getFontColor(), texture, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY );
             
             driverNames[i].update( vsi.getDriverNameTLC() );
             
             if ( ( needsCompleteRedraw || visibilityChanged || driverNames[i].hasChanged() ) && visible )
-                nameStrings[i].draw( offsetX, offsetY + offsetY2, driverNames[i].getValue(), itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
+                nameStrings[i].draw( offsetX, offsetY + offsetY2, driverNames[i].getValue(), getFontColor(), texture, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY );
             
             if ( place > 1 )
             {
@@ -431,7 +433,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                         s = TimingUtil.getTimeAsGapString( gaps[i].getValue() );
                     }
                     
-                    gapStrings[i].draw( offsetX, offsetY + offsetY2, s, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY, getFontColor(), texture );
+                    gapStrings[i].draw( offsetX, offsetY + offsetY2, s, getFontColor(), texture, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY );
                 }
             }
             
@@ -449,7 +451,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                         
                         if ( laptimes[tti].hasChanged() )
                         {
-                            laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), getBackgroundColor(), tt.getTexture() );
+                            laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), tt.getTexture(), getBackground().getColor() );
                         }
                         
                         if ( isOnLeftSide )
