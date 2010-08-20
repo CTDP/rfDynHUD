@@ -81,7 +81,7 @@ public class Lesson4aWidget_Images extends Widget
         /*
          * This loads the image as defined in the property and gets a scaled instance.
          */
-        texImage2 = image2.getImage().getScaledTextureImage( 32, 32, texImage2 );
+        texImage2 = image2.getImage().getScaledTextureImage( 32, 32, texImage2, editorPresets != null );
     }
     
     @Override
@@ -97,7 +97,7 @@ public class Lesson4aWidget_Images extends Widget
             /*
              * This loads the image as defined in the property and gets a scaled instance using (inner) widget size.
              */
-            texImage1 = image1.getImage().getScaledTextureImage( width / 2, height / 2, texImage1 );
+            texImage1 = image1.getImage().getScaledTextureImage( width / 2, height / 2, texImage1, editorPresets != null );
             
             /*
              * And finally we draw the image using our selected image (scaled texture).

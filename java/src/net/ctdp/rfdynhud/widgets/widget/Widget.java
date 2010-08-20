@@ -94,7 +94,7 @@ public abstract class Widget implements Documented
         return ( BackgroundProperty.COLOR_INDICATOR + ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
     }
     
-    final boolean isDrawBackgroundOverridden = ClassUtil.overridesMethod( Widget.class, this.getClass(), "drawBackground", LiveGameData.class, EditorPresets.class, TextureImage2D.class, int.class, int.class, int.class, int.class, boolean.class );
+    final boolean overridesDrawBackground = ClassUtil.overridesMethod( Widget.class, this.getClass(), "drawBackground", LiveGameData.class, EditorPresets.class, TextureImage2D.class, int.class, int.class, int.class, int.class, boolean.class );
     
     /**
      * This method is invoked when the background has changed.
@@ -103,7 +103,7 @@ public abstract class Widget implements Documented
      * @param deltaScaleY the y-scale factor in as a difference between the old background image and the new one or -1 of no background image was selected
      */
     protected void onBackgroundChanged( float deltaScaleX, float deltaScaleY ) {}
-    private final BackgroundProperty backgroundProperty = canHaveBackground() || isDrawBackgroundOverridden ? new BackgroundProperty( this, "background", getInitialBackground() )
+    private final BackgroundProperty backgroundProperty = canHaveBackground() || overridesDrawBackground ? new BackgroundProperty( this, "background", getInitialBackground() )
     {
         @Override
         protected void onValueChanged( BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
@@ -112,7 +112,7 @@ public abstract class Widget implements Documented
                 background.onPropertyValueChanged( Widget.this, oldBGType, newBGType, oldValue, newValue );
         }
     } : null;
-    private final WidgetBackground background = canHaveBackground() || isDrawBackgroundOverridden ? new WidgetBackground( this, backgroundProperty ) : null;
+    private final WidgetBackground background = canHaveBackground() || overridesDrawBackground ? new WidgetBackground( this, backgroundProperty ) : null;
     
     private final FontProperty font = new FontProperty( this, "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty fontColor = new ColorProperty( this, "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
@@ -515,10 +515,11 @@ public abstract class Widget implements Documented
      * Gets the minimum width for this {@link Widget} in pixels.
      * 
      * @param gameData
+     * @param editorPresets
      * 
      * @return the minimum width for this {@link Widget} in pixels.
      */
-    public int getMinWidth( LiveGameData gameData )
+    public int getMinWidth( LiveGameData gameData, EditorPresets editorPresets )
     {
         return ( 25 );
     }
@@ -527,10 +528,11 @@ public abstract class Widget implements Documented
      * Gets the minimum height for this {@link Widget} in pixels.
      * 
      * @param gameData
+     * @param editorPresets
      * 
      * @return the minimum height for this {@link Widget} in pixels.
      */
-    public int getMinHeight( LiveGameData gameData )
+    public int getMinHeight( LiveGameData gameData, EditorPresets editorPresets )
     {
         return ( 25 );
     }
@@ -541,11 +543,12 @@ public abstract class Widget implements Documented
      * Override this method, if it will change its size during game play.
      * 
      * @param gameData
+     * @param editorPresets
      * @param texture
      * 
      * @return the maximum width covered by this {@link Widget}.
      */
-    public int getMaxWidth( LiveGameData gameData, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
     {
         return ( size.getEffectiveWidth() );
     }
@@ -556,11 +559,12 @@ public abstract class Widget implements Documented
      * Override this method, if it will change its size during game play.
      * 
      * @param gameData
+     * @param editorPresets
      * @param texture
      * 
      * @return the maximum height covered by this {@link Widget}.
      */
-    public int getMaxHeight( LiveGameData gameData, TextureImage2D texture )
+    public int getMaxHeight( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
     {
         return ( size.getEffectiveHeight() );
     }
@@ -1209,7 +1213,7 @@ public abstract class Widget implements Documented
     {
         if ( hasBorder() && ( texture != null ) )
         {
-            border.drawBorder( ( background == null ) ? null : background.getColor(), texture, offsetX, offsetY, width, height );
+            border.drawBorder( ( ( background == null ) || !background.getType().isColor() ) ? null : background.getColor(), texture, offsetX, offsetY, width, height );
         }
     }
     
@@ -1277,10 +1281,12 @@ public abstract class Widget implements Documented
             
             if ( mergedBG == null )
             {
-                if ( background.getColor() == null )
-                    texture.clear( offsetX, offsetY, width, height, true, null );
-                else
+                if ( background.getColor() != null )
                     texture.clear( background.getColor(), offsetX, offsetY, width, height, true, null );
+                else if ( background.getTexture() != null )
+                    texture.clear( background.getTexture(), offsetX, offsetY, width, height, true, null );
+                else
+                    texture.clear( offsetX, offsetY, width, height, true, null );
             }
             else
             {

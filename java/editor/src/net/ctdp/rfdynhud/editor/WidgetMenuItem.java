@@ -130,7 +130,7 @@ public class WidgetMenuItem extends JMenuItem
             widget.getPosition().setEffectivePosition( RelativePositioning.TOP_LEFT, 0, ( ICON_HEIGHT - widget.getEffectiveHeight() ) / 2 );
         }
         
-        this.texture = TextureImage2D.createOfflineTexture( ICON_WIDTH, ICON_HEIGHT, true );
+        this.texture = TextureImage2D.createDrawTexture( ICON_WIDTH, ICON_HEIGHT, true );
         
         this.setIcon( new ImageIcon( texture.getBufferedImage() ) );
     }

@@ -153,7 +153,7 @@ public class StartingLightWidget extends Widget
         setUserVisible2( visible );
     }
     
-    private void loadImages( int innerHeight )
+    private void loadImages( boolean isEditorMode, int innerHeight )
     {
         final int imageHeight = innerHeight / numRows.getIntValue();
         
@@ -166,8 +166,8 @@ public class StartingLightWidget extends Widget
                 float scale = (float)imageHeight / (float)it.getBaseHeight();
                 int imageWidth = (int)( it.getBaseWidth() * scale );
                 
-                offImage = it.getScaledTextureImage( imageWidth, imageHeight );
-                onImage = onImageProp.getImage().getScaledTextureImage( imageWidth, imageHeight );
+                offImage = it.getScaledTextureImage( imageWidth, imageHeight, offImage, isEditorMode );
+                onImage = onImageProp.getImage().getScaledTextureImage( imageWidth, imageHeight, onImage, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -182,13 +182,13 @@ public class StartingLightWidget extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        loadImages( height );
+        loadImages( editorPresets != null, height );
     }
     
     @Override
-    public int getMaxWidth( LiveGameData gameData, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
     {
-        loadImages( getInnerSize().getEffectiveHeight() );
+        loadImages( editorPresets != null, getInnerSize().getEffectiveHeight() );
         
         return ( offImage.getWidth() * MAX_LIGHTS + getEffectiveWidth() - getInnerSize().getEffectiveWidth() );
     }

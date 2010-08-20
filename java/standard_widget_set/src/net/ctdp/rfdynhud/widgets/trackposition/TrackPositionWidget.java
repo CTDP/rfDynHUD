@@ -206,7 +206,7 @@ public class TrackPositionWidget extends Widget
         itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         if ( itemTextures[0] == null )
-            itemTextures[0] = new TransformableTexture( 1, 1, isEditorMode );
+            itemTextures[0] = new TransformableTexture( 1, 1, isEditorMode, false );
         
         java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( itemTextures[0].getTexture(), itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
         int w = size.width;
@@ -217,7 +217,7 @@ public class TrackPositionWidget extends Widget
         
         for ( int i = 0; i < maxDisplayedVehicles; i++ )
         {
-            itemTextures[i] = new TransformableTexture( w, h, isEditorMode );
+            itemTextures[i] = TransformableTexture.getOrCreate( w, h, isEditorMode, itemTextures[i], isEditorMode );
             itemTextures[i].setVisible( false );
         }
     }

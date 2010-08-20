@@ -106,7 +106,7 @@ public class TextureImage2D
      * 
      * @return the physical width of the texture.
      */
-    public final int getWidth()
+    public final int getMaxWidth()
     {
         return ( width );
     }
@@ -116,7 +116,7 @@ public class TextureImage2D
      * 
      * @return the physical height of the texture.
      */
-    public final int getHeight()
+    public final int getMaxHeight()
     {
         return ( height );
     }
@@ -128,7 +128,7 @@ public class TextureImage2D
      * 
      * @return the used part of the texture width.
      */
-    public final int getUsedWidth()
+    public final int getWidth()
     {
         return ( usedWidth );
     }
@@ -140,9 +140,27 @@ public class TextureImage2D
      * 
      * @return the used part of the texture height.
      */
-    public final int getUsedHeight()
+    public final int getHeight()
     {
         return ( usedHeight );
+    }
+    
+    /**
+     * Resizes this texture to a size in range [1,getMaxWidth()],[1,getMaxHeight()].
+     * 
+     * @param width
+     * @param height
+     */
+    public void resize( int width, int height )
+    {
+        if ( ( width < 1 ) || ( width > getMaxWidth() ) )
+            throw new IllegalArgumentException( "width out of range (" + width + " / " + getMaxWidth() + ")" );
+        
+        if ( ( height < 1 ) || ( height > getMaxHeight() ) )
+            throw new IllegalArgumentException( "height out of range (" + height + " / " + getMaxHeight() + ")" );
+        
+        this.usedWidth = width;
+        this.usedHeight = height;
     }
     
     /**
@@ -595,7 +613,7 @@ public class TextureImage2D
         
         if ( validate )
         {
-            if ( ( x < 0 ) || ( y < 0 ) || ( x >= this.getWidth() ) || ( y >= this.getHeight() ) || ( width > this.getWidth() ) || ( height > this.getHeight() ) || ( ( x + width ) > this.getWidth() ) || ( ( y + height ) > this.getHeight() ) )
+            if ( ( x < 0 ) || ( y < 0 ) || ( x >= this.getMaxWidth() ) || ( y >= this.getMaxHeight() ) || ( width > this.getMaxWidth() ) || ( height > this.getMaxHeight() ) || ( ( x + width ) > this.getMaxWidth() ) || ( ( y + height ) > this.getMaxHeight() ) )
             {
                 throw new IllegalArgumentException( "Rectangle outside of image (" + x + ", " + y + ", " + width + ", " + height + ")" );
             }
@@ -605,9 +623,9 @@ public class TextureImage2D
         {
             Rect2i rect = Rect2i.fromPool();
             if ( yUp )
-                rect.set( x, getUsedHeight() - height - y, width, height );
+                rect.set( x, getHeight() - height - y, width, height );
             else
-                //rect.set( x, getHeight() - height - y, width, height );
+                //rect.set( x, getMaxHeight() - height - y, width, height );
                 rect.set( x, y, width, height );
             
             addDirtyRect( rect );
@@ -671,12 +689,12 @@ public class TextureImage2D
             
             if ( dataBuffer == null )
             {
-                DataBufferByte dbb = new DataBufferByte( data, getWidth() * getHeight() * getPixelBytes() );
-                bufferedImage = new BufferedImage( new ComponentColorModel( ColorSpace.getInstance( ColorSpace.CS_sRGB ), new int[] { 8, 8, 8, 8 }, ( getPixelBytes() == 4 ), false, Transparency.TRANSLUCENT, 0 ), Raster.createInterleavedRaster( dbb, width, height, getWidth() * getPixelBytes(), getPixelBytes(), pixelOffsets, new java.awt.Point( 0, 0 ) ), false, null );
+                DataBufferByte dbb = new DataBufferByte( data, getMaxWidth() * getMaxHeight() * getPixelBytes() );
+                bufferedImage = new BufferedImage( new ComponentColorModel( ColorSpace.getInstance( ColorSpace.CS_sRGB ), new int[] { 8, 8, 8, 8 }, ( getPixelBytes() == 4 ), false, Transparency.TRANSLUCENT, 0 ), Raster.createInterleavedRaster( dbb, getMaxWidth(), getMaxHeight(), getMaxWidth() * getPixelBytes(), getPixelBytes(), pixelOffsets, new java.awt.Point( 0, 0 ) ), false, null );
             }
             else
             {
-                bufferedImage = DirectBufferedImage.makeDirectImageRGBA( getWidth(), getHeight(), pixelOffsets, dataBuffer );
+                bufferedImage = DirectBufferedImage.makeDirectImageRGBA( getMaxWidth(), getMaxHeight(), pixelOffsets, dataBuffer );
             }
         }
         
@@ -693,7 +711,7 @@ public class TextureImage2D
     private void clampClipRect()
     {
         clipRect.set( userClipRect );
-        clipRect.clamp( 0, 0, getWidth(), getHeight() );
+        clipRect.clamp( 0, 0, getMaxWidth(), getMaxHeight() );
     }
     
     /**
@@ -743,7 +761,7 @@ public class TextureImage2D
     /*
     protected final void setImageData( byte[] data, int dataLength, boolean useBuffer )
     {
-        clampClipRect( getWidth(), getHeight() );
+        clampClipRect( getMaxWidth(), getMaxHeight() );
         
         if ( useBuffer )
         {
@@ -819,11 +837,11 @@ public class TextureImage2D
     
     protected void setImageData( BufferedImage image, boolean useBuffer )
     {
-        int orgWidth = image.getWidth();
-        int orgHeight = image.getWidth();
+        int orgWidth = image.getMaxWidth();
+        int orgHeight = image.getMaxWidth();
         
-        int width = ImageUtility.roundUpPower2( orgWidth );
-        int height = ImageUtility.roundUpPower2( orgHeight );
+        int width = roundUpPower2( orgWidth );
+        int height = roundUpPower2( orgHeight );
         
         this.setSize( width, height );
         this.setOriginalSize( orgWidth, orgHeight );
@@ -941,9 +959,9 @@ public class TextureImage2D
     private final int getDataOffset( int x, int y )
     {
         if ( yUp )
-            return ( ( ( getHeight() - y - 1 ) * getWidth() * getPixelBytes() ) + ( x * getPixelBytes() ) );
+            return ( ( ( getMaxHeight() - y - 1 ) * getMaxWidth() * getPixelBytes() ) + ( x * getPixelBytes() ) );
         
-        return ( ( y * getWidth() * getPixelBytes() ) + ( x * getPixelBytes() ) );
+        return ( ( y * getMaxWidth() * getPixelBytes() ) + ( x * getPixelBytes() ) );
     }
     
     private static final int getDataOffset( int x, int y, int imgWidth, int pixelBytes )
@@ -976,7 +994,7 @@ public class TextureImage2D
      */
     public final void setPixel( int x, int y, byte[] data, boolean markDirty, Rect2i dirtyRect )
     {
-        if ( ( x < 0 ) || ( x >= getWidth() ) || ( y < 0 ) || ( y >= getHeight() ) )
+        if ( ( x < 0 ) || ( x >= getMaxWidth() ) || ( y < 0 ) || ( y >= getMaxHeight() ) )
             return;
         
         setPixel( getDataOffset( x, y ), data );
@@ -1224,7 +1242,7 @@ public class TextureImage2D
     private final byte[] getPixelLineBuffer1( int size )
     {
         if ( ( pixelRow1 == null ) || ( pixelRow1.length < size ) )
-            pixelRow1 = new byte[ Math.max( size, getWidth() * getPixelBytes() ) ];
+            pixelRow1 = new byte[ Math.max( size, getMaxWidth() * getPixelBytes() ) ];
         
         return ( pixelRow1 );
     }
@@ -1232,7 +1250,7 @@ public class TextureImage2D
     private final byte[] getPixelLineBuffer2( int size )
     {
         if ( ( pixelRow2 == null ) || ( pixelRow2.length < size ) )
-            pixelRow2 = new byte[ Math.max( size, getWidth() * getPixelBytes() ) ];
+            pixelRow2 = new byte[ Math.max( size, getMaxWidth() * getPixelBytes() ) ];
         
         return ( pixelRow2 );
     }
@@ -1287,7 +1305,7 @@ public class TextureImage2D
         byte[] srcBuffer = getPixelLineBuffer1( srcWidth * srcPixelBytes );
         byte[] trgBuffer = getPixelLineBuffer2( srcWidth * trgPixelBytes );
         
-        final int y_ = yUp ? ( getHeight() - getUsedHeight() ) : 0;
+        final int y_ = yUp ? ( getMaxHeight() - getHeight() ) : 0;
         
         final int x0 = Math.max( clipRect.getLeft(), trgX );
         final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth(), trgX + trgWidth );
@@ -1402,7 +1420,7 @@ public class TextureImage2D
         byte[] srcBuffer = getPixelLineBuffer1( srcWidth * srcPixelSize );
         byte[] trgBuffer = getPixelLineBuffer2( srcWidth * trgPixelSize );
         
-        final int y_ = yUp ? ( getHeight() - getUsedHeight() ) : 0;
+        final int y_ = yUp ? ( getMaxHeight() - getHeight() ) : 0;
         
         final int x0 = Math.max( clipRect.getLeft(), trgX );
         final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth() - 1, trgX + trgWidth - 1 );
@@ -1518,7 +1536,7 @@ public class TextureImage2D
     public final void drawImage( TextureImage2D srcTI, int trgX, int trgY, boolean markDirty, Rect2i dirtyRect )
     {
         //drawImage( srcTI, 0, 0, srcTI.getWidth(), srcTI.getHeight(), trgX, trgY, markDirty, dirtyRect );
-        drawImage( srcTI, 0, 0, srcTI.getUsedWidth(), srcTI.getUsedHeight(), trgX, trgY, markDirty, dirtyRect );
+        drawImage( srcTI, 0, 0, srcTI.getWidth(), srcTI.getHeight(), trgX, trgY, markDirty, dirtyRect );
     }
     
     /**
@@ -1556,7 +1574,7 @@ public class TextureImage2D
         final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth(), offsetX + width );
         final int y0 = Math.max( clipRect.getTop(), offsetY );
         final int y1 = Math.min( clipRect.getTop() + clipRect.getHeight(), offsetY + height );
-        final int y_ = yUp ? ( getHeight() - getUsedHeight() ) : 0;
+        final int y_ = yUp ? ( getMaxHeight() - getHeight() ) : 0;
         
         for ( int j = y0; j < y1; j++ )
         {
@@ -1588,8 +1606,8 @@ public class TextureImage2D
      */
     public final void fillFullRectangle( java.awt.Color color, boolean markDirty, Rect2i dirtyRect )
     {
-        //fillRectangle( color, 0, 0, getWidth(), getHeight(), markDirty, dirtyRect );
-        fillRectangle( color, 0, 0, getUsedWidth(), getUsedHeight(), markDirty, dirtyRect );
+        //fillRectangle( color, 0, 0, getMaxWidth(), getMaxHeight(), markDirty, dirtyRect );
+        fillRectangle( color, 0, 0, getWidth(), getHeight(), markDirty, dirtyRect );
     }
     
     /**
@@ -1624,7 +1642,7 @@ public class TextureImage2D
         final int x0 = Math.max( clipRect.getLeft(), startX );
         final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth() - 1, startX + length - 1 );
         length = x1 - x0 + 1;
-        final int y_ = yUp ? ( getHeight() - getUsedHeight() ) : 0;
+        final int y_ = yUp ? ( getMaxHeight() - getHeight() ) : 0;
         
         //int srcByteOffset = ( x0 - startX ) * pixelSize;
         int srcByteOffset = ( x0 - startX ) * this.pixelBytes;
@@ -1676,7 +1694,7 @@ public class TextureImage2D
      */
     public final void clear( TextureImage2D srcTI, int trgX, int trgY, int trgWidth, int trgHeight, boolean markDirty, Rect2i dirtyRect )
     {
-        copyImageDataFrom( srcTI, 0, 0, srcTI.getUsedWidth(), srcTI.getUsedHeight(), trgX, trgY, trgWidth, trgHeight, true, markDirty, dirtyRect );
+        copyImageDataFrom( srcTI, 0, 0, srcTI.getWidth(), srcTI.getHeight(), trgX, trgY, trgWidth, trgHeight, true, markDirty, dirtyRect );
     }
     
     /**
@@ -1723,7 +1741,7 @@ public class TextureImage2D
      */
     public final void clear( TextureImage2D srcTI, int trgX, int trgY, boolean markDirty, Rect2i dirtyRect )
     {
-        clear( srcTI, 0, 0, srcTI.getUsedWidth(), srcTI.getUsedHeight(), trgX, trgY, markDirty, dirtyRect );
+        clear( srcTI, 0, 0, srcTI.getWidth(), srcTI.getHeight(), trgX, trgY, markDirty, dirtyRect );
     }
     
     /**
@@ -1735,7 +1753,7 @@ public class TextureImage2D
      */
     public final void clear( TextureImage2D srcTI, boolean markDirty, Rect2i dirtyRect )
     {
-        clear( srcTI, 0, 0, srcTI.getUsedWidth(), srcTI.getUsedHeight(), 0, 0, markDirty, dirtyRect );
+        clear( srcTI, 0, 0, srcTI.getWidth(), srcTI.getHeight(), 0, 0, markDirty, dirtyRect );
     }
     
     /**
@@ -1783,9 +1801,9 @@ public class TextureImage2D
         final int y1 = Math.min( clipRect.getTop() + clipRect.getHeight(), offsetY + height - 1 );
         final int h = y1 - y0 + 1;
         
-        final int y_ = yUp ? ( getHeight() - getUsedHeight() ) : 0;
+        final int y_ = yUp ? ( getMaxHeight() - getHeight() ) : 0;
         
-        final int stride = getWidth() * getPixelBytes();
+        final int stride = getMaxWidth() * getPixelBytes();
         int dataOffset = getDataOffset( x0, y_ + y0 );
         
         for ( int j = 0; j < lineWidth; j++ )
@@ -1874,9 +1892,9 @@ public class TextureImage2D
             return;
         }
         
-        final int y_ = yUp ? ( getHeight() - getUsedHeight() ) : 0;
+        final int y_ = yUp ? ( getMaxHeight() - getHeight() ) : 0;
         
-        final int stride = getWidth() * getPixelBytes();
+        final int stride = getMaxWidth() * getPixelBytes();
         int dataOffset = getDataOffset( x0, y_ + y0 );
         
         for ( int j = y0; j <= y1; j++ )
@@ -1905,7 +1923,7 @@ public class TextureImage2D
      */
     public final void clear( java.awt.Color color, boolean markDirty, Rect2i dirtyRect )
     {
-        clear( color, 0, 0, getUsedWidth(), getUsedHeight(), markDirty, dirtyRect );
+        clear( color, 0, 0, getWidth(), getHeight(), markDirty, dirtyRect );
     }
     
     /**
@@ -1931,7 +1949,7 @@ public class TextureImage2D
      */
     public final void clear( boolean markDirty, Rect2i dirtyRect )
     {
-        clear( ColorUtils.BLACK_TRANSPARENT, 0, 0, getUsedWidth(), getUsedHeight(), markDirty, dirtyRect );
+        clear( ColorUtils.BLACK_TRANSPARENT, 0, 0, getWidth(), getHeight(), markDirty, dirtyRect );
     }
     
     /**
@@ -1963,7 +1981,7 @@ public class TextureImage2D
         final int x0 = Math.max( clipRect.getLeft(), startX );
         final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth() - 1, startX + length - 1 );
         length = x1 - x0 + 1;
-        final int y_ = yUp ? ( getHeight() - getUsedHeight() ) : 0;
+        final int y_ = yUp ? ( getMaxHeight() - getHeight() ) : 0;
         
         //int srcByteOffset = ( x0 - startX ) * pixelBytes;
         int srcByteOffset = ( x0 - startX ) * this.pixelBytes;
@@ -2131,10 +2149,10 @@ public class TextureImage2D
         copyImageDataFrom( textImage, 0, 0, w, h, x, y + (int)bounds.getY(), w, h, false, markDirty, dirtyRect );
     }
     
-    private TextureImage2D( int width, int height, int usedWidth, int usedHeight, boolean alpha, ByteBuffer dataBuffer, byte[] data, boolean isOffline )
+    private TextureImage2D( int maxWidth, int maxHeight, int usedWidth, int usedHeight, boolean alpha, ByteBuffer dataBuffer, byte[] data, boolean isOffline )
     {
-        this.width = Math.max( 1, width );
-        this.height = Math.max( 1, height );
+        this.width = Math.max( 1, maxWidth );
+        this.height = Math.max( 1, maxHeight );
         
         this.usedWidth = Math.max( 1, usedWidth );
         this.usedHeight = Math.max( 1, usedHeight );
@@ -2174,23 +2192,53 @@ public class TextureImage2D
         this.isOffline = isOffline;
     }
     
-    public static TextureImage2D createDrawTexture( int width, int height, int usedWidth, int usedHeight, boolean alpha, ByteBuffer dataBuffer )
+    /*
+    public static TextureImage2D createDrawTexture( int maxWidth, int maxHeight, int usedWidth, int usedHeight, boolean alpha, ByteBuffer dataBuffer )
     {
-        return ( new TextureImage2D( width, height, usedWidth, usedHeight, alpha, dataBuffer, null, false ) );
+        return ( new TextureImage2D( maxWidth, maxHeight, usedWidth, usedHeight, alpha, dataBuffer, null, false ) );
+    }
+    */
+    
+    public static TextureImage2D createDrawTexture( int maxWidth, int maxHeight, int usedWidth, int usedHeight, boolean alpha )
+    {
+        return ( new TextureImage2D( maxWidth, maxHeight, usedWidth, usedHeight, alpha, null, null, false ) );
     }
     
-    public static TextureImage2D createDrawTexture( int width, int height, int usedWidth, int usedHeight, boolean alpha )
-    {
-        return ( new TextureImage2D( width, height, usedWidth, usedHeight, alpha, null, null, false ) );
-    }
-    
-    public static TextureImage2D createOfflineTexture( int width, int height, boolean alpha, byte[] data )
+    /*
+    public static TextureImage2D createDrawTexture( int width, int height, boolean alpha, byte[] data )
     {
         return ( new TextureImage2D( width, height, width, height, alpha, null, data, true ) );
     }
+    */
     
-    public static TextureImage2D createOfflineTexture( int width, int height, boolean alpha )
+    public static TextureImage2D createDrawTexture( int width, int height, boolean alpha )
     {
         return ( new TextureImage2D( width, height, width, height, alpha, null, null, true ) );
+    }
+    
+    public static TextureImage2D getOrCreateDrawTexture( int width, int height, boolean alpha, TextureImage2D possibleResult, boolean usePowerOfTwoSizes )
+    {
+        int width2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( width ) : width;
+        int height2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( height ) : height;
+        
+        if ( possibleResult != null )
+        {
+            if ( usePowerOfTwoSizes )
+            {
+                if ( ( width2 == possibleResult.getMaxWidth() ) && ( height2 == possibleResult.getMaxHeight() ) )
+                {
+                    if ( ( width != possibleResult.getWidth() ) || ( height != possibleResult.getHeight() ) )
+                        possibleResult.resize( width, height );
+                    
+                    return ( possibleResult );
+                }
+            }
+            else if ( ( width == possibleResult.getWidth() ) || ( height == possibleResult.getHeight() ) )
+            {
+                return ( possibleResult );
+            }
+        }
+        
+        return ( new TextureImage2D( width2, height2, width, height, alpha, null, null, true ) );
     }
 }

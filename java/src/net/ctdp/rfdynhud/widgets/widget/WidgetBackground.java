@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.widgets.widget;
 import java.awt.Color;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
@@ -36,6 +37,8 @@ import net.ctdp.rfdynhud.util.TextureManager;
  */
 public class WidgetBackground
 {
+    private static final boolean isEditorMode = __EDPrivilegedAccess.isEditorMode;
+    
     private final Widget widget;
     private final BackgroundProperty property;
     
@@ -95,11 +98,7 @@ public class WidgetBackground
             {
                 try
                 {
-                    if ( ( backgroundTexture == null ) || ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) )
-                        backgroundTexture = image.getScaledTextureImage( width, height );
-                    else
-                        image.drawScaled( 0, 0, width, height, backgroundTexture, true );
-                    
+                    backgroundTexture = image.getScaledTextureImage( width, height, backgroundTexture, isEditorMode );
                     bgTexDirty = false;
                 }
                 catch ( Throwable t )
@@ -115,32 +114,12 @@ public class WidgetBackground
     
     public final int getWidth()
     {
-        int width = widget.getEffectiveWidth();
-        
-        int borderLW = widget.getBorder().getInnerLeftWidth();
-        int borderRW = widget.getBorder().getInnerRightWidth();
-        
-        int paddingL = widget.getBorder().getPaddingLeft();
-        int paddingR = widget.getBorder().getPaddingRight();
-        
-        width = width - ( borderLW + borderRW ) + ( paddingL + paddingR );
-        
-        return ( width );
+        return ( widget.getEffectiveWidth() - widget.getBorder().getInnerLeftWidthWOPadding() - widget.getBorder().getInnerRightWidthWOPadding() );
     }
     
     public final int getHeight()
     {
-        int height = widget.getEffectiveHeight();
-        
-        int borderTH = widget.getBorder().getInnerTopHeight();
-        int borderBH = widget.getBorder().getInnerBottomHeight();
-        
-        int paddingT = widget.getBorder().getPaddingTop();
-        int paddingB = widget.getBorder().getPaddingBottom();
-        
-        height = height - ( borderTH + borderBH ) + ( paddingT + paddingB );
-        
-        return ( height );
+        return ( widget.getEffectiveHeight() - widget.getBorder().getInnerTopHeightWOPadding() - widget.getBorder().getInnerBottomHeightWOPadding() );
     }
     
     void onPropertyValueChanged( Widget widget, BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
@@ -172,10 +151,10 @@ public class WidgetBackground
         {
             if ( oldBGType.isColor() )
             {
-                ImageTemplate it = TextureManager.getImage( oldValue );
+                ImageTemplate it = TextureManager.getImage( newValue );
                 
-                deltaScaleX = (float)width / (float)it.getBaseWidth();
-                deltaScaleY = (float)height / (float)it.getBaseHeight();
+                deltaScaleX = (float)it.getBaseWidth() / (float)width;
+                deltaScaleY = (float)it.getBaseHeight() / (float)height;
             }
             else if ( oldBGType.isImage() )
             {
@@ -237,19 +216,22 @@ public class WidgetBackground
         this.mergedBgTexDirty = true;
     }
     
-    private static boolean needsTexture( AssembledWidget widget )
+    private static boolean needsTexture( AssembledWidget widget, Color backgroundColor )
     {
         for ( int i = 0; i < widget.parts.length; i++ )
         {
             Widget part = widget.parts[i];
             WidgetBackground bg = part.getBackground();
             
-            if ( ( ( bg != null ) && bg.getType().isImage() ) || widget.isDrawBackgroundOverridden )
+            if ( ( ( bg != null ) && bg.getType().isImage() ) || widget.overridesDrawBackground )
+                return ( true );
+            
+            if ( ( bg != null ) && bg.getType().isColor() && !bg.getColor().equals( backgroundColor ) )
                 return ( true );
             
             if ( part instanceof AssembledWidget )
             {
-                if ( needsTexture( (AssembledWidget)part ) )
+                if ( needsTexture( (AssembledWidget)part, backgroundColor ) )
                     return ( true );
             }
         }
@@ -262,10 +244,7 @@ public class WidgetBackground
         int width = getWidth();
         int height = getHeight();
         
-        if ( ( mergedBackgroundTexture == null ) || ( mergedBackgroundTexture.getUsedWidth() != width ) || ( mergedBackgroundTexture.getUsedHeight() != height ) )
-        {
-            mergedBackgroundTexture = TextureImage2D.createDrawTexture( width, height, width, height, true );
-        }
+        mergedBackgroundTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, mergedBackgroundTexture, editorPresets != null );
         
         widget.drawBackground_( gameData, editorPresets, mergedBackgroundTexture, 0, 0, width, height, true );
         mergedBgTexDirty = false;
@@ -280,9 +259,13 @@ public class WidgetBackground
     {
         if ( mergedBgTexDirty )
         {
-            if ( property.getBackgroundType().isColor() && !widget.isDrawBackgroundOverridden )
+            if ( property.getBackgroundType().isColor() )
             {
-                if ( ( widget instanceof AssembledWidget ) && needsTexture( (AssembledWidget)widget ) )
+                if ( widget.overridesDrawBackground )
+                {
+                    createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                }
+                else if ( ( widget instanceof AssembledWidget ) && needsTexture( (AssembledWidget)widget, getColor() ) )
                 {
                     createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
                 }
@@ -292,9 +275,21 @@ public class WidgetBackground
                     mergedBgTexDirty = false;
                 }
             }
-            else
+            else //if ( property.getBackgroundType().isImage() )
             {
-                createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                if ( widget.overridesDrawBackground )
+                {
+                    createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                }
+                else if ( ( widget instanceof AssembledWidget ) && needsTexture( (AssembledWidget)widget, null ) )
+                {
+                    createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                }
+                else
+                {
+                    mergedBackgroundTexture = null;
+                    mergedBgTexDirty = false;
+                }
             }
         }
     }

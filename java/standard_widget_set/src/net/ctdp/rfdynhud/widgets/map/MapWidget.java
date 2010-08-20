@@ -268,13 +268,13 @@ public class MapWidget extends Widget
         
         if ( !hasMasterCanvas( isEditorMode ) && ( ( subTextures[0] == null ) || ( subTextures[0].getWidth() != widgetWidth ) || ( subTextures[0].getHeight() != widgetHeight ) ) )
         {
-            subTextures[0] = new TransformableTexture( widgetWidth, widgetHeight, isEditorMode );
+            subTextures[0] = TransformableTexture.getOrCreate( widgetWidth, widgetHeight, isEditorMode, subTextures[0], isEditorMode );
         }
         
         itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         if ( subTextures[subTexOff] == null )
-            subTextures[subTexOff] = new TransformableTexture( 1, 1, isEditorMode );
+            subTextures[subTexOff] = TransformableTexture.getOrCreate( 1, 1, isEditorMode, subTextures[subTexOff], isEditorMode );
         
         java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( subTextures[0].getTexture(), itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
         int w = size.width;
@@ -285,7 +285,7 @@ public class MapWidget extends Widget
         
         for ( int i = 0; i < maxDisplayedVehicles; i++ )
         {
-            subTextures[subTexOff + i] = new TransformableTexture( w, h, isEditorMode );
+            subTextures[subTexOff + i] = TransformableTexture.getOrCreate( w, h, isEditorMode, subTextures[subTexOff + i], isEditorMode );
             subTextures[subTexOff + i].setVisible( false );
         }
     }
@@ -313,11 +313,7 @@ public class MapWidget extends Widget
         
         initSubTextures( isEditorMode, gameData.getModInfo(), width, height );
         
-        if ( ( cacheTexture == null ) || ( cacheTexture.getUsedWidth() != width ) || ( cacheTexture.getUsedHeight() != height ) )
-        {
-            cacheTexture = TextureImage2D.createOfflineTexture( width, height, true );
-        }
-        
+        cacheTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, cacheTexture, editorPresets != null );
         cacheTexture.clear( true, null );
         
         if ( track == null )

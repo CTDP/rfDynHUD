@@ -102,8 +102,8 @@ public class TextureDirtyRectsManager
                 
                 writeShort( (short)0, buffer );
                 writeShort( (short)0, buffer );
-                writeShort( (short)texture.getUsedWidth(), buffer );
-                writeShort( (short)texture.getUsedHeight(), buffer );
+                writeShort( (short)texture.getWidth(), buffer );
+                writeShort( (short)texture.getHeight(), buffer );
             }
             else
             {

@@ -99,7 +99,7 @@ public class Size implements AbstractSize
     private final float getMinWidth()
     {
         if ( isGlobalSize )
-            return ( widget.getMinWidth( null ) );
+            return ( widget.getMinWidth( null, null ) );
         
         return ( 10f );
     }
@@ -107,7 +107,7 @@ public class Size implements AbstractSize
     private final float getMinHeight()
     {
         if ( isGlobalSize )
-            return ( widget.getMinHeight( null ) );
+            return ( widget.getMinHeight( null, null ) );
         
         return ( 10f );
     }

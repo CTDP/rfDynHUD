@@ -181,10 +181,7 @@ public abstract class NeedleMeterWidget extends Widget
                 float scale = getBackground().getBackgroundScaleX();
                 int w = Math.round( it.getBaseWidth() * scale );
                 int h = Math.round( it.getBaseHeight() * scale );
-                if ( ( needleTexture == null ) || ( needleTexture.getWidth() != w ) || ( needleTexture.getHeight() != h ) )
-                {
-                    needleTexture = it.getScaledTransformableTexture( w, h );
-                }
+                needleTexture = it.getScaledTransformableTexture( w, h, needleTexture, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -224,10 +221,10 @@ public abstract class NeedleMeterWidget extends Widget
                 int h = Math.round( it.getBaseHeight() * scale );
                 if ( ( valueBackgroundTexture == null ) || ( valueBackgroundTexture.getWidth() != w ) || ( valueBackgroundTexture.getHeight() != h ) )
                 {
-                    valueBackgroundTexture = it.getScaledTransformableTexture( w, h );
+                    valueBackgroundTexture = it.getScaledTransformableTexture( w, h, valueBackgroundTexture, isEditorMode );
                     valueBackgroundTexture.setDynamic( true );
                     
-                    valueBackgroundTexture_bak = TextureImage2D.createOfflineTexture( valueBackgroundTexture.getWidth(), valueBackgroundTexture.getHeight(), valueBackgroundTexture.getTexture().hasAlphaChannel() );
+                    valueBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( valueBackgroundTexture.getWidth(), valueBackgroundTexture.getHeight(), valueBackgroundTexture.getTexture().hasAlphaChannel(), valueBackgroundTexture_bak, isEditorMode );
                     valueBackgroundTexture_bak.clear( valueBackgroundTexture.getTexture(), true, null );
                 }
             }

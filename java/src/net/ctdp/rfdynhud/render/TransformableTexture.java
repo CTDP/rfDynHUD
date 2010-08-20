@@ -23,6 +23,7 @@ import java.nio.ByteOrder;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.openmali.types.twodee.Rect2i;
@@ -35,6 +36,8 @@ import org.openmali.types.twodee.Rect2i;
  */
 public class TransformableTexture
 {
+    public static final boolean DEFAULT_PIXEL_PERFECT_POSITIONING = true;
+    
     public static final float PI = (float)Math.PI;
     public static final float TWO_PI = (float)( Math.PI * 2.0 );
     public static final float PI_HALF = (float)( Math.PI / 2.0 );
@@ -159,7 +162,7 @@ public class TransformableTexture
         {
             Widget w = widgetsManager.getWidget( i );
             if ( w.hasMasterCanvas( editorPresets != null ) )
-                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, widgetsManager.getMainTexture() ), w.getMaxHeight( gameData, widgetsManager.getMainTexture() ) );
+                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, editorPresets, widgetsManager.getMainTexture() ), w.getMaxHeight( gameData, editorPresets, widgetsManager.getMainTexture() ) );
         }
         
         this.usedRectangles = new Rectangle[ m ];
@@ -214,12 +217,12 @@ public class TransformableTexture
     
     public final int getWidth()
     {
-        return ( texture.getUsedWidth() );
+        return ( texture.getWidth() );
     }
     
     public final int getHeight()
     {
-        return ( texture.getUsedHeight() );
+        return ( texture.getHeight() );
     }
     
     public void setTranslation( float transX, float transY )
@@ -469,22 +472,15 @@ public class TransformableTexture
         }
     }
     
-    private static TextureImage2D createTexture( int width, int height )
+    private static TextureImage2D createTexture( int width, int height, boolean usePowerOfTwoSizes )
     {
-        //int texInternalWidth = NumberUtil.roundUpPower2( width );
-        //int texInternalHeight = NumberUtil.roundUpPower2( height );
-        int texInternalWidth = width;
-        int texInternalHeight = height;
+        int width2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( width ) : width;
+        int height2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( height ) : height;
         
-        //ByteBuffer dataBuffer = ByteBuffer.allocateDirect( texInternalWidth * texInternalHeight * 4 ).order( java.nio.ByteOrder.nativeOrder() );
-        ByteBuffer dataBuffer = null; // use byte-array for faster offline drawing
-        
-        return ( TextureImage2D.createDrawTexture( texInternalWidth, texInternalHeight, width, height, true, dataBuffer ) );
+        return ( TextureImage2D.createDrawTexture( width2, height2, width, height, true ) );
     }
     
     /**
-     * Creates a (non) {@link TransformableTexture} for the main overlay. Do not use this constructor for sub-textures!
-     * 
      * @param dummy
      * @param width
      * @param height
@@ -492,7 +488,7 @@ public class TransformableTexture
     private TransformableTexture( String dummy, int width, int height )
     {
         this.isDynamic = true;
-        this.texture = createTexture( width, height );
+        this.texture = createTexture( width, height, false );
         this.isTransformed = false;
         this.transformFlags = 0;
         this.pixelPerfectPositioning = true;
@@ -515,10 +511,11 @@ public class TransformableTexture
     public TransformableTexture( int width, int height,
                                  boolean pixelPerfectPositioning, float transX, float transY,
                                  int rotCenterX, int rotCenterY, float rotation,
-                                 float scaleX, float scaleY
+                                 float scaleX, float scaleY,
+                                 boolean usePowerOfTwoSizes
                                )
     {
-        this.texture = createTexture( width, height );
+        this.texture = createTexture( width, height, usePowerOfTwoSizes );
         this.isTransformed = true;
         this.transformFlags = 1;
         this.pixelPerfectPositioning = pixelPerfectPositioning;
@@ -544,19 +541,60 @@ public class TransformableTexture
     public TransformableTexture( int width, int height,
                                  int transX, int transY,
                                  int rotCenterX, int rotCenterY, float rotation,
-                                 float scaleX, float scaleY
+                                 float scaleX, float scaleY,
+                                 boolean usePowerOfTwoSizes
                                )
     {
-        this( width, height, true, transX, transY, rotCenterX, rotCenterY, rotation, scaleX, scaleY );
+        this( width, height, DEFAULT_PIXEL_PERFECT_POSITIONING, transX, transY, rotCenterX, rotCenterY, rotation, scaleX, scaleY, usePowerOfTwoSizes );
     }
     
-    public TransformableTexture( int width, int height, boolean pixelPerfectPositioning )
+    public TransformableTexture( int width, int height, boolean pixelPerfectPositioning, boolean usePowerOfTwoSizes )
     {
-        this( width, height, pixelPerfectPositioning, 0f, 0f, 0, 0, 0f, 1.0f, 1.0f );
+        this( width, height, pixelPerfectPositioning, 0f, 0f, 0, 0, 0f, 1.0f, 1.0f, usePowerOfTwoSizes );
     }
     
     public TransformableTexture( int width, int height )
     {
-        this( width, height, true, 0f, 0f, 0, 0, 0f, 1.0f, 1.0f );
+        this( width, height, DEFAULT_PIXEL_PERFECT_POSITIONING, 0f, 0f, 0, 0, 0f, 1.0f, 1.0f, false );
+    }
+    
+    /**
+     * Gets a {@link TransformableTexture} with this image drawn onto it.
+     * If the possibleResult is non null and has the correct size, it is returned.
+     * 
+     * @param width
+     * @param height
+     * @param pixelPerfectPositioning
+     * @param possibleResult
+     * @param tryToResize if true, the passed in texture is resized to the given size, if the max size is sufficient.
+     *                    This is useful in editor mode avoid constant recreations.
+     * 
+     * @return a {@link TransformableTexture} with this image drawn onto it.
+     */
+    public static TransformableTexture getOrCreate( int width, int height, boolean pixelPerfectPositioning, TransformableTexture possibleResult, boolean tryToResize )
+    {
+        final boolean usePowerOfTwoSizes = tryToResize;
+        int width2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( width ) : width;
+        int height2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( height ) : height;
+        
+        if ( possibleResult != null )
+        {
+            if ( usePowerOfTwoSizes )
+            {
+                if ( ( width2 == possibleResult.getTexture().getMaxWidth() ) && ( height2 == possibleResult.getTexture().getMaxHeight() ) )
+                {
+                    if ( ( width != possibleResult.getTexture().getWidth() ) || ( height != possibleResult.getTexture().getHeight() ) )
+                        possibleResult.getTexture().resize( width, height );
+                    
+                    return ( possibleResult );
+                }
+            }
+            else if ( ( width == possibleResult.getTexture().getWidth() ) || ( height == possibleResult.getTexture().getHeight() ) )
+            {
+                return ( possibleResult );
+            }
+        }
+        
+        return ( new TransformableTexture( width, height, pixelPerfectPositioning, usePowerOfTwoSizes ) );
     }
 }

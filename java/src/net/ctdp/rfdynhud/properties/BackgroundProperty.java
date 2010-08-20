@@ -252,7 +252,7 @@ public class BackgroundProperty extends Property
      */
     public final Color getColorValue()
     {
-        if ( getColorProperty() == null )
+        if ( ( getColorProperty() == null ) || !getBackgroundType().isColor() )
             return ( null );
         
         return ( getColorProperty().getColor() );
@@ -266,7 +266,7 @@ public class BackgroundProperty extends Property
      */
     public final ImageTemplate getImageValue()
     {
-        if ( getImageProperty() == null )
+        if ( ( getImageProperty() == null ) || !getBackgroundType().isImage() )
             return ( null );
         
         return ( getImageProperty().getImage() );

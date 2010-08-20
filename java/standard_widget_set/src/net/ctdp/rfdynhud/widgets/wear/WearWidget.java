@@ -482,7 +482,7 @@ public class WearWidget extends Widget
         result[ByteOrderManager.BLUE] = (byte)( (float)( color0[ByteOrderManager.BLUE] & 0xFF ) * beta + (float)( color1[ByteOrderManager.BLUE] & 0xFF ) * alpha );
     }
     
-    private TextureImage2D loadExplodeImage( int height )
+    private TextureImage2D loadExplodeImage( boolean isEditorMode, int height )
     {
         if ( estimationImageName.isNoImage() )
         {
@@ -497,7 +497,7 @@ public class WearWidget extends Widget
             
             int width = Math.round( height * it.getBaseAspect() );
             
-            estimationTexture = it.getScaledTextureImage( width, height );
+            estimationTexture = it.getScaledTextureImage( width, height, estimationTexture, isEditorMode );
         }
         
         return ( estimationTexture );
@@ -612,7 +612,7 @@ public class WearWidget extends Widget
                 texture.clear( Color.BLACK, x + w2, y, w3, h, false, null );
         }
         
-        TextureImage2D explodeTexture = loadExplodeImage( h );
+        TextureImage2D explodeTexture = loadExplodeImage( isEditorMode, h );
         if ( explodeTexture != null )
         {
             if ( isEditorMode )

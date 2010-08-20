@@ -180,7 +180,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
-        if ( gameData.getScoringInfo().getSessionType().isRace() && !showFastestLapsInRace.getBooleanValue() )
+        if ( ( editorPresets != null ) || ( gameData.getScoringInfo().getSessionType().isRace() && !showFastestLapsInRace.getBooleanValue() ) )
         {
             flagTextures = null;
             
@@ -230,7 +230,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         if ( ( itemClearImage == null ) || ( itemClearImage.getWidth() != width ) || ( itemClearImage.getHeight() != itemHeight * 2 ) )
         {
-            itemClearImage = TextureImage2D.createOfflineTexture( width, itemHeight * 2, true );
+            itemClearImage = TextureImage2D.getOrCreateDrawTexture( width, itemHeight * 2, true, itemClearImage, editorPresets != null );
             
             ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
             ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), dataBackgroundColor.getColor(), itemClearImage, true );

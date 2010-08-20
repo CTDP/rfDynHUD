@@ -113,6 +113,26 @@ public class BorderWrapper
         return ( ( measures != null ? measures.getInnerBottomHeight() : 0 ) + ( paddingBottom != null ? paddingBottom.getIntValue() : 0 ) );
     }
     
+    public final int getInnerTopHeightWOPadding()
+    {
+        return ( ( measures != null ? measures.getInnerTopHeight() : 0 ) );
+    }
+    
+    public final int getInnerLeftWidthWOPadding()
+    {
+        return ( ( measures != null ? measures.getInnerLeftWidth() : 0 ) );
+    }
+    
+    public final int getInnerRightWidthWOPadding()
+    {
+        return ( ( measures != null ? measures.getInnerRightWidth() : 0 ) );
+    }
+    
+    public final int getInnerBottomHeightWOPadding()
+    {
+        return ( ( measures != null ? measures.getInnerBottomHeight() : 0 ) );
+    }
+    
     public final int getPaddingTop()
     {
         return ( paddingTop != null ? paddingTop.getIntValue() : 0 );

@@ -271,7 +271,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             TextureImage2D texture = textures[i].getTexture();
             if ( textures[i].isDynamic() )
             {
-                texture.getTextureCanvas().setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
+                texture.getTextureCanvas().setClip( 0, 0, texture.getWidth(), texture.getHeight() );
                 texture.clear( true, null );
             }
         }
@@ -607,7 +607,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         if ( !isValid() )
             return;
         
-        texture.getTextureCanvas().setClip( 0, 0, texture.getUsedWidth(), texture.getUsedHeight() );
+        texture.getTextureCanvas().setClip( 0, 0, texture.getWidth(), texture.getHeight() );
         
         checkFixAndBakeConfiguration( isEditorMode );
         

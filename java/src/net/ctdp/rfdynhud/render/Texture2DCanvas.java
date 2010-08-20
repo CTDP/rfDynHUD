@@ -119,7 +119,7 @@ public class Texture2DCanvas extends Graphics2D
     
     private final void markDirty()
     {
-        markDirty( 0, 0, texImg.getUsedWidth(), texImg.getUsedHeight() );
+        markDirty( 0, 0, texImg.getWidth(), texImg.getHeight() );
     }
     
     public final void beginUpdateRegion( int x, int y, int width, int height )
@@ -138,7 +138,7 @@ public class Texture2DCanvas extends Graphics2D
     
     public final void beginUpdateRegionComplete()
     {
-        beginUpdateRegion( 0, 0, texImg.getUsedWidth(), texImg.getUsedHeight() );
+        beginUpdateRegion( 0, 0, texImg.getWidth(), texImg.getHeight() );
     }
     
     public final void finishUpdateRegion()
@@ -244,7 +244,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawBytes( data, offset, length, x, y );
         
-        markDirty( x, y, texImg.getUsedWidth() - x, texImg.getUsedHeight() - y );
+        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y );
     }
     
     @Override
@@ -252,7 +252,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawChars( data, offset, length, x, y );
         
-        markDirty( x, y, texImg.getUsedWidth() - x, texImg.getUsedHeight() - y );
+        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y );
     }
     
     @Override
@@ -260,13 +260,13 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawGlyphVector( g, x, y );
         
-        markDirty( (int)x, (int)y, texImg.getUsedWidth() - (int)x, texImg.getUsedHeight() - (int)y );
+        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y );
     }
     
     @Override
     public final boolean drawImage( Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2, int sy2, ImageObserver imgOb )
     {
-        if ( ( dx2 < 0 ) || ( dy2 < 0 ) || ( dx1 >= texImg.getUsedWidth() ) || ( dy1 >= texImg.getUsedHeight() ) )
+        if ( ( dx2 < 0 ) || ( dy2 < 0 ) || ( dx1 >= texImg.getWidth() ) || ( dy1 >= texImg.getHeight() ) )
             return ( true );
         
         final boolean result = graphics.drawImage( img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, imgOb );
@@ -527,7 +527,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawString( iterator, x, y );
         
-        markDirty( (int)x, (int)y, texImg.getUsedWidth() - (int)x, texImg.getUsedHeight() - (int)y );
+        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y );
     }
     
     @Override
@@ -535,7 +535,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawString( iterator, x, y );
         
-        markDirty( x, y, texImg.getUsedWidth() - x, texImg.getUsedHeight() - y );
+        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y );
     }
     
     @Override
@@ -543,7 +543,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawString( s, x, y );
         
-        markDirty( (int)x, (int)y, texImg.getUsedWidth() - (int)x, texImg.getUsedHeight() - (int)y );
+        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y );
     }
     
     public final void drawString( String s, int x, int y, int baselineOffset, int boundsWidth, int boundsHeight )
@@ -677,7 +677,7 @@ public class Texture2DCanvas extends Graphics2D
         java.awt.Rectangle awtRect = graphics.getClipBounds();
         
         if ( awtRect == null )
-            return ( new Rect2i( 0, 0, getImage().getWidth(), getImage().getHeight() ) );
+            return ( new Rect2i( 0, 0, getImage().getMaxWidth(), getImage().getMaxHeight() ) );
         
         return ( new Rect2i( awtRect.x, awtRect.y, awtRect.width, awtRect.height ) );
     }
@@ -808,8 +808,8 @@ public class Texture2DCanvas extends Graphics2D
     @Override
     public final void setClip( int x, int y, int width, int height )
     {
-        int right = Math.min( x + width - 1, getImage().getWidth() - 1 );
-        int bottom = Math.min( y + height - 1, getImage().getHeight() - 1 );
+        int right = Math.min( x + width - 1, getImage().getMaxWidth() - 1 );
+        int bottom = Math.min( y + height - 1, getImage().getMaxHeight() - 1 );
         graphics.setClip( Math.max( 0, x ), Math.max( 0, y ), right - x + 1, bottom - y + 1 );
         
         getImage().setClipRect( x, y, width, height );
@@ -818,7 +818,7 @@ public class Texture2DCanvas extends Graphics2D
     public final void setClip( Rect2i rect )
     {
         if ( rect == null )
-            setClip( 0, 0, getImage().getWidth(), getImage().getHeight() );
+            setClip( 0, 0, getImage().getMaxWidth(), getImage().getMaxHeight() );
         else
             setClip( rect.getLeft(), rect.getTop(), rect.getWidth(), rect.getHeight() );
     }

@@ -86,19 +86,19 @@ public class Lesson4bWidget_SubTextures extends Widget
         lapNumber.reset();
     }
     
-    private void loadSubTextures()
+    private void loadSubTextures( boolean isEditorMode )
     {
         /*
          * This loads the image as defined in the property and gets a scaled instance as a TransformableTexture.
          */
-        subTextures[0] = subImage.getImage().getScaledTransformableTexture( 32, 32, subTextures[0] );
-        cache = subImage.getImage().getScaledTextureImage( 32, 32, cache );
+        subTextures[0] = subImage.getImage().getScaledTransformableTexture( 32, 32, subTextures[0], isEditorMode );
+        cache = subImage.getImage().getScaledTextureImage( 32, 32, cache, isEditorMode );
     }
     
     @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
-        loadSubTextures();
+        loadSubTextures( editorPresets != null );
         
         return ( subTextures );
     }
@@ -106,7 +106,7 @@ public class Lesson4bWidget_SubTextures extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        loadSubTextures();
+        loadSubTextures( editorPresets != null );
         
         /*
          * Just to play around with the parameters we define the text to be drawn at hte center location this time.

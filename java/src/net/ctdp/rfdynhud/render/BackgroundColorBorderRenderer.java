@@ -26,7 +26,7 @@ public class BackgroundColorBorderRenderer extends BorderRenderer
     
     private TextureImage2D createBorder( Color backgroundColor )
     {
-        TextureImage2D borderTexture = TextureImage2D.createOfflineTexture( 32, 32, true );
+        TextureImage2D borderTexture = TextureImage2D.createDrawTexture( 32, 32, true );
         borderTexture.clear( false, null );
         
         Texture2DCanvas texCanvas = borderTexture.getTextureCanvas();
@@ -53,8 +53,11 @@ public class BackgroundColorBorderRenderer extends BorderRenderer
     @Override
     public void drawBorder( Color backgroundColor, BorderMeasures measures, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( ( backgroundColor == null ) || ( backgroundColor.getAlpha() == 255 ) )
-            return;
+        //if ( ( backgroundColor == null ) || ( backgroundColor.getAlpha() == 255 ) )
+        //    return;
+        
+        if ( backgroundColor == null )
+            backgroundColor = Color.MAGENTA;
         
         TextureImage2D borderTexture = getImage( backgroundColor );
         

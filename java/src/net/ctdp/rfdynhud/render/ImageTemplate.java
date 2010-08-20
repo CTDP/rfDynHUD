@@ -20,6 +20,8 @@ package net.ctdp.rfdynhud.render;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
+import net.ctdp.rfdynhud.util.NumberUtil;
+
 import sun.awt.image.ByteInterleavedRaster;
 
 /**
@@ -169,12 +171,17 @@ public class ImageTemplate
      * 
      * @param width
      * @param height
+     * @param usePowerOfTwoSize if true, the created texture is created with power of two width and height (with used size set to the desired values).
+     *                          This is useful in editor mode avoid constant recreations.
      * 
      * @return a scaled representation of this image template.
      */
-    public TextureImage2D getScaledTextureImage( int width, int height )
+    public TextureImage2D getScaledTextureImage( int width, int height, boolean usePowerOfTwoSize )
     {
-        TextureImage2D texture = TextureImage2D.createDrawTexture( width, height, width, height, bufferedImage.getColorModel().hasAlpha(), null );
+        int maxWidth = usePowerOfTwoSize ? NumberUtil.roundUpPower2( width ) : width;
+        int maxHeight = usePowerOfTwoSize ? NumberUtil.roundUpPower2( height ) : height;
+        
+        TextureImage2D texture = TextureImage2D.createDrawTexture( maxWidth, maxHeight, width, height, bufferedImage.getColorModel().hasAlpha() );
         
         drawScaled( 0, 0, width, height, texture, true );
         
@@ -188,15 +195,35 @@ public class ImageTemplate
      * @param width
      * @param height
      * @param possibleResult
+     * @param tryToResize if true, the passed in texture is resized to the given size, if the max size is sufficient.
+     *                    This is useful in editor mode avoid constant recreations.
      * 
      * @return a scaled representation of this image template.
      */
-    public final TextureImage2D getScaledTextureImage( int width, int height, TextureImage2D possibleResult )
+    public final TextureImage2D getScaledTextureImage( int width, int height, TextureImage2D possibleResult, boolean tryToResize )
     {
-        if ( ( possibleResult != null ) && ( possibleResult.getWidth() == width ) && ( possibleResult.getHeight() == height ) )
-            return ( possibleResult );
+        int oldW = -1;
+        int oldH = -1;
+        if ( possibleResult != null )
+        {
+            oldW = possibleResult.getWidth();
+            oldH = possibleResult.getHeight();
+        }
         
-        return ( getScaledTextureImage( width, height ) );
+        TextureImage2D texture = TextureImage2D.getOrCreateDrawTexture( width, height, true, possibleResult, tryToResize );
+        
+        if ( ( ( oldW > 0 ) || ( oldH > 0 ) ) && ( texture == possibleResult ) )
+        {
+            texture.clear( 0, 0, oldW, oldH, false, null );
+            
+            drawScaled( 0, 0, width, height, texture, false );
+        }
+        else
+        {
+            drawScaled( 0, 0, width, height, texture, true );
+        }
+        
+        return ( texture );
     }
     
     /**
@@ -207,7 +234,7 @@ public class ImageTemplate
      */
     public final TextureImage2D getTextureImage()
     {
-        return ( getScaledTextureImage( getBaseWidth(), getBaseHeight() ) );
+        return ( getScaledTextureImage( getBaseWidth(), getBaseHeight(), false ) );
     }
     
     /**
@@ -215,12 +242,14 @@ public class ImageTemplate
      * 
      * @param width
      * @param height
+     * @param usePowerOfTwoSize if true, the created texture is created with power of two width and height (with used size set to the desired values).
+     *                          This is useful in editor mode to avoid constant recreations.
      * 
      * @return a {@link TransformableTexture} with this image drawn onto it.
      */
-    public TransformableTexture getScaledTransformableTexture( int width, int height )
+    public TransformableTexture getScaledTransformableTexture( int width, int height, boolean usePowerOfTwoSize )
     {
-        TransformableTexture texture = new TransformableTexture( width, height, 0, 0, 0, 0, 0f, 1f, 1f );
+        TransformableTexture texture = new TransformableTexture( width, height, 0, 0, 0, 0, 0f, 1f, 1f, usePowerOfTwoSize );
         
         drawScaled( 0, 0, width, height, texture.getTexture(), true );
         
@@ -234,15 +263,44 @@ public class ImageTemplate
      * @param width
      * @param height
      * @param possibleResult
+     * @param tryToResize if true, the passed in texture is resized to the given size, if the max size is sufficient.
+     *                    This is useful in editor mode avoid constant recreations.
      * 
      * @return a {@link TransformableTexture} with this image drawn onto it.
      */
-    public TransformableTexture getScaledTransformableTexture( int width, int height, TransformableTexture possibleResult )
+    public TransformableTexture getScaledTransformableTexture( int width, int height, TransformableTexture possibleResult, boolean tryToResize )
     {
-        if ( ( possibleResult != null ) && ( possibleResult.getWidth() == width ) && ( possibleResult.getHeight() == height ) )
-            return ( possibleResult );
+        final boolean usePowerOfTwoSizes = tryToResize;
+        int width2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( width ) : width;
+        int height2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( height ) : height;
         
-        return ( getScaledTransformableTexture( width, height ) );
+        if ( possibleResult != null )
+        {
+            if ( usePowerOfTwoSizes )
+            {
+                if ( ( width2 == possibleResult.getTexture().getMaxWidth() ) && ( height2 == possibleResult.getTexture().getMaxHeight() ) )
+                {
+                    if ( ( width != possibleResult.getTexture().getWidth() ) || ( height != possibleResult.getTexture().getHeight() ) )
+                    {
+                        int oldW = possibleResult.getTexture().getWidth();
+                        int oldH = possibleResult.getTexture().getHeight();
+                        
+                        possibleResult.getTexture().resize( width, height );
+                        
+                        possibleResult.getTexture().clear( 0, 0, oldW, oldH, false, null );
+                        drawScaled( 0, 0, width, height, possibleResult.getTexture(), false );
+                    }
+                    
+                    return ( possibleResult );
+                }
+            }
+            else if ( ( width == possibleResult.getTexture().getWidth() ) || ( height == possibleResult.getTexture().getHeight() ) )
+            {
+                return ( possibleResult );
+            }
+        }
+        
+        return ( getScaledTransformableTexture( width, height, usePowerOfTwoSizes ) );
     }
     
     /**
@@ -252,7 +310,7 @@ public class ImageTemplate
      */
     public TransformableTexture getTransformableTexture()
     {
-        return ( getScaledTransformableTexture( getBaseWidth(), getBaseHeight() ) );
+        return ( getScaledTransformableTexture( getBaseWidth(), getBaseHeight(), false ) );
     }
     
     public ImageTemplate( BufferedImage bufferedImage )

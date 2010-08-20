@@ -829,10 +829,10 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public int getMaxWidth( LiveGameData gameData, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
     {
         if ( !useAutoWidth.getBooleanValue() )
-            return ( super.getMaxWidth( gameData, texture ) );
+            return ( super.getMaxWidth( gameData, editorPresets, texture ) );
         
         DrawnString ds = getDrawnStringFactory().newDrawnString( null, 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         

@@ -389,10 +389,7 @@ public class RevMeterWidget extends Widget
                 
                 int w = Math.round( it.getBaseWidth() * scale );
                 int h = Math.round( it.getBaseHeight() * scale );
-                if ( ( needleTexture == null ) || ( needleTexture.getWidth() != w ) || ( needleTexture.getHeight() != h ) )
-                {
-                    needleTexture = it.getScaledTransformableTexture( w, h );
-                }
+                needleTexture = it.getScaledTransformableTexture( w, h, needleTexture, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -426,10 +423,10 @@ public class RevMeterWidget extends Widget
                 int h = Math.round( it.getBaseHeight() * scale );
                 if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != w ) || ( gearBackgroundTexture.getHeight() != h ) )
                 {
-                    gearBackgroundTexture = it.getScaledTransformableTexture( w, h );
+                    gearBackgroundTexture = it.getScaledTransformableTexture( w, h, gearBackgroundTexture, isEditorMode );
                     gearBackgroundTexture.setDynamic( true );
                     
-                    gearBackgroundTexture_bak = TextureImage2D.createOfflineTexture( gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), gearBackgroundTexture.getTexture().hasAlphaChannel() );
+                    gearBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), gearBackgroundTexture.getTexture().hasAlphaChannel(), gearBackgroundTexture_bak, isEditorMode );
                     gearBackgroundTexture_bak.clear( gearBackgroundTexture.getTexture(), true, null );
                 }
             }
@@ -472,10 +469,10 @@ public class RevMeterWidget extends Widget
                 int h = Math.round( it.getBaseHeight() * scale );
                 if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != w ) || ( boostNumberBackgroundTexture.getHeight() != h ) )
                 {
-                    boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h );
+                    boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h, boostNumberBackgroundTexture, isEditorMode );
                     boostNumberBackgroundTexture.setDynamic( true );
                     
-                    boostNumberBackgroundTexture_bak = TextureImage2D.createOfflineTexture( boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), boostNumberBackgroundTexture.getTexture().hasAlphaChannel() );
+                    boostNumberBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), boostNumberBackgroundTexture.getTexture().hasAlphaChannel(), boostNumberBackgroundTexture_bak, isEditorMode );
                     boostNumberBackgroundTexture_bak.clear( boostNumberBackgroundTexture.getTexture(), true, null );
                 }
             }
@@ -518,10 +515,10 @@ public class RevMeterWidget extends Widget
                 int h = Math.round( it.getBaseHeight() * scale );
                 if ( ( velocityBackgroundTexture == null ) || ( velocityBackgroundTexture.getWidth() != w ) || ( velocityBackgroundTexture.getHeight() != h ) )
                 {
-                    velocityBackgroundTexture = it.getScaledTransformableTexture( w, h );
+                    velocityBackgroundTexture = it.getScaledTransformableTexture( w, h, velocityBackgroundTexture, isEditorMode );
                     velocityBackgroundTexture.setDynamic( true );
                     
-                    velocityBackgroundTexture_bak = TextureImage2D.createOfflineTexture( velocityBackgroundTexture.getWidth(), velocityBackgroundTexture.getHeight(), velocityBackgroundTexture.getTexture().hasAlphaChannel() );
+                    velocityBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( velocityBackgroundTexture.getWidth(), velocityBackgroundTexture.getHeight(), velocityBackgroundTexture.getTexture().hasAlphaChannel(), velocityBackgroundTexture_bak, isEditorMode );
                     velocityBackgroundTexture_bak.clear( velocityBackgroundTexture.getTexture(), true, null );
                 }
             }
@@ -648,7 +645,7 @@ public class RevMeterWidget extends Widget
             {
                 try
                 {
-                    backgroundTexture = backgroundImageName.getImage().getScaledTextureImage( width, height );
+                    backgroundTexture = backgroundImageName.getImage().getScaledTextureImage( width, height, backgroundTexture, isEditorMode );
                 }
                 catch ( Throwable t )
                 {

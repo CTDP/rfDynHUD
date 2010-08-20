@@ -123,7 +123,7 @@ public class ControlsWidget extends Widget
         setUserVisible1( viewedVSI.isPlayer() );
     }
     
-    private int initSubTextures( int widgetInnerWidth, int widgetInnerHeight )
+    private int initSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         int numBars = 0;
         if ( displayClutch.getBooleanValue() )
@@ -149,19 +149,22 @@ public class ControlsWidget extends Widget
         int left = 3;
         if ( displayClutch.getBooleanValue() && ( ( texClutch == null ) || ( texClutch.getWidth() != w ) || ( texClutch.getHeight() != h ) ) )
         {
-            texClutch = new TransformableTexture( w, h, left, 3, 0, 0, 0f, 1f, 1f );
+            texClutch = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texClutch, isEditorMode );
+            texClutch.setTranslation( left, 3 );
             left += w + gap;
         }
         
         if ( displayBrake.getBooleanValue() && ( ( texBrake == null ) || ( texBrake.getWidth() != w ) || ( texBrake.getHeight() != h ) ) )
         {
-            texBrake = new TransformableTexture( w, h, left, 3, 0, 0, 0f, 1f, 1f );
+            texBrake = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texBrake, isEditorMode );
+            texBrake.setTranslation( left, 3 );
             left += w + gap;
         }
         
         if ( displayThrottle.getBooleanValue() && ( ( texThrottle == null ) || ( texThrottle.getWidth() != w ) || ( texThrottle.getHeight() != h ) ) )
         {
-            texThrottle = new TransformableTexture( w, h, left, 3, 0, 0, 0f, 1f, 1f );
+            texThrottle = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texThrottle, isEditorMode );
+            texThrottle.setTranslation( left, 3 );
             left += w + gap;
         }
         
@@ -171,7 +174,7 @@ public class ControlsWidget extends Widget
     @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
-        int numBars = initSubTextures( widgetInnerWidth, widgetInnerHeight );
+        int numBars = initSubTextures( editorPresets != null, widgetInnerWidth, widgetInnerHeight );
         
         if ( numBars == 0 )
             return ( null );
@@ -195,7 +198,7 @@ public class ControlsWidget extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        initSubTextures( width, height );
+        initSubTextures( editorPresets != null, width, height );
         
         if ( displayClutch.getBooleanValue() )
             texClutch.getTexture().clear( clutchColor.getColor(), true, null );

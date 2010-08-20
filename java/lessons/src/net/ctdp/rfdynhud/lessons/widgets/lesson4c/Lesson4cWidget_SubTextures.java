@@ -78,7 +78,7 @@ public class Lesson4cWidget_SubTextures extends Widget
         lapNumber.reset();
     }
     
-    private void loadSubTextures( int widgetInnerWidth, int widgetInnerHeight )
+    private void loadSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         /*
          * We scale the sub texture, so that it definitely fits into the widget area.
@@ -88,14 +88,14 @@ public class Lesson4cWidget_SubTextures extends Widget
         int h = Math.max( 10, widgetInnerHeight - 10 );
         int s = Math.min( w, h );
         
-        subTextures[0] = subImage.getImage().getScaledTransformableTexture( s, s, subTextures[0] );
-        cache = subImage.getImage().getScaledTextureImage( s, s, cache );
+        subTextures[0] = subImage.getImage().getScaledTransformableTexture( s, s, subTextures[0], isEditorMode );
+        cache = subImage.getImage().getScaledTextureImage( s, s, cache, isEditorMode );
     }
     
     @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
-        loadSubTextures( widgetInnerWidth, widgetInnerHeight );
+        loadSubTextures( editorPresets != null, widgetInnerWidth, widgetInnerHeight );
         
         return ( subTextures );
     }
@@ -103,7 +103,7 @@ public class Lesson4cWidget_SubTextures extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        loadSubTextures( width, height );
+        loadSubTextures( editorPresets != null, width, height );
         
         int h = texture.getStringHeight( "0", getFont(), isFontAntiAliased() );
         lapString = drawnStringFactory.newDrawnString( "lapString", subTextures[0].getWidth() / 2, ( subTextures[0].getHeight() - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );

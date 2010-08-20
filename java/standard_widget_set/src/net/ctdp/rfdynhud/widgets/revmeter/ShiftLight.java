@@ -92,7 +92,7 @@ public class ShiftLight
                 int h = Math.round( it.getBaseHeight() * scale );
                 if ( ( textureOff == null ) || ( textureOff.getWidth() != w ) || ( textureOff.getHeight() != h ) )
                 {
-                    textureOff = new TransformableTexture( w, h, 0, 0, 0, 0, 0f, 1f, 1f );
+                    textureOff = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOff, isEditorMode );
                     it.drawScaled( 0, 0, w, h, textureOff.getTexture(), true );
                 }
                 
@@ -131,7 +131,7 @@ public class ShiftLight
                 {
                     if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h * 2 ) )
                     {
-                        textureOn = new TransformableTexture( w, h * 2, 0, 0, 0, 0, 0f, 1f, 1f );
+                        textureOn = TransformableTexture.getOrCreate( w, h * 2, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOn, isEditorMode );
                         textureOn.getTexture().clear( false, null );
                         it0.drawScaled( posX.getIntValue(), posY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, 0, w, h, textureOn.getTexture(), false );
                         it0.drawScaled( posX.getIntValue(), posY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, h, w, h, textureOn.getTexture(), false );
@@ -142,7 +142,7 @@ public class ShiftLight
                 {
                     if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h ) )
                     {
-                        textureOn = new TransformableTexture( w, h, 0, 0, 0, 0, 0f, 1f, 1f );
+                        textureOn = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOn, isEditorMode );
                         it.drawScaled( 0, 0, w, h, textureOn.getTexture(), true );
                     }
                 }
