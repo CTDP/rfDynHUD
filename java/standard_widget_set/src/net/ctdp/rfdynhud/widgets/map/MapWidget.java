@@ -74,7 +74,7 @@ public class MapWidget extends Widget
             
             itemRadius = Math.round( newValue * getConfiguration().getGameResolution().getViewportHeight() / 960f );
             
-            forceAndSetDirty();
+            forceAndSetDirty( false );
         }
     };
     private int itemRadius = baseItemRadius.getIntValue();
@@ -570,7 +570,7 @@ public class MapWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
         if ( hasMasterCanvas( editorPresets != null ) )
         {

@@ -113,7 +113,7 @@ public class BackgroundProperty extends Property
             
             this.backgroundType = BackgroundType.COLOR;
             
-            if ( !suppressEvent )
+            if ( !suppressEvent && ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) )
             {
                 onValueChanged();
                 onValueChanged( oldBGType, backgroundType, oldValue, value );
@@ -133,7 +133,7 @@ public class BackgroundProperty extends Property
             
             this.backgroundType = BackgroundType.IMAGE;
             
-            if ( !suppressEvent )
+            if ( !suppressEvent && ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) )
             {
                 onValueChanged();
                 onValueChanged( oldBGType, backgroundType, oldValue, value );
@@ -174,6 +174,26 @@ public class BackgroundProperty extends Property
     public void setValue( Object value )
     {
         setPropertyFromValue( String.valueOf( value ), false );
+    }
+    
+    /**
+     * Sets this property to a color of the given value.
+     * 
+     * @param value
+     */
+    public void setColorValue( String value )
+    {
+        setPropertyFromValue( COLOR_INDICATOR + value, false );
+    }
+    
+    /**
+     * Sets this property to an image of the given value.
+     * 
+     * @param value
+     */
+    public void setImageValue( String value )
+    {
+        setPropertyFromValue( IMAGE_INDICATOR + value, false );
     }
     
     public void setValues( BackgroundType type, String colorValue, String imageValue )

@@ -110,7 +110,10 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<JPanel> implement
         
         label.setFont( table.getFont() );
         
-        label.setText( String.valueOf( value ) );
+        if ( prop.getBackgroundType().isColor() )
+            label.setText( String.valueOf( value ).substring( BackgroundProperty.COLOR_INDICATOR.length() ) );
+        else
+            label.setText( String.valueOf( value ).substring( BackgroundProperty.IMAGE_INDICATOR.length() ) );
         
         this.table = table;
         this.row = row;
@@ -143,7 +146,10 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<JPanel> implement
     @Override
     protected Object getCellEditorValueImpl() throws Throwable
     {
-        return ( label.getText() );
+        if ( prop.getBackgroundType().isColor() )
+            return ( BackgroundProperty.COLOR_INDICATOR + label.getText() );
+        
+        return ( BackgroundProperty.IMAGE_INDICATOR + label.getText() );
     }
     
     @Override
@@ -184,7 +190,10 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<JPanel> implement
                         
                         prop.setValues( backgroundType, selColor, selImage );
                         
-                        label.setText( String.valueOf( prop.getValue() ) );
+                        if ( backgroundType.isColor() )
+                            label.setText( selColor );
+                        else
+                            label.setText( selImage );
                         
                         table.setValueAt( getCellEditorValue(), row, column );
                         prop.setValue( getCellEditorValue() );

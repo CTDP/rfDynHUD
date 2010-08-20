@@ -226,8 +226,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
         int itemHeight = this.itemHeight.getEffectiveHeight();
         maxNumItems = ( height + ETVUtils.ITEM_GAP ) / ( itemHeight + ETVUtils.ITEM_GAP );
         
-        java.awt.Color backgroundColor = getBackground().getColor();
-        
         vehicleScoringInfos = new VehicleScoringInfo[ maxNumItems ];
         
         if ( ( itemClearImage == null ) || ( itemClearImage.getWidth() != width ) || ( itemClearImage.getHeight() != itemHeight * 2 ) )
@@ -235,7 +233,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             itemClearImage = TextureImage2D.createOfflineTexture( width, itemHeight * 2, true );
             
             ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
-            ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), backgroundColor, itemClearImage, true );
+            ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), dataBackgroundColor.getColor(), itemClearImage, true );
         }
         else
         {
@@ -243,7 +241,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         }
         
         ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
-        ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), backgroundColor, itemClearImage, true );
+        ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), dataBackgroundColor.getColor(), itemClearImage, true );
         
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setFont( getFont() );
@@ -289,7 +287,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         {
             for ( int i = 0; i < NUM_FLAG_TEXTURES; i++ )
             {
-                ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), backgroundColor, flagTextures[i].getTexture(), true );
+                ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), dataBackgroundColor.getColor(), flagTextures[i].getTexture(), true );
                 
                 laptimes[i] = new FloatValue();
                 laptimeStrings[i] = dsf.newDrawnString( "laptimeStrings" + i, flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
@@ -297,12 +295,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
         }
         
         isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResolution().getViewportWidth() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
-    }
-    
-    @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
-    {
-        texture.clear( offsetX, offsetY, width, height, true, null );
     }
     
     @Override
@@ -451,7 +443,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                         
                         if ( laptimes[tti].hasChanged() )
                         {
-                            laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), tt.getTexture(), getBackground().getColor() );
+                            laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), tt.getTexture(), dataBackgroundColor.getColor() );
                         }
                         
                         if ( isOnLeftSide )
@@ -503,6 +495,28 @@ public class ETVStandingsWidget extends ETVWidgetBase
         else if ( loader.loadProperty( itemHeight.getHeightProperty( "itemHeight" ) ) );
         else if ( loader.loadProperty( forceLeaderDisplayed ) );
         else if ( loader.loadProperty( showFastestLapsInRace ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getPropertiesCaptionBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesCaptionBG( propsCont, forceAll );
+        
+        propsCont.addProperty( captionBackgroundColor1st );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getPropertiesDataBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesDataBG( propsCont, forceAll );
+        
+        propsCont.addProperty( dataBackgroundColor1st );
     }
     
     /**

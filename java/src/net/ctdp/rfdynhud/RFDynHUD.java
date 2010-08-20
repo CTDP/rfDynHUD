@@ -146,7 +146,7 @@ public class RFDynHUD
                     int numWidgets = drawingManager.getNumWidgets();
                     for ( int i = 0; i < numWidgets; i++ )
                     {
-                        drawingManager.getWidget( i ).forceCompleteRedraw();
+                        drawingManager.getWidget( i ).forceCompleteRedraw( true );
                     }
                 }
                 

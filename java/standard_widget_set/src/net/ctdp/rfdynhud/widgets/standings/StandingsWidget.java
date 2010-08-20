@@ -181,7 +181,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         getLocalStore().view = view;
         
         lastScoringUpdateId.reset( true );
-        forceCompleteRedraw();
+        forceCompleteRedraw( false );
         setDirtyFlag();
     }
     
@@ -328,7 +328,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
         
         lastScoringUpdateId.reset();
-        forceCompleteRedraw();
+        forceCompleteRedraw( false );
     }
     
     /**

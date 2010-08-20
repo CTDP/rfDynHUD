@@ -31,7 +31,6 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
@@ -415,15 +414,15 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void forceCompleteRedraw( boolean forwardCall )
+    void forceCompleteRedraw_( boolean mergedBackgroundToo, boolean forwardCall )
     {
-        super.forceCompleteRedraw( true );
+        super.forceCompleteRedraw_( mergedBackgroundToo, true );
         
         if ( forwardCall && ( parts != null ) )
         {
             for ( int i = 0; i < parts.length; i++ )
             {
-                parts[i].forceCompleteRedraw( false );
+                parts[i].forceCompleteRedraw_( mergedBackgroundToo, false );
             }
         }
     }
@@ -704,15 +703,6 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void clearRegion( boolean isEditorMode, TextureImage2D texture )
-    {
-        super.clearRegion( isEditorMode, texture );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Widget part;
@@ -755,13 +745,24 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         return ( result );
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected void drawBorder( boolean isEditorMode, BorderWrapper border, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    void drawBackground_( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        super.drawBorder( isEditorMode, border, texture, offsetX, offsetY, width, height );
+        super.drawBackground_( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        
+        Widget part;
+        
+        for ( int i = 0; i < parts.length; i++ )
+        {
+            part = parts[i];
+            
+            int offsetX2 = offsetX + part.getPosition().getEffectiveX();
+            int offsetY2 = offsetY + part.getPosition().getEffectiveY();
+            int width2 = part.getEffectiveWidth();
+            int height2 = part.getEffectiveHeight();
+            
+            part.drawBackground_( gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2, false );
+        }
     }
     
     /**
@@ -832,6 +833,15 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     protected boolean hasText()
     {
         return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected final boolean canHaveBackground()
+    {
+        return ( true );
     }
     
     protected abstract Widget[] initParts( float width, boolean widthPercent, float height, boolean heightPercent );

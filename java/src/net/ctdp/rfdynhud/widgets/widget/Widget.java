@@ -56,6 +56,7 @@ import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
+import org.jagatoo.util.classes.ClassUtil;
 import org.openmali.types.twodee.Rect2i;
 
 /**
@@ -93,6 +94,8 @@ public abstract class Widget implements Documented
         return ( BackgroundProperty.COLOR_INDICATOR + ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
     }
     
+    final boolean isDrawBackgroundOverridden = ClassUtil.overridesMethod( Widget.class, this.getClass(), "drawBackground", LiveGameData.class, EditorPresets.class, TextureImage2D.class, int.class, int.class, int.class, int.class, boolean.class );
+    
     /**
      * This method is invoked when the background has changed.
      * 
@@ -100,16 +103,16 @@ public abstract class Widget implements Documented
      * @param deltaScaleY the y-scale factor in as a difference between the old background image and the new one or -1 of no background image was selected
      */
     protected void onBackgroundChanged( float deltaScaleX, float deltaScaleY ) {}
-    private final BackgroundProperty backgroundProperty = canHaveBackground() ? new BackgroundProperty( this, "background", getInitialBackground() )
+    private final BackgroundProperty backgroundProperty = canHaveBackground() || isDrawBackgroundOverridden ? new BackgroundProperty( this, "background", getInitialBackground() )
     {
         @Override
         protected void onValueChanged( BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
         {
             if ( background != null )
-                background.onPropertyValueChanged( Widget.this, newBGType, oldValue, newValue );
+                background.onPropertyValueChanged( Widget.this, oldBGType, newBGType, oldValue, newValue );
         }
     } : null;
-    private final WidgetBackground background = canHaveBackground() ? new WidgetBackground( this, backgroundProperty ) : null;
+    private final WidgetBackground background = canHaveBackground() || isDrawBackgroundOverridden ? new WidgetBackground( this, backgroundProperty ) : null;
     
     private final FontProperty font = new FontProperty( this, "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty fontColor = new ColorProperty( this, "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
@@ -694,13 +697,17 @@ public abstract class Widget implements Documented
     {
     }
     
-    void forceCompleteRedraw( boolean forwardCall )
+    void forceCompleteRedraw_( boolean mergedBackgroundToo, boolean forwardCall )
     {
         boolean changed = !this.needsCompleteRedraw;
         
         this.needsCompleteRedraw = true;
         
+        if ( ( background != null ) && mergedBackgroundToo )
+            background.setMergedBGDirty();
+        
         if ( forwardCall && ( masterWidget != null ) )
+        if ( masterWidget != null )
             masterWidget.forceCompleteRedraw( false );
         
         setDirtyFlag();
@@ -711,19 +718,21 @@ public abstract class Widget implements Documented
     
     /**
      * Forces a complete redraw on the next render.
+     * 
+     * @param mergedBackgroundToo if <code>true</code>, the clear-background will be redrawn and the {@link #drawBackground(LiveGameData, EditorPresets, TextureImage2D, int, int, int, int, boolean)} methods will be called again.
      */
-    public final void forceCompleteRedraw()
+    public final void forceCompleteRedraw( boolean mergedBackgroundToo )
     {
-        forceCompleteRedraw( true );
+        forceCompleteRedraw_( mergedBackgroundToo, true );
     }
     
     /**
      * This simply calls {@link #forceCompleteRedraw()}, {@link #forceReinitialization()} and {@link #setDirtyFlag()}.
      * This method must be called after a value has been changed, that requires a reinitialization of all positioned strings, etc.
      */
-    public final void forceAndSetDirty()
+    public final void forceAndSetDirty( boolean mergedBackgroundToo )
     {
-        forceCompleteRedraw();
+        forceCompleteRedraw( mergedBackgroundToo );
         forceReinitialization();
         setDirtyFlag();
     }
@@ -1123,6 +1132,14 @@ public abstract class Widget implements Documented
             return ( false );
         }
         
+        TextureImage2D mergedBG = background.getMergedTexture();
+        if ( mergedBG != null )
+        {
+            texture.clear( mergedBG, localX, localY, width, height, offsetX + localX, offsetY + localY, markDirty, dirtyRect );
+            
+            return ( true );
+        }
+        
         if ( background.getType().isColor() )
         {
             texture.clear( background.getColor(), offsetX + localX, offsetY + localY, width, height, markDirty, dirtyRect );
@@ -1192,11 +1209,14 @@ public abstract class Widget implements Documented
     {
         if ( hasBorder() && ( texture != null ) )
         {
-            border.drawBorder( background.getColor(), texture, offsetX, offsetY, width, height );
+            border.drawBorder( ( background == null ) ? null : background.getColor(), texture, offsetX, offsetY, width, height );
         }
     }
     
     /**
+     * You can use this method to directly draw static content onto your Widget's background.
+     * Overriding this method makes the Widget use a background texture no matter, if the background is defined with a color only or an image.
+     * 
      * @param gameData
      * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
@@ -1204,18 +1224,67 @@ public abstract class Widget implements Documented
      * @param offsetY
      * @param width
      * @param height
+     * @param isRoot if this is true, you can possibly clear your stuff onto the texture instead of drawing it.
      */
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        if ( ( texture != null ) && ( background != null ) )
+        if ( canHaveBackground() )
         {
             if ( background.getType().isColor() )
             {
-                texture.clear( background.getColor(), offsetX, offsetY, width, height, true, null );
+                if ( isRoot )
+                    texture.clear( background.getColor(), offsetX, offsetY, width, height, false, null );
+                else
+                    texture.fillRectangle( background.getColor(), offsetX, offsetY, width, height, false, null );
             }
             else if ( background.getType().isImage() )
             {
-                texture.clear( background.getTexture(), offsetX, offsetY, width, height, true, null );
+                if ( isRoot )
+                    texture.clear( background.getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, false, null );
+                else
+                    texture.drawImage( background.getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, false, null );
+            }
+        }
+    }
+    
+    void drawBackground_( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    {
+        texture.getTextureCanvas().pushClip( offsetX, offsetY, width, height, true );
+        
+        try
+        {
+            drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        }
+        finally
+        {
+            texture.getTextureCanvas().popClip();
+        }
+    }
+    
+    /**
+     * @param background never <code>null</code>!
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param offsetX
+     * @param offsetY
+     * @param width
+     * @param height
+     */
+    private final void clearBackground( WidgetBackground background, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        if ( texture != null )
+        {
+            TextureImage2D mergedBG = background.getMergedTexture();
+            
+            if ( mergedBG == null )
+            {
+                if ( background.getColor() == null )
+                    texture.clear( offsetX, offsetY, width, height, true, null );
+                else
+                    texture.clear( background.getColor(), offsetX, offsetY, width, height, true, null );
+            }
+            else
+            {
+                texture.clear( mergedBG, offsetX, offsetY, width, height, true, null );
             }
         }
     }
@@ -1308,7 +1377,12 @@ public abstract class Widget implements Documented
             if ( texture2 != null )
                 texture2.markDirty( offsetX, offsetY, width, height );
             
-            clearBackground( gameData, editorPresets, ( editorPresets == null ) ? texture2 : texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
+            if ( ( getMasterWidget() == null ) && ( background != null ) )
+            {
+                background.updateMergedBackground( gameData, editorPresets );
+                
+                clearBackground( background, ( editorPresets == null ) ? texture2 : texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
+            }
         }
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
@@ -1358,7 +1432,7 @@ public abstract class Widget implements Documented
             writer.writeProperty( inputVisible, "The initial visibility." );
         }
         
-        if ( backgroundProperty != null )
+        if ( canHaveBackground() )
         {
             writer.writeProperty( backgroundProperty, "The Widget's background color in the format #RRGGBBAA (hex)." );
         }
@@ -1389,7 +1463,7 @@ public abstract class Widget implements Documented
         else if ( loader.loadProperty( paddingRight ) );
         else if ( loader.loadProperty( paddingBottom ) );
         else if ( loader.loadProperty( inputVisible ) );
-        else if ( ( backgroundProperty != null ) && loader.loadProperty( backgroundProperty ) );
+        else if ( canHaveBackground() && loader.loadProperty( backgroundProperty ) );
         else if ( loader.loadProperty( font ) );
         else if ( loader.loadProperty( fontColor ) );
     }
@@ -1492,7 +1566,7 @@ public abstract class Widget implements Documented
             addBorderPropertyToContainer( border, propsCont, forceAll );
         }
         
-        if ( ( masterWidget == null ) && ( backgroundProperty != null ) )
+        if ( ( masterWidget == null ) && canHaveBackground() )
         {
             addBackgroundPropertyToContainer( backgroundProperty, propsCont, forceAll );
         }

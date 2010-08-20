@@ -115,7 +115,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         if ( property == getFontProperty() )
         {
             forceReinitialization();
-            forceCompleteRedraw();
+            forceCompleteRedraw( false );
         }
     }
     
@@ -218,7 +218,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                         relVSI = vsi_nb;
                         setUserVisible2( true );
                         hideTime = scoringInfo.getSessionTime() + visibleTime.getFloatValue();
-                        forceCompleteRedraw();
+                        forceCompleteRedraw( false );
                     }
                 }
                 else
@@ -339,7 +339,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                     if ( b )
                     {
                         hideTime = scoringInfo.getSessionTime() + visibleTime.getFloatValue();
-                        forceCompleteRedraw();
+                        forceCompleteRedraw( false );
                     }
                 }
             }
@@ -403,7 +403,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         gapString2 = dsf.newDrawnString( "gapString2", namesWidth + 2 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 1 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         gapString3 = dsf.newDrawnString( "gapString3", namesWidth + 3 * ETVUtils.ITEM_GAP - ETVUtils.TRIANGLE_WIDTH / 2 + dataWidthTimes / 2 + 2 * ( ETVUtils.TRIANGLE_WIDTH + dataWidthTimes ), 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
-        forceCompleteRedraw();
+        forceCompleteRedraw( true );
     }
     
     private static final float getLaptime( VehicleScoringInfo vsi, int lap )
@@ -416,23 +416,19 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         return ( lt.getLapTime() );        
     }
     
-    @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    private void drawStructure( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY )
     {
         final boolean isEditorMode = ( editorPresets != null );
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
-        if ( getMasterWidget() == null )
-            texture.clear( offsetX, offsetY, width, height, true, null );
-        
         //int positionWidth2 = ETVUtils.TRIANGLE_WIDTH + positionWidth + ETVUtils.TRIANGLE_WIDTH;
         //int dataWidthNames2 = ETVUtils.TRIANGLE_WIDTH + dataWidthNames + ETVUtils.TRIANGLE_WIDTH;
         int dataWidthTimes2 = ETVUtils.TRIANGLE_WIDTH + dataWidthTimes + ETVUtils.TRIANGLE_WIDTH;
         
         Color captionBgColor = captionBackgroundColor.getColor();
-        Color dataBgColor = getBackground().getColor();
+        Color dataBgColor = dataBackgroundColor.getColor();
         if ( vsi.getPlace( getUseClassScoring() ) == 1 )
             captionBgColor = captionBackgroundColor1st.getColor();
         
@@ -441,7 +437,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         drivernameString1.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture, false );
         
         captionBgColor = captionBackgroundColor.getColor();
-        dataBgColor = getBackground().getColor();
+        dataBgColor = dataBackgroundColor.getColor();
         if ( vsi.getPlace( getUseClassScoring() ) == 1 )
             captionBgColor = captionBackgroundColor1st.getColor();
         
@@ -540,7 +536,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         Color dataColor = dataColorFaster.getColor();
         if ( gapStr1 == null )
         {
-            dataBgColor = getBackground().getColor();
+            dataBgColor = dataBackgroundColor.getColor();
             dataColor = getFontColor();
         }
         else if ( gap1 < 0f )
@@ -560,7 +556,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         dataColor = dataColorFaster.getColor();
         if ( gapStr2 == null )
         {
-            dataBgColor = getBackground().getColor();
+            dataBgColor = dataBackgroundColor.getColor();
             dataColor = getFontColor();
         }
         else if ( gap2 < 0f )
@@ -580,7 +576,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         dataColor = dataColorFaster.getColor();
         if ( gapStr3 == null )
         {
-            dataBgColor = getBackground().getColor();
+            dataBgColor = dataBackgroundColor.getColor();
             dataColor = getFontColor();
         }
         else if ( gap3 < 0f )
@@ -600,6 +596,10 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     @Override
     public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        if ( needsCompleteRedraw )
+        {
+            drawStructure( gameData, editorPresets, texture, offsetX, offsetY );
+        }
     }
     
     

@@ -76,18 +76,47 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesCaptionBG( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        super.getProperties( propsCont, forceAll );
+        super.getPropertiesCaptionBG( propsCont, forceAll );
         
         propsCont.addProperty( captionBackgroundColor1st );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getPropertiesDataBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesDataBG( propsCont, forceAll );
+        
         propsCont.addProperty( dataBackgroundColor1st );
         propsCont.addProperty( dataBackgroundColorFastest );
         propsCont.addProperty( dataBackgroundColorFaster );
         propsCont.addProperty( dataBackgroundColorSlower );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getPropertiesData( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesData( propsCont, forceAll );
+        
         propsCont.addProperty( dataColorFastest );
         propsCont.addProperty( dataColorFaster );
         propsCont.addProperty( dataColorSlower );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
     }
     
     public ETVTimingWidgetBase( String name, float width, float height )

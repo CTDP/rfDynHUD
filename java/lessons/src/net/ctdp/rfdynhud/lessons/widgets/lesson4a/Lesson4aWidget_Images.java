@@ -45,7 +45,7 @@ public class Lesson4aWidget_Images extends Widget
      * We pass null for the display-name, which means "use the name parameter" and we define
      * to allow no-image with the last parameter.
      */
-    private final ImageProperty backgroundImage = new ImageProperty( this, "backgroundImage", null, "ctdp-fat-1994.png", false, true );
+    private final ImageProperty image1 = new ImageProperty( this, "image", null, "ctdp-fat-1994.png", false, true );
     
     /*
      * This is a simple image property for an image to be displayed somewhere on the Widget.
@@ -56,7 +56,7 @@ public class Lesson4aWidget_Images extends Widget
      * These two TextureImage2Ds cache the property images in actual size
      * as chosen in the editor.
      */
-    private TextureImage2D backgroundTexImage = null;
+    private TextureImage2D texImage1 = null;
     private TextureImage2D texImage2 = null;
     
     private DrawnString ds = null;
@@ -76,7 +76,7 @@ public class Lesson4aWidget_Images extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        ds = drawnStringFactory.newDrawnString( "ds", 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        ds = drawnStringFactory.newDrawnString( "ds", 10, 20, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         /*
          * This loads the image as defined in the property and gets a scaled instance.
@@ -85,26 +85,24 @@ public class Lesson4aWidget_Images extends Widget
     }
     
     @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
+        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        
         /*
-         * If the user selcted no-image, we use the default background.
+         * If the user didn't select no-image, draw it onto our background.
          */
-        if ( backgroundImage.isNoImage() )
-        {
-            super.clearBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height );
-        }
-        else
+        if ( !image1.isNoImage() )
         {
             /*
              * This loads the image as defined in the property and gets a scaled instance using (inner) widget size.
              */
-            backgroundTexImage = backgroundImage.getImage().getScaledTextureImage( width, height, backgroundTexImage );
+            texImage1 = image1.getImage().getScaledTextureImage( width / 2, height / 2, texImage1 );
             
             /*
-             * And finally we clear the background using out background image (scaled texture).
+             * And finally we draw the image using our selected image (scaled texture).
              */
-            texture.clear( backgroundTexImage, offsetX, offsetY, true, null );
+            texture.drawImage( texImage1, offsetX + ( width / 4 ), offsetY + ( height / 4 ), true, null );
         }
     }
     
@@ -112,17 +110,13 @@ public class Lesson4aWidget_Images extends Widget
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         /*
-         * As this method is executed after the clearBackground() method, the background is already
+         * As this method is executed after the drawBackground() method, the background is already
          * cleared with our defined background image.
          */
         
         if ( needsCompleteRedraw )
         {
-            /*
-             * We need to pass in the background image as clear image, so that the
-             * DrawnString knows, what to use to clear the part of the background.
-             */
-            ds.draw( offsetX, offsetY, "Text on a background image", backgroundTexImage, texture );
+            ds.draw( offsetX, offsetY, "Text on a background image", texture );
             
             /*
              * Now we simply draw our second image 10 pixels from the lower-right corner
@@ -137,7 +131,7 @@ public class Lesson4aWidget_Images extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( backgroundImage, "The background image." );
+        writer.writeProperty( image1, "The background image." );
         writer.writeProperty( image2, "Another image." );
     }
     
@@ -146,7 +140,7 @@ public class Lesson4aWidget_Images extends Widget
     {
         super.loadProperty( loader );
         
-        if ( loader.loadProperty( backgroundImage ) );
+        if ( loader.loadProperty( image1 ) );
         else if ( loader.loadProperty( image2 ) );
     }
     
@@ -157,7 +151,7 @@ public class Lesson4aWidget_Images extends Widget
         
         propsCont.addGroup( "My own Properties" );
         
-        propsCont.addProperty( backgroundImage );
+        propsCont.addProperty( image1 );
         propsCont.addProperty( image2 );
     }
     

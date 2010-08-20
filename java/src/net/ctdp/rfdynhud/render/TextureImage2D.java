@@ -45,6 +45,7 @@ import java.awt.image.Raster;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.util.NumberUtil;
 
 import org.jagatoo.image.DirectBufferedImage;
@@ -1493,31 +1494,31 @@ public class TextureImage2D
     /**
      * Draws the given {@link TextureImage2D} onto this one and honors the alpha channels (if any).
      * 
-     * @param ti source image
+     * @param srcTI source image
      * @param srcRect the rectangle to copy from the source {@link TextureImage2D}.
      * @param trgX target x-coordinate
      * @param trgY target y-coordinate
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
-    public final void drawImage( TextureImage2D ti, Rect2i srcRect, int trgX, int trgY, boolean markDirty, Rect2i dirtyRect )
+    public final void drawImage( TextureImage2D srcTI, Rect2i srcRect, int trgX, int trgY, boolean markDirty, Rect2i dirtyRect )
     {
-        drawImage( ti, srcRect.getLeft(), srcRect.getTop(), srcRect.getWidth(), srcRect.getHeight(), trgX, trgY, markDirty, dirtyRect );
+        drawImage( srcTI, srcRect.getLeft(), srcRect.getTop(), srcRect.getWidth(), srcRect.getHeight(), trgX, trgY, markDirty, dirtyRect );
     }
     
     /**
      * Draws the given {@link TextureImage2D} onto this one and honors the alpha channels (if any).
      * 
-     * @param ti source image
+     * @param srcTI source image
      * @param trgX target x-coordinate
      * @param trgY target y-coordinate
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
-    public final void drawImage( TextureImage2D ti, int trgX, int trgY, boolean markDirty, Rect2i dirtyRect )
+    public final void drawImage( TextureImage2D srcTI, int trgX, int trgY, boolean markDirty, Rect2i dirtyRect )
     {
-        //drawImage( ti, 0, 0, ti.getWidth(), ti.getHeight(), trgX, trgY, markDirty, dirtyRect );
-        drawImage( ti, 0, 0, ti.getUsedWidth(), ti.getUsedHeight(), trgX, trgY, markDirty, dirtyRect );
+        //drawImage( srcTI, 0, 0, srcTI.getWidth(), srcTI.getHeight(), trgX, trgY, markDirty, dirtyRect );
+        drawImage( srcTI, 0, 0, srcTI.getUsedWidth(), srcTI.getUsedHeight(), trgX, trgY, markDirty, dirtyRect );
     }
     
     /**
@@ -2018,14 +2019,29 @@ public class TextureImage2D
         return ( fontMetrics.getStringBounds( s, textGraphics ) );
     }
     
+    public final java.awt.geom.Rectangle2D getStringBounds( String s, FontProperty font )
+    {
+        return ( getStringBounds( s, font.getFont(), font.isAntiAliased() ) );
+    }
+    
     public final int getStringWidth( String s, java.awt.Font font, boolean antiAliased )
     {
         return ( (int)getStringBounds( s, font, antiAliased ).getWidth() );
     }
     
+    public final int getStringWidth( String s, FontProperty font )
+    {
+        return ( (int)getStringBounds( s, font.getFont(), font.isAntiAliased() ).getWidth() );
+    }
+    
     public final int getStringHeight( String s, java.awt.Font font, boolean antiAliased )
     {
         return ( (int)getStringBounds( s, font, antiAliased ).getHeight() );
+    }
+    
+    public final int getStringHeight( String s, FontProperty font )
+    {
+        return ( (int)getStringBounds( s, font.getFont(), font.isAntiAliased() ).getHeight() );
     }
     
     public final int getFontAscent( java.awt.Font font )
@@ -2161,6 +2177,11 @@ public class TextureImage2D
     public static TextureImage2D createDrawTexture( int width, int height, int usedWidth, int usedHeight, boolean alpha, ByteBuffer dataBuffer )
     {
         return ( new TextureImage2D( width, height, usedWidth, usedHeight, alpha, dataBuffer, null, false ) );
+    }
+    
+    public static TextureImage2D createDrawTexture( int width, int height, int usedWidth, int usedHeight, boolean alpha )
+    {
+        return ( new TextureImage2D( width, height, usedWidth, usedHeight, alpha, null, null, false ) );
     }
     
     public static TextureImage2D createOfflineTexture( int width, int height, boolean alpha, byte[] data )

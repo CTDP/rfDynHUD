@@ -252,7 +252,7 @@ public class WearWidget extends Widget
         
         displayBrakes2 = displayBrakes.getBooleanValue() && viewedVSI.getVehicleControl().isLocalPlayer();
         forceReinitialization();
-        forceCompleteRedraw();
+        forceCompleteRedraw( false );
     }
     
     /**
@@ -293,7 +293,7 @@ public class WearWidget extends Widget
     {
         super.onVehicleSetupUpdated( gameData, editorPresets );
         
-        forceCompleteRedraw();
+        forceCompleteRedraw( false );
         forceReinitialization();
     }
     

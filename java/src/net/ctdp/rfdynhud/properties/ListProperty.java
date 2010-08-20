@@ -59,7 +59,7 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
         this.value = value;
         
         if ( widget != null )
-            widget.forceAndSetDirty();
+            widget.forceAndSetDirty( true );
         
         onValueChanged();
         onValueChanged( oldValue, value );

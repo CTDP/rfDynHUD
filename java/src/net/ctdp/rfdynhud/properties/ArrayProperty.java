@@ -56,7 +56,7 @@ public class ArrayProperty<E extends Object> extends Property
         this.value = value;
         
         if ( widget != null )
-            widget.forceAndSetDirty();
+            widget.forceAndSetDirty( true );
         
         onValueChanged();
         onValueChanged( oldValue, value );

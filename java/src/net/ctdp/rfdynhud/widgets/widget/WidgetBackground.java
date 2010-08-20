@@ -19,6 +19,8 @@ package net.ctdp.rfdynhud.widgets.widget;
 
 import java.awt.Color;
 
+import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.render.ImageTemplate;
@@ -41,6 +43,11 @@ public class WidgetBackground
     
     private float backgroundScaleX = 1.0f;
     private float backgroundScaleY = 1.0f;
+    
+    private TextureImage2D backgroundTexture = null;
+    private boolean bgTexDirty = true;
+    private TextureImage2D mergedBackgroundTexture = null;
+    private boolean mergedBgTexDirty = true;
     
     /**
      * Gets the current type of this background.
@@ -66,8 +73,6 @@ public class WidgetBackground
         return ( property.getColorValue() );
     }
     
-    private TextureImage2D backgroundTexture = null;
-    
     private void loadBackgroundImage( ImageTemplate image, int width, int height )
     {
         /*
@@ -80,24 +85,30 @@ public class WidgetBackground
         else
         */
         {
-            boolean reloadBackground = ( backgroundTexture == null );
             boolean looksLikeEditorMode = ( changeCount > 1 );
             
-            if ( !reloadBackground && looksLikeEditorMode && ( ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) ) )
+            boolean reloadBackground = bgTexDirty;
+            if ( !bgTexDirty && looksLikeEditorMode && ( ( backgroundTexture == null ) || ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) ) )
                 reloadBackground = true;
             
             if ( reloadBackground )
             {
                 try
                 {
-                    backgroundTexture = image.getScaledTextureImage( width, height );
-                    backgroundScaleX = (float)width / (float)image.getBaseWidth();
-                    backgroundScaleY = (float)height / (float)image.getBaseHeight();
+                    if ( ( backgroundTexture == null ) || ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) )
+                        backgroundTexture = image.getScaledTextureImage( width, height );
+                    else
+                        image.drawScaled( 0, 0, width, height, backgroundTexture, true );
+                    
+                    bgTexDirty = false;
                 }
                 catch ( Throwable t )
                 {
                     Logger.log( t );
                 }
+                
+                backgroundScaleX = (float)width / (float)image.getBaseWidth();
+                backgroundScaleY = (float)height / (float)image.getBaseHeight();
             }
         }
     }
@@ -132,19 +143,19 @@ public class WidgetBackground
         return ( height );
     }
     
-    void onPropertyValueChanged( Widget widget, BackgroundType newBGType, String oldValue, String newValue )
+    void onPropertyValueChanged( Widget widget, BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
     {
         changeCount++;
         
         int width = getWidth();
         int height = getHeight();
         
-        float deltaScaleX = 1.0f;
-        float deltaScaleY = 1.0f;
+        float deltaScaleX = -1.0f;
+        float deltaScaleY = -1.0f;
         
         if ( newBGType.isColor() )
         {
-            if ( backgroundTexture != null )
+            if ( oldBGType.isImage() )
             {
                 ImageTemplate it = TextureManager.getImage( oldValue );
                 
@@ -153,44 +164,43 @@ public class WidgetBackground
             }
             
             backgroundTexture = null;
-        }
-        else
-        {
-            float oldBgScaleX = 1.0f;
-            float oldBgScaleY = 1.0f;
             
-            boolean needsScaleChange = false;
-            if ( backgroundTexture != null )
+            bgTexDirty = true;
+            mergedBgTexDirty = true;
+        }
+        else if ( newBGType.isImage() )
+        {
+            if ( oldBGType.isColor() )
             {
-                needsScaleChange = true;
-                
                 ImageTemplate it = TextureManager.getImage( oldValue );
                 
-                oldBgScaleX = (float)width / (float)it.getBaseWidth();
-                oldBgScaleY = (float)height / (float)it.getBaseHeight();
+                deltaScaleX = (float)width / (float)it.getBaseWidth();
+                deltaScaleY = (float)height / (float)it.getBaseHeight();
+            }
+            else if ( oldBGType.isImage() )
+            {
+                ImageTemplate it = TextureManager.getImage( oldValue );
+                
+                float oldBgScaleX = (float)width / (float)it.getBaseWidth();
+                float oldBgScaleY = (float)height / (float)it.getBaseHeight();
+                
+                it = TextureManager.getImage( newValue );
+                
+                float newScaleX = (float)width / (float)it.getBaseWidth();
+                float newScaleY = (float)height / (float)it.getBaseHeight();
+                
+                deltaScaleX = oldBgScaleX / newScaleX;
+                deltaScaleY = oldBgScaleY / newScaleY;
             }
             
             backgroundTexture = null;
             
-            if ( needsScaleChange )
-            {
-                ImageTemplate it = TextureManager.getImage( newValue );
-                
-                float scaleX = (float)width / (float)it.getBaseWidth();
-                float scaleY = (float)height / (float)it.getBaseHeight();
-                
-                deltaScaleX = oldBgScaleX / scaleX;
-                deltaScaleY = oldBgScaleY / scaleY;
-            }
-            else
-            {
-                deltaScaleX = -1f;
-                deltaScaleY = -1f;
-            }
+            bgTexDirty = true;
+            mergedBgTexDirty = true;
         }
         
         widget.onBackgroundChanged( deltaScaleX, deltaScaleY );
-        widget.forceAndSetDirty();
+        widget.forceAndSetDirty( true );
     }
     
     /**
@@ -199,26 +209,107 @@ public class WidgetBackground
      */
     void onWidgetSizeChanged( Widget widget )
     {
-        backgroundTexture = null;
+        bgTexDirty = true;
+        mergedBgTexDirty = true;
     }
     
     /**
-     * Gets the {@link Color} from this {@link BackgroundProperty}.
-     * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@value BackgroundType#COLOR}.
+     * Gets the {@link TextureImage2D} from this {@link BackgroundProperty}.
+     * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@value BackgroundType#IMAGE}.
      * 
-     * @return the {@link Color} from this {@link BackgroundProperty}.
+     * @return the {@link TextureImage2D} from this {@link BackgroundProperty}.
      */
     public final TextureImage2D getTexture()
     {
         if ( !property.getBackgroundType().isImage() )
             return ( null );
         
-        if ( backgroundTexture == null )
+        if ( bgTexDirty )
         {
             loadBackgroundImage( property.getImageValue(), getWidth(), getHeight() );
         }
         
         return ( backgroundTexture );
+    }
+    
+    void setMergedBGDirty()
+    {
+        this.mergedBgTexDirty = true;
+    }
+    
+    private static boolean needsTexture( AssembledWidget widget )
+    {
+        for ( int i = 0; i < widget.parts.length; i++ )
+        {
+            Widget part = widget.parts[i];
+            WidgetBackground bg = part.getBackground();
+            
+            if ( ( ( bg != null ) && bg.getType().isImage() ) || widget.isDrawBackgroundOverridden )
+                return ( true );
+            
+            if ( part instanceof AssembledWidget )
+            {
+                if ( needsTexture( (AssembledWidget)part ) )
+                    return ( true );
+            }
+        }
+        
+        return ( false );
+    }
+    
+    private void createAndUpdateMergedBackgroundTexture( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        int width = getWidth();
+        int height = getHeight();
+        
+        if ( ( mergedBackgroundTexture == null ) || ( mergedBackgroundTexture.getUsedWidth() != width ) || ( mergedBackgroundTexture.getUsedHeight() != height ) )
+        {
+            mergedBackgroundTexture = TextureImage2D.createDrawTexture( width, height, width, height, true );
+        }
+        
+        widget.drawBackground_( gameData, editorPresets, mergedBackgroundTexture, 0, 0, width, height, true );
+        mergedBgTexDirty = false;
+    }
+    
+    /**
+     * 
+     * @param gameData
+     * @param editorPresets
+     */
+    void updateMergedBackground( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        if ( mergedBgTexDirty )
+        {
+            if ( property.getBackgroundType().isColor() && !widget.isDrawBackgroundOverridden )
+            {
+                if ( ( widget instanceof AssembledWidget ) && needsTexture( (AssembledWidget)widget ) )
+                {
+                    createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                }
+                else
+                {
+                    mergedBackgroundTexture = null;
+                    mergedBgTexDirty = false;
+                }
+            }
+            else
+            {
+                createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+            }
+        }
+    }
+    
+    /**
+     * Gets the merged background, composed of the backgrounds of this (possibly assembled) {@link Widget} and the parts of this Widget.
+     * If this {@link Widget} is not an {@link AssembledWidget} and has a background color (no image)
+     * and doesn't override the {@link Widget#drawBackground(net.ctdp.rfdynhud.gamedata.LiveGameData, net.ctdp.rfdynhud.editor.EditorPresets, TextureImage2D, int, int, int, int)} method,
+     * this method returns <code>null</code>.
+     * 
+     * @return the marged background texture or <code>null</code>.
+     */
+    public final TextureImage2D getMergedTexture()
+    {
+        return ( mergedBackgroundTexture );
     }
     
     /**
@@ -231,7 +322,7 @@ public class WidgetBackground
         if ( property.getBackgroundType().isColor() )
             return ( 1.0f );
         
-        if ( backgroundTexture == null )
+        if ( bgTexDirty )
         {
             loadBackgroundImage( property.getImageValue(), getWidth(), getHeight() );
         }
@@ -249,7 +340,7 @@ public class WidgetBackground
         if ( property.getBackgroundType().isColor() )
             return ( 1.0f );
         
-        if ( backgroundTexture == null )
+        if ( bgTexDirty )
         {
             loadBackgroundImage( property.getImageValue(), getWidth(), getHeight() );
         }

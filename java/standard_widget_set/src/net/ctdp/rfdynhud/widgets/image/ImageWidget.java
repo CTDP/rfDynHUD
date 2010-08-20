@@ -27,7 +27,6 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -40,15 +39,14 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class ImageWidget extends Widget
 {
-    private TextureImage2D image = null;
     private final ImageProperty imageProp = new ImageProperty( this, "imageName", "ctdp-fat-1994.png" )
     {
         @Override
-        public void setValue( Object value )
+        public void onValueChanged( String oldValue, String newValue )
         {
-            super.setValue( value );
+            super.onValueChanged( oldValue, newValue );
             
-            image = null;
+            forceCompleteRedraw( true );
         }
     };
     
@@ -73,6 +71,7 @@ public class ImageWidget extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        /*
         if ( ( editorPresets != null ) || ( image == null ) )
         {
             try
@@ -88,12 +87,16 @@ public class ImageWidget extends Widget
                 Logger.log( t );
             }
         }
+        */
     }
     
     @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        texture.clear( image, offsetX, offsetY, width, height, true, null );
+        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        
+        ImageTemplate it = imageProp.getImage();
+        it.drawScaled( 0, 0, it.getBaseWidth(), it.getBaseHeight(), offsetX, offsetY, width, height, texture, true );
     }
     
     @Override
@@ -158,5 +161,7 @@ public class ImageWidget extends Widget
     public ImageWidget( String name )
     {
         super( name, 17.0f, 8.6f );
+        
+        getBackgroundProperty().setColorValue( "#00000000" );
     }
 }

@@ -74,7 +74,7 @@ public class BorderProperty extends Property
         this.border = null;
         
         if ( widget != null )
-            widget.forceAndSetDirty();
+            widget.forceAndSetDirty( true );
         
         onValueChanged();
         onValueChanged( oldValue, borderName );

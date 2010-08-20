@@ -162,7 +162,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
             //Logger.log( ">> sessionLimit changed: " + sessionLimit + ", " + caption );
             
             forceReinitialization();
-            forceCompleteRedraw();
+            forceCompleteRedraw( false );
             
             return ( true );
         }
@@ -215,7 +215,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         if ( sectorYellowFlag.hasChanged() )
             changed = true;
         
-        dataBgColor = getBackground().getColor(); // TODO: handle bg-image
+        dataBgColor = dataBackgroundColor.getColor();
         dataFontColor = getFontColor();
         if ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( gamePhase.getValue() == GamePhase.FULL_COURSE_YELLOW ) || sectorYellowFlag.getValue() )
         {
@@ -262,18 +262,17 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         if ( sessionLimit == SessionLimit.LAPS )
             stateString.getMinColWidths( new String[] { "00", "/", "00" }, colAligns, colPadding, texture, colWidths );
         
-        forceCompleteRedraw();
-    }
-    
-    @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
-    {
-        ETVUtils.drawLabeledDataBackground( offsetX, offsetY, width, height, caption, getFont(), captionBackgroundColor.getColor(), dataBgColor, texture, true );
+        forceCompleteRedraw( false );
     }
     
     @Override
     public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        if ( needsCompleteRedraw )
+        {
+            ETVUtils.drawLabeledDataBackground( offsetX, offsetY, width, height, caption, getFont(), captionBackgroundColor.getColor(), dataBgColor, texture, false );
+        }
+        
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         VehicleScoringInfo vsi = scoringInfo.getSessionType().isRace() ? scoringInfo.getLeadersVehicleScoringInfo() : scoringInfo.getViewedVehicleScoringInfo();

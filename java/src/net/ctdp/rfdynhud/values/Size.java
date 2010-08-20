@@ -208,7 +208,7 @@ public class Size implements AbstractSize
             
             applyLimits();
             
-            widget.forceAndSetDirty();
+            widget.forceAndSetDirty( true );
             
             if ( b )
             {
@@ -487,7 +487,7 @@ public class Size implements AbstractSize
         
         applyLimits();
         
-        widget.forceAndSetDirty();
+        widget.forceAndSetDirty( true );
         
         return ( this );
     }
@@ -507,7 +507,7 @@ public class Size implements AbstractSize
         
         applyLimits();
         
-        widget.forceAndSetDirty();
+        widget.forceAndSetDirty( true );
         
         return ( this );
     }

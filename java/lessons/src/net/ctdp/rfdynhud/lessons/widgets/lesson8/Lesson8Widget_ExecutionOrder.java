@@ -114,13 +114,13 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        //log( "clearBackground()" );
+        //log( "drawBackground()" );
         
         // This method is exectuted 5th and each frame.
         
-        super.clearBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height );
+        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
     }
     
     @Override

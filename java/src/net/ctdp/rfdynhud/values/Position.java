@@ -196,7 +196,7 @@ public class Position
             this.y = y;
             
             if ( !__EDPrivilegedAccess.isEditorMode )
-                widget.forceCompleteRedraw();
+                widget.forceCompleteRedraw( true );
             widget.setDirtyFlag();
             
             if ( b )

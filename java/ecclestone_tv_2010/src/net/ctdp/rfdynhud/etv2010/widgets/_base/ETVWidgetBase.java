@@ -32,6 +32,7 @@ public abstract class ETVWidgetBase extends Widget
 {
     protected final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
     protected final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
+    protected final ColorProperty dataBackgroundColor = new ColorProperty( this, "dataBgColor", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
     
     @Override
     public WidgetPackage getWidgetPackage()
@@ -77,6 +78,7 @@ public abstract class ETVWidgetBase extends Widget
         
         writer.writeProperty( captionBackgroundColor, "The background color for the \"Lap\" caption." );
         writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
+        writer.writeProperty( dataBackgroundColor, "The background color for the data fields." );
     }
     
     /**
@@ -89,6 +91,49 @@ public abstract class ETVWidgetBase extends Widget
         
         if ( loader.loadProperty( captionBackgroundColor ) );
         else if ( loader.loadProperty( captionColor ) );
+        else if ( loader.loadProperty( dataBackgroundColor ) );
+    }
+    
+    /**
+     * 
+     * @param propsCont
+     * @param forceAll
+     */
+    protected void getPropertiesCaptionBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( captionBackgroundColor );
+    }
+    
+    /**
+     * 
+     * @param propsCont
+     * @param forceAll
+     */
+    protected void getPropertiesCaption( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        getPropertiesCaptionBG( propsCont, forceAll );
+        
+        propsCont.addProperty( captionColor );
+    }
+    
+    /**
+     * 
+     * @param propsCont
+     * @param forceAll
+     */
+    protected void getPropertiesDataBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( dataBackgroundColor );
+    }
+    
+    /**
+     * 
+     * @param propsCont
+     * @param forceAll
+     */
+    protected void getPropertiesData( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        getPropertiesDataBG( propsCont, forceAll );
     }
     
     /**
@@ -101,8 +146,8 @@ public abstract class ETVWidgetBase extends Widget
         
         propsCont.addGroup( "Colors and Fonts" );
         
-        propsCont.addProperty( captionBackgroundColor );
-        propsCont.addProperty( captionColor );
+        getPropertiesCaption( propsCont, forceAll );
+        getPropertiesData( propsCont, forceAll );
     }
     
     @Override
@@ -122,7 +167,7 @@ public abstract class ETVWidgetBase extends Widget
     @Override
     protected String getInitialBackground()
     {
-        return ( BackgroundProperty.COLOR_INDICATOR + ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
+        return ( BackgroundProperty.COLOR_INDICATOR + "#00000000" );
     }
     
     public ETVWidgetBase( String name, float width, float height )

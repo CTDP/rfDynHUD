@@ -368,7 +368,7 @@ public class WidgetsConfiguration implements Documented
                 Widget widget = getWidget( i );
                 
                 widget.forceReinitialization();
-                widget.forceCompleteRedraw();
+                widget.forceCompleteRedraw( true );
                 if ( widget.getPosition().isBaked() )
                     widget.bake();
             }

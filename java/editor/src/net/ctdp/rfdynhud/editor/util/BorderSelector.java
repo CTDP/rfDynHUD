@@ -143,7 +143,7 @@ public class BorderSelector extends DefaultTableModel
             
             if ( propFound )
             {
-                widget.forceAndSetDirty();
+                widget.forceAndSetDirty( false );
             }
         }
     }
@@ -322,7 +322,7 @@ public class BorderSelector extends DefaultTableModel
         {
             Widget widget = widgetsConfig.getWidget( i );
             
-            widget.forceAndSetDirty();
+            widget.forceAndSetDirty( false );
             
             propsCont.clear();
             widget.getProperties( propsCont, true );

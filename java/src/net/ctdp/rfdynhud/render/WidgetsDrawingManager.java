@@ -196,7 +196,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 waitingWidgets.remove( i );
                 
                 widget.forceReinitialization();
-                widget.forceCompleteRedraw();
+                widget.forceCompleteRedraw( true );
             }
         }
     }
@@ -278,7 +278,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         for ( int i = 0; i < getNumWidgets(); i++ )
         {
-            getWidget( i ).forceCompleteRedraw();
+            getWidget( i ).forceCompleteRedraw( true );
             getWidget( i ).forceReinitialization();
         }
     }
@@ -485,7 +485,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             try
             {
-                widget.forceAndSetDirty();
+                widget.forceAndSetDirty( true );
                 widget.onVehicleSetupUpdated( gameData, editorPresets );
             }
             catch ( Throwable t )

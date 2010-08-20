@@ -152,7 +152,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
         super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
         
         updateLaps( viewedVSI );
-        forceCompleteRedraw();
+        forceCompleteRedraw( false );
     }
     
     /**

@@ -295,7 +295,7 @@ public abstract class NeedleMeterWidget extends Widget
     {
         super.onVehicleSetupUpdated( gameData, editorPresets );
         
-        forceCompleteRedraw();
+        forceCompleteRedraw( true );
         forceReinitialization();
     }
     
@@ -355,9 +355,9 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        super.clearBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height );
+        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
         
         drawMarks( gameData, editorPresets, texture.getTextureCanvas(), offsetX, offsetY, width, height );
     }

@@ -85,11 +85,11 @@ public abstract class Property
         if ( widgetsConfig != null )
         {
             for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
-                widgetsConfig.getWidget( i ).forceAndSetDirty();
+                widgetsConfig.getWidget( i ).forceAndSetDirty( true );
         }
         
         if ( widget != null )
-            widget.forceAndSetDirty();
+            widget.forceAndSetDirty( true );
     }
     
     /**

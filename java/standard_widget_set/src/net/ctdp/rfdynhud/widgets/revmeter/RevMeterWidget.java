@@ -121,7 +121,7 @@ public class RevMeterWidget extends Widget
                 rpmPosY2.setIntValue( Math.round( rpmPosY2.getIntValue() * corrY ) );
             }
             
-            forceAndSetDirty();
+            forceAndSetDirty( true );
         }
     };
     private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "default_rev_meter_needle.png", false, true )
@@ -601,7 +601,7 @@ public class RevMeterWidget extends Widget
     {
         super.onVehicleSetupUpdated( gameData, editorPresets );
         
-        forceCompleteRedraw();
+        forceCompleteRedraw( false );
         forceReinitialization();
     }
     
@@ -940,12 +940,12 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
-    protected void clearBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
         if ( backgroundTexture == null )
-            texture.clear( offsetX, offsetY, width, height, true, null );
+            texture.clear( offsetX, offsetY, width, height, false, null );
         else
-            texture.clear( backgroundTexture, offsetX, offsetY, width, height, true, null );
+            texture.clear( backgroundTexture, offsetX, offsetY, width, height, false, null );
         
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
             shiftLights[s].loadTextures( editorPresets != null, backgroundImageName );
