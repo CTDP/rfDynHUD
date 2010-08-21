@@ -72,7 +72,8 @@ public class MapWidget extends Widget
         {
             super.onValueChanged( oldValue, newValue );
             
-            itemRadius = Math.round( newValue * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+            if ( getConfiguration() != null )
+                itemRadius = Math.round( newValue * getConfiguration().getGameResolution().getViewportHeight() / 960f );
             
             forceAndSetDirty( false );
         }
@@ -305,6 +306,8 @@ public class MapWidget extends Widget
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
+        
+        itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
