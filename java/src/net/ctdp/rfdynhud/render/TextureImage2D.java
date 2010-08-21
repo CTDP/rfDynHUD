@@ -2228,7 +2228,10 @@ public class TextureImage2D
                 if ( ( width2 == possibleResult.getMaxWidth() ) && ( height2 == possibleResult.getMaxHeight() ) )
                 {
                     if ( ( width != possibleResult.getWidth() ) || ( height != possibleResult.getHeight() ) )
+                    {
+                        possibleResult.clear( false, null );
                         possibleResult.resize( width, height );
+                    }
                     
                     return ( possibleResult );
                 }

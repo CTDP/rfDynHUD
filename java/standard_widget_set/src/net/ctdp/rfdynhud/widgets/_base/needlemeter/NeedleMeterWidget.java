@@ -97,7 +97,7 @@ public abstract class NeedleMeterWidget extends Widget
     
     protected final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
     
-    protected final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "valueBGImageName", "cyan_circle.png", false, true );
+    protected final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "cyan_circle.png", false, true );
     protected TransformableTexture valueBackgroundTexture = null;
     protected TextureImage2D valueBackgroundTexture_bak = null;
     
@@ -108,14 +108,14 @@ public abstract class NeedleMeterWidget extends Widget
     protected final FontProperty valueFont = new FontProperty( this, "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
     protected final ColorProperty valueFontColor = new ColorProperty( this, "valueFontColor", "fontColor", "#1A261C" );
     
-    protected final IntProperty needleAxisBottomOffset = new IntProperty( this, "needleAxisBottomOffset", "axisBottomOffset", 60 );
+    protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
     
-    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
-    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
     
     protected final BooleanProperty displayMarkers = new BooleanProperty( this, "displayMarkers", true );
-    protected final BooleanProperty displayMarkerNumbers = new BooleanProperty( this, "displayMarkerNumbers", true );
-    protected final IntProperty markersInnerRadius = new IntProperty( this, "markersInnerRadius", "innerRadius", 224 );
+    protected final BooleanProperty displayMarkerNumbers = new BooleanProperty( this, "displayMarkerNumbers", "displayNumbers", true );
+    protected final IntProperty markersInnerRadius = new IntProperty( this, "markersInnerRadius", "innerRadius", 224, 1, Integer.MAX_VALUE, false );
     protected final IntProperty markersLength = new IntProperty( this, "markersLength", "length", 50, 4, Integer.MAX_VALUE, false );
     
     protected int getMarkersBigStepLowerLimit()
@@ -296,9 +296,25 @@ public abstract class NeedleMeterWidget extends Widget
         forceReinitialization();
     }
     
-    protected abstract FontProperty getValueFont();
+    /**
+     * Gets the {@link FontProperty} for the value.
+     * 
+     * @return the {@link FontProperty} for the value.
+     */
+    protected FontProperty getValueFont()
+    {
+        return ( valueFont );
+    }
     
-    protected abstract ColorProperty getValueFontColor();
+    /**
+     * Gets the {@link FontColorProperty} for the value.
+     * 
+     * @return the {@link FontColorProperty} for the value.
+     */
+    protected ColorProperty getValueFontColor()
+    {
+        return ( valueFontColor );
+    }
     
     /**
      * {@inheritDoc}
@@ -314,8 +330,8 @@ public abstract class NeedleMeterWidget extends Widget
         
         if ( needleTexture != null )
         {
-            needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
-            needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
+            needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * backgroundScaleX ) );
+            needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * backgroundScaleX ) );
             //needleTexture.setRotation( 0f );
             //needleTexture.setScale( 1f, 1f );
         }
@@ -526,7 +542,7 @@ public abstract class NeedleMeterWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( needleImageName, "The name of the needle image." );
-        writer.writeProperty( needleAxisBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
+        writer.writeProperty( needlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
         writer.writeProperty( needleRotationForMinValue, "The rotation for the needle image, that it has for min value (in degrees)." );
         writer.writeProperty( needleRotationForMaxValue, "The rotation for the needle image, that it has for max value (in degrees)." );
         writer.writeProperty( displayMarkers, "Display markers?" );
@@ -554,7 +570,7 @@ public abstract class NeedleMeterWidget extends Widget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( needleImageName ) );
-        else if ( loader.loadProperty( needleAxisBottomOffset ) );
+        else if ( loader.loadProperty( needlePivotBottomOffset ) );
         else if ( loader.loadProperty( needleRotationForMinValue ) );
         else if ( loader.loadProperty( needleRotationForMaxValue ) );
         else if ( loader.loadProperty( displayMarkers ) );
@@ -594,7 +610,7 @@ public abstract class NeedleMeterWidget extends Widget
     protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( needleImageName );
-        propsCont.addProperty( needleAxisBottomOffset );
+        propsCont.addProperty( needlePivotBottomOffset );
         propsCont.addProperty( needleRotationForMinValue );
         propsCont.addProperty( needleRotationForMaxValue );
     }

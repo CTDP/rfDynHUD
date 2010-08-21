@@ -214,7 +214,7 @@ public class ImageTemplate
         
         if ( ( ( oldW > 0 ) || ( oldH > 0 ) ) && ( texture == possibleResult ) )
         {
-            texture.clear( 0, 0, oldW, oldH, false, null );
+            texture.clear( 0, 0, Math.max( oldW, width ), Math.max( oldH, height ), false, null );
             
             drawScaled( 0, 0, width, height, texture, false );
         }
@@ -287,7 +287,7 @@ public class ImageTemplate
                         
                         possibleResult.getTexture().resize( width, height );
                         
-                        possibleResult.getTexture().clear( 0, 0, oldW, oldH, false, null );
+                        possibleResult.getTexture().clear( 0, 0, Math.max( oldW, width ), Math.max( oldH, height ), false, null );
                         drawScaled( 0, 0, width, height, possibleResult.getTexture(), false );
                     }
                     

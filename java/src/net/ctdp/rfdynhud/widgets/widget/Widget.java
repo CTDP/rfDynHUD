@@ -1238,7 +1238,7 @@ public abstract class Widget implements Documented
             {
                 if ( isRoot )
                     texture.clear( background.getColor(), offsetX, offsetY, width, height, false, null );
-                else
+                else if ( background.getColor().getAlpha() > 0 )
                     texture.fillRectangle( background.getColor(), offsetX, offsetY, width, height, false, null );
             }
             else if ( background.getType().isImage() )
@@ -1555,7 +1555,10 @@ public abstract class Widget implements Documented
         propsCont.addProperty( type );
         propsCont.addProperty( name );
         
-        propsCont.addProperty( inputVisible );
+        if ( masterWidget == null )
+        {
+            propsCont.addProperty( inputVisible );
+        }
         propsCont.addProperty( position.getPositioningProperty( "positioning" ) );
         propsCont.addProperty( position.getXProperty( "x" ) );
         propsCont.addProperty( position.getYProperty( "y" ) );

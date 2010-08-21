@@ -226,7 +226,7 @@ public class WidgetBackground
             if ( ( ( bg != null ) && bg.getType().isImage() ) || widget.overridesDrawBackground )
                 return ( true );
             
-            if ( ( bg != null ) && bg.getType().isColor() && !bg.getColor().equals( backgroundColor ) )
+            if ( ( bg != null ) && bg.getType().isColor() && ( bg.getColor().getAlpha() > 0 ) && !bg.getColor().equals( backgroundColor ) )
                 return ( true );
             
             if ( part instanceof AssembledWidget )

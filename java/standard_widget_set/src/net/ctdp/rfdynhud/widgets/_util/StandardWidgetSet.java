@@ -96,7 +96,7 @@ public class StandardWidgetSet
             }
         }
         
-        return ( new java.awt.Dimension( width, height ) );
+        return ( new java.awt.Dimension( Math.max( 1, width ), Math.max( 1, height ) ) );
     }
     
     public static int drawPositionItem( TextureImage2D texture, int offsetX, int offsetY, int radius, int place, Color backgroundColor, boolean blackBorder, Font numberFont, boolean numberFontAntialiased, Color numberFontColor, LabelPositioning namePositioning, String driverName, Font nameFont, boolean nameFontAntialiased, Color nameFontColor )

@@ -212,7 +212,7 @@ public class TrackPositionWidget extends Widget
         int w = size.width;
         int h = size.height;
         
-        if ( ( itemTextures[0].getWidth() == w ) && ( itemTextures[0].getHeight() == h ) )
+        if ( ( itemTextures[maxDisplayedVehicles - 1] != null ) && ( itemTextures[maxDisplayedVehicles - 1].getWidth() == w ) && ( itemTextures[maxDisplayedVehicles - 1].getHeight() == h ) )
             return;
         
         for ( int i = 0; i < maxDisplayedVehicles; i++ )

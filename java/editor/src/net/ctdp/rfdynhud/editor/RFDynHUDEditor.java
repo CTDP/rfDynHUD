@@ -344,7 +344,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             }
             else
             {
-                docPanel.setText( doc_header + editorPanel.getSelectedWidget().getDocumentationSource( property ) + doc_footer );
+                //docPanel.setText( doc_header + editorPanel.getSelectedWidget().getDocumentationSource( property ) + doc_footer );
+                docPanel.setText( doc_header + property.getWidget().getDocumentationSource( property ) + doc_footer );
             }
             
             docPanel.setCaretPosition( 0 );

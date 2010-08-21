@@ -584,7 +584,10 @@ public class TransformableTexture
                 if ( ( width2 == possibleResult.getTexture().getMaxWidth() ) && ( height2 == possibleResult.getTexture().getMaxHeight() ) )
                 {
                     if ( ( width != possibleResult.getTexture().getWidth() ) || ( height != possibleResult.getTexture().getHeight() ) )
+                    {
+                        possibleResult.getTexture().clear( false, null );
                         possibleResult.getTexture().resize( width, height );
+                    }
                     
                     return ( possibleResult );
                 }

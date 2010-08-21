@@ -274,13 +274,13 @@ public class MapWidget extends Widget
         itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         if ( subTextures[subTexOff] == null )
-            subTextures[subTexOff] = TransformableTexture.getOrCreate( 1, 1, isEditorMode, subTextures[subTexOff], isEditorMode );
+            subTextures[subTexOff] = new TransformableTexture( 1, 1, isEditorMode, false );
         
         java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( subTextures[0].getTexture(), itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
         int w = size.width;
         int h = size.height;
         
-        if ( ( subTextures[subTexOff].getWidth() == w ) && ( subTextures[subTexOff].getHeight() == h ) )
+        if ( ( subTextures[subTextures.length - 1] != null ) && ( subTextures[subTextures.length - 1].getWidth() == w ) && ( subTextures[subTextures.length - 1].getHeight() == h ) )
             return;
         
         for ( int i = 0; i < maxDisplayedVehicles; i++ )

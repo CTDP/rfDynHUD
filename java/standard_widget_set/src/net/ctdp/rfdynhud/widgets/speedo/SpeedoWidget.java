@@ -25,8 +25,6 @@ import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
-import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -80,6 +78,7 @@ public class SpeedoWidget extends NeedleMeterWidget
         return ( StandardWidgetSet.WIDGET_PACKAGE );
     }
     
+    /*
     @Override
     protected FontProperty getValueFont()
     {
@@ -91,6 +90,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     {
         return ( getFontColorProperty() );
     }
+    */
     
     @Override
     protected float getMinValue( LiveGameData gameData, EditorPresets editorPresets )
@@ -170,6 +170,12 @@ public class SpeedoWidget extends NeedleMeterWidget
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
+    }
+    
+    @Override
+    protected boolean hasText()
+    {
+        return ( false );
     }
     
     public SpeedoWidget( String name )

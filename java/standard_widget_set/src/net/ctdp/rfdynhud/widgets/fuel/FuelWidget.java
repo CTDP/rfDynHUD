@@ -78,7 +78,7 @@ public class FuelWidget extends Widget
     private final FontProperty tankSizeFont = new FontProperty( this, "tankSizeFont", "Monospaced-PLAIN-9v" );
     private final FontProperty fuelFont = new FontProperty( this, "fuelFont", FontProperty.STANDARD_FONT_NAME );
     
-    private final ColorProperty fuelBarBackground = new ColorProperty( this, "fuelBarBackground", "#000000" );
+    private final ColorProperty fuelBarBackgroundColor = new ColorProperty( this, "fuelBarBackgroundColor", "fuelBarBackground", "#000000" );
     private final ColorProperty fuelBarColor = new ColorProperty( this, "fuelBarColor", "#54760B" );
     
     private final Size fuelBarWidth;
@@ -640,8 +640,8 @@ public class FuelWidget extends Widget
         
         if ( !displayFuelBar || ( barHeight < h ) )
         {
-            if ( !getBackground().valueEquals( fuelBarBackground.getColor() ) && ( fuelBarBackground.getColor() != null ) && ( fuelBarBackground.getColor().getAlpha() > 0 ) )
-                texture.clear( fuelBarBackground.getColor(), x, y, w, h - barHeight, false, null );
+            if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && ( fuelBarBackgroundColor.getColor() != null ) && ( fuelBarBackgroundColor.getColor().getAlpha() > 0 ) )
+                texture.clear( fuelBarBackgroundColor.getColor(), x, y, w, h - barHeight, false, null );
         }
         
         if ( displayFuelBar )
@@ -911,7 +911,7 @@ public class FuelWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( font2, "The used (smaller) font." );
-        writer.writeProperty( fuelBarBackground, "The color used for the fuel bar's background." );
+        writer.writeProperty( fuelBarBackgroundColor, "The color used for the fuel bar's background." );
         writer.writeProperty( fuelBarColor, "The color used for the fuel bar." );
         writer.writeProperty( tankSizeFont, "The used font for max fuel load (tank size)." );
         writer.writeProperty( fuelFont, "The used font for fuel load." );
@@ -945,7 +945,7 @@ public class FuelWidget extends Widget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( font2 ) );
-        else if ( loader.loadProperty( fuelBarBackground ) );
+        else if ( loader.loadProperty( fuelBarBackgroundColor ) );
         else if ( loader.loadProperty( fuelBarColor ) );
         else if ( loader.loadProperty( tankSizeFont ) );
         else if ( loader.loadProperty( fuelFont ) );
@@ -987,7 +987,7 @@ public class FuelWidget extends Widget
         
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( fuelBarBackground );
+        propsCont.addProperty( fuelBarBackgroundColor );
         propsCont.addProperty( fuelBarColor );
         propsCont.addProperty( tankSizeFont );
         propsCont.addProperty( fuelFont );
