@@ -939,10 +939,10 @@ public class RevMeterWidget extends Widget
     @Override
     protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        if ( backgroundTexture == null )
-            texture.clear( offsetX, offsetY, width, height, false, null );
-        else
-            texture.clear( backgroundTexture, offsetX, offsetY, width, height, false, null );
+        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        
+        if ( backgroundTexture != null )
+            texture.drawImage( backgroundTexture, offsetX, offsetY, false, null );
         
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
             shiftLights[s].loadTextures( editorPresets != null, backgroundImageName );

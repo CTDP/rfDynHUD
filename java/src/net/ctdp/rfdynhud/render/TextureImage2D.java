@@ -1225,10 +1225,17 @@ public class TextureImage2D
                     final int trgB = trg[ k + ByteOrderManager.BLUE ] & 0xFF;
                     final int trgA = trg[ k + ByteOrderManager.ALPHA ] & 0xFF;
                     
+                    /*
                     trg[ k + ByteOrderManager.RED ] = (byte)( ( srcR * srcA / 255 ) + ( trgR * ( 255 - srcA ) / 255 ) );
                     trg[ k + ByteOrderManager.GREEN ] = (byte)( ( srcG * srcA / 255 ) + ( trgG * ( 255 - srcA ) / 255 ) );
                     trg[ k + ByteOrderManager.BLUE ] = (byte)( ( srcB * srcA / 255 ) + ( trgB * ( 255 - srcA ) / 255 ) );
                     trg[ k + ByteOrderManager.ALPHA ] = (byte)( ( srcA * srcA / 255 ) + ( trgA * ( 255 - srcA ) / 255 ) );
+                    */
+                    trg[ k + ByteOrderManager.RED ] = (byte)( ( ( srcR * srcA ) + ( trgR * ( 255 - srcA ) ) ) / 255 );
+                    trg[ k + ByteOrderManager.GREEN ] = (byte)( ( ( srcG * srcA ) + ( trgG * ( 255 - srcA ) ) ) / 255 );
+                    trg[ k + ByteOrderManager.BLUE ] = (byte)( ( ( srcB * srcA ) + ( trgB * ( 255 - srcA ) ) ) / 255 );
+                    //trg[ k + ByteOrderManager.ALPHA ] = (byte)( ( ( srcA * srcA ) + ( trgA * ( 255 - srcA ) ) ) / 255 );
+                    trg[ k + ByteOrderManager.ALPHA ] = (byte)Math.max( srcA, trgA );
                     
                     j += srcPixelSize;
                     k += trgPixelSize;

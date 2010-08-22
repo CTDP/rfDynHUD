@@ -223,7 +223,7 @@ public class WidgetBackground
             Widget part = widget.parts[i];
             WidgetBackground bg = part.getBackground();
             
-            if ( ( ( bg != null ) && bg.getType().isImage() ) || widget.overridesDrawBackground )
+            if ( ( ( bg != null ) && bg.getType().isImage() ) || part.overridesDrawBackground )
                 return ( true );
             
             if ( ( bg != null ) && bg.getType().isColor() && ( bg.getColor().getAlpha() > 0 ) && !bg.getColor().equals( backgroundColor ) )
