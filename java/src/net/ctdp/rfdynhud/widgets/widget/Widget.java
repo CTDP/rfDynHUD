@@ -1357,6 +1357,7 @@ public abstract class Widget implements Documented
         
         if ( checkForChanges( clock1, clock2, gameData, editorPresets, texture2, offsetX2, offsetY2, width2, height2 ) )
         {
+            forceCompleteRedraw( true );
             completeRedrawForced = true;
             
             offsetX = position.getEffectiveX();

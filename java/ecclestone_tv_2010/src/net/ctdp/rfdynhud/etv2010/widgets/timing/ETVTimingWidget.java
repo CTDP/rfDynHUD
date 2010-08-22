@@ -154,7 +154,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         hasRefTime.reset();
         
-        forceCompleteRedraw( false );
+        forceCompleteRedraw( true );
     }
     
     /**
@@ -264,7 +264,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         int vMiddle = ETVUtils.getLabeledDataVMiddle( rowHeight + ETVUtils.ITEM_GAP + rowHeight, posBounds );
         
-        bigPositionString = dsf.newDrawnString( "bigPositionString", width - 2 * ETVUtils.TRIANGLE_WIDTH - bigPositionWidth / 2, 0 + vMiddle, Alignment.CENTER, false, getPositionFont(), isFontAntiAliased(), captionColor.getColor() );;
+        bigPositionString = dsf.newDrawnString( "bigPositionString", width - 2 * ETVUtils.TRIANGLE_WIDTH - bigPositionWidth / 2, 0 + vMiddle, Alignment.CENTER, false, getPositionFont(), isFontAntiAliased(), captionColor.getColor() );
         
         Rectangle2D capBounds = texture.getStringBounds( "00", getFontProperty() );
         
@@ -277,7 +277,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         relPositionString = dsf.newDrawnString( "relPositionString", 1 * ETVUtils.TRIANGLE_WIDTH + smallPositionWidth / 2, 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
         relTimeString = dsf.newDrawnString( "relTimeString", 1 * ETVUtils.TRIANGLE_WIDTH + dataWidth, 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
-        forceCompleteRedraw( false );
+        forceCompleteRedraw( true );
     }
     
     @Override
