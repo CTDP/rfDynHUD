@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.lessons.widgets.lesson7;
 
 /**
  * The Local Store is used to preserve the state of a single Widget
- * identified by its class and name.
+ * for the full game session. It is identified by its class and name.
  * 
  * @author Marvin Froehlich (CTDP)
  */

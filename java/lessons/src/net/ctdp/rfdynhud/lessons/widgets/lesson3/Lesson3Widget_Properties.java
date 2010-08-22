@@ -185,6 +185,9 @@ public class Lesson3Widget_Properties extends Widget
          * Here we load our properties from the configuration file.
          * To do as less string compares as possible, we use
          * this trick with if/else if and a trailing semicolon.
+		 * What this does is to try to load the property for each member field.
+		 * If the first doesn't succeed it tries the next untill one is successful and 
+		 * the method finishes.
          */
         
         if ( loader.loadProperty( coldColor ) );
@@ -207,7 +210,7 @@ public class Lesson3Widget_Properties extends Widget
          * Now we simply add our custom properties to the list of properties,
          * which is configurable in the editor.
          * 
-         * Sometimes you way not want specific properties to appear in the editor
+         * Sometimes you may not want specific properties to appear in the editor
          * in certain situations (e.g. depending on other property values).
          * Then you must use the 'forceAll' parameter and only make sure,
          * that the property is added when this parameter is 'true'.

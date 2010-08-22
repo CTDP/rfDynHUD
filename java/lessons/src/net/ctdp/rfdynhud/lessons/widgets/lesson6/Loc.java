@@ -21,12 +21,12 @@ import net.ctdp.rfdynhud.util.LocalizationsManager;
 
 public class Loc
 {
-    private static final String l( String key )
+    private static final String t( String key )
     {
         return ( LocalizationsManager.INSTANCE.getLocalization( Lesson6Widget_Localizations.class, key ) );
     }
     
-    public static final String temperature_units_METRIC = l( "temperature.units.METRIC" );
-    public static final String temperature_units_IMPERIAL = l( "temperature.units.IMPERIAL" );
-    public static final String mytext_caption = l( "mytext.caption" );
+    public static final String temperature_units_METRIC = t( "temperature.units.METRIC" );
+    public static final String temperature_units_IMPERIAL = t( "temperature.units.IMPERIAL" );
+    public static final String mytext_caption = t( "mytext.caption" );
 }

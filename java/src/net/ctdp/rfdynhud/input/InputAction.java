@@ -156,6 +156,8 @@ public class InputAction implements Comparable<InputAction>
     
     /**
      * Creates a new InputAction.
+     * The acceptedState defines, whether an input state change event is fired only for 
+     * key pressed, key released or both.
      * 
      * @param name the action's name as displayed in the editor
      * @param acceptedState null to accept any state, true or false to accept only this state
@@ -167,7 +169,7 @@ public class InputAction implements Comparable<InputAction>
     
     /**
      * Creates a new InputAction.
-     * It will only accept true state.
+     * It will only accept true state, so it reacts on key pressed.
      * 
      * @param name the action's name as displayed in the editor
      */

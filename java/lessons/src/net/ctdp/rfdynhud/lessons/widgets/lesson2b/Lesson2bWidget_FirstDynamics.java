@@ -67,7 +67,7 @@ public class Lesson2bWidget_FirstDynamics extends Widget
         super.onRealtimeEntered( gameData, editorPresets );
         
         /*
-         * When ever we enter the cockpit, we need to reset our value, so that it is guaranteed
+         * Whenever we enter the cockpit, we need to reset our value, so that it is guaranteed
          * to be detected as changed next time.
          */
         v.reset();

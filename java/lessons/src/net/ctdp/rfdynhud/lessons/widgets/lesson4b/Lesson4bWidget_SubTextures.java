@@ -38,7 +38,8 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
  * This Widget shows, how to use custom images as sub textures.
- * Sub textures can be drawn anywhere even outside of the Widget area.
+ * Sub textures can be drawn anywhere even outside of the Widget area
+ * and define and paint an area on the screen (ie full-texture).
  * They are always drawn after the Widget itself and can hence overpaint
  * parts of the Widget without problems.
  * You can draw on Subtextures the same way as on the Widget area itself.
@@ -109,7 +110,7 @@ public class Lesson4bWidget_SubTextures extends Widget
         loadSubTextures( editorPresets != null );
         
         /*
-         * Just to play around with the parameters we define the text to be drawn at hte center location this time.
+         * Just to play around with the parameters we define the text to be drawn at the center location this time.
          */
         int h = texture.getStringHeight( "Ay", getFont(), isFontAntiAliased() );
         ds = drawnStringFactory.newDrawnString( "ds", width / 2, ( height - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
@@ -135,7 +136,7 @@ public class Lesson4bWidget_SubTextures extends Widget
              * The position of the sub texture is always relative to the Widget's position.
              * So -16, -16 is half outside of the Widget.
              * Note, that the editor is currently not able to render the outside parts of subtextures.
-             * But it is display just fine in game.
+             * But it is display just fine ingame.
              */
             subTextures[0].setTranslation( -16, -16 );
             

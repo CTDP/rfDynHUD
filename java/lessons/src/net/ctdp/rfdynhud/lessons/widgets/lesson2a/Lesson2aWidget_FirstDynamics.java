@@ -64,9 +64,9 @@ public class Lesson2aWidget_FirstDynamics extends Widget
          * the graphics card. This cannot be done every single frame, since this would eysily drop your
          * FPS by a huge amount.
          * 
-         * We only need and want to text to be redrawn when it has actually changed. And we want all changed
-         * pixels to be sent at certain time spots, because sending a hundred pixels at once is not much more
-         * expensive then sending a single pixel. But sending one pixel at a hundred frames in a row IS expensive.
+         * We only need and want the text to be redrawn when it has actually changed. And we want all changed
+         * pixels to be sent at certain time slots, because sending a hundred pixels at once is not much more
+         * expensive then sending a single pixel. Yet, sending one pixel at a hundred frames in a row IS expensive.
          * 
          * This is, what the two clock parameters are good for. clock1 is for very dynamic content and will
          * always be 'true', when you can safely send new pixel data at a high frequency.

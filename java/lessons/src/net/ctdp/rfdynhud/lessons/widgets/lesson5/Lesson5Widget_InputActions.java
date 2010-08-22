@@ -44,6 +44,9 @@ public class Lesson5Widget_InputActions extends Widget
     /*
      * This is your InputAction to decrement the value.
      * Don't forget to write some documentation for this action as we did in the doc subfolder.
+	 * Setting the second parameter true defines, that the action reacts on key-pressed events
+	 * Alternatively, setting this parameter to false, will fire on key-release events and
+	 * setting it null will fire on both events.
      */
     private static final InputAction MY_DEC_ACTION = new InputAction( "MyDecAction", true );
     
@@ -100,7 +103,7 @@ public class Lesson5Widget_InputActions extends Widget
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         /*
-         * Just to play around with the parameters we define the text to be drawn at hte center location this time.
+         * Just to play around with the parameters we define the text to be drawn at the center location this time.
          */
         int h = texture.getStringHeight( "0", getFont(), isFontAntiAliased() );
         ds = drawnStringFactory.newDrawnString( "ds", width / 2, ( height - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );

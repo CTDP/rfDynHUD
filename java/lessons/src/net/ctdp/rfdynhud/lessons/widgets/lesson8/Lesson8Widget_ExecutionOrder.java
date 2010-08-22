@@ -62,7 +62,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
         
         //log( "afterConfigurationLoaded()" );
         
-        // This method is exectuted at the beginning and only once.
+        // This method is executed at the beginning and only once.
     }
     
     @Override
@@ -70,7 +70,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     {
         //log( "getSubTextures()" );
         
-        // This method is exectuted after afterConfigurationLoaded() and only once.
+        // This method is executed after afterConfigurationLoaded() and only once.
         
         return ( null );
     }
@@ -80,7 +80,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     {
         //log( "updateVisibility()" );
         
-        // This method is exectuted 1st and each frame.
+        // This method is executed 1st and each frame.
         
         super.updateVisibility( clock1, clock2, gameData, editorPresets );
     }
@@ -90,7 +90,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     {
         //log( "initialize()" );
         
-        // This method is exectuted 2nd and only once, if not forced.
+        // This method is executed 2nd and only once, unless forced.
     }
     
     @Override
@@ -98,7 +98,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     {
         //log( "checkForChanges()" );
         
-        // This method is exectuted 3rd and each frame.
+        // This method is executed 3rd and each frame.
         
         return ( false );
     }
@@ -108,7 +108,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     {
         //log( "drawBorder()" );
         
-        // This method is exectuted 4th and each frame.
+        // This method is executed 4th and each frame.
         
         super.drawBorder( isEditorMode, border, texture, offsetX, offsetY, width, height );
     }
@@ -118,7 +118,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     {
         //log( "drawBackground()" );
         
-        // This method is exectuted 5th and each frame.
+        // This method is executed 5th and each frame.
         
         super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
     }
@@ -128,7 +128,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     {
         //log( "drawWidget()" );
         
-        // This method is exectuted 6th and last and each frame.
+        // This method is executed 6th and last and each frame.
     }
     
     @Override
