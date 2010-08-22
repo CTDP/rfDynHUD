@@ -37,7 +37,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
  * Here you'll learn, how to rotate a TransformableTexture... pretty straight forward.
- * This also shows how you could use Timing to create subtle animations.
+ * This also shows how you could use timing to create subtle animations.
  * 
  * @author Marvin Froehlich (CTDP)
  */
@@ -83,7 +83,7 @@ public class Lesson4cWidget_SubTextures extends Widget
     {
         /*
          * We scale the sub texture, so that it definitely fits into the widget area.
-		 * Drawing over the edge would be no problem for sub textures, everything else would be clipped.
+		 * Drawing over the edge would be no problem for sub textures, while regular widget contents would be clipped.
          */
         
         int w = Math.max( 10, widgetInnerWidth - 10 );

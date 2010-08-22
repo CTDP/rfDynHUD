@@ -38,8 +38,8 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
  * This Widget shows, how to use custom images as sub textures.
- * Sub textures can be drawn anywhere even outside of the Widget area
- * and define and paint an area on the screen (ie full-texture).
+ * Sub textures can be positioned anywhere even outside of the Widget area
+ * and define and overlay an arbitrary region on the screen.
  * They are always drawn after the Widget itself and can hence overpaint
  * parts of the Widget without problems.
  * You can draw on Subtextures the same way as on the Widget area itself.

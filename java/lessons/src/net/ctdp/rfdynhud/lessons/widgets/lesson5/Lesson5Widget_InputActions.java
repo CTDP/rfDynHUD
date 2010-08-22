@@ -44,9 +44,9 @@ public class Lesson5Widget_InputActions extends Widget
     /*
      * This is your InputAction to decrement the value.
      * Don't forget to write some documentation for this action as we did in the doc subfolder.
-	 * Setting the second parameter true defines, that the action reacts on key-pressed events
-	 * Alternatively, setting this parameter to false, will fire on key-release events and
-	 * setting it null will fire on both events.
+	 * Setting the second parameter 'true' defines, that the action reacts on key-pressed events.
+	 * Alternatively, setting this parameter to 'false', will fire on key-release events and
+	 * setting it 'null' will fire both events.
      */
     private static final InputAction MY_DEC_ACTION = new InputAction( "MyDecAction", true );
     

@@ -119,7 +119,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected String getTextForValue( float value )
+    protected String getMarkerLabelForValue( LiveGameData gameData, EditorPresets editorPresets, float value )
     {
         return ( String.valueOf( (int)value ) );
     }

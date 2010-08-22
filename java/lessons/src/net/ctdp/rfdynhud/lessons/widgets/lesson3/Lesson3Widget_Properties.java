@@ -183,11 +183,12 @@ public class Lesson3Widget_Properties extends Widget
         
         /*
          * Here we load our properties from the configuration file.
-         * To do as less string compares as possible, we use
-         * this trick with if/else if and a trailing semicolon.
-		 * What this does is to try to load the property for each member field.
-		 * If the first doesn't succeed it tries the next untill one is successful and 
-		 * the method finishes.
+         * To do as less string compares as possible and to keep the loading code compact,
+         * we use this trick with if/else if and a trailing semicolon.
+		 * 
+		 * So this code asks each listed property, if it claims owership over the property key,
+		 * that is currently loaded through the provided PropertyLoader. And if and only if it does,
+		 * the method finishes immediately without probing the following properties.
          */
         
         if ( loader.loadProperty( coldColor ) );

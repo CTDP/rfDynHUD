@@ -367,21 +367,74 @@ public abstract class NeedleMeterWidget extends Widget
         valueString = dsf.newDrawnString( "valueString", fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, valueFont.getFont(), valueFont.isAntiAliased(), valueFontColor.getColor() );
     }
     
-    @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    /**
+     * Gets the value for the needle and the digital value display.
+     * Override {@link #getValueForValueDisplay(LiveGameData, EditorPresets)} to use a different value
+     * for the digital value.
+     * 
+     * @param gameData
+     * @param editorPresets
+     * 
+     * @return the value for the needle and the digital value display.
+     */
+    protected abstract float getValue( LiveGameData gameData, EditorPresets editorPresets );
+    
+    /**
+     * Gets the value for the digital value display.
+     * The default implementation simply gets the result of {@link #getValue(LiveGameData, EditorPresets)} and converts it to an int.
+     * 
+     * @param gameData
+     * @param editorPresets
+     * 
+     * @return the value for the digital value display.
+     */
+    protected int getValueForValueDisplay( LiveGameData gameData, EditorPresets editorPresets )
     {
-        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
-        
-        drawMarks( gameData, editorPresets, texture.getTextureCanvas(), offsetX, offsetY, width, height );
+        return ( Math.round( getValue( gameData, editorPresets ) ) );
     }
     
+    /**
+     * Gets the minimum value for the needle and gauge.
+     * 
+     * @param gameData
+     * @param editorPresets
+     * 
+     * @return the minimum value for the needle and gauge.
+     */
     protected abstract float getMinValue( LiveGameData gameData, EditorPresets editorPresets );
     
+    /**
+     * Gets the maximum value for the needle and gauge.
+     * 
+     * @param gameData
+     * @param editorPresets
+     * 
+     * @return the maximum value for the needle and gauge.
+     */
     protected abstract float getMaxValue( LiveGameData gameData, EditorPresets editorPresets );
     
-    protected abstract String getTextForValue( float value );
+    /**
+     * Gets the text label for the big markers at the given value.
+     * 
+     * @param gameData
+     * @param editorPresets
+     * @param value
+     * 
+     * @return the text label for the big markers at the given value.
+     */
+    protected abstract String getMarkerLabelForValue( LiveGameData gameData, EditorPresets editorPresets, float value );
     
-    protected void drawMarks( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    /**
+     * Draws the markers
+     * @param gameData
+     * @param editorPresets
+     * @param texCanvas
+     * @param offsetX
+     * @param offsetY
+     * @param width
+     * @param height
+     */
+    protected void drawMarkers( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         if ( !displayMarkers.getBooleanValue() )
             return;
@@ -432,7 +485,7 @@ public abstract class NeedleMeterWidget extends Widget
                 
                 if ( displayMarkerNumbers.getBooleanValue() )
                 {
-                    String s = getTextForValue( value );
+                    String s = getMarkerLabelForValue( gameData, editorPresets, value );
                     
                     if ( s != null )
                     {
@@ -463,7 +516,13 @@ public abstract class NeedleMeterWidget extends Widget
         texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT );
     }
     
-    protected abstract float getValue( LiveGameData gameData, EditorPresets editorPresets );
+    @Override
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    {
+        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        
+        drawMarkers( gameData, editorPresets, texture.getTextureCanvas(), offsetX, offsetY, width, height );
+    }
     
     /**
      * Live-checks whether the needle is to be rendered or not.
@@ -557,8 +616,8 @@ public abstract class NeedleMeterWidget extends Widget
         writer.writeProperty( valueBackgroundImageName, "The name of the image to render behind the value number." );
         writer.writeProperty( valuePosX, "The x-offset in pixels to the value label." );
         writer.writeProperty( valuePosY, "The y-offset in pixels to the value label." );
-        //writer.writeProperty( valueFont, "The font used to draw the value." );
-        //writer.writeProperty( valueFontColor, "The font color used to draw the value." );
+        writer.writeProperty( valueFont, "The font used to draw the value." );
+        writer.writeProperty( valueFontColor, "The font color used to draw the value." );
     }
     
     /**
@@ -585,15 +644,16 @@ public abstract class NeedleMeterWidget extends Widget
         else if ( loader.loadProperty( valueBackgroundImageName ) );
         else if ( loader.loadProperty( valuePosX ) );
         else if ( loader.loadProperty( valuePosY ) );
-        //else if ( loader.loadProperty( valueFont ) );
-        //else if ( loader.loadProperty( valueFontColor ) );
+        else if ( loader.loadProperty( valueFont ) );
+        else if ( loader.loadProperty( valueFontColor ) );
     }
     
     /**
      * Collects the widget type specific properties before needle, markers and digi value.
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      * 
      * @return <code>true</code>, if the implementation has added a group, <code>false</code> otherwise.
      */
@@ -603,9 +663,11 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     /**
+     * Collects the properties for the needle.
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -616,9 +678,11 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     /**
+     * Collects the properties for the markers.
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void getMarkersProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -634,9 +698,21 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     /**
+     * Gets the display name of the properties group for the digital value in the editor.
      * 
-     * @param propsCont
-     * @param forceAll
+     * @return the display name of the properties group for the digital value in the editor.
+     */
+    protected String getDigiValuePropertiesGroupName()
+    {
+        return ( "Digital Value" );
+    }
+    
+    /**
+     * Collects the properties for the digital value.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void getDigiValueProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -666,7 +742,7 @@ public abstract class NeedleMeterWidget extends Widget
         
         getMarkersProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Digital Value" );
+        propsCont.addGroup( getDigiValuePropertiesGroupName() );
         
         getDigiValueProperties( propsCont, forceAll );
     }

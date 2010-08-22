@@ -972,8 +972,10 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addFontPropertiesToContainer( FontProperty font, ColorProperty fontColor, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
+        super.addFontPropertiesToContainer( font, fontColor, propsCont, forceAll );
+        
         propsCont.addProperty( font2 );
     }
     

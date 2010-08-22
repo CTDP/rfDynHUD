@@ -65,10 +65,14 @@ public class Lesson6Widget_Localizations extends Widget
     private static final String getTempUnits( MeasurementUnits measurementUnits )
     {
         /*
-         * We need to decide, which units are being used and return the appropriate localization string.
+         * We need to decide, which units are being used
+         * and return the appropriate localization string.
          */
         
-        return ( measurementUnits == MeasurementUnits.IMPERIAL ) ? Loc.temperature_units_IMPERIAL : Loc.temperature_units_METRIC;
+        if ( measurementUnits == MeasurementUnits.IMPERIAL )
+            return ( Loc.temperature_units_IMPERIAL );
+        
+        return ( Loc.temperature_units_METRIC );
     }
     
     @Override

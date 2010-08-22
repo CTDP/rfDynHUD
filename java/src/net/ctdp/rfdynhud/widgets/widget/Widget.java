@@ -1475,10 +1475,12 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * Adds the border property to the container.
      * 
      * @param property
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void addBorderPropertyToContainer( BorderProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -1486,13 +1488,15 @@ public abstract class Widget implements Documented
     }
     
     /**
+     * Adds the padding properties to the container.
      * 
      * @param paddingTop
      * @param paddingLeft
      * @param paddingRight
      * @param paddingBottom
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void addPaddingPropertiesToContainer( IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -1508,10 +1512,12 @@ public abstract class Widget implements Documented
     
     
     /**
+     * Adds the background property to the container.
      * 
      * @param property
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void addBackgroundPropertyToContainer( BackgroundProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -1520,11 +1526,13 @@ public abstract class Widget implements Documented
     
     
     /**
+     * Adds the font and font color properties to the container.
      * 
      * @param font
      * @param fontColor
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void addFontPropertiesToContainer( FontProperty font, ColorProperty fontColor, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -1535,8 +1543,9 @@ public abstract class Widget implements Documented
     /**
      * Puts all editable properties to the editor.
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -1545,8 +1554,9 @@ public abstract class Widget implements Documented
     /**
      * Puts all editable properties to the editor.
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {

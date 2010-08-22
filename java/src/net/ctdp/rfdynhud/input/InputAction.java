@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.input;
 import java.net.URL;
 
 import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
  * This is a simple abstraction of an input action.
@@ -93,6 +94,9 @@ public class InputAction implements Comparable<InputAction>
         return ( doc );
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int compareTo( InputAction o )
     {
@@ -160,7 +164,9 @@ public class InputAction implements Comparable<InputAction>
      * key pressed, key released or both.
      * 
      * @param name the action's name as displayed in the editor
-     * @param acceptedState null to accept any state, true or false to accept only this state
+     * @param acceptedState <code>null</code> to accept any state, <code>true</code> or <code>false</code> to accept only this state.
+     *        {@link Widget#onBoundInputStateChanged(InputAction, boolean, int, long, net.ctdp.rfdynhud.gamedata.LiveGameData, net.ctdp.rfdynhud.editor.EditorPresets)}
+     *        will only be fired for the accepted states.
      */
     public InputAction( String name, Boolean acceptedState )
     {
@@ -169,7 +175,8 @@ public class InputAction implements Comparable<InputAction>
     
     /**
      * Creates a new InputAction.
-     * It will only accept true state, so it reacts on key pressed.
+     * It will only accept true state, so the {@link Widget#onBoundInputStateChanged(InputAction, boolean, int, long, net.ctdp.rfdynhud.gamedata.LiveGameData, net.ctdp.rfdynhud.editor.EditorPresets)}
+     * event will only be fired when the key/button is pressed while released state changes will be ignored.
      * 
      * @param name the action's name as displayed in the editor
      */

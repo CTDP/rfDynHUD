@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound.CompoundWheel;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
+import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
@@ -1113,8 +1114,10 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addFontPropertiesToContainer( FontProperty font, ColorProperty fontColor, WidgetPropertiesContainer propsCont, boolean forceAll )
     {
+        super.addFontPropertiesToContainer( font, fontColor, propsCont, forceAll );
+        
         propsCont.addProperty( font2 );
     }
     
