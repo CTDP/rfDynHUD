@@ -18,7 +18,6 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link FloatProperty} serves for customizing a primitive float value.
@@ -69,11 +68,9 @@ public class FloatProperty extends Property
         if ( widget != null )
             widget.forceAndSetDirty( true );
         
-        onValueChanged();
-        onValueChanged( oldValue, value );
-        
-        if ( widget != null )
-            __WPrivilegedAccess.onPropertyChanged( this, oldValue, value, widget );
+        triggerCommonOnValueChanged( oldValue, value );
+        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+            onValueChanged( oldValue, value );
     }
     
     public final float getFloatValue()

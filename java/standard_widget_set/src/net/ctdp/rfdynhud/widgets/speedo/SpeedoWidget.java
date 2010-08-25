@@ -113,9 +113,9 @@ public class SpeedoWidget extends NeedleMeterWidget
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
         
         if ( vsi.isPlayer() )
-            return ( gameData.getTelemetryData().getScalarVelocityKPH() );
+            return ( gameData.getTelemetryData().getScalarVelocity() );
         
-        return ( vsi.getScalarVelocityKPH() );
+        return ( vsi.getScalarVelocity() );
     }
     
     @Override

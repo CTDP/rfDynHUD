@@ -17,15 +17,10 @@
  */
 package net.ctdp.rfdynhud.widgets.revmeter;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
@@ -34,11 +29,11 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
-import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.PhysicsSetting;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
@@ -46,169 +41,96 @@ import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets._base.needlemeter.NeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
-
-import org.openmali.vecmath2.util.ColorUtils;
 
 /**
  * The {@link RevMeterWidget} displays rev/RPM information.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class RevMeterWidget extends Widget
+public class RevMeterWidget extends NeedleMeterWidget
 {
     public static final String DEFAULT_GEAR_FONT_NAME = "GearFont";
     
     private final BooleanProperty hideWhenViewingOtherCar = new BooleanProperty( this, "hideWhenViewingOtherCar", false );
     
-    private final ImageProperty backgroundImageName = new ImageProperty( this, "backgroundImageName", "backgroundImageName", "default_rev_meter_bg.png", false, true )
+    @Override
+    protected String getInitialBackground()
     {
-        @Override
-        protected void onValueChanged( String oldValue, String newValue )
-        {
-            boolean fixPositions = ( backgroundTexture != null );
-            
-            backgroundTexture = null;
-            needleTexture = null;
-            for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
-                shiftLights[i].resetTextures();
-            gearBackgroundTexture = null;
-            gearBackgroundTexture_bak = null;
-            boostNumberBackgroundTexture = null;
-            boostNumberBackgroundTexture_bak = null;
-            velocityBackgroundTexture = null;
-            velocityBackgroundTexture_bak = null;
-            
-            if ( fixPositions )
-            {
-                float oldBgScaleX = backgroundScaleX;
-                float oldBgScaleY = backgroundScaleY;
-                
-                loadBackgroundImage( true, getInnerSize().getEffectiveWidth(), getInnerSize().getEffectiveHeight() );
-                
-                float corrX = oldBgScaleX / backgroundScaleX;
-                float corrY = oldBgScaleY / backgroundScaleY;
-                
-                revMarkersInnerRadius.setIntValue( Math.round( revMarkersInnerRadius.getIntValue() * corrX ) );
-                revMarkersLength.setIntValue( Math.round( revMarkersLength.getIntValue() * ( corrX + corrY ) / 2 ) );
-                gearPosX.setIntValue( Math.round( gearPosX.getIntValue() * corrX ) );
-                gearPosY.setIntValue( Math.round( gearPosY.getIntValue() * corrY ) );
-                boostBarPosX.setIntValue( Math.round( boostBarPosX.getIntValue() * corrX ) );
-                boostBarPosY.setIntValue( Math.round( boostBarPosY.getIntValue() * corrY ) );
-                boostBarWidth.setIntValue( Math.round( boostBarWidth.getIntValue() * corrX ) );
-                boostBarHeight.setIntValue( Math.round( boostBarHeight.getIntValue() * corrY ) );
-                boostNumberPosX.setIntValue( Math.round( boostNumberPosX.getIntValue() * corrX ) );
-                boostNumberPosY.setIntValue( Math.round( boostNumberPosY.getIntValue() * corrY ) );
-                velocityPosX.setIntValue( Math.round( velocityPosX.getIntValue() * corrX ) );
-                velocityPosY.setIntValue( Math.round( velocityPosY.getIntValue() * corrY ) );
-                rpmPosX1.setIntValue( Math.round( rpmPosX1.getIntValue() * corrX ) );
-                rpmPosY1.setIntValue( Math.round( rpmPosY1.getIntValue() * corrY ) );
-                rpmPosX2.setIntValue( Math.round( rpmPosX2.getIntValue() * corrX ) );
-                rpmPosY2.setIntValue( Math.round( rpmPosY2.getIntValue() * corrY ) );
-            }
-            
-            forceAndSetDirty( true );
-        }
-    };
-    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "default_rev_meter_needle.png", false, true )
+        return ( BackgroundProperty.IMAGE_INDICATOR + "default_rev_meter_bg.png" );
+    }
+    
+    @Override
+    protected void onBackgroundChanged( float deltaScaleX, float deltaScaleY )
     {
-        @Override
-        protected void onValueChanged( String oldValue, String newValue )
+        super.onBackgroundChanged( deltaScaleX, deltaScaleY );
+        
+        // TODO: Don't set to null!
+        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+            shiftLights[i].resetTextures();
+        gearBackgroundTexture = null;
+        gearBackgroundTexture_bak = null;
+        boostNumberBackgroundTexture = null;
+        boostNumberBackgroundTexture_bak = null;
+        
+        if ( deltaScaleX > 0f )
         {
-            needleTexture = null;
+            gearPosX.setIntValue( Math.round( gearPosX.getIntValue() * deltaScaleX ) );
+            gearPosY.setIntValue( Math.round( gearPosY.getIntValue() * deltaScaleY ) );
+            boostBarPosX.setIntValue( Math.round( boostBarPosX.getIntValue() * deltaScaleX ) );
+            boostBarPosY.setIntValue( Math.round( boostBarPosY.getIntValue() * deltaScaleY ) );
+            boostBarWidth.setIntValue( Math.round( boostBarWidth.getIntValue() * deltaScaleX ) );
+            boostBarHeight.setIntValue( Math.round( boostBarHeight.getIntValue() * deltaScaleY ) );
+            boostNumberPosX.setIntValue( Math.round( boostNumberPosX.getIntValue() * deltaScaleX ) );
+            boostNumberPosY.setIntValue( Math.round( boostNumberPosY.getIntValue() * deltaScaleY ) );
+            rpmPosX1.setIntValue( Math.round( rpmPosX1.getIntValue() * deltaScaleX ) );
+            rpmPosY1.setIntValue( Math.round( rpmPosY1.getIntValue() * deltaScaleY ) );
+            rpmPosX2.setIntValue( Math.round( rpmPosX2.getIntValue() * deltaScaleX ) );
+            rpmPosY2.setIntValue( Math.round( rpmPosY2.getIntValue() * deltaScaleY ) );
         }
-    };
+    }
+    
+    @Override
+    protected int getMarkersBigStepLowerLimit()
+    {
+        return ( 300 );
+    }
+    
+    @Override
+    protected int getMarkersSmallStepLowerLimit()
+    {
+        return ( 20 );
+    }
+    
     private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
     private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numberBGImageName", "", false, true );
-    private final ImageProperty velocityBackgroundImageName = new ImageProperty( this, "velocityBackgroundImageName", "velocityBGImageName", "cyan_circle.png", false, true );
     
-    private TextureImage2D backgroundTexture = null;
-    private TransformableTexture needleTexture = null;
     private TransformableTexture gearBackgroundTexture = null;
     private TextureImage2D gearBackgroundTexture_bak = null;
     private TransformableTexture boostNumberBackgroundTexture = null;
     private TextureImage2D boostNumberBackgroundTexture_bak = null;
-    private TransformableTexture velocityBackgroundTexture = null;
-    private TextureImage2D velocityBackgroundTexture_bak = null;
     
     private int gearBackgroundTexPosX, gearBackgroundTexPosY;
     private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
-    private int velocityBackgroundTexPosX, velocityBackgroundTexPosY;
     
-    private float backgroundScaleX = 1.0f;
-    private float backgroundScaleY = 1.0f;
-    
-    private final IntProperty needleAxisBottomOffset = new IntProperty( this, "needleAxisBottomOffset", "axisBottomOffset", 60 );
-    
-    private final FloatProperty needleRotationForZeroRPM = new FloatProperty( this, "rotationForZeroRPM", (float)Math.PI * 0.68f )
-    {
-        @Override
-        public void setValue( Object value )
-        {
-            super.setValue( ( (Number)value ).floatValue() * (float)Math.PI / 180f );
-        }
-        
-        @Override
-        public Float getValue()
-        {
-            return ( super.getFloatValue() * 180f / (float)Math.PI );
-        }
-    };
-    private final FloatProperty needleRotationForMaxRPM = new FloatProperty( this, "rotationForMaxRPM", -(float)Math.PI * 0.66f )
-    {
-        @Override
-        public void setValue( Object value )
-        {
-            super.setValue( ( (Number)value ).floatValue() * (float)Math.PI / 180f );
-        }
-        
-        @Override
-        public Float getValue()
-        {
-            return ( super.getFloatValue() * 180f / (float)Math.PI );
-        }
-    };
-    
-    private final BooleanProperty displayRevMarkers = new BooleanProperty( this, "displayRevMarkers", true );
-    private final BooleanProperty displayRevMarkerNumbers = new BooleanProperty( this, "displayRevMarkerNumbers", true );
     private final BooleanProperty useMaxRevLimit = new BooleanProperty( this, "useMaxRevLimit", true );
-    private final IntProperty revMarkersInnerRadius = new IntProperty( this, "revMarkersInnerRadius", "innerRadius", 224 );
-    private final IntProperty revMarkersLength = new IntProperty( this, "revMarkersLength", "length", 50, 4, Integer.MAX_VALUE, false );
-    private final IntProperty revMarkersBigStep = new IntProperty( this, "revMarkersBigStep", "bigStep", 1000, 300, Integer.MAX_VALUE, false )
-    {
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            fixSmallStep();
-        }
-    };
-    private final IntProperty revMarkersSmallStep = new IntProperty( this, "revMarkersSmallStep", "smallStep", 200, 20, Integer.MAX_VALUE, false )
-    {
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            fixSmallStep();
-        }
-    };
-    private final ColorProperty revMarkersColor = new ColorProperty( this, "revMarkersColor", "color", "#FFFFFF" );
     private final ColorProperty revMarkersMediumColor = new ColorProperty( this, "revMarkersMediumColor", "mediumColor", "#FFFF00" );
     private final ColorProperty revMarkersHighColor = new ColorProperty( this, "revMarkersHighColor", "highColor", "#FF0000" );
-    private final FontProperty revMarkersFont = new FontProperty( this, "revMarkersFont", "font", "Monospaced-BOLD-9va" );
-    private final ColorProperty revMarkersFontColor = new ColorProperty( this, "revMarkersFontColor", "fontColor", "#FFFFFF" );
     private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
     private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
@@ -264,14 +186,6 @@ public class RevMeterWidget extends Widget
     private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
-    private final BooleanProperty displayVelocity = new BooleanProperty( this, "displayVelocity", true );
-    
-    private final IntProperty velocityPosX = new IntProperty( this, "velocityPosX", "posX", 100 );
-    private final IntProperty velocityPosY = new IntProperty( this, "velocityPosY", "posY", 100 );
-    
-    private final FontProperty velocityFont = new FontProperty( this, "velocityFont", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty velocityFontColor = new ColorProperty( this, "velocityFontColor", "fontColor", "#1A261C" );
-    
     private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
     private final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
     private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
@@ -296,12 +210,10 @@ public class RevMeterWidget extends Widget
     private DrawnString rpmString2 = null;
     private DrawnString gearString = null;
     private DrawnString boostString = null;
-    private DrawnString velocityString = null;
     
     private final FloatValue maxRPMCheck = new FloatValue();
     private final IntValue gear = new IntValue();
     private final IntValue boost = new IntValue();
-    private final IntValue velocity = new IntValue();
     
     /**
      * {@inheritDoc}
@@ -360,82 +272,74 @@ public class RevMeterWidget extends Widget
         setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
     }
     
-    private void fixSmallStep()
+    @Override
+    protected float getMinValue( LiveGameData gameData, EditorPresets editorPresets )
     {
-        this.revMarkersSmallStep.setIntValue( revMarkersBigStep.getIntValue() / Math.round( (float)revMarkersBigStep.getIntValue() / (float)revMarkersSmallStep.getIntValue() ) );
+        return ( 0 );
     }
     
-    private int loadNeedleTexture( boolean isEditorMode )
+    @Override
+    protected float getMaxValue( LiveGameData gameData, EditorPresets editorPresets )
     {
-        if ( needleImageName.isNoImage() )
-        {
-            needleTexture = null;
-            return ( 0 );
-        }
+        if ( useMaxRevLimit.getBooleanValue() )
+            return ( gameData.getPhysics().getEngine().getRevLimitRange().getMaxValue() );
         
-        if ( ( needleTexture == null ) || isEditorMode )
-        {
-            try
-            {
-                ImageTemplate it = backgroundImageName.getImage();
-                float scale = ( it == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it.getBaseWidth();
-                it = needleImageName.getImage();
-                
-                if ( it == null )
-                {
-                    needleTexture = null;
-                    return ( 0 );
-                }
-                
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
-                needleTexture = it.getScaledTransformableTexture( w, h, needleTexture, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-                
-                return ( 0 );
-            }
-        }
+        return ( gameData.getTelemetryData().getEngineMaxRPM() );
+    }
+    
+    @Override
+    protected float getValue( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        return ( ( editorPresets != null ) ? editorPresets.getEngineRPM() : gameData.getTelemetryData().getEngineRPM() );
+    }
+    
+    @Override
+    protected int getValueForValueDisplay( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
         
-        return ( 1 );
+        if ( vsi.isPlayer() )
+            return ( Math.round( gameData.getTelemetryData().getScalarVelocity() ) );
+        
+        return ( Math.round( vsi.getScalarVelocity() ) );
+    }
+    
+    @Override
+    protected String getMarkerLabelForValue( LiveGameData gameData, EditorPresets editorPresets, float value )
+    {
+        return ( String.valueOf( Math.round( value / 1000 ) ) );
     }
     
     private int loadGearBackgroundTexture( boolean isEditorMode )
     {
-        if ( ( gearBackgroundTexture == null ) || isEditorMode )
+        try
         {
-            try
+            ImageTemplate it = gearBackgroundImageName.getImage();
+            
+            if ( it == null )
             {
-                ImageTemplate it0 = backgroundImageName.getImage();
-                float scale = ( it0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
-                ImageTemplate it = gearBackgroundImageName.getImage();
-                
-                if ( it == null )
-                {
-                    gearBackgroundTexture = null;
-                    gearBackgroundTexture_bak = null;
-                    return ( 0 );
-                }
-                
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
-                if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != w ) || ( gearBackgroundTexture.getHeight() != h ) )
-                {
-                    gearBackgroundTexture = it.getScaledTransformableTexture( w, h, gearBackgroundTexture, isEditorMode );
-                    gearBackgroundTexture.setDynamic( true );
-                    
-                    gearBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), gearBackgroundTexture.getTexture().hasAlphaChannel(), gearBackgroundTexture_bak, isEditorMode );
-                    gearBackgroundTexture_bak.clear( gearBackgroundTexture.getTexture(), true, null );
-                }
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-                
+                gearBackgroundTexture = null;
+                gearBackgroundTexture_bak = null;
                 return ( 0 );
             }
+            
+            float scale = getBackground().getScaleX();
+            int w = Math.round( it.getBaseWidth() * scale );
+            int h = Math.round( it.getBaseHeight() * scale );
+            //if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != w ) || ( gearBackgroundTexture.getHeight() != h ) )
+            {
+                gearBackgroundTexture = it.getScaledTransformableTexture( w, h, gearBackgroundTexture, isEditorMode );
+                gearBackgroundTexture.setDynamic( true );
+                
+                gearBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), gearBackgroundTexture.getTexture().hasAlphaChannel(), gearBackgroundTexture_bak, isEditorMode );
+                gearBackgroundTexture_bak.clear( gearBackgroundTexture.getTexture(), true, null );
+            }
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+            
+            return ( 0 );
         }
         
         return ( 1 );
@@ -450,129 +354,64 @@ public class RevMeterWidget extends Widget
             return ( 0 );
         }
         
-        if ( ( boostNumberBackgroundTexture == null ) || isEditorMode )
+        try
         {
-            try
+            ImageTemplate it = boostNumberBackgroundImageName.getImage();
+            
+            if ( it == null )
             {
-                ImageTemplate it0 = backgroundImageName.getImage();
-                float scale = ( it0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
-                ImageTemplate it = boostNumberBackgroundImageName.getImage();
-                
-                if ( it == null )
-                {
-                    boostNumberBackgroundTexture = null;
-                    boostNumberBackgroundTexture_bak = null;
-                    return ( 0 );
-                }
-                
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
-                if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != w ) || ( boostNumberBackgroundTexture.getHeight() != h ) )
-                {
-                    boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h, boostNumberBackgroundTexture, isEditorMode );
-                    boostNumberBackgroundTexture.setDynamic( true );
-                    
-                    boostNumberBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), boostNumberBackgroundTexture.getTexture().hasAlphaChannel(), boostNumberBackgroundTexture_bak, isEditorMode );
-                    boostNumberBackgroundTexture_bak.clear( boostNumberBackgroundTexture.getTexture(), true, null );
-                }
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-                
+                boostNumberBackgroundTexture = null;
+                boostNumberBackgroundTexture_bak = null;
                 return ( 0 );
             }
+            
+            float scale = getBackground().getScaleX();
+            int w = Math.round( it.getBaseWidth() * scale );
+            int h = Math.round( it.getBaseHeight() * scale );
+            //if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != w ) || ( boostNumberBackgroundTexture.getHeight() != h ) )
+            {
+                boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h, boostNumberBackgroundTexture, isEditorMode );
+                boostNumberBackgroundTexture.setDynamic( true );
+                
+                boostNumberBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), boostNumberBackgroundTexture.getTexture().hasAlphaChannel(), boostNumberBackgroundTexture_bak, isEditorMode );
+                boostNumberBackgroundTexture_bak.clear( boostNumberBackgroundTexture.getTexture(), true, null );
+            }
         }
-        
-        return ( 1 );
-    }
-    
-    private int loadVelocityBackgroundTexture( boolean isEditorMode )
-    {
-        if ( !displayVelocity.getBooleanValue() )
+        catch ( Throwable t )
         {
-            velocityBackgroundTexture = null;
-            velocityBackgroundTexture_bak = null;
+            Logger.log( t );
+            
             return ( 0 );
-        }
-        
-        if ( ( velocityBackgroundTexture == null ) || isEditorMode )
-        {
-            try
-            {
-                ImageTemplate it0 = backgroundImageName.getImage();
-                float scale = ( it0 == null ) ? 1.0f : getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
-                ImageTemplate it = velocityBackgroundImageName.getImage();
-                
-                if ( it == null )
-                {
-                    velocityBackgroundTexture = null;
-                    velocityBackgroundTexture_bak = null;
-                    return ( 0 );
-                }
-                
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
-                if ( ( velocityBackgroundTexture == null ) || ( velocityBackgroundTexture.getWidth() != w ) || ( velocityBackgroundTexture.getHeight() != h ) )
-                {
-                    velocityBackgroundTexture = it.getScaledTransformableTexture( w, h, velocityBackgroundTexture, isEditorMode );
-                    velocityBackgroundTexture.setDynamic( true );
-                    
-                    velocityBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( velocityBackgroundTexture.getWidth(), velocityBackgroundTexture.getHeight(), velocityBackgroundTexture.getTexture().hasAlphaChannel(), velocityBackgroundTexture_bak, isEditorMode );
-                    velocityBackgroundTexture_bak.clear( velocityBackgroundTexture.getTexture(), true, null );
-                }
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-                
-                return ( 0 );
-            }
         }
         
         return ( 1 );
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetWidth, int widgetHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
+        TransformableTexture[] superResult = super.getSubTexturesImpl( gameData, editorPresets, widgetInnerWidth, widgetInnerHeight );
+        
         final boolean isEditorMode = ( editorPresets != null );
         
         int n = 0;
         
-        n += loadNeedleTexture( isEditorMode );
-        
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            n += shiftLights[s].loadTextures( isEditorMode, backgroundImageName );
+            n += shiftLights[s].loadTextures( isEditorMode );
         
-        if ( !gearBackgroundImageName.isNoImage() )
-            n += loadGearBackgroundTexture( isEditorMode );
-        else
-            gearBackgroundTexture = null;
+        n += loadGearBackgroundTexture( isEditorMode );
+        n += loadBoostNumberBackgroundTexture( isEditorMode );
         
-        if ( !boostNumberBackgroundImageName.isNoImage() )
-            n += loadBoostNumberBackgroundTexture( isEditorMode );
-        else
-            boostNumberBackgroundTexture = null;
+        TransformableTexture[] result = new TransformableTexture[ superResult.length + n ];
+        System.arraycopy( superResult, 0, result, 0, superResult.length );
         
-        if ( !velocityBackgroundImageName.isNoImage() )
-            n += loadVelocityBackgroundTexture( isEditorMode );
-        else
-            velocityBackgroundTexture = null;
-        
-        TransformableTexture[] result = new TransformableTexture[ n ];
-        
-        int i = 0;
-        if ( needleTexture != null )
-            result[i++] = needleTexture;
+        int i = superResult.length;
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
             i = shiftLights[s].writeTexturesToArray( result, i );
         if ( gearBackgroundTexture != null )
             result[i++] = gearBackgroundTexture;
         if ( boostNumberBackgroundTexture != null )
             result[i++] = boostNumberBackgroundTexture;
-        if ( velocityBackgroundTexture != null )
-            result[i++] = velocityBackgroundTexture;
         
         return ( result );
     }
@@ -587,19 +426,6 @@ public class RevMeterWidget extends Widget
         
         maxRPMCheck.reset();
         gear.reset();
-        velocity.reset();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
-    {
-        super.onVehicleSetupUpdated( gameData, editorPresets );
-        
-        forceCompleteRedraw( false );
-        forceReinitialization();
     }
     
     /**
@@ -612,7 +438,6 @@ public class RevMeterWidget extends Widget
         
         maxRPMCheck.reset();
         gear.reset();
-        velocity.reset();
     }
     
     /**
@@ -626,63 +451,21 @@ public class RevMeterWidget extends Widget
         setControlVisibility( viewedVSI );
     }
     
-    private void loadBackgroundImage( boolean isEditorMode, int width, int height )
-    {
-        if ( backgroundImageName.isNoImage() )
-        {
-            backgroundTexture = null;
-            backgroundScaleX = 1.0f;
-            backgroundScaleY = 1.0f;
-        }
-        else
-        {
-            boolean reloadBackground = ( backgroundTexture == null );
-            
-            if ( !reloadBackground && isEditorMode && ( ( backgroundTexture.getWidth() != width ) || ( backgroundTexture.getHeight() != height ) ) )
-                reloadBackground = true;
-            
-            if ( reloadBackground )
-            {
-                try
-                {
-                    backgroundTexture = backgroundImageName.getImage().getScaledTextureImage( width, height, backgroundTexture, isEditorMode );
-                }
-                catch ( Throwable t )
-                {
-                    Logger.log( t );
-                }
-                
-                ImageTemplate it = backgroundImageName.getImage();
-                backgroundScaleX = (float)width / (float)it.getBaseWidth();
-                backgroundScaleY = (float)height / (float)it.getBaseHeight();
-            }
-        }
-    }
-    
     /**
      * {@inheritDoc}
      */
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        super.initialize( clock1, clock2, gameData, editorPresets, dsf, texture, offsetX, offsetY, width, height );
+        
         final boolean isEditorMode = ( editorPresets != null );
         final Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
-        loadBackgroundImage( isEditorMode, width, height );
-        loadNeedleTexture( isEditorMode );
-        
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            shiftLights[s].loadTextures( isEditorMode, backgroundImageName );
+            shiftLights[s].loadTextures( isEditorMode );
         
-        if ( needleTexture != null )
-        {
-            needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
-            needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needleAxisBottomOffset.getIntValue() * backgroundScaleX ) );
-            //needleTexture.setRotation( 0f );
-            //needleTexture.setScale( 1f, 1f );
-        }
-        
-        FontMetrics metrics = texCanvas.getFontMetrics( gearFont.getFont() );
+        FontMetrics metrics = gearFont.getMetrics();
         Rectangle2D bounds = metrics.getStringBounds( "X", texCanvas );
         double fw = bounds.getWidth();
         double fh = metrics.getAscent() - metrics.getDescent();
@@ -695,13 +478,13 @@ public class RevMeterWidget extends Widget
         
         if ( gearBackgroundTexture == null )
         {
-            fx = Math.round( gearPosX.getIntValue() * backgroundScaleX );
-            fy = Math.round( gearPosY.getIntValue() * backgroundScaleY );
+            fx = Math.round( gearPosX.getIntValue() * getBackground().getScaleX() );
+            fy = Math.round( gearPosY.getIntValue() * getBackground().getScaleY() );
         }
         else
         {
-            gearBackgroundTexPosX = Math.round( gearPosX.getIntValue() * backgroundScaleX - gearBackgroundTexture.getWidth() / 2.0f );
-            gearBackgroundTexPosY = Math.round( gearPosY.getIntValue() * backgroundScaleY - gearBackgroundTexture.getHeight() / 2.0f );
+            gearBackgroundTexPosX = Math.round( gearPosX.getIntValue() * getBackground().getScaleX() - gearBackgroundTexture.getWidth() / 2.0f );
+            gearBackgroundTexPosY = Math.round( gearPosY.getIntValue() * getBackground().getScaleY() - gearBackgroundTexture.getHeight() / 2.0f );
             
             fx = gearBackgroundTexture.getWidth() / 2;
             fy = gearBackgroundTexture.getHeight() / 2;
@@ -709,7 +492,7 @@ public class RevMeterWidget extends Widget
         
         gearString = dsf.newDrawnString( "gearString", fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor() );
         
-        metrics = texCanvas.getFontMetrics( boostNumberFont.getFont() );
+        metrics = boostNumberFont.getMetrics();
         bounds = metrics.getStringBounds( "0", texCanvas );
         fw = bounds.getWidth();
         fh = metrics.getAscent() - metrics.getDescent();
@@ -721,13 +504,13 @@ public class RevMeterWidget extends Widget
         
         if ( boostNumberBackgroundTexture == null )
         {
-            fx = Math.round( boostNumberPosX.getIntValue() * backgroundScaleX );
-            fy = Math.round( boostNumberPosY.getIntValue() * backgroundScaleY );
+            fx = Math.round( boostNumberPosX.getIntValue() * getBackground().getScaleX() );
+            fy = Math.round( boostNumberPosY.getIntValue() * getBackground().getScaleY() );
         }
         else
         {
-            boostNumberBackgroundTexPosX = Math.round( boostNumberPosX.getIntValue() * backgroundScaleX - boostNumberBackgroundTexture.getWidth() / 2.0f );
-            boostNumberBackgroundTexPosY = Math.round( boostNumberPosY.getIntValue() * backgroundScaleY - boostNumberBackgroundTexture.getHeight() / 2.0f );
+            boostNumberBackgroundTexPosX = Math.round( boostNumberPosX.getIntValue() * getBackground().getScaleX() - boostNumberBackgroundTexture.getWidth() / 2.0f );
+            boostNumberBackgroundTexPosY = Math.round( boostNumberPosY.getIntValue() * getBackground().getScaleY() - boostNumberBackgroundTexture.getHeight() / 2.0f );
             
             fx = boostNumberBackgroundTexture.getWidth() / 2;
             fy = boostNumberBackgroundTexture.getHeight() / 2;
@@ -735,34 +518,8 @@ public class RevMeterWidget extends Widget
         
         boostString = dsf.newDrawnString( "boostString", fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor() );
         
-        metrics = velocityFont.getMetrics();
-        bounds = metrics.getStringBounds( "000", texCanvas );
-        fw = bounds.getWidth();
-        fh = metrics.getAscent() - metrics.getDescent();
-        
-        if ( !velocityBackgroundImageName.isNoImage() )
-            loadVelocityBackgroundTexture( isEditorMode );
-        else
-            velocityBackgroundTexture = null;
-        
-        if ( velocityBackgroundTexture == null )
-        {
-            fx = Math.round( velocityPosX.getIntValue() * backgroundScaleX );
-            fy = Math.round( velocityPosY.getIntValue() * backgroundScaleY );
-        }
-        else
-        {
-            velocityBackgroundTexPosX = Math.round( velocityPosX.getIntValue() * backgroundScaleX - velocityBackgroundTexture.getWidth() / 2.0f );
-            velocityBackgroundTexPosY = Math.round( velocityPosY.getIntValue() * backgroundScaleY - velocityBackgroundTexture.getHeight() / 2.0f );
-            
-            fx = velocityBackgroundTexture.getWidth() / 2;
-            fy = velocityBackgroundTexture.getHeight() / 2;
-        }
-        
-        velocityString = dsf.newDrawnString( "velocityString", fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, velocityFont.getFont(), velocityFont.isAntiAliased(), velocityFontColor.getColor() );
-        
-        rpmString1 = dsf.newDrawnStringIf( displayRPMString1.getBooleanValue(), "rpmString1", width - Math.round( rpmPosX1.getIntValue() * backgroundScaleX ), Math.round( rpmPosY1.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
-        rpmString2 = dsf.newDrawnStringIf( displayRPMString2.getBooleanValue(), "rpmString2", width - Math.round( rpmPosX2.getIntValue() * backgroundScaleX ), Math.round( rpmPosY2.getIntValue() * backgroundScaleY ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
+        rpmString1 = dsf.newDrawnStringIf( displayRPMString1.getBooleanValue(), "rpmString1", width - Math.round( rpmPosX1.getIntValue() * getBackground().getScaleX() ), Math.round( rpmPosY1.getIntValue() * getBackground().getScaleY() ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
+        rpmString2 = dsf.newDrawnStringIf( displayRPMString2.getBooleanValue(), "rpmString2", width - Math.round( rpmPosX2.getIntValue() * getBackground().getScaleX() ), Math.round( rpmPosY2.getIntValue() * getBackground().getScaleY() ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
     }
     
     /**
@@ -786,18 +543,85 @@ public class RevMeterWidget extends Widget
                           ) );
     }
     
-    private void drawMarks( LiveGameData gameData, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    private float lowRPM = -1f;
+    private float mediumRPM = -1f;
+    
+    @Override
+    protected void prepareMarkersBackground( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, float innerRadius, float bigOuterRadius, float smallOuterRadius )
     {
-        if ( !displayRevMarkers.getBooleanValue() && !fillHighBackground.getBooleanValue() )
+        super.prepareMarkersBackground( gameData, editorPresets, texCanvas, offsetX, offsetY, width, height, innerRadius, bigOuterRadius, smallOuterRadius );
+        
+        if ( !fillHighBackground.getBooleanValue() )
             return;
         
-        float baseMaxRPM = gameData.getTelemetryData().getEngineBaseMaxRPM();
-        float maxRPM = gameData.getTelemetryData().getEngineMaxRPM();
+        float centerX = offsetX + width / 2;
+        float centerY = offsetY + height / 2;
         
-        if ( useMaxRevLimit.getBooleanValue() )
+        int nPoints = 360;
+        int[] xPoints = new int[ nPoints ];
+        int[] yPoints = new int[ nPoints ];
+        
+        final float TWO_PI = (float)( Math.PI * 2f );
+        
+        for ( int i = 0; i < nPoints; i++ )
         {
-            maxRPM = gameData.getPhysics().getEngine().getRevLimitRange().getMaxValue();
+            float angle = i * ( TWO_PI / ( nPoints + 1 ) );
+            xPoints[i] = Math.round( centerX + (float)Math.cos( angle ) * innerRadius );
+            yPoints[i] = Math.round( centerY + -(float)Math.sin( angle ) * innerRadius );
         }
+        
+        Shape oldClip = texCanvas.getClip();
+        
+        Polygon p = new Polygon( xPoints, yPoints, nPoints );
+        Area area = new Area( oldClip );
+        area.subtract( new Area( p ) );
+        
+        texCanvas.setClip( area );
+        
+        int maxValue = (int)getMaxValue( gameData, editorPresets );
+        
+        float lowAngle = ( needleRotationForMinValue.getFloatValue() + ( needleRotationForMaxValue.getFloatValue() - needleRotationForMinValue.getFloatValue() ) * ( lowRPM / maxValue ) );
+        //float mediumAngle = ( needleRotationForMinValue.getFloatValue() + ( needleRotationForMaxValue.getFloatValue() - needleRotationForMinValue.getFloatValue() ) * ( mediumRPM / maxRPM ) );
+        float maxAngle = needleRotationForMaxValue.getFloatValue();
+        float oneDegree = 1; //(float)( Math.PI / 180.0 );
+        
+        for ( float angle = lowAngle; angle < maxAngle - oneDegree; angle += oneDegree )
+        {
+            int rpm = Math.round( ( angle - needleRotationForMinValue.getFloatValue() ) * maxValue / ( needleRotationForMaxValue.getFloatValue() - needleRotationForMinValue.getFloatValue() ) );
+            
+            if ( rpm <= mediumRPM )
+                texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( markersColor.getColor(), revMarkersMediumColor.getColor(), ( rpm - lowRPM ) / ( mediumRPM - lowRPM ) ) : revMarkersMediumColor.getColor() );
+            else
+                texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxValue - mediumRPM ) ) : revMarkersHighColor.getColor() );
+            
+            texCanvas.fillArc( Math.round( centerX - smallOuterRadius ), Math.round( centerY - smallOuterRadius ), Math.round( smallOuterRadius + smallOuterRadius ), Math.round( smallOuterRadius + smallOuterRadius ), Math.round( 90f - angle ), ( angle < maxAngle - oneDegree - oneDegree ) ? -2 : -1 );
+        }
+        
+        //texCanvas.setClip( oldClip );
+    }
+    
+    @Override
+    protected boolean getDisplayMarkers()
+    {
+        return ( super.getDisplayMarkers() || fillHighBackground.getBooleanValue() );
+    }
+    
+    @Override
+    protected Color getMarkerColorForValue( LiveGameData gameData, EditorPresets editorPresets, int value, int minValue, int maxValue )
+    {
+        if ( fillHighBackground.getBooleanValue() || ( value <= lowRPM ) )
+            return ( markersColor.getColor() );
+        
+        if ( value <= mediumRPM )
+            return ( interpolateMarkerColors.getBooleanValue() ? interpolateColor( markersColor.getColor(), revMarkersMediumColor.getColor(), ( value - lowRPM ) / ( mediumRPM - lowRPM ) ) : revMarkersMediumColor.getColor() );
+        
+        return ( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( value - mediumRPM ) / ( maxValue - mediumRPM ) ) : revMarkersHighColor.getColor() );
+    }
+    
+    @Override
+    protected void drawMarkers( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    {
+        float baseMaxRPM = gameData.getTelemetryData().getEngineBaseMaxRPM();
         
         VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
         PhysicsSetting boostRange = engine.getBoostRange();
@@ -806,149 +630,22 @@ public class RevMeterWidget extends Widget
         //int maxBoost = ( engine.getRPMIncreasePerBoostLevel() > 0f ) ? (int)boostRange.getMaxValue() : (int)boostRange.getMinValue();
         int mediumBoost = Math.round( boostRange.getMinValue() + ( boostRange.getMaxValue() - boostRange.getMinValue() ) / 2f );
         
-        float lowRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, minBoost );
-        float mediumRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, mediumBoost );
+        lowRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, minBoost );
+        mediumRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, mediumBoost );
         
-        float centerX = offsetX + width / 2;
-        float centerY = offsetY + height / 2;
-        
-        texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-        
-        Stroke thousand = null;
-        Stroke twoHundred = null;
-        
-        AffineTransform at0 = new AffineTransform( texCanvas.getTransform() );
-        AffineTransform at1 = null;
-        AffineTransform at2 = null;
-        
-        Stroke oldStroke = texCanvas.getStroke();
-        
-        if ( displayRevMarkers.getBooleanValue() )
-        {
-            thousand = new BasicStroke( 2 );
-            twoHundred = new BasicStroke( 1 );
-            
-            at1 = new AffineTransform( at0 );
-            at2 = new AffineTransform();
-        }
-        
-        float innerRadius = revMarkersInnerRadius.getIntValue() * backgroundScaleX;
-        float outerRadius = ( revMarkersInnerRadius.getIntValue() + revMarkersLength.getIntValue() - 1 ) * backgroundScaleX;
-        float outerRadius2 = innerRadius + ( outerRadius - innerRadius ) * 0.75f;
-        
-        if ( fillHighBackground.getBooleanValue() )
-        {
-            Shape oldClip = texCanvas.getClip();
-            
-            int nPoints = 360;
-            int[] xPoints = new int[ nPoints ];
-            int[] yPoints = new int[ nPoints ];
-            
-            final float TWO_PI = (float)( Math.PI * 2f );
-            
-            for ( int i = 0; i < nPoints; i++ )
-            {
-                float angle = i * ( TWO_PI / ( nPoints + 1 ) );
-                xPoints[i] = Math.round( centerX + (float)Math.cos( angle ) * innerRadius );
-                yPoints[i] = Math.round( centerY + -(float)Math.sin( angle ) * innerRadius );
-            }
-            
-            Polygon p = new Polygon( xPoints, yPoints, nPoints );
-            Area area = new Area( oldClip );
-            area.subtract( new Area( p ) );
-            
-            texCanvas.setClip( area );
-            
-            float lowAngle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( lowRPM / maxRPM ) );
-            //float mediumAngle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( mediumRPM / maxRPM ) );
-            float maxAngle = -needleRotationForMaxRPM.getFloatValue();
-            float oneDegree = (float)( Math.PI / 180.0 );
-            
-            for ( float angle = lowAngle; angle < maxAngle - oneDegree; angle += oneDegree )
-            {
-                int rpm = Math.round( ( -angle - needleRotationForZeroRPM.getFloatValue() ) * maxRPM / ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) );
-                
-                if ( rpm <= mediumRPM )
-                    texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersColor.getColor(), revMarkersMediumColor.getColor(), ( rpm - lowRPM ) / ( mediumRPM - lowRPM ) ) : revMarkersMediumColor.getColor() );
-                else
-                    texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxRPM - mediumRPM ) ) : revMarkersHighColor.getColor() );
-                
-                texCanvas.fillArc( Math.round( centerX - outerRadius2 ), Math.round( centerY - outerRadius2 ), Math.round( outerRadius2 + outerRadius2 ), Math.round( outerRadius2 + outerRadius2 ), Math.round( 90f - angle * 180f / (float)Math.PI ), ( angle < maxAngle - oneDegree - oneDegree ) ? -2 : -1 );
-            }
-            
-            texCanvas.setClip( oldClip );
-        }
-        
-        if ( displayRevMarkers.getBooleanValue() )
-        {
-            Font numberFont = revMarkersFont.getFont();
-            texCanvas.setFont( numberFont );
-            FontMetrics metrics = texCanvas.getFontMetrics( numberFont );
-            
-            final int smallStep = revMarkersSmallStep.getIntValue();
-            for ( int rpm = 0; rpm <= maxRPM; rpm += smallStep )
-            {
-                float angle = -( needleRotationForZeroRPM.getFloatValue() + ( needleRotationForMaxRPM.getFloatValue() - needleRotationForZeroRPM.getFloatValue() ) * ( rpm / maxRPM ) );
-                
-                at2.setToRotation( angle, centerX, centerY );
-                texCanvas.setTransform( at2 );
-                
-                if ( fillHighBackground.getBooleanValue() || ( rpm <= lowRPM ) )
-                    texCanvas.setColor( revMarkersColor.getColor() );
-                else if ( rpm <= mediumRPM )
-                    texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersColor.getColor(), revMarkersMediumColor.getColor(), ( rpm - lowRPM ) / ( mediumRPM - lowRPM ) ) : revMarkersMediumColor.getColor() );
-                else
-                    texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxRPM - mediumRPM ) ) : revMarkersHighColor.getColor() );
-                
-                if ( ( rpm % revMarkersBigStep.getIntValue() ) == 0 )
-                {
-                    texCanvas.setStroke( thousand );
-                    texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius ) );
-                    //texCanvas.drawLine( Math.round( centerX ), Math.round( ( centerY - innerRadius ) * backgroundScaleY / backgroundScaleX ), Math.round( centerX ), Math.round( ( centerY - outerRadius ) * backgroundScaleY / backgroundScaleX ) );
-                    
-                    if ( displayRevMarkerNumbers.getBooleanValue() )
-                    {
-                        String s = String.valueOf( rpm / 1000 );
-                        Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
-                        float fw = (float)bounds.getWidth();
-                        float fh = (float)( metrics.getAscent() - metrics.getDescent() );
-                        float off = (float)Math.sqrt( fw * fw + fh * fh ) / 2f;
-                        
-                        at1.setToTranslation( 0f, -off );
-                        at2.concatenate( at1 );
-                        at1.setToRotation( -angle, Math.round( centerX ), Math.round( centerY - outerRadius ) - fh / 2f );
-                        at2.concatenate( at1 );
-                        texCanvas.setTransform( at2 );
-                        
-                        texCanvas.drawString( s, Math.round( centerX ) - fw / 2f, Math.round( centerY - outerRadius ) );
-                    }
-                }
-                else
-                {
-                    texCanvas.setStroke( twoHundred );
-                    texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius2 ) );
-                }
-            }
-        }
-        
-        texCanvas.setTransform( at0 );
-        texCanvas.setStroke( oldStroke );
-        texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT );
+        super.drawMarkers( gameData, editorPresets, texCanvas, offsetX, offsetY, width, height );
     }
     
+    /*
     @Override
     protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
         super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
         
-        if ( backgroundTexture != null )
-            texture.drawImage( backgroundTexture, offsetX, offsetY, false, null );
-        
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            shiftLights[s].loadTextures( editorPresets != null, backgroundImageName );
-        
-        drawMarks( gameData, texture.getTextureCanvas(), offsetX, offsetY, width, height );
+            shiftLights[s].loadTextures( editorPresets != null );
     }
+    */
     
     /**
      * 
@@ -993,8 +690,18 @@ public class RevMeterWidget extends Widget
     }
     
     @Override
+    protected boolean doRenderNeedle( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+        
+        return ( vsi.isPlayer() );
+    }
+    
+    @Override
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        super.drawWidget( clock1, clock2, needsCompleteRedraw, gameData, editorPresets, texture, offsetX, offsetY, width, height );
+        
         final boolean isEditorMode = ( editorPresets != null );
         
         TelemetryData telemData = gameData.getTelemetryData();
@@ -1012,10 +719,7 @@ public class RevMeterWidget extends Widget
             
             if ( gearBackgroundTexture == null )
             {
-                if ( backgroundTexture == null )
-                    gearString.draw( offsetX, offsetY, string, texture, ColorUtils.BLACK_TRANSPARENT );
-                else
-                    gearString.draw( offsetX, offsetY, string, texture, backgroundTexture );
+                gearString.draw( offsetX, offsetY, string, texture );
             }
             else
             {
@@ -1033,10 +737,7 @@ public class RevMeterWidget extends Widget
             {
                 if ( boostNumberBackgroundTexture == null )
                 {
-                    if ( backgroundTexture == null )
-                        boostString.draw( offsetX, offsetY, boost.getValueAsString(), texture, ColorUtils.BLACK_TRANSPARENT );
-                    else
-                        boostString.draw( offsetX, offsetY, boost.getValueAsString(), texture, backgroundTexture );
+                    boostString.draw( offsetX, offsetY, boost.getValueAsString(), texture );
                 }
                 else
                 {
@@ -1052,37 +753,7 @@ public class RevMeterWidget extends Widget
                 int maxBoost = (int)gameData.getPhysics().getEngine().getBoostRange().getMaxValue();
                 boolean inverted = ( gameData.getPhysics().getEngine().getRPMIncreasePerBoostLevel() < 0f );
                 boolean tempBoost = false;
-                drawBoostBar( boost.getValue(), maxBoost, inverted, tempBoost, texture.getTextureCanvas(), offsetX + Math.round( boostBarPosX.getIntValue() * backgroundScaleX ), offsetY + Math.round( boostBarPosY.getIntValue() * backgroundScaleY ), Math.round( boostBarWidth.getIntValue() * backgroundScaleX ), Math.round( boostBarHeight.getIntValue() * backgroundScaleY ) );
-            }
-        }
-        
-        if ( displayVelocity.getBooleanValue() )
-        {
-            velocity.update( Math.round( vsi.isPlayer() ? telemData.getScalarVelocity() : vsi.getScalarVelocity() ) );
-            if ( needsCompleteRedraw || ( clock1 && velocity.hasChanged( false ) ) )
-            {
-                velocity.setUnchanged();
-                
-                String string = velocity.getValueAsString();
-                
-                FontMetrics metrics = velocityFont.getMetrics();
-                Rectangle2D bounds = metrics.getStringBounds( string, texture.getTextureCanvas() );
-                double fw = bounds.getWidth();
-                
-                if ( velocityBackgroundTexture == null )
-                {
-                    if ( backgroundTexture == null )
-                        velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, texture, ColorUtils.BLACK_TRANSPARENT );
-                    else
-                        velocityString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, texture, backgroundTexture, offsetX, offsetY );
-                }
-                else
-                {
-                    if ( needsCompleteRedraw )
-                        velocityBackgroundTexture.getTexture().clear( velocityBackgroundTexture_bak, true, null );
-                    
-                    velocityString.draw( (int)( -fw / 2.0 ), 0, string, velocityBackgroundTexture.getTexture(), velocityBackgroundTexture_bak, 0, 0 );
-                }
+                drawBoostBar( boost.getValue(), maxBoost, inverted, tempBoost, texture.getTextureCanvas(), offsetX + Math.round( boostBarPosX.getIntValue() * getBackground().getScaleY() ), offsetY + Math.round( boostBarPosY.getIntValue() * getBackground().getScaleY() ), Math.round( boostBarWidth.getIntValue() * getBackground().getScaleX() ), Math.round( boostBarHeight.getIntValue() * getBackground().getScaleY() ) );
             }
         }
         
@@ -1113,10 +784,7 @@ public class RevMeterWidget extends Widget
                 }
             }
             
-            if ( backgroundTexture == null )
-                rpmString1.draw( offsetX, offsetY, string, texture, ColorUtils.BLACK_TRANSPARENT );
-            else
-                rpmString1.draw( offsetX, offsetY, string, texture, backgroundTexture );
+            rpmString1.draw( offsetX, offsetY, string, texture );
         }
         
         if ( displayRPMString2.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
@@ -1138,33 +806,14 @@ public class RevMeterWidget extends Widget
                 }
             }
             
-            if ( backgroundTexture == null )
-                rpmString2.draw( offsetX, offsetY, string, texture, ColorUtils.BLACK_TRANSPARENT );
-            else
-                rpmString2.draw( offsetX, offsetY, string, texture, backgroundTexture );
+            rpmString2.draw( offsetX, offsetY, string, texture );
         }
         
         {
             float rpm2 = vsi.isPlayer() ? rpm : 0f;
             float baseMaxRPM = vsi.isPlayer() ? telemData.getEngineBaseMaxRPM() : 100000f;
             for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-                shiftLights[s].updateTextures( gameData, rpm2, baseMaxRPM, boost.getValue(), backgroundScaleX, backgroundScaleY );
-        }
-        
-        if ( needleTexture != null )
-        {
-            if ( vsi.isPlayer() )
-            {
-                float rot0 = needleRotationForZeroRPM.getFloatValue();
-                float rot = -( rpm / maxRPM ) * ( needleRotationForZeroRPM.getFloatValue() - needleRotationForMaxRPM.getFloatValue() );
-                
-                needleTexture.setRotation( -rot0 - rot );
-                needleTexture.setVisible( true );
-            }
-            else
-            {
-                needleTexture.setVisible( false );
-            }
+                shiftLights[s].updateTextures( gameData, rpm2, baseMaxRPM, boost.getValue(), getBackground().getScaleX(), getBackground().getScaleY() );
         }
         
         if ( gearBackgroundTexture != null )
@@ -1172,9 +821,15 @@ public class RevMeterWidget extends Widget
         
         if ( boostNumberBackgroundTexture != null )
             boostNumberBackgroundTexture.setTranslation( boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY );
+    }
+    
+    @Override
+    protected void initParentProperties()
+    {
+        super.initParentProperties();
         
-        if ( velocityBackgroundTexture != null )
-            velocityBackgroundTexture.setTranslation( velocityBackgroundTexPosX, velocityBackgroundTexPosY );
+        markersBigStep.setIntValue( 1000 );
+        markersSmallStep.setIntValue( 200 );
     }
     
     /**
@@ -1186,25 +841,11 @@ public class RevMeterWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( hideWhenViewingOtherCar, "Hide the Widget when another car is being observed?" );
-        writer.writeProperty( backgroundImageName, "The name of the background image." );
-        writer.writeProperty( needleImageName, "The name of the needle image." );
-        writer.writeProperty( needleAxisBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
-        writer.writeProperty( needleRotationForZeroRPM, "The rotation for the needle image, that is has for zero RPM (in degrees)." );
-        writer.writeProperty( needleRotationForMaxRPM, "The rotation for the needle image, that is has for maximum RPM (in degrees)." );
-        writer.writeProperty( displayRevMarkers, "Display rev markers?" );
-        writer.writeProperty( displayRevMarkerNumbers, "Display rev marker numbers?" );
         writer.writeProperty( useMaxRevLimit, "Whether to use maximum possible (by setup) rev limit" );
-        writer.writeProperty( revMarkersInnerRadius, "The inner radius of the rev markers (in background image space)" );
-        writer.writeProperty( revMarkersLength, "The length of the rev markers (in background image space)" );
-        writer.writeProperty( revMarkersBigStep, "Step size of bigger rev markers" );
-        writer.writeProperty( revMarkersSmallStep, "Step size of smaller rev markers" );
-        writer.writeProperty( revMarkersColor, "The color used to draw the rev markers." );
         writer.writeProperty( revMarkersMediumColor, "The color used to draw the rev markers for medium boost." );
         writer.writeProperty( revMarkersHighColor, "The color used to draw the rev markers for high revs." );
         writer.writeProperty( fillHighBackground, "Fill the rev markers' background with medium and high color instead of coloring the markers." );
         writer.writeProperty( interpolateMarkerColors, "Interpolate medium and high colors." );
-        writer.writeProperty( revMarkersFont, "The font used to draw the rev marker numbers." );
-        writer.writeProperty( revMarkersFontColor, "The font color used to draw the rev marker numbers." );
         writer.writeProperty( numShiftLights, "The number of shift lights to render." );
         for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
             shiftLights[i].saveProperties( writer );
@@ -1224,12 +865,6 @@ public class RevMeterWidget extends Widget
         writer.writeProperty( boostNumberPosY, "The y-position of the boost number." );
         writer.writeProperty( boostNumberFont, "The font used to draw the boost number." );
         writer.writeProperty( boostNumberFontColor, "The font color used to draw the boost bar." );
-        writer.writeProperty( displayVelocity, "Display velocity on this Widget?" );
-        writer.writeProperty( velocityBackgroundImageName, "The name of the image to render behind the velocity number." );
-        writer.writeProperty( velocityPosX, "The x-offset in pixels to the velocity label." );
-        writer.writeProperty( velocityPosY, "The y-offset in pixels to the velocity label." );
-        writer.writeProperty( velocityFont, "The font used to draw the velocity." );
-        writer.writeProperty( velocityFontColor, "The font color used to draw the velocity." );
         writer.writeProperty( displayRPMString1, "whether to display the digital RPM/Revs string or not" );
         writer.writeProperty( displayCurrRPM1, "whether to display the current revs or to hide them" );
         writer.writeProperty( displayMaxRPM1, "whether to display the maximum revs or to hide them" );
@@ -1268,31 +903,17 @@ public class RevMeterWidget extends Widget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( hideWhenViewingOtherCar ) );
-        else if ( loader.loadProperty( backgroundImageName ) );
-        else if ( loader.loadProperty( needleImageName ) );
-        else if ( loader.loadProperty( needleAxisBottomOffset ) );
-        else if ( loader.loadProperty( needleRotationForZeroRPM ) );
-        else if ( loader.loadProperty( needleRotationForMaxRPM ) );
         else if ( loader.loadProperty( numShiftLights ) )
         {
             for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
                 shiftLights[i] = new ShiftLight( this, i + 1 );
         }
         else if ( loadShiftLightProperty( loader ) );
-        else if ( loader.loadProperty( displayRevMarkers ) );
-        else if ( loader.loadProperty( displayRevMarkerNumbers ) );
         else if ( loader.loadProperty( useMaxRevLimit ) );
-        else if ( loader.loadProperty( revMarkersInnerRadius ) );
-        else if ( loader.loadProperty( revMarkersLength ) );
-        else if ( loader.loadProperty( revMarkersBigStep ) );
-        else if ( loader.loadProperty( revMarkersSmallStep ) );
-        else if ( loader.loadProperty( revMarkersColor ) );
         else if ( loader.loadProperty( revMarkersMediumColor ) );
         else if ( loader.loadProperty( revMarkersHighColor ) );
         else if ( loader.loadProperty( fillHighBackground ) );
         else if ( loader.loadProperty( interpolateMarkerColors ) );
-        else if ( loader.loadProperty( revMarkersFont ) );
-        else if ( loader.loadProperty( revMarkersFontColor ) );
         else if ( loader.loadProperty( gearBackgroundImageName ) );
         else if ( loader.loadProperty( gearPosX ) );
         else if ( loader.loadProperty( gearPosY ) );
@@ -1309,12 +930,6 @@ public class RevMeterWidget extends Widget
         else if ( loader.loadProperty( boostNumberPosY ) );
         else if ( loader.loadProperty( boostNumberFont ) );
         else if ( loader.loadProperty( boostNumberFontColor ) );
-        else if ( loader.loadProperty( displayVelocity ) );
-        else if ( loader.loadProperty( velocityBackgroundImageName ) );
-        else if ( loader.loadProperty( velocityPosX ) );
-        else if ( loader.loadProperty( velocityPosY ) );
-        else if ( loader.loadProperty( velocityFont ) );
-        else if ( loader.loadProperty( velocityFontColor ) );
         else if ( loader.loadProperty( displayRPMString1 ) );
         else if ( loader.loadProperty( displayCurrRPM1 ) );
         else if ( loader.loadProperty( displayMaxRPM1 ) );
@@ -1339,38 +954,47 @@ public class RevMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected boolean getSpecificPropertiesFirst( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Specific" );
+        if ( super.getSpecificPropertiesFirst( propsCont, forceAll ) )
+            propsCont.addGroup( "Specific" );
         
         propsCont.addProperty( hideWhenViewingOtherCar );
-        propsCont.addProperty( backgroundImageName );
         
-        propsCont.addGroup( "Needle" );
+        return ( true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getMarkersProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getMarkersProperties( propsCont, forceAll );
         
-        propsCont.addProperty( needleImageName );
-        propsCont.addProperty( needleAxisBottomOffset );
-        propsCont.addProperty( needleRotationForZeroRPM );
-        propsCont.addProperty( needleRotationForMaxRPM );
-        
-        propsCont.addGroup( "Rev Markers" );
-        
-        propsCont.addProperty( displayRevMarkers );
-        propsCont.addProperty( displayRevMarkerNumbers );
         propsCont.addProperty( useMaxRevLimit );
-        propsCont.addProperty( revMarkersInnerRadius );
-        propsCont.addProperty( revMarkersLength );
-        propsCont.addProperty( revMarkersBigStep );
-        propsCont.addProperty( revMarkersSmallStep );
-        propsCont.addProperty( revMarkersColor );
         propsCont.addProperty( revMarkersMediumColor );
         propsCont.addProperty( revMarkersHighColor );
         propsCont.addProperty( fillHighBackground );
         propsCont.addProperty( interpolateMarkerColors );
-        propsCont.addProperty( revMarkersFont );
-        propsCont.addProperty( revMarkersFontColor );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDigiValuePropertiesGroupName()
+    {
+        return ( "Velocity" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
         
         propsCont.addGroup( "Shift Lights" );
         
@@ -1416,15 +1040,6 @@ public class RevMeterWidget extends Widget
         propsCont.addProperty( boostNumberFont );
         propsCont.addProperty( boostNumberFontColor );
         
-        propsCont.addGroup( "Velocity" );
-        
-        propsCont.addProperty( displayVelocity );
-        propsCont.addProperty( velocityBackgroundImageName );
-        propsCont.addProperty( velocityPosX );
-        propsCont.addProperty( velocityPosY );
-        propsCont.addProperty( velocityFont );
-        propsCont.addProperty( velocityFontColor );
-        
         propsCont.addGroup( "DigitalRevs1" );
         
         propsCont.addProperty( displayRPMString1 );
@@ -1456,16 +1071,11 @@ public class RevMeterWidget extends Widget
         return ( false );
     }
     
-    @Override
-    protected boolean canHaveBackground()
-    {
-        return ( false );
-    }
-    
     public RevMeterWidget( String name )
     {
         super( name, 16.3125f, 21.75f );
         
         numShiftLights.setIntValue( 2 );
+        initShiftLights( 0, 2 );
     }
 }

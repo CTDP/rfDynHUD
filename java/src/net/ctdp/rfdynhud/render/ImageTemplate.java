@@ -21,7 +21,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import net.ctdp.rfdynhud.util.NumberUtil;
-
 import sun.awt.image.ByteInterleavedRaster;
 
 /**
@@ -94,10 +93,13 @@ public class ImageTemplate
             //data = new byte[ bufferedImage.getWidth() * bufferedImage.getHeight() * pixelStride ];
             data = texture.getData();
             
+            final int w = getBaseWidth();
+            final int h = getBaseHeight();
+            
             int offset = 0;
-            for ( int j = 0; j < bufferedImage.getHeight(); j++ )
+            for ( int j = 0; j < h; j++ )
             {
-                for ( int i = 0; i < bufferedImage.getWidth(); i++ )
+                for ( int i = 0; i < w; i++ )
                 {
                     data[offset + ByteOrderManager.RED] = srcBytes[offset + byteOffsets[0]];
                     data[offset + ByteOrderManager.GREEN] = srcBytes[offset + byteOffsets[1]];
@@ -163,7 +165,7 @@ public class ImageTemplate
      */
     public void drawScaled( int x, int y, int width, int height, TextureImage2D texture, boolean clearBefore )
     {
-        drawScaled( 0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), x, y, width, height, texture, clearBefore );
+        drawScaled( 0, 0, getBaseWidth(), getBaseHeight(), x, y, width, height, texture, clearBefore );
     }
     
     /**

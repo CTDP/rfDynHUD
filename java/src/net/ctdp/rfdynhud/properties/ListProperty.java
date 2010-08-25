@@ -61,8 +61,9 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
         if ( widget != null )
             widget.forceAndSetDirty( true );
         
-        onValueChanged();
-        onValueChanged( oldValue, value );
+        triggerCommonOnValueChanged( oldValue, value );
+        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+            onValueChanged( oldValue, value );
         
         if ( widget != null )
             __WPrivilegedAccess.onPropertyChanged( this, oldValue, value, widget );

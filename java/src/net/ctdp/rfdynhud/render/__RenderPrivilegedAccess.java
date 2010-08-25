@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.render;
 
+import net.ctdp.rfdynhud.widgets.widget.Widget;
+
 /**
  * Don't use this at home!
  * 
@@ -27,6 +29,11 @@ public class __RenderPrivilegedAccess
     public static TransformableTexture createMainTexture( int width, int height )
     {
         return ( TransformableTexture.createMainTexture( width, height ) );
+    }
+    
+    public static void setOwnerWidget( Widget ownerWidget, TransformableTexture tt )
+    {
+        tt.setOwnerWidget( ownerWidget );
     }
     
     public static final void onWidgetCleared( DrawnStringFactory dsf )

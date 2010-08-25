@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
@@ -230,15 +231,6 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public InputAction[] getInputActions()
-    {
-        return ( null );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
         ArrayList<TransformableTexture> list = new ArrayList<TransformableTexture>();
@@ -249,7 +241,11 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
             if ( ( tts != null ) && ( tts.length > 0 ) )
             {
                 for ( int j = 0; j < tts.length; j++ )
+                {
+                    if ( tts[j].getOwnerWidget() == null )
+                        __RenderPrivilegedAccess.setOwnerWidget( parts[i], tts[j] );
                     list.add( tts[j] );
+                }
             }
         }
         
@@ -796,6 +792,11 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
         super.saveProperties( writer );
+        
+        for ( int i = 0; i < parts.length; i++ )
+        {
+            parts[i].saveProperties( writer );
+        }
     }
     
     /**
@@ -805,6 +806,11 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     public void loadProperty( PropertyLoader loader )
     {
         super.loadProperty( loader );
+        
+        for ( int i = 0; i < parts.length; i++ )
+        {
+            parts[i].loadProperty( loader );
+        }
     }
     
     /**

@@ -309,10 +309,11 @@ public class WidgetBackground
     
     /**
      * Gets the factor, by which the background image has been scaled to fit the area.
+     * Returns 1.0, if a background color is used.
      * 
      * @return the factor, by which the background image has been scaled to fit the area.
      */
-    public final float getBackgroundScaleX()
+    public final float getScaleX()
     {
         if ( property.getBackgroundType().isColor() )
             return ( 1.0f );
@@ -327,10 +328,11 @@ public class WidgetBackground
     
     /**
      * Gets the factor, by which the background image has been scaled to fit the area.
+     * Returns 1.0, if a background color is used.
      * 
      * @return the factor, by which the background image has been scaled to fit the area.
      */
-    public final float getBackgroundScaleY()
+    public final float getScaleY()
     {
         if ( property.getBackgroundType().isColor() )
             return ( 1.0f );

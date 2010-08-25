@@ -21,7 +21,6 @@ import net.ctdp.rfdynhud.render.BorderCache;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link BorderProperty} serves for customizing a border.
@@ -76,11 +75,9 @@ public class BorderProperty extends Property
         if ( widget != null )
             widget.forceAndSetDirty( true );
         
-        onValueChanged();
-        onValueChanged( oldValue, borderName );
-        
-        if ( widget != null )
-            __WPrivilegedAccess.onPropertyChanged( this, oldValue, borderName, widget );
+        triggerCommonOnValueChanged( oldValue, borderName );
+        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+            onValueChanged( oldValue, borderName );
     }
     
     public final String getBorderName()

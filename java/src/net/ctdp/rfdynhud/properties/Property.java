@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link Property} serves as a general data container and adapter.
@@ -80,7 +81,7 @@ public abstract class Property
     
     public abstract Object getValue();
     
-    protected void onValueChanged()
+    protected void triggerCommonOnValueChanged( Object oldValue, Object newValue )
     {
         if ( widgetsConfig != null )
         {
@@ -89,7 +90,17 @@ public abstract class Property
         }
         
         if ( widget != null )
+        {
+            if ( widget.getConfiguration() != null )
+                __WPrivilegedAccess.onPropertyChanged( this, oldValue, newValue, widget );
+            
             widget.forceAndSetDirty( true );
+        }
+    }
+    
+    protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+    {
+        return ( false );
     }
     
     /**

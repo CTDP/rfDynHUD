@@ -158,6 +158,15 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         }
     }
     
+    public void setAllWidgetsDirty()
+    {
+        int n = getNumWidgets();
+        for ( int i = 0; i < n; i++ )
+        {
+            getWidget( i ).forceAndSetDirty( true );
+        }
+    }
+    
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
@@ -255,7 +264,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         int rectOffset = 0;
         for ( int i = 0; i < textures.length; i++ )
         {
-            rectOffset = textures[i].fillBuffer( true, 0, 0, i, rectOffset, textureBuffer );
+            rectOffset = textures[i].fillBuffer( true, 0 + textures[i].getOffsetXToMasterWidget(), 0 + textures[i].getOffsetYToMasterWidget(), i, rectOffset, textureBuffer );
         }
         
         textureBuffer.position( textures.length * TransformableTexture.STRUCT_SIZE );
@@ -311,7 +320,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             {
                 for ( j = 0; j < textures.length; j++ )
                 {
-                    rectOffset = textures[j].fillBuffer( widget.isVisible(), widget.getPosition().getEffectiveX() + widget.getBorder().getInnerLeftWidth(), widget.getPosition().getEffectiveY() + widget.getBorder().getInnerTopHeight(), k++, rectOffset, textureBuffer );
+                    rectOffset = textures[j].fillBuffer( widget.isVisible(), widget.getPosition().getEffectiveX() + widget.getBorder().getInnerLeftWidth() + textures[j].getOffsetXToMasterWidget(), widget.getPosition().getEffectiveY() + widget.getBorder().getInnerTopHeight() + textures[j].getOffsetYToMasterWidget(), k++, rectOffset, textureBuffer );
                     testRectOffset += textures[j].getNumUsedRectangles();
                 }
             }

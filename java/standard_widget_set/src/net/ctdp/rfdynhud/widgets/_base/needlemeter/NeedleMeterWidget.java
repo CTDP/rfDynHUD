@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.widgets._base.needlemeter;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -80,7 +81,7 @@ public abstract class NeedleMeterWidget extends Widget
     
     private TransformableTexture needleTexture = null;
     
-    protected final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "default_rev_meter_needle.png", false, true )
+    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "default_rev_meter_needle.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -90,23 +91,18 @@ public abstract class NeedleMeterWidget extends Widget
         }
     };
     
-    protected final TransformableTexture getNeedleTexture()
-    {
-        return ( needleTexture );
-    }
+    private final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
     
-    protected final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
+    private final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "cyan_circle.png", false, true );
+    private TransformableTexture valueBackgroundTexture = null;
+    private TextureImage2D valueBackgroundTexture_bak = null;
     
-    protected final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "cyan_circle.png", false, true );
-    protected TransformableTexture valueBackgroundTexture = null;
-    protected TextureImage2D valueBackgroundTexture_bak = null;
+    private final IntProperty valuePosX = new IntProperty( this, "valuePosX", "posX", 100 );
+    private final IntProperty valuePosY = new IntProperty( this, "valuePosY", "posY", 100 );
+    private int valueBackgroundTexPosX, valueBackgroundTexPosY;
     
-    protected final IntProperty valuePosX = new IntProperty( this, "valuePosX", "posX", 100 );
-    protected final IntProperty valuePosY = new IntProperty( this, "valuePosY", "posY", 100 );
-    protected int valueBackgroundTexPosX, valueBackgroundTexPosY;
-    
-    protected final FontProperty valueFont = new FontProperty( this, "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
-    protected final ColorProperty valueFontColor = new ColorProperty( this, "valueFontColor", "fontColor", "#1A261C" );
+    private final FontProperty valueFont = new FontProperty( this, "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty valueFontColor = new ColorProperty( this, "valueFontColor", "fontColor", "#1A261C" );
     
     protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
     
@@ -158,142 +154,61 @@ public abstract class NeedleMeterWidget extends Widget
         this.markersSmallStep.setIntValue( markersBigStep.getIntValue() / Math.round( (float)markersBigStep.getIntValue() / (float)markersSmallStep.getIntValue() ) );
     }
     
-    private int loadNeedleTexture( boolean isEditorMode )
+    protected boolean getDisplayValue()
     {
-        if ( needleImageName.isNoImage() )
-        {
-            needleTexture = null;
-            return ( 0 );
-        }
-        
-        if ( ( needleTexture == null ) || isEditorMode )
-        {
-            try
-            {
-                ImageTemplate it = needleImageName.getImage();
-                
-                if ( it == null )
-                {
-                    needleTexture = null;
-                    return ( 0 );
-                }
-                
-                float scale = getBackground().getBackgroundScaleX();
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
-                needleTexture = it.getScaledTransformableTexture( w, h, needleTexture, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-                
-                return ( 0 );
-            }
-        }
-        
-        return ( 1 );
+        return ( displayValue.getBooleanValue() );
     }
     
-    private int loadValueBackgroundTexture( boolean isEditorMode )
+    protected boolean getDisplayMarkers()
     {
-        if ( !displayValue.getBooleanValue() )
-        {
-            valueBackgroundTexture = null;
-            valueBackgroundTexture_bak = null;
-            return ( 0 );
-        }
-        
-        if ( ( valueBackgroundTexture == null ) || isEditorMode )
-        {
-            try
-            {
-                ImageTemplate it = valueBackgroundImageName.getImage();
-                
-                if ( it == null )
-                {
-                    valueBackgroundTexture = null;
-                    valueBackgroundTexture_bak = null;
-                    return ( 0 );
-                }
-                
-                float scale = getBackground().getBackgroundScaleX();
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
-                if ( ( valueBackgroundTexture == null ) || ( valueBackgroundTexture.getWidth() != w ) || ( valueBackgroundTexture.getHeight() != h ) )
-                {
-                    valueBackgroundTexture = it.getScaledTransformableTexture( w, h, valueBackgroundTexture, isEditorMode );
-                    valueBackgroundTexture.setDynamic( true );
-                    
-                    valueBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( valueBackgroundTexture.getWidth(), valueBackgroundTexture.getHeight(), valueBackgroundTexture.getTexture().hasAlphaChannel(), valueBackgroundTexture_bak, isEditorMode );
-                    valueBackgroundTexture_bak.clear( valueBackgroundTexture.getTexture(), true, null );
-                }
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-                
-                return ( 0 );
-            }
-        }
-        
-        return ( 1 );
+        return ( displayMarkers.getBooleanValue() );
+    }
+    
+    protected boolean getDisplayMarkerNumbers()
+    {
+        return ( displayMarkerNumbers.getBooleanValue() );
+    }
+    
+    protected int getMarkersInnerRadius()
+    {
+        return ( markersInnerRadius.getIntValue() );
+    }
+    
+    protected int getMarkersLength()
+    {
+        return ( markersLength.getIntValue() );
+    }
+    
+    protected ImageTemplate getNeedleImage()
+    {
+        return ( needleImageName.getImage() );
+    }
+    
+    protected final TransformableTexture getNeedleTexture()
+    {
+        return ( needleTexture );
+    }
+    
+    protected ImageTemplate getValueBackgroundImage()
+    {
+        return ( valueBackgroundImageName.getImage() );
     }
     
     /*
-     * {@inheritDoc}
-     *
-    @Override
-    public int getNumberOfSubTextures( LiveGameData gameData, EditorPresets editorPresets )
+    protected TextureImage2D getValueBackgroundTexture()
     {
-        int n = 0;
-        
-        n += loadNeedleTexture( editorPresets != null );
-        
-        if ( displayValue.getBooleanValue() && !valueBackgroundImageName.isNoImage() )
-            n += loadValueBackgroundTexture( editorPresets != null );
-        
-        return ( n );
+        return ( valueBackgroundTexture_bak );
     }
     */
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected int getValuePosX()
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        
-        int n = 0;
-        
-        n += loadNeedleTexture( isEditorMode );
-        
-        if ( !valueBackgroundImageName.isNoImage() )
-            n += loadValueBackgroundTexture( isEditorMode );
-        else
-            valueBackgroundTexture = null;
-        
-        TransformableTexture[] result = new TransformableTexture[ n ];
-        
-        int i = 0;
-        if ( needleTexture != null )
-            result[i++] = needleTexture;
-        if ( valueBackgroundTexture != null )
-            result[i++] = valueBackgroundTexture;
-        
-        return ( result );
+        return ( valuePosX.getIntValue() );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    protected int getValuePosY()
     {
-        super.onVehicleSetupUpdated( gameData, editorPresets );
-        
-        forceCompleteRedraw( true );
-        forceReinitialization();
+        return ( valuePosY.getIntValue() );
     }
     
     /**
@@ -316,15 +231,165 @@ public abstract class NeedleMeterWidget extends Widget
         return ( valueFontColor );
     }
     
+    protected int getNeedlePivotBottomOffset()
+    {
+        return ( needlePivotBottomOffset.getIntValue() );
+    }
+    
+    protected float getNeedleRotationForMinValue()
+    {
+        return ( needleRotationForMinValue.getFactoredValue() );
+    }
+    
+    protected float getNeedleRotationForMaxValue()
+    {
+        return ( needleRotationForMaxValue.getFactoredValue() );
+    }
+    
+    private int loadNeedleTexture( boolean isEditorMode )
+    {
+        if ( needleImageName.isNoImage() )
+        {
+            needleTexture = null;
+            return ( 0 );
+        }
+        
+        try
+        {
+            ImageTemplate it = needleImageName.getImage();
+            
+            if ( it == null )
+            {
+                needleTexture = null;
+                return ( 0 );
+            }
+            
+            float scale = getBackground().getScaleX();
+            int w = Math.round( it.getBaseWidth() * scale );
+            int h = Math.round( it.getBaseHeight() * scale );
+            needleTexture = it.getScaledTransformableTexture( w, h, needleTexture, isEditorMode );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+            
+            return ( 0 );
+        }
+        
+        return ( 1 );
+    }
+    
+    private int loadValueBackgroundTexture( boolean isEditorMode )
+    {
+        if ( !displayValue.getBooleanValue() )
+        {
+            valueBackgroundTexture = null;
+            valueBackgroundTexture_bak = null;
+            return ( 0 );
+        }
+        
+        try
+        {
+            ImageTemplate it = valueBackgroundImageName.getImage();
+            
+            if ( it == null )
+            {
+                valueBackgroundTexture = null;
+                valueBackgroundTexture_bak = null;
+                return ( 0 );
+            }
+            
+            float scale = getBackground().getScaleX();
+            int w = Math.round( it.getBaseWidth() * scale );
+            int h = Math.round( it.getBaseHeight() * scale );
+            if ( ( valueBackgroundTexture == null ) || ( valueBackgroundTexture.getWidth() != w ) || ( valueBackgroundTexture.getHeight() != h ) )
+            {
+                valueBackgroundTexture_bak = it.getScaledTextureImage( w, h, valueBackgroundTexture_bak, isEditorMode );
+                
+                valueBackgroundTexture = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, valueBackgroundTexture, isEditorMode );
+                valueBackgroundTexture.setDynamic( true );
+                valueBackgroundTexture.getTexture().clear( valueBackgroundTexture_bak, true, null );
+                
+                forceAndSetDirty( false );
+            }
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+            
+            return ( 0 );
+        }
+        
+        return ( 1 );
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
     {
         final boolean isEditorMode = ( editorPresets != null );
-        final float backgroundScaleX = getBackground().getBackgroundScaleX();
-        final float backgroundScaleY = getBackground().getBackgroundScaleY();
+        
+        int n = 0;
+        
+        n += loadNeedleTexture( isEditorMode );
+        n += loadValueBackgroundTexture( isEditorMode );
+        
+        TransformableTexture[] result = new TransformableTexture[ n ];
+        
+        int i = 0;
+        if ( needleTexture != null )
+            result[i++] = needleTexture;
+        if ( valueBackgroundTexture != null )
+            result[i++] = valueBackgroundTexture;
+        
+        return ( result );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onRealtimeEntered( gameData, editorPresets );
+        
+        valueValue.reset();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onVehicleSetupUpdated( gameData, editorPresets );
+        
+        forceCompleteRedraw( true );
+        forceReinitialization();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onNeededDataComplete( gameData, editorPresets );
+        
+        valueValue.reset();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        final boolean isEditorMode = ( editorPresets != null );
+        final float backgroundScaleX = getBackground().getScaleX();
+        final float backgroundScaleY = getBackground().getScaleY();
         
         loadNeedleTexture( isEditorMode );
         
@@ -425,7 +490,41 @@ public abstract class NeedleMeterWidget extends Widget
     protected abstract String getMarkerLabelForValue( LiveGameData gameData, EditorPresets editorPresets, float value );
     
     /**
-     * Draws the markers
+     * 
+     * @param gameData
+     * @param editorPresets
+     * @param texCanvas
+     * @param offsetX
+     * @param offsetY
+     * @param width
+     * @param height
+     * @param innerRadius
+     * @param bigOuterRadius
+     * @param smallOuterRadius
+     */
+    protected void prepareMarkersBackground( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, float innerRadius, float bigOuterRadius, float smallOuterRadius )
+    {
+    }
+    
+    /**
+     * Gets a certain marker's color at the given value.
+     * 
+     * @param gameData
+     * @param editorPresets
+     * @param value
+     * @param minValue
+     * @param maxValue
+     * 
+     * @return a certain marker's color at the given value.
+     */
+    protected Color getMarkerColorForValue( LiveGameData gameData, EditorPresets editorPresets, int value, int minValue, int maxValue )
+    {
+        return ( markersColor.getColor() );
+    }
+    
+    /**
+     * Draws the markers.
+     * 
      * @param gameData
      * @param editorPresets
      * @param texCanvas
@@ -436,10 +535,10 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected void drawMarkers( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
-        if ( !displayMarkers.getBooleanValue() )
+        if ( !getDisplayMarkers() )
             return;
         
-        final float backgroundScaleX = getBackground().getBackgroundScaleX();
+        final float backgroundScaleX = getBackground().getScaleX();
         //final float backgroundScaleY = getBackground().getBackgroundScaleY();
         
         int minValue = (int)getMinValue( gameData, editorPresets );
@@ -450,69 +549,75 @@ public abstract class NeedleMeterWidget extends Widget
         
         texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
         
-        Stroke oldStroke = texCanvas.getStroke();
-        
-        Stroke bigStroke = new BasicStroke( 2 );
-        Stroke smallStroke = new BasicStroke( 1 );
-        
-        AffineTransform at0 = new AffineTransform( texCanvas.getTransform() );
-        AffineTransform at1 = new AffineTransform( at0 );
-        AffineTransform at2 = new AffineTransform();
-        
         float innerRadius = markersInnerRadius.getIntValue() * backgroundScaleX;
-        float outerRadius = ( markersInnerRadius.getIntValue() + markersLength.getIntValue() - 1 ) * backgroundScaleX;
-        float outerRadius2 = innerRadius + ( outerRadius - innerRadius ) * 0.75f;
+        float bigOuterRadius = ( markersInnerRadius.getIntValue() + markersLength.getIntValue() - 1 ) * backgroundScaleX;
+        float smallOuterRadius = innerRadius + ( bigOuterRadius - innerRadius ) * 0.75f;
         
-        FontProperty numberFont = markersFont;
-        texCanvas.setFont( numberFont.getFont() );
-        FontMetrics metrics = numberFont.getMetrics();
+        prepareMarkersBackground( gameData, editorPresets, texCanvas, offsetX, offsetY, width, height, innerRadius, bigOuterRadius, smallOuterRadius );
         
-        final int smallStep = markersSmallStep.getIntValue();
-        for ( int value = minValue; value <= maxValue; value += smallStep )
+        if ( displayMarkers.getBooleanValue() )
         {
-            float angle = +( needleRotationForMinValue.getFactoredValue() + ( needleRotationForMaxValue.getFactoredValue() - needleRotationForMinValue.getFactoredValue() ) * ( value / (float)maxValue ) );
+            Stroke oldStroke = texCanvas.getStroke();
             
-            at2.setToRotation( angle, centerX, centerY );
-            texCanvas.setTransform( at2 );
+            Stroke bigStroke = new BasicStroke( 2 );
+            Stroke smallStroke = new BasicStroke( 1 );
             
-            texCanvas.setColor( markersColor.getColor() );
+            FontProperty numberFont = markersFont;
+            texCanvas.setFont( numberFont.getFont() );
+            FontMetrics metrics = numberFont.getMetrics();
             
-            if ( ( value % markersBigStep.getIntValue() ) == 0 )
+            AffineTransform at0 = new AffineTransform( texCanvas.getTransform() );
+            AffineTransform at1 = new AffineTransform( at0 );
+            AffineTransform at2 = new AffineTransform();
+            
+            final int smallStep = markersSmallStep.getIntValue();
+            for ( int value = minValue; value <= maxValue; value += smallStep )
             {
-                texCanvas.setStroke( bigStroke );
-                texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius ) );
-                //texCanvas.drawLine( Math.round( centerX ), Math.round( ( centerY - innerRadius ) * backgroundScaleY / backgroundScaleX ), Math.round( centerX ), Math.round( ( centerY - outerRadius ) * backgroundScaleY / backgroundScaleX ) );
+                float angle = +( needleRotationForMinValue.getFactoredValue() + ( needleRotationForMaxValue.getFactoredValue() - needleRotationForMinValue.getFactoredValue() ) * ( value / (float)maxValue ) );
                 
-                if ( displayMarkerNumbers.getBooleanValue() )
+                at2.setToRotation( angle, centerX, centerY );
+                texCanvas.setTransform( at2 );
+                
+                texCanvas.setColor( getMarkerColorForValue( gameData, editorPresets, value, minValue, maxValue ) );
+                
+                if ( ( value % markersBigStep.getIntValue() ) == 0 )
                 {
-                    String s = getMarkerLabelForValue( gameData, editorPresets, value );
+                    texCanvas.setStroke( bigStroke );
+                    texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - bigOuterRadius ) );
+                    //texCanvas.drawLine( Math.round( centerX ), Math.round( ( centerY - innerRadius ) * backgroundScaleY / backgroundScaleX ), Math.round( centerX ), Math.round( ( centerY - outerRadius ) * backgroundScaleY / backgroundScaleX ) );
                     
-                    if ( s != null )
+                    if ( displayMarkerNumbers.getBooleanValue() )
                     {
-                        Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
-                        float fw = (float)bounds.getWidth();
-                        float fh = (float)( metrics.getAscent() - metrics.getDescent() );
-                        float off = (float)Math.sqrt( fw * fw + fh * fh ) / 2f;
+                        String s = getMarkerLabelForValue( gameData, editorPresets, value );
                         
-                        at1.setToTranslation( 0f, -off );
-                        at2.concatenate( at1 );
-                        at1.setToRotation( -angle, Math.round( centerX ), Math.round( centerY - outerRadius ) - fh / 2f );
-                        at2.concatenate( at1 );
-                        texCanvas.setTransform( at2 );
-                        
-                        texCanvas.drawString( s, Math.round( centerX ) - fw / 2f, Math.round( centerY - outerRadius ) );
+                        if ( s != null )
+                        {
+                            Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
+                            float fw = (float)bounds.getWidth();
+                            float fh = (float)( metrics.getAscent() - metrics.getDescent() );
+                            float off = (float)Math.sqrt( fw * fw + fh * fh ) / 2f;
+                            
+                            at1.setToTranslation( 0f, -off );
+                            at2.concatenate( at1 );
+                            at1.setToRotation( -angle, Math.round( centerX ), Math.round( centerY - bigOuterRadius ) - fh / 2f );
+                            at2.concatenate( at1 );
+                            texCanvas.setTransform( at2 );
+                            
+                            texCanvas.drawString( s, Math.round( centerX ) - fw / 2f, Math.round( centerY - bigOuterRadius ) );
+                        }
                     }
                 }
+                else
+                {
+                    texCanvas.setStroke( smallStroke );
+                    texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - smallOuterRadius ) );
+                }
             }
-            else
-            {
-                texCanvas.setStroke( smallStroke );
-                texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - outerRadius2 ) );
-            }
+            
+            texCanvas.setTransform( at0 );
+            texCanvas.setStroke( oldStroke );
         }
         
-        texCanvas.setTransform( at0 );
-        texCanvas.setStroke( oldStroke );
         texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT );
     }
     
@@ -534,23 +639,32 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected boolean doRenderNeedle( LiveGameData gameData, EditorPresets editorPresets )
     {
-        /*
-        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
-        
-        return ( vsi.isPlayer() );
-        */
-        
-        // TODO: For revs we need the above!
-        
         return ( true );
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        float value = getValue( gameData, editorPresets );
-        float maxValue = getMaxValue( gameData, editorPresets );
-        valueValue.update( (int)value );
+        if ( needleTexture != null )
+        {
+            if ( doRenderNeedle( gameData, editorPresets ) )
+            {
+                float value = getValue( gameData, editorPresets );
+                float maxValue = getMaxValue( gameData, editorPresets );
+                
+                float rot0 = needleRotationForMinValue.getFactoredValue();
+                float rot = -( value / maxValue ) * ( needleRotationForMinValue.getFactoredValue() - needleRotationForMaxValue.getFactoredValue() );
+                
+                needleTexture.setRotation( rot0 + rot );
+                needleTexture.setVisible( true );
+            }
+            else
+            {
+                needleTexture.setVisible( false );
+            }
+        }
+        
+        valueValue.update( getValueForValueDisplay( gameData, editorPresets ) );
         if ( needsCompleteRedraw || ( clock1 && valueValue.hasChanged() ) )
         {
             String string = valueValue.getValueAsString();
@@ -569,22 +683,6 @@ public abstract class NeedleMeterWidget extends Widget
                     valueBackgroundTexture.getTexture().clear( valueBackgroundTexture_bak, true, null );
                 
                 valueString.draw( (int)( -fw / 2.0 ), 0, string, valueBackgroundTexture.getTexture(), valueBackgroundTexture_bak, 0, 0 );
-            }
-        }
-        
-        if ( needleTexture != null )
-        {
-            if ( doRenderNeedle( gameData, editorPresets ) )
-            {
-                float rot0 = needleRotationForMinValue.getFactoredValue();
-                float rot = -( value / maxValue ) * ( needleRotationForMinValue.getFactoredValue() - needleRotationForMaxValue.getFactoredValue() );
-                
-                needleTexture.setRotation( rot0 + rot );
-                needleTexture.setVisible( true );
-            }
-            else
-            {
-                needleTexture.setVisible( false );
             }
         }
         

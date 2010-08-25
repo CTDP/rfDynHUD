@@ -393,6 +393,24 @@ public class ColorChooser extends JPanel
         return ( false );
     }
     
+    public boolean checkSelection( String startColor, WidgetsConfiguration widgetsConfig )
+    {
+        if ( getSelectedColorName() == null )
+        {
+            valueChanged = !startColor.equals( getSelectedColor() );                            
+        }
+        else
+        {
+            Color color = ColorUtils.hexToColor( composeSelectedColor() );
+            setSelectedColor( color );
+            valueChanged = applyNamedColor( getSelectedColorName(), color, widgetsConfig ) || !getSelectedColorName().equals( startColor );
+            
+            setAllWidgetsDirty( widgetsConfig );
+        }
+        
+        return ( valueChanged );
+    }
+    
     protected JPanel createNamedColorSelector( String currentNamedColor, final WidgetsConfiguration widgetsConfig )
     {
         JPanel panel = new JPanel( new BorderLayout() );
@@ -847,18 +865,7 @@ public class ColorChooser extends JPanel
                 @Override
                 public void actionPerformed( ActionEvent e )
                 {
-                    if ( getSelectedColorName() == null )
-                    {
-                        valueChanged = !startColor.equals( getSelectedColor() );                            
-                    }
-                    else
-                    {
-                        Color color = ColorUtils.hexToColor( composeSelectedColor() );
-                        setSelectedColor( color );
-                        valueChanged = applyNamedColor( getSelectedColorName(), color, widgetsConfig ) || !getSelectedColorName().equals( startColor );
-                        
-                        setAllWidgetsDirty( widgetsConfig );
-                    }
+                    checkSelection( startColor, widgetsConfig );
                     
                     dialog.setVisible( false );
                 }

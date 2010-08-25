@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link BooleanProperty} serves for customizing a primitive boolean value.
@@ -45,11 +44,9 @@ public class BooleanProperty extends Property
         
         this.value = value;
         
-        onValueChanged();
-        onValueChanged( value );
-        
-        if ( widget != null )
-            __WPrivilegedAccess.onPropertyChanged( this, !value, value, widget );
+        triggerCommonOnValueChanged( !value, value );
+        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+            onValueChanged( value );
     }
     
     public final boolean getBooleanValue()

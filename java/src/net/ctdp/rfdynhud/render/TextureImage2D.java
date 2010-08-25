@@ -753,6 +753,20 @@ public class TextureImage2D
         return ( rect );
     }
     
+    /**
+     * Clamps the given rect to the current effective clip rect.
+     * 
+     * @param rect
+     * 
+     * @return the passed-in rectangle back again.
+     */
+    public final <Rect2i_ extends Rect2i> Rect2i_ clampToClipRect( Rect2i_ rect )
+    {
+        rect.clamp( clipRect );
+        
+        return ( rect );
+    }
+    
     final Rect2i getEffectiveClipRect()
     {
         return ( clipRect );
@@ -1134,6 +1148,9 @@ public class TextureImage2D
         return ( getPixelLine( srcData, getDataOffset( x, y, srcImageWidth, 4 ), length, data ) );
     }
     
+    //private static final int V255_255 = 255 * 255;
+    //private static final int V255_255_255 = 255 * 255 * 255;
+    
     private static final byte[] combinePixels( final byte[] src,
                                                final int srcByteOffset,
                                                final int srcPixelSize,
@@ -1225,17 +1242,32 @@ public class TextureImage2D
                     final int trgB = trg[ k + ByteOrderManager.BLUE ] & 0xFF;
                     final int trgA = trg[ k + ByteOrderManager.ALPHA ] & 0xFF;
                     
+                    final float rs = srcR / 255f;
+                    final float gs = srcG / 255f;
+                    final float bs = srcB / 255f;
+                    final float as = srcA / 255f;
+                    
+                    final float rd = trgR / 255f;
+                    final float gd = trgG / 255f;
+                    final float bd = trgB / 255f;
+                    final float ad = trgA / 255f;
+                    
+                    final float rr = rs * as + rd * ad * ( 1.0f - as );
+                    final float gr = gs * as + gd * ad * ( 1.0f - as );
+                    final float br = bs * as + bd * ad * ( 1.0f - as );
+                    final float ar = as + ad * ( 1.0f - as );
+                    
+                    trg[ k + ByteOrderManager.RED ] = (byte)( Math.min( rr, 1.0f ) * 255 );
+                    trg[ k + ByteOrderManager.GREEN ] = (byte)( Math.min( gr, 1.0f ) * 255 );
+                    trg[ k + ByteOrderManager.BLUE ] = (byte)( Math.min( br, 1.0f ) * 255 );
+                    trg[ k + ByteOrderManager.ALPHA ] = (byte)( Math.min( ar, 1.0f ) * 255 );
+                    
                     /*
-                    trg[ k + ByteOrderManager.RED ] = (byte)( ( srcR * srcA / 255 ) + ( trgR * ( 255 - srcA ) / 255 ) );
-                    trg[ k + ByteOrderManager.GREEN ] = (byte)( ( srcG * srcA / 255 ) + ( trgG * ( 255 - srcA ) / 255 ) );
-                    trg[ k + ByteOrderManager.BLUE ] = (byte)( ( srcB * srcA / 255 ) + ( trgB * ( 255 - srcA ) / 255 ) );
-                    trg[ k + ByteOrderManager.ALPHA ] = (byte)( ( srcA * srcA / 255 ) + ( trgA * ( 255 - srcA ) / 255 ) );
+                    trg[ k + ByteOrderManager.RED ] = (byte)( ( srcR * srcA / V255_255 ) + ( ( trgR * trgA * ( 255 - srcA ) ) / V255_255_255 ) );
+                    trg[ k + ByteOrderManager.GREEN ] = (byte)( ( srcG * srcA / V255_255 ) + ( ( trgG * trgA * ( 255 - srcA ) ) / V255_255_255 ) );
+                    trg[ k + ByteOrderManager.BLUE ] = (byte)( ( srcB * srcA / V255_255 ) + ( ( trgB * trgA * ( 255 - srcA ) ) / V255_255_255 ) );
+                    trg[ k + ByteOrderManager.ALPHA ] = (byte)( ( ( srcA * trgA * 255 ) + ( srcA * srcA * trgA ) ) / V255_255_255 );
                     */
-                    trg[ k + ByteOrderManager.RED ] = (byte)( ( ( srcR * srcA ) + ( trgR * ( 255 - srcA ) ) ) / 255 );
-                    trg[ k + ByteOrderManager.GREEN ] = (byte)( ( ( srcG * srcA ) + ( trgG * ( 255 - srcA ) ) ) / 255 );
-                    trg[ k + ByteOrderManager.BLUE ] = (byte)( ( ( srcB * srcA ) + ( trgB * ( 255 - srcA ) ) ) / 255 );
-                    //trg[ k + ByteOrderManager.ALPHA ] = (byte)( ( ( srcA * srcA ) + ( trgA * ( 255 - srcA ) ) ) / 255 );
-                    trg[ k + ByteOrderManager.ALPHA ] = (byte)Math.max( srcA, trgA );
                     
                     j += srcPixelSize;
                     k += trgPixelSize;
@@ -2009,6 +2041,7 @@ public class TextureImage2D
     private static BufferedImage textImage = new BufferedImage( 256, 64, BufferedImage.TYPE_4BYTE_ABGR );
     private static Graphics2D textGraphics = textImage.createGraphics();
     private static FontMetrics fontMetrics = textGraphics.getFontMetrics();
+    /*
     private static int textImageLineByteLength = textImage.getWidth() * 4;
     private static byte[] clearLine = null;
     
@@ -2030,6 +2063,7 @@ public class TextureImage2D
         
         return ( clearLine );
     }
+    */
     
     public final java.awt.geom.Rectangle2D getStringBounds( String s, java.awt.Font font, boolean antiAliased )
     {
@@ -2108,6 +2142,7 @@ public class TextureImage2D
      */
     public void drawString( String s, int x, int y, java.awt.geom.Rectangle2D bounds, java.awt.Font font, boolean antiAliased, java.awt.Color color, boolean markDirty, Rect2i dirtyRect )
     {
+        /*
         if ( !textGraphics.getFont().equals( font ) )
         {
             textGraphics.setFont( font );
@@ -2154,6 +2189,12 @@ public class TextureImage2D
         
         // copy the data to this TextureImage
         copyImageDataFrom( textImage, 0, 0, w, h, x, y + (int)bounds.getY(), w, h, false, markDirty, dirtyRect );
+        */
+        
+        if ( bounds == null )
+            bounds = getStringBounds( s, font, antiAliased );
+        
+        getTextureCanvas().drawString( s, x, y, bounds, font, antiAliased, color, markDirty, dirtyRect );
     }
     
     private TextureImage2D( int maxWidth, int maxHeight, int usedWidth, int usedHeight, boolean alpha, ByteBuffer dataBuffer, byte[] data, boolean isOffline )

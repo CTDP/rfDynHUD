@@ -560,6 +560,42 @@ public class Texture2DCanvas extends Graphics2D
         markDirty( x, y + (int)bounds.getY(), (int)bounds.getWidth(), (int)bounds.getHeight() );
     }
     
+    public final void drawString( String s, int x, int y, Rectangle2D bounds, Font font, boolean antiAliased, Color color, boolean markDirty, Rect2i dirtyRect )
+    {
+        Font oldFont = getFont();
+        Color oldColor = getColor();
+        Object oldAntiAliasing = getRenderingHint( RenderingHints.KEY_ANTIALIASING );
+        
+        try
+        {
+            setFont( font );
+            setColor( color );
+            setRenderingHint( RenderingHints.KEY_ANTIALIASING, antiAliased ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF );
+            
+            if ( bounds == null )
+                bounds = getFontMetrics().getStringBounds( s, this );
+            
+            graphics.drawString( s, x, y );
+            
+            if ( markDirty )
+            {
+                markDirty( x, y + (int)bounds.getY(), (int)bounds.getWidth(), (int)bounds.getHeight() );
+            }
+            
+            if ( dirtyRect != null )
+            {
+                dirtyRect.set( x, y + (int)bounds.getY(), (int)bounds.getWidth(), (int)bounds.getHeight() );
+                texImg.clampToClipRect( dirtyRect );
+            }
+        }
+        finally
+        {
+            setFont( oldFont );
+            setColor( oldColor );
+            setRenderingHint( RenderingHints.KEY_ANTIALIASING, oldAntiAliasing );
+        }
+    }
+    
     @Override
     public final void drawString( String s, int x, int y )
     {

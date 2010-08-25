@@ -52,6 +52,11 @@ public class ImageProperty extends StringProperty
         return ( ( getStringValue() == null ) || ( getStringValue().equals( "" ) ) );
     }
     
+    /**
+     * Gets the {@link ImageTemplate} defined by this {@link ImageProperty}.
+     * 
+     * @return the {@link ImageTemplate} defined by this {@link ImageProperty} or <code>null</code>, if set to no image.
+     */
     public final ImageTemplate getImage()
     {
         if ( isNoImage() )

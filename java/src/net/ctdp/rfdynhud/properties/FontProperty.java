@@ -25,7 +25,6 @@ import java.awt.image.BufferedImage;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link FontProperty} serves for customizing a font value.
@@ -123,11 +122,9 @@ public class FontProperty extends Property
                 if ( widget != null )
                     widget.forceAndSetDirty( true );
                 
-                onValueChanged();
-                onValueChanged( oldValue, fontKey );
-                
-                if ( widget != null )
-                    __WPrivilegedAccess.onPropertyChanged( this, oldValue, fontKey, widget );
+                triggerCommonOnValueChanged( oldValue, fontKey );
+                if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+                    onValueChanged( oldValue, fontKey );
             }
         }
     }

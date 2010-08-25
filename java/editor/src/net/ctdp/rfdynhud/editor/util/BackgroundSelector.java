@@ -57,6 +57,7 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
     
     private Dimension imageSelectorSize = null;
     
+    private String startColor = null;
     private boolean cancelled = false;
     
     private JDialog dialog = null;
@@ -99,7 +100,7 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         return ( dialog );
     }
     
-    public Object[] showDialog( Window owner, BackgroundType startType, String startColor, String startImage, WidgetsConfiguration widgetsConfig )
+    public Object[] showDialog( Window owner, BackgroundType startType, String startColor, String startImage, final WidgetsConfiguration widgetsConfig )
     {
         imageSelector.update();
         
@@ -120,6 +121,9 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
                 @Override
                 public void actionPerformed( ActionEvent e )
                 {
+                    if ( !cancelled )
+                        colorChooser.checkSelection( BackgroundSelector.this.startColor, widgetsConfig );
+                    
                     dialog.setVisible( false );
                 }
             } );
@@ -168,6 +172,8 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         
         if ( startImage == null )
             startImage = "default_rev_meter_bg.png";
+        
+        this.startColor = startColor;
         
         imageSelectorSize = new Dimension( 416, 500 );
         

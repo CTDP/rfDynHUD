@@ -112,6 +112,8 @@ public class TransformableTexture
     private static final int OFFSET_RECT_VISIBLE_FLAGS = OFFSET_NUM_RECTANLES + MAX_NUM_TEXTURES * 1;
     private static final int OFFSET_RECTANGLES = OFFSET_RECT_VISIBLE_FLAGS + MAX_NUM_TEXTURES * SOFT_MAX_NUM_WIDGETS * 1;
     
+    private Widget ownerWidget = null;
+    
     private final TextureImage2D texture;
     
     private static final byte TRANSFORM_FLAG_TRANSLATION = 2;
@@ -137,6 +139,42 @@ public class TransformableTexture
     private Rectangle[] usedRectangles = null;
     
     private final ByteBuffer dirtyRectsBuffer;
+    
+    void setOwnerWidget( Widget ownerWidget )
+    {
+        this.ownerWidget = ownerWidget;
+    }
+    
+    public final Widget getOwnerWidget()
+    {
+        return ( ownerWidget );
+    }
+    
+    /**
+     * Gets the x-offset relative to the master Widget.
+     * 
+     * @return the x-offset relative to the master Widget.
+     */
+    public final int getOffsetXToMasterWidget()
+    {
+        if ( ( ownerWidget == null ) || ( ownerWidget.getMasterWidget() == null ) )
+            return ( 0 );
+        
+        return ( ownerWidget.getPosition().getEffectiveX() + ownerWidget.getMasterWidget().getOffsetXToMasterWidget() );
+    }
+    
+    /**
+     * Gets the y-offset relative to the master Widget.
+     * 
+     * @return the y-offset relative to the master Widget.
+     */
+    public final int getOffsetYToMasterWidget()
+    {
+        if ( ( ownerWidget == null ) || ( ownerWidget.getMasterWidget() == null ) )
+            return ( 0 );
+        
+        return ( ownerWidget.getPosition().getEffectiveY() + ownerWidget.getMasterWidget().getOffsetYToMasterWidget() );
+    }
     
     public static ByteBuffer createByteBuffer()
     {
@@ -187,17 +225,32 @@ public class TransformableTexture
         return ( usedRectangles[index].isVisible() );
     }
     
+    /**
+     * This flag must be set, if you intend to draw on this texture.
+     * 
+     * @param dynamic
+     */
     public void setDynamic( boolean dynamic )
     {
         this.isDynamic = dynamic;
     }
     
+    /**
+     * This flag must be set, if you intend to draw on this texture.
+     * 
+     * @return dynamic or not
+     */
     public final boolean isDynamic()
     {
         return ( isDynamic );
     }
     
-    public final boolean isTransformed()
+    /**
+     * Gets whether this texture is potentially translated, rotated or scaled.
+     * 
+     * @return whether this texture is potentially translated, rotated or scaled.
+     */
+    private final boolean isTransformed()
     {
         return ( isTransformed );
     }
@@ -359,7 +412,7 @@ public class TransformableTexture
         {
             buffer.putShort( OFFSET_SIZE + index * 4 + 0, (short)texture.getWidth() );
             buffer.putShort( OFFSET_SIZE + index * 4 + 2, (short)texture.getHeight() );
-            buffer.put( OFFSET_TRANSFORMED + index * 1, isTransformed ? transformFlags : (byte)0 );
+            buffer.put( OFFSET_TRANSFORMED + index * 1, isTransformed() ? transformFlags : (byte)0 );
             buffer.putFloat( OFFSET_TRANSLATION + index * 8 + 0, offsetX + transX );
             buffer.putFloat( OFFSET_TRANSLATION + index * 8 + 4, offsetY + transY );
             buffer.putShort( OFFSET_ROT_CENTER + index * 4 + 0, (short)rotCenterX );

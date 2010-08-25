@@ -113,9 +113,9 @@ public class BackgroundProperty extends Property
             
             this.backgroundType = BackgroundType.COLOR;
             
-            if ( !suppressEvent && ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) )
+            if ( !suppressEvent && ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             {
-                onValueChanged();
+                triggerCommonOnValueChanged( oldValue, value );
                 onValueChanged( oldBGType, backgroundType, oldValue, value );
             }
         }
@@ -133,9 +133,9 @@ public class BackgroundProperty extends Property
             
             this.backgroundType = BackgroundType.IMAGE;
             
-            if ( !suppressEvent && ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) )
+            if ( !suppressEvent && ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             {
-                onValueChanged();
+                triggerCommonOnValueChanged( oldValue, value );
                 onValueChanged( oldBGType, backgroundType, oldValue, value );
             }
         }
@@ -213,8 +213,9 @@ public class BackgroundProperty extends Property
             setPropertyFromValue( IMAGE_INDICATOR + imageValue, true );
             setPropertyFromValue( COLOR_INDICATOR + colorValue, true );
             
-            onValueChanged();
-            onValueChanged( oldBGType, backgroundType, oldValue, colorValue );
+            triggerCommonOnValueChanged( oldValue, colorValue );
+            if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) )
+                onValueChanged( oldBGType, backgroundType, oldValue, colorValue );
         }
         else if ( type.isImage() )
         {
@@ -224,8 +225,9 @@ public class BackgroundProperty extends Property
             setPropertyFromValue( COLOR_INDICATOR + colorValue, true );
             setPropertyFromValue( IMAGE_INDICATOR + imageValue, true );
             
-            onValueChanged();
-            onValueChanged( oldBGType, backgroundType, oldValue, imageValue );
+            triggerCommonOnValueChanged( oldValue, imageValue );
+            if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) )
+                onValueChanged( oldBGType, backgroundType, oldValue, imageValue );
         }
     }
     

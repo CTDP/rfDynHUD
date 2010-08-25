@@ -21,7 +21,6 @@ import java.awt.Color;
 
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.openmali.vecmath2.util.ColorUtils;
 
@@ -79,11 +78,9 @@ public class ColorProperty extends Property
         if ( widget != null )
             widget.forceAndSetDirty( true );
         
-        onValueChanged();
-        onValueChanged( oldValue, colorKey );
-        
-        if ( widget != null )
-            __WPrivilegedAccess.onPropertyChanged( this, oldValue, colorKey, widget );
+        triggerCommonOnValueChanged( oldValue, colorKey );
+        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+            onValueChanged( oldValue, colorKey );
     }
     
     public final void setColor( Color color )

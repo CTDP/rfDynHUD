@@ -69,17 +69,14 @@ public class ShiftLight
         return ( imageNameOff.getValue().equals( "" ) );
     }
     
-    public int loadTextures( boolean isEditorMode, ImageProperty backgroundImageName )
+    public int loadTextures( boolean isEditorMode )
     {
         int n = 0;
         
-        if ( !isOffStatePartOfBackground() && ( ( textureOff == null ) || isEditorMode ) )
+        if ( !isOffStatePartOfBackground() )
         {
             try
             {
-                ImageTemplate it0 = backgroundImageName.getImage();
-                float scale = ( it0 == null ) ? 1.0f : widget.getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
-                
                 ImageTemplate it = imageNameOff.getImage();
                 
                 if ( it == null )
@@ -88,6 +85,7 @@ public class ShiftLight
                     return ( n );
                 }
                 
+                float scale = widget.getBackground().getScaleX();
                 int w = Math.round( it.getBaseWidth() * scale );
                 int h = Math.round( it.getBaseHeight() * scale );
                 if ( ( textureOff == null ) || ( textureOff.getWidth() != w ) || ( textureOff.getHeight() != h ) )
@@ -110,51 +108,55 @@ public class ShiftLight
             textureOff = null;
         }
         
-        if ( ( textureOn == null ) || isEditorMode )
+        try
         {
-            try
+            ImageTemplate it = imageNameOn.getImage();
+            
+            if ( it == null )
             {
-                ImageTemplate it0 = backgroundImageName.getImage();
-                float scale = ( it0 == null ) ? 1.0f : widget.getSize().getEffectiveWidth() / (float)it0.getBaseWidth();
-                
-                ImageTemplate it = imageNameOn.getImage();
-                
-                if ( it == null )
+                textureOn = null;
+                return ( n );
+            }
+            
+            float scale = widget.getBackground().getScaleX();
+            int w = Math.round( it.getBaseWidth() * scale );
+            int h = Math.round( it.getBaseHeight() * scale );
+            if ( isOffStatePartOfBackground() )
+            {
+                if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h * 2 ) )
                 {
-                    textureOn = null;
-                    return ( n );
-                }
-                
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
-                if ( isOffStatePartOfBackground() )
-                {
-                    if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h * 2 ) )
+                    textureOn = TransformableTexture.getOrCreate( w, h * 2, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOn, isEditorMode );
+                    // TODO: Move this code to drawBackground() of RevMeterWidget!
+                    if ( widget.getBackgroundProperty().getBackgroundType().isImage() )
                     {
-                        textureOn = TransformableTexture.getOrCreate( w, h * 2, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOn, isEditorMode );
+                        ImageTemplate it0 = widget.getBackgroundProperty().getImageValue();
                         textureOn.getTexture().clear( false, null );
                         it0.drawScaled( posX.getIntValue(), posY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, 0, w, h, textureOn.getTexture(), false );
                         it0.drawScaled( posX.getIntValue(), posY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, h, w, h, textureOn.getTexture(), false );
-                        it.drawScaled( 0, 0, w, h, textureOn.getTexture(), false );
                     }
-                }
-                else
-                {
-                    if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h ) )
+                    else if ( widget.getBackgroundProperty().getBackgroundType().isColor() )
                     {
-                        textureOn = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOn, isEditorMode );
-                        it.drawScaled( 0, 0, w, h, textureOn.getTexture(), true );
+                        textureOn.getTexture().clear( widget.getBackground().getColor(), true, null );
                     }
+                    it.drawScaled( 0, 0, w, h, textureOn.getTexture(), false );
                 }
-                
-                n++;
             }
-            catch ( Throwable t )
+            else
             {
-                Logger.log( t );
-                
-                return ( n );
+                if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h ) )
+                {
+                    textureOn = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOn, isEditorMode );
+                    it.drawScaled( 0, 0, w, h, textureOn.getTexture(), true );
+                }
             }
+            
+            n++;
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+            
+            return ( n );
         }
         
         return ( n );

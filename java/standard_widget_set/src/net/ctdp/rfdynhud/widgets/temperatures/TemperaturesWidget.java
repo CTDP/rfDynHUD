@@ -648,7 +648,6 @@ public class TemperaturesWidget extends Widget
                 string = ( diff >= 0f ? "+" : "" ) + diff;
                 tireTempFLString2.draw( offsetX, offsetY, string, texture );
                 
-                
                 drawTire( telemData, Wheel.FRONT_LEFT, wheel, texture, offsetX + tireTempFLString.getAbsX() + 3, offsetY + tireTempFLString.getAbsY() + 2 );
             }
             

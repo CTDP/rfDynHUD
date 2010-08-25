@@ -406,9 +406,15 @@ public class EditorPanel extends JPanel
     
     private long frameIndex = 0;
     
+    @Override
+    public void repaint()
+    {
+        super.repaint();
+    }
+    
     public void drawWidgets( Graphics2D g2, boolean drawEverything, boolean drawSelection )
     {
-        HashMap<Widget, Rect2i> oldWidgetRects = this.oldWidgetRects;;
+        HashMap<Widget, Rect2i> oldWidgetRects = this.oldWidgetRects;
         
         if ( drawEverything )
         {
@@ -521,6 +527,8 @@ public class EditorPanel extends JPanel
     
     public EditorPanel( RFDynHUDEditor editor, LiveGameData gameData, TextureImage2D overlay, WidgetsDrawingManager drawingManager )
     {
+        super();
+        
         this.editor = editor;
         
         this.gameData = gameData;

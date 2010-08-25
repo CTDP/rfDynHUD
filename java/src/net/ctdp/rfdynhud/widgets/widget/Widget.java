@@ -108,7 +108,7 @@ public abstract class Widget implements Documented
         @Override
         protected void onValueChanged( BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
         {
-            if ( background != null )
+            if ( ( background != null ) && ( getConfiguration() != null ) )
                 background.onPropertyValueChanged( Widget.this, oldBGType, newBGType, oldValue, newValue );
         }
     } : null;
@@ -203,6 +203,7 @@ public abstract class Widget implements Documented
      */
     protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
+        forceCompleteRedraw( true );
     }
     
     /**
@@ -361,6 +362,15 @@ public abstract class Widget implements Documented
         if ( !initialized )
         {
             subTextures = getSubTexturesImpl( gameData, editorPresets, widgetInnerWidth, widgetInnerHeight );
+            
+            if ( subTextures != null )
+            {
+                for ( int i = 0; i < subTextures.length; i++ )
+                {
+                    if ( subTextures[i].getOwnerWidget() == null )
+                        __RenderPrivilegedAccess.setOwnerWidget( this, subTextures[i] );
+                }
+            }
         }
         
         return ( subTextures );
@@ -459,6 +469,32 @@ public abstract class Widget implements Documented
     public final Position getPosition()
     {
         return ( position );
+    }
+    
+    /**
+     * Gets the x-offset relative to the master Widget.
+     * 
+     * @return the x-offset relative to the master Widget.
+     */
+    public final int getOffsetXToMasterWidget()
+    {
+        if ( getMasterWidget() == null )
+            return ( 0 );
+        
+        return ( position.getEffectiveX() + getMasterWidget().getOffsetXToMasterWidget() );
+    }
+    
+    /**
+     * Gets the y-offset relative to the master Widget.
+     * 
+     * @return the y-offset relative to the master Widget.
+     */
+    public final int getOffsetYToMasterWidget()
+    {
+        if ( getMasterWidget() == null )
+            return ( 0 );
+        
+        return ( position.getEffectiveY() + getMasterWidget().getOffsetYToMasterWidget() );
     }
     
     /**
@@ -597,7 +633,7 @@ public abstract class Widget implements Documented
         size.setHeightToPixels();
     }
     
-    protected final BackgroundProperty getBackgroundProperty()
+    public final BackgroundProperty getBackgroundProperty()
     {
         return ( backgroundProperty );
     }
@@ -607,7 +643,7 @@ public abstract class Widget implements Documented
      * 
      * @return the {@link Widget}'s background.
      */
-    protected final WidgetBackground getBackground()
+    public final WidgetBackground getBackground()
     {
         return ( background );
     }
@@ -1408,7 +1444,7 @@ public abstract class Widget implements Documented
                 
                 for ( int i = 0; i < subTextures.length; i++ )
                 {
-                    subTextures[i].drawInEditor( texCanvas, offsetX2, offsetY2 );
+                    subTextures[i].drawInEditor( texCanvas, offsetX2 + subTextures[i].getOwnerWidget().getOffsetXToMasterWidget(), offsetY2 + subTextures[i].getOwnerWidget().getOffsetYToMasterWidget() );
                 }
             }
         }
