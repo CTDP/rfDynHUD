@@ -64,7 +64,7 @@ public class WidgetBackground
     
     /**
      * Gets the {@link Color} from this {@link WidgetBackground}.
-     * The result is only valid, if the {@link BackgroundType} ({@link #getType()}) is {@value BackgroundType#COLOR}.
+     * The result is only valid, if the {@link BackgroundType} ({@link #getType()}) is {@link BackgroundType#COLOR}.
      * 
      * @return the {@link Color} from this {@link WidgetBackground}.
      */
@@ -194,7 +194,7 @@ public class WidgetBackground
     
     /**
      * Gets the {@link TextureImage2D} from this {@link BackgroundProperty}.
-     * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@value BackgroundType#IMAGE}.
+     * The result is only valid, if the {@link BackgroundType} ({@link #getType()}) is {@link BackgroundType#IMAGE}.
      * 
      * @return the {@link TextureImage2D} from this {@link BackgroundProperty}.
      */
@@ -297,7 +297,7 @@ public class WidgetBackground
     /**
      * Gets the merged background, composed of the backgrounds of this (possibly assembled) {@link Widget} and the parts of this Widget.
      * If this {@link Widget} is not an {@link AssembledWidget} and has a background color (no image)
-     * and doesn't override the {@link Widget#drawBackground(net.ctdp.rfdynhud.gamedata.LiveGameData, net.ctdp.rfdynhud.editor.EditorPresets, TextureImage2D, int, int, int, int)} method,
+     * and doesn't override the {@link Widget#drawBackground(net.ctdp.rfdynhud.gamedata.LiveGameData, net.ctdp.rfdynhud.editor.EditorPresets, TextureImage2D, int, int, int, int, boolean)} method,
      * this method returns <code>null</code>.
      * 
      * @return the marged background texture or <code>null</code>.

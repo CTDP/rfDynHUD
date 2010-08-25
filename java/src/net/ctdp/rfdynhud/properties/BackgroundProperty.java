@@ -248,7 +248,7 @@ public class BackgroundProperty extends Property
     
     /**
      * Gets the {@link Color} from this {@link BackgroundProperty}.
-     * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@value BackgroundType#COLOR}.
+     * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@link BackgroundType#COLOR}.
      * 
      * @return the {@link Color} from this {@link BackgroundProperty}.
      */
@@ -262,7 +262,7 @@ public class BackgroundProperty extends Property
     
     /**
      * Gets the {@link Color} from this {@link BackgroundProperty}.
-     * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@value BackgroundType#COLOR}.
+     * The result is only valid, if the {@link BackgroundType} ({@link #getBackgroundType()}) is {@link BackgroundType#COLOR}.
      * 
      * @return the {@link Color} from this {@link BackgroundProperty}.
      */

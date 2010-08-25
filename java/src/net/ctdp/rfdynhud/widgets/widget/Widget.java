@@ -767,7 +767,7 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * This simply calls {@link #forceCompleteRedraw()}, {@link #forceReinitialization()} and {@link #setDirtyFlag()}.
+     * This simply calls {@link #forceCompleteRedraw(boolean)}, {@link #forceReinitialization()} and {@link #setDirtyFlag()}.
      * This method must be called after a value has been changed, that requires a reinitialization of all positioned strings, etc.
      */
     public final void forceAndSetDirty( boolean mergedBackgroundToo )
@@ -1215,7 +1215,7 @@ public abstract class Widget implements Documented
     
     /**
      * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, BorderWrapper, TextureImage2D, int, int, int, int)}
-     * and {@link #clearBackground(LiveGameData, EditorPresets, TextureImage2D, int, int, int, int)} are (re-)invoked.<br />
+     * and possibly {@link #drawBackground(LiveGameData, EditorPresets, TextureImage2D, int, int, int, int, boolean)} are (re-)invoked.<br />
      * The original method is just an empty stub returning false.
      * 
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.

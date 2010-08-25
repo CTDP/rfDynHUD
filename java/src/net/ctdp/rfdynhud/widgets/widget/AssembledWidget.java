@@ -200,8 +200,6 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     /**
      * This method is called when the configuration has been loaded.
      * 
-     * @param parts
-     * 
      * @see #arrangeParts(Widget[])
      */
     protected final void arrangeParts()

@@ -101,9 +101,9 @@ public abstract class PosSizeProperty extends Property
      * @param readonly
      * @param isSizeProp
      */
-    public PosSizeProperty( Widget widget, String name, String nameFordisplay, boolean readonly, boolean isSizeProp )
+    public PosSizeProperty( Widget widget, String name, String nameForDisplay, boolean readonly, boolean isSizeProp )
     {
-        super( widget, name, nameFordisplay, readonly, PropertyEditorType.POS_SIZE, null, null );
+        super( widget, name, nameForDisplay, readonly, PropertyEditorType.POS_SIZE, null, null );
         
         this.isSizeProp = isSizeProp;
     }
@@ -115,8 +115,8 @@ public abstract class PosSizeProperty extends Property
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param isSizeProp
      */
-    public PosSizeProperty( Widget widget, String name, String nameFordisplay, boolean isSizeProp )
+    public PosSizeProperty( Widget widget, String name, String nameForDisplay, boolean isSizeProp )
     {
-        this( widget, name, nameFordisplay, false, isSizeProp );
+        this( widget, name, nameForDisplay, false, isSizeProp );
     }
 }
