@@ -748,7 +748,7 @@ public abstract class Widget implements Documented
         
         if ( forwardCall && ( masterWidget != null ) )
         if ( masterWidget != null )
-            masterWidget.forceCompleteRedraw( false );
+            masterWidget.forceCompleteRedraw_( mergedBackgroundToo, false );
         
         setDirtyFlag();
         

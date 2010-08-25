@@ -31,11 +31,13 @@ Major:
 * Improved early rendering of Widgets to reduce the gap when entering the cockpit.
 * Added padding properties.
 * Added rfdynhud.ini as central plugin configuration file to support localizations and custom config folders.
-* Rev limit from setup is now used. This enables you to actually use rev markes fixed in the background image.
-* Digital max revs in RevMeterWidget can now be boost level dependent.
+* RevMeterWidget: Rev limit from setup is now used. This enables you to actually use rev markes fixed in the background image.
+* RevMeterWidget: Digital max revs can now be boost level dependent.
 * Added pause detection.
 * Added a data cache to restore fuel usage and fastest lap times per mod, car and track.
 * Added support for multiple displays.
+* Added SpeedoWidget
+* Added AssembledWidget to combine existing Widgets to create a new and more complex one in an efficient way.
 
 Minor:
 
@@ -66,8 +68,6 @@ TODO:
 * Add RideHeightWidget
 * Add TinyWidgets: Velocity, Place, Lap, etc.
 * Add DashboardWidget
-* Add SpeedoMeterWidget
-* Combine Widgets / CombinationWidget.
 * Bar meter for fuel, temp, etc.
 * Manage logs to keep 5
 * Meta config (merge configurations)
