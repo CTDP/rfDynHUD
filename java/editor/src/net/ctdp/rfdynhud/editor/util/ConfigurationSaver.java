@@ -30,9 +30,9 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.ini.IniWriter;
@@ -125,53 +125,79 @@ public class ConfigurationSaver
         return ( result );
     }
     
+    private static void saveWidget( Widget widget, IniWriter iniWriter, DefaultWidgetsConfigurationWriter confWriter ) throws IOException
+    {
+        if ( widget.getMasterWidget() != null )
+            iniWriter.writeSetting( "<WidgetPart>", ( widget.getName() == null ? "" : widget.getName() ), "The Widget part's name." );
+        
+        iniWriter.writeSetting( "class", widget.getClass().getName(), "The Java class, that defines the Widget." );
+        
+        //confWriter.setKeyPrefix( keyPrefix );
+        
+        widget.saveProperties( confWriter );
+        
+        if ( widget instanceof AssembledWidget )
+        {
+            for ( int i = 0; i < ( (AssembledWidget)widget ).getNumParts(); i++ )
+            {
+                Widget part = ( (AssembledWidget)widget ).getPart( i );
+                
+                //saveWidget( part.getWidget(), iniWriter, ( keyPrefix == null ) ? part.getKeyPrefix() : keyPrefix + part.getKeyPrefix(), confWriter );
+                saveWidget( part, iniWriter, confWriter );
+            }
+        }
+        
+        if ( widget.getMasterWidget() != null )
+            iniWriter.writeSetting( "</WidgetPart>", ( widget.getName() == null ? "" : widget.getName() ) );
+    }
+    
     public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, File out ) throws IOException
     {
-        final IniWriter writer = new IniWriter( out );
-        writer.setMinEqualSignPosition( 25 );
-        writer.setMinCommentPosition( 45 );
+        final IniWriter iniWriter = new IniWriter( out );
+        iniWriter.setMinEqualSignPosition( 25 );
+        iniWriter.setMinCommentPosition( 45 );
         
-        writer.writeGroup( "Meta" );
-        writer.writeComment( "The data in this section is only for informational purposes" );
-        writer.writeComment( "and will not be used when the config is loaded." );
-        writer.writeComment( "Modifications here may not change anything." );
-        writer.writeSetting( "rfDynHUD_Version", RFDynHUD.VERSION.toString() );
-        writer.writeSetting( "Design_Resolution", designResultion );
-        writer.writeSetting( "Design_Grid", "(" + gridOffsetX + "," + gridOffsetY + ";" + gridSizeX + "," + gridSizeY + ")" );
+        iniWriter.writeGroup( "Meta" );
+        iniWriter.writeComment( "The data in this section is only for informational purposes" );
+        iniWriter.writeComment( "and will not be used when the config is loaded." );
+        iniWriter.writeComment( "Modifications here may not change anything." );
+        iniWriter.writeSetting( "rfDynHUD_Version", RFDynHUD.VERSION.toString() );
+        iniWriter.writeSetting( "Design_Resolution", designResultion );
+        iniWriter.writeSetting( "Design_Grid", "(" + gridOffsetX + "," + gridOffsetY + ";" + gridSizeX + "," + gridSizeY + ")" );
         
-        writer.writeGroup( "Global" );
-        widgetsConfig.saveProperties( new DefaultWidgetsConfigurationWriter( writer ) );
+        iniWriter.writeGroup( "Global" );
+        widgetsConfig.saveProperties( new DefaultWidgetsConfigurationWriter( iniWriter ) );
         
-        writer.writeGroup( "NamedColors" );
+        iniWriter.writeGroup( "NamedColors" );
         HashSet<String> usedColorNames = getUsedColorNames( widgetsConfig );
         ArrayList<String> colorNames = new ArrayList<String>( widgetsConfig.getColorNames() );
         Collections.sort( colorNames, String.CASE_INSENSITIVE_ORDER );
         for ( String name : colorNames )
         {
             if ( usedColorNames.contains( name ) )
-                writer.writeSetting( name, widgetsConfig.getNamedColor( name ) );
+                iniWriter.writeSetting( name, widgetsConfig.getNamedColor( name ) );
         }
         
-        writer.writeGroup( "NamedFonts" );
+        iniWriter.writeGroup( "NamedFonts" );
         HashSet<String> usedFontNames = getUsedFontNames( widgetsConfig );
         ArrayList<String> fontNames = new ArrayList<String>( widgetsConfig.getFontNames() );
         Collections.sort( fontNames, String.CASE_INSENSITIVE_ORDER );
         for ( String name : fontNames )
         {
             if ( usedFontNames.contains( name ) )
-                writer.writeSetting( name, widgetsConfig.getNamedFontString( name ) );
+                iniWriter.writeSetting( name, widgetsConfig.getNamedFontString( name ) );
         }
         
-        writer.writeGroup( "BorderAliases" );
+        iniWriter.writeGroup( "BorderAliases" );
         //HashSet<String> usedBorderAliases = getUsedBorderAliases( widgetsConfig );
         ArrayList<String> borderAliases = new ArrayList<String>( widgetsConfig.getBorderAliases() );
         Collections.sort( borderAliases, String.CASE_INSENSITIVE_ORDER );
         for ( String alias : borderAliases )
         {
-            writer.writeSetting( alias, widgetsConfig.getBorderName( alias ) );
+            iniWriter.writeSetting( alias, widgetsConfig.getBorderName( alias ) );
         }
         
-        WidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( writer );
+        DefaultWidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( iniWriter );
         
         __WCPrivilegedAccess.sortWidgets( widgetsConfig );
         
@@ -180,13 +206,11 @@ public class ConfigurationSaver
         {
             Widget widget = widgetsConfig.getWidget( i );
             
-            writer.writeGroup( "Widget::" + ( widget.getName() == null ? "" : widget.getName() ) );
+            iniWriter.writeGroup( "Widget::" + ( widget.getName() == null ? "" : widget.getName() ) );
             
-            writer.writeSetting( "class", widget.getClass().getName(), "The Java class, that defines the Widget." );
-            
-            widgetsConfig.getWidget( i ).saveProperties( confWriter );
+            saveWidget( widget, iniWriter, confWriter );
         }
         
-        writer.close();
+        iniWriter.close();
     }
 }

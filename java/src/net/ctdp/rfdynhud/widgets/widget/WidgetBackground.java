@@ -218,9 +218,9 @@ public class WidgetBackground
     
     private static boolean needsTexture( AssembledWidget widget, Color backgroundColor )
     {
-        for ( int i = 0; i < widget.parts.length; i++ )
+        for ( int i = 0; i < widget.getNumParts(); i++ )
         {
-            Widget part = widget.parts[i];
+            Widget part = widget.getPart( i );
             WidgetBackground bg = part.getBackground();
             
             if ( ( ( bg != null ) && bg.getType().isImage() ) || part.overridesDrawBackground )

@@ -1477,7 +1477,7 @@ public abstract class Widget implements Documented
         
         if ( canHaveBackground() )
         {
-            writer.writeProperty( backgroundProperty, "The Widget's background color in the format #RRGGBBAA (hex)." );
+            writer.writeProperty( backgroundProperty, "The Widget's background (color or image)." );
         }
         
         if ( hasText() )
@@ -1622,7 +1622,7 @@ public abstract class Widget implements Documented
             addBorderPropertyToContainer( border, propsCont, forceAll );
         }
         
-        if ( ( masterWidget == null ) && canHaveBackground() )
+        if ( canHaveBackground() )
         {
             addBackgroundPropertyToContainer( backgroundProperty, propsCont, forceAll );
         }

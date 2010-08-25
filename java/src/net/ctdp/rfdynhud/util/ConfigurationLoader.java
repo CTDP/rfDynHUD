@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
@@ -34,6 +35,7 @@ import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -94,6 +96,17 @@ public class ConfigurationLoader implements PropertyLoader
         return ( false );
     }
     
+    private static enum GroupType
+    {
+        Meta,
+        Global,
+        NamedColors,
+        NamedFonts,
+        BorderAliases,
+        Widget,
+        ;
+    }
+    
     /**
      * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
      * 
@@ -113,10 +126,17 @@ public class ConfigurationLoader implements PropertyLoader
         
         new AbstractIniParser()
         {
+            private GroupType currentGroupType = null;
             private Widget currentWidget = null;
             private String widgetName = null;
             private boolean badWidget = false;
             
+            private final Stack<Widget> partStack = new Stack<Widget>();
+            private final Stack<Integer> partIndexStack = new Stack<Integer>();
+            private Widget currentPart = null;
+            private String partName = null;
+            
+            private boolean settingBeforeGroupWarningThrown = false;
             private String errorMessages = null;
             
             @Override
@@ -128,12 +148,35 @@ public class ConfigurationLoader implements PropertyLoader
                     currentWidget = null;
                     widgetName = null;
                     badWidget = false;
+                    partStack.clear();
+                    partIndexStack.clear();
+                    currentPart = null;
+                    partName = null;
                 }
                 
-                if ( ( group != null ) && group.startsWith( "Widget::" ) )
+                currentGroupType = null;
+                
+                if ( group.equals( "Meta" ) )
+                    currentGroupType = GroupType.Meta;
+                else if ( group.equals( "Global" ) )
+                    currentGroupType = GroupType.Global;
+                else if ( group.equals( "NamedColors" ) )
+                    currentGroupType = GroupType.NamedColors;
+                else if ( group.equals( "NamedFonts" ) )
+                    currentGroupType = GroupType.NamedFonts;
+                else if ( group.equals( "BorderAliases" ) )
+                    currentGroupType = GroupType.BorderAliases;
+                else if ( group.startsWith( "Widget::" ) )
+                    currentGroupType = GroupType.Widget;
+                
+                if ( currentGroupType == GroupType.Widget )
                 {
                     widgetName = group.substring( 8 );
                     badWidget = false;
+                    partStack.clear();
+                    //partStack.push( null );
+                    partIndexStack.clear();
+                    partIndexStack.push( -1 );
                 }
                 
                 return ( true );
@@ -142,128 +185,183 @@ public class ConfigurationLoader implements PropertyLoader
             @Override
             protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
             {
-                if ( group == null )
-                    //throw new ParsingException( "Found setting before the first group started (line " + lineNr + ")." );
-                    Logger.log( "WARNING: Found setting before the first group started (line " + lineNr + ")." );
+                if ( currentGroupType == null )
+                {
+                    if ( !settingBeforeGroupWarningThrown )
+                    {
+                        //throw new ParsingException( "Found setting before the first (known) group started (line " + lineNr + ")." );
+                        Logger.log( "WARNING: Found setting before the first (known) group started (line " + lineNr + ")." );
+                        
+                        settingBeforeGroupWarningThrown = true;
+                    }
+                    
+                    return ( true );
+                }
                 
                 currentKey = key;
                 currentValue = value;
                 setKeyPrefix( keyPrefix );
                 
-                if ( group.equals( "Global" ) )
+                switch ( currentGroupType )
                 {
-                    widgetsConfig.loadProperty( ConfigurationLoader.this );
-                }
-                else if ( group.equals( "NamedColors" ) )
-                {
-                    java.awt.Color color = ColorUtils.hexToColor( value, false );
-                    
-                    if ( color == null )
-                    {
-                        String msg = "ERROR: Illegal color value on line #" + lineNr + ": " + value;
-                        Logger.log( msg );
+                    case Global:
+                        widgetsConfig.loadProperty( ConfigurationLoader.this );
+                        break;
+                    case NamedColors:
+                        java.awt.Color color = ColorUtils.hexToColor( value, false );
                         
-                        if ( errorMessages == null )
-                            errorMessages = msg;
-                        else
-                            errorMessages += "\n" + msg;
-                    }
-                    else
-                    {
-                        widgetsConfig.addNamedColor( key, color );
-                    }
-                }
-                else if ( group.equals( "NamedFonts" ) )
-                {
-                    java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResolution().getViewportHeight(), false, false );
-                    
-                    if ( ( font == FontUtils.FALLBACK_FONT ) || ( font == FontUtils.FALLBACK_VIRTUAL_FONT ) )
-                    {
-                        String msg = "ERROR: Illegal font value on line #" + lineNr + ": " + value;
-                        Logger.log( msg );
-                        
-                        if ( errorMessages == null )
-                            errorMessages = msg;
-                        else
-                            errorMessages += "\n" + msg;
-                    }
-                    else
-                    {
-                        widgetsConfig.addNamedFont( key, value );
-                    }
-                }
-                else if ( group.equals( "BorderAliases" ) )
-                {
-                    widgetsConfig.addBorderAlias( key, value );
-                }
-                else if ( group.startsWith( "Widget::" ) )
-                {
-                    if ( ( widgetName != null ) && ( currentWidget == null ) && !key.equals( "class" ) )
-                    {
-                        if ( !badWidget )
-                            //throw new ParsingException( "Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
-                            Logger.log( "WARNING: Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
-                        
-                        badWidget = true;
-                    }
-                    else if ( key.equals( "class" ) )
-                    {
-                        try
+                        if ( color == null )
                         {
-                            Class<?> clazz = Class.forName( value, false, getClass().getClassLoader() );
+                            String msg = "ERROR: Illegal color value on line #" + lineNr + ": " + value;
+                            Logger.log( msg );
                             
-                            //currentWidget = (Widget)clazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
-                            currentWidget = (Widget)clazz.getConstructor( String.class ).newInstance( widgetName );
-                            widgetName = null;
+                            if ( errorMessages == null )
+                                errorMessages = msg;
+                            else
+                                errorMessages += "\n" + msg;
                         }
-                        catch ( ClassNotFoundException e )
+                        else
                         {
-                            Logger.log( "WARNING: Widget class not found (" + value + ")" );
-                            badWidget = true;
+                            widgetsConfig.addNamedColor( key, color );
                         }
-                        catch ( Throwable t )
+                        
+                        break;
+                    case NamedFonts:
+                        java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResolution().getViewportHeight(), false, false );
+                        
+                        if ( ( font == FontUtils.FALLBACK_FONT ) || ( font == FontUtils.FALLBACK_VIRTUAL_FONT ) )
                         {
-                            Logger.log( "Error creating Widget instance of class " + value + ":" );
-                            Logger.log( t );
-                            badWidget = true;
+                            String msg = "ERROR: Illegal font value on line #" + lineNr + ": " + value;
+                            Logger.log( msg );
+                            
+                            if ( errorMessages == null )
+                                errorMessages = msg;
+                            else
+                                errorMessages += "\n" + msg;
                         }
-                    }
-                    else if ( ( currentWidget == null ) || ( widgetName != null ) )
-                    {
-                        if ( !badWidget )
+                        else
                         {
-                            if ( currentWidget != null )
-                            {
-                                //throw new ParsingException( "Cannot load the Widget \"" + currentWidget.getName() + "\" (line " + lineNr + ")." );
-                                Logger.log( "WARNING: Cannot load the Widget \"" + currentWidget.getName() + "\" (line " + lineNr + ")." );
-                                badWidget = true;
-                            }
-                            else if ( widgetName != null )
-                            {
+                            widgetsConfig.addNamedFont( key, value );
+                        }
+                        
+                        break;
+                    case BorderAliases:
+                        widgetsConfig.addBorderAlias( key, value );
+                        
+                        break;
+                    case Widget:
+                        if ( ( widgetName != null ) && ( currentWidget == null ) && !key.equals( "class" ) )
+                        {
+                            if ( !badWidget )
                                 //throw new ParsingException( "Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
                                 Logger.log( "WARNING: Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
-                                badWidget = true;
+                            
+                            badWidget = true;
+                        }
+                        else if ( key.equals( "class" ) )
+                        {
+                            if ( widgetName != null )
+                            {
+                                try
+                                {
+                                    Class<?> clazz = Class.forName( value, false, getClass().getClassLoader() );
+                                    
+                                    //currentWidget = (Widget)clazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
+                                    currentWidget = (Widget)clazz.getConstructor( String.class ).newInstance( widgetName );
+                                    widgetName = null;
+                                }
+                                catch ( ClassNotFoundException e )
+                                {
+                                    Logger.log( "WARNING: Widget class not found (" + value + ")" );
+                                    badWidget = true;
+                                }
+                                catch ( Throwable t )
+                                {
+                                    Logger.log( "Error creating Widget instance of class " + value + ":" );
+                                    Logger.log( t );
+                                    badWidget = true;
+                                }
+                            }
+                            else if ( partName != null )
+                            {
+                                // TODO: Actually create the part object!
+                                
+                                currentPart = ( (AssembledWidget)currentWidget ).getPart( partIndexStack.get( partIndexStack.size() - 2 ) );
+                                partStack.set( partStack.size() - 1, currentPart );
+                                partName = null;
                             }
                             else
                             {
-                                //throw new ParsingException( "Cannot load the a Widget (line " + lineNr + ")." );
-                                Logger.log( "WARNING: Cannot load the a Widget (line " + lineNr + ")." );
-                                badWidget = true;
+                                Logger.log( "WARNING: Cannot load the Widget configuration line " + lineNr + "." );
                             }
                         }
-                    }
-                    else
-                    {
-                        try
+                        else if ( ( currentWidget == null ) || ( widgetName != null ) )
                         {
-                            currentWidget.loadProperty( ConfigurationLoader.this );
+                            if ( !badWidget )
+                            {
+                                if ( currentWidget != null )
+                                {
+                                    //throw new ParsingException( "Cannot load the Widget \"" + currentWidget.getName() + "\" (line " + lineNr + ")." );
+                                    Logger.log( "WARNING: Cannot load the Widget \"" + currentWidget.getName() + "\" (line " + lineNr + ")." );
+                                    badWidget = true;
+                                }
+                                else if ( widgetName != null )
+                                {
+                                    //throw new ParsingException( "Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
+                                    Logger.log( "WARNING: Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
+                                    badWidget = true;
+                                }
+                                else
+                                {
+                                    //throw new ParsingException( "Cannot load the a Widget (line " + lineNr + ")." );
+                                    Logger.log( "WARNING: Cannot load the a Widget (line " + lineNr + ")." );
+                                    badWidget = true;
+                                }
+                            }
                         }
-                        catch ( Throwable t )
+                        else if ( key.equals( "<WidgetPart>" ) )
                         {
-                            //throw new Error( t );
-                            Logger.log( t );
+                            partName = value;
+                            
+                            partStack.push( null );
+                            
+                            partIndexStack.set( partIndexStack.size() - 1, partIndexStack.peek() + 1 );
+                            partIndexStack.push( -1 );
                         }
-                    }
+                        else if ( key.equals( "</WidgetPart>" ) )
+                        {
+                            if ( partStack.isEmpty() )
+                            {
+                                Logger.log( "WARNING: Found Widget part end at line " + lineNr + " with no part begun." );
+                            }
+                            else
+                            {
+                                partStack.pop();
+                                partIndexStack.pop();
+                                
+                                if ( !partStack.isEmpty() )
+                                    currentPart = partStack.peek();
+                                else
+                                    currentPart = null;
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if ( currentPart == null )
+                                    currentWidget.loadProperty( ConfigurationLoader.this );
+                                else
+                                    currentPart.loadProperty( ConfigurationLoader.this );
+                            }
+                            catch ( Throwable t )
+                            {
+                                //throw new Error( t );
+                                Logger.log( t );
+                            }
+                        }
+                        
+                        break;
                 }
                 
                 return ( true );

@@ -52,7 +52,27 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         private final HashMap<StatefulWidget, Object> localStores = new HashMap<StatefulWidget, Object>();
     }
     
-    protected final Widget[] parts;
+    private final Widget[] parts;
+    
+    /**
+     * Gets the number of {@link Widget} parts in this {@link AssembledWidget}.
+     * 
+     * @return the number of {@link Widget} parts in this {@link AssembledWidget}.
+     */
+    public final int getNumParts()
+    {
+        return ( parts.length );
+    }
+    
+    /**
+     * Gets the i-th {@link Widget}-part in this {@link AssembledWidget}.
+     * 
+     * @return the i-th {@link Widget}-part in this {@link AssembledWidget}.
+     */
+    public final Widget getPart( int index )
+    {
+        return ( parts[index] );
+    }
     
     /**
      * {@inheritDoc}
@@ -484,9 +504,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            Widget part = parts[i];
-            
-            part.beforeConfigurationCleared( widgetsConfig, gameData, editorPresets );
+            parts[i].beforeConfigurationCleared( widgetsConfig, gameData, editorPresets );
         }
     }
     
@@ -793,10 +811,12 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     {
         super.saveProperties( writer );
         
+        /*
         for ( int i = 0; i < parts.length; i++ )
         {
             parts[i].saveProperties( writer );
         }
+        */
     }
     
     /**
@@ -807,10 +827,12 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     {
         super.loadProperty( loader );
         
+        /*
         for ( int i = 0; i < parts.length; i++ )
         {
             parts[i].loadProperty( loader );
         }
+        */
     }
     
     /**
@@ -869,11 +891,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].setMasterWidget( this );
+            Widget part = parts[i];
             
-            parts[i].getBorderProperty().setBorder( null );
-            parts[i].setPadding( 0, 0, 0, 0 );
-            //parts[i].getBackgroundColorProperty().setColor( (String)null );
+            part.setMasterWidget( this );
+            
+            part.getBorderProperty().setBorder( null );
+            part.setPadding( 0, 0, 0, 0 );
+            //part.getBackgroundColorProperty().setColor( (String)null );
         }
     }
     
