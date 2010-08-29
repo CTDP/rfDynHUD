@@ -308,7 +308,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     @Override
     public int getMinWidth( LiveGameData gameData, EditorPresets editorPresets )
     {
-        int mw = 0;
+        int mw = super.getMinWidth( gameData, editorPresets );
         
         Widget part;
         
@@ -328,7 +328,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     @Override
     public int getMinHeight( LiveGameData gameData, EditorPresets editorPresets )
     {
-        int mh = 0;
+        int mh = super.getMinHeight( gameData, editorPresets );
         
         Widget part;
         
@@ -348,6 +348,10 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     @Override
     public int getMaxWidth( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
     {
+        //if ( parts.length == 0 )
+            return ( getEffectiveWidth() );
+        
+        /*
         int mw = 0;
         
         Widget part;
@@ -360,6 +364,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         }
         
         return ( mw );
+        */
     }
     
     /**
@@ -368,6 +373,10 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     @Override
     public int getMaxHeight( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
     {
+        //if ( parts.length == 0 )
+            return ( getEffectiveHeight() );
+        
+        /*
         int mh = 0;
         
         Widget part;
@@ -380,6 +389,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         }
         
         return ( mh );
+        */
     }
     
     /**
