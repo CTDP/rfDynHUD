@@ -10,7 +10,7 @@ unsigned char getMaxKeyNameLength();
 unsigned short getAllKeyNames( char* buffer );
 unsigned short getKeyName( const unsigned short index, char* buffer );
 
-short pollKeyStates();
+short pollKeyStates( unsigned short* modifierMask, unsigned short* modifierMask2 );
 
 const unsigned char MAX_JOYSTICK_NAME_LENGTH = 254;
 const unsigned char MAX_JOYSTICK_BUTTON_NAME_LENGTH = 64;

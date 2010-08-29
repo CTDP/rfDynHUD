@@ -22,6 +22,22 @@ char*** buttonNames = (char***)malloc( MAX_JOYSTICKS * sizeof( char*** ) );
 unsigned char* numButtons = (unsigned char*)malloc( MAX_JOYSTICKS * sizeof( unsigned char* ) );
 unsigned char numJoysticks = 0;
 
+const unsigned short SHIFT_MASK = 1;
+const unsigned short CTRL_MASK = 2;
+const unsigned short ALT_MASK = 4;
+const unsigned short ALT_GR_MASK = 8;
+const unsigned short LMETA_MASK = 16;
+const unsigned short RMETA_MASK = 23;
+
+const unsigned short LSHIFT_MASK2 = 1;
+const unsigned short RSHIFT_MASK2 = 2;
+const unsigned short LCTRL_MASK2 = 4;
+const unsigned short RCTRL_MASK2 = 8;
+const unsigned short ALT_MASK2 = 16;
+const unsigned short ALT_GR_MASK2 = 32;
+const unsigned short LMETA_MASK2 = 64;
+const unsigned short RMETA_MASK2 = 128;
+
 LPDIRECTINPUT8 din;    // the pointer to our DirectInput interface
 
 LPDIRECTINPUTDEVICE8 dinKeyboard;    // the pointer to the keyboard device
@@ -196,7 +212,7 @@ unsigned short getKeyName( const unsigned short index, char* buffer )
     return ( 10 + l );
 }
 
-short pollKeyStates()
+short pollKeyStates( unsigned short* modifierMask, unsigned short* modifierMask2 )
 {
     static BYTE keystate[MAX_KEYS];    // create a static storage for the key-states
     
@@ -204,17 +220,102 @@ short pollKeyStates()
     
     HRESULT hr = dinKeyboard->GetDeviceState( MAX_KEYS, (LPVOID)keystate );    // fill keystate with values
     
-    BYTE* ss = keystate;
+    if ( ( ( (*modifierMask2) & LSHIFT_MASK2 ) != 0 ) && !( keystate[DIK_LSHIFT] & 0x80 ) )
+	{
+		(*modifierMask) = 0;
+		return ( DIK_LSHIFT );
+	}
+	
+    if ( ( ( (*modifierMask2) & RSHIFT_MASK2 ) != 0 ) && !( keystate[DIK_RSHIFT] & 0x80 ) )
+	{
+		(*modifierMask) = 0;
+		return ( DIK_RSHIFT );
+	}
+	
+    if ( ( ( (*modifierMask2) & LCTRL_MASK2 ) != 0 ) && !( keystate[DIK_LCONTROL] & 0x80 ) )
+	{
+		(*modifierMask) = 0;
+		return ( DIK_LCONTROL );
+	}
+	
+    if ( ( ( (*modifierMask2) & RCTRL_MASK2 ) != 0 ) && !( keystate[DIK_RCONTROL] & 0x80 ) )
+	{
+		(*modifierMask) = 0;
+		return ( DIK_RCONTROL );
+	}
+	
+    if ( ( ( (*modifierMask2) & ALT_MASK2 ) != 0 ) && !( keystate[DIK_LMENU] & 0x80 ) )
+	{
+		(*modifierMask) = 0;
+		return ( DIK_LMENU );
+	}
+	
+    if ( ( ( (*modifierMask2) & ALT_GR_MASK2 ) != 0 ) && !( keystate[DIK_RMENU] & 0x80 ) )
+	{
+		(*modifierMask) = 0;
+		return ( DIK_RMENU );
+	}
+	
+    if ( ( ( (*modifierMask2) & LMETA_MASK2 ) != 0 ) && !( keystate[DIK_LWIN] & 0x80 ) )
+	{
+		(*modifierMask) = 0;
+		return ( DIK_LWIN );
+	}
+	
+    if ( ( ( (*modifierMask2) & RMETA_MASK2 ) != 0 ) && !( keystate[DIK_RWIN] & 0x80 ) )
+	{
+		(*modifierMask) = 0;
+		return ( DIK_RWIN );
+	}
+	
+	BYTE* ss = keystate;
+	short result = -1;
     for ( unsigned short i = 0; i < numKeys; i++ )
     {
         if ( *ss++ & 0x80 )
         {
-            //std::cout << keyNames[i] << "\n"; std::cout.flush();
-            return ( i );
+			switch ( i )
+			{
+				case DIK_LSHIFT:
+					(*modifierMask) |= SHIFT_MASK;
+					(*modifierMask2) |= LSHIFT_MASK2;
+					break;
+				case DIK_RSHIFT:
+					(*modifierMask) |= SHIFT_MASK;
+					(*modifierMask2) |= RSHIFT_MASK2;
+					break;
+				case DIK_LCONTROL:
+					(*modifierMask) |= CTRL_MASK;
+					(*modifierMask2) |= LCTRL_MASK2;
+					break;
+				case DIK_RCONTROL:
+					(*modifierMask) |= CTRL_MASK;
+					(*modifierMask2) |= RCTRL_MASK2;
+					break;
+				case DIK_LMENU:
+					(*modifierMask) |= ALT_MASK;
+					(*modifierMask2) |= ALT_MASK2;
+					break;
+				case DIK_RMENU:
+					(*modifierMask) |= ALT_GR_MASK;
+					(*modifierMask2) |= ALT_GR_MASK2;
+					break;
+				case DIK_LWIN:
+					(*modifierMask) |= LMETA_MASK;
+					(*modifierMask2) |= LMETA_MASK2;
+					break;
+				case DIK_RWIN:
+					(*modifierMask) |= RMETA_MASK;
+					(*modifierMask2) |= RMETA_MASK2;
+					break;
+				default:
+					result = (short)i;
+					break;
+			}
         }
     }
     
-    return ( -1 );
+	return ( result );
 }
 
 unsigned char getNumJoysticks()

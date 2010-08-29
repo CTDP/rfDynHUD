@@ -134,7 +134,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="&quot;$(WINSDK_DIR)\Lib\user32.lib&quot;"
-				AdditionalLibraryDirectories="&quot;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0\Lib&quot;;&quot;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0\Lib\x86&quot;;&quot;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0A\Lib&quot;;&quot;$(DXSDK_DIR)\Lib&quot;;&quot;$(DXSDK_DIR)\Lib\x86&quot;"
+				AdditionalLibraryDirectories="&quot;$(WINSDK_LIB)&quot;;&quot;$(WINSDK_LIB)\x86&quot;;&quot;$(DXSDK_DIR)\Lib&quot;;&quot;$(DXSDK_DIR)\Lib\x86&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"

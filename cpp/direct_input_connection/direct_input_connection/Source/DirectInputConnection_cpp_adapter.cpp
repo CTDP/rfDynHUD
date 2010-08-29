@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <dinput.h>
 #include "window_handle.h"
 #include "direct_input.h"
 
@@ -87,7 +88,7 @@ int cpp_initInputDeviceManager( JNIEnv* env, jobject directInputConnection, jbyt
     return ( 1 );
 }
 
-int initDirectInputAndStartPolling( char* buffer )
+int initDirectInputAndStartPolling( int* keyCode, char* buffer )
 {
     HWND windowHandle = getWindowHandle( buffer );
     if ( windowHandle == 0 )
@@ -96,13 +97,18 @@ int initDirectInputAndStartPolling( char* buffer )
     initDirectInput( windowHandle );
     
     int result = -1;
+	(*keyCode) = -1;
+	unsigned short modifierMask = 0;
+	unsigned short modifierMask2 = 0;
     pollingInterrupted = false;
     while ( !pollingInterrupted )
     {
-        short s = pollKeyStates();
+        short s = pollKeyStates( &modifierMask, &modifierMask2 );
         if ( s >= 0 )
         {
+			(*keyCode) = s;
             result = getKeyName( (unsigned short)s, buffer );
+			result |= ( ( modifierMask << 16 ) & 0xFFFF0000 );
             break;
         }
         
@@ -123,11 +129,11 @@ int initDirectInputAndStartPolling( char* buffer )
     return ( result );
 }
 
-void notifyOnInputEventReceived( JNIEnv* env, jobject directInputConnection, jbyteArray jBuffer, int resultLength )
+void notifyOnInputEventReceived( JNIEnv* env, jobject directInputConnection, int keyCode, jbyteArray jBuffer, int resultLength, int modifierMask )
 {
     jclass DirectInputConnection = env->FindClass( "net/ctdp/rfdynhud/editor/input/DirectInputConnection" );
-    jmethodID mid = env->GetMethodID( DirectInputConnection, "onInputEventReceived", "([BI)V" );
-    env->CallVoidMethod( directInputConnection, mid, jBuffer, (jint)resultLength );
+    jmethodID mid = env->GetMethodID( DirectInputConnection, "onInputEventReceived", "(I[BII)V" );
+    env->CallVoidMethod( directInputConnection, mid, keyCode, jBuffer, (jint)resultLength, modifierMask );
 }
 
 int cpp_initDirectInputAndStartPolling( JNIEnv* env, jobject directInputConnection, jbyteArray jBuffer, jint titleLength, jint bufferLength )
@@ -140,17 +146,22 @@ int cpp_initDirectInputAndStartPolling( JNIEnv* env, jobject directInputConnecti
     
     //std::cout << windowTitle << "\n"; std::cout.flush();
     
-    int result = initDirectInputAndStartPolling( windowTitle );
+    int keyCode = -1;
+	int result = initDirectInputAndStartPolling( &keyCode, windowTitle );
     
     //std::cout << result << "\n"; std::cout.flush();
     
     if ( result > 0 )
     {
-        buffer = (char*)env->GetPrimitiveArrayCritical( jBuffer, &isCopy );
-        memcpy( buffer, windowTitle, result + 1 );
+		int modifierMask = ( ( result & 0x00FF0000 ) >> 16 ) & 0xFF;
+		int length = result & 0xFFFF;
+		result = length;
+        
+		buffer = (char*)env->GetPrimitiveArrayCritical( jBuffer, &isCopy );
+        memcpy( buffer, windowTitle, length + 1 );
         env->ReleasePrimitiveArrayCritical( jBuffer, buffer, 0 );
         
-        notifyOnInputEventReceived( env, directInputConnection, jBuffer, result );
+        notifyOnInputEventReceived( env, directInputConnection, keyCode, jBuffer, result, modifierMask );
     }
     
     free( windowTitle );
