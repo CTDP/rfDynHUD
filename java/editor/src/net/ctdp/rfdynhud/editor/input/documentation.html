@@ -36,7 +36,7 @@ A non-global <i>InputAction</i> is triggered on a Widget in the currently active
 if you map a button on your steering wheel to the <i>ToggleWidgetVisibility</i> action, it is triggered on the
 Widget identified by the name denoted under the &quot;Widget Name&quot; column. If the current configuration
 contains a Widget with that name, this Widget's visibility is toggled when the button is pressed. If the
-current configuration doesn't know a widget by that name, nothing happens.
+current configuration doesn't know a Widget by that name, nothing happens.
 </p>
 
 <p>
@@ -55,7 +55,8 @@ or select an action in that row.
 <p>
 <strong>Mapping a key or button</strong><br />
 To do this simply doubleclick the third cell in the row to be modified. The cell's contents will change to
-&quot;[Press a key or button]&quot;. Do, what you're told and you're through.
+&quot;[Press a key or button]&quot;. Do, what you're told and you're through.<br />
+As of rfDynHUD v1.1.0 you can even define key combinations like CTRL+H simply by pressing that combination.
 </p>
 
 <p>
@@ -69,6 +70,12 @@ and the mapping will not be saved and will have disappeared when you next enter 
 It is possible to map one key or button to more than one <i>InputAction</i>. This is important for two reasons.<br />
 1. You might want to trigger more than one action at a time by that key or button.<br />
 2. You may want to do one thing in one configuration and something else in another configuration.
+</p>
+
+<p>
+<strong>Hit Times</strong><br />
+When you set this value to 3 for a given binding, the key or button has to be hit 3 times within a second to trigger
+this action.
 </p>
 
 </body>

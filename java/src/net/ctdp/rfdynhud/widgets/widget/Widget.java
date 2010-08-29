@@ -1465,9 +1465,9 @@ public abstract class Widget implements Documented
         writer.writeProperty( position.getYProperty( "y" ), "The y-coordinate for the position." );
         writer.writeProperty( size.getWidthProperty( "width" ), "The width. Use negative values to make the Widget be sized relative to screen size." );
         writer.writeProperty( size.getHeightProperty( "height" ), "The height. Use negative values to make the Widget be sized relative to screen size." );
-        writer.writeProperty( border, "The widget's border." );
         if ( masterWidget == null )
         {
+            writer.writeProperty( border, "The widget's border." );
             writer.writeProperty( paddingTop, "top padding" );
             writer.writeProperty( paddingLeft, "left padding" );
             writer.writeProperty( paddingRight, "right padding" );
@@ -1500,7 +1500,7 @@ public abstract class Widget implements Documented
         else if ( loader.loadProperty( position.getYProperty( "y" ) ) );
         else if ( loader.loadProperty( size.getWidthProperty( "width" ) ) );
         else if ( loader.loadProperty( size.getHeightProperty( "height" ) ) );
-        else if ( loader.loadProperty( border ) );
+        else if ( ( masterWidget == null ) && loader.loadProperty( border ) );
         else if ( loader.loadProperty( paddingTop ) );
         else if ( loader.loadProperty( paddingLeft ) );
         else if ( loader.loadProperty( paddingRight ) );

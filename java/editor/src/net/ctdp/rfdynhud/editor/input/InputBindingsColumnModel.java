@@ -37,6 +37,10 @@ public class InputBindingsColumnModel extends DefaultTableColumnModel
         column = new TableColumn( 2, 350, new DeviceComponentEditor(), new DeviceComponentEditor() );
         column.setHeaderValue( "Input Component" );
         addColumn( column );
+        
+        column = new TableColumn( 3, 100, new HitTimesEditor(), new HitTimesEditor() );
+        column.setHeaderValue( "Hit Times" );
+        addColumn( column );
     }
     
     public InputBindingsColumnModel( InputBindingsGUI gui )

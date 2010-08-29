@@ -25,7 +25,6 @@ import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
-import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -39,7 +38,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class ImageWidget extends Widget
 {
-    private final ImageProperty imageProp = new ImageProperty( this, "imageName", "ctdp-fat-1994.png" )
+    private final ImageProperty imageProp = new ImageProperty( this, "imageName", "ctdp.png" )
     {
         @Override
         public void onValueChanged( String oldValue, String newValue )
@@ -49,6 +48,8 @@ public class ImageWidget extends Widget
             forceCompleteRedraw( true );
         }
     };
+    
+    private TextureImage2D scaled = null;
     
     /**
      * {@inheritDoc}
@@ -71,37 +72,16 @@ public class ImageWidget extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        /*
-        if ( ( editorPresets != null ) || ( image == null ) )
-        {
-            try
-            {
-                ImageTemplate it = imageProp.getImage();
-                if ( ( image == null ) || ( it.getBaseWidth() != width ) || ( it.getBaseHeight() != height ) )
-                {
-                    image = it.getScaledTextureImage( width, height );
-                }
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-        */
-    }
-    
-    @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
-    {
-        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
-        
-        ImageTemplate it = imageProp.getImage();
-        it.drawScaled( 0, 0, it.getBaseWidth(), it.getBaseHeight(), offsetX, offsetY, width, height, texture, true );
+        scaled = imageProp.getImage().getScaledTextureImage( width, height, scaled, editorPresets != null );
     }
     
     @Override
     protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        if ( needsCompleteRedraw )
+        {
+            texture.clear( scaled, 0, 0, width, height, offsetX, offsetY, width, height, true, null );
+        }
     }
     
     
@@ -162,6 +142,6 @@ public class ImageWidget extends Widget
     {
         super( name, 17.0f, 8.6f );
         
-        getBackgroundProperty().setColorValue( "#00000000" );
+        //getBackgroundProperty().setColorValue( "#00000000" );
     }
 }

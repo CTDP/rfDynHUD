@@ -90,12 +90,13 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
     }
     
     @Override
-    public void onPollingFinished( boolean canceled, String deviceComponent )
+    public void onPollingFinished( boolean canceled, String deviceComponent, int keyCode, int modifierMask )
     {
         if ( canceled )
             return;
         
-        inputBindingsTableModel.setValueAt( deviceComponent, pollingRow, 2 );
+        //inputBindingsTableModel.setValueAt( deviceComponent, pollingRow, 2 );
+        inputBindingsTableModel.updateDeviceComponent( deviceComponent, keyCode, modifierMask, pollingRow );
         inputBindingsTableModel.fireTableCellUpdated( pollingRow, 2 );
         inputBindingsTableModel.setInputPollingRow( -1, pollingRow );
         pollingRow = -1;

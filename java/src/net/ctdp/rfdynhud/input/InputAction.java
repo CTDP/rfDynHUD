@@ -29,12 +29,12 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class InputAction implements Comparable<InputAction>
 {
-    public static final int MODIFIER_MASK_SHIFT = 1;
-    public static final int MODIFIER_MASK_CTRL  = 2;
-    public static final int MODIFIER_MASK_LALT  = 4;
-    public static final int MODIFIER_MASK_RALT  = 8;
-    public static final int MODIFIER_MASK_LMETA = 16;
-    public static final int MODIFIER_MASK_RMETA = 32;
+    public static final int MODIFIER_MASK_SHIFT = InputMapping.MODIFIER_MASK_SHIFT;
+    public static final int MODIFIER_MASK_CTRL  = InputMapping.MODIFIER_MASK_CTRL;
+    public static final int MODIFIER_MASK_LALT  = InputMapping.MODIFIER_MASK_LALT;
+    public static final int MODIFIER_MASK_RALT  = InputMapping.MODIFIER_MASK_RALT;
+    public static final int MODIFIER_MASK_LMETA = InputMapping.MODIFIER_MASK_LMETA;
+    public static final int MODIFIER_MASK_RMETA = InputMapping.MODIFIER_MASK_RMETA;
     
     private static int nextId = 1;
     
@@ -58,6 +58,11 @@ public class InputAction implements Comparable<InputAction>
     public final Boolean getAcceptedState()
     {
         return ( acceptedState );
+    }
+    
+    public final boolean acceptsState( boolean state )
+    {
+        return ( ( acceptedState == null ) || ( acceptedState.booleanValue() == state ) );
     }
     
     public final boolean isWidgetAction()

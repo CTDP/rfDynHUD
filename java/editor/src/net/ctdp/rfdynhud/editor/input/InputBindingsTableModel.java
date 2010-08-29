@@ -29,9 +29,10 @@ import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMapping;
-import net.ctdp.rfdynhud.input.KnownInputActions;
+import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -88,7 +89,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     @Override
     public int getColumnCount()
     {
-        return ( 3 );
+        return ( 4 );
     }
     
     @Override
@@ -103,15 +104,12 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     @Override
     public Object getValueAt( int row, int column )
     {
-        if ( row == rows.size() )
-            return ( null );
-        
-        if ( column < 2 )
+        if ( row != rows.size() )
         {
-            InputMapping mapping = (InputMapping)rows.get( row )[0];
-            
             if ( column == 0 )
             {
+                InputMapping mapping = (InputMapping)rows.get( row )[0];
+                
                 if ( mapping.getAction() == null )
                     return ( "" );
                 
@@ -121,13 +119,30 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 return ( mapping.getWidgetName() );
             }
             
-            return ( mapping.getAction() );
+            if ( column == 1 )
+            {
+                InputMapping mapping = (InputMapping)rows.get( row )[0];
+                
+                return ( mapping.getAction() );
+            }
+            
+            if ( column == 2 )
+            {
+                if ( row == currentInputPollingRow )
+                    return ( PRESS_KEY_OR_BUTTON );
+                
+                return ( rows.get( row )[1] );
+            }
+            
+            if ( column == 3 )
+            {
+                InputMapping mapping = (InputMapping)rows.get( row )[0];
+                
+                return ( mapping.getHitTimes() );
+            }
         }
         
-        if ( ( column == 2 ) && ( row == currentInputPollingRow ) )
-            return ( PRESS_KEY_OR_BUTTON );
-        
-        return ( rows.get( row )[column - 1] );
+        return ( null );
     }
     
     public InputAction getActionFromRow( int row )
@@ -147,6 +162,15 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
             for ( InputAction widgetAction : actions )
             {
                 if ( widgetAction.equals( action ) )
+                    return ( true );
+            }
+        }
+        
+        if ( widget instanceof AssembledWidget )
+        {
+            for ( int i = 0; i < ( (AssembledWidget)widget ).getNumParts(); i++ )
+            {
+                if ( widgetHostsAction( ( (AssembledWidget)widget ).getPart( i ), action ) )
                     return ( true );
             }
         }
@@ -181,12 +205,12 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         {
             InputAction action = getActionFromRow( row );
             if ( action == null )
-                return ( row == rows.size() );
+                return ( row < rows.size() );
             
             return ( action.isWidgetAction() );
         }
         
-        if ( column == 2 )
+        if ( ( column == 2 ) || ( column == 3 ) )
         {
             InputAction action = getActionFromRow( row );
             if ( action == null )
@@ -194,6 +218,16 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         }
         
         return ( true );
+    }
+    
+    public void updateDeviceComponent( String deviceComponent, int keyCode, int modifierMask, int row )
+    {
+        InputMapping oldM = (InputMapping)rows.get( row )[0];
+        InputMapping newM = new InputMapping( oldM.getWidgetName(), oldM.getAction(), deviceComponent, keyCode, modifierMask, oldM.getHitTimes() );
+        rows.get( row )[0] = newM;
+        rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
+        fireTableRowsUpdated( row, row );
+        dirtyFlag = true;
     }
     
     @Override
@@ -208,13 +242,16 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 if ( widgetName.equals( "" ) )
                     return;
                 
-                rows.add( new Object[] { new InputMapping( widgetName, null, DEFAULT_INPUT_DEVICE ), DEFAULT_INPUT_DEVICE } );
+                rows.add( new Object[] { new InputMapping( widgetName, null, DEFAULT_INPUT_DEVICE, -1, 0, 1 ), DEFAULT_INPUT_DEVICE } );
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
             }
             else
             {
-                rows.get( row )[0] = new InputMapping( widgetName, getActionFromRow( row ), null );
+                InputMapping oldM = (InputMapping)rows.get( row )[0];
+                InputMapping newM = new InputMapping( widgetName, oldM.getAction(), oldM.getDeviceComponent(), oldM.getKeyCode(), oldM.getModifierMask(), oldM.getHitTimes() );
+                rows.get( row )[0] = newM;
+                rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
             }
@@ -227,35 +264,34 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 
                 if ( row == rows.size() )
                 {
-                    rows.add( new Object[] { new InputMapping( getDefaultWidgetName( action ), action, DEFAULT_INPUT_DEVICE ), DEFAULT_INPUT_DEVICE } );
+                    rows.add( new Object[] { new InputMapping( getDefaultWidgetName( action ), action, DEFAULT_INPUT_DEVICE, -1, 0, 1 ), DEFAULT_INPUT_DEVICE } );
                     fireTableRowsInserted( row, row );
                     fireTableRowsUpdated( row, row );
                     dirtyFlag = true;
                 }
                 else
                 {
-                    InputMapping mapping = (InputMapping)rows.get( row )[0];
-                    
-                    String widgetName = mapping.getWidgetName();
-                    
-                    rows.get( row )[0] = new InputMapping( widgetName, action, null );
+                    InputMapping oldM = (InputMapping)rows.get( row )[0];
+                    InputMapping newM = new InputMapping( oldM.getWidgetName(), action, oldM.getDeviceComponent(), oldM.getKeyCode(), oldM.getModifierMask(), oldM.getHitTimes() );
+                    rows.get( row )[0] = newM;
+                    rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
                     fireTableRowsUpdated( row, row );
                     dirtyFlag = true;
                 }
             }
             else
             {
-                InputMapping mapping = (InputMapping)rows.get( row )[0];
-                
-                String widgetName = mapping.getWidgetName();
-                
-                rows.get( row )[0] = new InputMapping( widgetName, null, null );
+                InputMapping oldM = (InputMapping)rows.get( row )[0];
+                InputMapping newM = new InputMapping( oldM.getWidgetName(), null, oldM.getDeviceComponent(), oldM.getKeyCode(), oldM.getModifierMask(), oldM.getHitTimes() );
+                rows.get( row )[0] = newM;
+                rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
             }
         }
-        else
+        else if ( column == 2 )
         {
+            /*
             String device_comp = String.valueOf( value );
             
             if ( row == rows.size() )
@@ -270,6 +306,18 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 fireTableRowsUpdated( row, row );
                 dirtyFlag = true;
             }
+            */
+        }
+        else if ( column == 3 )
+        {
+            int hitTimes = ( (Number)value ).intValue();
+            
+            InputMapping oldM = (InputMapping)rows.get( row )[0];
+            InputMapping newM = new InputMapping( oldM.getWidgetName(), oldM.getAction(), oldM.getDeviceComponent(), oldM.getKeyCode(), oldM.getModifierMask(), hitTimes );
+            rows.get( row )[0] = newM;
+            rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
+            fireTableRowsUpdated( row, row );
+            dirtyFlag = true;
         }
     }
     
@@ -293,11 +341,11 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     
     private void loadBindings( final InputDeviceManager devManager )
     {
-        File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), "input_bindings.ini" );
+        File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), InputMappingsManager.CONFIG_FILE_NAME );
         
         if ( !configFile.exists() )
         {
-            //JOptionPane.showMessageDialog( null, "No input_bindings.ini config file found in the config folder.", "Error", JOptionPane.ERROR_MESSAGE );
+            //JOptionPane.showMessageDialog( null, "No " + InputMappingsManager.CONFIG_FILE_NAME + " config file found in the config folder.", "Error", JOptionPane.ERROR_MESSAGE );
             return;
         }
         
@@ -308,45 +356,10 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 @Override
                 protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                 {
-                    key = key.trim();
-                    value = value.trim();
+                    Object[] row = InputMappingsManager.parseMapping( lineNr, key, value, devManager );
                     
-                    String[] keyParts = key.split( "::" );
-                    if ( keyParts[0].equals( "Keyboard" ) )
-                    {
-                        int index = devManager.getKeyIndexByEnglishName( keyParts[1] );
-                        if ( index >= 0 )
-                        {
-                            keyParts[1] = devManager.getKeyName( index );
-                        }
-                    }
-                    else if ( keyParts[0].equals( "Mouse" ) )
-                    {
-                    }
-                    else // Joystick
-                    {
-                        int jindex = devManager.getJoystickIndex( keyParts[0] );
-                        if ( jindex >= 0 )
-                        {
-                            keyParts[0] = devManager.getJoystickName( jindex );
-                            int bindex = devManager.getJoystickButtonIndex( jindex, keyParts[1] );
-                            if ( bindex >= 0 )
-                                keyParts[1] = devManager.getJoystickButtonName( jindex, bindex );
-                        }
-                    }
-                    key = keyParts[0] + "::" + keyParts[1];
-                    
-                    String[] valueParts = value.split( "::", 2 );
-                    String widgetName = valueParts[0];
-                    String actionName;
-                    if ( valueParts.length == 1 )
-                        actionName = null;
-                    else
-                        actionName = valueParts[1];
-                    
-                    InputAction action = KnownInputActions.get( actionName );
-                    
-                    rows.add( new Object[] { new InputMapping( widgetName, action, key ), key } );
+                    if ( row != null )
+                        rows.add( row );
                     
                     return ( true );
                 }
@@ -362,7 +375,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
     {
         try
         {
-            IniWriter writer = new IniWriter( new File( GameFileSystem.INSTANCE.getConfigFolder(), "input_bindings.ini" ) );
+            IniWriter writer = new IniWriter( new File( GameFileSystem.INSTANCE.getConfigFolder(), InputMappingsManager.CONFIG_FILE_NAME ) );
             
             for ( int i = 0; i < rows.size(); i++ )
             {
@@ -385,12 +398,10 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 
                 InputAction action = mapping.getAction();
                 
-                System.out.println( i + " " + widgetName + ", " + action );
-                
                 if ( action == null )
                     continue;
                 
-                String device_comp = (String)row[1];
+                String device_comp = mapping.getDeviceComponent();
                 
                 if ( ( device_comp == null ) || ( device_comp.trim().length() == 0 ) )
                     continue;
@@ -416,7 +427,11 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                             parts[1] = devManager.getJoystickButtonNameForIni( index );
                     }
                 }
-                device_comp = parts[0] + "::" + parts[1];
+                
+                device_comp = parts[0] + "::";
+                device_comp += InputMappingsManager.unparseModifierMask( mapping.getModifierMask() );
+                device_comp += parts[1];
+                device_comp += "," + mapping.getHitTimes();
                 
                 
                 if ( action.isWidgetAction() )

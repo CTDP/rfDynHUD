@@ -24,9 +24,19 @@ package net.ctdp.rfdynhud.input;
  */
 public class InputMapping
 {
+    public static final int MODIFIER_MASK_SHIFT = 1;
+    public static final int MODIFIER_MASK_CTRL  = 2;
+    public static final int MODIFIER_MASK_LALT  = 4;
+    public static final int MODIFIER_MASK_RALT  = 8;
+    public static final int MODIFIER_MASK_LMETA = 16;
+    public static final int MODIFIER_MASK_RMETA = 32;
+    
     private final String widgetName;
     private final InputAction action;
     private final String deviceComponent;
+    private final int keyCode;
+    private final int modifierMask;
+    private final int hitTimes;
     
     public final String getWidgetName()
     {
@@ -43,10 +53,28 @@ public class InputMapping
         return ( deviceComponent );
     }
     
-    public InputMapping( String widgetName, InputAction action, String deviceComponent )
+    public final int getKeyCode()
+    {
+        return ( keyCode );
+    }
+    
+    public final int getModifierMask()
+    {
+        return ( modifierMask );
+    }
+    
+    public final int getHitTimes()
+    {
+        return ( hitTimes );
+    }
+    
+    public InputMapping( String widgetName, InputAction action, String deviceComponent, int keyCode, int modifierMask, int hitTimes )
     {
         this.widgetName = widgetName;
         this.action = action;
         this.deviceComponent = deviceComponent;
+        this.keyCode = keyCode;
+        this.modifierMask = modifierMask;
+        this.hitTimes = hitTimes;
     }
 }

@@ -35,7 +35,7 @@ public class __GDPrivilegedAccess
 {
     public static final InputAction INPUT_ACTION_RESET_FUEL_CONSUMPTION = FuelUsageRecorder.INPUT_ACTION_RESET_FUEL_CONSUMPTION;
     public static final InputAction INPUT_ACTION_RESET_TOPSPEEDS = TopspeedRecorder.INPUT_ACTION_RESET_TOPSPEEDS;
-    public static final InputAction INPUT_ACTION_RESET_DATA_CACHE = DataCache.INPUT_ACTION_RESET_DATA_CACHE;
+    public static final InputAction INPUT_ACTION_RESET_LAPTIMES_CACHE = DataCache.INPUT_ACTION_RESET_LAPTIMES_CACHE;
     
     public static final boolean updateProfileInfo( ProfileInfo profileInfo )
     {

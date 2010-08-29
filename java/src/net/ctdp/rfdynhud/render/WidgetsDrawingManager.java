@@ -564,10 +564,11 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     public void fireOnInputStateChanged( InputMapping mapping, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
     {
         Widget widget = getWidget( mapping.getWidgetName() );
-        InputAction action = mapping.getAction();
         
         if ( widget == null )
             return;
+        
+        InputAction action = mapping.getAction();
         
         try
         {

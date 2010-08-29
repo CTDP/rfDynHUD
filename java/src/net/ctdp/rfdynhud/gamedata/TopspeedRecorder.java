@@ -26,27 +26,12 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
 {
     private static final class MasterTopspeedRecorder extends TopspeedRecorder implements InputActionConsumer
     {
-        private long firstResetStrokeTime = -1L;
-        private int resetStrokes = 0;
-        
         @Override
         public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
         {
             if ( action == INPUT_ACTION_RESET_TOPSPEEDS )
             {
-                long t = when;
-                
-                if ( t - firstResetStrokeTime > 1000000000L )
-                {
-                    resetStrokes = 1;
-                    firstResetStrokeTime = t;
-                }
-                else if ( ++resetStrokes >= 3 )
-                {
-                    liveReset( gameData.getScoringInfo() );
-                    
-                    resetStrokes = 0;
-                }
+                liveReset( gameData.getScoringInfo() );
             }
         }
     }

@@ -50,7 +50,7 @@ public class KnownInputActions
     public static final InputAction TempBoost = new InputAction( "TempBoost", null, false, null, getDocURL( "TempBoost" ) );
     public static final InputAction ResetFuelConsumption = __GDPrivilegedAccess.INPUT_ACTION_RESET_FUEL_CONSUMPTION;
     public static final InputAction ResetTopSpeeds = __GDPrivilegedAccess.INPUT_ACTION_RESET_TOPSPEEDS;
-    public static final InputAction ResetDataCache = __GDPrivilegedAccess.INPUT_ACTION_RESET_DATA_CACHE;
+    public static final InputAction ResetLaptimesCache = __GDPrivilegedAccess.INPUT_ACTION_RESET_LAPTIMES_CACHE;
     
     private static HashMap<String, InputAction> knownActions = null;
     
@@ -73,7 +73,7 @@ public class KnownInputActions
             addAction( TempBoost );
             addAction( ResetFuelConsumption );
             addAction( ResetTopSpeeds );
-            addAction( ResetDataCache );
+            addAction( ResetLaptimesCache );
             
             try
             {

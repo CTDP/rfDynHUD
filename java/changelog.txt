@@ -60,6 +60,7 @@ Minor:
 * Moved border configurations from config/images/borders to config/borders
 * When saving a new configuration in the editor (Save As), a filename construction utility helps you to construct the correct filename.
 * Widgets menu in the editor looks nicer with small Widget icons.
+* Added support for key combinations for input bindings.
 
 TODO:
 
@@ -72,7 +73,6 @@ TODO:
 * Manage logs to keep 5
 * Meta config (merge configurations)
 * Add master d3d9.dll
-* Key combinations for InputActions
 * Import Widget from other config. Compare named colors/fonts. Change name or use local name or direct value.
 
 * Improve viewed vehicle detection (use me if close, read from application)

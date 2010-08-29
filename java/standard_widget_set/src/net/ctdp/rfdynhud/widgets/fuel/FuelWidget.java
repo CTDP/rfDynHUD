@@ -62,8 +62,10 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class FuelWidget extends Widget
 {
-    private static final InputAction INPUT_ACTION_INC_PITSTOP = new InputAction( "IncPitstopAction" );
-    private static final InputAction INPUT_ACTION_DEC_PITSTOP = new InputAction( "DecPitstopAction" );
+    private static final InputAction INPUT_ACTION_INC_PITSTOP_LAP = new InputAction( "IncPitstopLapAction" );
+    private static final InputAction INPUT_ACTION_DEC_PITSTOP_LAP = new InputAction( "DecPitstopLapAction" );
+    private static final InputAction INPUT_ACTION_INC_PITSTOP_FUEL = new InputAction( "IncPitstopFuelAction" );
+    private static final InputAction INPUT_ACTION_DEC_PITSTOP_FUEL = new InputAction( "DecPitstopFuelAction" );
     
     private final BooleanProperty displayFuelBar = new BooleanProperty( this, "displayFuelBar", true );
     private final BooleanProperty displayTankSize = new BooleanProperty( this, "displayTankSize", true );
@@ -241,7 +243,7 @@ public class FuelWidget extends Widget
     @Override
     public InputAction[] getInputActions()
     {
-        return ( new InputAction[] { INPUT_ACTION_INC_PITSTOP, INPUT_ACTION_DEC_PITSTOP } );
+        return ( new InputAction[] { INPUT_ACTION_INC_PITSTOP_LAP, INPUT_ACTION_DEC_PITSTOP_LAP, INPUT_ACTION_INC_PITSTOP_FUEL, INPUT_ACTION_DEC_PITSTOP_FUEL } );
     }
     
     /**
@@ -461,32 +463,26 @@ public class FuelWidget extends Widget
     @Override
     public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
     {
-        if ( action == INPUT_ACTION_INC_PITSTOP )
+        if ( action == INPUT_ACTION_INC_PITSTOP_LAP )
         {
-            if ( ( modifierMask & InputAction.MODIFIER_MASK_SHIFT ) == 0 )
+            if ( nextPitstopLapCorrection < 0 )
             {
-                if ( nextPitstopLapCorrection < 0 )
-                {
-                    this.nextPitstopLapCorrection++;
-                    this.nextPitstopFuelLapsCorrection--;
-                }
-            }
-            else
-            {
-                this.nextPitstopFuelLapsCorrection++;
-            }
-        }
-        else if ( action == INPUT_ACTION_DEC_PITSTOP )
-        {
-            if ( ( modifierMask & InputAction.MODIFIER_MASK_SHIFT ) == 0 )
-            {
-                this.nextPitstopLapCorrection--;
-                this.nextPitstopFuelLapsCorrection++;
-            }
-            else
-            {
+                this.nextPitstopLapCorrection++;
                 this.nextPitstopFuelLapsCorrection--;
             }
+        }
+        else if ( action == INPUT_ACTION_DEC_PITSTOP_LAP )
+        {
+            this.nextPitstopLapCorrection--;
+            this.nextPitstopFuelLapsCorrection++;
+        }
+        else if ( action == INPUT_ACTION_INC_PITSTOP_FUEL )
+        {
+            this.nextPitstopFuelLapsCorrection++;
+        }
+        else if ( action == INPUT_ACTION_DEC_PITSTOP_FUEL )
+        {
+            this.nextPitstopFuelLapsCorrection--;
         }
     }
     

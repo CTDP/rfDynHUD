@@ -29,7 +29,7 @@ public class DirectInputConnection
 {
     public static interface PollingListener
     {
-        public void onPollingFinished( boolean canceled, String deviceComponent );
+        public void onPollingFinished( boolean canceled, String deviceComponent, int keyCode, int modifierMask );
     }
     
     private static boolean libLoaded = false;
@@ -157,13 +157,13 @@ public class DirectInputConnection
         listener = null;
     }
     
-    public void onInputEventReceived( byte[] buffer, int stringLength )
+    public void onInputEventReceived( int keyCode, byte[] buffer, int stringLength, int modifierMask )
     {
         if ( stringLength == 0 )
         {
             Logger.log( "Input polling cancelled." );
             
-            listener.onPollingFinished( true, null );
+            listener.onPollingFinished( true, null, -1, 0 );
         }
         else
         {
@@ -171,7 +171,7 @@ public class DirectInputConnection
             
             Logger.log( "Caught input to be bound: " + string );
             
-            listener.onPollingFinished( false, string );
+            listener.onPollingFinished( false, string, keyCode, modifierMask );
         }
     }
     

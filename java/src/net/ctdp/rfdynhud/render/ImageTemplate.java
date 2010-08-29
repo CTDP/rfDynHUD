@@ -74,6 +74,16 @@ public class ImageTemplate
         return ( getBaseWidth() / (float)getBaseHeight() );
     }
     
+    /**
+     * Gets, whether the image has an alpha channel or not.
+     * 
+     * @return whether the image has an alpha channel or not.
+     */
+    public final boolean hasAlpha()
+    {
+        return ( bufferedImage.getColorModel().hasAlpha() );
+    }
+    
     private void copyPixels( TextureImage2D texture )
     {
         ByteInterleavedRaster raster = (ByteInterleavedRaster)bufferedImage.getData();

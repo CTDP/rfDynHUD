@@ -44,6 +44,8 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class InputMappingsManager
 {
+    public static final String CONFIG_FILE_NAME = "input_bindings.ini";
+    
     private final RFDynHUD rfDynHUD;
     
     private InputMapping[] mappings = null;
@@ -83,101 +85,222 @@ public class InputMappingsManager
     }
     */
     
+    private static final int parseModifierMask( String[] parts )
+    {
+        int modifierMask = 0;
+        
+        for ( int i = 0; i < parts.length - 1; i++ )
+        {
+            if ( parts[i].equals( "SHIFT" ) )
+                modifierMask |= InputMapping.MODIFIER_MASK_SHIFT;
+            else if ( parts[i].equals( "CTRL" ) )
+                modifierMask |= InputMapping.MODIFIER_MASK_CTRL;
+            else if ( parts[i].equals( "LALT" ) )
+                modifierMask |= InputMapping.MODIFIER_MASK_LALT;
+            else if ( parts[i].equals( "RALT" ) )
+                modifierMask |= InputMapping.MODIFIER_MASK_RALT;
+            else if ( parts[i].equals( "LMETA" ) )
+                modifierMask |= InputMapping.MODIFIER_MASK_LMETA;
+            else if ( parts[i].equals( "RMETA" ) )
+                modifierMask |= InputMapping.MODIFIER_MASK_RMETA;
+        }
+        
+        return ( modifierMask );
+    }
+    
+    public static String unparseModifierMask( int modifierMask )
+    {
+        String stringValue = "";
+        
+        if ( ( modifierMask & InputMapping.MODIFIER_MASK_SHIFT ) != 0 )
+            stringValue += "SHIFT+";
+        
+        if ( ( modifierMask & InputMapping.MODIFIER_MASK_CTRL ) != 0 )
+            stringValue += "CTRL+";
+        
+        if ( ( modifierMask & InputMapping.MODIFIER_MASK_LALT ) != 0 )
+            stringValue += "LALT+";
+        
+        if ( ( modifierMask & InputMapping.MODIFIER_MASK_RALT ) != 0 )
+            stringValue += "RALT+";
+        
+        if ( ( modifierMask & InputMapping.MODIFIER_MASK_LMETA ) != 0 )
+            stringValue += "LMETA+";
+        
+        if ( ( modifierMask & InputMapping.MODIFIER_MASK_RMETA ) != 0 )
+            stringValue += "RMETA+";
+        
+        return ( stringValue );
+    }
+    
+    public static String getComponentNameForTable( InputMapping mapping )
+    {
+        String stringValue = "";
+        
+        String[] tmp = mapping.getDeviceComponent().split( "::" );
+        
+        int v0 = 0;
+        if ( tmp.length > 1 )
+        {
+            stringValue += tmp[0] + "::";
+            v0 = 1;
+        }
+        
+        stringValue += unparseModifierMask( mapping.getModifierMask() );
+        
+        for ( int i = v0; i < tmp.length; i++ )
+            stringValue += tmp[i];
+        
+        return ( stringValue );
+    }
+    
+    public static Object[] parseMapping( int lineNr, String key, String value, InputDeviceManager devManager )
+    {
+        key = key.trim();
+        value = value.trim();
+        int keyCode = -1;
+        int modifierMask = 0;
+        int hitTimes = 1;
+        
+        String[] keyParts = key.split( "::" );
+        String device = keyParts[0];
+        String component = keyParts[1];
+        
+        if ( device.equals( "Keyboard" ) )
+        {
+            String[] parts2 = component.split( "\\+" );
+            
+            if ( parts2.length > 1 )
+            {
+                modifierMask = parseModifierMask( parts2 );
+                component = parts2[parts2.length - 1];
+            }
+            
+            String[] parts3 = component.split( "," );
+            
+            if ( parts3.length > 1 )
+            {
+                component = parts3[0];
+                hitTimes = Integer.parseInt( parts3[1] );
+            }
+            
+            keyCode = devManager.getKeyIndexByEnglishName( parts3[0] );
+            if ( keyCode < 0 )
+                keyCode = devManager.getKeyIndex( parts3[0] );
+            
+            if ( keyCode < 0 )
+            {
+                Logger.log( "    WARNING: The Keyboard doesn't have a key called \"" + parts3[0] + "\". Skipping mapping in line #" + lineNr + "." );
+                return ( null );
+            }
+            
+            component = devManager.getKeyName( keyCode );
+        }
+        else if ( device.equals( "Mouse" ) )
+        {
+        }
+        else // Joystick
+        {
+            int jindex = devManager.getJoystickIndex( device );
+            
+            if ( jindex < 0 )
+            {
+                Logger.log( "    WARNING: Joystick \"" + device + "\" not found. Skipping mapping in line #" + lineNr );
+                return ( null );
+            }
+            
+            device = devManager.getJoystickName( jindex );
+            int bindex;
+            
+            String[] parts3 = component.split( "," );
+            if ( parts3.length > 1 )
+            {
+                bindex = devManager.getJoystickButtonIndex( jindex, parts3[0] );
+                
+                if ( bindex < 0 )
+                {
+                    Logger.log( "    WARNING: Joystick \"" + device + "\" doesn't have a button called \"" + parts3[0] + "\". Skipping mapping in line #" + lineNr + "." );
+                    return ( null );
+                }
+                
+                hitTimes = Integer.parseInt( parts3[1] );
+            }
+            else
+            {
+                bindex = devManager.getJoystickButtonIndex( jindex, component );
+                
+                if ( bindex < 0 )
+                {
+                    Logger.log( "    WARNING: Joystick \"" + device + "\" doesn't have a button called \"" + component + "\". Skipping mapping in line #" + lineNr + "." );
+                    return ( null );
+                }
+            }
+            
+            component = devManager.getJoystickButtonName( jindex, bindex );
+        }
+        
+        
+        String[] valueParts = value.split( "::", 2 );
+        
+        if ( valueParts.length < 2 )
+        {
+            Logger.log( "    WARNING: Illegal mapping at line #" + lineNr + ". Skipping." );
+            return ( null );
+        }
+        
+        String widgetName = valueParts[0];
+        String actionName;
+        if ( valueParts.length == 1 )
+            actionName = null;
+        else
+            actionName = valueParts[1];
+        
+        if ( ( actionName != null ) && ( KnownInputActions.get( actionName ) == null ) )
+        {
+            Logger.log( "    WARNING: No InputAction with the name \"" + actionName + "\" found. Skipping line #" + lineNr + "." );
+            return ( null );
+        }
+        
+        InputMapping mapping = new InputMapping( widgetName, KnownInputActions.get( actionName ), device + "::" + component, keyCode, modifierMask, hitTimes );
+        
+        return ( new Object[] { mapping, getComponentNameForTable( mapping ) } );
+    }
+    
     public InputMappings loadMappings( final InputDeviceManager devManager )
     {
         try
         {
-            File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), "input_bindings.ini" );
+            File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), CONFIG_FILE_NAME );
             
             if ( !configFile.exists() )
             {
-                Logger.log( "    No input_bindings.ini config file found in the config folder." );
+                Logger.log( "    No " + CONFIG_FILE_NAME + " config file found in the config folder." );
                 return ( null );
             }
             
-            final ArrayList<String[]> rawBindings = new ArrayList<String[]>();
+            final ArrayList<Object[]> rawBindings = new ArrayList<Object[]>();
             
             new AbstractIniParser()
             {
                 @Override
                 protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                 {
-                    String device = null;
-                    String component = null;
-                    String widgetName = null;
-                    String actionName = null;
+                    Object[] tmp = parseMapping( lineNr, key, value, devManager );
                     
-                    String[] keyParts = key.split( "::", 2 );
-                    if ( keyParts.length < 2 )
-                    {
-                        device = "Keyboard";
-                        component = keyParts[0];
-                    }
-                    else
-                    {
-                        device = keyParts[0];
-                        component = keyParts[1];
-                    }
-                    
-                    if ( device.equalsIgnoreCase( "Keyboard" ) )
-                    {
-                        int ki = devManager.getKeyIndexByEnglishName( component );
-                        if ( ki < 0 )
-                            ki = devManager.getKeyIndex( component );
-                        
-                        if ( ki < 0 )
-                        {
-                            Logger.log( "    WARNING: The Keyboard doesn't have a key called \"" + component + "\". Skipping mapping in line #" + lineNr + "." );
-                            return ( true );
-                        }
-                        
-                        component = devManager.getKeyName( ki );
-                    }
-                    else if ( device.equalsIgnoreCase( "Mouse" ) )
-                    {
-                        // TODO
-                    }
-                    else // Joystick
-                    {
-                        int ji = devManager.getJoystickIndex( device );
-                        
-                        if ( ji < 0 )
-                        {
-                            Logger.log( "    WARNING: Joystick \"" + device + "\" not found. Skipping mapping in line #" + lineNr );
-                            return ( true );
-                        }
-                        
-                        device = devManager.getJoystickName( ji );
-                        
-                        int bi = devManager.getJoystickButtonIndex( ji, component );
-                        
-                        if ( bi < 0 )
-                        {
-                            Logger.log( "    WARNING: Joystick \"" + device + "\" doesn't have a button called \"" + component + "\". Skipping mapping in line #" + lineNr + "." );
-                            return ( true );
-                        }
-                        
-                        component = devManager.getJoystickButtonName( ji, bi );
-                    }
-                    
-                    String[] valueParts = value.split( "::", 2 );
-                    
-                    if ( valueParts.length < 2 )
-                    {
-                        Logger.log( "    WARNING: Illegal mapping at line #" + lineNr + ". Skipping." );
+                    if ( tmp == null )
                         return ( true );
-                    }
                     
-                    widgetName = valueParts[0];
-                    actionName = valueParts[1];
+                    InputMapping mapping = (InputMapping)tmp[0];
                     
-                    if ( KnownInputActions.get( actionName ) == null )
-                    {
-                        Logger.log( "    WARNING: No InputAction with the name \"" + actionName + "\" found. Skipping line #" + lineNr + "." );
-                        return ( true );
-                    }
+                    String device = mapping.getDeviceComponent().split( "::" )[0];
+                    String component = mapping.getDeviceComponent().split( "::" )[1];
+                    String widgetName = mapping.getWidgetName();
+                    String actionName = ( mapping.getAction() == null ) ? null : mapping.getAction().getName();
+                    int keyCode = mapping.getKeyCode();
+                    int modifierMask = mapping.getModifierMask();
+                    int hitTimes = mapping.getHitTimes();
                     
-                    rawBindings.add( new String[] { device, component, widgetName, actionName } );
+                    rawBindings.add( new Object[] { device, component, widgetName, actionName, keyCode, modifierMask, hitTimes } );
                     
                     return ( true );
                 }
@@ -189,16 +312,16 @@ public class InputMappingsManager
             }.parse( configFile );
             
             
-            Collections.sort( rawBindings, new Comparator<String[]>()
+            Collections.sort( rawBindings, new Comparator<Object[]>()
             {
                 @Override
-                public int compare( String[] o1, String[] o2 )
+                public int compare( Object[] o1, Object[] o2 )
                 {
-                    int cmp = o1[0].compareTo( o2[0] );
+                    int cmp = ( (String)o1[0] ).compareTo( ( (String)o2[0] ) );
                     if ( cmp != 0 )
                         return ( cmp );
                     
-                    cmp = o1[1].compareTo( o2[1] );
+                    cmp = ( (String)o1[1] ).compareTo( (String)o2[1] );
                     if ( cmp != 0 )
                         return ( cmp );
                     
@@ -213,7 +336,7 @@ public class InputMappingsManager
             int nc = 0;
             for ( int i = 0; i < rawBindings.size(); i++ )
             {
-                String device = rawBindings.get( i )[0];
+                String device = (String)rawBindings.get( i )[0];
                 if ( !device.equals( lastDevice ) )
                 {
                     if ( numDevices == 1 )
@@ -266,7 +389,7 @@ public class InputMappingsManager
             short arrayOffset = (short)( 1 + ( 1 + 1 + 2 + 1 ) * numDevices );
             for ( int i = 0; i < rawBindings.size(); i++ )
             {
-                String device = rawBindings.get( i )[0];
+                String device = (String)rawBindings.get( i )[0];
                 if ( !device.equals( lastDevice ) )
                 {
                     if ( device.equalsIgnoreCase( "Keyboard" ) )
@@ -305,10 +428,13 @@ public class InputMappingsManager
             int c = 0;
             for ( int i = 0; i < rawBindings.size(); i++ )
             {
-                String device = rawBindings.get( i )[0];
-                String component = rawBindings.get( i )[1];
-                String widgetName = rawBindings.get( i )[2];
-                String actionName = rawBindings.get( i )[3];
+                String device = (String)rawBindings.get( i )[0];
+                String component = (String)rawBindings.get( i )[1];
+                String widgetName = (String)rawBindings.get( i )[2];
+                String actionName = (String)rawBindings.get( i )[3];
+                Integer keyCode = (Integer)rawBindings.get( i )[4];
+                Integer modifierMask = (Integer)rawBindings.get( i )[5];
+                Integer hitTimes = (Integer)rawBindings.get( i )[6];
                 
                 if ( !device.equals( lastDevice ) )
                 {
@@ -343,7 +469,7 @@ public class InputMappingsManager
                 }
                 */
                 
-                mappings[i] = new InputMapping( widgetName, KnownInputActions.get( actionName ), device + "::" + component );
+                mappings[i] = new InputMapping( widgetName, KnownInputActions.get( actionName ), device + "::" + component, keyCode, modifierMask, hitTimes );
                 
                 Logger.log( "    Bound \"" + mappings[i].getDeviceComponent() + "\" to \"" + widgetName + "::" + actionName + "\"" );
                 
@@ -366,23 +492,9 @@ public class InputMappingsManager
         return ( new InputMappings( mappings ) );
     }
     
-    private long firstToggleStrokeTime = -1L;
-    private int toggleStrokes = 0;
-    
-    private void handleTogglePlugin( long when )
-    {
-        if ( when - firstToggleStrokeTime > 1000000000L )
-        {
-            toggleStrokes = 1;
-            firstToggleStrokeTime = when;
-        }
-        else if ( ++toggleStrokes >= 3 )
-        {
-            isPluginEnabled = !isPluginEnabled;
-            
-            toggleStrokes = 0;
-        }
-    }
+    private InputAction lastHitAction = null;
+    private long firstActionHitTime = -1L;
+    private int hitCount = 0;
     
     /**
      * 
@@ -413,56 +525,76 @@ public class InputMappingsManager
             buffer.get( states1[i] );
             buffer.position( 0 );
             
-            for ( int j = 0; j < states1[i].length; j++ )
+            for ( int j = 0; j < states1[i].length; j++, k++ )
             {
                 boolean oldState = ( states0[i][j] != 0 );
                 boolean state = ( states1[i][j] != 0 );
                 if ( state != oldState )
                 {
-                    InputAction action = mappings[k].getAction();
+                    InputMapping mapping = mappings[k];
+                    InputAction action = mapping.getAction();
                     
-                    if ( ( action.getAcceptedState() != null ) && ( action.getAcceptedState().booleanValue() != state ) )
-                        continue;
-                    
-                    if ( action == KnownInputActions.TogglePlugin )
+                    if ( action.acceptsState( state ) && ( ( modifierMask & mapping.getModifierMask() ) == mapping.getModifierMask() ) )
                     {
-                        handleTogglePlugin( when );
-                    }
-                    
-                    if ( isPluginEnabled && rfDynHUD.isInRenderMode() && gameData.isInRealtimeMode() )
-                    {
-                        if ( action.getConsumer() != null )
+                        if ( action != lastHitAction )
                         {
-                            action.getConsumer().onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
+                            lastHitAction = action;
+                            firstActionHitTime = when;
+                            hitCount = 1;
                         }
-                        else if ( action == KnownInputActions.ToggleFixedViewedVehicle )
+                        else if ( when - firstActionHitTime < 1000000000L )
                         {
-                            if ( gameData.getScoringInfo().isInRealtimeMode() )
-                                __GDPrivilegedAccess.toggleFixedViewedVSI( gameData.getScoringInfo() );
+                            hitCount++;
                         }
-                        else if ( action == KnownInputActions.IncBoost )
+                        else
                         {
-                            if ( gameData.getScoringInfo().isInRealtimeMode() )
-                                __GDPrivilegedAccess.incEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
+                            firstActionHitTime = when;
+                            hitCount = 1;
                         }
-                        else if ( action == KnownInputActions.DecBoost )
+                        
+                        if ( hitCount >= mapping.getHitTimes() )
                         {
-                            if ( gameData.getScoringInfo().isInRealtimeMode() )
-                                __GDPrivilegedAccess.decEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
-                        }
-                        else if ( action == KnownInputActions.TempBoost )
-                        {
-                            if ( gameData.getScoringInfo().isInRealtimeMode() )
-                                __GDPrivilegedAccess.setTempBoostFlag( gameData.getTelemetryData(), state );
-                        }
-                        else if ( isPluginEnabled && action.isWidgetAction() )
-                        {
-                            widgetsManager.fireOnInputStateChanged( mappings[k], state, modifierMask, when, gameData, editorPresets );
+                            hitCount = 0;
+                            lastHitAction = null;
+                            
+                            if ( action == KnownInputActions.TogglePlugin )
+                            {
+                                isPluginEnabled = !isPluginEnabled;
+                            }
+                            else if ( isPluginEnabled && rfDynHUD.isInRenderMode() && gameData.isInRealtimeMode() )
+                            {
+                                if ( action.getConsumer() != null )
+                                {
+                                    action.getConsumer().onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
+                                }
+                                else if ( action == KnownInputActions.ToggleFixedViewedVehicle )
+                                {
+                                    if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                        __GDPrivilegedAccess.toggleFixedViewedVSI( gameData.getScoringInfo() );
+                                }
+                                else if ( action == KnownInputActions.IncBoost )
+                                {
+                                    if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                        __GDPrivilegedAccess.incEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
+                                }
+                                else if ( action == KnownInputActions.DecBoost )
+                                {
+                                    if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                        __GDPrivilegedAccess.decEngineBoostMapping( gameData.getTelemetryData(), gameData.getPhysics().getEngine() );
+                                }
+                                else if ( action == KnownInputActions.TempBoost )
+                                {
+                                    if ( gameData.getScoringInfo().isInRealtimeMode() )
+                                        __GDPrivilegedAccess.setTempBoostFlag( gameData.getTelemetryData(), state );
+                                }
+                                else if ( isPluginEnabled && action.isWidgetAction() )
+                                {
+                                    widgetsManager.fireOnInputStateChanged( mapping, state, modifierMask, when, gameData, editorPresets );
+                                }
+                            }
                         }
                     }
                 }
-                
-                k++;
             }
         }
         

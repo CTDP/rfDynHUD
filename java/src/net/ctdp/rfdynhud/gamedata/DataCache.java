@@ -43,32 +43,17 @@ import org.xml.sax.SAXParseException;
 
 class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsumer
 {
-    private long firstResetStrokeTime = -1L;
-    private int resetStrokes = 0;
-    
     @Override
     public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
     {
-        if ( action == INPUT_ACTION_RESET_DATA_CACHE )
+        if ( action == INPUT_ACTION_RESET_LAPTIMES_CACHE )
         {
-            long t = when;
-            
-            if ( t - firstResetStrokeTime > 1000000000L )
-            {
-                resetStrokes = 1;
-                firstResetStrokeTime = t;
-            }
-            else if ( ++resetStrokes >= 3 )
-            {
-                liveReset( gameData );
-                
-                resetStrokes = 0;
-            }
+            liveReset( gameData );
         }
     }
     
     static final DataCache INSTANCE = new DataCache();
-    static final InputAction INPUT_ACTION_RESET_DATA_CACHE = __InpPrivilegedAccess.createInputAction( "ResetDataCache", true, false, (InputActionConsumer)INSTANCE, DataCache.class.getClassLoader().getResource( DataCache.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetDataCache.html" ) );
+    static final InputAction INPUT_ACTION_RESET_LAPTIMES_CACHE = __InpPrivilegedAccess.createInputAction( "ResetLaptimesCache", true, false, (InputActionConsumer)INSTANCE, DataCache.class.getClassLoader().getResource( DataCache.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetLaptimesCache.html" ) );
     
     private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     private static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
@@ -120,11 +105,28 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     
     void liveReset( LiveGameData gameData )
     {
-        fastestNormalLaptimes.clear();
-        fastestHotLaptimes.clear();
+        final SessionType sessionType = gameData.getScoringInfo().getSessionType();
         
-        gameData.getScoringInfo().getPlayersVehicleScoringInfo().cachedFastestNormalLaptime = null;
-        gameData.getScoringInfo().getPlayersVehicleScoringInfo().cachedFastestHotLaptime = null;
+        Laptime.LapType lapType;
+        if ( sessionType == SessionType.RACE )
+            lapType = Laptime.LapType.RACE;
+        else if ( sessionType == SessionType.QUALIFYING )
+            lapType = Laptime.LapType.QUALIFY;
+        else if ( Laptime.isHotlap( gameData ) )
+            lapType = Laptime.LapType.HOTLAP;
+        else
+            lapType = Laptime.LapType.NORMAL;
+        
+        if ( lapType == Laptime.LapType.HOTLAP )
+        {
+            fastestHotLaptimes.clear();
+            gameData.getScoringInfo().getPlayersVehicleScoringInfo().cachedFastestHotLaptime = null;
+        }
+        else
+        {
+            fastestNormalLaptimes.clear();
+            gameData.getScoringInfo().getPlayersVehicleScoringInfo().cachedFastestNormalLaptime = null;
+        }
     }
     
     void addLaptime( ScoringInfo scoringInfo, String teamName, Laptime laptime )

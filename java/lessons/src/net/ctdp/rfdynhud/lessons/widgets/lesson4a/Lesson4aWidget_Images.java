@@ -45,7 +45,7 @@ public class Lesson4aWidget_Images extends Widget
      * We pass null for the display-name, which means "use the name parameter" and we define
      * to allow no-image with the last parameter.
      */
-    private final ImageProperty image1 = new ImageProperty( this, "image", null, "ctdp-fat-1994.png", false, true );
+    private final ImageProperty image1 = new ImageProperty( this, "image", null, "ctdp.png", false, true );
     
     /*
      * This is a simple image property for an image to be displayed somewhere on the Widget.

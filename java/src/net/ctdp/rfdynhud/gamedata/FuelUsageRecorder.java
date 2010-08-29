@@ -26,9 +26,6 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
     private static final class MasterFuelUsageRecorder extends FuelUsageRecorder implements InputActionConsumer
     {
-        private long firstResetStrokeTime = -1L;
-        private int resetStrokes = 0;
-        
         @Override
         protected void onValuesUpdated( LiveGameData gameData, int fuelRelevantLaps, float relevantFuel, float lastLap, float average )
         {
@@ -41,19 +38,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         {
             if ( action == INPUT_ACTION_RESET_FUEL_CONSUMPTION )
             {
-                long t = when;
-                
-                if ( t - firstResetStrokeTime > 1000000000L )
-                {
-                    resetStrokes = 1;
-                    firstResetStrokeTime = t;
-                }
-                else if ( ++resetStrokes >= 3 )
-                {
-                    liveReset( gameData );
-                    
-                    resetStrokes = 0;
-                }
+                liveReset( gameData );
             }
         }
         
