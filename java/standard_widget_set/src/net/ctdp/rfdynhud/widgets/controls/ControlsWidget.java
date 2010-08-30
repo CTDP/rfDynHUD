@@ -44,6 +44,8 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class ControlsWidget extends Widget
 {
+    private final BooleanProperty horizontalBars = new BooleanProperty( this, "horizontalBars", false );
+    
     private final BooleanProperty displayClutch = new BooleanProperty( this, "displayClutch", true )
     {
         @Override
@@ -83,7 +85,7 @@ public class ControlsWidget extends Widget
     @Override
     public int getVersion()
     {
-        return ( composeVersion( 1, 0, 0 ) );
+        return ( composeVersion( 1, 1, 0 ) );
     }
     
     private void resetTransTexs()
@@ -126,6 +128,7 @@ public class ControlsWidget extends Widget
     private int initSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         int numBars = 0;
+        
         if ( displayClutch.getBooleanValue() )
             numBars++;
         if ( displayBrake.getBooleanValue() )
@@ -143,29 +146,53 @@ public class ControlsWidget extends Widget
         }
         
         final int gap = this.gap.getIntValue();
-        final int w = ( widgetInnerWidth - 6 + gap ) / numBars - gap;
-        final int h = widgetInnerHeight - 6;
+        final int w = horizontalBars.getBooleanValue() ? widgetInnerWidth : ( widgetInnerWidth + gap ) / numBars - gap;
+        final int h = horizontalBars.getBooleanValue() ? ( widgetInnerHeight + gap ) / numBars - gap : widgetInnerHeight;
         
-        int left = 3;
+        int offset = 0;
         if ( displayClutch.getBooleanValue() && ( ( texClutch == null ) || ( texClutch.getWidth() != w ) || ( texClutch.getHeight() != h ) ) )
         {
             texClutch = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texClutch, isEditorMode );
-            texClutch.setTranslation( left, 3 );
-            left += w + gap;
+            if ( horizontalBars.getBooleanValue() )
+            {
+                texClutch.setTranslation( 0, offset );
+                offset += h + gap;
+            }
+            else
+            {
+                texClutch.setTranslation( offset, 0 );
+                offset += w + gap;
+            }
         }
         
         if ( displayBrake.getBooleanValue() && ( ( texBrake == null ) || ( texBrake.getWidth() != w ) || ( texBrake.getHeight() != h ) ) )
         {
             texBrake = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texBrake, isEditorMode );
-            texBrake.setTranslation( left, 3 );
-            left += w + gap;
+            if ( horizontalBars.getBooleanValue() )
+            {
+                texBrake.setTranslation( 0, offset );
+                offset += h + gap;
+            }
+            else
+            {
+                texBrake.setTranslation( offset, 0 );
+                offset += w + gap;
+            }
         }
         
         if ( displayThrottle.getBooleanValue() && ( ( texThrottle == null ) || ( texThrottle.getWidth() != w ) || ( texThrottle.getHeight() != h ) ) )
         {
             texThrottle = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texThrottle, isEditorMode );
-            texThrottle.setTranslation( left, 3 );
-            left += w + gap;
+            if ( horizontalBars.getBooleanValue() )
+            {
+                texThrottle.setTranslation( 0, offset );
+                offset += h + gap;
+            }
+            else
+            {
+                texThrottle.setTranslation( offset, 0 );
+                offset += w + gap;
+            }
         }
         
         return ( numBars );
@@ -220,17 +247,34 @@ public class ControlsWidget extends Widget
         float uBrake = isEditorMode ? 0.2f : telemData.getUnfilteredBrake();
         float uThrottle = telemData.getUnfilteredThrottle();
         
-        final int h = displayThrottle.getBooleanValue() ? texThrottle.getHeight() : ( displayBrake.getBooleanValue() ? texBrake.getHeight() : ( displayClutch.getBooleanValue() ? texClutch.getHeight() : 0 ) );
-        int clutch = (int)( h * uClutch );
-        int brake = (int)( h * uBrake );
-        int throttle = (int)( h * uThrottle );
-        
-        if ( displayClutch.getBooleanValue() )
-            texClutch.setClipRect( 0, h - clutch, texClutch.getWidth(), clutch, true );
-        if ( displayBrake.getBooleanValue() )
-            texBrake.setClipRect( 0, h - brake, texBrake.getWidth(), brake, true );
-        if ( displayThrottle.getBooleanValue() )
-            texThrottle.setClipRect( 0, h - throttle, texThrottle.getWidth(), throttle, true );
+        if ( horizontalBars.getBooleanValue() )
+        {
+            final int w = displayThrottle.getBooleanValue() ? texThrottle.getWidth() : ( displayBrake.getBooleanValue() ? texBrake.getWidth() : ( displayClutch.getBooleanValue() ? texClutch.getWidth() : 0 ) );
+            int clutch = (int)( w * uClutch );
+            int brake = (int)( w * uBrake );
+            int throttle = (int)( w * uThrottle );
+            
+            if ( displayClutch.getBooleanValue() )
+                texClutch.setClipRect( 0, 0, clutch, texClutch.getHeight(), true );
+            if ( displayBrake.getBooleanValue() )
+                texBrake.setClipRect( 0, 0, brake, texBrake.getHeight(), true );
+            if ( displayThrottle.getBooleanValue() )
+                texThrottle.setClipRect( 0, 0, throttle, texThrottle.getHeight(), true );
+        }
+        else
+        {
+            final int h = displayThrottle.getBooleanValue() ? texThrottle.getHeight() : ( displayBrake.getBooleanValue() ? texBrake.getHeight() : ( displayClutch.getBooleanValue() ? texClutch.getHeight() : 0 ) );
+            int clutch = (int)( h * uClutch );
+            int brake = (int)( h * uBrake );
+            int throttle = (int)( h * uThrottle );
+            
+            if ( displayClutch.getBooleanValue() )
+                texClutch.setClipRect( 0, h - clutch, texClutch.getWidth(), clutch, true );
+            if ( displayBrake.getBooleanValue() )
+                texBrake.setClipRect( 0, h - brake, texBrake.getWidth(), brake, true );
+            if ( displayThrottle.getBooleanValue() )
+                texThrottle.setClipRect( 0, h - throttle, texThrottle.getWidth(), throttle, true );
+        }
     }
     
     
@@ -242,6 +286,7 @@ public class ControlsWidget extends Widget
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( horizontalBars, "Extend the bars horizontally instead of vertically?" );
         writer.writeProperty( displayClutch, "Display the clutch bar?" );
         writer.writeProperty( clutchColor, "The color used for the clutch bar in the format #RRGGBB (hex)." );
         writer.writeProperty( displayBrake, "Display the brake bar?" );
@@ -259,7 +304,8 @@ public class ControlsWidget extends Widget
     {
         super.loadProperty( loader );
         
-        if ( loader.loadProperty( displayClutch ) );
+        if ( loader.loadProperty( horizontalBars ) );
+        else if ( loader.loadProperty( displayClutch ) );
         else if ( loader.loadProperty( clutchColor ) );
         else if ( loader.loadProperty( displayBrake ) );
         else if ( loader.loadProperty( brakeColor ) );
@@ -278,6 +324,7 @@ public class ControlsWidget extends Widget
         
         propsCont.addGroup( "Specific" );
         
+        propsCont.addProperty( horizontalBars );
         propsCont.addProperty( displayClutch );
         propsCont.addProperty( clutchColor );
         propsCont.addProperty( displayBrake );
@@ -296,5 +343,7 @@ public class ControlsWidget extends Widget
     public ControlsWidget( String name )
     {
         super( name, 9.9f, 16.5f );
+        
+        setPadding( 3, 3, 3, 3 );
     }
 }
