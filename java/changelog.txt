@@ -67,7 +67,6 @@ TODO:
 * Select Widget in background
 * Draw sub textures in editor (clickable?)
 * Add RideHeightWidget
-* Add TinyWidgets: Velocity, Place, Lap, etc.
 * Add DashboardWidget
 * Bar meter for fuel, temp, etc.
 * Manage logs to keep 5

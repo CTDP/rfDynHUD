@@ -58,6 +58,8 @@ public class ColorChooser extends JPanel
     
     private JDialog dialog = null;
     
+    private String startColor = null;
+    
     private class ComponentSelector extends JPanel
     {
         private static final long serialVersionUID = 2639201006961993366L;
@@ -823,7 +825,7 @@ public class ColorChooser extends JPanel
         return ( dialog );
     }
     
-    private String showDialog( Window owner, String title, final String startColor, final WidgetsConfiguration widgetsConfig )
+    private String showDialog( Window owner, String title, String startColor, final WidgetsConfiguration widgetsConfig )
     {
         setSelectedColorFromKey( startColor, widgetsConfig );
         
@@ -865,7 +867,7 @@ public class ColorChooser extends JPanel
                 @Override
                 public void actionPerformed( ActionEvent e )
                 {
-                    checkSelection( startColor, widgetsConfig );
+                    checkSelection( ColorChooser.this.startColor, widgetsConfig );
                     
                     dialog.setVisible( false );
                 }
@@ -884,6 +886,8 @@ public class ColorChooser extends JPanel
             dialog.setModal( true );
             dialog.setLocationRelativeTo( owner );
         }
+        
+        this.startColor = startColor;
         
         dialog.setVisible( true );
         
@@ -916,6 +920,8 @@ public class ColorChooser extends JPanel
     public ColorChooser( String startColor, WidgetsConfiguration widgetsConfig )
     {
         super( new BorderLayout() );
+        
+        this.startColor = startColor;
         
         JPanel main = new JPanel( new BorderLayout( 0, 5 ) );
         

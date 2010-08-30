@@ -82,6 +82,7 @@ public class FuelWidget extends Widget
     
     private final ColorProperty fuelBarBackgroundColor = new ColorProperty( this, "fuelBarBackgroundColor", "fuelBarBackground", "#000000" );
     private final ColorProperty fuelBarColor = new ColorProperty( this, "fuelBarColor", "#54760B" );
+    private final BooleanProperty horizontalFuelBar = new BooleanProperty( this, "horizontalFuelBar", false );
     
     private final Size fuelBarWidth;
     
@@ -632,17 +633,35 @@ public class FuelWidget extends Widget
         int w = showAnyAdditionalText ? this.fuelBarWidth.getEffectiveWidth() : getInnerSize().getEffectiveWidth();
         int h = height;
         
-        int barHeight = displayFuelBar ? Math.min( (int)( h * fuel / tankSize ), h ) : 0;
-        
-        if ( !displayFuelBar || ( barHeight < h ) )
+        if ( horizontalFuelBar.getBooleanValue() )
         {
-            if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && ( fuelBarBackgroundColor.getColor() != null ) && ( fuelBarBackgroundColor.getColor().getAlpha() > 0 ) )
-                texture.clear( fuelBarBackgroundColor.getColor(), x, y, w, h - barHeight, false, null );
+            int barWidth = displayFuelBar ? Math.min( (int)( w * fuel / tankSize ), w ) : 0;
+            
+            if ( !displayFuelBar || ( barWidth < h ) )
+            {
+                if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && ( fuelBarBackgroundColor.getColor() != null ) && ( fuelBarBackgroundColor.getColor().getAlpha() > 0 ) )
+                    texture.clear( fuelBarBackgroundColor.getColor(), x + barWidth, y, w - barWidth, h, false, null );
+            }
+            
+            if ( displayFuelBar )
+            {
+                texture.clear( fuelBarColor.getColor(), x, y, barWidth, h, false, null );
+            }
         }
-        
-        if ( displayFuelBar )
+        else
         {
-            texture.clear( fuelBarColor.getColor(), x, y + h - barHeight, w, barHeight, false, null );
+            int barHeight = displayFuelBar ? Math.min( (int)( h * fuel / tankSize ), h ) : 0;
+            
+            if ( !displayFuelBar || ( barHeight < h ) )
+            {
+                if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && ( fuelBarBackgroundColor.getColor() != null ) && ( fuelBarBackgroundColor.getColor().getAlpha() > 0 ) )
+                    texture.clear( fuelBarBackgroundColor.getColor(), x, y, w, h - barHeight, false, null );
+            }
+            
+            if ( displayFuelBar )
+            {
+                texture.clear( fuelBarColor.getColor(), x, y + h - barHeight, w, barHeight, false, null );
+            }
         }
         
         texture.markDirty( x, y, w, h );
@@ -908,6 +927,7 @@ public class FuelWidget extends Widget
         
         writer.writeProperty( font2, "The used (smaller) font." );
         writer.writeProperty( fuelBarBackgroundColor, "The color used for the fuel bar's background." );
+        writer.writeProperty( horizontalFuelBar, "Whether to render the fuel bar as a horizontal instead of a vertical bar." );
         writer.writeProperty( fuelBarColor, "The color used for the fuel bar." );
         writer.writeProperty( tankSizeFont, "The used font for max fuel load (tank size)." );
         writer.writeProperty( fuelFont, "The used font for fuel load." );
@@ -943,6 +963,7 @@ public class FuelWidget extends Widget
         if ( loader.loadProperty( font2 ) );
         else if ( loader.loadProperty( fuelBarBackgroundColor ) );
         else if ( loader.loadProperty( fuelBarColor ) );
+        else if ( loader.loadProperty( horizontalFuelBar ) );
         else if ( loader.loadProperty( tankSizeFont ) );
         else if ( loader.loadProperty( fuelFont ) );
         else if ( loader.loadProperty( fuelFontColor ) );
@@ -987,6 +1008,7 @@ public class FuelWidget extends Widget
         
         propsCont.addProperty( fuelBarBackgroundColor );
         propsCont.addProperty( fuelBarColor );
+        propsCont.addProperty( horizontalFuelBar );
         propsCont.addProperty( tankSizeFont );
         propsCont.addProperty( fuelFont );
         propsCont.addProperty( fuelFontColor );

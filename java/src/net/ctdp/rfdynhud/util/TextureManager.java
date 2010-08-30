@@ -106,7 +106,9 @@ public class TextureManager
         if ( File.separatorChar != '\\' )
             name = name.replace( '\\', File.separatorChar );
         
-        File f = new File( GameFileSystem.INSTANCE.getImagesFolder(), name );
+        File f = new File( name );
+        if ( !f.isAbsolute() )
+            f = new File( GameFileSystem.INSTANCE.getImagesFolder(), name );
         
         ImageTemplate template = null;
         

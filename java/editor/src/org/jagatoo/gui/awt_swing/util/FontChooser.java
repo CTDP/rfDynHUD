@@ -99,6 +99,8 @@ public class FontChooser extends JPanel
     
     private JDialog dialog = null;
     
+    private String startFont = null;
+    
     protected void applySelectedFont( String fontString, int gameResY )
     {
         Font font = FontUtils.parseVirtualFont( fontString, false, true );
@@ -763,7 +765,7 @@ public class FontChooser extends JPanel
         return ( dialog );
     }
     
-    private String showDialog( Window owner, String title, final String startFont, final WidgetsConfiguration widgetsConfig )
+    private String showDialog( Window owner, String title, String startFont, final WidgetsConfiguration widgetsConfig )
     {
         setSelectedFontFromKey( startFont, widgetsConfig );
         
@@ -807,12 +809,12 @@ public class FontChooser extends JPanel
                 {
                     if ( getSelectedFontName() == null )
                     {
-                        valueChanged = !startFont.equals( getSelectedFont() );                            
+                        valueChanged = !FontChooser.this.startFont.equals( getSelectedFont() );                            
                     }
                     else
                     {
                         setSelectedFont( composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
-                        valueChanged = applyNamedFont( getSelectedFontName(), getSelectedFont(), widgetsConfig ) || !getSelectedFontName().equals( startFont );
+                        valueChanged = applyNamedFont( getSelectedFontName(), getSelectedFont(), widgetsConfig ) || !getSelectedFontName().equals( FontChooser.this.startFont );
                         
                         setAllWidgetsDirty( widgetsConfig );
                     }
@@ -834,6 +836,8 @@ public class FontChooser extends JPanel
             dialog.setModal( true );
             dialog.setLocationRelativeTo( owner );
         }
+        
+        this.startFont = startFont;
         
         dialog.setVisible( true );
         
@@ -866,6 +870,8 @@ public class FontChooser extends JPanel
     public FontChooser( String startFont, WidgetsConfiguration widgetsConfig )
     {
         super( new BorderLayout() );
+        
+        this.startFont = startFont;
         
         JPanel wrapper = new JPanel( new BorderLayout( 5, 5 ) );
         wrapper.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );

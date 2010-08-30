@@ -20,9 +20,7 @@ package net.ctdp.rfdynhud.editor.util;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +40,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -88,16 +87,16 @@ public class BorderSelector extends DefaultTableModel
     
     private static final Color STANDARD_BACKGROUND_COLOR = new Color( 0, 0, 0, 150 );
     
-    private JDialog dialog = null;
     private final File folder;
     private WidgetsConfiguration widgetsConfig = null;
-    private final Vector<String> files;
     private String[] aliases = null;
     private String noAliasSelection = null;
     
-    private String initialValue;
+    private String startBorder;
     private JTextField valueTextField = null;
     private boolean somethingChanged = false;
+    
+    private JDialog dialog = null;
     
     public final String getSelectedBorder()
     {
@@ -155,7 +154,7 @@ public class BorderSelector extends DefaultTableModel
         return ( bw.hasBorder() );
     }
     
-    private void readFilenames( File folder, String prefix, List<String> filenames )
+    private static void readFilenames( File folder, String prefix, List<String> filenames )
     {
         for ( File f : folder.listFiles( IniFileFilter.INSTANCE ) )
         {
@@ -335,10 +334,22 @@ public class BorderSelector extends DefaultTableModel
     {
         private static final long serialVersionUID = 1948400434095024898L;
         
-        private final JComboBox renderCombo = new JComboBox( files );
-        private final JComboBox editCombo = new JComboBox( files );
+        private final JComboBox renderCombo = new JComboBox();
+        private final JComboBox editCombo = new JComboBox();
         private boolean selEventSuppressed = false;
         private int lastRow = -1;
+        
+        public int updateFiles()
+        {
+            Vector<String> files = new Vector<String>();
+            readFilenames( folder, null, files );
+            Collections.sort( files, String.CASE_INSENSITIVE_ORDER );
+            
+            renderCombo.setModel( new DefaultComboBoxModel( files ) );
+            editCombo.setModel( new DefaultComboBoxModel( files ) );
+            
+            return ( files.size() );
+        }
         
         @Override
         public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
@@ -370,7 +381,7 @@ public class BorderSelector extends DefaultTableModel
             return ( renderCombo.getSelectedItem() );
         }
         
-        public BorderCellRenderer( final WidgetsConfiguration widgetsConfig )
+        public BorderCellRenderer()
         {
             super();
             
@@ -466,6 +477,8 @@ public class BorderSelector extends DefaultTableModel
             } );
         }
     }
+    
+    private final BorderCellRenderer borderRenderer = new BorderCellRenderer();
     
     private class ButtonCellRenderer extends AbstractCellEditor implements TableCellRenderer, TableCellEditor
     {
@@ -575,93 +588,163 @@ public class BorderSelector extends DefaultTableModel
         }
     }
     
-    public String showDialog( Window owner, final WidgetsConfiguration widgetsConfig, String selectedBorder )
+    private JDialog initDialog( Window owner, String title )
     {
-        this.initialValue = selectedBorder;
-        
-        if ( owner instanceof Frame )
-            dialog = new JDialog( (Frame)owner );
-        else if ( owner instanceof Dialog )
-            dialog = new JDialog( (Dialog)owner );
+        if ( owner instanceof java.awt.Dialog )
+            dialog = new JDialog( (java.awt.Dialog)owner, title );
+        else if ( owner instanceof java.awt.Frame )
+            dialog = new JDialog( (java.awt.Frame)owner, title );
         else
-            dialog = new JDialog( owner );
+            dialog = new JDialog( owner, title );
         
-        dialog.setTitle( "Select a border or alias..." );
+        dialog.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
         
-        JPanel contentPane = (JPanel)dialog.getContentPane();
-        contentPane.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
-        contentPane.setLayout( new BorderLayout( 5, 5 ) );
-        
+        return ( dialog );
+    }
+    
+    public String showDialog( Window owner, WidgetsConfiguration widgetsConfig, String selectedBorder )
+    {
+        this.startBorder = selectedBorder;
         this.widgetsConfig = widgetsConfig;
         
-        final JTable aliasesTable = new JTable( this );
-        aliasesTable.setTableHeader( null );
-        aliasesTable.setRowHeight( 2 + 32 + 2 );
-        AliasCellRenderer aliasRenderer = new AliasCellRenderer();
-        aliasesTable.getColumnModel().addColumn( new TableColumn( 0, 150, aliasRenderer, aliasRenderer ) );
-        BorderCellRenderer borderRenderer = new BorderCellRenderer( widgetsConfig );
-        aliasesTable.getColumnModel().addColumn( new TableColumn( 1, 300, borderRenderer, borderRenderer ) );
-        ButtonCellRenderer buttonRenderer = new ButtonCellRenderer();
-        aliasesTable.getColumnModel().addColumn( new TableColumn( 2, 100, buttonRenderer, buttonRenderer ) );
-        
-        contentPane.add( new JScrollPane( aliasesTable ), BorderLayout.CENTER );
-        
-        aliasesTable.addMouseListener( new MouseAdapter()
+        if ( ( dialog == null ) || ( dialog.getOwner() != owner ) )
         {
-            @Override
-            public void mouseClicked( MouseEvent e )
+            dialog = initDialog( owner, "Select a border or alias..." );
+            
+            JPanel contentPane = (JPanel)dialog.getContentPane();
+            contentPane.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
+            contentPane.setLayout( new BorderLayout( 5, 5 ) );
+            
+            final JTable aliasesTable = new JTable( this );
+            aliasesTable.setTableHeader( null );
+            aliasesTable.setRowHeight( 2 + 32 + 2 );
+            AliasCellRenderer aliasRenderer = new AliasCellRenderer();
+            aliasesTable.getColumnModel().addColumn( new TableColumn( 0, 150, aliasRenderer, aliasRenderer ) );
+            aliasesTable.getColumnModel().addColumn( new TableColumn( 1, 300, borderRenderer, borderRenderer ) );
+            ButtonCellRenderer buttonRenderer = new ButtonCellRenderer();
+            aliasesTable.getColumnModel().addColumn( new TableColumn( 2, 100, buttonRenderer, buttonRenderer ) );
+            
+            contentPane.add( new JScrollPane( aliasesTable ), BorderLayout.CENTER );
+            
+            aliasesTable.addMouseListener( new MouseAdapter()
             {
-                if ( e.getClickCount() == 2 )
+                @Override
+                public void mouseClicked( MouseEvent e )
                 {
-                    int row = aliasesTable.getSelectedRow();
-                    int column = aliasesTable.getSelectedColumn();
-                    
-                    if ( column == 0 )
+                    if ( e.getClickCount() == 2 )
                     {
-                        if ( row == 0 )
-                            valueTextField.setText( (String)aliasesTable.getValueAt( row, 1 ) );
-                        else
-                            valueTextField.setText( (String)aliasesTable.getValueAt( row, 0 ) );
+                        int row = aliasesTable.getSelectedRow();
+                        int column = aliasesTable.getSelectedColumn();
+                        
+                        if ( column == 0 )
+                        {
+                            if ( row == 0 )
+                                valueTextField.setText( (String)aliasesTable.getValueAt( row, 1 ) );
+                            else
+                                valueTextField.setText( (String)aliasesTable.getValueAt( row, 0 ) );
+                        }
                     }
                 }
-            }
-        } );
-        
-        JPanel footer = new JPanel( new BorderLayout() );
-        
-        JButton addAlias = new JButton( "Add alias" );
-        addAlias.setActionCommand( "" );
-        addAlias.addActionListener( new ActionListener()
-        {
-            @Override
-            public void actionPerformed( ActionEvent e )
+            } );
+            
+            JPanel footer = new JPanel( new BorderLayout() );
+            
+            JButton addAlias = new JButton( "Add alias" );
+            addAlias.setActionCommand( "" );
+            addAlias.addActionListener( new ActionListener()
             {
-                String initialValue = ( (JButton)e.getSource() ).getActionCommand();
-                String aliasName = (String)JOptionPane.showInputDialog( dialog, "Please type the name for the new border alias.", "New border alias", JOptionPane.INFORMATION_MESSAGE, null, null, initialValue );
-                if ( ( aliasName == null ) || ( aliasName.length() == 0 ) )
+                @Override
+                public void actionPerformed( ActionEvent e )
                 {
+                    String initialValue = ( (JButton)e.getSource() ).getActionCommand();
+                    String aliasName = (String)JOptionPane.showInputDialog( dialog, "Please type the name for the new border alias.", "New border alias", JOptionPane.INFORMATION_MESSAGE, null, null, initialValue );
+                    if ( ( aliasName == null ) || ( aliasName.length() == 0 ) )
+                    {
+                        ( (JButton)e.getSource() ).setActionCommand( "" );
+                        return;
+                    }
+                    
+                    String border = BorderSelector.this.widgetsConfig.getBorderName( aliasName );
+                    if ( border != null )
+                    {
+                        JOptionPane.showMessageDialog( dialog, "This alias already exists!", "New border alias (Error)", JOptionPane.ERROR_MESSAGE );
+                        ( (JButton)e.getSource() ).setActionCommand( aliasName );
+                        actionPerformed( e );
+                        return;
+                    }
+                    
                     ( (JButton)e.getSource() ).setActionCommand( "" );
-                    return;
+                    
+                    BorderSelector.this.widgetsConfig.addBorderAlias( aliasName, (String)borderRenderer.renderCombo.getModel().getElementAt( 0 ) );
+                    aliases = null;
+                    fireTableDataChanged();
+                    somethingChanged = true;
                 }
-                
-                String border = widgetsConfig.getBorderName( aliasName );
-                if ( border != null )
+            } );
+            footer.add( addAlias, BorderLayout.WEST );
+            
+            this.valueTextField = new JTextField( selectedBorder );
+            JPanel valueWrapper = new JPanel( new BorderLayout() );
+            valueWrapper.add( valueTextField, BorderLayout.CENTER );
+            valueWrapper.setBorder( new EmptyBorder( 0, 5, 0, 0 ) );
+            footer.add( valueWrapper, BorderLayout.CENTER );
+            
+            JPanel footer2 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 0 ) );
+            JButton no = new JButton( "No Border" );
+            no.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
                 {
-                    JOptionPane.showMessageDialog( dialog, "This alias already exists!", "New border alias (Error)", JOptionPane.ERROR_MESSAGE );
-                    ( (JButton)e.getSource() ).setActionCommand( aliasName );
-                    actionPerformed( e );
-                    return;
+                    valueTextField.setText( "" );
+                    
+                    somethingChanged = somethingChanged || !valueTextField.getText().equals( startBorder );
+                    
+                    applyBorder( valueTextField.getText(), BorderSelector.this.widgetsConfig );
+                    
+                    dialog.setVisible( false );
                 }
-                
-                ( (JButton)e.getSource() ).setActionCommand( "" );
-                
-                widgetsConfig.addBorderAlias( aliasName, files.get( 0 ) );
-                aliases = null;
-                fireTableDataChanged();
-                somethingChanged = true;
-            }
-        } );
-        footer.add( addAlias, BorderLayout.WEST );
+            } );
+            footer2.add( no );
+            JButton ok = new JButton( "OK" );
+            ok.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    somethingChanged = somethingChanged || !valueTextField.getText().equals( startBorder );
+                    
+                    applyBorder( valueTextField.getText(), BorderSelector.this.widgetsConfig );
+                    
+                    dialog.setVisible( false );
+                }
+            } );
+            footer2.add( ok );
+            JButton cancel = new JButton( "Cancel" );
+            cancel.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    valueTextField.setText( "" );
+                    somethingChanged = false;
+                    dialog.setVisible( false );
+                }
+            } );
+            footer2.add( cancel );
+            
+            footer.add( footer2, BorderLayout.EAST );
+            
+            contentPane.add( footer, BorderLayout.SOUTH );
+            
+            dialog.setSize( 550, 500 );
+            dialog.setLocationRelativeTo( owner );
+            dialog.setModal( true );
+        }
+        
+        borderRenderer.updateFiles();
+        
+        valueTextField.setText( selectedBorder );
         
         String border = widgetsConfig.getBorderName( selectedBorder );
         if ( border == null )
@@ -669,63 +752,6 @@ public class BorderSelector extends DefaultTableModel
         else
             noAliasSelection = border;
         
-        this.valueTextField = new JTextField( selectedBorder );
-        JPanel valueWrapper = new JPanel( new BorderLayout() );
-        valueWrapper.add( valueTextField, BorderLayout.CENTER );
-        valueWrapper.setBorder( new EmptyBorder( 0, 5, 0, 0 ) );
-        footer.add( valueWrapper, BorderLayout.CENTER );
-        
-        JPanel footer2 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 0 ) );
-        JButton no = new JButton( "No Border" );
-        no.addActionListener( new ActionListener()
-        {
-            @Override
-            public void actionPerformed( ActionEvent e )
-            {
-                valueTextField.setText( "" );
-                
-                somethingChanged = somethingChanged || !valueTextField.getText().equals( initialValue );
-                
-                applyBorder( valueTextField.getText(), widgetsConfig );
-                
-                dialog.setVisible( false );
-            }
-        } );
-        footer2.add( no );
-        JButton ok = new JButton( "OK" );
-        ok.addActionListener( new ActionListener()
-        {
-            @Override
-            public void actionPerformed( ActionEvent e )
-            {
-                somethingChanged = somethingChanged || !valueTextField.getText().equals( initialValue );
-                
-                applyBorder( valueTextField.getText(), widgetsConfig );
-                
-                dialog.setVisible( false );
-            }
-        } );
-        footer2.add( ok );
-        JButton cancel = new JButton( "Cancel" );
-        cancel.addActionListener( new ActionListener()
-        {
-            @Override
-            public void actionPerformed( ActionEvent e )
-            {
-                valueTextField.setText( "" );
-                somethingChanged = false;
-                dialog.setVisible( false );
-            }
-        } );
-        footer2.add( cancel );
-        
-        footer.add( footer2, BorderLayout.EAST );
-        
-        contentPane.add( footer, BorderLayout.SOUTH );
-        
-        dialog.setSize( 550, 500 );
-        dialog.setLocationRelativeTo( owner );
-        dialog.setModal( true );
         dialog.setVisible( true );
         
         return ( getSelectedBorder() );
@@ -746,11 +772,10 @@ public class BorderSelector extends DefaultTableModel
         
         this.folder = folder;
         
-        this.files = new Vector<String>();
-        readFilenames( folder, null, files );
-        Collections.sort( files, String.CASE_INSENSITIVE_ORDER );
-        
-        this.noAliasSelection = ( files.size() > 0 ) ? files.get( 0 ) : "";
+        if ( borderRenderer.updateFiles() == 0 )
+            this.noAliasSelection = "";
+        else
+            this.noAliasSelection = (String)borderRenderer.renderCombo.getModel().getElementAt( 0 );
     }
     
     public BorderSelector( String folder )

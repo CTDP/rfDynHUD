@@ -52,6 +52,8 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
     private int column = -1;
     private BorderProperty prop = null;
     
+    private static BorderSelector borderSelector = null;
+    
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
@@ -89,7 +91,7 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
         }
         label.setFont( table.getFont() );
         
-        if ( value == null )
+        if ( ( value == null ) || value.equals( "" ) )
             label.setText( NONE );
         else
             label.setText( (String)value );
@@ -125,7 +127,12 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
     @Override
     protected Object getCellEditorValueImpl() throws Throwable
     {
-        return ( label.getText() );
+        String value = label.getText();
+        
+        //if ( value.equals( NONE ) )
+        //    return ( "" );
+        
+        return ( value );
     }
     
     @Override
@@ -146,34 +153,30 @@ public class BorderCellEditor extends KeyValueCellRenderer<JPanel> implements Ta
             {
                 if ( prop != null )
                 {
-                    BorderSelector bs = new BorderSelector( GameFileSystem.INSTANCE.getBordersFolder() );
-                    //JFrame frame = (JFrame)button.getRootPane().getParent();
                     JFrame frame = (JFrame)table.getRootPane().getParent();
-                    String selBorder = bs.showDialog( frame, prop.getWidget().getConfiguration(), (String)prop.getValue() );
-                    
-                    if ( selBorder != null )
+                    if ( borderSelector == null )
                     {
-                        if ( selBorder.equals( "" ) )
+                        borderSelector = new BorderSelector( GameFileSystem.INSTANCE.getBordersFolder() );
+                    }
+                    
+                    String result = borderSelector.showDialog( frame, prop.getWidget().getConfiguration(), (String)prop.getValue() );
+                    
+                    if ( result != null )
+                    {
+                        if ( result.equals( "" ) )
                         {
-                            if ( !getCellEditorValue().equals( NONE ) )
-                            {
-                                label.setText( NONE );
-                            }
+                            prop.setValue( NONE );
+                            label.setText( NONE );
+                            table.setValueAt( NONE, row, column );
                         }
-                        else if ( !getCellEditorValue().equals( selBorder ) )
+                        else
                         {
-                            label.setText( selBorder );
+                            prop.setValue( result );
+                            label.setText( result );
+                            table.setValueAt( result, row, column );
                         }
                         
-                        if ( bs.getSomethingChanged() )
-                        {
-                            table.setValueAt( getCellEditorValue(), row, column );
-                            if ( getCellEditorValue().equals( NONE ) )
-                                prop.setValue( "" );
-                            else
-                                prop.setValue( getCellEditorValue() );
-                            ( (EditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
-                        }
+                        ( (EditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
                         
                         frame.repaint();
                     }

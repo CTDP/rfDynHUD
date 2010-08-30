@@ -1617,7 +1617,7 @@ public abstract class Widget implements Documented
             addPaddingPropertiesToContainer( paddingTop, paddingLeft, paddingRight, paddingBottom, propsCont, forceAll );
         }
         
-        if ( ( masterWidget == null ) && hasBorder() )
+        if ( ( masterWidget == null ) && canHaveBorder() )
         {
             addBorderPropertyToContainer( border, propsCont, forceAll );
         }

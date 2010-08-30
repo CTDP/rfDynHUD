@@ -217,8 +217,12 @@ public class BorderCache
      */
     public static BorderWrapper getBorder( String iniFilename, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {
-        if ( iniFilename == null )
-            return ( null );
+        if ( ( iniFilename == null ) || iniFilename.equals( "<NONE>" ) )
+        {
+            Object[] border = getFallback( iniFilename );
+            
+            return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
+        }
         
         Object[] border = CACHE.get( iniFilename );
         
@@ -264,7 +268,8 @@ public class BorderCache
                 return ( new BorderWrapper( (BorderRenderer)border[0], (BorderMeasures)border[1], paddingTop, paddingLeft, paddingRight, paddingBottom ) );
             }
             
-            TextureImage2D texture = TextureManager.getImage( "borders" + File.separator + textureName, false ).getTextureImage();
+            File imageFile = new File( GameFileSystem.INSTANCE.getBordersFolder(), textureName );
+            TextureImage2D texture = TextureManager.getImage( imageFile.getAbsolutePath(), false ).getTextureImage();
             
             border = new Object[] { new ImageBorderRenderer( textureName, texture ), parseMeasuresFromIni( iniFile ) };
             
