@@ -401,35 +401,40 @@ public abstract class NeedleMeterWidget extends Widget
             //needleTexture.setScale( 1f, 1f );
         }
         
-        FontProperty valueFont = getValueFont();
-        ColorProperty valueFontColor = getValueFontColor();
-        
-        FontMetrics metrics = valueFont.getMetrics();
-        //Rectangle2D bounds = metrics.getStringBounds( "000", texture.getTextureCanvas() );
-        //double fw = bounds.getWidth();
-        double fh = metrics.getAscent() - metrics.getDescent();
-        int fx, fy;
-        
-        if ( !valueBackgroundImageName.isNoImage() )
-            loadValueBackgroundTexture( isEditorMode );
-        else
-            valueBackgroundTexture = null;
-        
-        if ( valueBackgroundTexture == null )
+        if ( displayValue.getBooleanValue() )
         {
-            fx = Math.round( valuePosX.getIntValue() * backgroundScaleX );
-            fy = Math.round( valuePosY.getIntValue() * backgroundScaleY );
-        }
-        else
-        {
-            valueBackgroundTexPosX = Math.round( valuePosX.getIntValue() * backgroundScaleX - valueBackgroundTexture.getWidth() / 2.0f );
-            valueBackgroundTexPosY = Math.round( valuePosY.getIntValue() * backgroundScaleY - valueBackgroundTexture.getHeight() / 2.0f );
+            FontProperty valueFont = getValueFont();
+            ColorProperty valueFontColor = getValueFontColor();
             
-            fx = valueBackgroundTexture.getWidth() / 2;
-            fy = valueBackgroundTexture.getHeight() / 2;
+            FontMetrics metrics = valueFont.getMetrics();
+            //Rectangle2D bounds = metrics.getStringBounds( "000", texture.getTextureCanvas() );
+            //double fw = bounds.getWidth();
+            double fh = metrics.getAscent() - metrics.getDescent();
+            int fx, fy;
+            
+            loadValueBackgroundTexture( isEditorMode );
+            
+            if ( valueBackgroundTexture == null )
+            {
+                fx = Math.round( valuePosX.getIntValue() * backgroundScaleX );
+                fy = Math.round( valuePosY.getIntValue() * backgroundScaleY );
+            }
+            else
+            {
+                valueBackgroundTexPosX = Math.round( valuePosX.getIntValue() * backgroundScaleX - valueBackgroundTexture.getWidth() / 2.0f );
+                valueBackgroundTexPosY = Math.round( valuePosY.getIntValue() * backgroundScaleY - valueBackgroundTexture.getHeight() / 2.0f );
+                
+                fx = valueBackgroundTexture.getWidth() / 2;
+                fy = valueBackgroundTexture.getHeight() / 2;
+            }
+            
+            valueString = dsf.newDrawnString( "valueString", fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, valueFont.getFont(), valueFont.isAntiAliased(), valueFontColor.getColor() );
         }
-        
-        valueString = dsf.newDrawnString( "valueString", fx/* - (int)( fw / 2.0 )*/, fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, valueFont.getFont(), valueFont.isAntiAliased(), valueFontColor.getColor() );
+        else
+        {
+            valueBackgroundTexture = null;
+            valueBackgroundTexture_bak = null;
+        }
     }
     
     /**
@@ -535,9 +540,6 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected void drawMarkers( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
-        if ( !getDisplayMarkers() )
-            return;
-        
         final float backgroundScaleX = getBackground().getScaleX();
         //final float backgroundScaleY = getBackground().getBackgroundScaleY();
         
@@ -626,11 +628,14 @@ public abstract class NeedleMeterWidget extends Widget
     {
         super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
         
-        drawMarkers( gameData, editorPresets, texture.getTextureCanvas(), offsetX, offsetY, width, height );
+        if ( getDisplayMarkers() )
+        {
+            drawMarkers( gameData, editorPresets, texture.getTextureCanvas(), offsetX, offsetY, width, height );
+        }
     }
     
     /**
-     * Live-checks whether the needle is to be rendered or not.
+     * Live-checks, whether the needle is to be rendered or not.
      * 
      * @param gameData
      * @param editorPresets
@@ -664,30 +669,33 @@ public abstract class NeedleMeterWidget extends Widget
             }
         }
         
-        valueValue.update( getValueForValueDisplay( gameData, editorPresets ) );
-        if ( needsCompleteRedraw || ( clock1 && valueValue.hasChanged() ) )
+        if ( displayValue.getBooleanValue() )
         {
-            String string = valueValue.getValueAsString();
-            
-            FontMetrics metrics = getValueFont().getMetrics();
-            Rectangle2D bounds = metrics.getStringBounds( string, texture.getTextureCanvas() );
-            double fw = bounds.getWidth();
-            
-            if ( valueBackgroundTexture == null )
+            valueValue.update( getValueForValueDisplay( gameData, editorPresets ) );
+            if ( needsCompleteRedraw || ( clock1 && valueValue.hasChanged() ) )
             {
-                valueString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, texture );
-            }
-            else
-            {
-                if ( needsCompleteRedraw )
-                    valueBackgroundTexture.getTexture().clear( valueBackgroundTexture_bak, true, null );
+                String string = valueValue.getValueAsString();
                 
-                valueString.draw( (int)( -fw / 2.0 ), 0, string, valueBackgroundTexture.getTexture(), valueBackgroundTexture_bak, 0, 0 );
+                FontMetrics metrics = getValueFont().getMetrics();
+                Rectangle2D bounds = metrics.getStringBounds( string, texture.getTextureCanvas() );
+                double fw = bounds.getWidth();
+                
+                if ( valueBackgroundTexture == null )
+                {
+                    valueString.draw( offsetX - (int)( fw / 2.0 ), offsetY, string, texture );
+                }
+                else
+                {
+                    if ( needsCompleteRedraw )
+                        valueBackgroundTexture.getTexture().clear( valueBackgroundTexture_bak, true, null );
+                    
+                    valueString.draw( (int)( -fw / 2.0 ), 0, string, valueBackgroundTexture.getTexture(), valueBackgroundTexture_bak, 0, 0 );
+                }
             }
+            
+            if ( valueBackgroundTexture != null )
+                valueBackgroundTexture.setTranslation( valueBackgroundTexPosX, valueBackgroundTexPosY );
         }
-        
-        if ( valueBackgroundTexture != null )
-            valueBackgroundTexture.setTranslation( valueBackgroundTexPosX, valueBackgroundTexPosY );
     }
     
     /**

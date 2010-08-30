@@ -169,9 +169,9 @@ public class RevMeterWidget extends NeedleMeterWidget
         }
     };
     
+    private final BooleanProperty displayGear = new BooleanProperty( this, "displayGear", "displayGear", true );
     private final IntProperty gearPosX = new IntProperty( this, "gearPosX", "posX", 354 );
     private final IntProperty gearPosY = new IntProperty( this, "gearPosY", "posY", 512 );
-    
     private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
     private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
     
@@ -189,7 +189,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
     private final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
     private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
-    private final BooleanProperty useBoostRevLimit1 = new BooleanProperty( this, "useBoostRevLimit1", false );
+    private final BooleanProperty useBoostRevLimit1 = new BooleanProperty( this, "useBoostRevLimit1", "useBoostRevLimit", false );
     private final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
     private final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
     private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
@@ -199,7 +199,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     private final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
     private final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
     private final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
-    private final BooleanProperty useBoostRevLimit2 = new BooleanProperty( this, "useBoostRevLimit2", false );
+    private final BooleanProperty useBoostRevLimit2 = new BooleanProperty( this, "useBoostRevLimit2", "useBoostRevLimit", false );
     private final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
     private final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
     private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
@@ -312,6 +312,13 @@ public class RevMeterWidget extends NeedleMeterWidget
     
     private int loadGearBackgroundTexture( boolean isEditorMode )
     {
+        if ( !displayGear.getBooleanValue() )
+        {
+            gearBackgroundTexture = null;
+            gearBackgroundTexture_bak = null;
+            return ( 0 );
+        }
+        
         try
         {
             ImageTemplate it = gearBackgroundImageName.getImage();
@@ -326,7 +333,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             float scale = getBackground().getScaleX();
             int w = Math.round( it.getBaseWidth() * scale );
             int h = Math.round( it.getBaseHeight() * scale );
-            //if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != w ) || ( gearBackgroundTexture.getHeight() != h ) )
+            if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != w ) || ( gearBackgroundTexture.getHeight() != h ) )
             {
                 gearBackgroundTexture = it.getScaledTransformableTexture( w, h, gearBackgroundTexture, isEditorMode );
                 gearBackgroundTexture.setDynamic( true );
@@ -368,7 +375,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             float scale = getBackground().getScaleX();
             int w = Math.round( it.getBaseWidth() * scale );
             int h = Math.round( it.getBaseHeight() * scale );
-            //if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != w ) || ( boostNumberBackgroundTexture.getHeight() != h ) )
+            if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != w ) || ( boostNumberBackgroundTexture.getHeight() != h ) )
             {
                 boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h, boostNumberBackgroundTexture, isEditorMode );
                 boostNumberBackgroundTexture.setDynamic( true );
@@ -465,58 +472,65 @@ public class RevMeterWidget extends NeedleMeterWidget
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
             shiftLights[s].loadTextures( isEditorMode );
         
-        FontMetrics metrics = gearFont.getMetrics();
-        Rectangle2D bounds = metrics.getStringBounds( "X", texCanvas );
-        double fw = bounds.getWidth();
-        double fh = metrics.getAscent() - metrics.getDescent();
-        int fx, fy;
+        FontMetrics metrics = null;
+        Rectangle2D bounds = null;
+        double fw = 0, fh = 0;
+        double fd = 0;
+        int fx = 0, fy = 0;
         
-        if ( !gearBackgroundImageName.isNoImage() )
-            loadGearBackgroundTexture( isEditorMode );
-        else
-            gearBackgroundTexture = null;
+        loadGearBackgroundTexture( isEditorMode );
         
-        if ( gearBackgroundTexture == null )
+        if ( displayGear.getBooleanValue() )
         {
-            fx = Math.round( gearPosX.getIntValue() * getBackground().getScaleX() );
-            fy = Math.round( gearPosY.getIntValue() * getBackground().getScaleY() );
-        }
-        else
-        {
-            gearBackgroundTexPosX = Math.round( gearPosX.getIntValue() * getBackground().getScaleX() - gearBackgroundTexture.getWidth() / 2.0f );
-            gearBackgroundTexPosY = Math.round( gearPosY.getIntValue() * getBackground().getScaleY() - gearBackgroundTexture.getHeight() / 2.0f );
+            metrics = gearFont.getMetrics();
+            bounds = metrics.getStringBounds( "X", texCanvas );
+            fw = bounds.getWidth();
+            fd = metrics.getDescent();
+            fh = metrics.getAscent() - fd;
             
-            fx = gearBackgroundTexture.getWidth() / 2;
-            fy = gearBackgroundTexture.getHeight() / 2;
+            if ( gearBackgroundTexture == null )
+            {
+                fx = Math.round( gearPosX.getIntValue() * getBackground().getScaleX() );
+                fy = Math.round( gearPosY.getIntValue() * getBackground().getScaleY() );
+            }
+            else
+            {
+                gearBackgroundTexPosX = Math.round( gearPosX.getIntValue() * getBackground().getScaleX() - gearBackgroundTexture.getWidth() / 2.0f );
+                gearBackgroundTexPosY = Math.round( gearPosY.getIntValue() * getBackground().getScaleY() - gearBackgroundTexture.getHeight() / 2.0f );
+                
+                fx = gearBackgroundTexture.getWidth() / 2;
+                fy = gearBackgroundTexture.getHeight() / 2;
+            }
         }
         
-        gearString = dsf.newDrawnString( "gearString", fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor() );
+        gearString = dsf.newDrawnStringIf( displayGear.getBooleanValue(), "gearString", fx - (int)( fw / 2.0 ), fy - (int)( fd + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor() );
         
-        metrics = boostNumberFont.getMetrics();
-        bounds = metrics.getStringBounds( "0", texCanvas );
-        fw = bounds.getWidth();
-        fh = metrics.getAscent() - metrics.getDescent();
+        loadBoostNumberBackgroundTexture( isEditorMode );
         
-        if ( !boostNumberBackgroundImageName.isNoImage() )
-            loadBoostNumberBackgroundTexture( isEditorMode );
-        else
-            boostNumberBackgroundTexture = null;
-        
-        if ( boostNumberBackgroundTexture == null )
+        if ( displayBoostNumber.getBooleanValue() )
         {
-            fx = Math.round( boostNumberPosX.getIntValue() * getBackground().getScaleX() );
-            fy = Math.round( boostNumberPosY.getIntValue() * getBackground().getScaleY() );
-        }
-        else
-        {
-            boostNumberBackgroundTexPosX = Math.round( boostNumberPosX.getIntValue() * getBackground().getScaleX() - boostNumberBackgroundTexture.getWidth() / 2.0f );
-            boostNumberBackgroundTexPosY = Math.round( boostNumberPosY.getIntValue() * getBackground().getScaleY() - boostNumberBackgroundTexture.getHeight() / 2.0f );
+            metrics = boostNumberFont.getMetrics();
+            bounds = metrics.getStringBounds( "0", texCanvas );
+            fw = bounds.getWidth();
+            fd = metrics.getDescent();
+            fh = metrics.getAscent() - fd;
             
-            fx = boostNumberBackgroundTexture.getWidth() / 2;
-            fy = boostNumberBackgroundTexture.getHeight() / 2;
+            if ( boostNumberBackgroundTexture == null )
+            {
+                fx = Math.round( boostNumberPosX.getIntValue() * getBackground().getScaleX() );
+                fy = Math.round( boostNumberPosY.getIntValue() * getBackground().getScaleY() );
+            }
+            else
+            {
+                boostNumberBackgroundTexPosX = Math.round( boostNumberPosX.getIntValue() * getBackground().getScaleX() - boostNumberBackgroundTexture.getWidth() / 2.0f );
+                boostNumberBackgroundTexPosY = Math.round( boostNumberPosY.getIntValue() * getBackground().getScaleY() - boostNumberBackgroundTexture.getHeight() / 2.0f );
+                
+                fx = boostNumberBackgroundTexture.getWidth() / 2;
+                fy = boostNumberBackgroundTexture.getHeight() / 2;
+            }
         }
         
-        boostString = dsf.newDrawnString( "boostString", fx - (int)( fw / 2.0 ), fy - (int)( metrics.getDescent() + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor() );
+        boostString = dsf.newDrawnStringIf( displayBoostNumber.getBooleanValue(), "boostString", fx - (int)( fw / 2.0 ), fy - (int)( fd + fh / 2.0 ), Alignment.LEFT, false, boostNumberFont.getFont(), boostNumberFont.isAntiAliased(), boostNumberFontColor.getColor() );
         
         rpmString1 = dsf.newDrawnStringIf( displayRPMString1.getBooleanValue(), "rpmString1", width - Math.round( rpmPosX1.getIntValue() * getBackground().getScaleX() ), Math.round( rpmPosY1.getIntValue() * getBackground().getScaleY() ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
         rpmString2 = dsf.newDrawnStringIf( displayRPMString2.getBooleanValue(), "rpmString2", width - Math.round( rpmPosX2.getIntValue() * getBackground().getScaleX() ), Math.round( rpmPosY2.getIntValue() * getBackground().getScaleY() ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
@@ -600,11 +614,13 @@ public class RevMeterWidget extends NeedleMeterWidget
         //texCanvas.setClip( oldClip );
     }
     
+    /*
     @Override
     protected boolean getDisplayMarkers()
     {
         return ( super.getDisplayMarkers() || fillHighBackground.getBooleanValue() );
     }
+    */
     
     @Override
     protected Color getMarkerColorForValue( LiveGameData gameData, EditorPresets editorPresets, int value, int minValue, int maxValue )
@@ -635,17 +651,6 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         super.drawMarkers( gameData, editorPresets, texCanvas, offsetX, offsetY, width, height );
     }
-    
-    /*
-    @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
-    {
-        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
-        
-        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            shiftLights[s].loadTextures( editorPresets != null );
-    }
-    */
     
     /**
      * 
@@ -708,29 +713,33 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
         
-        gear.update( vsi.isPlayer() ? telemData.getCurrentGear() : -1000 );
-        if ( needsCompleteRedraw || gear.hasChanged() )
+        if ( displayGear.getBooleanValue() )
         {
-            String string;
-            if ( vsi.isPlayer() )
-                string = gear.getValue() == -1 ? "R" : gear.getValue() == 0 ? "N" : String.valueOf( gear );
-            else
-                string = "";
-            
-            if ( gearBackgroundTexture == null )
+            gear.update( vsi.isPlayer() ? telemData.getCurrentGear() : -1000 );
+            if ( needsCompleteRedraw || gear.hasChanged() )
             {
-                gearString.draw( offsetX, offsetY, string, texture );
-            }
-            else
-            {
-                if ( needsCompleteRedraw )
-                    gearBackgroundTexture.getTexture().clear( gearBackgroundTexture_bak, true, null );
+                String string;
+                if ( vsi.isPlayer() )
+                    string = gear.getValue() == -1 ? "R" : gear.getValue() == 0 ? "N" : String.valueOf( gear );
+                else
+                    string = "";
                 
-                gearString.draw( 0, 0, string, gearBackgroundTexture.getTexture(), gearBackgroundTexture_bak, 0, 0 );
+                if ( gearBackgroundTexture == null )
+                {
+                    gearString.draw( offsetX, offsetY, string, texture );
+                }
+                else
+                {
+                    if ( needsCompleteRedraw )
+                        gearBackgroundTexture.getTexture().clear( gearBackgroundTexture_bak, true, null );
+                    
+                    gearString.draw( 0, 0, string, gearBackgroundTexture.getTexture(), gearBackgroundTexture_bak, 0, 0 );
+                }
             }
         }
         
         boost.update( vsi.isPlayer() ? telemData.getEffectiveEngineBoostMapping() : gameData.getPhysics().getEngine().getLowestBoostLevel() );
+        
         if ( needsCompleteRedraw || boost.hasChanged() )
         {
             if ( displayBoostNumber.getBooleanValue() )
@@ -809,6 +818,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             rpmString2.draw( offsetX, offsetY, string, texture );
         }
         
+        if ( numShiftLights.getIntValue() > 0 )
         {
             float rpm2 = vsi.isPlayer() ? rpm : 0f;
             float baseMaxRPM = vsi.isPlayer() ? telemData.getEngineBaseMaxRPM() : 100000f;
@@ -849,6 +859,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         writer.writeProperty( numShiftLights, "The number of shift lights to render." );
         for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
             shiftLights[i].saveProperties( writer );
+        writer.writeProperty( displayGear, "Display the gear?" );
         writer.writeProperty( gearBackgroundImageName, "The name of the image to render behind the gear number." );
         writer.writeProperty( gearPosX, "The x-offset in pixels to the gear label." );
         writer.writeProperty( gearPosY, "The y-offset in pixels to the gear label." );
@@ -914,6 +925,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         else if ( loader.loadProperty( revMarkersHighColor ) );
         else if ( loader.loadProperty( fillHighBackground ) );
         else if ( loader.loadProperty( interpolateMarkerColors ) );
+        else if ( loader.loadProperty( displayGear ) );
         else if ( loader.loadProperty( gearBackgroundImageName ) );
         else if ( loader.loadProperty( gearPosX ) );
         else if ( loader.loadProperty( gearPosY ) );
@@ -1019,6 +1031,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         propsCont.addGroup( "Gear" );
         
+        propsCont.addProperty( displayGear );
         propsCont.addProperty( gearBackgroundImageName );
         propsCont.addProperty( gearPosX );
         propsCont.addProperty( gearPosY );
