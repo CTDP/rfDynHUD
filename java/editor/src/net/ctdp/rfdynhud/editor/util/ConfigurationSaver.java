@@ -154,8 +154,8 @@ public class ConfigurationSaver
     public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, File out ) throws IOException
     {
         final IniWriter iniWriter = new IniWriter( out );
-        iniWriter.setMinEqualSignPosition( 25 );
-        iniWriter.setMinCommentPosition( 45 );
+        iniWriter.setMinEqualSignPosition( 27 );
+        iniWriter.setMinCommentPosition( 55 );
         
         iniWriter.writeGroup( "Meta" );
         iniWriter.writeComment( "The data in this section is only for informational purposes" );
