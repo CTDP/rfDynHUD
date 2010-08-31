@@ -25,10 +25,12 @@ import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
+import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
@@ -44,14 +46,26 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class ControlsWidget extends Widget
 {
-    private final BooleanProperty horizontalBars = new BooleanProperty( this, "horizontalBars", false );
+    private final BooleanProperty horizontalBars = new BooleanProperty( this, "horizontalBars", false )
+    {
+        @Override
+        protected void onValueChanged( boolean newValue )
+        {
+            clutchDirty = true;
+            brakeDirty = true;
+            throttleDirty = true;
+        }
+    };
+    
+    private final BooleanProperty swapThrottleAndBrake = new BooleanProperty( this, "swapThrottleAndBrake", false );
+    private boolean oldSwapTB = swapThrottleAndBrake.getBooleanValue();
     
     private final BooleanProperty displayClutch = new BooleanProperty( this, "displayClutch", true )
     {
         @Override
         protected void onValueChanged( boolean newValue )
         {
-            resetTransTexs();
+            clutchDirty = true;
         }
     };
     private final BooleanProperty displayBrake = new BooleanProperty( this, "displayBrake", true )
@@ -59,7 +73,7 @@ public class ControlsWidget extends Widget
         @Override
         protected void onValueChanged( boolean newValue )
         {
-            resetTransTexs();
+            brakeDirty = true;
         }
     };
     private final BooleanProperty displayThrottle = new BooleanProperty( this, "displayThrottle", true )
@@ -67,17 +81,72 @@ public class ControlsWidget extends Widget
         @Override
         protected void onValueChanged( boolean newValue )
         {
-            resetTransTexs();
+            throttleDirty = true;
         }
     };
     
-    private final ColorProperty clutchColor = new ColorProperty( this, "clutchColor", "#0000FF" );
-    private final ColorProperty brakeColor = new ColorProperty( this, "brakeColor", "#FF0000" );
-    private final ColorProperty throttleColor = new ColorProperty( this, "throttleColor", "#00FF00" );
+    private final ImageProperty clutchImage = new ImageProperty( this, "clutchImage", null, "", false, true )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            clutchDirty = true;
+        }
+    };
+    private final ColorProperty clutchColor = new ColorProperty( this, "clutchColor", "#0000FF" )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            clutchDirty = true;
+        }
+    };
+    
+    private final ImageProperty brakeImage = new ImageProperty( this, "brakeImage", null, "", false, true )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            brakeDirty = true;
+        }
+    };
+    private final ColorProperty brakeColor = new ColorProperty( this, "brakeColor", "#FF0000" )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            brakeDirty = true;
+        }
+    };
+    
+    private final ImageProperty throttleImage = new ImageProperty( this, "throttleImage", null, "", false, true )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            throttleDirty = true;
+        }
+    };
+    private final ColorProperty throttleColor = new ColorProperty( this, "throttleColor", "#00FF00" )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            throttleDirty = true;
+        }
+    };
+    
+    private TextureImage2D scaledClutchTexture = null;
+    private TextureImage2D scaledBrakeTexture = null;
+    private TextureImage2D scaledThrottleTexture = null;
     
     private TransformableTexture texClutch = null;
     private TransformableTexture texBrake = null;
     private TransformableTexture texThrottle = null;
+    
+    private boolean clutchDirty = true;
+    private boolean brakeDirty = true;
+    private boolean throttleDirty = true;
     
     /**
      * {@inheritDoc}
@@ -88,14 +157,7 @@ public class ControlsWidget extends Widget
         return ( composeVersion( 1, 1, 0 ) );
     }
     
-    private void resetTransTexs()
-    {
-        texClutch = null;
-        texBrake = null;
-        texThrottle = null;
-    }
-    
-    private final IntProperty gap = new IntProperty( this, "gap", 10 );
+    private final IntProperty gap = new IntProperty( this, "gap", 5 );
     
     @Override
     public WidgetPackage getWidgetPackage()
@@ -125,6 +187,141 @@ public class ControlsWidget extends Widget
         setUserVisible1( viewedVSI.isPlayer() );
     }
     
+    private int initClutchTexture( boolean isEditorMode, int offset, int w, int h, int gap )
+    {
+        if ( displayClutch.getBooleanValue() )
+        {
+            if ( ( texClutch == null ) || ( texClutch.getWidth() != w ) || ( texClutch.getHeight() != h ) || clutchDirty )
+            {
+                texClutch = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texClutch, isEditorMode );
+                
+                ImageTemplate it = clutchImage.getImage();
+                if ( it == null )
+                {
+                    scaledClutchTexture = null;
+                    texClutch.getTexture().clear( clutchColor.getColor(), true, null );
+                }
+                else
+                {
+                    if ( horizontalBars.getBooleanValue() )
+                    {
+                        scaledClutchTexture = it.getScaledTextureImage( w, h * 2, scaledClutchTexture, isEditorMode );
+                        texClutch.getTexture().clear( scaledClutchTexture, 0, h, w, h, 0, 0, w, h, true, null );
+                    }
+                    else
+                    {
+                        scaledClutchTexture = it.getScaledTextureImage( w * 2, h, scaledClutchTexture, isEditorMode );
+                        texClutch.getTexture().clear( scaledClutchTexture, w, 0, w, h, 0, 0, w, h, true, null );
+                    }
+                }
+                
+                if ( horizontalBars.getBooleanValue() )
+                    texClutch.setTranslation( 0, offset );
+                else
+                    texClutch.setTranslation( offset, 0 );
+                
+                clutchDirty = false;
+            }
+            
+            if ( horizontalBars.getBooleanValue() )
+                offset += h + gap;
+            else
+                offset += w + gap;
+        }
+        
+        return ( offset );
+    }
+    
+    private int initBrakeTexture( boolean isEditorMode, int offset, int w, int h, int gap )
+    {
+        if ( displayBrake.getBooleanValue() )
+        {
+            if ( ( texBrake == null ) || ( texBrake.getWidth() != w ) || ( texBrake.getHeight() != h ) || brakeDirty || ( swapThrottleAndBrake.getBooleanValue() != oldSwapTB ) )
+            {
+                texBrake = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texBrake, isEditorMode );
+                
+                ImageTemplate it = brakeImage.getImage();
+                if ( it == null )
+                {
+                    scaledBrakeTexture = null;
+                    texBrake.getTexture().clear( brakeColor.getColor(), true, null );
+                }
+                else
+                {
+                    if ( horizontalBars.getBooleanValue() )
+                    {
+                        scaledBrakeTexture = it.getScaledTextureImage( w, h * 2, scaledBrakeTexture, isEditorMode );
+                        texBrake.getTexture().clear( scaledBrakeTexture, 0, h, w, h, 0, 0, w, h, true, null );
+                    }
+                    else
+                    {
+                        scaledBrakeTexture = it.getScaledTextureImage( w * 2, h, scaledBrakeTexture, isEditorMode );
+                        texBrake.getTexture().clear( scaledBrakeTexture, w, 0, w, h, 0, 0, w, h, true, null );
+                    }
+                }
+                
+                if ( horizontalBars.getBooleanValue() )
+                    texBrake.setTranslation( 0, offset );
+                else
+                    texBrake.setTranslation( offset, 0 );
+                
+                brakeDirty = false;
+            }
+            
+            if ( horizontalBars.getBooleanValue() )
+                offset += h + gap;
+            else
+                offset += w + gap;
+        }
+        
+        return ( offset );
+    }
+    
+    private int initThrottleTexture( boolean isEditorMode, int offset, int w, int h, int gap )
+    {
+        if ( displayThrottle.getBooleanValue() )
+        {
+            if ( ( texThrottle == null ) || ( texThrottle.getWidth() != w ) || ( texThrottle.getHeight() != h ) || throttleDirty || ( swapThrottleAndBrake.getBooleanValue() != oldSwapTB ) )
+            {
+                texThrottle = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texThrottle, isEditorMode );
+                
+                ImageTemplate it = throttleImage.getImage();
+                if ( it == null )
+                {
+                    scaledThrottleTexture = null;
+                    texThrottle.getTexture().clear( throttleColor.getColor(), true, null );
+                }
+                else
+                {
+                    if ( horizontalBars.getBooleanValue() )
+                    {
+                        scaledThrottleTexture = it.getScaledTextureImage( w, h * 2, scaledThrottleTexture, isEditorMode );
+                        texThrottle.getTexture().clear( scaledThrottleTexture, 0, h, w, h, 0, 0, w, h, true, null );
+                    }
+                    else
+                    {
+                        scaledThrottleTexture = it.getScaledTextureImage( w * 2, h, scaledThrottleTexture, isEditorMode );
+                        texThrottle.getTexture().clear( scaledThrottleTexture, w, 0, w, h, 0, 0, w, h, true, null );
+                    }
+                }
+                
+                if ( horizontalBars.getBooleanValue() )
+                    texThrottle.setTranslation( 0, offset );
+                else
+                    texThrottle.setTranslation( offset, 0 );
+                
+                throttleDirty = false;
+            }
+            
+            if ( horizontalBars.getBooleanValue() )
+                offset += h + gap;
+            else
+                offset += w + gap;
+        }
+        
+        return ( offset );
+    }
+    
     private int initSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         int numBars = 0;
@@ -150,50 +347,21 @@ public class ControlsWidget extends Widget
         final int h = horizontalBars.getBooleanValue() ? ( widgetInnerHeight + gap ) / numBars - gap : widgetInnerHeight;
         
         int offset = 0;
-        if ( displayClutch.getBooleanValue() && ( ( texClutch == null ) || ( texClutch.getWidth() != w ) || ( texClutch.getHeight() != h ) ) )
+        
+        offset = initClutchTexture( isEditorMode, offset, w, h, gap );
+        
+        if ( swapThrottleAndBrake.getBooleanValue() )
         {
-            texClutch = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texClutch, isEditorMode );
-            if ( horizontalBars.getBooleanValue() )
-            {
-                texClutch.setTranslation( 0, offset );
-                offset += h + gap;
-            }
-            else
-            {
-                texClutch.setTranslation( offset, 0 );
-                offset += w + gap;
-            }
+            offset = initThrottleTexture( isEditorMode, offset, w, h, gap );
+            offset = initBrakeTexture( isEditorMode, offset, w, h, gap );
+        }
+        else
+        {
+            offset = initBrakeTexture( isEditorMode, offset, w, h, gap );
+            offset = initThrottleTexture( isEditorMode, offset, w, h, gap );
         }
         
-        if ( displayBrake.getBooleanValue() && ( ( texBrake == null ) || ( texBrake.getWidth() != w ) || ( texBrake.getHeight() != h ) ) )
-        {
-            texBrake = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texBrake, isEditorMode );
-            if ( horizontalBars.getBooleanValue() )
-            {
-                texBrake.setTranslation( 0, offset );
-                offset += h + gap;
-            }
-            else
-            {
-                texBrake.setTranslation( offset, 0 );
-                offset += w + gap;
-            }
-        }
-        
-        if ( displayThrottle.getBooleanValue() && ( ( texThrottle == null ) || ( texThrottle.getWidth() != w ) || ( texThrottle.getHeight() != h ) ) )
-        {
-            texThrottle = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, texThrottle, isEditorMode );
-            if ( horizontalBars.getBooleanValue() )
-            {
-                texThrottle.setTranslation( 0, offset );
-                offset += h + gap;
-            }
-            else
-            {
-                texThrottle.setTranslation( offset, 0 );
-                offset += w + gap;
-            }
-        }
+        oldSwapTB = swapThrottleAndBrake.getBooleanValue();
         
         return ( numBars );
     }
@@ -211,10 +379,20 @@ public class ControlsWidget extends Widget
         int i = 0;
         if ( displayClutch.getBooleanValue() )
             texs[i++] = texClutch;
-        if ( displayBrake.getBooleanValue() )
-            texs[i++] = texBrake;
-        if ( displayThrottle.getBooleanValue() )
-            texs[i++] = texThrottle;
+        if ( swapThrottleAndBrake.getBooleanValue() )
+        {
+            if ( displayThrottle.getBooleanValue() )
+                texs[i++] = texThrottle;
+            if ( displayBrake.getBooleanValue() )
+                texs[i++] = texBrake;
+        }
+        else
+        {
+            if ( displayBrake.getBooleanValue() )
+                texs[i++] = texBrake;
+            if ( displayThrottle.getBooleanValue() )
+                texs[i++] = texThrottle;
+        }
         
         return ( texs );
     }
@@ -226,15 +404,6 @@ public class ControlsWidget extends Widget
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         initSubTextures( editorPresets != null, width, height );
-        
-        if ( displayClutch.getBooleanValue() )
-            texClutch.getTexture().clear( clutchColor.getColor(), true, null );
-        
-        if ( displayBrake.getBooleanValue() )
-            texBrake.getTexture().clear( brakeColor.getColor(), true, null );
-        
-        if ( displayThrottle.getBooleanValue() )
-            texThrottle.getTexture().clear( throttleColor.getColor(), true, null );
     }
     
     @Override
@@ -243,9 +412,19 @@ public class ControlsWidget extends Widget
         final boolean isEditorMode = ( editorPresets != null );
         
         final TelemetryData telemData = gameData.getTelemetryData();
-        float uClutch = isEditorMode ? 0.5f : telemData.getUnfilteredClutch();
+        float uClutch = isEditorMode ? 1.0f : telemData.getUnfilteredClutch();
         float uBrake = isEditorMode ? 0.2f : telemData.getUnfilteredBrake();
-        float uThrottle = telemData.getUnfilteredThrottle();
+        float uThrottle = isEditorMode ? 0.4f : telemData.getUnfilteredThrottle();
+        
+        if ( needsCompleteRedraw )
+        {
+            if ( displayClutch.getBooleanValue() && ( scaledClutchTexture != null ) )
+                texture.drawImage( scaledClutchTexture, 0, 0, texClutch.getWidth(), texClutch.getHeight(), offsetX + (int)texClutch.getTransX(), offsetY + (int)texClutch.getTransY(), texClutch.getWidth(), texClutch.getHeight(), true, null );
+            if ( displayBrake.getBooleanValue() && ( scaledBrakeTexture != null ) )
+                texture.drawImage( scaledBrakeTexture, 0, 0, texBrake.getWidth(), texBrake.getHeight(), offsetX + (int)texBrake.getTransX(), offsetY + (int)texBrake.getTransY(), texBrake.getWidth(), texBrake.getHeight(), true, null );
+            if ( displayThrottle.getBooleanValue() && ( scaledThrottleTexture != null ) )
+                texture.drawImage( scaledThrottleTexture, 0, 0, texThrottle.getWidth(), texThrottle.getHeight(), offsetX + (int)texThrottle.getTransX(), offsetY + (int)texThrottle.getTransY(), texThrottle.getWidth(), texThrottle.getHeight(), true, null );
+        }
         
         if ( horizontalBars.getBooleanValue() )
         {
@@ -287,11 +466,15 @@ public class ControlsWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( horizontalBars, "Extend the bars horizontally instead of vertically?" );
+        writer.writeProperty( swapThrottleAndBrake, "Swap throttle and brake order?" );
         writer.writeProperty( displayClutch, "Display the clutch bar?" );
+        writer.writeProperty( clutchImage, "The image for the clutch bar. (overrules the color)" );
         writer.writeProperty( clutchColor, "The color used for the clutch bar in the format #RRGGBB (hex)." );
         writer.writeProperty( displayBrake, "Display the brake bar?" );
+        writer.writeProperty( brakeImage, "The image for the brake bar. (overrules the color)" );
         writer.writeProperty( brakeColor, "The color used for the brake bar in the format #RRGGBB (hex)." );
         writer.writeProperty( displayThrottle, "Display the throttle bar?" );
+        writer.writeProperty( throttleImage, "The image for the throttle bar. (overrules the color)" );
         writer.writeProperty( throttleColor, "The color used for the throttle bar in the format #RRGGBB (hex)." );
         writer.writeProperty( gap, "Gap between the bars" );
     }
@@ -305,11 +488,15 @@ public class ControlsWidget extends Widget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( horizontalBars ) );
+        else if ( loader.loadProperty( swapThrottleAndBrake ) );
         else if ( loader.loadProperty( displayClutch ) );
+        else if ( loader.loadProperty( clutchImage ) );
         else if ( loader.loadProperty( clutchColor ) );
         else if ( loader.loadProperty( displayBrake ) );
+        else if ( loader.loadProperty( brakeImage ) );
         else if ( loader.loadProperty( brakeColor ) );
         else if ( loader.loadProperty( displayThrottle ) );
+        else if ( loader.loadProperty( throttleImage ) );
         else if ( loader.loadProperty( throttleColor ) );
         else if ( loader.loadProperty( gap ) );
     }
@@ -325,11 +512,15 @@ public class ControlsWidget extends Widget
         propsCont.addGroup( "Specific" );
         
         propsCont.addProperty( horizontalBars );
+        propsCont.addProperty( swapThrottleAndBrake );
         propsCont.addProperty( displayClutch );
+        propsCont.addProperty( clutchImage );
         propsCont.addProperty( clutchColor );
         propsCont.addProperty( displayBrake );
+        propsCont.addProperty( brakeImage );
         propsCont.addProperty( brakeColor );
         propsCont.addProperty( displayThrottle );
+        propsCont.addProperty( throttleImage );
         propsCont.addProperty( throttleColor );
         propsCont.addProperty( gap );
     }
