@@ -24,6 +24,7 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.etv2010.widgets._base.ETVWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
+import net.ctdp.rfdynhud.etv2010.widgets._util.ETVImages.BGType;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -228,20 +229,20 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         vehicleScoringInfos = new VehicleScoringInfo[ maxNumItems ];
         
-        if ( ( itemClearImage == null ) || ( itemClearImage.getWidth() != width ) || ( itemClearImage.getHeight() != itemHeight * 2 ) )
+        itemClearImage = TextureImage2D.getOrCreateDrawTexture( width, itemHeight * 2, true, itemClearImage, editorPresets != null );
+        
+        boolean useImages = this.useImages.getBooleanValue();
+        
+        if ( useImages )
         {
-            itemClearImage = TextureImage2D.getOrCreateDrawTexture( width, itemHeight * 2, true, itemClearImage, editorPresets != null );
-            
-            ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
-            ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), dataBackgroundColor.getColor(), itemClearImage, true );
+            ETVUtils.drawLabeledDataBackgroundI( 0, 0, width, itemHeight, "00", getFontProperty(), getImages(), BGType.POSITION_FIRST, itemClearImage, true );
+            ETVUtils.drawLabeledDataBackgroundI( 0, itemHeight, width, itemHeight, "00", getFontProperty(), getImages(), BGType.NEUTRAL, itemClearImage, true );
         }
         else
         {
-            itemClearImage.clear( false, null );
+            ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFontProperty(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
+            ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFontProperty(), captionBackgroundColor.getColor(), dataBackgroundColor.getColor(), itemClearImage, true );
         }
-        
-        ETVUtils.drawLabeledDataBackground( 0, 0, width, itemHeight, "00", getFont(), captionBackgroundColor1st.getColor(), dataBackgroundColor1st.getColor(), itemClearImage, true );
-        ETVUtils.drawLabeledDataBackground( 0, itemHeight, width, itemHeight, "00", getFont(), captionBackgroundColor.getColor(), dataBackgroundColor.getColor(), itemClearImage, true );
         
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setFont( getFont() );
@@ -250,8 +251,8 @@ public class ETVStandingsWidget extends ETVWidgetBase
         Rectangle2D numBounds = metrics.getStringBounds( "00", texCanvas );
         
         int capWidth = (int)Math.ceil( numBounds.getWidth() );
-        int dataAreaLeft = ETVUtils.getLabeledDataDataLeft( numBounds );
-        int dataAreaRight = ETVUtils.getLabeledDataDataRight( width );
+        int dataAreaLeft = useImages ? getImages().getLabeledDataDataLeft( itemHeight, numBounds ) : ETVUtils.getLabeledDataDataLeft( numBounds );
+        int dataAreaRight = useImages ? getImages().getLabeledDataDataRight( width, itemHeight ) : ETVUtils.getLabeledDataDataRight( width );
         int vMiddle = ETVUtils.getLabeledDataVMiddle( itemHeight, numBounds );
         
         captionStrings = new DrawnString[ maxNumItems ];
@@ -287,7 +288,10 @@ public class ETVStandingsWidget extends ETVWidgetBase
         {
             for ( int i = 0; i < NUM_FLAG_TEXTURES; i++ )
             {
-                ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), dataBackgroundColor.getColor(), flagTextures[i].getTexture(), true );
+                if ( useImages )
+                    ETVUtils.drawDataBackgroundI( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), getImages(), BGType.NEUTRAL, flagTextures[i].getTexture(), true );
+                else
+                    ETVUtils.drawDataBackground( 0, 0, flagTextures[i].getWidth(), flagTextures[i].getHeight(), dataBackgroundColor.getColor(), flagTextures[i].getTexture(), true );
                 
                 laptimes[i] = new FloatValue();
                 laptimeStrings[i] = dsf.newDrawnString( "laptimeStrings" + i, flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
@@ -505,7 +509,10 @@ public class ETVStandingsWidget extends ETVWidgetBase
     {
         super.getPropertiesCaptionBG( propsCont, forceAll );
         
-        propsCont.addProperty( captionBackgroundColor1st );
+        if ( forceAll || !useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( captionBackgroundColor1st );
+        }
     }
     
     /**
@@ -516,7 +523,10 @@ public class ETVStandingsWidget extends ETVWidgetBase
     {
         super.getPropertiesDataBG( propsCont, forceAll );
         
-        propsCont.addProperty( dataBackgroundColor1st );
+        if ( forceAll || !useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( dataBackgroundColor1st );
+        }
     }
     
     /**
@@ -526,9 +536,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
-        
-        propsCont.addProperty( captionBackgroundColor1st );
-        propsCont.addProperty( dataBackgroundColor1st );
         
         propsCont.addGroup( "Specific" );
         

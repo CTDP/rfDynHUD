@@ -19,10 +19,13 @@ package net.ctdp.rfdynhud.etv2010.widgets._base;
 
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.etv2010.widgets._util.ETVImages;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
+import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -30,6 +33,26 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 public abstract class ETVWidgetBase extends Widget
 {
+    protected final BooleanProperty useImages = new BooleanProperty( this, "useImages", true )
+    {
+        @Override
+        protected void onValueChanged( boolean newValue )
+        {
+            images = null;
+        }
+    };
+    
+    protected final StringProperty imagesIni = new StringProperty( this, "imagesIni", "ecclestone_tv_2010/etv_2010_images.ini" )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            images = null;
+        }
+    };
+    
+    private ETVImages images = null;
+    
     protected final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
     protected final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
     protected final ColorProperty dataBackgroundColor = new ColorProperty( this, "dataBgColor", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
@@ -68,6 +91,19 @@ public abstract class ETVWidgetBase extends Widget
         return ( ETVUtils.getDefaultNamedFontValue( name ) );
     }
     
+    protected final ETVImages getImages()
+    {
+        if ( !useImages.getBooleanValue() )
+            return ( null );
+        
+        if ( images == null )
+        {
+            images = new ETVImages( imagesIni.getStringValue() );
+        }
+        
+        return ( images );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -101,7 +137,10 @@ public abstract class ETVWidgetBase extends Widget
      */
     protected void getPropertiesCaptionBG( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        propsCont.addProperty( captionBackgroundColor );
+        if ( forceAll || !useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( captionBackgroundColor );
+        }
     }
     
     /**
@@ -123,7 +162,10 @@ public abstract class ETVWidgetBase extends Widget
      */
     protected void getPropertiesDataBG( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        propsCont.addProperty( dataBackgroundColor );
+        if ( forceAll || !useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( dataBackgroundColor );
+        }
     }
     
     /**
@@ -144,7 +186,14 @@ public abstract class ETVWidgetBase extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Colors and Fonts" );
+        propsCont.addGroup( "Images, Colors and Fonts" );
+        
+        propsCont.addProperty( useImages );
+        
+        if ( forceAll || useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( imagesIni );
+        }
         
         getPropertiesCaption( propsCont, forceAll );
         getPropertiesData( propsCont, forceAll );

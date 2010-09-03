@@ -18,10 +18,10 @@
 package net.ctdp.rfdynhud.etv2010.widgets._util;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 
+import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
@@ -135,6 +135,40 @@ public class ETVUtils
         return ( vMiddle );
     }
     
+    public static void drawBigPositionBackgroundI( int x, int y, int width, int height, ETVImages images, boolean first, TextureImage2D texture, boolean clearBefore )
+    {
+        if ( clearBefore )
+            texture.clear( x, y, width, height, true, null );
+        
+        final ImageTemplate it = images.getBigPositionImage( first );
+        final float scale = (float)height / (float)it.getBaseHeight();
+        final int hs = it.getBaseHeight();
+        
+        int xs = 0;
+        int xd = x;
+        
+        int border_left = images.getBigPositionBorderLeft();
+        int border_left_ = Math.round( border_left * scale );
+        
+        it.drawScaled( xs, 0, border_left, hs, xd, y, border_left_, height, texture, false );
+        
+        xs += border_left;
+        xd += border_left_;
+        
+        int border_right = images.getBigPositionBorderRight();
+        int border_right_ = Math.round( border_right * scale );
+        
+        int data_width = it.getBaseWidth() - xs - border_right;
+        int data_width_ = width - xd + x - border_right_;
+        
+        it.drawScaled( xs, 0, data_width, hs, xd, y, data_width_, height, texture, false );
+        
+        xs += data_width;
+        xd += data_width_;
+        
+        it.drawScaled( xs, 0, border_right, hs, xd, y, border_right_, height, texture, false );
+    }
+    
     public static void drawDataBackground( int x, int y, int width, int height, int triangleWidthFactor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
     {
         if ( clearBefore )
@@ -176,16 +210,49 @@ public class ETVUtils
         drawDataBackground( x, y, width, height, 1, dataBgColor, texture, clearBefore );
     }
     
-    public static void drawLabeledDataBackground( int x, int y, int width, int height, int triangleWidthFactor, String caption, Font font, Color captionBgColor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
+    public static void drawDataBackgroundI( int x, int y, int width, int height, ETVImages images, ETVImages.BGType type, TextureImage2D texture, boolean clearBefore )
+    {
+        if ( clearBefore )
+            texture.clear( x, y, width, height, true, null );
+        
+        final ImageTemplate it = images.getDataImage( type );
+        final float scale = (float)height / (float)it.getBaseHeight();
+        final int hs = it.getBaseHeight();
+        
+        int xs = 0;
+        int xd = x;
+        
+        int border_left = images.getDataBorderLeft();
+        int border_left_ = Math.round( border_left * scale );
+        
+        it.drawScaled( xs, 0, border_left, hs, xd, y, border_left_, height, texture, false );
+        
+        xs += border_left;
+        xd += border_left_;
+        
+        int border_right = images.getDataBorderRight();
+        int border_right_ = Math.round( border_right * scale );
+        
+        int data_width = it.getBaseWidth() - xs - border_right;
+        int data_width_ = width - xd + x - border_right_;
+        
+        it.drawScaled( xs, 0, data_width, hs, xd, y, data_width_, height, texture, false );
+        
+        xs += data_width;
+        xd += data_width_;
+        
+        it.drawScaled( xs, 0, border_right, hs, xd, y, border_right_, height, texture, false );
+    }
+    
+    public static void drawLabeledDataBackground( int x, int y, int width, int height, int triangleWidthFactor, String caption, FontProperty font, Color captionBgColor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
     {
         if ( clearBefore )
             texture.clear( x, y, width, height, true, null );
         
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
-        texCanvas.setFont( font );
-        FontMetrics metrics = texCanvas.getFontMetrics();
         
-        Rectangle2D capBounds = metrics.getStringBounds( caption, texCanvas );
+        Rectangle2D capBounds = texture.getStringBounds( caption, font );
+        int capWidth = (int)Math.ceil( capBounds.getWidth() );
         
         texCanvas.setColor( captionBgColor );
         
@@ -201,7 +268,6 @@ public class ETVUtils
         
         texCanvas.setAntialiazingEnabled( false );
         
-        int capWidth = (int)Math.ceil( capBounds.getWidth() );
         Rect2i rect = new Rect2i( x + triangWidth, y + 0, capWidth, height );
         
         texCanvas.fillRect( rect );
@@ -218,8 +284,114 @@ public class ETVUtils
         drawDataBackground( x + triangWidth + capWidth, y, width - triangWidth - capWidth, height, dataBgColor, texture, false );
     }
     
-    public static void drawLabeledDataBackground( int x, int y, int width, int height, String caption, Font font, Color captionBgColor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
+    public static void drawLabeledDataBackground( int x, int y, int width, int height, String caption, FontProperty font, Color captionBgColor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
     {
         drawLabeledDataBackground( x, y, width, height, 1, caption, font, captionBgColor, dataBgColor, texture, clearBefore );
+    }
+    
+    public static void drawLabeledDataBackgroundI( int x, int y, int width, int height, String caption, FontProperty font, ETVImages images, ETVImages.BGType type, TextureImage2D texture, boolean clearBefore )
+    {
+        if ( clearBefore )
+            texture.clear( x, y, width, height, true, null );
+        
+        Rectangle2D capBounds = texture.getStringBounds( caption, font );
+        int capWidth = (int)Math.ceil( capBounds.getWidth() );
+        
+        final ImageTemplate it = images.getLabeledDataImage( type );
+        final float scale = (float)height / (float)it.getBaseHeight();
+        final int hs = it.getBaseHeight();
+        
+        int xs = 0;
+        int xd = x;
+        
+        int label_border_left = images.getLabeledDataLabelBorderLeft();
+        int label_border_left_ = Math.round( label_border_left * scale );
+        
+        it.drawScaled( xs, 0, label_border_left, hs, xd, y, label_border_left_, height, texture, false );
+        
+        xs += label_border_left;
+        xd += label_border_left_;
+        
+        int label_width = images.getLabeledDataLabelWidth();
+        int label_width_ = capWidth;
+        
+        it.drawScaled( xs, 0, label_width, hs, xd, y, label_width_, height, texture, false );
+        
+        xs += label_width;
+        xd += label_width_;
+        
+        int separator_width = images.getLabeledDataSeparatorWidth();
+        int separator_width_ = Math.round( separator_width * scale );
+        
+        it.drawScaled( xs, 0, separator_width, hs, xd, y, separator_width_, height, texture, false );
+        
+        xs += separator_width;
+        xd += separator_width_;
+        
+        int border_right = images.getLabeledDataDataBorderRight();
+        int border_right_ = Math.round( border_right * scale );
+        
+        int data_width = it.getBaseWidth() - xs - border_right;
+        int data_width_ = width - xd + x - border_right_;
+        
+        it.drawScaled( xs, 0, data_width, hs, xd, y, data_width_, height, texture, false );
+        
+        xs += data_width;
+        xd += data_width_;
+        
+        it.drawScaled( xs, 0, border_right, hs, xd, y, border_right_, height, texture, false );
+    }
+    
+    public static void drawLabeledCompareBackgroundI( int x, int y, int width, int height, String caption, FontProperty font, ETVImages images, ETVImages.BGType type, TextureImage2D texture, boolean clearBefore )
+    {
+        if ( clearBefore )
+            texture.clear( x, y, width, height, true, null );
+        
+        Rectangle2D capBounds = texture.getStringBounds( caption, font );
+        int capWidth = (int)Math.ceil( capBounds.getWidth() );
+        
+        final ImageTemplate it = images.getCompareImage( type );
+        final float scale = (float)height / (float)it.getBaseHeight();
+        final int hs = it.getBaseHeight();
+        
+        int xs = 0;
+        int xd = x;
+        
+        int label_border_left = images.getComparePositionBorderLeft();
+        int label_border_left_ = Math.round( label_border_left * scale );
+        
+        it.drawScaled( xs, 0, label_border_left, hs, xd, y, label_border_left_, height, texture, false );
+        
+        xs += label_border_left;
+        xd += label_border_left_;
+        
+        int label_width = images.getComparePositionWidth();
+        int label_width_ = capWidth;
+        
+        it.drawScaled( xs, 0, label_width, hs, xd, y, label_width_, height, texture, false );
+        
+        xs += label_width;
+        xd += label_width_;
+        
+        int separator_width = images.getCompareSeparatorWidth();
+        int separator_width_ = Math.round( separator_width * scale );
+        
+        it.drawScaled( xs, 0, separator_width, hs, xd, y, separator_width_, height, texture, false );
+        
+        xs += separator_width;
+        xd += separator_width_;
+        
+        int border_right = images.getCompareDataBorderRight();
+        int border_right_ = Math.round( border_right * scale );
+        
+        int data_width = it.getBaseWidth() - xs - border_right;
+        int data_width_ = width - xd + x - border_right_;
+        
+        it.drawScaled( xs, 0, data_width, hs, xd, y, data_width_, height, texture, false );
+        
+        xs += data_width;
+        xd += data_width_;
+        
+        it.drawScaled( xs, 0, border_right, hs, xd, y, border_right_, height, texture, false );
     }
 }

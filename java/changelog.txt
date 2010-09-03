@@ -36,8 +36,9 @@ Major:
 * Added pause detection.
 * Added a data cache to restore fuel usage and fastest lap times per mod, car and track.
 * Added support for multiple displays.
-* Added SpeedoWidget
+* Added SpeedoWidget.
 * Added AssembledWidget to combine existing Widgets to create a new and more complex one in an efficient way.
+* Added support for images to style the ETV Widgets.
 
 Minor:
 
@@ -68,7 +69,7 @@ TODO:
 * Draw sub textures in editor (clickable?)
 * Add RideHeightWidget
 * Add DashboardWidget
-* Bar meter for fuel, temp, etc.
+* Bar meter for temp, etc.
 * Manage logs to keep 5
 * Meta config (merge configurations)
 * Add master d3d9.dll

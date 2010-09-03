@@ -80,7 +80,10 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
     {
         super.getPropertiesCaptionBG( propsCont, forceAll );
         
-        propsCont.addProperty( captionBackgroundColor1st );
+        if ( forceAll || !useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( captionBackgroundColor1st );
+        }
     }
     
     /**
@@ -91,10 +94,13 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
     {
         super.getPropertiesDataBG( propsCont, forceAll );
         
-        propsCont.addProperty( dataBackgroundColor1st );
-        propsCont.addProperty( dataBackgroundColorFastest );
-        propsCont.addProperty( dataBackgroundColorFaster );
-        propsCont.addProperty( dataBackgroundColorSlower );
+        if ( forceAll || !useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( dataBackgroundColor1st );
+            propsCont.addProperty( dataBackgroundColorFastest );
+            propsCont.addProperty( dataBackgroundColorFaster );
+            propsCont.addProperty( dataBackgroundColorSlower );
+        }
     }
     
     /**

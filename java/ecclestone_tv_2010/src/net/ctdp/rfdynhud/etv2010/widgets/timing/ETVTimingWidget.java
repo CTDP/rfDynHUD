@@ -25,6 +25,7 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.etv2010.widgets._base.ETVTimingWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
+import net.ctdp.rfdynhud.etv2010.widgets._util.ETVImages.BGType;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -70,12 +71,6 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     private final IntProperty visibleTimeAfterSector = new IntProperty( this, "visibleTimeAfterSector", 7 );
     
     private Font positionFont = null;
-    
-    private int rowHeight = 0;
-    
-    private int dataWidth = 0;
-    private int bigPositionWidth = 0;
-    private int smallPositionWidth = 0;
     
     private DrawnString drivernameString = null;
     private DrawnString laptimeString = null;
@@ -244,10 +239,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         return ( false );
     }
     
-    private void updateRowHeight( int height )
-    {
-        rowHeight = ( height - 2 * ETVUtils.ITEM_GAP ) / 3;
-    }
+    private final Coords coords = new Coords();
     
     /**
      * {@inheritDoc}
@@ -255,27 +247,20 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        updateRowHeight( height );
+        Rectangle2D bigPosBounds = texture.getStringBounds( "00", getPositionFont(), isFontAntiAliased() );
+        Rectangle2D posBounds = texture.getStringBounds( "00", getFontProperty() );
+        coords.update( getImages(), width, height, bigPosBounds, posBounds );
         
-        Rectangle2D posBounds = texture.getStringBounds( "00", getPositionFont(), isFontAntiAliased() );
+        int vMiddle = ETVUtils.getLabeledDataVMiddle( coords.rowHeight + coords.gap + coords.rowHeight, bigPosBounds );
         
-        bigPositionWidth = (int)Math.round( posBounds.getWidth() );
-        dataWidth = width - 6 * ETVUtils.TRIANGLE_WIDTH - bigPositionWidth - ETVUtils.TRIANGLE_WIDTH / 2;
+        bigPositionString = dsf.newDrawnString( "bigPositionString", width - coords.bigPosWidth + coords.bigPosCenter, 0 + vMiddle, Alignment.CENTER, false, getPositionFont(), isFontAntiAliased(), captionColor.getColor() );
         
-        int vMiddle = ETVUtils.getLabeledDataVMiddle( rowHeight + ETVUtils.ITEM_GAP + rowHeight, posBounds );
+        vMiddle = ETVUtils.getLabeledDataVMiddle( coords.rowHeight, posBounds );
         
-        bigPositionString = dsf.newDrawnString( "bigPositionString", width - 2 * ETVUtils.TRIANGLE_WIDTH - bigPositionWidth / 2, 0 + vMiddle, Alignment.CENTER, false, getPositionFont(), isFontAntiAliased(), captionColor.getColor() );
-        
-        Rectangle2D capBounds = texture.getStringBounds( "00", getFontProperty() );
-        
-        smallPositionWidth = (int)Math.round( capBounds.getWidth() );
-        
-        vMiddle = ETVUtils.getLabeledDataVMiddle( rowHeight, capBounds );
-        
-        drivernameString = dsf.newDrawnString( "drivernameString", 3 * ETVUtils.TRIANGLE_WIDTH + dataWidth, 0 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        laptimeString = dsf.newDrawnString( "laptimeString", 2 * ETVUtils.TRIANGLE_WIDTH + dataWidth, 1 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        relPositionString = dsf.newDrawnString( "relPositionString", 1 * ETVUtils.TRIANGLE_WIDTH + smallPositionWidth / 2, 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-        relTimeString = dsf.newDrawnString( "relTimeString", 1 * ETVUtils.TRIANGLE_WIDTH + dataWidth, 2 * ( rowHeight + ETVUtils.ITEM_GAP ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        drivernameString = dsf.newDrawnString( "drivernameString", coords.rowOffset2 + coords.dataRightB, 0 * ( coords.rowHeight + coords.gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        laptimeString = dsf.newDrawnString( "laptimeString", coords.rowOffset1 + coords.dataRightB, 1 * ( coords.rowHeight + coords.gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        relPositionString = dsf.newDrawnString( "relPositionString", coords.posCenterA, 2 * ( coords.rowHeight + coords.gap ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        relTimeString = dsf.newDrawnString( "relTimeString", coords.dataRightA, 2 * ( coords.rowHeight + coords.gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         forceCompleteRedraw( true );
     }
@@ -289,16 +274,27 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
-        int dataWidth2 = ETVUtils.TRIANGLE_WIDTH + dataWidth + ETVUtils.TRIANGLE_WIDTH;
+        final boolean useImages = this.useImages.getBooleanValue();
         
-        ETVUtils.drawDataBackground( offsetX + 2 * ETVUtils.TRIANGLE_WIDTH, offsetY + 0 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidth2, rowHeight, dataBackgroundColor.getColor(), texture, false );
-        ETVUtils.drawDataBackground( offsetX + 1 * ETVUtils.TRIANGLE_WIDTH, offsetY + 1 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidth2, rowHeight, dataBackgroundColor.getColor(), texture, false );
+        if ( useImages )
+            ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset2, offsetY + 0 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthB, coords.rowHeight, getImages(), BGType.NEUTRAL, texture, false );
+        else
+            ETVUtils.drawDataBackground( offsetX + coords.rowOffset2, offsetY + 0 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
+        
+        if ( useImages )
+            ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthB, coords.rowHeight, getImages(), BGType.NEUTRAL, texture, false );
+        else
+            ETVUtils.drawDataBackground( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
         
         if ( ( editorPresets != null ) || ( referenceTimeAbs != null ) )
         {
+            BGType bgType = BGType.NEUTRAL;
             Color capBgColor = captionBackgroundColor.getColor();
             if ( referencePlace == 1 )
+            {
+                bgType = BGType.POSITION_FIRST;
                 capBgColor = captionBackgroundColor1st.getColor();
+            }
             
             Color dataBgColor = dataBackgroundColor.getColor();
             if ( editorPresets != null )
@@ -307,27 +303,54 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
                 {
                     case 1:
                         if ( editorPresets.getLastLapTime() < referenceTimeAbs.getLapTime() )
+                        {
+                            bgType = BGType.FASTEST;
                             dataBgColor = dataBackgroundColorFastest.getColor();
+                        }
                         else if ( editorPresets.getLastLapTime() < referenceTimePers.getLapTime() )
+                        {
+                            bgType = BGType.FASTER;
                             dataBgColor = dataBackgroundColorFaster.getColor();
+                        }
                         else
+                        {
+                            bgType = BGType.SLOWER;
                             dataBgColor = dataBackgroundColorSlower.getColor();
+                        }
                         break;
                     case 2:
                         if ( editorPresets.getCurrentSector1Time() < referenceTimeAbs.getSector1() )
+                        {
+                            bgType = BGType.FASTEST;
                             dataBgColor = dataBackgroundColorFastest.getColor();
+                        }
                         else if ( editorPresets.getCurrentSector1Time() < referenceTimePers.getSector1() )
+                        {
+                            bgType = BGType.FASTER;
                             dataBgColor = dataBackgroundColorFaster.getColor();
+                        }
                         else
+                        {
+                            bgType = BGType.SLOWER;
                             dataBgColor = dataBackgroundColorSlower.getColor();
+                        }
                         break;
                     case 3:
                         if ( editorPresets.getCurrentSector2Time( true ) < referenceTimeAbs.getSector2( true ) )
+                        {
+                            bgType = BGType.FASTEST;
                             dataBgColor = dataBackgroundColorFastest.getColor();
+                        }
                         else if ( editorPresets.getCurrentSector2Time( true ) < referenceTimePers.getSector2( true ) )
+                        {
+                            bgType = BGType.FASTER;
                             dataBgColor = dataBackgroundColorFaster.getColor();
+                        }
                         else
+                        {
+                            bgType = BGType.SLOWER;
                             dataBgColor = dataBackgroundColorSlower.getColor();
+                        }
                         break;
                 }
             }
@@ -345,40 +368,74 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
                     {
                         case 1:
                             if ( vsi.getLastLapTime() < referenceTimeAbs.getLapTime() )
+                            {
+                                bgType = BGType.FASTEST;
                                 dataBgColor = dataBackgroundColorFastest.getColor();
+                            }
                             else if ( ( referenceTimePers != null ) && ( vsi.getLastLapTime() < referenceTimePers.getLapTime() ) )
+                            {
+                                bgType = BGType.FASTER;
                                 dataBgColor = dataBackgroundColorFaster.getColor();
+                            }
                             else
+                            {
+                                bgType = BGType.SLOWER;
                                 dataBgColor = dataBackgroundColorSlower.getColor();
+                            }
                             break;
                         case 2:
                             if ( vsi.getCurrentSector1() < referenceTimeAbs.getSector1() )
+                            {
+                                bgType = BGType.FASTEST;
                                 dataBgColor = dataBackgroundColorFastest.getColor();
+                            }
                             else if ( ( referenceTimePers != null ) && ( vsi.getCurrentSector1() < referenceTimePers.getSector1() ) )
+                            {
+                                bgType = BGType.FASTER;
                                 dataBgColor = dataBackgroundColorFaster.getColor();
+                            }
                             else
+                            {
+                                bgType = BGType.SLOWER;
                                 dataBgColor = dataBackgroundColorSlower.getColor();
+                            }
                             break;
                         case 3:
                             if ( vsi.getCurrentSector2( true ) < referenceTimeAbs.getSector2( true ) )
+                            {
+                                bgType = BGType.FASTEST;
                                 dataBgColor = dataBackgroundColorFastest.getColor();
+                            }
                             else if ( ( referenceTimePers != null ) && ( vsi.getCurrentSector2( true ) < referenceTimePers.getSector2( true ) ) )
+                            {
+                                bgType = BGType.FASTER;
                                 dataBgColor = dataBackgroundColorFaster.getColor();
+                            }
                             else
+                            {
+                                bgType = BGType.SLOWER;
                                 dataBgColor = dataBackgroundColorSlower.getColor();
+                            }
                             break;
                     }
                 }
             }
             
-            ETVUtils.drawLabeledDataBackground( offsetX + 0 * ETVUtils.TRIANGLE_WIDTH, offsetY + 2 * ( rowHeight + ETVUtils.ITEM_GAP ), dataWidth2, rowHeight, "00", getFont(), capBgColor, dataBgColor, texture, false );
+            if ( useImages )
+                ETVUtils.drawLabeledDataBackgroundI( offsetX, offsetY + 2 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), getImages(), bgType, texture, false );
+            else
+                ETVUtils.drawLabeledDataBackground( offsetX, offsetY + 2 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), capBgColor, dataBgColor, texture, false );
         }
         
         Color capBgColor = captionBackgroundColor.getColor();
-        if ( vsi.getPlace( getConfiguration().getUseClassScoring() ) == 1 )
+        boolean first = ( vsi.getPlace( getConfiguration().getUseClassScoring() ) == 1 );
+        if ( first )
             capBgColor = captionBackgroundColor1st.getColor();
         
-        ETVUtils.drawDataBackground( offsetX + width - 4 * ETVUtils.TRIANGLE_WIDTH - bigPositionWidth, offsetY, 4 * ETVUtils.TRIANGLE_WIDTH + bigPositionWidth, 2 * rowHeight + ETVUtils.ITEM_GAP, 2, capBgColor, texture, false );
+        if ( useImages )
+            ETVUtils.drawBigPositionBackgroundI( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + coords.gap + coords.rowHeight, getImages(), first, texture, false );
+        else
+            ETVUtils.drawDataBackground( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + coords.gap + coords.rowHeight, 2, capBgColor, texture, false );
         
         drivernameString.resetClearRect();
         drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture, false );

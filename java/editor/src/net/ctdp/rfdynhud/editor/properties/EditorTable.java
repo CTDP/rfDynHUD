@@ -282,6 +282,7 @@ public class EditorTable extends HierarchicalTable
             if ( ( editor != null ) && ( ( property.getWidget() != null ) || __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) ) )
             {
                 editor.onWidgetChanged( property.getWidget(), property.getName() );
+                editor.onWidgetSelected( property.getWidget(), false ); // refresh properties editor in case the propertis toggles the display of other properties
             }
         }
         

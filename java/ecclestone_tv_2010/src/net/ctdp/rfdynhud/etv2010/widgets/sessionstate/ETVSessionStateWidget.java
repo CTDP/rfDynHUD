@@ -25,6 +25,7 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.etv2010.widgets._base.ETVWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
+import net.ctdp.rfdynhud.etv2010.widgets._util.ETVImages.BGType;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -72,6 +73,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     private final IntValue lap = new IntValue();
     private final FloatValue sessionTime = new FloatValue( -1f, 0.1f );
     
+    private BGType bgType = BGType.NEUTRAL;
     private Color dataBgColor = Color.MAGENTA;
     private Color dataFontColor = Color.GREEN;
     
@@ -215,10 +217,12 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         if ( sectorYellowFlag.hasChanged() )
             changed = true;
         
+        bgType = BGType.NEUTRAL;
         dataBgColor = dataBackgroundColor.getColor();
         dataFontColor = getFontColor();
         if ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( gamePhase.getValue() == GamePhase.FULL_COURSE_YELLOW ) || sectorYellowFlag.getValue() )
         {
+            bgType = BGType.LABEL_YELLOW;
             dataBgColor = Color.YELLOW;
             dataFontColor = Color.BLACK;
         }
@@ -231,6 +235,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         */
         else if ( gamePhase.getValue() == GamePhase.SESSION_STOPPED )
         {
+            bgType = BGType.LABEL_RED;
             dataBgColor = Color.RED;
             dataFontColor = Color.WHITE;
         }
@@ -253,10 +258,14 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         
         Rectangle2D capBounds = metrics.getStringBounds( caption, texCanvas );
         
-        int dataAreaCenter = ETVUtils.getLabeledDataDataCenter( width, capBounds );
+        boolean useImages = this.useImages.getBooleanValue();
+        
+        int dataAreaCenter = useImages ? getImages().getLabeledDataDataCenter( width, height, capBounds ) : ETVUtils.getLabeledDataDataCenter( width, capBounds );
         int vMiddle = ETVUtils.getLabeledDataVMiddle( height, capBounds );
         
-        captionString = dsf.newDrawnString( "captionString", ETVUtils.TRIANGLE_WIDTH, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        int captionLeft = useImages ? getImages().getLabeledDataCaptionLeft( height ) : ETVUtils.TRIANGLE_WIDTH;
+        
+        captionString = dsf.newDrawnString( "captionString", captionLeft, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
         stateString = dsf.newDrawnString( "stateString", dataAreaCenter, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         if ( sessionLimit == SessionLimit.LAPS )
@@ -266,20 +275,26 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     }
     
     @Override
+    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    {
+        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        
+        if ( useImages.getBooleanValue() )
+            ETVUtils.drawLabeledDataBackgroundI( offsetX, offsetY, width, height, caption, getFontProperty(), getImages(), bgType, texture, false );
+        else
+            ETVUtils.drawLabeledDataBackground( offsetX, offsetY, width, height, caption, getFontProperty(), captionBackgroundColor.getColor(), dataBgColor, texture, false );
+    }
+    
+    @Override
     public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( needsCompleteRedraw )
-        {
-            ETVUtils.drawLabeledDataBackground( offsetX, offsetY, width, height, caption, getFont(), captionBackgroundColor.getColor(), dataBgColor, texture, false );
-        }
-        
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         VehicleScoringInfo vsi = scoringInfo.getSessionType().isRace() ? scoringInfo.getLeadersVehicleScoringInfo() : scoringInfo.getViewedVehicleScoringInfo();
         
         if ( needsCompleteRedraw )
         {
-            captionString.draw( offsetX, offsetY, caption, texture, captionBackgroundColor.getColor() );
+            captionString.draw( offsetX, offsetY, caption, texture );
         }
         
         if ( sessionLimit == SessionLimit.TIME )
@@ -292,13 +307,13 @@ public class ETVSessionStateWidget extends ETVWidgetBase
                 gamePhase.setUnchanged();
                 
                 if ( gamePhase.getValue() == GamePhase.SESSION_OVER )
-                    stateString.draw( offsetX, offsetY, "00:00:00", dataFontColor, texture, dataBgColor );
+                    stateString.draw( offsetX, offsetY, "00:00:00", dataFontColor, texture );
                 else if ( scoringInfo.getSessionType().isRace() && ( ( gamePhase.getValue() == GamePhase.FORMATION_LAP ) || ( endTime < 0f ) || ( endTime > 3000000f ) ) )
-                    stateString.draw( offsetX, offsetY, "--:--:--", dataFontColor, texture, dataBgColor );
+                    stateString.draw( offsetX, offsetY, "--:--:--", dataFontColor, texture );
                 else if ( scoringInfo.getSessionType().isTestDay() || ( endTime < 0f ) || ( endTime > 3000000f ) )
-                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), dataFontColor, texture, dataBgColor );
+                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( sessionTime.getValue(), true, false ), dataFontColor, texture );
                 else
-                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( endTime - sessionTime.getValue(), true, false ), dataFontColor, texture, dataBgColor );
+                    stateString.draw( offsetX, offsetY, TimingUtil.getTimeAsString( endTime - sessionTime.getValue(), true, false ), dataFontColor, texture );
             }
         }
         else
@@ -315,7 +330,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
                 int maxLaps = scoringInfo.getMaxLaps();
                 String maxLapsStr = ( maxLaps < 10000 ) ? String.valueOf( maxLaps ) : "--";
                 
-                stateString.drawColumns( offsetX, offsetY, new String[] { lap.getValueAsString(), "/", maxLapsStr }, colAligns, colPadding, colWidths, dataFontColor, texture, dataBgColor );
+                stateString.drawColumns( offsetX, offsetY, new String[] { lap.getValueAsString(), "/", maxLapsStr }, colAligns, colPadding, colWidths, dataFontColor, texture );
             }
         }
     }

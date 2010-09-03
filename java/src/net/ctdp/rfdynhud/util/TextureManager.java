@@ -76,7 +76,7 @@ public class TextureManager
         return ( bi );
     }
     
-    private static final ImageTemplate getMissingImage()
+    public static final ImageTemplate getMissingImage()
     {
         if ( MISSING_IMAGE == null )
         {
