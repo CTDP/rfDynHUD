@@ -57,7 +57,7 @@ public class DefaultImageCache implements ImageCache
     
     private static final int ONE_MB = 1024 * 1024;
     
-    private int maxSize = 10 * ONE_MB;
+    private int maxSize = 16 * ONE_MB;
     private int size = 0;
     
     public final int getSize()

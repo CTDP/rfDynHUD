@@ -622,7 +622,7 @@ public class WearWidget extends Widget
                     int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
                     
                     if ( ( x2 <= 0 ) && ( failTexture != null ) )
-                        texture.drawImage( failTexture, x + x2 - ( failTexture.getWidth() / 2 ), y, false, null );
+                        texture.drawImage( failTexture, x, y, false, null );
                     else if ( estimationTexture != null )
                         texture.drawImage( estimationTexture, x + x2 - ( estimationTexture.getWidth() / 2 ), y, false, null );
                 }
