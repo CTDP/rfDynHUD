@@ -204,9 +204,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
     private static final String getSpeedUnits( SpeedUnits speedUnits )
     {
         if ( speedUnits == SpeedUnits.MPH )
-            return ( "mi/h" );
+            return ( Loc.velocity_units_IMPERIAL );
         
-        return ( "km/h" );
+        return ( Loc.velocity_units_METRIC );
     }
     
     /**
@@ -538,9 +538,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             if ( floatVelocity >= relTopspeed )
             {
                 relTopspeed = floatVelocity;
-                ( (LocalStore)getLocalStore() ).lastRelTopspeedTime = scoringInfo.getSessionNanos();
+                getLocalStore().lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
-            else if ( ( ( (LocalStore)getLocalStore() ).lastRelTopspeedTime + relTopspeedResetDelay.getDelay() < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
+            else if ( ( getLocalStore().lastRelTopspeedTime + relTopspeedResetDelay.getDelay() < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
             {
                 relTopspeed = floatVelocity;
                 oldRelTopspeed = -1f;
@@ -551,9 +551,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             
             boolean forceUpdateAbs = false;
             float topspeed = vsi.getTopspeed();
-            if ( topspeed < ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed )
+            if ( topspeed < getLocalStore().lastDisplayedAbsTopspeed )
             {
-                ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = 0f;
+                getLocalStore().lastDisplayedAbsTopspeed = 0f;
                 oldAbsTopspeed = -1f;
                 topspeed = 0f;
                 updateAbs = true;
@@ -563,7 +563,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             if ( editorPresets != null )
             {
                 topspeed = 301.7f;
-                ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = topspeed;
+                getLocalStore().lastDisplayedAbsTopspeed = topspeed;
                 relTopspeed = 274.3f;
             }
             
@@ -572,11 +572,11 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             if ( needsCompleteRedraw || ( ( clock1 || forceUpdateAbs ) && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
             {
                 if ( !needsCompleteRedraw )
-                    ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed = topspeed;
+                    getLocalStore().lastDisplayedAbsTopspeed = topspeed;
                 
                 updateAbs = false;
                 oldAbsTopspeed = topspeed;
-                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed1_prefix + ":", NumberUtil.formatFloat( ( (LocalStore)getLocalStore() ).lastDisplayedAbsTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );
+                absTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed1_prefix + ":", NumberUtil.formatFloat( getLocalStore().lastDisplayedAbsTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );
             }
             
             if ( needsCompleteRedraw || ( clock1 && ( relTopspeed > oldRelTopspeed ) ) )

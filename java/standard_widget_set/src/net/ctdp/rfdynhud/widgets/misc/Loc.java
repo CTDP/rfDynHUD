@@ -40,4 +40,6 @@ public class Loc
     public static final String velocity_topspeed1_prefix = l( "velocity.topspeed1.prefix" );
     public static final String velocity_topspeed2_prefix = l( "velocity.topspeed2.prefix" );
     public static final String velocity_velocity_prefix = l( "velocity.velocity.prefix" );
+    public static final String velocity_units_IMPERIAL = l( "velocity.units.IMPERIAL" );
+    public static final String velocity_units_METRIC = l( "velocity.units.METRIC" );
 }

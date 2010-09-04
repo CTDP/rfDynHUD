@@ -557,24 +557,27 @@ public class GameEventsManager implements ConfigurationClearListener
         {
             isInGarage = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
             
-            __GDPrivilegedAccess.onSessionStarted2( gameData, editorPresets );
-            
-            if ( !gameData.isInRealtimeMode() && sessionJustStarted )
+            if ( sessionJustStarted )
             {
-                String modName = gameData.getModInfo().getName();
-                String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
-                SessionType sessionType = gameData.getScoringInfo().getSessionType();
-                String trackName = gameData.getTrackInfo().getTrackName();
-                Logger.log( "Session started. (Mod: \"" + modName + "\", Car: \"" + vehicleClass + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
+                __GDPrivilegedAccess.onSessionStarted2( gameData, editorPresets );
                 
-                String trackname = gameData.getTrackInfo().getTrackName();
-                if ( !trackname.equals( lastTrackname ) )
+                if ( !gameData.isInRealtimeMode() )
                 {
-                    widgetsManager.fireOnTrackChanged( trackname, gameData, editorPresets );
-                    lastTrackname = trackname;
+                    String modName = gameData.getModInfo().getName();
+                    String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
+                    SessionType sessionType = gameData.getScoringInfo().getSessionType();
+                    String trackName = gameData.getTrackInfo().getTrackName();
+                    Logger.log( "Session started. (Mod: \"" + modName + "\", Car: \"" + vehicleClass + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
+                    
+                    String trackname = gameData.getTrackInfo().getTrackName();
+                    if ( !trackname.equals( lastTrackname ) )
+                    {
+                        widgetsManager.fireOnTrackChanged( trackname, gameData, editorPresets );
+                        lastTrackname = trackname;
+                    }
+                    
+                    widgetsManager.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, editorPresets );
                 }
-                
-                widgetsManager.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, editorPresets );
                 
                 this.sessionJustStarted = false;
             }
