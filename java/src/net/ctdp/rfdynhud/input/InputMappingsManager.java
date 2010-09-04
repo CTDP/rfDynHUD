@@ -447,7 +447,8 @@ public class InputMappingsManager
                 
                 if ( device.equalsIgnoreCase( "Keyboard" ) )
                 {
-                    componentIndex = (short)devManager.getKeyIndex( component );
+                    //componentIndex = (short)devManager.getKeyIndex( component );
+                    componentIndex = (short)keyCode.intValue();
                 }
                 else if ( device.equalsIgnoreCase( "Mouse" ) )
                 {

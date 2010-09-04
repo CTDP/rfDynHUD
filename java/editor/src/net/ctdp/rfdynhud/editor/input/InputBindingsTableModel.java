@@ -410,7 +410,8 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 String[] parts = device_comp.split( "::" );
                 if ( parts[0].equals( "Keyboard" ) )
                 {
-                    int index = devManager.getKeyIndex( parts[1] );
+                    //int index = devManager.getKeyIndex( parts[1] );
+                    int index = mapping.getKeyCode();
                     parts[1] = devManager.getEnglishKeyName( index );
                 }
                 else if ( parts[0].equals( "Mouse" ) )

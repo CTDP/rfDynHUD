@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -55,6 +57,10 @@ import org.jagatoo.util.classes.ClassSearcher;
 import org.jagatoo.util.classes.PackageSearcher;
 import org.jagatoo.util.classes.SuperClassCriterium;
 
+/**
+ * 
+ * @author Marvin Froehlich
+ */
 public class EditorMenuBar extends JMenuBar
 {
     private static final long serialVersionUID = 1419330166285223452L;
@@ -728,7 +734,17 @@ public class EditorMenuBar extends JMenuBar
         
         menu.addSeparator();
         
-        JMenuItem inputMgrItem = new JMenuItem( "Open InputBindingsManager..." );
+        ImageIcon icon_inputMgrItem = null;
+        try
+        {
+            icon_inputMgrItem = new ImageIcon( ImageIO.read( this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/input/khotkeys.png" ) ) );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+        
+        JMenuItem inputMgrItem = new JMenuItem( "Open InputBindingsManager...", icon_inputMgrItem );
         inputMgrItem.addActionListener( new ActionListener()
         {
             @Override
