@@ -499,137 +499,146 @@ public class WearWidget extends Widget
     {
         final int h = engineHeight.getEffectiveHeight();
         
-        final int lowerSafeLifetime = engine.getLowerSafeLifetimeValue( raceLengthMultiplier );
-        final int lowerGoodLifetime = engine.getLowerGoodLifetimeValue( raceLengthMultiplier );
-        final int lowerBadLifetime = engine.getLowerBadLifetimeValue( raceLengthMultiplier );
-        final int minLifetime = engine.getMinLifetimeValue( raceLengthMultiplier );
-        final int safeLifetimeTotal = engine.getSafeLifetimeTotal( raceLengthMultiplier );
-        final int goodLifetimeTotal = engine.getGoodLifetimeTotal( raceLengthMultiplier );
-        final int badLifetimeTotal = engine.getBadLifetimeTotal( raceLengthMultiplier );
-        final int maxLifetimeTotal = engine.getMaxLifetimeTotal( raceLengthMultiplier );
-        final boolean hasVariance = engine.hasLifetimeVariance();
+        texture.getTextureCanvas().pushClip( x, y, width, h, true );
         
-        if ( hasVariance )
+        try
         {
-            int x0 = x;
-            int x1 = -1;
-            int x2 = -1;
-            int x3 = -1;
+            final int lowerSafeLifetime = engine.getLowerSafeLifetimeValue( raceLengthMultiplier );
+            final int lowerGoodLifetime = engine.getLowerGoodLifetimeValue( raceLengthMultiplier );
+            final int lowerBadLifetime = engine.getLowerBadLifetimeValue( raceLengthMultiplier );
+            final int minLifetime = engine.getMinLifetimeValue( raceLengthMultiplier );
+            final int safeLifetimeTotal = engine.getSafeLifetimeTotal( raceLengthMultiplier );
+            final int goodLifetimeTotal = engine.getGoodLifetimeTotal( raceLengthMultiplier );
+            final int badLifetimeTotal = engine.getBadLifetimeTotal( raceLengthMultiplier );
+            final int maxLifetimeTotal = engine.getMaxLifetimeTotal( raceLengthMultiplier );
+            final boolean hasVariance = engine.hasLifetimeVariance();
             
-            if ( lifetime >= lowerBadLifetime )
+            if ( hasVariance )
             {
-                int w2 = ( lowerBadLifetime - minLifetime ) * width / maxLifetimeTotal;
-                texture.clear( Color.RED, x0, y, w2, h, false, null );
-                x0 += w2;
-            }
-            else
-            {
-                int w2 = (int)( ( lifetime - minLifetime ) * width / maxLifetimeTotal );
-                texture.clear( Color.RED, x0, y, w2, h, false, null );
-                x0 += w2;
-                x1 = x + ( maxLifetimeTotal - badLifetimeTotal ) * width / maxLifetimeTotal;
-            }
-            
-            if ( lifetime >= lowerGoodLifetime )
-            {
-                int w2 = ( lowerGoodLifetime - lowerBadLifetime ) * width / maxLifetimeTotal;
-                texture.clear( YELLOW2, x0, y, w2, h, false, null );
-                x0 += w2;
-            }
-            else
-            {
+                int x0 = x;
+                int x1 = -1;
+                int x2 = -1;
+                int x3 = -1;
+                
                 if ( lifetime >= lowerBadLifetime )
                 {
-                    int w2 = (int)( ( lifetime - lowerBadLifetime ) * width / maxLifetimeTotal );
+                    int w2 = ( lowerBadLifetime - minLifetime ) * width / maxLifetimeTotal;
+                    texture.clear( Color.RED, x0, y, w2, h, false, null );
+                    x0 += w2;
+                }
+                else
+                {
+                    int w2 = (int)( ( lifetime - minLifetime ) * width / maxLifetimeTotal );
+                    texture.clear( Color.RED, x0, y, w2, h, false, null );
+                    x0 += w2;
+                    x1 = x + ( maxLifetimeTotal - badLifetimeTotal ) * width / maxLifetimeTotal;
+                }
+                
+                if ( lifetime >= lowerGoodLifetime )
+                {
+                    int w2 = ( lowerGoodLifetime - lowerBadLifetime ) * width / maxLifetimeTotal;
                     texture.clear( YELLOW2, x0, y, w2, h, false, null );
                     x0 += w2;
                 }
+                else
+                {
+                    if ( lifetime >= lowerBadLifetime )
+                    {
+                        int w2 = (int)( ( lifetime - lowerBadLifetime ) * width / maxLifetimeTotal );
+                        texture.clear( YELLOW2, x0, y, w2, h, false, null );
+                        x0 += w2;
+                    }
+                    
+                    x2 = x + ( maxLifetimeTotal - goodLifetimeTotal ) * width / maxLifetimeTotal;
+                }
                 
-                x2 = x + ( maxLifetimeTotal - goodLifetimeTotal ) * width / maxLifetimeTotal;
-            }
-            
-            if ( lifetime >= lowerSafeLifetime )
-            {
-                int w2 = ( lowerSafeLifetime - lowerGoodLifetime ) * width / maxLifetimeTotal;
-                texture.clear( GREEN2, x0, y, w2, h, false, null );
-                x0 += w2;
+                if ( lifetime >= lowerSafeLifetime )
+                {
+                    int w2 = ( lowerSafeLifetime - lowerGoodLifetime ) * width / maxLifetimeTotal;
+                    texture.clear( GREEN2, x0, y, w2, h, false, null );
+                    x0 += w2;
+                    
+                    int w3 = (int)( ( lifetime - lowerSafeLifetime ) * width / maxLifetimeTotal );
+                    texture.clear( Color.GREEN, x0, y, w3, h, false, null );
+                    x0 += w3;
+                }
+                else
+                {
+                    if ( lifetime >= lowerGoodLifetime )
+                    {
+                        int w2 = (int)( ( lifetime - lowerGoodLifetime ) * width / maxLifetimeTotal );
+                        texture.clear( GREEN2, x0, y, w2, h, false, null );
+                        x0 += w2;
+                    }
+                    
+                    x3 = x + ( maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal;
+                }
                 
-                int w3 = (int)( ( lifetime - lowerSafeLifetime ) * width / maxLifetimeTotal );
-                texture.clear( Color.GREEN, x0, y, w3, h, false, null );
-                x0 += w3;
+                int w_ = width - x0 + x;
+                if ( w_ > 0 )
+                {
+                    texture.clear( Color.BLACK, x0, y, w_, h, false, null );
+                }
+                
+                if ( x1 > 0 )
+                {
+                    texture.getTextureCanvas().setColor( Color.RED );
+                    texture.getTextureCanvas().drawLine( x1, y, x1, y + h - 1 );
+                }
+                
+                if ( x2 > 0 )
+                {
+                    texture.getTextureCanvas().setColor( YELLOW2 );
+                    texture.getTextureCanvas().drawLine( x2, y, x2, y + h - 1 );
+                }
+                
+                if ( x3 > 0 )
+                {
+                    texture.getTextureCanvas().setColor( GREEN2 );
+                    texture.getTextureCanvas().drawLine( x3, y, x3, y + h - 1 );
+                }
             }
             else
             {
-                if ( lifetime >= lowerGoodLifetime )
-                {
-                    int w2 = (int)( ( lifetime - lowerGoodLifetime ) * width / maxLifetimeTotal );
-                    texture.clear( GREEN2, x0, y, w2, h, false, null );
-                    x0 += w2;
-                }
+                int w2 = (int)( lifetime * width / maxLifetimeTotal );
+                texture.clear( Color.GREEN, x, y, w2, h, false, null );
                 
-                x3 = x + ( maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal;
+                int w3 = width - w2;
+                if ( w3 > 0 )
+                    texture.clear( Color.BLACK, x + w2, y, w3, h, false, null );
             }
             
-            int w_ = width - x0 + x;
-            if ( w_ > 0 )
+            if ( ( estimationTexture != null ) || ( failTexture != null ) )
             {
-                texture.clear( Color.BLACK, x0, y, w_, h, false, null );
-            }
-            
-            if ( x1 > 0 )
-            {
-                texture.getTextureCanvas().setColor( Color.RED );
-                texture.getTextureCanvas().drawLine( x1, y, x1, y + h - 1 );
-            }
-            
-            if ( x2 > 0 )
-            {
-                texture.getTextureCanvas().setColor( YELLOW2 );
-                texture.getTextureCanvas().drawLine( x2, y, x2, y + h - 1 );
-            }
-            
-            if ( x3 > 0 )
-            {
-                texture.getTextureCanvas().setColor( GREEN2 );
-                texture.getTextureCanvas().drawLine( x3, y, x3, y + h - 1 );
-            }
-        }
-        else
-        {
-            int w2 = (int)( lifetime * width / maxLifetimeTotal );
-            texture.clear( Color.GREEN, x, y, w2, h, false, null );
-            
-            int w3 = width - w2;
-            if ( w3 > 0 )
-                texture.clear( Color.BLACK, x + w2, y, w3, h, false, null );
-        }
-        
-        if ( ( estimationTexture != null ) || ( failTexture != null ) )
-        {
-            if ( isEditorMode )
-            {
-                if ( estimationTexture != null )
-                    texture.drawImage( estimationTexture, x + 10, y, false, null );
-                else
-                    texture.drawImage( failTexture, x + 10, y, false, null );
-            }
-            else if ( scoringInfo.getSessionType().isRace() && ( engineLifetimeLossPerLap > 0f ) )
-            {
-                final int maxLaps = scoringInfo.getEstimatedMaxLaps( scoringInfo.getPlayersVehicleScoringInfo() );
-                if ( maxLaps > 0 )
+                if ( isEditorMode )
                 {
-                    int lapsRemaining = (int)scoringInfo.getPlayersVehicleScoringInfo().getLapsRemaining( maxLaps );
-                    int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
-                    
-                    if ( ( x2 <= 0 ) && ( failTexture != null ) )
-                        texture.drawImage( failTexture, x, y, false, null );
-                    else if ( estimationTexture != null )
-                        texture.drawImage( estimationTexture, x + x2 - ( estimationTexture.getWidth() / 2 ), y, false, null );
+                    if ( estimationTexture != null )
+                        texture.drawImage( estimationTexture, x + 10, y, false, null );
+                    else
+                        texture.drawImage( failTexture, x + 10, y, false, null );
+                }
+                else if ( scoringInfo.getSessionType().isRace() && ( engineLifetimeLossPerLap > 0f ) )
+                {
+                    final int maxLaps = scoringInfo.getEstimatedMaxLaps( scoringInfo.getPlayersVehicleScoringInfo() );
+                    if ( maxLaps > 0 )
+                    {
+                        int lapsRemaining = (int)scoringInfo.getPlayersVehicleScoringInfo().getLapsRemaining( maxLaps );
+                        int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
+                        
+                        if ( ( x2 <= 0 ) && ( failTexture != null ) )
+                            texture.drawImage( failTexture, x, y, false, null );
+                        else if ( estimationTexture != null )
+                            texture.drawImage( estimationTexture, x + x2 - ( estimationTexture.getWidth() / 2 ), y, false, null );
+                    }
                 }
             }
+            
+            texture.markDirty( x, y, width, h );
         }
-        
-        texture.markDirty( x, y, width, h );
+        finally
+        {
+            texture.getTextureCanvas().popClip();
+        }
     }
     
     private void drawTire( float wear, float grip, CompoundWheel compoundWheel, TextureImage2D texture, int x, int y )
