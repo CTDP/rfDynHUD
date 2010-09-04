@@ -40,6 +40,9 @@ public class ImageListModel extends AbstractListModel
     
     private static void readFilenames( File folder, String prefix, List<String> filenames )
     {
+        if ( new File( folder, ".hide_from_image_selector" ).exists() )
+            return;
+        
         for ( File f : folder.listFiles( ImageFileFilter.INSTANCE ) )
         {
             if ( f.isDirectory() )

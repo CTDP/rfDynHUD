@@ -22,7 +22,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -86,7 +85,7 @@ public class TextureManager
         return ( MISSING_IMAGE );
     }
     
-    private static final HashMap<String, ImageTemplate> cache = new HashMap<String, ImageTemplate>();
+    private static final ImageCache cache = new DefaultImageCache();
     
     private static final boolean checkImage( File file, ImageTemplate it )
     {
@@ -126,7 +125,7 @@ public class TextureManager
                     template = getMissingImage();
                     
                     cache.remove( name );
-                    cache.put( name, template );
+                    cache.add( name, template );
                 }
             }
             else
@@ -174,7 +173,7 @@ public class TextureManager
         template = new ImageTemplate( image );
         
         if ( useCache )
-            cache.put( name, template );
+            cache.add( name, template );
         
         __RenderPrivilegedAccess.setLastModified( f.lastModified(), template );
         __RenderPrivilegedAccess.setFileSize( f.length(), template );
