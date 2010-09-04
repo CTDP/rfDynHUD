@@ -81,15 +81,10 @@ public class WearWidget extends Widget
     
     private final EnumProperty<HundredPercentBase> hundredPercentBase = new EnumProperty<HundredPercentBase>( this, "hundredPercentBase", HundredPercentBase.SAFE_RANGE );
     
-    private final ImageProperty estimationImageName = new ImageProperty( this, "engineEstimationImage", "estimationImage", "start_finish.png", false, true )
-    {
-        @Override
-        protected void onValueChanged( String oldValue, String newValue )
-        {
-            estimationTexture = null;
-        }
-    };
+    private final ImageProperty estimationImageName = new ImageProperty( this, "engineEstimationImage", "estimationImage", "start_finish.png", false, true );
     private TextureImage2D estimationTexture = null;
+    private final ImageProperty failImageName = new ImageProperty( this, "engineFailImage", "failImage", "explode.png", false, true );
+    private TextureImage2D failTexture = null;
     
     private final BooleanProperty displayWearPercent = new BooleanProperty( this, "displayWearPercent", true );
     private final BooleanProperty displayCompoundName = new BooleanProperty( this, "displayCompoundName", true );
@@ -356,6 +351,48 @@ public class WearWidget extends Widget
         }
     }
     
+    private TextureImage2D loadEstimationImage( boolean isEditorMode, int height )
+    {
+        if ( estimationImageName.isNoImage() )
+        {
+            estimationTexture = null;
+            
+            return ( estimationTexture );
+        }
+        
+        //if ( ( estimationTexture == null ) || ( estimationTexture.getHeight() != height ) )
+        {
+            ImageTemplate it = estimationImageName.getImage();
+            
+            int width = Math.round( height * it.getBaseAspect() );
+            
+            estimationTexture = it.getScaledTextureImage( width, height, estimationTexture, isEditorMode );
+        }
+        
+        return ( estimationTexture );
+    }
+    
+    private TextureImage2D loadFailImage( boolean isEditorMode, int height )
+    {
+        if ( failImageName.isNoImage() )
+        {
+            failTexture = null;
+            
+            return ( failTexture );
+        }
+        
+        //if ( ( failTexture == null ) || ( failTexture.getHeight() != height ) )
+        {
+            ImageTemplate it = failImageName.getImage();
+            
+            int width = Math.round( height * it.getBaseAspect() );
+            
+            failTexture = it.getScaledTextureImage( width, height, failTexture, isEditorMode );
+        }
+        
+        return ( failTexture );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -367,11 +404,6 @@ public class WearWidget extends Widget
         final java.awt.Font font2 = this.font2.getFont();
         final boolean font2AntiAliased = this.font2.isAntiAliased();
         final java.awt.Color fontColor = getFontColor();
-        
-        final int tireWidth = tireSize.getEffectiveWidth();
-        final int tireHeight = tireSize.getEffectiveHeight();
-        final int brakeWidth = brakeSize.getEffectiveWidth();
-        final int brakeHeight = brakeSize.getEffectiveHeight();
         
         int left = 2;
         int center = width / 2;
@@ -400,36 +432,30 @@ public class WearWidget extends Widget
             
             relY = engineHeaderString;
             top = engineHeight.getEffectiveHeight() + 10;
+            
+            loadEstimationImage( editorPresets != null, engineHeight.getEffectiveHeight() );
+            loadFailImage( editorPresets != null, engineHeight.getEffectiveHeight() );
         }
         
         boolean db = ( displayBrakes2 == null ) ? displayBrakes.getBooleanValue() : displayBrakes2.booleanValue();
         
-        int imgWidth = displayTires.getBooleanValue() && db ? Math.max( tireWidth, brakeWidth ) : ( displayTires.getBooleanValue() ? tireWidth : brakeWidth );
-        
         if ( displayTires.getBooleanValue() )
         {
+            final int tireWidth = tireSize.getEffectiveWidth();
+            final int tireHeight = tireSize.getEffectiveHeight();
+            
             tiresHeaderString = dsf.newDrawnString( "tiresHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.tires_header_prefix + ":", null );
-            if ( getDisplayWearPercent_tires() )
+            
+            final boolean dwpt = getDisplayWearPercent_tires();
             {
-                tireWearFLString = dsf.newDrawnString( "tireWearFLString", null, tiresHeaderString, center - 7 - tireWidth, 3, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
-                tireWearFRString = dsf.newDrawnString( "tireWearFRString", null, tiresHeaderString, center + 7 + tireWidth, 3, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
-                tireWearRLString = dsf.newDrawnString( "tireWearRLString", null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
-                tireWearRRString = dsf.newDrawnString( "tireWearRRString", null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
-                tireGripFLString = dsf.newDrawnString( "tireGripFLString", null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
-                tireGripFRString = dsf.newDrawnString( "tireGripFRString", null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
-                tireGripRLString = dsf.newDrawnString( "tireGripRLString", null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
-                tireGripRRString = dsf.newDrawnString( "tireGripRRString", null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
-            }
-            else
-            {
-                tireWearFLString = null;
-                tireWearFRString = null;
-                tireWearRLString = null;
-                tireWearRRString = null;
-                tireGripFLString = null;
-                tireGripFRString = null;
-                tireGripRLString = null;
-                tireGripRRString = null;
+                tireWearFLString = dsf.newDrawnStringIf( dwpt, "tireWearFLString", null, tiresHeaderString, center - 7 - tireWidth, 3, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                tireWearFRString = dsf.newDrawnStringIf( dwpt, "tireWearFRString", null, tiresHeaderString, center + 7 + tireWidth, 3, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
+                tireWearRLString = dsf.newDrawnStringIf( dwpt, "tireWearRLString", null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                tireWearRRString = dsf.newDrawnStringIf( dwpt, "tireWearRRString", null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
+                tireGripFLString = dsf.newDrawnStringIf( dwpt, "tireGripFLString", null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
+                tireGripFRString = dsf.newDrawnStringIf( dwpt, "tireGripFRString", null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
+                tireGripRLString = dsf.newDrawnStringIf( dwpt, "tireGripRLString", null, tiresHeaderString, center - 7 - tireWidth, 3 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
+                tireGripRRString = dsf.newDrawnStringIf( dwpt, "tireGripRRString", null, tiresHeaderString, center + 7 + tireWidth, 3 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", "%)" );
             }
             
             relY = tiresHeaderString;
@@ -438,28 +464,24 @@ public class WearWidget extends Widget
         
         if ( db )
         {
+            final int tireWidth = tireSize.getEffectiveWidth();
+            final int brakeWidth = brakeSize.getEffectiveWidth();
+            final int brakeHeight = brakeSize.getEffectiveHeight();
+            
             brakesHeaderString = dsf.newDrawnString( "brakesHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            if ( getDisplayWearPercent_brakes() )
+            
+            final boolean dwpb = getDisplayWearPercent_brakes();
             {
-                brakeWearFLString = dsf.newDrawnString( "brakeWearFLString", null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
-                brakeWearFRString = dsf.newDrawnString( "brakeWearFRString", null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
-                brakeWearRLString = dsf.newDrawnString( "brakeWearRLString", null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
-                brakeWearRRString = dsf.newDrawnString( "brakeWearRRString", null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
-                brakeWearVarianceFLString = dsf.newDrawnString( "brakeWearVarianceFLString", null, brakeWearFLString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
-                brakeWearVarianceFRString = dsf.newDrawnString( "brakeWearVarianceFRString", null, brakeWearFRString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
-                brakeWearVarianceRLString = dsf.newDrawnString( "brakeWearVarianceRLString", null, brakeWearRLString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
-                brakeWearVarianceRRString = dsf.newDrawnString( "brakeWearVarianceRRString", null, brakeWearRRString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
-            }
-            else
-            {
-                brakeWearFLString = null;
-                brakeWearFRString = null;
-                brakeWearRLString = null;
-                brakeWearRRString = null;
-                brakeWearVarianceFLString = null;
-                brakeWearVarianceFRString = null;
-                brakeWearVarianceRLString = null;
-                brakeWearVarianceRRString = null;
+                int imgWidth = displayTires.getBooleanValue() && db ? Math.max( tireWidth, brakeWidth ) : ( displayTires.getBooleanValue() ? tireWidth : brakeWidth );
+                
+                brakeWearFLString = dsf.newDrawnStringIf( dwpb, "brakeWearFLString", null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                brakeWearFRString = dsf.newDrawnStringIf( dwpb, "brakeWearFRString", null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
+                brakeWearRLString = dsf.newDrawnStringIf( dwpb, "brakeWearRLString", null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
+                brakeWearRRString = dsf.newDrawnStringIf( dwpb, "brakeWearRRString", null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, "%" );
+                brakeWearVarianceFLString = dsf.newDrawnStringIf( dwpb, "brakeWearVarianceFLString", null, brakeWearFLString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
+                brakeWearVarianceFRString = dsf.newDrawnStringIf( dwpb, "brakeWearVarianceFRString", null, brakeWearFRString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
+                brakeWearVarianceRLString = dsf.newDrawnStringIf( dwpb, "brakeWearVarianceRLString", null, brakeWearRLString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
+                brakeWearVarianceRRString = dsf.newDrawnStringIf( dwpb, "brakeWearVarianceRRString", null, brakeWearRRString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, "(", "%)" );
             }
         }
     }
@@ -471,27 +493,6 @@ public class WearWidget extends Widget
         result[ByteOrderManager.RED] = (byte)( (float)( color0[ByteOrderManager.RED] & 0xFF ) * beta + (float)( color1[ByteOrderManager.RED] & 0xFF ) * alpha );
         result[ByteOrderManager.GREEN] = (byte)( (float)( color0[ByteOrderManager.GREEN] & 0xFF ) * beta + (float)( color1[ByteOrderManager.GREEN] & 0xFF ) * alpha );
         result[ByteOrderManager.BLUE] = (byte)( (float)( color0[ByteOrderManager.BLUE] & 0xFF ) * beta + (float)( color1[ByteOrderManager.BLUE] & 0xFF ) * alpha );
-    }
-    
-    private TextureImage2D loadExplodeImage( boolean isEditorMode, int height )
-    {
-        if ( estimationImageName.isNoImage() )
-        {
-            estimationTexture = null;
-            
-            return ( estimationTexture );
-        }
-        
-        if ( ( estimationTexture == null ) || ( estimationTexture.getHeight() != height ) )
-        {
-            ImageTemplate it = estimationImageName.getImage();
-            
-            int width = Math.round( height * it.getBaseAspect() );
-            
-            estimationTexture = it.getScaledTextureImage( width, height, estimationTexture, isEditorMode );
-        }
-        
-        return ( estimationTexture );
     }
     
     private void drawEngine( ScoringInfo scoringInfo, boolean isEditorMode, float lifetime, double raceLengthMultiplier, VehiclePhysics.Engine engine, TextureImage2D texture, final int x, final int y, final int width )
@@ -603,12 +604,14 @@ public class WearWidget extends Widget
                 texture.clear( Color.BLACK, x + w2, y, w3, h, false, null );
         }
         
-        TextureImage2D explodeTexture = loadExplodeImage( isEditorMode, h );
-        if ( explodeTexture != null )
+        if ( ( estimationTexture != null ) || ( failTexture != null ) )
         {
             if ( isEditorMode )
             {
-                texture.drawImage( explodeTexture, x + 10, y, false, null );
+                if ( estimationTexture != null )
+                    texture.drawImage( estimationTexture, x + 10, y, false, null );
+                else
+                    texture.drawImage( failTexture, x + 10, y, false, null );
             }
             else if ( scoringInfo.getSessionType().isRace() && ( engineLifetimeLossPerLap > 0f ) )
             {
@@ -617,10 +620,11 @@ public class WearWidget extends Widget
                 {
                     int lapsRemaining = (int)scoringInfo.getPlayersVehicleScoringInfo().getLapsRemaining( maxLaps );
                     int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
-                    x2 -= explodeTexture.getWidth() / 2;
-                    x2 = Math.max( 0, x2 );
                     
-                    texture.drawImage( explodeTexture, x + x2, y, false, null );
+                    if ( ( x2 <= 0 ) && ( failTexture != null ) )
+                        texture.drawImage( failTexture, x + x2 - ( failTexture.getWidth() / 2 ), y, false, null );
+                    else if ( estimationTexture != null )
+                        texture.drawImage( estimationTexture, x + x2 - ( estimationTexture.getWidth() / 2 ), y, false, null );
                 }
             }
         }
@@ -1061,6 +1065,7 @@ public class WearWidget extends Widget
         writer.writeProperty( hundredPercentBase, "The value range to be used as 100% base." );
         writer.writeProperty( displayWearPercent, "Display wear in percentage numbers?" );
         writer.writeProperty( estimationImageName, "Image to display where the engine is expected to explode." );
+        writer.writeProperty( failImageName, "Image to display, if the engine WILL fail before the end of the race." );
         
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
         writer.writeProperty( displayCompoundName, "Display the tire compound name in the header?" );
@@ -1088,6 +1093,7 @@ public class WearWidget extends Widget
         else if ( loader.loadProperty( hundredPercentBase ) );
         else if ( loader.loadProperty( displayWearPercent ) );
         else if ( loader.loadProperty( estimationImageName ) );
+        else if ( loader.loadProperty( failImageName ) );
         
         else if ( loader.loadProperty( displayTires ) );
         else if ( loader.loadProperty( displayCompoundName ) );
@@ -1126,6 +1132,7 @@ public class WearWidget extends Widget
         propsCont.addProperty( hundredPercentBase );
         propsCont.addProperty( displayWearPercent );
         propsCont.addProperty( estimationImageName );
+        propsCont.addProperty( failImageName );
         
         propsCont.addGroup( "Tires" );
         
