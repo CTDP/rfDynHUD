@@ -36,7 +36,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -130,13 +129,14 @@ public class ImageSelector extends JPanel
         return ( selectedFile );
     }
     
-    private static HashMap<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
-    private static HashMap<String, Long> cache2 = new HashMap<String, Long>();
+    //private static HashMap<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
+    //private static HashMap<String, Long> cache2 = new HashMap<String, Long>();
     
     private BufferedImage getImageFromCache( String name )
     {
-        BufferedImage bi = cache.get( name );
         File file = new File( folder, name );
+        BufferedImage bi = null;//cache.get( name );
+        /*
         if ( bi != null )
         {
             Long lastModified = cache2.get( name );
@@ -146,12 +146,13 @@ public class ImageSelector extends JPanel
         }
         
         if ( bi == null )
+        */
         {
             try
             {
                 bi = ImageIO.read( file );
-                cache.put( name, bi );
-                cache2.put( name, file.lastModified() );
+                //cache.put( name, bi );
+                //cache2.put( name, file.lastModified() );
             }
             catch ( IOException e )
             {
