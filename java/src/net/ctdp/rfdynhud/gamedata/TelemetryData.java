@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.util.Logger;
@@ -40,17 +41,6 @@ import net.ctdp.rfdynhud.util.Logger;
  */
 public class TelemetryData
 {
-    public static final float ZERO_KELVIN = -273.15f;
-    public static final float FAHRENHEIT_OFFSET = 32.0f;
-    public static final float FAHRENHEIT_FACTOR = 1.8f;
-    public static final float MPS_TO_MPH = 2.237f;
-    public static final float MPS_TO_KPH = 3.6f; // 3600f / 1000f
-    public static final float MPH_TO_MPS = 0.44704f;
-    public static final float KPH_TO_MPS = 0.278f; // 3600f / 1000f
-    public static final float KPH_TO_MPH = 0.62f;
-    public static final float MPH_TO_KPH = 1.6099344f;
-    public static final float LITERS_TO_GALONS = 0.26417287f;
-    
     final TelemetryDataCapsule data = new TelemetryDataCapsule();
     
     private boolean updatedInTimeScope = false;
@@ -453,7 +443,7 @@ public class TelemetryData
     {
         float mps = getScalarVelocityMPS();
         
-        return ( mps * MPS_TO_MPH );
+        return ( mps * SpeedUnits.Convert.MPS_TO_MPH );
     }
     
     /**
@@ -463,7 +453,7 @@ public class TelemetryData
     {
         float mps = getScalarVelocityMPS();
         
-        return ( mps * MPS_TO_KPH );
+        return ( mps * SpeedUnits.Convert.MPS_TO_KPH );
     }
     
     /**
@@ -588,7 +578,7 @@ public class TelemetryData
      */
     public final float getEngineWaterTemperatureF()
     {
-        return ( FAHRENHEIT_OFFSET + getEngineWaterTemperatureC() * FAHRENHEIT_FACTOR );
+        return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getEngineWaterTemperatureC() * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
     }
     
     /**
@@ -619,7 +609,7 @@ public class TelemetryData
      */
     public final float getEngineOilTemperatureF()
     {
-        return ( FAHRENHEIT_OFFSET + getEngineOilTemperatureC() * FAHRENHEIT_FACTOR );
+        return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getEngineOilTemperatureC() * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
     }
     
     /**
@@ -698,7 +688,7 @@ public class TelemetryData
      */
     public final float getFuelGal()
     {
-        return ( getFuelL() * LITERS_TO_GALONS );
+        return ( getFuelL() * MeasurementUnits.Convert.LITERS_TO_GALONS );
     }
     
     /**
@@ -853,7 +843,7 @@ public class TelemetryData
     {
         // float mBrakeTemp
         
-        return ( getBrakeTemperatureK( wheel ) + ZERO_KELVIN );
+        return ( getBrakeTemperatureK( wheel ) + MeasurementUnits.Convert.ZERO_KELVIN );
     }
     
     /**
@@ -863,7 +853,7 @@ public class TelemetryData
     {
         // float mBrakeTemp
         
-        return ( FAHRENHEIT_OFFSET + getBrakeTemperatureC( wheel ) * FAHRENHEIT_FACTOR );
+        return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getBrakeTemperatureC( wheel ) * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
     }
     
     /**
@@ -894,7 +884,7 @@ public class TelemetryData
      */
     public final float getTireTemperatureC( Wheel wheel, WheelPart part )
     {
-        return ( data.getTireTemperature( wheel, part ) + ZERO_KELVIN );
+        return ( data.getTireTemperature( wheel, part ) + MeasurementUnits.Convert.ZERO_KELVIN );
     }
     
     /**
@@ -902,7 +892,7 @@ public class TelemetryData
      */
     public final float getTireTemperatureF( Wheel wheel, WheelPart part )
     {
-        return ( FAHRENHEIT_OFFSET + getTireTemperatureC( wheel, part ) * FAHRENHEIT_FACTOR );
+        return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getTireTemperatureC( wheel, part ) * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
     }
     
     /**

@@ -22,7 +22,6 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
-import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
@@ -102,7 +101,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     protected float getMaxValue( LiveGameData gameData, EditorPresets editorPresets )
     {
         if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
-            return ( maxVelocity.getFloatValue() * TelemetryData.KPH_TO_MPH );
+            return ( maxVelocity.getFloatValue() * SpeedUnits.Convert.KPH_TO_MPH );
         
         return ( maxVelocity.getFloatValue() );
     }

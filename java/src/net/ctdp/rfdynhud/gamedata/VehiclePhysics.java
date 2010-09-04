@@ -357,7 +357,7 @@ public class VehiclePhysics
         
         public final float getBaseLifetimeOilTemperatureF()
         {
-            return ( TelemetryData.FAHRENHEIT_OFFSET + baseLifetimeOilTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+            return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + baseLifetimeOilTemperature * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
         }
         
         public final float getBaseLifetimeOilTemperature()
@@ -375,7 +375,7 @@ public class VehiclePhysics
         
         public final float getHalfLifetimeOilTempOffsetF()
         {
-            return ( TelemetryData.FAHRENHEIT_OFFSET + halfLifetimeOilTempOffset * TelemetryData.FAHRENHEIT_FACTOR );
+            return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + halfLifetimeOilTempOffset * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
         }
         
         public final float getHalfLifetimeOilTempOffset()
@@ -403,7 +403,7 @@ public class VehiclePhysics
          */
         public final float getOptimumOilTemperatureF()
         {
-            return ( TelemetryData.FAHRENHEIT_OFFSET + optimumOilTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+            return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + optimumOilTemperature * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
         }
         
         /**
@@ -438,7 +438,7 @@ public class VehiclePhysics
          */
         public final float getOverheatingOilTemperatureF()
         {
-            return ( TelemetryData.FAHRENHEIT_OFFSET + baseLifetimeOilTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+            return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + baseLifetimeOilTemperature * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
         }
         
         /**
@@ -472,7 +472,7 @@ public class VehiclePhysics
          */
         public final float getStrongOverheatingOilTemperatureF()
         {
-            return ( TelemetryData.FAHRENHEIT_OFFSET + ( baseLifetimeOilTemperature + halfLifetimeOilTempOffset ) * TelemetryData.FAHRENHEIT_FACTOR );
+            return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + ( baseLifetimeOilTemperature + halfLifetimeOilTempOffset ) * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
         }
         
         /**
@@ -685,7 +685,7 @@ public class VehiclePhysics
              */
             public final float getOptimumTemperaturesLowerBoundF()
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + optimumTemperaturesLowerBound * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + optimumTemperaturesLowerBound * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -718,7 +718,7 @@ public class VehiclePhysics
              */
             public final float getOptimumTemperaturesUpperBoundF()
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + optimumTemperaturesUpperBound * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + optimumTemperaturesUpperBound * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -751,7 +751,7 @@ public class VehiclePhysics
              */
             public final float getColdTemperatureF()
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + coldTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + coldTemperature * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -784,7 +784,7 @@ public class VehiclePhysics
              */
             public final float getOverheatingTemperatureF()
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + overheatingTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + overheatingTemperature * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -1166,7 +1166,7 @@ public class VehiclePhysics
              */
             public final float getOptimumTemperatureF()
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + optimumTemperature * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + optimumTemperature * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -1214,7 +1214,7 @@ public class VehiclePhysics
              */
             public final float getGripLossPerDegreeFBelowOptimum()
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + gripLossPerDegreeBelowOptimum * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + gripLossPerDegreeBelowOptimum * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -1247,7 +1247,7 @@ public class VehiclePhysics
              */
             public final float getGripLossPerDegreeFAboveOptimum()
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + gripLossPerDegreeAboveOptimum * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + gripLossPerDegreeAboveOptimum * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -1286,7 +1286,7 @@ public class VehiclePhysics
              */
             public final float getBelowTemperatureF( float grip )
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + getBelowTemperatureC( grip ) * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getBelowTemperatureC( grip ) * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -1328,7 +1328,7 @@ public class VehiclePhysics
              */
             public final float getAboveTemperatureF( float grip )
             {
-                return ( TelemetryData.FAHRENHEIT_OFFSET + getAboveTemperatureC( grip ) * TelemetryData.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getAboveTemperatureC( grip ) * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -1822,7 +1822,7 @@ public class VehiclePhysics
             }
         }
         
-        this.fuelRange = new PhysicsSetting( ( measurementUnits == MeasurementUnits.IMPERIAL ) ? TelemetryData.LITERS_TO_GALONS : 1f, 0f );
+        this.fuelRange = new PhysicsSetting( ( measurementUnits == MeasurementUnits.IMPERIAL ) ? MeasurementUnits.Convert.LITERS_TO_GALONS : 1f, 0f );
         this.fuelRange.baseValue = this.fuelRangeL.baseValue;
         this.fuelRange.numSteps = this.fuelRangeL.numSteps;
         this.fuelRange.stepSize = this.fuelRangeL.stepSize;

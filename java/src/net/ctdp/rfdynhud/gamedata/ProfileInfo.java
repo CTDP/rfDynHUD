@@ -41,6 +41,26 @@ public class ProfileInfo
         METRIC,
         IMPERIAL,
         ;
+        
+        public static final class Convert
+        {
+            public static final float ZERO_KELVIN = -273.15f;
+            public static final float FAHRENHEIT_OFFSET = 32.0f;
+            public static final float FAHRENHEIT_FACTOR = 1.8f;
+            public static final float LITERS_TO_GALONS = 0.26417287f;
+            
+            private Convert()
+            {
+            }
+        }
+        
+        public final float getFuelAmountFromLiters( float liters )
+        {
+            if ( this == METRIC )
+                return ( liters );
+            
+            return ( Convert.LITERS_TO_GALONS * liters );
+        }
     }
     
     public static enum SpeedUnits
@@ -48,6 +68,20 @@ public class ProfileInfo
         MPH,
         KPH,
         ;
+        
+        public static final class Convert
+        {
+            public static final float MPS_TO_MPH = 2.237f;
+            public static final float MPS_TO_KPH = 3.6f; // 3600f / 1000f
+            public static final float MPH_TO_MPS = 0.44704f;
+            public static final float KPH_TO_MPS = 0.278f; // 3600f / 1000f
+            public static final float KPH_TO_MPH = 0.62f;
+            public static final float MPH_TO_KPH = 1.6099344f;
+            
+            private Convert()
+            {
+            }
+        }
     }
     
     public static final File USERDATA_FOLDER = GameFileSystem.INSTANCE.getPathFromGameConfigINI( "SaveDir", "UserData" );

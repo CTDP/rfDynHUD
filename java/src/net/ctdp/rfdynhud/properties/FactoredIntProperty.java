@@ -29,7 +29,7 @@ public class FactoredIntProperty extends IntProperty
     private final int factor;
     private final int divisor;
     
-    private int factoredValue;
+    private long factoredValue;
     
     /**
      * Gets the factor.
@@ -64,12 +64,12 @@ public class FactoredIntProperty extends IntProperty
      * 
      * @return the derived value.
      */
-    protected int deriveValue( int value, int factor, int divisor )
+    protected long deriveValue( int value, int factor, int divisor )
     {
         if ( divisor == 0 )
-            return ( value * factor );
+            return ( (long)value * (long)factor );
         
-        return ( value / divisor );
+        return ( (long)value / (long)divisor );
     }
     
     /**
@@ -89,6 +89,16 @@ public class FactoredIntProperty extends IntProperty
      * @return the value multiplied by the factor or divided by the divisor.
      */
     public final long getFactoredValue()
+    {
+        return ( factoredValue );
+    }
+    
+    /**
+     * Gets the value multiplied by the factor or divided by the divisor.
+     * 
+     * @return the value multiplied by the factor or divided by the divisor.
+     */
+    public final double getFactoredDoubleValue()
     {
         return ( factoredValue );
     }

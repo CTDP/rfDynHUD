@@ -246,39 +246,6 @@ public abstract class NeedleMeterWidget extends Widget
         return ( needleRotationForMaxValue.getFactoredValue() );
     }
     
-    private int loadNeedleTexture( boolean isEditorMode )
-    {
-        if ( needleImageName.isNoImage() )
-        {
-            needleTexture = null;
-            return ( 0 );
-        }
-        
-        try
-        {
-            ImageTemplate it = needleImageName.getImage();
-            
-            if ( it == null )
-            {
-                needleTexture = null;
-                return ( 0 );
-            }
-            
-            float scale = getBackground().getScaleX();
-            int w = Math.round( it.getBaseWidth() * scale );
-            int h = Math.round( it.getBaseHeight() * scale );
-            needleTexture = it.getScaledTransformableTexture( w, h, needleTexture, isEditorMode );
-        }
-        catch ( Throwable t )
-        {
-            Logger.log( t );
-            
-            return ( 0 );
-        }
-        
-        return ( 1 );
-    }
-    
     private int loadValueBackgroundTexture( boolean isEditorMode )
     {
         if ( !displayValue.getBooleanValue() )
@@ -323,6 +290,39 @@ public abstract class NeedleMeterWidget extends Widget
         return ( 1 );
     }
     
+    private int loadNeedleTexture( boolean isEditorMode )
+    {
+        if ( needleImageName.isNoImage() )
+        {
+            needleTexture = null;
+            return ( 0 );
+        }
+        
+        try
+        {
+            ImageTemplate it = needleImageName.getImage();
+            
+            if ( it == null )
+            {
+                needleTexture = null;
+                return ( 0 );
+            }
+            
+            float scale = getBackground().getScaleX();
+            int w = Math.round( it.getBaseWidth() * scale );
+            int h = Math.round( it.getBaseHeight() * scale );
+            needleTexture = it.getScaledTransformableTexture( w, h, needleTexture, isEditorMode );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+            
+            return ( 0 );
+        }
+        
+        return ( 1 );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -333,16 +333,16 @@ public abstract class NeedleMeterWidget extends Widget
         
         int n = 0;
         
-        n += loadNeedleTexture( isEditorMode );
         n += loadValueBackgroundTexture( isEditorMode );
+        n += loadNeedleTexture( isEditorMode );
         
         TransformableTexture[] result = new TransformableTexture[ n ];
         
         int i = 0;
-        if ( needleTexture != null )
-            result[i++] = needleTexture;
         if ( valueBackgroundTexture != null )
             result[i++] = valueBackgroundTexture;
+        if ( needleTexture != null )
+            result[i++] = needleTexture;
         
         return ( result );
     }

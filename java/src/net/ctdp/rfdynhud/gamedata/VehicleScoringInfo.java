@@ -1005,7 +1005,7 @@ public class VehicleScoringInfo
     {
         float mps = getScalarVelocityMPS();
         
-        return ( mps * TelemetryData.MPS_TO_MPH );
+        return ( mps * SpeedUnits.Convert.MPS_TO_MPH );
     }
     
     /**
@@ -1015,7 +1015,7 @@ public class VehicleScoringInfo
     {
         float mps = getScalarVelocityMPS();
         
-        return ( mps * TelemetryData.MPS_TO_KPH );
+        return ( mps * SpeedUnits.Convert.MPS_TO_KPH );
     }
     
     /**

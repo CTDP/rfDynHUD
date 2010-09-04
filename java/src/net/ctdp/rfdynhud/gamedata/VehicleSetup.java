@@ -204,7 +204,7 @@ public class VehicleSetup
          */
         public final float getFuelGal( int pitstop )
         {
-            return ( getFuelL( pitstop ) * TelemetryData.LITERS_TO_GALONS );
+            return ( getFuelL( pitstop ) * MeasurementUnits.Convert.LITERS_TO_GALONS );
         }
         
         /**

@@ -29,9 +29,9 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.FactoredIntProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
-import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -171,15 +171,7 @@ public class FuelWidget extends Widget
         }
     };
     
-    private final IntProperty lowFuelBlinkTime = new IntProperty( this, "lowFuelBlinkTime", "blinkTime", 500, 0, 5000, false )
-    {
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            lowFuelBlinkNanos = newValue * 1000000L;
-        }
-    };
-    private long lowFuelBlinkNanos = lowFuelBlinkTime.getIntValue() * 1000000L;
+    private final FactoredIntProperty lowFuelBlinkTime = new FactoredIntProperty( this, "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 );
     private long nextBlinkTime = -1L;
     private boolean blinkState = false;
     
@@ -718,23 +710,32 @@ public class FuelWidget extends Widget
                 lowFuelWarningImageOff.setVisible( false );
             }
         }
-        else if ( ( this.lowFuelBlinkNanos > 0L ) && ( lowFuelWarningImageOn != null ) )
+        else if ( ( lowFuelBlinkTime.getFactoredValue() > 0L ) && ( lowFuelWarningImageOn != null ) )
         {
-            float lapsForFuel = ( fuel - 0.5f ) / avgFuelUsage;
-            float restLapLength = 1.0f - ( stintLength % 1f );
+            boolean warn = false;
             
-            int lapsRemaining = scoringInfo.getEstimatedMaxLaps( vsi ) - vsi.getLapsCompleted() - 1;
+            if ( avgFuelUsage > 0f )
+            {
+                float halfLiter = gameData.getProfileInfo().getMeasurementUnits().getFuelAmountFromLiters( 0.5f );
+                float lapsForFuel = ( ( fuel - halfLiter ) / avgFuelUsage ) + ( stintLength - (int)stintLength );
+                int maxLaps = scoringInfo.getEstimatedMaxLaps( vsi );
+                if ( maxLaps < 0 )
+                    maxLaps = 999999;
+                int lapsRemaining = maxLaps - vsi.getLapsCompleted();
+                
+                warn = ( lapsForFuel < 2.05f ) && ( lapsForFuel < lapsRemaining );
+            }
             
-            if ( ( avgFuelUsage > 0f ) && ( lapsForFuel - restLapLength < 1.0f ) && ( lapsRemaining > 0 ) )
+            if ( warn )
             {
                 if ( nextBlinkTime < 0L )
                 {
-                    nextBlinkTime = scoringInfo.getSessionNanos() + lowFuelBlinkNanos;
+                    nextBlinkTime = scoringInfo.getSessionNanos() + lowFuelBlinkTime.getFactoredValue();
                     blinkState = true;
                 }
                 else if ( scoringInfo.getSessionNanos() >= nextBlinkTime )
                 {
-                    nextBlinkTime = scoringInfo.getSessionNanos() + lowFuelBlinkNanos;
+                    nextBlinkTime = scoringInfo.getSessionNanos() + lowFuelBlinkTime.getFactoredValue();
                     blinkState = !blinkState;
                 }
             }
@@ -776,10 +777,13 @@ public class FuelWidget extends Widget
                 String string;
                 if ( avgFuelUsage > 0f )
                 {
+                    float halfLiter = gameData.getProfileInfo().getMeasurementUnits().getFuelAmountFromLiters( 0.5f );
+                    float fuelLaps = (float)Math.floor( ( fuel - halfLiter ) * 10 / avgFuelUsage ) / 10f;
+                    fuelLaps = Math.max( 0f, fuelLaps );
                     if ( roundUpRemainingLaps.getBooleanValue() )
-                        string = NumberUtil.formatFloat( ( fuel / avgFuelUsage ) + ( stintLength - (int)stintLength ), 1, true ) + Loc.fuelLoad3_postfix;
+                        string = NumberUtil.formatFloat( fuelLaps + ( stintLength - (int)stintLength ), 1, true ) + Loc.fuelLoad3_postfix;
                     else
-                        string = NumberUtil.formatFloat( fuel / avgFuelUsage, 1, true ) + Loc.fuelLoad3_postfix;
+                        string = NumberUtil.formatFloat( fuelLaps, 1, true ) + Loc.fuelLoad3_postfix;
                 }
                 else
                 {
