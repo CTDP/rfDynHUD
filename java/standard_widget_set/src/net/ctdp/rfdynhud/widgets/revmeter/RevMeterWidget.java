@@ -215,15 +215,6 @@ public class RevMeterWidget extends NeedleMeterWidget
     private final IntValue gear = new IntValue();
     private final IntValue boost = new IntValue();
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

@@ -148,15 +148,6 @@ public class ControlsWidget extends Widget
     private boolean brakeDirty = true;
     private boolean throttleDirty = true;
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
     private final IntProperty gap = new IntProperty( this, "gap", 5 );
     
     @Override

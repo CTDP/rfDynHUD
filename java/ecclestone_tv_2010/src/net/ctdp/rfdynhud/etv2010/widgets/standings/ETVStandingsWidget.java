@@ -100,15 +100,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void bake()
     {
         super.bake();

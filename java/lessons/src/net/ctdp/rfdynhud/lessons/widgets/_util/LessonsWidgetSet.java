@@ -21,7 +21,17 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 public class LessonsWidgetSet
 {
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Lessons", LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/ctdp.png" ), LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/lessons.jpeg" ) );
+    /*
+     * This is nothing special and also not complicated.
+     * This simply creates a version id, which can be used
+     * to cheaply compare different versions of this WidgetPackage.
+     * Make sure to increase the version number, at least
+     * if you release a new revision of your Widget set with
+     * more or less significant changes.
+     */
+    private static final int version = WidgetPackage.composeVersion( 1, 0, 0 );
+    
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Lessons", version, LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/ctdp.png" ), LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/lessons.jpeg" ) );
     
     public static final String MY_FONT_COLOR_NAME = "MyFontColor";
     

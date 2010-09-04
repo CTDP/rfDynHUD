@@ -96,15 +96,6 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
         super.onPropertyChanged( property, oldValue, newValue );

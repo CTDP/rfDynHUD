@@ -59,15 +59,6 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
     private static final int colPadding = 10;
     private int[] colWidths = null;
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

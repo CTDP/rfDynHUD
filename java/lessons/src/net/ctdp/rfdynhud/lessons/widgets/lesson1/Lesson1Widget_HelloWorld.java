@@ -48,20 +48,6 @@ public class Lesson1Widget_HelloWorld extends Widget
     private DrawnString ds = null;
     
     @Override
-    public int getVersion()
-    {
-        /*
-         * This is nothing special and also not complicated.
-         * This simply creates a version id, which can be used
-         * to cheaply compare different versions of this Widget.
-         * Make sure to increase the version number, at least
-         * if you release a new revision of your Widget with
-         * more or less significant changes.
-         */
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
-    @Override
     public WidgetPackage getWidgetPackage()
     {
         /*

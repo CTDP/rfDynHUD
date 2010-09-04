@@ -125,15 +125,6 @@ public class MapWidget extends Widget
     
     private final Point2D.Float position = new Point2D.Float();
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

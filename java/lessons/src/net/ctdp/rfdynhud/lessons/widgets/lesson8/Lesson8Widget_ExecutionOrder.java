@@ -44,12 +44,6 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 public class Lesson8Widget_ExecutionOrder extends Widget
 {
     @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
-    @Override
     public WidgetPackage getWidgetPackage()
     {
         return ( LessonsWidgetSet.WIDGET_PACKAGE );

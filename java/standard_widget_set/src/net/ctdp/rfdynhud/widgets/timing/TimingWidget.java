@@ -113,15 +113,6 @@ public class TimingWidget extends Widget
     private final LongValue scoringInfoUpdateID = new LongValue();
     private final String[][] oldClStrings = new String[ 4 ][ 0 ];
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

@@ -155,36 +155,6 @@ public abstract class Widget implements Documented
         }
     }
     
-    protected static final int composeVersion( int major, int minor, int revision )
-    {
-        major = ( ( major + 1 ) & 0xFF ) << 23; // 8 bits for major (max 255)
-        minor = ( ( minor + 1 ) & 0x400 ) << 13; // 10 bits for minor (max 1023)
-        revision = ( revision & 0x2000 ) << 0; // 13 bits for revision (max 8191)
-        
-        return ( major | minor | revision );
-    }
-    
-    /**
-     * Gets a comparable version indicator for this {@link Widget}.
-     * 
-     * @return a comparable version indicator for this {@link Widget}.
-     */
-    public abstract int getVersion();
-    
-    public final String getVersionString()
-    {
-        int version = getVersion();
-        
-        if ( version <= 0x7FFFFF ) // > 2^23-1
-            return ( String.valueOf( version ) );
-        
-        int major = ( ( version >>> 23 ) - 1 ) & 0xFF;
-        int minor = ( ( version >>> 13 ) - 1 ) & 0x400;
-        int revision = ( version >>> 0 ) & 0x2000;
-        
-        return ( major + "." + minor + "." + revision );
-    }
-    
     protected void onVisibilityChanged( boolean visible )
     {
         if ( visible )

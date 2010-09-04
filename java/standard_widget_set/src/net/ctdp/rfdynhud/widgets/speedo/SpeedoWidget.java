@@ -63,15 +63,6 @@ public class SpeedoWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public WidgetPackage getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );

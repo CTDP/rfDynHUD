@@ -96,15 +96,6 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
     private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
     private static final int padding = 4;
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

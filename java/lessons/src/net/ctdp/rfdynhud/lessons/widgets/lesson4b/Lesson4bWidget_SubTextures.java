@@ -68,12 +68,6 @@ public class Lesson4bWidget_SubTextures extends Widget
     private DrawnString lapString = null;
     
     @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
-    @Override
     public WidgetPackage getWidgetPackage()
     {
         return ( LessonsWidgetSet.WIDGET_PACKAGE );

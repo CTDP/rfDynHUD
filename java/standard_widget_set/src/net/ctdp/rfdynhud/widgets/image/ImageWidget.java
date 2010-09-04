@@ -51,15 +51,6 @@ public class ImageWidget extends Widget
     
     private TextureImage2D scaled = null;
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

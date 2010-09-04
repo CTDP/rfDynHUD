@@ -215,15 +215,6 @@ public class FuelWidget extends Widget
     private int oldFuel = -1;
     private float oldAverage = -1f;
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

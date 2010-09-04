@@ -29,7 +29,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 public class StandardWidgetSet
 {
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "", StandardWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/ctdp.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "", WidgetPackage.composeVersion( 1, 1, 0 ), StandardWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/ctdp.png" ) );
     
     public static final String POSITION_ITEM_FONT_COLOR_NAME = "PositionItemFontColor";
     public static final String POSITION_ITEM_COLOR_NORMAL = "PositionItemColorNormal";

@@ -62,12 +62,6 @@ public class Lesson4aWidget_Images extends Widget
     private DrawnString ds = null;
     
     @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
-    @Override
     public WidgetPackage getWidgetPackage()
     {
         return ( LessonsWidgetSet.WIDGET_PACKAGE );

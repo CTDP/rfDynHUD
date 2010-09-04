@@ -82,15 +82,6 @@ public class StartingLightWidget extends Widget
     private final IntValue numLights = new IntValue();
     private float visibleTime = -1f;
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

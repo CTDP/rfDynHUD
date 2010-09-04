@@ -96,15 +96,6 @@ public class TrackPositionWidget extends Widget
     
     private int lineLength = 0;
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 1, 0 ) );
-    }
-    
     @Override
     public WidgetPackage getWidgetPackage()
     {

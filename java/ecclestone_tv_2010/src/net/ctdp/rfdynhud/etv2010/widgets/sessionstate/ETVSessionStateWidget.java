@@ -85,15 +85,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public int getVersion()
-    {
-        return ( composeVersion( 1, 0, 0 ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int getNeededData()
     {
         return ( Widget.NEEDED_DATA_SCORING );

@@ -36,6 +36,7 @@ import net.ctdp.rfdynhud.util.Logger;
 public class WidgetPackage implements Comparable<WidgetPackage>
 {
     private final String name;
+    private final int version;
     private final URL[] iconURLs;
     private Icon[] icons = null;
     
@@ -47,6 +48,48 @@ public class WidgetPackage implements Comparable<WidgetPackage>
     public final String getName()
     {
         return ( name );
+    }
+    
+    /**
+     * Composes one 32 bit integer from major, minor and revision numbers.
+     * 
+     * @param major
+     * @param minor
+     * @param revision
+     * 
+     * @return a 32 bit integer for the version.
+     */
+    public static final int composeVersion( int major, int minor, int revision )
+    {
+        major = ( ( major + 1 ) & 0xFF ) << 23; // 8 bits for major (max 255)
+        minor = ( ( minor + 1 ) & 0x400 ) << 13; // 10 bits for minor (max 1023)
+        revision = ( revision & 0x2000 ) << 0; // 13 bits for revision (max 8191)
+        
+        return ( major | minor | revision );
+    }
+    
+    /**
+     * Gets a comparable version indicator for this {@link WidgetPackage}.
+     * 
+     * @return a comparable version indicator for this {@link WidgetPackage}.
+     */
+    public final int getVersion()
+    {
+        return ( version );
+    }
+    
+    public final String getVersionString()
+    {
+        int version = getVersion();
+        
+        if ( version <= 0x7FFFFF ) // > 2^23-1
+            return ( String.valueOf( version ) );
+        
+        int major = ( ( version >>> 23 ) - 1 ) & 0xFF;
+        int minor = ( ( version >>> 13 ) - 1 ) & 0x400;
+        int revision = ( version >>> 0 ) & 0x2000;
+        
+        return ( major + "." + minor + "." + revision );
     }
     
     private static Icon[] createIconArray( URL[] iconURLs )
@@ -126,11 +169,13 @@ public class WidgetPackage implements Comparable<WidgetPackage>
      * Creates a new {@link WidgetPackage} instance.
      * 
      * @param name the package name. This can be <code>null</code> or an empty string to denote the root of the menu or a slash separated path.
+     * @param version see {@link #composeVersion(int, int, int)}
      * @param iconURLs
      */
-    public WidgetPackage( String name, URL... iconURLs )
+    public WidgetPackage( String name, int version, URL... iconURLs )
     {
         this.name = ( name == null ) ? "" : name;
+        this.version = version;
         this.iconURLs = ( iconURLs == null || iconURLs.length == 0 ) ? null : iconURLs;
     }
     
@@ -169,20 +214,22 @@ public class WidgetPackage implements Comparable<WidgetPackage>
      * Creates a new {@link WidgetPackage} instance.
      * 
      * @param name the package name. This can be <code>null</code> or an empty string to denote the root of the menu or a slash separated path.
+     * @param version see {@link #composeVersion(int, int, int)}
      * @param iconFiles
      */
-    public WidgetPackage( String name, File... iconFiles )
+    public WidgetPackage( String name, int version, File... iconFiles )
     {
-        this( name, createURLsArray( iconFiles ) );
+        this( name, version, createURLsArray( iconFiles ) );
     }
     
     /**
      * Creates a new {@link WidgetPackage} instance.
      * 
      * @param name the package name. This can be <code>null</code> or an empty string to denote the root of the menu or a slash separated path.
+     * @param version see {@link #composeVersion(int, int, int)}
      */
-    public WidgetPackage( String name )
+    public WidgetPackage( String name, int version )
     {
-        this( name, (URL[])null );
+        this( name, version, (URL[])null );
     }
 }
