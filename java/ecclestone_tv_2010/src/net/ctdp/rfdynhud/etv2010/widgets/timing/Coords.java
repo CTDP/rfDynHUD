@@ -29,7 +29,6 @@ import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
  */
 class Coords
 {
-    public int gap;
     public int rowHeight;
     
     public int bigPosWidth;
@@ -46,9 +45,9 @@ class Coords
     public int rowOffset1;
     public int rowOffset2;
     
-    public void update( ETVImages images, int width, int height, Rectangle2D bigPosBounds, Rectangle2D posBounds )
+    public void update( ETVImages images, int width, int height, int itemGap, int itemGap2, Rectangle2D bigPosBounds, Rectangle2D posBounds )
     {
-        this.gap = ETVUtils.ITEM_GAP;
+        final int gap = itemGap;
         
         this.rowHeight = ( height - 2 * gap ) / 3;
         
@@ -67,21 +66,22 @@ class Coords
             int bigPosBorderLeft = images.getBigPositionCaptionLeft( rowHeight + gap + rowHeight );
             this.bigPosWidth = images.getBigPositionWidth( rowHeight + gap + rowHeight, bigPosBounds );
             this.bigPosCenter = images.getBigPositionCaptionCenter( rowHeight + gap + rowHeight, bigPosBounds );
-            this.mainWidth = width - bigPosWidth + bigPosBorderLeft - gap;
+            this.mainWidth = width - bigPosWidth + bigPosBorderLeft - itemGap2;
             
             this.posCenterA = images.getLabeledDataCaptionCenterS( ldScale, posBounds );
         }
         else
         {
-            ldBL = ETVUtils.TRIANGLE_WIDTH;
-            dBL = ETVUtils.TRIANGLE_WIDTH;
-            dBR = ETVUtils.TRIANGLE_WIDTH;
+            final int triangWidth = ETVUtils.getTriangleWidth( rowHeight );
+            ldBL = triangWidth;
+            dBL = triangWidth;
+            dBR = triangWidth;
             
-            int bigPosBorder = ETVUtils.TRIANGLE_WIDTH  + ( ETVUtils.TRIANGLE_WIDTH * ( rowHeight + gap + rowHeight + gap ) ) / ( rowHeight + gap + rowHeight );
+            int bigPosBorder = triangWidth  + ( triangWidth * ( rowHeight + gap + rowHeight + gap ) ) / ( rowHeight + gap + rowHeight );
             int bigPosNumWidth = (int)Math.ceil( bigPosBounds.getWidth() );
             this.bigPosWidth = bigPosBorder + bigPosNumWidth + bigPosBorder;
             this.bigPosCenter = bigPosBorder + bigPosNumWidth / 2;
-            this.mainWidth = width - bigPosWidth + bigPosBorder - gap;
+            this.mainWidth = width - bigPosWidth + bigPosBorder - itemGap2;
             
             this.posCenterA = (int)Math.ceil( ldBL ) + (int)( Math.ceil( posBounds.getWidth() ) / 2 );
         }
@@ -89,7 +89,7 @@ class Coords
         this.rowOffset1 = Math.round( ( ldBL * ( rowHeight + gap ) ) / (float)rowHeight );
         this.rowOffset2 = Math.round( ( ldBL * ( rowHeight + gap ) ) / (float)rowHeight + ( dBL * ( rowHeight + gap ) ) / (float)rowHeight );
         
-        this.mainWidth = Math.min( mainWidth, width - bigPosWidth - gap + dBR + (int)( (float)rowHeight + ( dBR * ( rowHeight + gap ) ) / (float)rowHeight ) ) - gap; // TODO: remove the -gap
+        this.mainWidth = Math.min( mainWidth, width - bigPosWidth - itemGap2 + dBR + (int)( (float)rowHeight + ( dBR * ( rowHeight + gap ) ) / (float)rowHeight ) );
         
         this.mainFieldWidthA = mainWidth - rowOffset2 + rowOffset1 - dBL;
         this.mainFieldWidthB = mainWidth - rowOffset2;
@@ -101,8 +101,9 @@ class Coords
         }
         else
         {
-            this.dataRightA = mainFieldWidthA - ETVUtils.TRIANGLE_WIDTH;
-            this.dataRightB = mainFieldWidthB - ETVUtils.TRIANGLE_WIDTH;
+            final int triangWidth = ETVUtils.getTriangleWidth( rowHeight );
+            this.dataRightA = mainFieldWidthA - triangWidth;
+            this.dataRightB = mainFieldWidthB - triangWidth;
         }
     }
 }

@@ -254,7 +254,15 @@ public class EditorTable extends HierarchicalTable
     
     public void apply()
     {
-        ( (HierarchicalTableModel)this.getModel() ).apply( null, (HierarchicalTableColumnModel)this.getColumnModel() );
+        int selectedRow = getSelectedRow();
+        
+        ( (HierarchicalTableModel)this.getModel() ).apply( null, (HierarchicalTableColumnModel)this.getColumnModel(), selectedRow );
+        
+        selectedRow = Math.min( selectedRow, getRowCount() - 1 );
+        if ( selectedRow < 0 )
+            clearSelection();
+        else
+            setRowSelectionInterval( selectedRow, selectedRow );
     }
     
     private static ValueAccessor acc = new ValueAccessor()

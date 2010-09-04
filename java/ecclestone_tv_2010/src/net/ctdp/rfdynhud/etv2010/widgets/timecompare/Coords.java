@@ -29,7 +29,6 @@ import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
  */
 class Coords
 {
-    public int gap;
     public int rowHeight;
     
     public int posCenterA;
@@ -48,9 +47,9 @@ class Coords
     public int offsetC;
     public int offsetD;
     
-    public void update( ETVImages images, int width, int height, Rectangle2D posBounds )
+    public void update( ETVImages images, int width, int height, int itemGap, Rectangle2D posBounds )
     {
-        this.gap = ETVUtils.ITEM_GAP;
+        final int gap = itemGap;
         
         rowHeight = ( height - 2 * gap ) / 3;
         
@@ -75,13 +74,14 @@ class Coords
         }
         else
         {
-            ldBL = ETVUtils.TRIANGLE_WIDTH;
-            ldBR = ETVUtils.TRIANGLE_WIDTH;
-            dBR = ETVUtils.TRIANGLE_WIDTH;
-            dBL = ETVUtils.TRIANGLE_WIDTH;
+            final int triangWidth = ETVUtils.getTriangleWidth( rowHeight );
+            ldBL = triangWidth;
+            ldBR = triangWidth;
+            dBR = triangWidth;
+            dBL = triangWidth;
             
             this.posCenterA = (int)Math.ceil( ldBL ) + (int)( Math.ceil( posBounds.getWidth() ) / 2 );
-            this.dataLeftA = (int)Math.ceil( ldBL ) + (int)Math.ceil( posBounds.getWidth() ) + ETVUtils.TRIANGLE_WIDTH;
+            this.dataLeftA = (int)Math.ceil( ldBL ) + (int)Math.ceil( posBounds.getWidth() ) + triangWidth;
         }
         
         this.border12 = Math.min( ldBR, dBL );

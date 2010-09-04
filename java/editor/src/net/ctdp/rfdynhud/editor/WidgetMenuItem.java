@@ -31,7 +31,6 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.openmali.types.twodee.Rect2i;
 
@@ -76,8 +75,8 @@ public class WidgetMenuItem extends JMenuItem
         
         if ( !iconDrawn || ( checkState != lastCheckState ) )
         {
+            widget.prepareForMenuItem();
             widget.updateVisibility( true, true, editor.getGameData(), editor.getEditorPresets() );
-            __WPrivilegedAccess.getBorderProperty( widget ).setBorder( null );
             
             texture.clear( true, null );
             widget.drawWidget( true, true, true, editor.getGameData(), editor.getEditorPresets(), texture );

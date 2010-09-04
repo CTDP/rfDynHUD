@@ -32,7 +32,6 @@ import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.WheelPart;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
-import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
@@ -811,9 +810,9 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void addFontPropertiesToContainer( FontProperty font, ColorProperty fontColor, WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addFontPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        super.addFontPropertiesToContainer( font, fontColor, propsCont, forceAll );
+        super.addFontPropertiesToContainer( propsCont, forceAll );
         
         propsCont.addProperty( font2 );
     }

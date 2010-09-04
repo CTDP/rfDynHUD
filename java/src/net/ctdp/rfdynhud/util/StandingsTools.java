@@ -39,6 +39,9 @@ public class StandingsTools
     {
         final int maxDisplayedDrivers = target.length;
         
+        if ( maxDisplayedDrivers == 0 )
+            return ( 0 );
+        
         int numDispVehicles = scoringInfo.getNumVehicles();
         if ( useClassScoring )
         {

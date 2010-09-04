@@ -1512,30 +1512,69 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * Adds the border property to the container.
+     * Adds the type and name properties to the {@link WidgetPropertiesContainer}.
      * 
-     * @param property
      * @param propsCont the container to add the properties to
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addBorderPropertyToContainer( BorderProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addTypeAndNamePropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        propsCont.addProperty( property );
+        propsCont.addProperty( type );
+        propsCont.addProperty( name );
+    }
+    
+    /**
+     * Adds the visibility properties to the {@link WidgetPropertiesContainer}.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void addVisibilityPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        if ( masterWidget == null )
+        {
+            propsCont.addProperty( inputVisible );
+        }
+    }
+    
+    /**
+     * Adds the position and size properties to the {@link WidgetPropertiesContainer}.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void addPositionAndSizePropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( position.getPositioningProperty( "positioning" ) );
+        propsCont.addProperty( position.getXProperty( "x" ) );
+        propsCont.addProperty( position.getYProperty( "y" ) );
+        propsCont.addProperty( size.getWidthProperty( "width" ) );
+        propsCont.addProperty( size.getHeightProperty( "height" ) );
+    }
+    
+    /**
+     * Adds the border property to the container.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void addBorderPropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( border );
     }
     
     /**
      * Adds the padding properties to the container.
      * 
-     * @param paddingTop
-     * @param paddingLeft
-     * @param paddingRight
-     * @param paddingBottom
      * @param propsCont the container to add the properties to
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addPaddingPropertiesToContainer( IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom, WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addPaddingPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.pushGroup( "Padding", false );
         
@@ -1551,14 +1590,13 @@ public abstract class Widget implements Documented
     /**
      * Adds the background property to the container.
      * 
-     * @param property
      * @param propsCont the container to add the properties to
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addBackgroundPropertyToContainer( BackgroundProperty property, WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addBackgroundPropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        propsCont.addProperty( property );
+        propsCont.addProperty( backgroundProperty );
     }
     
     
@@ -1571,7 +1609,7 @@ public abstract class Widget implements Documented
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addFontPropertiesToContainer( FontProperty font, ColorProperty fontColor, WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addFontPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( font );
         propsCont.addProperty( fontColor );
@@ -1599,37 +1637,30 @@ public abstract class Widget implements Documented
     {
         propsCont.addGroup( "General" );
         
-        propsCont.addProperty( type );
-        propsCont.addProperty( name );
+        addTypeAndNamePropertiesToContainer( propsCont, forceAll );
+        
+        addVisibilityPropertiesToContainer( propsCont, forceAll );
+        
+        addPositionAndSizePropertiesToContainer( propsCont, forceAll );
         
         if ( masterWidget == null )
         {
-            propsCont.addProperty( inputVisible );
-        }
-        propsCont.addProperty( position.getPositioningProperty( "positioning" ) );
-        propsCont.addProperty( position.getXProperty( "x" ) );
-        propsCont.addProperty( position.getYProperty( "y" ) );
-        propsCont.addProperty( size.getWidthProperty( "width" ) );
-        propsCont.addProperty( size.getHeightProperty( "height" ) );
-        
-        if ( masterWidget == null )
-        {
-            addPaddingPropertiesToContainer( paddingTop, paddingLeft, paddingRight, paddingBottom, propsCont, forceAll );
+            addPaddingPropertiesToContainer( propsCont, forceAll );
         }
         
         if ( ( masterWidget == null ) && canHaveBorder() )
         {
-            addBorderPropertyToContainer( border, propsCont, forceAll );
+            addBorderPropertyToContainer( propsCont, forceAll );
         }
         
         if ( canHaveBackground() )
         {
-            addBackgroundPropertyToContainer( backgroundProperty, propsCont, forceAll );
+            addBackgroundPropertyToContainer( propsCont, forceAll );
         }
         
         if ( hasText() )
         {
-            addFontPropertiesToContainer( font, fontColor, propsCont, forceAll );
+            addFontPropertiesToContainer( propsCont, forceAll );
         }
         
         getPropertiesForParentGroup( propsCont, forceAll );
@@ -1720,6 +1751,15 @@ public abstract class Widget implements Documented
     protected boolean hasText()
     {
         return ( true );
+    }
+    
+    /**
+     * This method is called by the editor before it draws the Widget to a menu item.
+     */
+    public void prepareForMenuItem()
+    {
+        border.setBorder( null );
+        setPadding( 0, 0, 0, 0 );
     }
     
     /**

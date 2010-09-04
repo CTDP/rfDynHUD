@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.widgets.widget;
 
-import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -67,11 +66,6 @@ public class __WPrivilegedAccess
     public static final void onSizeChanged( int oldWidth, int oldHeight, int newWidth, int newHeight, Widget widget )
     {
         widget.onSizeChanged( oldWidth, oldHeight, newWidth, newHeight );
-    }
-    
-    public static final BorderProperty getBorderProperty( Widget widget )
-    {
-        return ( widget.getBorderProperty() );
     }
     
     public static final boolean needsCompleteClear( Widget widget )

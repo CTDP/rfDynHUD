@@ -32,9 +32,7 @@ public class ETVUtils
 {
     public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Ecclestone TV 2010", ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/ctdp.png" ), ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/etv2010.png" ) );
     
-    public static final int TRIANGLE_WIDTH = 16;
     private static final boolean AA_TRIANGLE = true;
-    public static final int ITEM_GAP = 3;
     
     public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
     public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST = "ETVCaptionBackgroundColor1st";
@@ -99,32 +97,57 @@ public class ETVUtils
         return ( null );
     }
     
-    public static final int getLabeledDataDataWidth( int width, Rectangle2D captionBounds )
+    public static final int getTriangleWidth( int itemHeight )
+    {
+        return ( Math.round( itemHeight / 2f ) );
+    }
+    
+    public static final int getLabeledDataCaptionLeft( int height )
+    {
+        return ( getTriangleWidth( height ) );
+    }
+    
+    public static final int getLabeledDataCaptionCenter( int height, Rectangle2D captionBounds )
     {
         int capWidth = (int)Math.ceil( captionBounds.getWidth() );
-        int dataAreaWidth = width - 3 * TRIANGLE_WIDTH - capWidth;
+        
+        return ( getTriangleWidth( height ) + ( capWidth / 2 ) );
+    }
+    
+    public static final int getLabeledDataCaptionRight( int height, Rectangle2D captionBounds )
+    {
+        int capWidth = (int)Math.ceil( captionBounds.getWidth() );
+        
+        return ( getTriangleWidth( height ) + capWidth );
+    }
+    
+    public static final int getLabeledDataDataWidth( int width, int height, Rectangle2D captionBounds )
+    {
+        int capWidth = (int)Math.ceil( captionBounds.getWidth() );
+        int dataAreaWidth = width - 3 * getTriangleWidth( height ) - capWidth;
         
         return ( dataAreaWidth );
     }
     
-    public static final int getLabeledDataDataLeft( Rectangle2D captionBounds )
+    public static final int getLabeledDataDataLeft( int height, Rectangle2D captionBounds )
     {
         int capWidth = (int)Math.ceil( captionBounds.getWidth() );
+        int triangWidth = getTriangleWidth( height );
         
-        return ( TRIANGLE_WIDTH + capWidth + TRIANGLE_WIDTH );
+        return ( triangWidth + capWidth + triangWidth );
     }
     
-    public static final int getLabeledDataDataCenter( int width, Rectangle2D captionBounds )
+    public static final int getLabeledDataDataCenter( int width, int height, Rectangle2D captionBounds )
     {
-        int dataAreaWidth = getLabeledDataDataWidth( width, captionBounds );
-        int dataAreaCenter = width - TRIANGLE_WIDTH - dataAreaWidth / 2;
+        int dataAreaWidth = getLabeledDataDataWidth( width, height, captionBounds );
+        int dataAreaCenter = width - getTriangleWidth( height ) - dataAreaWidth / 2;
         
         return ( dataAreaCenter );
     }
     
-    public static final int getLabeledDataDataRight( int width )
+    public static final int getLabeledDataDataRight( int width, int height )
     {
-        return ( width - TRIANGLE_WIDTH );
+        return ( width - getTriangleWidth( height ) );
     }
     
     public static final int getLabeledDataVMiddle( int height, Rectangle2D captionBounds )
@@ -169,7 +192,7 @@ public class ETVUtils
         it.drawScaled( xs, 0, border_right, hs, xd, y, border_right_, height, texture, false );
     }
     
-    public static void drawDataBackground( int x, int y, int width, int height, int triangleWidthFactor, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
+    public static void drawDataBackground( int x, int y, int width, int height, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
     {
         if ( clearBefore )
             texture.clear( x, y, width, height, true, null );
@@ -180,7 +203,7 @@ public class ETVUtils
         
         texCanvas.setAntialiazingEnabled( AA_TRIANGLE );
         
-        final int triangWidth = TRIANGLE_WIDTH * triangleWidthFactor;
+        final int triangWidth = getTriangleWidth( height );
         
         int[] xPoints = new int[] { x, x + triangWidth, x + triangWidth, x };
         int[] yPoints = new int[] { y + height, y + height, y + 0, y + height };
@@ -203,11 +226,6 @@ public class ETVUtils
         
         texCanvas.fillPolygon( xPoints, yPoints, xPoints.length );
         //texCanvas.drawPolygon( xPoints, yPoints, xPoints.length );
-    }
-    
-    public static void drawDataBackground( int x, int y, int width, int height, Color dataBgColor, TextureImage2D texture, boolean clearBefore )
-    {
-        drawDataBackground( x, y, width, height, 1, dataBgColor, texture, clearBefore );
     }
     
     public static void drawDataBackgroundI( int x, int y, int width, int height, ETVImages images, ETVImages.BGType type, TextureImage2D texture, boolean clearBefore )
@@ -258,7 +276,7 @@ public class ETVUtils
         
         texCanvas.setAntialiazingEnabled( AA_TRIANGLE );
         
-        final int triangWidth = TRIANGLE_WIDTH * triangleWidthFactor;
+        final int triangWidth = getTriangleWidth( height ) * triangleWidthFactor;
         
         int[] xPoints = new int[] { x + 0, x + triangWidth, x + triangWidth, x + 0 };
         int[] yPoints = new int[] { y + height, y + height, y + 0, y + height };

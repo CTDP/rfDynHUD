@@ -225,7 +225,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         int itemHeight = this.itemHeight.getEffectiveHeight();
-        maxNumItems = ( height + ETVUtils.ITEM_GAP ) / ( itemHeight + ETVUtils.ITEM_GAP );
+        maxNumItems = ( height + itemGap.getIntValue() ) / ( itemHeight + itemGap.getIntValue() );
         
         vehicleScoringInfos = new VehicleScoringInfo[ maxNumItems ];
         
@@ -250,9 +250,10 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         Rectangle2D numBounds = metrics.getStringBounds( "00", texCanvas );
         
-        int capWidth = (int)Math.ceil( numBounds.getWidth() );
-        int dataAreaLeft = useImages ? getImages().getLabeledDataDataLeft( itemHeight, numBounds ) : ETVUtils.getLabeledDataDataLeft( numBounds );
-        int dataAreaRight = useImages ? getImages().getLabeledDataDataRight( width, itemHeight ) : ETVUtils.getLabeledDataDataRight( width );
+        //int capWidth = (int)Math.ceil( numBounds.getWidth() );
+        int captionRight = useImages ? getImages().getLabeledDataCaptionRight( itemHeight, numBounds ) : ETVUtils.getLabeledDataCaptionRight( itemHeight, numBounds );
+        int dataAreaLeft = useImages ? getImages().getLabeledDataDataLeft( itemHeight, numBounds ) : ETVUtils.getLabeledDataDataLeft( itemHeight, numBounds );
+        int dataAreaRight = useImages ? getImages().getLabeledDataDataRight( width, itemHeight ) : ETVUtils.getLabeledDataDataRight( width, itemHeight );
         int vMiddle = ETVUtils.getLabeledDataVMiddle( itemHeight, numBounds );
         
         captionStrings = new DrawnString[ maxNumItems ];
@@ -269,7 +270,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         for ( int i = 0; i < maxNumItems; i++ )
         {
-            captionStrings[i] = dsf.newDrawnString( "captionStrings" + i, ETVUtils.TRIANGLE_WIDTH + capWidth, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+            captionStrings[i] = dsf.newDrawnString( "captionStrings" + i, captionRight, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
             nameStrings[i] = dsf.newDrawnString( "nameStrings" + i, dataAreaLeft, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
             gapStrings[i] = dsf.newDrawnString( "gapStrings" + i, dataAreaRight, vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
             
@@ -380,7 +381,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                 visibilityChanged = true;
             }
             
-            int offsetY2 = i * ( itemHeight + ETVUtils.ITEM_GAP );
+            int offsetY2 = i * ( itemHeight + itemGap.getIntValue() );
             int srcOffsetY = ( place == 1 ) ? 0 : itemHeight;
             
             if ( drawBackground )
@@ -450,10 +451,12 @@ public class ETVStandingsWidget extends ETVWidgetBase
                             laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), tt.getTexture(), dataBackgroundColor.getColor() );
                         }
                         
+                        int off = useImages.getBooleanValue() ? getImages().getDataDataLeft( itemHeight ) / 2 : ( ETVUtils.getTriangleWidth( itemHeight ) / 2 );
+                        
                         if ( isOnLeftSide )
-                            tt.setTranslation( width - ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
+                            tt.setTranslation( width - off, offsetY2 );
                         else
-                            tt.setTranslation( -width + ( ETVUtils.TRIANGLE_WIDTH / 2.0f ), offsetY2 );
+                            tt.setTranslation( -width + off, offsetY2 );
                         tt.setVisible( true );
                     }
                 }
@@ -462,7 +465,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
         
         for ( int i = numDrivers; i < oldNumItems; i++ )
         {
-            int offsetY2 = i * ( itemHeight + ETVUtils.ITEM_GAP );
+            int offsetY2 = i * ( itemHeight + itemGap.getIntValue() );
             
             texture.clear( offsetX, offsetY + offsetY2, width, itemHeight, true, null );
         }
@@ -542,6 +545,26 @@ public class ETVStandingsWidget extends ETVWidgetBase
         propsCont.addProperty( itemHeight.getHeightProperty( "itemHeight" ) );
         propsCont.addProperty( forceLeaderDisplayed );
         propsCont.addProperty( showFastestLapsInRace );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getMinHeight( LiveGameData gameData, EditorPresets editorPresets )
+    {
+        return ( 5 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        itemHeight.setEffectiveSize( itemHeight.getEffectiveWidth(), 5 );
     }
     
     public ETVStandingsWidget( String name )

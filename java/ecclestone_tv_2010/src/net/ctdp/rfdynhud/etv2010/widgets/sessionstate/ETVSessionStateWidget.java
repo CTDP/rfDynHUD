@@ -260,10 +260,10 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         
         boolean useImages = this.useImages.getBooleanValue();
         
-        int dataAreaCenter = useImages ? getImages().getLabeledDataDataCenter( width, height, capBounds ) : ETVUtils.getLabeledDataDataCenter( width, capBounds );
+        int dataAreaCenter = useImages ? getImages().getLabeledDataDataCenter( width, height, capBounds ) : ETVUtils.getLabeledDataDataCenter( width, height, capBounds );
         int vMiddle = ETVUtils.getLabeledDataVMiddle( height, capBounds );
         
-        int captionLeft = useImages ? getImages().getLabeledDataCaptionLeft( height ) : ETVUtils.TRIANGLE_WIDTH;
+        int captionLeft = useImages ? getImages().getLabeledDataCaptionLeft( height ) : ETVUtils.getTriangleWidth( height );
         
         captionString = dsf.newDrawnString( "captionString", captionLeft, vMiddle, Alignment.LEFT, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
         stateString = dsf.newDrawnString( "stateString", dataAreaCenter, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
@@ -356,6 +356,15 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         super.loadProperty( loader );
         
         if ( loader.loadProperty( sessionLimitPreference ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getItemGapProperty( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        // No super call. We don't need the item gap here!
     }
     
     /**

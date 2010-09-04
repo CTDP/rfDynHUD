@@ -122,12 +122,18 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
      * 
      * @param changedPropertyName
      * @param columnModel
+     * @param selectedRow
      */
-    public void apply( String changedPropertyName, HierarchicalTableColumnModel columnModel )
+    public void apply( String changedPropertyName, HierarchicalTableColumnModel columnModel, int selectedRow )
     {
         boolean oldHEI = hasExpandableItems;
         
         setData( this.data );
+        if ( ( selectedRow >= 0 ) && ( selectedRow >= getRowCount() ) )
+        {
+            fireTableStructureChanged();
+        }
+        
         columnModel.init();
         fireTableDataChanged();
         columnModel.init();

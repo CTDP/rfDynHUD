@@ -65,6 +65,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     
     private final IntProperty positionFontSize = new IntProperty( this, "positionFontSize", 200 );
     
+    protected final IntProperty positionItemGap = new IntProperty( this, "positionItemGap", 5, 0, 100 );
+    
     private final EnumProperty<DisplayType> displayType = new EnumProperty<DisplayType>( this, "displayType", DisplayType.AT_SECTORS );
     
     private final IntProperty visibleTimeBeforeSector = new IntProperty( this, "visibleTimeBeforeSector", 7 );
@@ -249,18 +251,19 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         Rectangle2D bigPosBounds = texture.getStringBounds( "00", getPositionFont(), isFontAntiAliased() );
         Rectangle2D posBounds = texture.getStringBounds( "00", getFontProperty() );
-        coords.update( getImages(), width, height, bigPosBounds, posBounds );
+        int gap = itemGap.getIntValue();
+        coords.update( getImages(), width, height, gap, positionItemGap.getIntValue(), bigPosBounds, posBounds );
         
-        int vMiddle = ETVUtils.getLabeledDataVMiddle( coords.rowHeight + coords.gap + coords.rowHeight, bigPosBounds );
+        int vMiddle = ETVUtils.getLabeledDataVMiddle( coords.rowHeight + gap + coords.rowHeight, bigPosBounds );
         
         bigPositionString = dsf.newDrawnString( "bigPositionString", width - coords.bigPosWidth + coords.bigPosCenter, 0 + vMiddle, Alignment.CENTER, false, getPositionFont(), isFontAntiAliased(), captionColor.getColor() );
         
         vMiddle = ETVUtils.getLabeledDataVMiddle( coords.rowHeight, posBounds );
         
-        drivernameString = dsf.newDrawnString( "drivernameString", coords.rowOffset2 + coords.dataRightB, 0 * ( coords.rowHeight + coords.gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        laptimeString = dsf.newDrawnString( "laptimeString", coords.rowOffset1 + coords.dataRightB, 1 * ( coords.rowHeight + coords.gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        relPositionString = dsf.newDrawnString( "relPositionString", coords.posCenterA, 2 * ( coords.rowHeight + coords.gap ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
-        relTimeString = dsf.newDrawnString( "relTimeString", coords.dataRightA, 2 * ( coords.rowHeight + coords.gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        drivernameString = dsf.newDrawnString( "drivernameString", coords.rowOffset2 + coords.dataRightB, 0 * ( coords.rowHeight + gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        laptimeString = dsf.newDrawnString( "laptimeString", coords.rowOffset1 + coords.dataRightB, 1 * ( coords.rowHeight + gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        relPositionString = dsf.newDrawnString( "relPositionString", coords.posCenterA, 2 * ( coords.rowHeight + gap ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
+        relTimeString = dsf.newDrawnString( "relTimeString", coords.dataRightA, 2 * ( coords.rowHeight + gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         forceCompleteRedraw( true );
     }
@@ -275,16 +278,17 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
         final boolean useImages = this.useImages.getBooleanValue();
+        final int gap = itemGap.getIntValue();
         
         if ( useImages )
-            ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset2, offsetY + 0 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthB, coords.rowHeight, getImages(), BGType.NEUTRAL, texture, false );
+            ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset2, offsetY + 0 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, getImages(), BGType.NEUTRAL, texture, false );
         else
-            ETVUtils.drawDataBackground( offsetX + coords.rowOffset2, offsetY + 0 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
+            ETVUtils.drawDataBackground( offsetX + coords.rowOffset2, offsetY + 0 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
         
         if ( useImages )
-            ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthB, coords.rowHeight, getImages(), BGType.NEUTRAL, texture, false );
+            ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, getImages(), BGType.NEUTRAL, texture, false );
         else
-            ETVUtils.drawDataBackground( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
+            ETVUtils.drawDataBackground( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
         
         if ( ( editorPresets != null ) || ( referenceTimeAbs != null ) )
         {
@@ -422,9 +426,9 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             }
             
             if ( useImages )
-                ETVUtils.drawLabeledDataBackgroundI( offsetX, offsetY + 2 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), getImages(), bgType, texture, false );
+                ETVUtils.drawLabeledDataBackgroundI( offsetX, offsetY + 2 * ( coords.rowHeight + gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), getImages(), bgType, texture, false );
             else
-                ETVUtils.drawLabeledDataBackground( offsetX, offsetY + 2 * ( coords.rowHeight + coords.gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), capBgColor, dataBgColor, texture, false );
+                ETVUtils.drawLabeledDataBackground( offsetX, offsetY + 2 * ( coords.rowHeight + gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), capBgColor, dataBgColor, texture, false );
         }
         
         Color capBgColor = captionBackgroundColor.getColor();
@@ -433,9 +437,9 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             capBgColor = captionBackgroundColor1st.getColor();
         
         if ( useImages )
-            ETVUtils.drawBigPositionBackgroundI( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + coords.gap + coords.rowHeight, getImages(), first, texture, false );
+            ETVUtils.drawBigPositionBackgroundI( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + gap + coords.rowHeight, getImages(), first, texture, false );
         else
-            ETVUtils.drawDataBackground( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + coords.gap + coords.rowHeight, 2, capBgColor, texture, false );
+            ETVUtils.drawDataBackground( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + gap + coords.rowHeight, capBgColor, texture, false );
         
         drivernameString.resetClearRect();
         drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture, false );
@@ -637,6 +641,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         super.saveProperties( writer );
         
         writer.writeProperty( positionFontSize, "Font size for the position in percent relative to the normal font size." );
+        writer.writeProperty( positionItemGap, "The gap between the main elements and the position element in pixels." );
         
         writer.writeProperty( displayType, "Always display or just at sector boundaries or always if valid time was made?" );
         writer.writeProperty( visibleTimeBeforeSector, "The Widget is visible for the given amount of seconds before the relative sector time is reached." );
@@ -652,9 +657,32 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         super.loadProperty( loader );
         
         if ( loader.loadProperty( positionFontSize ) );
+        else if ( loader.loadProperty( positionItemGap ) );
         else if ( loader.loadProperty( displayType ) );
         else if ( loader.loadProperty( visibleTimeBeforeSector ) );
         else if ( loader.loadProperty( visibleTimeAfterSector ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesForParentGroup( propsCont, forceAll );
+        
+        propsCont.addProperty( positionFontSize );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getItemGapProperty( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getItemGapProperty( propsCont, forceAll );
+        
+        propsCont.addProperty( positionItemGap );
     }
     
     /**
@@ -665,13 +693,22 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addProperty( positionFontSize );
-        
         propsCont.addGroup( "Visiblity" );
         
         propsCont.addProperty( displayType );
         propsCont.addProperty( visibleTimeBeforeSector );
         propsCont.addProperty( visibleTimeAfterSector );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        positionItemGap.setIntValue( 0 );
     }
     
     public ETVTimingWidget( String name )

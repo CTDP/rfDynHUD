@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
@@ -56,6 +57,8 @@ public abstract class ETVWidgetBase extends Widget
     protected final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
     protected final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
     protected final ColorProperty dataBackgroundColor = new ColorProperty( this, "dataBgColor", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
+    
+    protected final IntProperty itemGap = new IntProperty( this, "itemGap", 3, 0, 100 );
     
     @Override
     public WidgetPackage getWidgetPackage()
@@ -115,6 +118,7 @@ public abstract class ETVWidgetBase extends Widget
         writer.writeProperty( captionBackgroundColor, "The background color for the \"Lap\" caption." );
         writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
         writer.writeProperty( dataBackgroundColor, "The background color for the data fields." );
+        writer.writeProperty( itemGap, "The gap between the elements in pixels." );
     }
     
     /**
@@ -128,12 +132,14 @@ public abstract class ETVWidgetBase extends Widget
         if ( loader.loadProperty( captionBackgroundColor ) );
         else if ( loader.loadProperty( captionColor ) );
         else if ( loader.loadProperty( dataBackgroundColor ) );
+        else if ( loader.loadProperty( itemGap ) );
     }
     
     /**
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void getPropertiesCaptionBG( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -145,8 +151,9 @@ public abstract class ETVWidgetBase extends Widget
     
     /**
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void getPropertiesCaption( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -157,8 +164,9 @@ public abstract class ETVWidgetBase extends Widget
     
     /**
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void getPropertiesDataBG( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
@@ -170,12 +178,24 @@ public abstract class ETVWidgetBase extends Widget
     
     /**
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     protected void getPropertiesData( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         getPropertiesDataBG( propsCont, forceAll );
+    }
+    
+    /**
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void getItemGapProperty( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( itemGap );
     }
     
     /**
@@ -186,7 +206,7 @@ public abstract class ETVWidgetBase extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Images, Colors and Fonts" );
+        propsCont.addGroup( "Images and Colors" );
         
         propsCont.addProperty( useImages );
         
@@ -197,6 +217,8 @@ public abstract class ETVWidgetBase extends Widget
         
         getPropertiesCaption( propsCont, forceAll );
         getPropertiesData( propsCont, forceAll );
+        
+        getItemGapProperty( propsCont, forceAll );
     }
     
     @Override
@@ -212,6 +234,19 @@ public abstract class ETVWidgetBase extends Widget
         return ( false );
     }
     */
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        useImages.setBooleanValue( false );
+        
+        itemGap.setIntValue( 0 );
+    }
     
     @Override
     protected String getInitialBackground()
