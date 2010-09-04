@@ -27,7 +27,6 @@ import javax.imageio.ImageIO;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.render.ImageTemplate;
-import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 
 /**
  * ImageIO image loading is pretty slow. This is a simple but fast texture loading implementation.
@@ -87,17 +86,6 @@ public class TextureManager
     
     private static final ImageCache cache = new DefaultImageCache();
     
-    private static final boolean checkImage( File file, ImageTemplate it )
-    {
-        if ( file.lastModified() != __RenderPrivilegedAccess.getLastModified( it ) )
-            return ( false );
-        
-        if ( file.length() != __RenderPrivilegedAccess.getFileSize( it ) )
-            return ( false );
-        
-        return ( true );
-    }
-    
     public static ImageTemplate getImage( String name, boolean useCache )
     {
         if ( File.separatorChar != '/' )
@@ -125,7 +113,7 @@ public class TextureManager
                     template = getMissingImage();
                     
                     cache.remove( name );
-                    cache.add( name, template );
+                    cache.add( name, 0, template );
                 }
             }
             else
@@ -139,23 +127,22 @@ public class TextureManager
             return ( template );
         }
         
+        cache.check( name, f.lastModified() );
         template = useCache ? cache.get( name ) : null;
         
         //System.out.println( ( ( template != null ) ? "found in cache" : "not found in cache" ) );
         
         if ( template != null )
         {
-            if ( template == getMissingImage() )
-            {
-                if ( useCache )
-                    cache.remove( name );
-                
-                template = null;
-            }
-            else if ( checkImage( f, template ) )
+            if ( template != getMissingImage() )
             {
                 return ( template );
             }
+            
+            if ( useCache )
+                cache.remove( name );
+            
+            template = null;
         }
         
         BufferedImage image = null;
@@ -173,10 +160,7 @@ public class TextureManager
         template = new ImageTemplate( image );
         
         if ( useCache )
-            cache.add( name, template );
-        
-        __RenderPrivilegedAccess.setLastModified( f.lastModified(), template );
-        __RenderPrivilegedAccess.setFileSize( f.length(), template );
+            cache.add( name, f.lastModified(), template );
         
         return ( template );
     }

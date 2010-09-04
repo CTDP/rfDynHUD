@@ -28,22 +28,88 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
  */
 public class DefaultImageCache implements ImageCache
 {
-    private final HashMap<String, ImageTemplate> map = new HashMap<String, ImageTemplate>();
+    private static class Entry
+    {
+        private static int nextId = 1;
+        
+        private final ImageTemplate image;
+        private final int id;
+        private final long lastModified;
+        
+        public final int getSizeInBytes()
+        {
+            if ( image == null )
+                return ( 0 );
+            
+            return ( image.getBaseWidth() * image.getBaseHeight() * ( image.hasAlpha() ? 4 : 3 ) );
+        }
+        
+        public Entry( ImageTemplate image, long lastModified )
+        {
+            this.image = image;
+            this.lastModified = lastModified;
+            
+            this.id = nextId++;
+        }
+    }
     
+    private final HashMap<String, Entry> map = new HashMap<String, Entry>();
+    
+    private static final int ONE_MB = 1024 * 1024;
+    
+    private int maxSize = 10 * ONE_MB;
     private int size = 0;
+    
+    public final int getSize()
+    {
+        return ( size );
+    }
+    
+    private void limitCacheSize()
+    {
+        if ( maxSize <= 0 )
+            return;
+        
+        while ( size > maxSize )
+        {
+            Entry oldest = null;
+            String oldestName = null;
+            
+            for ( String name : map.keySet() )
+            {
+                Entry entry = map.get( name );
+                
+                if ( ( oldest == null ) || ( oldest.id > entry.id ) )
+                {
+                    oldest = entry;
+                    oldestName = name;
+                }
+            }
+            
+            remove( oldestName );
+        }
+    }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public ImageTemplate add( String name, ImageTemplate image )
+    public ImageTemplate add( String name, long lastModified, ImageTemplate image )
     {
-        if ( image != null )
-            size += image.getBaseWidth() * image.getBaseHeight() * ( image.hasAlpha() ? 4 : 3 );
+        Entry entry = new Entry( image, lastModified );
         
-        Logger.log( "cache size: " + ( size / ( 1024 * 1024 ) ) + " MB" );
+        size += entry.getSizeInBytes();
         
-        return ( map.put( name, image ) );
+        Entry old = map.put( name, entry );
+        
+        limitCacheSize();
+        
+        //Logger.log( "cache size: " + ( size / ONE_MB ) + " MB" );
+        
+        if ( old != null )
+            return ( old.image );
+        
+        return ( null );
     }
     
     /**
@@ -52,14 +118,31 @@ public class DefaultImageCache implements ImageCache
     @Override
     public ImageTemplate remove( String name )
     {
-        ImageTemplate image = map.remove( name );
+        Entry entry = map.remove( name );
         
-        if ( image != null )
-            size += image.getBaseWidth() * image.getBaseHeight() * ( image.hasAlpha() ? 4 : 3 );
+        if ( entry != null )
+        {
+            size -= entry.getSizeInBytes();
+            
+            //Logger.log( "cache size: " + ( size / ONE_MB ) + " MB" );
+            
+            return ( entry.image );
+        }
         
-        Logger.log( "cache size: " + ( size / ( 1024 * 1024 ) ) + " MB" );
-        
-        return ( image );
+        return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void check( String name, long lastModified )
+    {
+        Entry entry = map.get( name );
+        if ( ( entry != null ) && ( entry.lastModified != lastModified ) )
+        {
+            remove( name );
+        }
     }
     
     /**
@@ -77,6 +160,11 @@ public class DefaultImageCache implements ImageCache
     @Override
     public ImageTemplate get( String name )
     {
-        return ( map.get( name ) );
+        Entry entry = map.get( name );
+        
+        if ( entry == null )
+            return ( null );
+        
+        return ( entry.image );
     }
 }

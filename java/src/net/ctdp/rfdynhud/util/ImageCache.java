@@ -30,11 +30,12 @@ public interface ImageCache
      * Adds an image to the cache.
      * 
      * @param name
+     * @param lastModified
      * @param image
      * 
      * @return the previously cached image.
      */
-    public ImageTemplate add( String name, ImageTemplate image );
+    public ImageTemplate add( String name, long lastModified, ImageTemplate image );
     
     /**
      * Removes an image from the cache.
@@ -53,6 +54,14 @@ public interface ImageCache
      * @return <code>true</code>, if the image is present, <code>false</code> otherwise.
      */
     public boolean contains( String name );
+    
+    /**
+     * Checks, whether an image is cached by the given name and matches the given 'lastModified' date.
+     * 
+     * @param name
+     * @param lastModified
+     */
+    public void check( String name, long lastModified );
     
     /**
      * Gets the cached image by the given name.
