@@ -22,7 +22,6 @@ import java.awt.geom.AffineTransform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -192,7 +191,7 @@ public class TransformableTexture
         return ( texture.getTextureCanvas() );
     }
     
-    protected void generateSubRectangles( LiveGameData gameData, EditorPresets editorPresets, WidgetsDrawingManager widgetsManager )
+    protected void generateSubRectangles( LiveGameData gameData, boolean isEditorMode, WidgetsDrawingManager widgetsManager )
     {
         final int n = widgetsManager.getNumWidgets();
         Rectangle[] tmp = new Rectangle[ n ];
@@ -200,8 +199,8 @@ public class TransformableTexture
         for ( int i = 0; i < n; i++ )
         {
             Widget w = widgetsManager.getWidget( i );
-            if ( w.hasMasterCanvas( editorPresets != null ) )
-                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, editorPresets, widgetsManager.getMainTexture() ), w.getMaxHeight( gameData, editorPresets, widgetsManager.getMainTexture() ) );
+            if ( w.hasMasterCanvas( isEditorMode ) )
+                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, isEditorMode, widgetsManager.getMainTexture() ), w.getMaxHeight( gameData, isEditorMode, widgetsManager.getMainTexture() ) );
         }
         
         this.usedRectangles = new Rectangle[ m ];

@@ -31,7 +31,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputActionConsumer;
 import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
@@ -44,7 +43,7 @@ import org.xml.sax.SAXParseException;
 class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsumer
 {
     @Override
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
         if ( action == INPUT_ACTION_RESET_LAPTIMES_CACHE )
         {
@@ -477,7 +476,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     }
     
     @Override
-    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
     {
         fuelUsages.clear();
         fastestNormalLaptimes.clear();
@@ -503,10 +502,10 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode ) {}
     
     @Override
-    public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
+    public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     private void storeToCache( LiveGameData gameData )
     {
@@ -576,7 +575,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     }
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
     {
         if ( !checkSessionType( gameData.getScoringInfo() ) )
             return;

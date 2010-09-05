@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -145,9 +144,9 @@ public class TrackPositionWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         updateItemRadius();
     }
@@ -167,9 +166,9 @@ public class TrackPositionWidget extends Widget
         this.maxDisplayedVehicles = Math.max( 4, Math.min( maxDisplayedVehicles, 32 ) );
     }
     
-    private void updateVSIs( LiveGameData gameData, EditorPresets editorPresets )
+    private void updateVSIs( LiveGameData gameData, boolean isEditorMode )
     {
-        initMaxDisplayedVehicles( editorPresets != null, gameData.getModInfo() );
+        initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
         if ( ( vsis == null ) || ( vsis.length < maxDisplayedVehicles ) )
         {
@@ -198,9 +197,9 @@ public class TrackPositionWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        updateVSIs( gameData, editorPresets );
+        updateVSIs( gameData, isEditorMode );
     }
     
     private void initSubTextures( boolean isEditorMode, ModInfo modInfo )
@@ -230,9 +229,9 @@ public class TrackPositionWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        initSubTextures( editorPresets != null, gameData.getModInfo() );
+        initSubTextures( isEditorMode, gameData.getModInfo() );
         
         return ( itemTextures );
     }
@@ -241,22 +240,20 @@ public class TrackPositionWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        
         initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
         if ( isEditorMode )
-            updateVSIs( gameData, editorPresets );
+            updateVSIs( gameData, isEditorMode );
         
         initSubTextures( isEditorMode, gameData.getModInfo() );
     }
     
     @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    protected void drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        super.drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
         
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
@@ -272,7 +269,7 @@ public class TrackPositionWidget extends Widget
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         final VehicleScoringInfo viewedVSI = scoringInfo.getViewedVehicleScoringInfo();

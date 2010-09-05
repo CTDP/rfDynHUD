@@ -26,7 +26,6 @@ import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.properties.Property;
@@ -115,9 +114,9 @@ public class ConfigurationLoader implements PropertyLoader
      * 
      * @throws IOException
      */
-    private void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final boolean isEditorMode, ConfigurationClearListener clearListener ) throws IOException
     {
-        __WCPrivilegedAccess.clear( widgetsConfig, gameData, editorPresets, clearListener );
+        __WCPrivilegedAccess.clear( widgetsConfig, gameData, isEditorMode, clearListener );
         
         currentKey = null;
         currentValue = null;
@@ -376,7 +375,7 @@ public class ConfigurationLoader implements PropertyLoader
                     currentWidget = null;
                 }
                 
-                if ( ( errorMessages != null ) && ( editorPresets != null ) )
+                if ( ( errorMessages != null ) && isEditorMode )
                 {
                     JOptionPane.showMessageDialog( null, errorMessages, "Error loading config ini", JOptionPane.ERROR_MESSAGE );
                 }
@@ -389,18 +388,18 @@ public class ConfigurationLoader implements PropertyLoader
         effectiveKey = null;
         
         __WCPrivilegedAccess.sortWidgets( widgetsConfig );
-        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, editorPresets );
+        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode );
     }
     
     private static File currentlyLoadedConfigFile = null;
     private static long lastModified = -1L;
     private static boolean isFirstLoadAttempt = true;
     
-    private File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener ) throws IOException
     {
         Logger.log( "Loading configuration file from \"" + file.getAbsolutePath() + "\"" );
         
-        __loadConfiguration( new FileReader( file ), widgetsConfig, gameData, editorPresets, clearListener );
+        __loadConfiguration( new FileReader( file ), widgetsConfig, gameData, isEditorMode, clearListener );
         
         __WCPrivilegedAccess.setValid( widgetsConfig, true );
         
@@ -410,25 +409,25 @@ public class ConfigurationLoader implements PropertyLoader
         return ( currentlyLoadedConfigFile );
     }
     
-    private File load( File currentlyLoadedConfigFile, long lastModified, File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private File load( File currentlyLoadedConfigFile, long lastModified, File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener ) throws IOException
     {
         if ( currentlyLoadedConfigFile == null )
-            return ( _loadConfiguration( configFile, widgetsConfig, gameData, editorPresets, clearListener ) );
+            return ( _loadConfiguration( configFile, widgetsConfig, gameData, isEditorMode, clearListener ) );
         
         if ( !configFile.equals( currentlyLoadedConfigFile ) || ( configFile.lastModified() > lastModified ) )
-            return ( _loadConfiguration( configFile, widgetsConfig, gameData, editorPresets, clearListener ) );
+            return ( _loadConfiguration( configFile, widgetsConfig, gameData, isEditorMode, clearListener ) );
         
         //__WCPrivilegedAccess.setValid( widgetsConfig, true );
         
         return ( currentlyLoadedConfigFile );
     }
     
-    private boolean load( File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    private boolean load( File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener ) throws IOException
     {
         File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
         long old_lastModified = lastModified;
         
-        load( currentlyLoadedConfigFile, lastModified, configFile, widgetsConfig, gameData, editorPresets, clearListener );
+        load( currentlyLoadedConfigFile, lastModified, configFile, widgetsConfig, gameData, isEditorMode, clearListener );
         
         if ( !currentlyLoadedConfigFile.equals( old_currentlyLoadedConfigFile ) || ( lastModified > old_lastModified ) )
         {
@@ -450,22 +449,22 @@ public class ConfigurationLoader implements PropertyLoader
      * 
      * @throws IOException
      */
-    File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener ) throws IOException
     {
         currentlyLoadedConfigFile = null;
         lastModified = -1L;
         
-        if ( load( file, widgetsConfig, gameData, editorPresets, clearListener ) )
+        if ( load( file, widgetsConfig, gameData, isEditorMode, clearListener ) )
             return ( currentlyLoadedConfigFile );
         
         return ( null );
     }
     
-    void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener ) throws IOException
     {
         Logger.log( "Loading factory default configuration." );
         
-        __loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, editorPresets, clearListener );
+        __loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, isEditorMode, clearListener );
         
         __WCPrivilegedAccess.setValid( widgetsConfig, true );
         
@@ -490,13 +489,13 @@ public class ConfigurationLoader implements PropertyLoader
      * @param sessionType
      * @param widgetsConfig
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param clearListener
      * @param force
      * 
      * @return the file, from which the configuration has been loaded.
      */
-    Boolean reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener, boolean force )
+    Boolean reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener, boolean force )
     {
         if ( force || !widgetsConfig.isValid() )
         {
@@ -518,7 +517,7 @@ public class ConfigurationLoader implements PropertyLoader
                 
                 if ( f.exists() )
                 {
-                    return ( load( f, widgetsConfig, gameData, editorPresets, clearListener ) );
+                    return ( load( f, widgetsConfig, gameData, isEditorMode, clearListener ) );
                 }
             }
             
@@ -531,7 +530,7 @@ public class ConfigurationLoader implements PropertyLoader
             
             if ( ( currentlyLoadedConfigFile != null ) || isFirstLoadAttempt )
             {
-                loadFactoryDefaults( widgetsConfig, gameData, editorPresets, clearListener );
+                loadFactoryDefaults( widgetsConfig, gameData, isEditorMode, clearListener );
                 TextureDirtyRectsManager.forceCompleteRedraw();
             }
             

@@ -25,7 +25,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
@@ -256,21 +255,21 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
     }
     
     @Override
-    protected float getMinValue( LiveGameData gameData, EditorPresets editorPresets )
+    protected float getMinValue( LiveGameData gameData, boolean isEditorModes )
     {
         return ( 0 );
     }
     
     @Override
-    protected float getMaxValue( LiveGameData gameData, EditorPresets editorPresets )
+    protected float getMaxValue( LiveGameData gameData, boolean isEditorMode )
     {
         if ( useMaxRevLimit.getBooleanValue() )
             return ( gameData.getPhysics().getEngine().getRevLimitRange().getMaxValue() );
@@ -279,13 +278,13 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected float getValue( LiveGameData gameData, EditorPresets editorPresets )
+    protected float getValue( LiveGameData gameData, boolean isEditorMode )
     {
         return ( gameData.getTelemetryData().getEngineRPM() );
     }
     
     @Override
-    protected int getValueForValueDisplay( LiveGameData gameData, EditorPresets editorPresets )
+    protected int getValueForValueDisplay( LiveGameData gameData, boolean isEditorMode )
     {
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
         
@@ -296,7 +295,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected String getMarkerLabelForValue( LiveGameData gameData, EditorPresets editorPresets, float value )
+    protected String getMarkerLabelForValue( LiveGameData gameData, boolean isEditorMode, float value )
     {
         return ( String.valueOf( Math.round( value / 1000 ) ) );
     }
@@ -386,11 +385,9 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        TransformableTexture[] superResult = super.getSubTexturesImpl( gameData, editorPresets, widgetInnerWidth, widgetInnerHeight );
-        
-        final boolean isEditorMode = ( editorPresets != null );
+        TransformableTexture[] superResult = super.getSubTexturesImpl( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight );
         
         int n = 0;
         
@@ -418,9 +415,9 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         maxRPMCheck.reset();
         gear.reset();
@@ -430,9 +427,9 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void onNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
+    public void onNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onNeededDataComplete( gameData, editorPresets );
+        super.onNeededDataComplete( gameData, isEditorMode );
         
         maxRPMCheck.reset();
         gear.reset();
@@ -442,9 +439,9 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         setControlVisibility( viewedVSI );
     }
@@ -453,11 +450,10 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        super.initialize( clock1, clock2, gameData, editorPresets, dsf, texture, offsetX, offsetY, width, height );
+        super.initialize( clock1, clock2, gameData, isEditorMode, dsf, texture, offsetX, offsetY, width, height );
         
-        final boolean isEditorMode = ( editorPresets != null );
         final Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
@@ -531,7 +527,7 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         maxRPMCheck.update( gameData.getTelemetryData().getEngineMaxRPM() );
         if ( maxRPMCheck.hasChanged() )
@@ -552,9 +548,9 @@ public class RevMeterWidget extends NeedleMeterWidget
     private float mediumRPM = -1f;
     
     @Override
-    protected void prepareMarkersBackground( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, float innerRadius, float bigOuterRadius, float smallOuterRadius )
+    protected void prepareMarkersBackground( LiveGameData gameData, boolean isEditorMode, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, float innerRadius, float bigOuterRadius, float smallOuterRadius )
     {
-        super.prepareMarkersBackground( gameData, editorPresets, texCanvas, offsetX, offsetY, width, height, innerRadius, bigOuterRadius, smallOuterRadius );
+        super.prepareMarkersBackground( gameData, isEditorMode, texCanvas, offsetX, offsetY, width, height, innerRadius, bigOuterRadius, smallOuterRadius );
         
         if ( !fillHighBackground.getBooleanValue() )
             return;
@@ -583,7 +579,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         texCanvas.setClip( area );
         
-        int maxValue = (int)getMaxValue( gameData, editorPresets );
+        int maxValue = (int)getMaxValue( gameData, isEditorMode );
         
         float lowAngle = ( needleRotationForMinValue.getFloatValue() + ( needleRotationForMaxValue.getFloatValue() - needleRotationForMinValue.getFloatValue() ) * ( lowRPM / maxValue ) );
         //float mediumAngle = ( needleRotationForMinValue.getFloatValue() + ( needleRotationForMaxValue.getFloatValue() - needleRotationForMinValue.getFloatValue() ) * ( mediumRPM / maxRPM ) );
@@ -614,7 +610,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     */
     
     @Override
-    protected Color getMarkerColorForValue( LiveGameData gameData, EditorPresets editorPresets, int value, int minValue, int maxValue )
+    protected Color getMarkerColorForValue( LiveGameData gameData, boolean isEditorMode, int value, int minValue, int maxValue )
     {
         if ( fillHighBackground.getBooleanValue() || ( value <= lowRPM ) )
             return ( markersColor.getColor() );
@@ -626,7 +622,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected void drawMarkers( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawMarkers( LiveGameData gameData, boolean isEditorMode, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         float baseMaxRPM = gameData.getTelemetryData().getEngineBaseMaxRPM();
         
@@ -640,7 +636,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         lowRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, minBoost );
         mediumRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, mediumBoost );
         
-        super.drawMarkers( gameData, editorPresets, texCanvas, offsetX, offsetY, width, height );
+        super.drawMarkers( gameData, isEditorMode, texCanvas, offsetX, offsetY, width, height );
     }
     
     /**
@@ -686,7 +682,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected boolean doRenderNeedle( LiveGameData gameData, EditorPresets editorPresets )
+    protected boolean doRenderNeedle( LiveGameData gameData, boolean isEditorMode )
     {
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
         
@@ -694,9 +690,9 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        super.drawWidget( clock1, clock2, needsCompleteRedraw, gameData, editorPresets, texture, offsetX, offsetY, width, height );
+        super.drawWidget( clock1, clock2, needsCompleteRedraw, gameData, isEditorMode, texture, offsetX, offsetY, width, height );
         
         TelemetryData telemData = gameData.getTelemetryData();
         

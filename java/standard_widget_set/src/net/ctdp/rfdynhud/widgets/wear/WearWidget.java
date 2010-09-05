@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.widgets.wear;
 import java.awt.Color;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
@@ -246,9 +245,9 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
     }
@@ -257,9 +256,9 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         for ( int i = 0; i < oldTireWear.length; i++ )
             oldTireWear[i] = -1;
@@ -277,9 +276,9 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleSetupUpdated( gameData, editorPresets );
+        super.onVehicleSetupUpdated( gameData, isEditorMode );
         
         forceCompleteRedraw( false );
         forceReinitialization();
@@ -289,9 +288,9 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         setControlVisibility( viewedVSI );
     }
@@ -332,9 +331,9 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
+    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onLapStarted( vsi, gameData, editorPresets );
+        super.onLapStarted( vsi, gameData, isEditorMode );
         
         VehicleScoringInfo pvsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
         
@@ -400,7 +399,7 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -436,8 +435,8 @@ public class WearWidget extends Widget
             relY = engineHeaderString;
             top = engineHeight.getEffectiveHeight() + 10;
             
-            loadEstimationImage( editorPresets != null, engineHeight.getEffectiveHeight() );
-            loadFailImage( editorPresets != null, engineHeight.getEffectiveHeight() );
+            loadEstimationImage( isEditorMode, engineHeight.getEffectiveHeight() );
+            loadFailImage( isEditorMode, engineHeight.getEffectiveHeight() );
         }
         
         boolean db = ( displayBrakes2 == null ) ? displayBrakes.getBooleanValue() : displayBrakes2.booleanValue();
@@ -770,15 +769,13 @@ public class WearWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final VehiclePhysics physics = gameData.getPhysics();
         final TelemetryData telemData = gameData.getTelemetryData();
         final VehicleSetup setup = gameData.getSetup();
         
         //final int center = width / 2;
-        
-        final boolean isEditorMode = ( editorPresets != null );
         
         boolean db = ( displayBrakes2 == null ) ? displayBrakes.getBooleanValue() : displayBrakes2.booleanValue();
         
@@ -788,6 +785,7 @@ public class WearWidget extends Widget
                 engineHeaderString.draw( offsetX, offsetY, Loc.engine_header_prefix + ":", texture );
             if ( displayTires.getBooleanValue() )
             {
+                // TODO: Try to find a way to detect tire compound change on pit stop!
                 if ( displayCompoundName.getBooleanValue() )
                     tiresHeaderString.draw( offsetX, offsetY, " " + setup.getGeneral().getFrontTireCompound().getName(), texture );
                 else

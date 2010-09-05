@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.lessons.widgets.lesson4b;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
 import net.ctdp.rfdynhud.properties.ColorProperty;
@@ -74,9 +73,9 @@ public class Lesson4bWidget_SubTextures extends Widget
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         lapNumber.reset();
     }
@@ -91,17 +90,17 @@ public class Lesson4bWidget_SubTextures extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        loadSubTextures( editorPresets != null );
+        loadSubTextures( isEditorMode );
         
         return ( subTextures );
     }
     
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        loadSubTextures( editorPresets != null );
+        loadSubTextures( isEditorMode );
         
         /*
          * Just to play around with the parameters we define the text to be drawn at the center location this time.
@@ -113,7 +112,7 @@ public class Lesson4bWidget_SubTextures extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( needsCompleteRedraw )
         {

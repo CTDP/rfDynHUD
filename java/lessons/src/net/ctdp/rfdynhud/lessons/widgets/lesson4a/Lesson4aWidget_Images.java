@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.lessons.widgets.lesson4a;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
 import net.ctdp.rfdynhud.properties.ImageProperty;
@@ -68,20 +67,20 @@ public class Lesson4aWidget_Images extends Widget
     }
     
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ds = drawnStringFactory.newDrawnString( "ds", 10, 20, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         /*
          * This loads the image as defined in the property and gets a scaled instance.
          */
-        texImage2 = image2.getImage().getScaledTextureImage( 32, 32, texImage2, editorPresets != null );
+        texImage2 = image2.getImage().getScaledTextureImage( 32, 32, texImage2, isEditorMode );
     }
     
     @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    protected void drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        super.drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
         
         /*
          * If the user didn't select no-image, draw it onto our background.
@@ -91,7 +90,7 @@ public class Lesson4aWidget_Images extends Widget
             /*
              * This loads the image as defined in the property and gets a scaled instance using (inner) widget size.
              */
-            texImage1 = image1.getImage().getScaledTextureImage( width / 2, height / 2, texImage1, editorPresets != null );
+            texImage1 = image1.getImage().getScaledTextureImage( width / 2, height / 2, texImage1, isEditorMode );
             
             /*
              * And finally we draw the image using our selected image (scaled texture).
@@ -101,7 +100,7 @@ public class Lesson4aWidget_Images extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         /*
          * As this method is executed after the drawBackground() method, the background is already

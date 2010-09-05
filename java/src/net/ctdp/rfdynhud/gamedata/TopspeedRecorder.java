@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputActionConsumer;
 import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
@@ -27,7 +26,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     private static final class MasterTopspeedRecorder extends TopspeedRecorder implements InputActionConsumer
     {
         @Override
-        public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+        public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
         {
             if ( action == INPUT_ACTION_RESET_TOPSPEEDS )
             {
@@ -59,13 +58,13 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     }
     
     @Override
-    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
     {
         reset( gameData.getScoringInfo() );
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
         firstValidTime = gameData.getScoringInfo().getSessionNanos() + 3L * 1000000000L;
     }
@@ -74,7 +73,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
      * {@inheritDoc}
      */
     @Override
-    public void onTelemetryDataUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onTelemetryDataUpdated( LiveGameData gameData, boolean isEditorMode )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -93,7 +92,7 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
      * {@inheritDoc}
      */
     @Override
-    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -113,8 +112,8 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     }
     
     @Override
-    public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
+    public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode ) {}
 }

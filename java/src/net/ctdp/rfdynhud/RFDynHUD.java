@@ -127,7 +127,7 @@ public class RFDynHUD
     {
         try
         {
-            int pluginEnabled = inputMappingsManager.update( drawingManager, gameData, null, eventsManager, modifierMask );
+            int pluginEnabled = inputMappingsManager.update( drawingManager, gameData, false, eventsManager, modifierMask );
             
             if ( pluginEnabled == -1 )
             {
@@ -183,11 +183,11 @@ public class RFDynHUD
             boolean newConfig = ( drawingManager.getId() != lastConfigId );
             lastConfigId = drawingManager.getId();
             
-            __GDPrivilegedAccess.updateSessionTime( gameData, null, System.nanoTime() );
+            __GDPrivilegedAccess.updateSessionTime( gameData, false, System.nanoTime() );
             
             drawingManager.refreshSubTextureBuffer( false, gameData, newConfig );
             
-            drawingManager.drawWidgets( gameData, null, TextureDirtyRectsManager.isCompleteRedrawForced(), drawingManager.getTexture( 0 ).getTexture() );
+            drawingManager.drawWidgets( gameData, false, TextureDirtyRectsManager.isCompleteRedrawForced(), drawingManager.getTexture( 0 ).getTexture() );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             
             int n = drawingManager.getNumTextures();

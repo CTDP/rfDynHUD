@@ -25,10 +25,9 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import net.ctdp.rfdynhud.RFDynHUD;
-import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
@@ -501,13 +500,13 @@ public class InputMappingsManager
      * 
      * @param widgetsManager
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param eventsManager
      * @param modifierMask
      * 
      * @return -1 if plugin got disabled, 0 if plugin was and is disabled, 1 if plugin was and is enabled., 2 if plugin got enabled.
      */
-    public int update( WidgetsDrawingManager widgetsManager, LiveGameData gameData, EditorPresets editorPresets, GameEventsManager eventsManager, int modifierMask )
+    public int update( WidgetsDrawingManager widgetsManager, LiveGameData gameData, boolean isEditorMode, GameEventsManager eventsManager, int modifierMask )
     {
         if ( !gameData.getProfileInfo().isValid() )
         {
@@ -566,7 +565,7 @@ public class InputMappingsManager
                             {
                                 if ( action.getConsumer() != null )
                                 {
-                                    action.getConsumer().onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
+                                    action.getConsumer().onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
                                 }
                                 else if ( action == KnownInputActions.ToggleFixedViewedVehicle )
                                 {
@@ -590,7 +589,7 @@ public class InputMappingsManager
                                 }
                                 else if ( isPluginEnabled && action.isWidgetAction() )
                                 {
-                                    widgetsManager.fireOnInputStateChanged( mapping, state, modifierMask, when, gameData, editorPresets );
+                                    widgetsManager.fireOnInputStateChanged( mapping, state, modifierMask, when, gameData, isEditorMode );
                                 }
                             }
                         }

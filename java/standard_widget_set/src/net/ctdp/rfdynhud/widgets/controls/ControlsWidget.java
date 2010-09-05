@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.widgets.controls;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
@@ -160,9 +159,9 @@ public class ControlsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         setUserVisible1( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() );
     }
@@ -171,9 +170,9 @@ public class ControlsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         setUserVisible1( viewedVSI.isPlayer() );
     }
@@ -358,9 +357,9 @@ public class ControlsWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        int numBars = initSubTextures( editorPresets != null, widgetInnerWidth, widgetInnerHeight );
+        int numBars = initSubTextures( isEditorMode, widgetInnerWidth, widgetInnerHeight );
         
         if ( numBars == 0 )
             return ( null );
@@ -392,16 +391,14 @@ public class ControlsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        initSubTextures( editorPresets != null, width, height );
+        initSubTextures( isEditorMode, width, height );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        
         final TelemetryData telemData = gameData.getTelemetryData();
         float uClutch = isEditorMode ? 1.0f : telemData.getUnfilteredClutch();
         float uBrake = isEditorMode ? 0.2f : telemData.getUnfilteredBrake();

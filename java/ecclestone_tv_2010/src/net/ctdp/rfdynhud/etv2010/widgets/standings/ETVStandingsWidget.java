@@ -21,7 +21,6 @@ import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.etv2010.widgets._base.ETVWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVImages.BGType;
@@ -129,9 +128,9 @@ public class ETVStandingsWidget extends ETVWidgetBase
     }
     
     @Override
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onSessionStarted( sessionType, gameData, editorPresets );
+        super.onSessionStarted( sessionType, gameData, isEditorMode );
         
         if ( driverNames != null )
         {
@@ -150,9 +149,9 @@ public class ETVStandingsWidget extends ETVWidgetBase
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         if ( laptimes != null )
         {
@@ -170,9 +169,9 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        if ( ( editorPresets != null ) || ( gameData.getScoringInfo().getSessionType().isRace() && !showFastestLapsInRace.getBooleanValue() ) )
+        if ( isEditorMode || ( gameData.getScoringInfo().getSessionType().isRace() && !showFastestLapsInRace.getBooleanValue() ) )
         {
             flagTextures = null;
             
@@ -198,7 +197,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         int numVehicles = getUseClassScoring() ? gameData.getScoringInfo().getNumVehiclesInSameClass( gameData.getScoringInfo().getViewedVehicleScoringInfo() ) : gameData.getScoringInfo().getNumVehicles();
         
@@ -213,14 +212,14 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         int itemHeight = this.itemHeight.getEffectiveHeight();
         maxNumItems = ( height + itemGap.getIntValue() ) / ( itemHeight + itemGap.getIntValue() );
         
         vehicleScoringInfos = new VehicleScoringInfo[ maxNumItems ];
         
-        itemClearImage = TextureImage2D.getOrCreateDrawTexture( width, itemHeight * 2, true, itemClearImage, editorPresets != null );
+        itemClearImage = TextureImage2D.getOrCreateDrawTexture( width, itemHeight * 2, true, itemClearImage, isEditorMode );
         
         boolean useImages = this.useImages.getBooleanValue();
         
@@ -274,7 +273,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             itemsVisible[i] = null;
         }
         
-        TransformableTexture[] flagTextures = getSubTexturesImpl( gameData, editorPresets,  width, height );
+        TransformableTexture[] flagTextures = getSubTexturesImpl( gameData, isEditorMode,  width, height );
         
         if ( flagTextures != null )
         {
@@ -294,9 +293,8 @@ public class ETVStandingsWidget extends ETVWidgetBase
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final boolean isEditorMode = ( editorPresets != null );
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         final int itemHeight = this.itemHeight.getEffectiveHeight();
@@ -542,7 +540,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public int getMinHeight( LiveGameData gameData, EditorPresets editorPresets )
+    public int getMinHeight( LiveGameData gameData, boolean isEditorMode )
     {
         return ( 5 );
     }

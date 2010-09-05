@@ -40,7 +40,7 @@ public class _LiveGameData_CPP_Adapter
         if ( !gameData.getProfileInfo().isValid() )
             return;
         
-        gameData.getTelemetryData().onDataUpdated( null );
+        gameData.getTelemetryData().onDataUpdated( false );
     }
     
     public final void prepareScoringInfoDataUpdate()
@@ -96,7 +96,7 @@ public class _LiveGameData_CPP_Adapter
         if ( !gameData.getProfileInfo().isValid() )
             return;
         
-        gameData.getGraphicsInfo().onDataUpdated( null );
+        gameData.getGraphicsInfo().onDataUpdated( false );
     }
     
     public final void prepareCommentaryInfoDataUpdate()
@@ -114,7 +114,7 @@ public class _LiveGameData_CPP_Adapter
         if ( !gameData.getProfileInfo().isValid() )
             return;
         
-        gameData.getCommentaryRequestInfo().onDataUpdated( null );
+        gameData.getCommentaryRequestInfo().onDataUpdated( false );
     }
     
     public _LiveGameData_CPP_Adapter( LiveGameData gameData )

@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.etv2010.widgets._base.ETVTimingWidgetBase;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVImages;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVImages.BGType;
@@ -114,9 +113,9 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onSessionStarted( sessionType, gameData, editorPresets );
+        super.onSessionStarted( sessionType, gameData, isEditorMode );
         
         laps.reset( true );
     }
@@ -125,9 +124,9 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         waitingForNextBehind = false;
         hideTime = -1f;
@@ -137,14 +136,14 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( clock1, clock2, gameData, editorPresets );
+        super.updateVisibility( clock1, clock2, gameData, isEditorMode );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
-        if ( editorPresets != null )
+        if ( isEditorMode )
         {
             relVSI = vsi.getNextInFront( getUseClassScoring() );
             waitingForNextBehind = false;
@@ -348,7 +347,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Rectangle2D posBounds = texture.getStringBounds( "00", getFontProperty() );
         
@@ -384,9 +383,8 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         return ( lt.getLapTime() );        
     }
     
-    private void drawStructure( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY )
+    private void drawStructure( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY )
     {
-        final boolean isEditorMode = ( editorPresets != null );
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -599,11 +597,11 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( needsCompleteRedraw )
         {
-            drawStructure( gameData, editorPresets, texture, offsetX, offsetY );
+            drawStructure( gameData, isEditorMode, texture, offsetX, offsetY );
         }
     }
     

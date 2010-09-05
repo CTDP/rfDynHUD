@@ -22,10 +22,9 @@ import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.etv2010.widgets._base.ETVWidgetBase;
-import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVImages.BGType;
+import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -37,17 +36,16 @@ import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -152,8 +150,6 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         
         if ( ( sessionLimit != oldSessionLimit ) || !caption.equals( oldCaption ) )
         {
-            //Logger.log( ">> sessionLimit changed: " + sessionLimit + ", " + caption );
-            
             forceReinitialization();
             forceCompleteRedraw( false );
             
@@ -164,35 +160,22 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     }
     
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
-        
-        //Logger.log( "afterConfigurationLoaded(): " + gameData.getScoringInfo().getMaxLaps() + ", " + gameData.getScoringInfo().getEndTime() );
-        //updateSessionLimit( gameData );
-    }
-    
-    @Override
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
-    {
-        super.onSessionStarted( sessionType, gameData, editorPresets );
-        
-        //Logger.log( "onSessionStarted(): " + gameData.getScoringInfo().getSessionType() + ", " + gameData.getScoringInfo().getMaxLaps() + ", " + gameData.getScoringInfo().getEndTime() );
+        super.onSessionStarted( sessionType, gameData, isEditorMode );
         
         yellowFlagState.reset();
         sectorYellowFlag.reset();
         lap.reset();
         sessionTime.reset();
         gamePhase.reset();
-        
-        //updateSessionLimit( gameData );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -241,7 +224,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setFont( getFont() );
@@ -266,9 +249,9 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     }
     
     @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    protected void drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        super.drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
         
         if ( useImages.getBooleanValue() )
             ETVUtils.drawLabeledDataBackgroundI( offsetX, offsetY, width, height, caption, getFontProperty(), getImages(), bgType, texture, false );
@@ -277,7 +260,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         

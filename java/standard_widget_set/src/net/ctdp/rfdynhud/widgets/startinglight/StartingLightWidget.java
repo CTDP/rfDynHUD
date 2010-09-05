@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.widgets.startinglight;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -89,9 +88,9 @@ public class StartingLightWidget extends Widget
     }
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         gamePhase.reset();
         numLights.reset();
@@ -101,9 +100,9 @@ public class StartingLightWidget extends Widget
     }
     
     @Override
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( clock1, clock2, gameData, editorPresets );
+        super.updateVisibility( clock1, clock2, gameData, isEditorMode );
         
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -171,23 +170,23 @@ public class StartingLightWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        loadImages( editorPresets != null, height );
+        loadImages( isEditorMode, height );
     }
     
     @Override
-    public int getMaxWidth( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
-        loadImages( editorPresets != null, getInnerSize().getEffectiveHeight() );
+        loadImages( isEditorMode, getInnerSize().getEffectiveHeight() );
         
         return ( offImage.getWidth() * MAX_LIGHTS + getEffectiveWidth() - getInnerSize().getEffectiveWidth() );
     }
     
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( ( editorPresets == null ) && ( offImage != null ) )
+        if ( !isEditorMode && ( offImage != null ) )
         {
             int newWidth = offImage.getWidth() * Math.min( gameData.getScoringInfo().getNumRedLights(), MAX_LIGHTS );
             
@@ -203,7 +202,7 @@ public class StartingLightWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -217,7 +216,7 @@ public class StartingLightWidget extends Widget
         {
             int n = numLights.getValue();
             
-            if ( editorPresets != null )
+            if ( isEditorMode )
                 n = m / 2;
             
             if ( n > m )

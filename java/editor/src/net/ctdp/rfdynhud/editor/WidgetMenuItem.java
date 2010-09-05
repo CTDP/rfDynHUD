@@ -76,10 +76,10 @@ public class WidgetMenuItem extends JMenuItem
         if ( !iconDrawn || ( checkState != lastCheckState ) )
         {
             widget.prepareForMenuItem();
-            widget.updateVisibility( true, true, editor.getGameData(), editor.getEditorPresets() );
+            widget.updateVisibility( true, true, editor.getGameData(), true );
             
             texture.clear( true, null );
-            widget.drawWidget( true, true, true, editor.getGameData(), editor.getEditorPresets(), texture );
+            widget.drawWidget( true, true, true, editor.getGameData(), true, texture );
             
             if ( checkState )
             {

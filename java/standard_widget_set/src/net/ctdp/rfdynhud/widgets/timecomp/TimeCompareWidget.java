@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.widgets.timecomp;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -87,9 +86,9 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onSessionStarted( sessionType, gameData, editorPresets );
+        super.onSessionStarted( sessionType, gameData, isEditorMode );
         
         lap.reset();
     }
@@ -124,9 +123,9 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
+    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onLapStarted( vsi, gameData, editorPresets );
+        super.onLapStarted( vsi, gameData, isEditorMode );
         
         if ( vsi == gameData.getScoringInfo().getViewedVehicleScoringInfo() )
         {
@@ -138,9 +137,9 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         updateLaps( viewedVSI );
         forceCompleteRedraw( false );
@@ -150,7 +149,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -205,7 +204,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         LocalStore store = getLocalStore();
         

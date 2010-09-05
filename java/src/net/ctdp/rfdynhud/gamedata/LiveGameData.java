@@ -46,10 +46,10 @@ public class LiveGameData
     
     public static interface GameDataUpdateListener
     {
-        public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets );
-        public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets );
-        public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused );
-        public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets );
+        public void onSessionStarted( LiveGameData gameData, boolean isEditorMode );
+        public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode );
+        public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused );
+        public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode );
     }
     
     private GameDataUpdateListener[] updateListeners = null;
@@ -112,7 +112,7 @@ public class LiveGameData
         return ( gameResolution );
     }
     
-    void setGamePaused( boolean paused, EditorPresets editorPresets )
+    void setGamePaused( boolean paused, boolean isEditorMode )
     {
         if ( paused == this.gamePaused )
             return;
@@ -125,7 +125,7 @@ public class LiveGameData
             {
                 try
                 {
-                    updateListeners[i].onGamePauseStateChanged( this, editorPresets, paused );
+                    updateListeners[i].onGamePauseStateChanged( this, isEditorMode, paused );
                 }
                 catch ( Throwable t )
                 {
@@ -146,7 +146,7 @@ public class LiveGameData
         return ( gamePaused );
     }
     
-    void onSessionStarted2( EditorPresets editorPresets )
+    void onSessionStarted2( boolean isEditorMode )
     {
         if ( updateListeners != null )
         {
@@ -154,7 +154,7 @@ public class LiveGameData
             {
                 try
                 {
-                    updateListeners[i].onSessionStarted( this, editorPresets );
+                    updateListeners[i].onSessionStarted( this, isEditorMode );
                 }
                 catch ( Throwable t )
                 {
@@ -164,7 +164,7 @@ public class LiveGameData
         }
     }
     
-    void setRealtimeMode( boolean realtimeMode, EditorPresets editorPresets )
+    void setRealtimeMode( boolean realtimeMode, boolean isEditorMode )
     {
         boolean was = this.realtimeMode;
         
@@ -178,7 +178,7 @@ public class LiveGameData
                 {
                     try
                     {
-                        updateListeners[i].onRealtimeEntered( this, editorPresets );
+                        updateListeners[i].onRealtimeEntered( this, isEditorMode );
                     }
                     catch ( Throwable t )
                     {
@@ -199,7 +199,7 @@ public class LiveGameData
                 {
                     try
                     {
-                        updateListeners[i].onRealtimeExited( this, editorPresets );
+                        updateListeners[i].onRealtimeExited( this, isEditorMode );
                     }
                     catch ( Throwable t )
                     {

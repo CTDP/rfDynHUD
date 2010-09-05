@@ -26,7 +26,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
@@ -327,10 +326,8 @@ public abstract class NeedleMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        
         int n = 0;
         
         n += loadValueBackgroundTexture( isEditorMode );
@@ -351,9 +348,9 @@ public abstract class NeedleMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         valueValue.reset();
     }
@@ -362,9 +359,9 @@ public abstract class NeedleMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleSetupUpdated( gameData, editorPresets );
+        super.onVehicleSetupUpdated( gameData, isEditorMode );
         
         forceCompleteRedraw( true );
         forceReinitialization();
@@ -374,9 +371,9 @@ public abstract class NeedleMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
+    public void onNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onNeededDataComplete( gameData, editorPresets );
+        super.onNeededDataComplete( gameData, isEditorMode );
         
         valueValue.reset();
     }
@@ -385,9 +382,8 @@ public abstract class NeedleMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final boolean isEditorMode = ( editorPresets != null );
         final float backgroundScaleX = getBackground().getScaleX();
         final float backgroundScaleY = getBackground().getScaleY();
         
@@ -443,61 +439,61 @@ public abstract class NeedleMeterWidget extends Widget
      * for the digital value.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * 
      * @return the value for the needle and the digital value display.
      */
-    protected abstract float getValue( LiveGameData gameData, EditorPresets editorPresets );
+    protected abstract float getValue( LiveGameData gameData, boolean isEditorMode );
     
     /**
      * Gets the value for the digital value display.
      * The default implementation simply gets the result of {@link #getValue(LiveGameData, EditorPresets)} and converts it to an int.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * 
      * @return the value for the digital value display.
      */
-    protected int getValueForValueDisplay( LiveGameData gameData, EditorPresets editorPresets )
+    protected int getValueForValueDisplay( LiveGameData gameData, boolean isEditorMode)
     {
-        return ( Math.round( getValue( gameData, editorPresets ) ) );
+        return ( Math.round( getValue( gameData, isEditorMode ) ) );
     }
     
     /**
      * Gets the minimum value for the needle and gauge.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * 
      * @return the minimum value for the needle and gauge.
      */
-    protected abstract float getMinValue( LiveGameData gameData, EditorPresets editorPresets );
+    protected abstract float getMinValue( LiveGameData gameData, boolean isEditorMode );
     
     /**
      * Gets the maximum value for the needle and gauge.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * 
      * @return the maximum value for the needle and gauge.
      */
-    protected abstract float getMaxValue( LiveGameData gameData, EditorPresets editorPresets );
+    protected abstract float getMaxValue( LiveGameData gameData, boolean isEditorMode );
     
     /**
      * Gets the text label for the big markers at the given value.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param value
      * 
      * @return the text label for the big markers at the given value.
      */
-    protected abstract String getMarkerLabelForValue( LiveGameData gameData, EditorPresets editorPresets, float value );
+    protected abstract String getMarkerLabelForValue( LiveGameData gameData, boolean isEditorMode, float value );
     
     /**
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param texCanvas
      * @param offsetX
      * @param offsetY
@@ -507,7 +503,7 @@ public abstract class NeedleMeterWidget extends Widget
      * @param bigOuterRadius
      * @param smallOuterRadius
      */
-    protected void prepareMarkersBackground( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, float innerRadius, float bigOuterRadius, float smallOuterRadius )
+    protected void prepareMarkersBackground( LiveGameData gameData, boolean isEditorMode, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height, float innerRadius, float bigOuterRadius, float smallOuterRadius )
     {
     }
     
@@ -515,14 +511,14 @@ public abstract class NeedleMeterWidget extends Widget
      * Gets a certain marker's color at the given value.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param value
      * @param minValue
      * @param maxValue
      * 
      * @return a certain marker's color at the given value.
      */
-    protected Color getMarkerColorForValue( LiveGameData gameData, EditorPresets editorPresets, int value, int minValue, int maxValue )
+    protected Color getMarkerColorForValue( LiveGameData gameData, boolean isEditorMode, int value, int minValue, int maxValue )
     {
         return ( markersColor.getColor() );
     }
@@ -531,20 +527,20 @@ public abstract class NeedleMeterWidget extends Widget
      * Draws the markers.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param texCanvas
      * @param offsetX
      * @param offsetY
      * @param width
      * @param height
      */
-    protected void drawMarkers( LiveGameData gameData, EditorPresets editorPresets, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawMarkers( LiveGameData gameData, boolean isEditorMode, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         final float backgroundScaleX = getBackground().getScaleX();
         //final float backgroundScaleY = getBackground().getBackgroundScaleY();
         
-        int minValue = (int)getMinValue( gameData, editorPresets );
-        int maxValue = (int)getMaxValue( gameData, editorPresets );
+        int minValue = (int)getMinValue( gameData, isEditorMode );
+        int maxValue = (int)getMaxValue( gameData, isEditorMode );
         
         float centerX = offsetX + width / 2;
         float centerY = offsetY + height / 2;
@@ -555,7 +551,7 @@ public abstract class NeedleMeterWidget extends Widget
         float bigOuterRadius = ( markersInnerRadius.getIntValue() + markersLength.getIntValue() - 1 ) * backgroundScaleX;
         float smallOuterRadius = innerRadius + ( bigOuterRadius - innerRadius ) * 0.75f;
         
-        prepareMarkersBackground( gameData, editorPresets, texCanvas, offsetX, offsetY, width, height, innerRadius, bigOuterRadius, smallOuterRadius );
+        prepareMarkersBackground( gameData, isEditorMode, texCanvas, offsetX, offsetY, width, height, innerRadius, bigOuterRadius, smallOuterRadius );
         
         if ( displayMarkers.getBooleanValue() )
         {
@@ -580,7 +576,7 @@ public abstract class NeedleMeterWidget extends Widget
                 at2.setToRotation( angle, centerX, centerY );
                 texCanvas.setTransform( at2 );
                 
-                texCanvas.setColor( getMarkerColorForValue( gameData, editorPresets, value, minValue, maxValue ) );
+                texCanvas.setColor( getMarkerColorForValue( gameData, isEditorMode, value, minValue, maxValue ) );
                 
                 if ( ( value % markersBigStep.getIntValue() ) == 0 )
                 {
@@ -590,7 +586,7 @@ public abstract class NeedleMeterWidget extends Widget
                     
                     if ( displayMarkerNumbers.getBooleanValue() )
                     {
-                        String s = getMarkerLabelForValue( gameData, editorPresets, value );
+                        String s = getMarkerLabelForValue( gameData, isEditorMode, value );
                         
                         if ( s != null )
                         {
@@ -624,13 +620,13 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    protected void drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        super.drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
         
         if ( getDisplayMarkers() )
         {
-            drawMarkers( gameData, editorPresets, texture.getTextureCanvas(), offsetX, offsetY, width, height );
+            drawMarkers( gameData, isEditorMode, texture.getTextureCanvas(), offsetX, offsetY, width, height );
         }
     }
     
@@ -638,24 +634,24 @@ public abstract class NeedleMeterWidget extends Widget
      * Live-checks, whether the needle is to be rendered or not.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * 
      * @return whether to render the needle or not.
      */
-    protected boolean doRenderNeedle( LiveGameData gameData, EditorPresets editorPresets )
+    protected boolean doRenderNeedle( LiveGameData gameData, boolean isEditorMode )
     {
         return ( true );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( needleTexture != null )
         {
-            if ( doRenderNeedle( gameData, editorPresets ) )
+            if ( doRenderNeedle( gameData, isEditorMode ) )
             {
-                float value = getValue( gameData, editorPresets );
-                float maxValue = getMaxValue( gameData, editorPresets );
+                float value = getValue( gameData, isEditorMode );
+                float maxValue = getMaxValue( gameData, isEditorMode );
                 
                 float rot0 = needleRotationForMinValue.getFactoredValue();
                 float rot = -( value / maxValue ) * ( needleRotationForMinValue.getFactoredValue() - needleRotationForMaxValue.getFactoredValue() );
@@ -671,7 +667,7 @@ public abstract class NeedleMeterWidget extends Widget
         
         if ( displayValue.getBooleanValue() )
         {
-            valueValue.update( getValueForValueDisplay( gameData, editorPresets ) );
+            valueValue.update( getValueForValueDisplay( gameData, isEditorMode ) );
             if ( needsCompleteRedraw || ( clock1 && valueValue.hasChanged() ) )
             {
                 String string = valueValue.getValueAsString();

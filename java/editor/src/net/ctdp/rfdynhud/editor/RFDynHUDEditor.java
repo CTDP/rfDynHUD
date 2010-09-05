@@ -1024,7 +1024,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         {
             this.templateConfig = new WidgetsConfiguration();
             
-            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), templateConfigFile, templateConfig, gameData, presets, null );
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), templateConfigFile, templateConfig, gameData, true, null );
             
             this.currentTemplateFile = templateConfigFile;
             this.lastTemplateConfigModified = templateConfigFile.lastModified();
@@ -1043,7 +1043,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 widgetsConfig.getWidget( i ).clearRegion( true, getOverlayTexture() );
             }
             
-            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), configFile, widgetsConfig, gameData, presets, null );
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), configFile, widgetsConfig, gameData, true, null );
             
             currentConfigFile = configFile;
             
@@ -1641,12 +1641,12 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         {
             //InputStream in = new FileInputStream( "data/game_data/commentary_info" );
             InputStream in = LiveGameData.class.getResourceAsStream( "/data/game_data/commentary_info" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getCommentaryRequestInfo(), editorPresets );
+            __GDPrivilegedAccess.loadFromStream( in, gameData.getCommentaryRequestInfo(), true );
             in.close();
             
             //in = new FileInputStream( "data/game_data/graphics_info" );
             in = LiveGameData.class.getResourceAsStream( "/data/game_data/graphics_info" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getGraphicsInfo(), editorPresets );
+            __GDPrivilegedAccess.loadFromStream( in, gameData.getGraphicsInfo(), true );
             in.close();
             
             //in = new FileInputStream( "data/game_data/scoring_info" );
@@ -1656,7 +1656,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             
             //in = new FileInputStream( "data/game_data/telemetry_data" );
             in = LiveGameData.class.getResourceAsStream( "/data/game_data/telemetry_data" );
-            __GDPrivilegedAccess.loadFromStream( in, gameData.getTelemetryData(), editorPresets );
+            __GDPrivilegedAccess.loadFromStream( in, gameData.getTelemetryData(), true );
             in.close();
             
             __GDPrivilegedAccess.applyEditorPresets( editorPresets, gameData );
@@ -1682,11 +1682,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         __GDPrivilegedAccess.setUpdatedInTimescope( gameData.getSetup() );
         __GDPrivilegedAccess.updateInfo( gameData );
         
-        eventsManager.onSessionStarted( presets );
-        eventsManager.onTelemetryDataUpdated( presets );
-        eventsManager.onScoringInfoUpdated( presets );
+        eventsManager.onSessionStarted( true );
+        eventsManager.onTelemetryDataUpdated( true );
+        eventsManager.onScoringInfoUpdated( true );
         
-        __GDPrivilegedAccess.setRealtimeMode( true, gameData, presets );
+        __GDPrivilegedAccess.setRealtimeMode( true, gameData, true );
         
         loadEditorPresets();
         initTestGameData( gameData, presets );
@@ -1822,10 +1822,10 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else
-                    __UtilPrivilegedAccess.loadFactoryDefaults( new ConfigurationLoader(), editor.widgetsConfig, editor.gameData, editor.presets, null );
+                    __UtilPrivilegedAccess.loadFactoryDefaults( new ConfigurationLoader(), editor.widgetsConfig, editor.gameData, true, null );
             }
             
-            editor.eventsManager.onRealtimeEntered( editor.presets );
+            editor.eventsManager.onRealtimeEntered( true );
             
             //editor.getEditorPanel().getWidgetsDrawingManager().collectTextures( true, editor.gameData );
             

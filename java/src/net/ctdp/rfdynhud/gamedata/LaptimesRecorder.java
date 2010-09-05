@@ -19,15 +19,13 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.util.ArrayList;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
-
 class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
     @Override
-    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onSessionStarted( LiveGameData gameData, boolean isEditorMode ) {}
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode ) {}
     
     private static ArrayList<Laptime> addLaptime( VehicleScoringInfo vsi, int lapsCompleted, Laptime laptime )
     {
@@ -125,7 +123,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     }
     
     @Override
-    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -268,10 +266,10 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     }
     
     @Override
-    public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
+    public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode ) {}
     
     private LaptimesRecorder()
     {

@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.widgets.widget;
 
 import java.awt.Color;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
@@ -239,23 +238,23 @@ public class WidgetBackground
         return ( false );
     }
     
-    private void createAndUpdateMergedBackgroundTexture( LiveGameData gameData, EditorPresets editorPresets )
+    private void createAndUpdateMergedBackgroundTexture( LiveGameData gameData, boolean isEditorMode )
     {
         int width = getWidth();
         int height = getHeight();
         
-        mergedBackgroundTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, mergedBackgroundTexture, editorPresets != null );
+        mergedBackgroundTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, mergedBackgroundTexture, isEditorMode );
         
-        widget.drawBackground_( gameData, editorPresets, mergedBackgroundTexture, 0, 0, width, height, true );
+        widget.drawBackground_( gameData, isEditorMode, mergedBackgroundTexture, 0, 0, width, height, true );
         mergedBgTexDirty = false;
     }
     
     /**
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      */
-    void updateMergedBackground( LiveGameData gameData, EditorPresets editorPresets )
+    void updateMergedBackground( LiveGameData gameData, boolean isEditorMode )
     {
         if ( mergedBgTexDirty )
         {
@@ -263,11 +262,11 @@ public class WidgetBackground
             {
                 if ( widget.overridesDrawBackground )
                 {
-                    createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                    createAndUpdateMergedBackgroundTexture( gameData, isEditorMode );
                 }
                 else if ( ( widget instanceof AssembledWidget ) && needsTexture( (AssembledWidget)widget, getColor() ) )
                 {
-                    createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                    createAndUpdateMergedBackgroundTexture( gameData, isEditorMode );
                 }
                 else
                 {
@@ -279,11 +278,11 @@ public class WidgetBackground
             {
                 if ( widget.overridesDrawBackground )
                 {
-                    createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                    createAndUpdateMergedBackgroundTexture( gameData, isEditorMode );
                 }
                 else if ( ( widget instanceof AssembledWidget ) && needsTexture( (AssembledWidget)widget, null ) )
                 {
-                    createAndUpdateMergedBackgroundTexture( gameData, editorPresets );
+                    createAndUpdateMergedBackgroundTexture( gameData, isEditorMode );
                 }
                 else
                 {

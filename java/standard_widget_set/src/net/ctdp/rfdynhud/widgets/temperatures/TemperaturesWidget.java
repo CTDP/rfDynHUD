@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.widgets.temperatures;
 import java.awt.Color;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
@@ -182,9 +181,9 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
     }
@@ -193,9 +192,9 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         oldWaterTemp = -1;
         oldOilTemp = -1;
@@ -215,9 +214,9 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         setControlVisibility( viewedVSI );
     }
@@ -234,7 +233,7 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize(boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize(boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -568,7 +567,7 @@ public class TemperaturesWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final TelemetryData telemData = gameData.getTelemetryData();
         final VehiclePhysics physics = gameData.getPhysics();
@@ -578,6 +577,8 @@ public class TemperaturesWidget extends Widget
         {
             if ( displayEngine.getBooleanValue() )
                 engineHeaderString.draw( offsetX, offsetY, "(" + NumberUtil.formatFloat( gameData.getPhysics().getEngine().getOptimumOilTemperature(), 1, true ) + getTempUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", texture );
+            
+            // TODO: Try to find a way to detect tire compound change on pit stop!
             TireCompound tireCompound = setup.getGeneral().getFrontTireCompound();
             if ( displayTires.getBooleanValue() )
                 tiresHeaderString.draw( offsetX, offsetY, tireCompound.getName() + " (" + NumberUtil.formatFloat( tireCompound.getWheel( Wheel.FRONT_LEFT ).getOptimumTemperature(), 1, true ) + getTempUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", texture );

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
@@ -249,13 +248,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         ArrayList<TransformableTexture> list = new ArrayList<TransformableTexture>();
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            TransformableTexture[] tts = parts[i].getSubTexturesImpl( gameData, editorPresets, widgetInnerWidth, widgetInnerHeight );
+            TransformableTexture[] tts = parts[i].getSubTexturesImpl( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight );
             if ( ( tts != null ) && ( tts.length > 0 ) )
             {
                 for ( int j = 0; j < tts.length; j++ )
@@ -306,9 +305,9 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public int getMinWidth( LiveGameData gameData, EditorPresets editorPresets )
+    public int getMinWidth( LiveGameData gameData, boolean isEditorMode )
     {
-        int mw = super.getMinWidth( gameData, editorPresets );
+        int mw = super.getMinWidth( gameData, isEditorMode );
         
         Widget part;
         
@@ -316,7 +315,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         {
             part = parts[i];
             
-            mw = Math.max( mw, part.getPosition().getEffectiveX() + part.getMinWidth( gameData, editorPresets ) );
+            mw = Math.max( mw, part.getPosition().getEffectiveX() + part.getMinWidth( gameData, isEditorMode ) );
         }
         
         return ( mw );
@@ -326,9 +325,9 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public int getMinHeight( LiveGameData gameData, EditorPresets editorPresets )
+    public int getMinHeight( LiveGameData gameData, boolean isEditorMode )
     {
-        int mh = super.getMinHeight( gameData, editorPresets );
+        int mh = super.getMinHeight( gameData, isEditorMode );
         
         Widget part;
         
@@ -336,7 +335,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         {
             part = parts[i];
             
-            mh = Math.max( mh, part.getPosition().getEffectiveY() + part.getMinHeight( gameData, editorPresets ) );
+            mh = Math.max( mh, part.getPosition().getEffectiveY() + part.getMinHeight( gameData, isEditorMode ) );
         }
         
         return ( mh );
@@ -346,7 +345,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public int getMaxWidth( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
         //if ( parts.length == 0 )
             return ( getEffectiveWidth() );
@@ -360,7 +359,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         {
             part = parts[i];
             
-            mw = Math.max( mw, part.getPosition().getEffectiveX() + part.getMaxWidth( gameData, editorPresets, texture ) );
+            mw = Math.max( mw, part.getPosition().getEffectiveX() + part.getMaxWidth( gameData, isEditorMode, texture ) );
         }
         
         return ( mw );
@@ -371,7 +370,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public int getMaxHeight( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
+    public int getMaxHeight( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
         //if ( parts.length == 0 )
             return ( getEffectiveHeight() );
@@ -385,7 +384,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         {
             part = parts[i];
             
-            mh = Math.max( mh, part.getPosition().getEffectiveY() + part.getMaxHeight( gameData, editorPresets, texture ) );
+            mh = Math.max( mh, part.getPosition().getEffectiveY() + part.getMaxHeight( gameData, isEditorMode, texture ) );
         }
         
         return ( mh );
@@ -455,13 +454,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( clock1, clock2, gameData, editorPresets );
+        super.updateVisibility( clock1, clock2, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].updateVisibility( clock1, clock2, gameData, editorPresets );
+            parts[i].updateVisibility( clock1, clock2, gameData, isEditorMode );
         }
     }
     
@@ -490,13 +489,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+            parts[i].afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         }
         
         arrangeParts();
@@ -506,13 +505,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.beforeConfigurationCleared( widgetsConfig, gameData, editorPresets );
+        super.beforeConfigurationCleared( widgetsConfig, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].beforeConfigurationCleared( widgetsConfig, gameData, editorPresets );
+            parts[i].beforeConfigurationCleared( widgetsConfig, gameData, isEditorMode );
         }
     }
     
@@ -520,13 +519,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onTrackChanged( String trackname, LiveGameData gameData, EditorPresets editorPresets )
+    public void onTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onTrackChanged( trackname, gameData, editorPresets );
+        super.onTrackChanged( trackname, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onTrackChanged( trackname, gameData, editorPresets );
+            parts[i].onTrackChanged( trackname, gameData, isEditorMode );
         }
     }
     
@@ -534,13 +533,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onSessionStarted( sessionType, gameData, editorPresets );
+        super.onSessionStarted( sessionType, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onSessionStarted( sessionType, gameData, editorPresets );
+            parts[i].onSessionStarted( sessionType, gameData, isEditorMode );
         }
     }
     
@@ -548,13 +547,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onRealtimeEntered( gameData, editorPresets );
+            parts[i].onRealtimeEntered( gameData, isEditorMode );
         }
     }
     
@@ -562,13 +561,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onScoringInfoUpdated( gameData, editorPresets );
+        super.onScoringInfoUpdated( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onScoringInfoUpdated( gameData, editorPresets );
+            parts[i].onScoringInfoUpdated( gameData, isEditorMode );
         }
     }
     
@@ -576,13 +575,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleSetupUpdated( gameData, editorPresets );
+        super.onVehicleSetupUpdated( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onVehicleSetupUpdated( gameData, editorPresets );
+            parts[i].onVehicleSetupUpdated( gameData, isEditorMode );
         }
     }
     
@@ -590,13 +589,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
+    public void onNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onNeededDataComplete( gameData, editorPresets );
+        super.onNeededDataComplete( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onNeededDataComplete( gameData, editorPresets );
+            parts[i].onNeededDataComplete( gameData, isEditorMode );
         }
     }
     
@@ -604,13 +603,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onPitsEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onPitsEntered( gameData, editorPresets );
+        super.onPitsEntered( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onPitsEntered( gameData, editorPresets );
+            parts[i].onPitsEntered( gameData, isEditorMode );
         }
     }
     
@@ -618,13 +617,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onGarageEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onGarageEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onGarageEntered( gameData, editorPresets );
+        super.onGarageEntered( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onGarageEntered( gameData, editorPresets );
+            parts[i].onGarageEntered( gameData, isEditorMode );
         }
     }
     
@@ -632,13 +631,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onGarageExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onGarageExited( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onGarageExited( gameData, editorPresets );
+        super.onGarageExited( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onGarageExited( gameData, editorPresets );
+            parts[i].onGarageExited( gameData, isEditorMode );
         }
     }
     
@@ -646,13 +645,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onPitsExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onPitsExited( gameData, editorPresets );
+        super.onPitsExited( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onPitsExited( gameData, editorPresets );
+            parts[i].onPitsExited( gameData, isEditorMode );
         }
     }
     
@@ -660,13 +659,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeExited( gameData, editorPresets );
+        super.onRealtimeExited( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onRealtimeExited( gameData, editorPresets );
+            parts[i].onRealtimeExited( gameData, isEditorMode );
         }
     }
     
@@ -674,13 +673,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+            parts[i].onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         }
     }
     
@@ -688,13 +687,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
+    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onLapStarted( vsi, gameData, editorPresets );
+        super.onLapStarted( vsi, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onLapStarted( vsi, gameData, editorPresets );
+            parts[i].onLapStarted( vsi, gameData, isEditorMode );
         }
     }
     
@@ -702,13 +701,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
+        super.onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onBoundInputStateChanged( action, state, modifierMask, when, gameData, editorPresets );
+            parts[i].onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
         }
     }
     
@@ -725,7 +724,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Widget part;
         
@@ -738,7 +737,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
             int width2 = part.getEffectiveWidth();
             int height2 = part.getEffectiveHeight();
             
-            part.initialize( clock1, clock2, gameData, editorPresets, drawnStringFactory, texture, offsetX2, offsetY2, width2, height2 );
+            part.initialize( clock1, clock2, gameData, isEditorMode, drawnStringFactory, texture, offsetX2, offsetY2, width2, height2 );
         }
     }
     
@@ -746,7 +745,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         boolean result = false;
         
@@ -761,16 +760,16 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
             int width2 = part.getEffectiveWidth();
             int height2 = part.getEffectiveHeight();
             
-            result = part.checkForChanges( clock1, clock2, gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 ) || result;
+            result = part.checkForChanges( clock1, clock2, gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2 ) || result;
         }
         
         return ( result );
     }
     
     @Override
-    void drawBackground_( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    void drawBackground_( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        super.drawBackground_( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        super.drawBackground_( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
         
         Widget part;
         
@@ -783,7 +782,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
             int width2 = part.getEffectiveWidth();
             int height2 = part.getEffectiveHeight();
             
-            part.drawBackground_( gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2, false );
+            part.drawBackground_( gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2, false );
         }
     }
     
@@ -791,7 +790,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Widget part;
         
@@ -806,7 +805,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
             int width2 = part.getEffectiveWidth();
             int height2 = part.getEffectiveHeight();
             
-            part.drawWidget( clock1, clock2, needsCompleteRedraw, gameData, editorPresets, texture, offsetX2, offsetY2, width2, height2 );
+            part.drawWidget( clock1, clock2, needsCompleteRedraw, gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2 );
         }
     }
     

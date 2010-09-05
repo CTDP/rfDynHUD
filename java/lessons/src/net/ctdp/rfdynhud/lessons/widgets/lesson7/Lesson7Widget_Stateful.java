@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.lessons.widgets.lesson7;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -60,14 +59,14 @@ public class Lesson7Widget_Stateful extends StatefulWidget<MyGeneralStore, MyLoc
     }
     
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ds_general = drawnStringFactory.newDrawnString( "ds_general", 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), "General: ", null );
         ds_local = drawnStringFactory.newDrawnString( "ds_local", 0, 20, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), "Local: ", null );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( needsCompleteRedraw )
         {

@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -94,7 +93,7 @@ public abstract class Widget implements Documented
         return ( BackgroundProperty.COLOR_INDICATOR + ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
     }
     
-    final boolean overridesDrawBackground = ClassUtil.overridesMethod( Widget.class, this.getClass(), "drawBackground", LiveGameData.class, EditorPresets.class, TextureImage2D.class, int.class, int.class, int.class, int.class, boolean.class );
+    final boolean overridesDrawBackground = ClassUtil.overridesMethod( Widget.class, this.getClass(), "drawBackground", LiveGameData.class, boolean.class, TextureImage2D.class, int.class, int.class, int.class, int.class, boolean.class );
     
     /**
      * This method is invoked when the background has changed.
@@ -306,13 +305,13 @@ public abstract class Widget implements Documented
      * Gets the {@link TransformableTexture}s, that this {@link Widget} keeps.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param widgetInnerWidth
      * @param widgetInnerHeight
      * 
      * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
      */
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         return ( null );
     }
@@ -321,17 +320,17 @@ public abstract class Widget implements Documented
      * Gets the {@link TransformableTexture}s, that this {@link Widget} keeps.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param widgetInnerHeight
      * @param widgetInnerWidth
      * 
      * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
      */
-    public final TransformableTexture[] getSubTextures( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    public final TransformableTexture[] getSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         if ( !initialized )
         {
-            subTextures = getSubTexturesImpl( gameData, editorPresets, widgetInnerWidth, widgetInnerHeight );
+            subTextures = getSubTexturesImpl( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight );
             
             if ( subTextures != null )
             {
@@ -521,11 +520,11 @@ public abstract class Widget implements Documented
      * Gets the minimum width for this {@link Widget} in pixels.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * 
      * @return the minimum width for this {@link Widget} in pixels.
      */
-    public int getMinWidth( LiveGameData gameData, EditorPresets editorPresets )
+    public int getMinWidth( LiveGameData gameData, boolean isEditorMode )
     {
         return ( 25 );
     }
@@ -534,11 +533,11 @@ public abstract class Widget implements Documented
      * Gets the minimum height for this {@link Widget} in pixels.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * 
      * @return the minimum height for this {@link Widget} in pixels.
      */
-    public int getMinHeight( LiveGameData gameData, EditorPresets editorPresets )
+    public int getMinHeight( LiveGameData gameData, boolean isEditorMode )
     {
         return ( 25 );
     }
@@ -549,12 +548,12 @@ public abstract class Widget implements Documented
      * Override this method, if it will change its size during game play.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param texture
      * 
      * @return the maximum width covered by this {@link Widget}.
      */
-    public int getMaxWidth( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
         return ( size.getEffectiveWidth() );
     }
@@ -565,12 +564,12 @@ public abstract class Widget implements Documented
      * Override this method, if it will change its size during game play.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param texture
      * 
      * @return the maximum height covered by this {@link Widget}.
      */
-    public int getMaxHeight( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
+    public int getMaxHeight( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
         return ( size.getEffectiveHeight() );
     }
@@ -729,7 +728,7 @@ public abstract class Widget implements Documented
     /**
      * Forces a complete redraw on the next render.
      * 
-     * @param mergedBackgroundToo if <code>true</code>, the clear-background will be redrawn and the {@link #drawBackground(LiveGameData, EditorPresets, TextureImage2D, int, int, int, int, boolean)} methods will be called again.
+     * @param mergedBackgroundToo if <code>true</code>, the clear-background will be redrawn and the {@link #drawBackground(LiveGameData, boolean, TextureImage2D, int, int, int, int, boolean)} methods will be called again.
      */
     public final void forceCompleteRedraw( boolean mergedBackgroundToo )
     {
@@ -845,9 +844,9 @@ public abstract class Widget implements Documented
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -904,9 +903,9 @@ public abstract class Widget implements Documented
      * 
      * @param widgetsConfig
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -915,9 +914,9 @@ public abstract class Widget implements Documented
      * 
      * @param widgetsConfig
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -926,9 +925,9 @@ public abstract class Widget implements Documented
      * 
      * @param trackname
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onTrackChanged( String trackname, LiveGameData gameData, EditorPresets editorPresets )
+    public void onTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -937,20 +936,20 @@ public abstract class Widget implements Documented
      * 
      * @param sessionType
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
     }
     
     /**
      * This method is called when a the user entered realtime mode. If your {@link Widget} needs some data
-     * to be drawn correctly, consider using {@link #onNeededDataComplete(LiveGameData, EditorPresets)}.
+     * to be drawn correctly, consider using {@link #onNeededDataComplete(LiveGameData, boolean)}.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -958,9 +957,9 @@ public abstract class Widget implements Documented
      * This method is called when {@link ScoringInfo} have been updated (done at 2Hz).
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -968,9 +967,9 @@ public abstract class Widget implements Documented
      * This method is called when {@link VehicleSetup} has been updated.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -978,9 +977,9 @@ public abstract class Widget implements Documented
      * This method is called when the needed data is available in realtime mode.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
+    public void onNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -988,9 +987,9 @@ public abstract class Widget implements Documented
      * This method is called when a the car entered the pits.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onPitsEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -998,9 +997,9 @@ public abstract class Widget implements Documented
      * This method is called when a the car entered the garage.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onGarageEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onGarageEntered( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -1008,9 +1007,9 @@ public abstract class Widget implements Documented
      * This method is called when a the car exited the garage.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onGarageExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onGarageExited( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -1018,9 +1017,9 @@ public abstract class Widget implements Documented
      * This method is called when a the car exited the pits.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onPitsExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -1028,9 +1027,9 @@ public abstract class Widget implements Documented
      * This method is called when a the user exited realtime mode.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -1039,9 +1038,9 @@ public abstract class Widget implements Documented
      * 
      * @param viewedVSI
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -1050,9 +1049,9 @@ public abstract class Widget implements Documented
      * 
      * @param vsi the driver, who started the lap. If this is the leader and the session type is RACE, the whole race has moved on to the next lap.
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
+    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -1064,9 +1063,9 @@ public abstract class Widget implements Documented
      * @param modifierMask see {@link InputAction}
      * @param when
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -1074,7 +1073,7 @@ public abstract class Widget implements Documented
      * Returns <code>true</code>, if this {@link Widget} draws on the main texture, <code>false</code> otherwise.<br />
      * Default is <code>true</code>.
      * 
-     * @param isEditorMode
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * 
      * @return <code>true</code>, if this {@link Widget} draws on the main texture, <code>false</code> otherwise.
      */
@@ -1085,7 +1084,7 @@ public abstract class Widget implements Documented
     
     /**
      * 
-     * @param isEditorMode true, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      */
     public void clearRegion( boolean isEditorMode, TextureImage2D texture )
@@ -1173,7 +1172,7 @@ public abstract class Widget implements Documented
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData the live game data
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param drawnStringFactory
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX the x-offset on the texture
@@ -1181,17 +1180,17 @@ public abstract class Widget implements Documented
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
+    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, BorderWrapper, TextureImage2D, int, int, int, int)}
-     * and possibly {@link #drawBackground(LiveGameData, EditorPresets, TextureImage2D, int, int, int, int, boolean)} are (re-)invoked.<br />
+     * and possibly {@link #drawBackground(LiveGameData, boolean, TextureImage2D, int, int, int, int, boolean)} are (re-)invoked.<br />
      * The original method is just an empty stub returning false.
      * 
      * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData the live game data
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
@@ -1200,7 +1199,7 @@ public abstract class Widget implements Documented
      * 
      * @return true, if size has changed.
      */
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         return ( false );
     }
@@ -1228,7 +1227,7 @@ public abstract class Widget implements Documented
      * Overriding this method makes the Widget use a background texture no matter, if the background is defined with a color only or an image.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX
      * @param offsetY
@@ -1236,7 +1235,7 @@ public abstract class Widget implements Documented
      * @param height
      * @param isRoot if this is true, you can possibly clear your stuff onto the texture instead of drawing it.
      */
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    protected void drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
         if ( canHaveBackground() )
         {
@@ -1257,13 +1256,13 @@ public abstract class Widget implements Documented
         }
     }
     
-    void drawBackground_( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    void drawBackground_( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
         texture.getTextureCanvas().pushClip( offsetX, offsetY, width, height, true );
         
         try
         {
-            drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+            drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
         }
         finally
         {
@@ -1308,14 +1307,14 @@ public abstract class Widget implements Documented
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      * @param gameData the live game data
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param offsetX the x-offset on the texture
      * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
+    protected abstract void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method invokes the parts of the actual drawing code for this Widget.
@@ -1324,10 +1323,10 @@ public abstract class Widget implements Documented
      * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param completeRedrawForced
      * @param gameData the live game data
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      */
-    public final void drawWidget( boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
+    public final void drawWidget( boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
         boolean wasInitialized = initialized;
         
@@ -1352,16 +1351,16 @@ public abstract class Widget implements Documented
         int height2 = height - borderTH - borderBH;
         
         final Texture2DCanvas texCanvas = texture.getTextureCanvas();
-        final TextureImage2D texture2 = hasMasterCanvas( editorPresets != null ) ? texture : null;
+        final TextureImage2D texture2 = hasMasterCanvas( isEditorMode ) ? texture : null;
         
         if ( !initialized )
         {
-            initialize( clock1, clock2, gameData, editorPresets, drawnStringFactory, texture2, offsetX2, offsetY2, width2, height2 );
+            initialize( clock1, clock2, gameData, isEditorMode, drawnStringFactory, texture2, offsetX2, offsetY2, width2, height2 );
             
             initialized = true;
         }
         
-        if ( checkForChanges( clock1, clock2, gameData, editorPresets, texture2, offsetX2, offsetY2, width2, height2 ) )
+        if ( checkForChanges( clock1, clock2, gameData, isEditorMode, texture2, offsetX2, offsetY2, width2, height2 ) )
         {
             forceCompleteRedraw( true );
             completeRedrawForced = true;
@@ -1385,27 +1384,27 @@ public abstract class Widget implements Documented
         {
             __RenderPrivilegedAccess.onWidgetCleared( drawnStringFactory );
             
-            drawBorder( ( editorPresets != null ), getBorder(), texture2, offsetX, offsetY, width, height );
+            drawBorder( isEditorMode, getBorder(), texture2, offsetX, offsetY, width, height );
             
             if ( texture2 != null )
                 texture2.markDirty( offsetX, offsetY, width, height );
             
             if ( ( getMasterWidget() == null ) && ( background != null ) )
             {
-                background.updateMergedBackground( gameData, editorPresets );
+                background.updateMergedBackground( gameData, isEditorMode );
                 
-                clearBackground( background, ( editorPresets == null ) ? texture2 : texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
+                clearBackground( background, !isEditorMode ? texture2 : texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
             }
         }
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
-        drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture2, offsetX2, offsetY2, width2, height2 );
+        drawWidget( clock1, clock2, completeRedrawForced, gameData, isEditorMode, texture2, offsetX2, offsetY2, width2, height2 );
         
-        if ( editorPresets != null )
+        if ( isEditorMode )
         {
             initialized = wasInitialized;
-            TransformableTexture[] subTextures = getSubTextures( gameData, editorPresets, width2, height2 );
+            TransformableTexture[] subTextures = getSubTextures( gameData, isEditorMode, width2, height2 );
             initialized = true;
             
             if ( subTextures != null )

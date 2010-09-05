@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.widgets;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener;
@@ -40,9 +39,9 @@ public class __WCPrivilegedAccess
         config.removeWidget( widget );
     }
     
-    public static final void clear( WidgetsConfiguration config, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
+    public static final void clear( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener )
     {
-        config.clear( gameData, editorPresets, clearListener );
+        config.clear( gameData, isEditorMode, clearListener );
     }
     
     public static final void setInputMappings( WidgetsConfiguration config, InputMappings inputMappings )
@@ -60,9 +59,9 @@ public class __WCPrivilegedAccess
         config.setValid( valid );
     }
     
-    public static final void setJustLoaded( WidgetsConfiguration config, LiveGameData gameData, EditorPresets editorPresets )
+    public static final void setJustLoaded( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode )
     {
-        config.setJustLoaded( gameData, editorPresets );
+        config.setJustLoaded( gameData, isEditorMode );
     }
     
     public static final boolean setViewport( int x, int y, int w, int h, WidgetsConfiguration widgetsConfig )

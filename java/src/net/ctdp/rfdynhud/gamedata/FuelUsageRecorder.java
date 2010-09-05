@@ -34,7 +34,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         }
         
         @Override
-        public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+        public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
         {
             if ( action == INPUT_ACTION_RESET_FUEL_CONSUMPTION )
             {
@@ -43,9 +43,9 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         }
         
         @Override
-        public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
+        public void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
         {
-            super.onSessionStarted( gameData, editorPresets );
+            super.onSessionStarted( gameData, isEditorMode );
             
             Float cached = DataCache.INSTANCE.getFuelUsage( gameData.getProfileInfo().getTeamName() );
             if ( cached != null )
@@ -182,7 +182,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
      * {@inheritDoc}
      */
     @Override
-    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
     {
         reset( gameData );
     }
@@ -191,7 +191,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
         oldLapsCompleted = -1;
         lapStartFuel = -1f;
@@ -202,7 +202,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
      * {@inheritDoc}
      */
     @Override
-    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -257,11 +257,11 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
      * {@inheritDoc}
      */
     @Override
-    public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
+    public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode ) {}
 }

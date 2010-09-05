@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Brakes.WheelBrake;
 
@@ -98,10 +97,10 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     }
     
     @Override
-    public void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onSessionStarted( LiveGameData gameData, boolean isEditorMode ) {}
     
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode ) {}
     
     public void applyActualLifetime( LiveGameData gameData, double oldRaceLengthPercentage, double raceLengthPercentage )
     {
@@ -136,7 +135,7 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
      * {@inheritDoc}
      */
     @Override
-    public void onTelemetryDataUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onTelemetryDataUpdated( LiveGameData gameData, boolean isEditorMode )
     {
         final VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
         final VehiclePhysics.Brakes brakes = gameData.getPhysics().getBrakes();
@@ -280,10 +279,10 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     }
     
     @Override
-    public void onGamePauseStateChanged( LiveGameData gameData, EditorPresets editorPresets, boolean isPaused ) {}
+    public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     @Override
-    public void onRealtimeExited( LiveGameData gameData, EditorPresets editorPresets ) {}
+    public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode ) {}
     
     LifetimeManager()
     {

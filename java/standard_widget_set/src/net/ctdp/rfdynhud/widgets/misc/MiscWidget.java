@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.widgets.misc;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -133,9 +132,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
+    public void onSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onSessionStarted( sessionType, gameData, editorPresets );
+        super.onSessionStarted( sessionType, gameData, isEditorMode );
         
         oldAbsTopspeed = -1f;
         
@@ -146,9 +145,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         oldStintLength = -1;
         
@@ -178,9 +177,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         oldRelTopspeed = -1f;
         relTopspeed = -1f;
@@ -204,7 +203,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -309,7 +308,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -437,7 +436,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             {
                 stintStringValue[0] = Loc.timing_stintlength_prefix + ":";
                 
-                int stintLength = (int)( ( ( editorPresets == null ) ? vsi.getStintLength() : 5.2f ) * 10f );
+                int stintLength = (int)( ( !isEditorMode ? vsi.getStintLength() : 5.2f ) * 10f );
                 boolean changed = ( stintLength != oldStintLength );
                 if ( vsi.isInPits() )
                 {
@@ -551,7 +550,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 forceUpdateAbs = true;
             }
             
-            if ( editorPresets != null )
+            if ( isEditorMode )
             {
                 topspeed = 301.7f;
                 getLocalStore().lastDisplayedAbsTopspeed = topspeed;

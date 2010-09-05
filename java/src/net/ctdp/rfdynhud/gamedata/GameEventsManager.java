@@ -18,7 +18,6 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.RFDynHUD;
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
@@ -151,7 +150,7 @@ public class GameEventsManager implements ConfigurationClearListener
         
         try
         {
-            EditorPresets editorPresets = null;
+            boolean isEditorMode = false;
             
             boolean smallMonitor = false;
             boolean bigMonitor = false;
@@ -179,7 +178,7 @@ public class GameEventsManager implements ConfigurationClearListener
             SessionType sessionType = gameData.getScoringInfo().getSessionType();
             VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
             String vehicleClass = vsi.getVehicleClass();
-            Boolean result2 = __UtilPrivilegedAccess.reloadConfiguration( new ConfigurationLoader(), smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, sessionType, widgetsManager, gameData, editorPresets, this, force );
+            Boolean result2 = __UtilPrivilegedAccess.reloadConfiguration( new ConfigurationLoader(), smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, sessionType, widgetsManager, gameData, isEditorMode, this, force );
             
             if ( result2 == null )
             {
@@ -189,7 +188,7 @@ public class GameEventsManager implements ConfigurationClearListener
             {
                 //if ( usePlayer )
                     TextureDirtyRectsManager.forceCompleteRedraw();
-                widgetsManager.collectTextures( gameData, editorPresets );
+                widgetsManager.collectTextures( gameData, isEditorMode );
                 //if ( usePlayer )
                     widgetsManager.clearCompleteTexture();
                 
@@ -209,10 +208,10 @@ public class GameEventsManager implements ConfigurationClearListener
     
     /**
      * 
-     * @param editorPresets
+     * @param isEditorMode
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onSessionStarted( EditorPresets editorPresets )
+    public byte onSessionStarted( boolean isEditorMode )
     {
         //Logger.log( ">>> onSessionStarted()" );
         //if ( currentSessionIsRace == Boolean.TRUE )
@@ -227,12 +226,12 @@ public class GameEventsManager implements ConfigurationClearListener
         this.isComingOutOfGarage = true;
         this.isInGarage = true;
         
-        this.waitingForGraphics = ( editorPresets == null );
-        this.waitingForTelemetry = ( editorPresets == null );
-        this.waitingForScoring = ( editorPresets == null );
+        this.waitingForGraphics = !isEditorMode;
+        this.waitingForTelemetry = !isEditorMode;
+        this.waitingForScoring = !isEditorMode;
         this.waitingForSetup = false;
         this.setupReloadTryTime = -1L;
-        this.waitingForData = ( editorPresets == null );
+        this.waitingForData = !isEditorMode;
         
         this.sessionJustStarted = true;
         this.currentSessionIsRace = null;
@@ -249,13 +248,13 @@ public class GameEventsManager implements ConfigurationClearListener
             
             if ( gameData.getProfileInfo().isValid() )
             {
-                if ( editorPresets == null )
+                if ( !isEditorMode )
                 {
                     reloadPhysics( true );
                     reloadSetup();
                 }
                 
-                __GDPrivilegedAccess.onSessionStarted( gameData, editorPresets );
+                __GDPrivilegedAccess.onSessionStarted( gameData, isEditorMode );
                 
                 // We cannot load the configuration here, because we don't know, which one to load (no scoring info).
             }
@@ -280,14 +279,14 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public byte onSessionStarted()
     {
-        return ( onSessionStarted( null ) );
+        return ( onSessionStarted( false ) );
     }
     
     /**
      * 
-     * @param editorPresets
+     * @param isEditorMode
      */
-    public void onSessionEnded( EditorPresets editorPresets )
+    public void onSessionEnded( boolean isEditorMode )
     {
         //Logger.log( ">>> onSessionEnded()" );
         this.waitingForGraphics = false;
@@ -317,7 +316,7 @@ public class GameEventsManager implements ConfigurationClearListener
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( false );
         
-        onSessionEnded( null );
+        onSessionEnded( false );
     }
     
     /**
@@ -332,10 +331,10 @@ public class GameEventsManager implements ConfigurationClearListener
     
     /**
      * 
-     * @param editorPresets
+     * @param isEditorMode
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public byte onRealtimeEntered( EditorPresets editorPresets )
+    public byte onRealtimeEntered( boolean isEditorMode )
     {
         //Logger.log( ">>> onRealtimeEntered()" );
         byte result = 0;
@@ -344,14 +343,14 @@ public class GameEventsManager implements ConfigurationClearListener
         this.lastViewedVSIId = -1;
         this.lastControl = null;
         
-        this.waitingForGraphics = waitingForGraphics || ( editorPresets == null );
+        this.waitingForGraphics = waitingForGraphics || !isEditorMode;
         this.waitingForTelemetry = waitingForTelemetry || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForScoring = waitingForScoring || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.setupReloadTryTime = System.nanoTime() + 5000000000L;
-        this.waitingForData = ( editorPresets == null );
+        this.waitingForData = !isEditorMode;
         
-        if ( editorPresets == null )
+        if ( !isEditorMode )
         {
             Logger.log( "Entered cockpit." );
         }
@@ -364,9 +363,9 @@ public class GameEventsManager implements ConfigurationClearListener
             
             if ( gameData.getProfileInfo().isValid() )
             {
-                __GDPrivilegedAccess.setRealtimeMode( true, gameData, editorPresets );
+                __GDPrivilegedAccess.setRealtimeMode( true, gameData, isEditorMode );
                 
-                if ( editorPresets == null )
+                if ( !isEditorMode )
                 {
                     reloadPhysics( false );
                     
@@ -374,11 +373,11 @@ public class GameEventsManager implements ConfigurationClearListener
                     {
                         waitingForSetup = false;
                         
-                        widgetsManager.fireOnVehicleSetupUpdated( gameData, editorPresets );
+                        widgetsManager.fireOnVehicleSetupUpdated( gameData, isEditorMode );
                     }
                 }
                 
-                widgetsManager.fireOnRealtimeEntered( gameData, editorPresets );
+                widgetsManager.fireOnRealtimeEntered( gameData, isEditorMode );
             }
         }
         catch ( Throwable t )
@@ -400,10 +399,10 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public final byte onRealtimeEntered()
     {
-        return ( onRealtimeEntered( null ) );
+        return ( onRealtimeEntered( false ) );
     }
     
-    public void onRealtimeExited( EditorPresets editorPresets )
+    public void onRealtimeExited( boolean isEditorMode )
     {
         //Logger.log( ">>> onRealtimeExited()" );
         Logger.log( "Exited cockpit." );
@@ -418,9 +417,9 @@ public class GameEventsManager implements ConfigurationClearListener
         {
             if ( gameData.getProfileInfo().isValid() )
             {
-                __GDPrivilegedAccess.setRealtimeMode( false, gameData, editorPresets );
+                __GDPrivilegedAccess.setRealtimeMode( false, gameData, isEditorMode );
                 
-                widgetsManager.fireOnRealtimeExited( gameData, editorPresets );
+                widgetsManager.fireOnRealtimeExited( gameData, isEditorMode );
             }
         }
         catch ( Throwable t )
@@ -436,7 +435,7 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public final byte onRealtimeExited()
     {
-        onRealtimeExited( null );
+        onRealtimeExited( false );
         
         //byte result = reloadConfigAndSetupTexture( false );
         __WCPrivilegedAccess.setValid( widgetsManager, false );
@@ -476,7 +475,7 @@ public class GameEventsManager implements ConfigurationClearListener
         return ( true );
     }
     
-    private byte checkPosition( EditorPresets editorPresets )
+    private byte checkPosition( boolean isEditorMode )
     {
         byte result = 1;
         
@@ -488,27 +487,27 @@ public class GameEventsManager implements ConfigurationClearListener
         if ( this.isInGarage && !isInGarage )
         {
             this.isInGarage = false;
-            widgetsManager.fireOnGarageExited( gameData, editorPresets );
+            widgetsManager.fireOnGarageExited( gameData, isEditorMode );
             
-            if ( editorPresets == null )
+            if ( !isEditorMode )
             {
                 result = reloadConfigAndSetupTexture( false );
                 
                 if ( result != 0 )
-                    widgetsManager.fireOnGarageExited( gameData, editorPresets );
+                    widgetsManager.fireOnGarageExited( gameData, isEditorMode );
             }
         }
         else if ( !this.isInGarage && isInGarage )
         {
             this.isInGarage = true;
-            widgetsManager.fireOnGarageEntered( gameData, editorPresets );
+            widgetsManager.fireOnGarageEntered( gameData, isEditorMode );
             
-            if ( editorPresets == null )
+            if ( !isEditorMode )
             {
                 result = reloadConfigAndSetupTexture( false );
                 
                 if ( result != 0 )
-                    widgetsManager.fireOnGarageEntered( gameData, editorPresets );
+                    widgetsManager.fireOnGarageEntered( gameData, isEditorMode );
             }
         }
         
@@ -517,20 +516,20 @@ public class GameEventsManager implements ConfigurationClearListener
         if ( this.isInPits && !isInPits )
         {
             this.isInPits = isInPits;
-            widgetsManager.fireOnPitsExited( gameData, editorPresets );
+            widgetsManager.fireOnPitsExited( gameData, isEditorMode );
         }
         else if ( !this.isInPits && isInPits )
         {
             this.isInPits = isInPits;
-            widgetsManager.fireOnPitsEntered( gameData, editorPresets );
+            widgetsManager.fireOnPitsEntered( gameData, isEditorMode );
         }
         
         return ( result );
     }
     
-    private byte checkWaitingData( EditorPresets editorPresets, boolean forceReload )
+    private byte checkWaitingData( boolean isEditorMode, boolean forceReload )
     {
-        widgetsManager.checkAndFireOnNeededDataComplete( gameData, editorPresets );
+        widgetsManager.checkAndFireOnNeededDataComplete( gameData, isEditorMode );
         
         boolean waitingForSetup2 = ( System.nanoTime() <= setupReloadTryTime );
         
@@ -542,7 +541,7 @@ public class GameEventsManager implements ConfigurationClearListener
                 waitingForSetup2 = false;
                 setupReloadTryTime = -1L;
                 
-                widgetsManager.fireOnVehicleSetupUpdated( gameData, editorPresets );
+                widgetsManager.fireOnVehicleSetupUpdated( gameData, isEditorMode );
             }
         }
         
@@ -559,7 +558,7 @@ public class GameEventsManager implements ConfigurationClearListener
             
             if ( sessionJustStarted )
             {
-                __GDPrivilegedAccess.onSessionStarted2( gameData, editorPresets );
+                __GDPrivilegedAccess.onSessionStarted2( gameData, isEditorMode );
                 
                 if ( !gameData.isInRealtimeMode() )
                 {
@@ -572,11 +571,11 @@ public class GameEventsManager implements ConfigurationClearListener
                     String trackname = gameData.getTrackInfo().getTrackName();
                     if ( !trackname.equals( lastTrackname ) )
                     {
-                        widgetsManager.fireOnTrackChanged( trackname, gameData, editorPresets );
+                        widgetsManager.fireOnTrackChanged( trackname, gameData, isEditorMode );
                         lastTrackname = trackname;
                     }
                     
-                    widgetsManager.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, editorPresets );
+                    widgetsManager.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, isEditorMode );
                 }
                 
                 this.sessionJustStarted = false;
@@ -637,7 +636,7 @@ public class GameEventsManager implements ConfigurationClearListener
                         {
                             //result = reloadConfigAndSetupTexture( true );
                             waitingForData = true;
-                            result = checkWaitingData( null, true );
+                            result = checkWaitingData( false, true );
                         }
                     }
                 }
@@ -648,7 +647,7 @@ public class GameEventsManager implements ConfigurationClearListener
                 }
                 else
                 {
-                    result = checkWaitingData( null, false );
+                    result = checkWaitingData( false, false );
                 }
             }
         }
@@ -666,10 +665,10 @@ public class GameEventsManager implements ConfigurationClearListener
     
     /**
      * 
-     * @param editorPresets
+     * @param isEditorMode
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onTelemetryDataUpdated( EditorPresets editorPresets )
+    public final byte onTelemetryDataUpdated( boolean isEditorMode )
     {
         //Logger.log( ">>> onTelemetryDataUpdated()" );
         byte result = 0;
@@ -680,7 +679,7 @@ public class GameEventsManager implements ConfigurationClearListener
             
             if ( gameData.getProfileInfo().isValid() )
             {
-                result = checkWaitingData( editorPresets, false );
+                result = checkWaitingData( isEditorMode, false );
             }
         }
         catch ( Throwable t )
@@ -702,15 +701,15 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public final byte onTelemetryDataUpdated()
     {
-        return ( onTelemetryDataUpdated( null ) );
+        return ( onTelemetryDataUpdated( false ) );
     }
     
     /**
      * 
-     * @param editorPresets
+     * @param isEditorMode
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
-    public final byte onScoringInfoUpdated( EditorPresets editorPresets )
+    public final byte onScoringInfoUpdated( boolean isEditorMode )
     {
         //Logger.log( ">>> onScoringInfoUpdated() (" + gameData.getScoringInfo().getNumVehicles() + ")" );
         if ( gameData.getScoringInfo().getNumVehicles() == 0 ) // What the hell is this again???
@@ -745,13 +744,13 @@ public class GameEventsManager implements ConfigurationClearListener
             
             if ( gameData.getProfileInfo().isValid() )
             {
-                result = checkWaitingData( editorPresets, false );
+                result = checkWaitingData( isEditorMode, false );
                 
-                widgetsManager.fireOnScoringInfoUpdated( gameData, editorPresets );
+                widgetsManager.fireOnScoringInfoUpdated( gameData, isEditorMode );
                 
                 if ( !waitingForData && ( result != 0 ) )
                 {
-                    byte result2 = checkPosition( editorPresets );
+                    byte result2 = checkPosition( isEditorMode );
                     
                     if ( result2 != 1 )
                     {
@@ -764,13 +763,13 @@ public class GameEventsManager implements ConfigurationClearListener
                     {
                         lastViewedVSIId = viewedVSI.getDriverId();
                         lastControl = viewedVSI.getVehicleControl();
-                        widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, editorPresets );
+                        widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
                         
                         result2 = reloadConfigAndSetupTexture( false );
                         
                         if ( result2 == 2 )
                         {
-                            widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, editorPresets );
+                            widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
                         }
                         
                         if ( result2 != 1 )
@@ -800,7 +799,7 @@ public class GameEventsManager implements ConfigurationClearListener
      */
     public final byte onScoringInfoUpdated()
     {
-        return ( onScoringInfoUpdated( null ) );
+        return ( onScoringInfoUpdated( false ) );
     }
     
     /**
@@ -813,7 +812,7 @@ public class GameEventsManager implements ConfigurationClearListener
         
         if ( !waitingForScoring && scoringInfo.getSessionType().isRace() && ( lastSessionStartedTimestamp != -1L ) && ( updateTimestamp - lastSessionStartedTimestamp > 3000000000L ) && ( scoringInfo.getSessionTime() > 0f ) && ( lastSessionTime > scoringInfo.getSessionTime() ) )
         {
-            onSessionStarted( null );
+            onSessionStarted( false );
         }
     }
     
@@ -821,7 +820,7 @@ public class GameEventsManager implements ConfigurationClearListener
      * 
      * @param editorPresets
      */
-    public final void checkAndFireOnLapStarted( EditorPresets editorPresets )
+    public final void checkAndFireOnLapStarted( boolean isEditorMode )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -836,7 +835,7 @@ public class GameEventsManager implements ConfigurationClearListener
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             if ( vsi.isLapJustStarted() )
-                widgetsManager.fireOnLapStarted( vsi, gameData, editorPresets );
+                widgetsManager.fireOnLapStarted( vsi, gameData, isEditorMode );
         }
     }
     

@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.widgets.speedo;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
@@ -83,13 +82,13 @@ public class SpeedoWidget extends NeedleMeterWidget
     */
     
     @Override
-    protected float getMinValue( LiveGameData gameData, EditorPresets editorPresets )
+    protected float getMinValue( LiveGameData gameData, boolean isEditorMode )
     {
         return ( 0 );
     }
     
     @Override
-    protected float getMaxValue( LiveGameData gameData, EditorPresets editorPresets )
+    protected float getMaxValue( LiveGameData gameData, boolean isEditorMode )
     {
         if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
             return ( maxVelocity.getFloatValue() * SpeedUnits.Convert.KPH_TO_MPH );
@@ -98,7 +97,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected float getValue( LiveGameData gameData, EditorPresets editorPresets )
+    protected float getValue( LiveGameData gameData, boolean isEditorMode )
     {
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
         
@@ -109,7 +108,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected String getMarkerLabelForValue( LiveGameData gameData, EditorPresets editorPresets, float value )
+    protected String getMarkerLabelForValue( LiveGameData gameData, boolean isEditorMode, float value )
     {
         return ( String.valueOf( (int)value ) );
     }

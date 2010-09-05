@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.render;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -80,14 +79,14 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * <br>
      * Calls {@link Widget#onTrackChanged(String, LiveGameData, EditorPresets)} on each Widget.
      */
-    public void fireOnTrackChanged( String trackname, LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
             try
             {
-                getWidget( i ).onTrackChanged( trackname, gameData, editorPresets );
+                getWidget( i ).onTrackChanged( trackname, gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -103,7 +102,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * <br>
      * Calls {@link Widget#onSessionStarted(SessionType, LiveGameData, EditorPresets)} on each Widget.
      */
-    public void fireOnSessionStarted( SessionType sessionType, LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
         //nextClockTime1 = 0L;
         //nextClockTime2 = 0L;
@@ -117,7 +116,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             try
             {
-                widget.onSessionStarted( sessionType, gameData, editorPresets );
+                widget.onSessionStarted( sessionType, gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -133,7 +132,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * <br>
      * Calls {@link Widget#onRealtimeEntered(LiveGameData, EditorPresets)} on each Widget.
      */
-    public void fireOnRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
         measureEnd = -1L;
         frameCounter = 0;
@@ -147,7 +146,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             try
             {
-                widget.onRealtimeEntered( gameData, editorPresets );
+                widget.onRealtimeEntered( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -172,7 +171,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * <br>
      * Calls {@link Widget#onRealtimeEntered(LiveGameData, EditorPresets)} on each Widget.
      */
-    public void checkAndFireOnNeededDataComplete( LiveGameData gameData, EditorPresets editorPresets )
+    public void checkAndFireOnNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
     {
         if ( waitingWidgets.size() == 0 )
             return;
@@ -195,7 +194,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             {
                 try
                 {
-                    widget.onNeededDataComplete( gameData, editorPresets );
+                    widget.onNeededDataComplete( gameData, isEditorMode );
                 }
                 catch ( Throwable t )
                 {
@@ -210,9 +209,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         }
     }
     
-    public int collectTextures( LiveGameData gameData, EditorPresets editorPresets )
+    public int collectTextures( LiveGameData gameData, boolean isEditorMode )
     {
-        textures[0].generateSubRectangles( gameData, editorPresets, this );
+        textures[0].generateSubRectangles( gameData, isEditorMode, this );
         
         widgetSubTextures = new TransformableTexture[ getNumWidgets() ][];
         
@@ -221,7 +220,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         for ( int i = 0; i < numWidgets; i++ )
         {
             Widget widget = getWidget( i );
-            TransformableTexture[] subTextures = widget.getSubTextures( gameData, editorPresets, widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth(), widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight() );
+            TransformableTexture[] subTextures = widget.getSubTextures( gameData, isEditorMode, widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth(), widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight() );
             if ( ( subTextures != null ) && ( subTextures.length > 0 ) )
             {
                 widgetSubTextures[i] = subTextures;
@@ -353,16 +352,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user exited the garage.<br>
      * <br>
-     * Calls {@link Widget#onPitsEntered(LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onPitsEntered(LiveGameData, boolean)} on each Widget.
      */
-    public void fireOnPitsEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnPitsEntered( LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
             try
             {
-                getWidget( i ).onPitsEntered( gameData, editorPresets );
+                getWidget( i ).onPitsEntered( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -374,16 +373,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user entered the garage.<br>
      * <br>
-     * Calls {@link Widget#onGarageEntered(LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onGarageEntered(LiveGameData, boolean)} on each Widget.
      */
-    public void fireOnGarageEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnGarageEntered( LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
             try
             {
-                getWidget( i ).onGarageEntered( gameData, editorPresets );
+                getWidget( i ).onGarageEntered( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -395,16 +394,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user exited the garage.<br>
      * <br>
-     * Calls {@link Widget#onGarageExited(LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onGarageExited(LiveGameData, boolean)} on each Widget.
      */
-    public void fireOnGarageExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnGarageExited( LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
             try
             {
-                getWidget( i ).onGarageExited( gameData, editorPresets );
+                getWidget( i ).onGarageExited( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -416,16 +415,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user exited the garage.<br>
      * <br>
-     * Calls {@link Widget#onPitsExited(LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onPitsExited(LiveGameData, boolean)} on each Widget.
      */
-    public void fireOnPitsExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnPitsExited( LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
             try
             {
-                getWidget( i ).onPitsExited( gameData, editorPresets );
+                getWidget( i ).onPitsExited( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -437,9 +436,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user exited realtime mode.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeExited(LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onRealtimeExited(LiveGameData, boolean)} on each Widget.
      */
-    public void fireOnRealtimeExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnRealtimeExited( LiveGameData gameData, boolean isEditorMode )
     {
         waitingWidgets.clear();
         
@@ -448,7 +447,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         {
             try
             {
-                getWidget( i ).onRealtimeExited( gameData, editorPresets );
+                getWidget( i ).onRealtimeExited( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -461,16 +460,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when {@link ScoringInfo} have been updated (done at 2Hz).
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void fireOnScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
             try
             {
-                getWidget( i ).onScoringInfoUpdated( gameData, editorPresets );
+                getWidget( i ).onScoringInfoUpdated( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -483,9 +482,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when {@link VehicleSetup} has been updated.
      * 
      * @param gameData
-     * @param editorPresets non null, if the Editor is used for rendering instead of rFactor
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void fireOnVehicleSetupUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
@@ -495,7 +494,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             try
             {
                 widget.forceAndSetDirty( true );
-                widget.onVehicleSetupUpdated( gameData, editorPresets );
+                widget.onVehicleSetupUpdated( gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -509,16 +508,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * 
      * @param viewedVSI
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      */
-    public void fireOnVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
             try
             {
-                getWidget( i ).onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+                getWidget( i ).onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -532,16 +531,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * 
      * @param vsi
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      */
-    public void fireOnLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
     {
         final int n = getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
             try
             {
-                getWidget( i ).onLapStarted( vsi, gameData, editorPresets );
+                getWidget( i ).onLapStarted( vsi, gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -559,9 +558,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * @param modifierMask
      * @param when
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      */
-    public void fireOnInputStateChanged( InputMapping mapping, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+    public void fireOnInputStateChanged( InputMapping mapping, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
         Widget widget = getWidget( mapping.getWidgetName() );
         
@@ -575,7 +574,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             if ( action == KnownInputActions.ToggleWidgetVisibility )
                 widget.setInputVisible( !widget.isInputVisible() );
             else
-                widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, editorPresets );
+                widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, isEditorMode );
         }
         catch ( Throwable t )
         {
@@ -606,14 +605,12 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * Draws all visible {@link Widget}s in the list.
      * 
      * @param gameData
-     * @param editorPresets
+     * @param isEditorMode
      * @param completeRedrawForced
      * @param texture
      */
-    public void drawWidgets( LiveGameData gameData, EditorPresets editorPresets, boolean completeRedrawForced, TextureImage2D texture )
+    public void drawWidgets( LiveGameData gameData, boolean isEditorMode, boolean completeRedrawForced, TextureImage2D texture )
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        
         if ( !isValid() )
             return;
         
@@ -686,13 +683,13 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             {
                 if ( isWidgetReady( widget, gameData ) )
                 {
-                    widget.updateVisibility( clock1, clock2, gameData, editorPresets );
+                    widget.updateVisibility( clock1, clock2, gameData, isEditorMode );
                     
                     if ( isEditorMode )
                     {
                         if ( widget.getDirtyFlag( true ) )
                         {
-                            widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture );
+                            widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, isEditorMode, texture );
                         }
                     }
                     else if ( !widget.isVisible() && widget.visibilityChangedSinceLastDraw() )
@@ -719,7 +716,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                     {
                         if ( widget.isVisible() )
                         {
-                            widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, editorPresets, texture );
+                            widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, isEditorMode, texture );
                         }
                     }
                 }

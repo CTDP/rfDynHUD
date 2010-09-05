@@ -388,7 +388,7 @@ public class EditorMenuBar extends JMenuBar
     }
     
     @SuppressWarnings( "unchecked" )
-    private JMenu createWidgetsMenu( LiveGameData gameData, EditorPresets editorPresets )
+    private JMenu createWidgetsMenu( LiveGameData gameData )
     {
         JMenu menu = new JMenu( "Widgets" );
         menu.setDisplayedMnemonicIndex( 0 );
@@ -485,7 +485,7 @@ public class EditorMenuBar extends JMenuBar
             }
         }
         
-        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, editorPresets );
+        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, true );
         
         menu.addMenuListener( new MenuListener()
         {
@@ -822,7 +822,7 @@ public class EditorMenuBar extends JMenuBar
         
         this.add( createFileMenu() );
         this.add( createEditMenu() );
-        this.add( createWidgetsMenu( editor.getGameData(), editor.getEditorPresets() ) );
+        this.add( createWidgetsMenu( editor.getGameData() ) );
         this.add( createResolutionsMenu() );
         this.add( createToolsMenu() );
         this.add( createHelpMenu() );

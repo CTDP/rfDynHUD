@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.util;
 import java.io.File;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -33,18 +32,18 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener
  */
 public class __UtilPrivilegedAccess
 {
-    public static File forceLoadConfiguration( ConfigurationLoader loader, File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    public static File forceLoadConfiguration( ConfigurationLoader loader, File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener ) throws IOException
     {
-        return ( loader.forceLoadConfiguration( file, widgetsConfig, gameData, editorPresets, clearListener ) );
+        return ( loader.forceLoadConfiguration( file, widgetsConfig, gameData, isEditorMode, clearListener ) );
     }
     
-    public static void loadFactoryDefaults( ConfigurationLoader loader, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener ) throws IOException
+    public static void loadFactoryDefaults( ConfigurationLoader loader, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener ) throws IOException
     {
-        loader.loadFactoryDefaults( widgetsConfig, gameData, editorPresets, clearListener );
+        loader.loadFactoryDefaults( widgetsConfig, gameData, isEditorMode, clearListener );
     }
     
-    public static Boolean reloadConfiguration( ConfigurationLoader loader, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener, boolean force )
+    public static Boolean reloadConfiguration( ConfigurationLoader loader, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener, boolean force )
     {
-        return ( loader.reloadConfiguration( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, sessionType, widgetsConfig, gameData, editorPresets, clearListener, force ) );
+        return ( loader.reloadConfiguration( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, sessionType, widgetsConfig, gameData, isEditorMode, clearListener, force ) );
     }
 }

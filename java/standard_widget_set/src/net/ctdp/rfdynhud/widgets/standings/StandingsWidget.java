@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.widgets.standings;
 import java.io.IOException;
 import java.util.Arrays;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.FinishStatus;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -284,15 +283,15 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
         lastScoringUpdateId.reset();
         
         SessionType sessionType = gameData.getScoringInfo().getSessionType();
         
-        if ( ( editorPresets == null ) && sessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
+        if ( !isEditorMode && sessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
             cycleView( false, sessionType, false );
         
         if ( oldPosStrings != null )
@@ -302,7 +301,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         
         this.oldNumVehicles = -1;
         
-        if ( editorPresets != null )
+        if ( isEditorMode )
             this.maxNumVehicles = 23;
         else
             this.maxNumVehicles = gameData.getModInfo().getMaxOpponents() + 1;
@@ -314,9 +313,9 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         lastScoringUpdateId.reset();
         forceCompleteRedraw( false );
@@ -326,11 +325,11 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
         if ( action == INPUT_ACTION_CYCLE_VIEW )
         {
-            cycleView( ( editorPresets != null ), gameData.getScoringInfo().getSessionType(), true );
+            cycleView( isEditorMode, gameData.getScoringInfo().getSessionType(), true );
         }
     }
     
@@ -820,10 +819,10 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public int getMaxWidth( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
         if ( !useAutoWidth.getBooleanValue() )
-            return ( super.getMaxWidth( gameData, editorPresets, texture ) );
+            return ( super.getMaxWidth( gameData, isEditorMode, texture ) );
         
         DrawnString ds = getDrawnStringFactory().newDrawnString( null, 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
@@ -883,7 +882,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         lastScoringUpdateId.reset( true );
         
@@ -904,10 +903,9 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
-        final boolean isEditorMode = ( editorPresets != null );
         
         lastScoringUpdateId.update( scoringInfo.getUpdateId() );
         
@@ -948,7 +946,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         oldPosStrings = ensureCapacity( oldPosStrings, numVehicles, true );
         

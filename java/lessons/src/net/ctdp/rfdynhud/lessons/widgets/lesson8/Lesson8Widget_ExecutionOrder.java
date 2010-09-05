@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.lessons.widgets.lesson8;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
@@ -50,9 +49,9 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         //log( "afterConfigurationLoaded()" );
         
@@ -60,7 +59,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         //log( "getSubTextures()" );
         
@@ -70,17 +69,17 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets )
+    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
     {
         //log( "updateVisibility()" );
         
         // This method is executed 1st and each frame.
         
-        super.updateVisibility( clock1, clock2, gameData, editorPresets );
+        super.updateVisibility( clock1, clock2, gameData, isEditorMode );
     }
     
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         //log( "initialize()" );
         
@@ -88,7 +87,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         //log( "checkForChanges()" );
         
@@ -108,17 +107,17 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    protected void drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
         //log( "drawBackground()" );
         
         // This method is executed 5th and each frame.
         
-        super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
+        super.drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         //log( "drawWidget()" );
         
@@ -126,13 +125,13 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
         //log( "beforeConfigurationCleared()" );
         
         // This method is executed when the configuration is unloaded.
         
-        super.beforeConfigurationCleared( widgetsConfig, gameData, editorPresets );
+        super.beforeConfigurationCleared( widgetsConfig, gameData, isEditorMode );
     }
     
     @Override

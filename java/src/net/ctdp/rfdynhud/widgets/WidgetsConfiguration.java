@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
@@ -213,7 +212,7 @@ public class WidgetsConfiguration implements Documented
      * Removes all {@link Widget}s and clears all name- and alias maps.
      */
     @SuppressWarnings( "rawtypes" )
-    void clear( LiveGameData gameData, EditorPresets editorPresets, ConfigurationClearListener clearListener )
+    void clear( LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener )
     {
         if ( clearListener != null )
             clearListener.beforeWidgetsConfigurationCleared( this );
@@ -224,10 +223,10 @@ public class WidgetsConfiguration implements Documented
         {
             Widget widget = widgets.get( i );
             
-            widget.beforeConfigurationCleared( this, gameData, editorPresets );
+            widget.beforeConfigurationCleared( this, gameData, isEditorMode );
         }
         
-        if ( editorPresets == null )
+        if ( !isEditorMode )
         {
             for ( int i = 0; i < widgets.size(); i++ )
             {
@@ -307,7 +306,7 @@ public class WidgetsConfiguration implements Documented
     }
     
     @SuppressWarnings( "rawtypes" )
-    void setJustLoaded( LiveGameData gameData, EditorPresets editorPresets )
+    void setJustLoaded( LiveGameData gameData, boolean isEditorMode )
     {
         this.id++;
         this.needsCheckFixAndBake = true;
@@ -325,7 +324,7 @@ public class WidgetsConfiguration implements Documented
                 }
             }
             
-            if ( editorPresets == null )
+            if ( !isEditorMode )
             {
                 Boolean visibility = visibilities.get( getLocalStoreKey( widget ) );
                 if ( visibility != null )
@@ -339,7 +338,7 @@ public class WidgetsConfiguration implements Documented
         {
             Widget widget = widgets.get( i );
             
-            widget.afterConfigurationLoaded( this, gameData, editorPresets );
+            widget.afterConfigurationLoaded( this, gameData, isEditorMode );
         }
     }
     

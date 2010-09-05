@@ -61,7 +61,7 @@ public class ScoringInfo
     
     public static interface ScoringInfoUpdateListener extends LiveGameData.GameDataUpdateListener
     {
-        public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets );
+        public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode );
     }
     
     private ScoringInfoUpdateListener[] updateListeners = null;
@@ -526,7 +526,7 @@ public class ScoringInfo
                 {
                     try
                     {
-                        updateListeners[i].onScoringInfoUpdated( gameData, editorPresets );
+                        updateListeners[i].onScoringInfoUpdated( gameData, editorPresets != null );
                     }
                     catch ( Throwable t )
                     {
@@ -538,7 +538,7 @@ public class ScoringInfo
             if ( eventsManager != null )
             {
                 eventsManager.checkRaceRestart( updateTimestamp );
-                eventsManager.checkAndFireOnLapStarted( null );
+                eventsManager.checkAndFireOnLapStarted( editorPresets != null );
             }
         }
         catch ( Throwable t )
@@ -549,9 +549,9 @@ public class ScoringInfo
     
     /**
      * 
-     * @param editorPresets
+     * @param isEditorMode
      */
-    final void onSessionStarted( EditorPresets editorPresets )
+    final void onSessionStarted( boolean isEditorMode )
     {
         this.sessionId++;
         this.sessionStartTimestamp = System.nanoTime();

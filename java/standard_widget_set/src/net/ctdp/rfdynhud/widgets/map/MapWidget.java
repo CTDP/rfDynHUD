@@ -29,7 +29,6 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -183,9 +182,9 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         updateItemRadius();
     }
@@ -208,7 +207,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onTrackChanged( String trackname, LiveGameData gameData, EditorPresets editorPresets )
+    public void onTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
         track = null;
     }
@@ -223,9 +222,9 @@ public class MapWidget extends Widget
         this.maxDisplayedVehicles = Math.max( 4, Math.min( maxDisplayedVehicles, 32 ) );
     }
     
-    private void updateVSIs( LiveGameData gameData, EditorPresets editorPresets )
+    private void updateVSIs( LiveGameData gameData, boolean isEditorMode )
     {
-        initMaxDisplayedVehicles( editorPresets != null, gameData.getModInfo() );
+        initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
         if ( ( vsis == null ) || ( vsis.length < maxDisplayedVehicles ) )
         {
@@ -254,9 +253,9 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onScoringInfoUpdated( LiveGameData gameData, EditorPresets editorPresets )
+    public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
     {
-        updateVSIs( gameData, editorPresets );
+        updateVSIs( gameData, isEditorMode );
     }
     
     private void initSubTextures( boolean isEditorMode, ModInfo modInfo, int widgetWidth, int widgetHeight )
@@ -299,9 +298,9 @@ public class MapWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        initSubTextures( editorPresets != null, gameData.getModInfo(), widgetInnerWidth, widgetInnerHeight );
+        initSubTextures( isEditorMode, gameData.getModInfo(), widgetInnerWidth, widgetInnerHeight );
         
         return ( subTextures );
     }
@@ -310,18 +309,16 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        
         initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
         if ( isEditorMode )
-            updateVSIs( gameData, editorPresets );
+            updateVSIs( gameData, isEditorMode );
         
         initSubTextures( isEditorMode, gameData.getModInfo(), width, height );
         
-        cacheTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, cacheTexture, editorPresets != null );
+        cacheTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, cacheTexture, isEditorMode );
         cacheTexture.clear( true, null );
         
         if ( track == null )
@@ -567,16 +564,16 @@ public class MapWidget extends Widget
             cacheTexture = null;
         }
         
-        if ( editorPresets != null )
+        if ( isEditorMode )
         {
             isBgClean = false;
         }
     }
     
     @Override
-    protected void drawBackground( LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    protected void drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        if ( hasMasterCanvas( editorPresets != null ) )
+        if ( hasMasterCanvas( isEditorMode ) )
         {
             if ( cacheTexture == null )
                 texture.clear( offsetX, offsetY, width, height, true, null );
@@ -587,7 +584,7 @@ public class MapWidget extends Widget
         }
         else
         {
-            if ( ( editorPresets != null ) && !isBgClean )
+            if ( ( isEditorMode ) && !isBgClean )
             {
                 texture.clear( offsetX, offsetY, width, height, true, null );
                 isBgClean = true;
@@ -603,7 +600,7 @@ public class MapWidget extends Widget
     private final AffineTransform at = new AffineTransform();
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         final VehicleScoringInfo viewedVSI = scoringInfo.getViewedVehicleScoringInfo();
@@ -620,7 +617,7 @@ public class MapWidget extends Widget
             final Font font = getFont();
             final boolean posNumberFontAntiAliased = isFontAntiAliased();
             
-            int subTexOff = hasMasterCanvas( editorPresets != null ) ? 0 : 1;
+            int subTexOff = hasMasterCanvas( isEditorMode ) ? 0 : 1;
             
             float rotation = 0f;
             

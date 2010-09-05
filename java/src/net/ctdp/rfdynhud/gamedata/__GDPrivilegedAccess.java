@@ -88,9 +88,9 @@ public class __GDPrivilegedAccess
         gameData.applyEditorPresets( editorPresets );
     }
     
-    public static final void loadFromStream( InputStream in, TelemetryData telemetryData, EditorPresets editorPresets ) throws IOException
+    public static final void loadFromStream( InputStream in, TelemetryData telemetryData, boolean isEditorMode ) throws IOException
     {
-        telemetryData.loadFromStream( in, editorPresets );
+        telemetryData.loadFromStream( in, isEditorMode );
     }
     
     public static final void loadFromStream( InputStream in, ScoringInfo scoringInfo, EditorPresets editorPresets ) throws IOException
@@ -98,26 +98,26 @@ public class __GDPrivilegedAccess
         scoringInfo.loadFromStream( in, editorPresets );
     }
     
-    public static final void loadFromStream( InputStream in, CommentaryRequestInfo commentaryInfo, EditorPresets editorPresets ) throws IOException
+    public static final void loadFromStream( InputStream in, CommentaryRequestInfo commentaryInfo, boolean isEditorMode ) throws IOException
     {
-        commentaryInfo.loadFromStream( in, editorPresets );
+        commentaryInfo.loadFromStream( in, isEditorMode );
     }
     
-    public static final void loadFromStream( InputStream in, GraphicsInfo graphicsInfo, EditorPresets editorPresets ) throws IOException
+    public static final void loadFromStream( InputStream in, GraphicsInfo graphicsInfo, boolean isEditorMode ) throws IOException
     {
-        graphicsInfo.loadFromStream( in, editorPresets );
+        graphicsInfo.loadFromStream( in, isEditorMode );
     }
     
-    public static final void onSessionStarted( LiveGameData gameData, EditorPresets editorPresets )
+    public static final void onSessionStarted( LiveGameData gameData, boolean isEditorMode )
     {
-        gameData.getTelemetryData().onSessionStarted( editorPresets );
-        gameData.getScoringInfo().onSessionStarted( editorPresets );
+        gameData.getTelemetryData().onSessionStarted( isEditorMode );
+        gameData.getScoringInfo().onSessionStarted( isEditorMode );
         gameData.getSetup().onSessionStarted();
     }
     
-    public static final void onSessionStarted2( LiveGameData gameData, EditorPresets editorPresets )
+    public static final void onSessionStarted2( LiveGameData gameData, boolean isEditorMode )
     {
-        gameData.onSessionStarted2( editorPresets );
+        gameData.onSessionStarted2( isEditorMode );
     }
     
     public static final void onSessionEnded( LiveGameData gameData )
@@ -127,14 +127,14 @@ public class __GDPrivilegedAccess
         gameData.getSetup().onSessionEnded();
     }
     
-    public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData, EditorPresets editorPresets )
+    public static final void setRealtimeMode( boolean realtimeMode, LiveGameData gameData, boolean isEditorMode )
     {
-        gameData.setRealtimeMode( realtimeMode, editorPresets );
+        gameData.setRealtimeMode( realtimeMode, isEditorMode );
     }
     
-    public static final void updateSessionTime( LiveGameData gameData, EditorPresets editorPresets, long timestamp )
+    public static final void updateSessionTime( LiveGameData gameData, boolean isEditorMode, long timestamp )
     {
-        gameData.setGamePaused( gameData.getTelemetryData().checkGamePaused( timestamp ), editorPresets );
+        gameData.setGamePaused( gameData.getTelemetryData().checkGamePaused( timestamp ), isEditorMode );
         gameData.getScoringInfo().updateSessionTime( timestamp );
     }
     

@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.widgets.fuel;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -385,9 +384,9 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
         
         setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
     }
@@ -396,12 +395,12 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets )
+    public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onRealtimeEntered( gameData, editorPresets );
+        super.onRealtimeEntered( gameData, isEditorMode );
         
-        loadLowFuelWarningImages( editorPresets != null );
-        resetBlink( editorPresets != null );
+        loadLowFuelWarningImages( isEditorMode );
+        resetBlink( isEditorMode );
         
         this.nextPitstopLapCorrection = 0;
         this.nextPitstopFuelLapsCorrection = 0;
@@ -419,9 +418,9 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onPitsExited( LiveGameData gameData, EditorPresets editorPresets )
+    public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
     {
-        super.onPitsExited( gameData, editorPresets );
+        super.onPitsExited( gameData, isEditorMode );
         
         if ( stintLengthV.getValue() < 1 )
         {
@@ -437,9 +436,9 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, EditorPresets editorPresets )
+    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
+        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         setControlVisibility( viewedVSI );
     }
@@ -448,7 +447,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, EditorPresets editorPresets )
+    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
         if ( action == INPUT_ACTION_INC_PITSTOP_LAP )
         {
@@ -489,12 +488,12 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, EditorPresets editorPresets, int widgetInnerWidth, int widgetInnerHeight )
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         if ( !isLowFuelWaningUsed() )
             return ( null );
         
-        loadLowFuelWarningImages( editorPresets != null );
+        loadLowFuelWarningImages( isEditorMode );
         
         TransformableTexture[] tts;
         if ( lowFuelWarningImageNameOff.isNoImage() || lowFuelWarningImageNameOn.isNoImage() )
@@ -529,7 +528,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -619,8 +618,8 @@ public class FuelWidget extends Widget
             nextPitstopFuelString = dsf.newDrawnStringIf( b, "nextPitstopFuelString", null, nextPitstopLapString, textLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, Loc.nextPitstopFuel_prefix + ": ", null );
         }
         
-        loadLowFuelWarningImages( editorPresets != null );
-        resetBlink( editorPresets != null );
+        loadLowFuelWarningImages( isEditorMode );
+        resetBlink( isEditorMode );
     }
     
     private void drawFuelBar( float fuel, int tankSize, TextureImage2D texture, int x, int y, int height )
@@ -666,10 +665,8 @@ public class FuelWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final boolean isEditorMode = ( editorPresets != null );
-        
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         TelemetryData telemData = gameData.getTelemetryData();
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
@@ -698,7 +695,7 @@ public class FuelWidget extends Widget
         final float fuelL = telemData.getFuelL();
         final float avgFuelUsage = telemData.getFuelUsageAverage();
         final float lastFuelUsage = telemData.getFuelUsageLastLap();
-        final float stintLength = ( editorPresets == null ) ? vsi.getStintLength() : 5.2f;
+        final float stintLength = !isEditorMode ? vsi.getStintLength() : 5.2f;
         
         if ( isEditorMode )
         {

@@ -70,7 +70,7 @@ public class TelemetryData
     
     public static interface TelemetryDataUpdateListener extends LiveGameData.GameDataUpdateListener
     {
-        public void onTelemetryDataUpdated( LiveGameData gameData, EditorPresets editorPresets );
+        public void onTelemetryDataUpdated( LiveGameData gameData, boolean isEditorMode );
     }
     
     private TelemetryDataUpdateListener[] updateListeners = null;
@@ -134,9 +134,9 @@ public class TelemetryData
     
     /**
      * 
-     * @param editorPresets
+     * @param isEditorMode
      */
-    void onSessionStarted( EditorPresets editorPresets )
+    void onSessionStarted( boolean isEditorMode )
     {
         this.updatedInTimeScope = false;
         this.updateTimestamp = -1L;
@@ -180,7 +180,7 @@ public class TelemetryData
         this.fuelLoad = editorPresets.getFuelLoad();
     }
     
-    void onDataUpdated( EditorPresets editorPresets )
+    void onDataUpdated( boolean isEditorMode )
     {
         try
         {
@@ -204,7 +204,7 @@ public class TelemetryData
                 {
                     try
                     {
-                        updateListeners[i].onTelemetryDataUpdated( gameData, editorPresets );
+                        updateListeners[i].onTelemetryDataUpdated( gameData, isEditorMode );
                     }
                     catch ( Throwable t )
                     {
@@ -266,13 +266,13 @@ public class TelemetryData
         return ( updateId );
     }
     
-    void loadFromStream( InputStream in, EditorPresets editorPresets ) throws IOException
+    void loadFromStream( InputStream in, boolean isEditorMode ) throws IOException
     {
         prepareDataUpdate();
         
         data.loadFromStream( in );
         
-        onDataUpdated( editorPresets );
+        onDataUpdated( isEditorMode );
     }
     
     void setEngineBoostMapping( int boost )
