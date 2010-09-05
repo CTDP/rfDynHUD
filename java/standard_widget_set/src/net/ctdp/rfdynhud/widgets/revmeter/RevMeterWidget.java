@@ -281,7 +281,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     @Override
     protected float getValue( LiveGameData gameData, EditorPresets editorPresets )
     {
-        return ( ( editorPresets != null ) ? editorPresets.getEngineRPM() : gameData.getTelemetryData().getEngineRPM() );
+        return ( gameData.getTelemetryData().getEngineRPM() );
     }
     
     @Override
@@ -698,8 +698,6 @@ public class RevMeterWidget extends NeedleMeterWidget
     {
         super.drawWidget( clock1, clock2, needsCompleteRedraw, gameData, editorPresets, texture, offsetX, offsetY, width, height );
         
-        final boolean isEditorMode = ( editorPresets != null );
-        
         TelemetryData telemData = gameData.getTelemetryData();
         
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
@@ -757,7 +755,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             }
         }
         
-        float rpm = isEditorMode ? editorPresets.getEngineRPM() : telemData.getEngineRPM();
+        float rpm = telemData.getEngineRPM();
         float maxRPM = telemData.getEngineMaxRPM();
         
         if ( useMaxRevLimit.getBooleanValue() )

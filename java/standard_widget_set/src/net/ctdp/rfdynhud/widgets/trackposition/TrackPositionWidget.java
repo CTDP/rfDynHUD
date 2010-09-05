@@ -39,6 +39,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.MapTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -54,19 +55,25 @@ public class TrackPositionWidget extends Widget
     private static final int LINE_THICKNESS = 1;
     private static final int BASE_LINE_PADDING = 30;
     
-    private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9 )
+    private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9, 1, 100, false )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
         {
             super.onValueChanged( oldValue, newValue );
             
-            itemRadius = Math.round( newValue * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+            if ( getConfiguration() != null )
+                updateItemRadius();
             
             forceAndSetDirty( false );
         }
     };
     private int itemRadius = baseItemRadius.getIntValue();
+    private void updateItemRadius()
+    {
+        itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+    }
+    private int itemBlackBorderWidth = 2;
     
     private final ColorProperty lineColor = new ColorProperty( this, "lineColor", "#FFFFFF" );
     
@@ -134,6 +141,17 @@ public class TrackPositionWidget extends Widget
         return ( result );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        
+        updateItemRadius();
+    }
+    
     private final boolean getUseClassScoring()
     {
         return ( getConfiguration().getUseClassScoring() );
@@ -193,8 +211,6 @@ public class TrackPositionWidget extends Widget
         {
             itemTextures = new TransformableTexture[ maxDisplayedVehicles ];
         }
-        
-        itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         if ( itemTextures[0] == null )
             itemTextures[0] = new TransformableTexture( 1, 1, isEditorMode, false );
@@ -323,7 +339,7 @@ public class TrackPositionWidget extends Widget
                 {
                     itemStates[i] = itemState;
                     
-                    itemTextureOffsetsY[i] = StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, place, color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
+                    itemTextureOffsetsY[i] = StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, place, color, itemBlackBorderWidth, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
                 }
                 
                 int yOff3 = vsi.isInPits() ? -3 : 0;
@@ -417,6 +433,16 @@ public class TrackPositionWidget extends Widget
             propsCont.addProperty( nameLabelFont );
             propsCont.addProperty( nameLabelFontColor );
         }
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        //baseItemRadius.setIntValue( 20 );
+        itemRadius = 3;
+        itemBlackBorderWidth = 0;
     }
     
     public TrackPositionWidget( String name )

@@ -56,7 +56,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
     private int numDisplayedLaps = 0;
     
     private static final Alignment[] colAligns = { Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT, Alignment.RIGHT };
-    private static final int colPadding = 10;
+    private int colPadding = 10;
     private int[] colWidths = null;
     
     @Override
@@ -209,23 +209,21 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
     {
         LocalStore store = getLocalStore();
         
-        int padding = 10;
-        
         if ( needsCompleteRedraw )
         {
             if ( displaySectors.getBooleanValue() )
             {
                 if ( abbreviate.getBooleanValue() )
-                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, padding, colWidths, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, colPadding, colWidths, texture );
                 else
-                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, padding, colWidths, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, colPadding, colWidths, texture );
             }
             else
             {
                 if ( abbreviate.getBooleanValue() )
-                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, padding, colWidths, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, colPadding, colWidths, texture );
                 else
-                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, padding, colWidths, texture );
+                    headerString.drawColumns( offsetX, offsetY, new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, colPadding, colWidths, texture );
             }
         }
         
@@ -256,7 +254,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
                     lastDspIdx = i;
                 }
                 
-                timeStrings[i].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, texture );
+                timeStrings[i].drawColumns( offsetX, offsetY, s, colAligns, colPadding, colWidths, texture );
             }
             
             Laptime lt = ( lastDspIdx >= 0 ) ? store.displayedLaps[lastDspIdx] : null;
@@ -279,7 +277,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
                     s = new String[] { Loc.footer_gap, "-:--.---" };
             }
             
-            timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, colAligns, padding, colWidths, texture );
+            timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, colAligns, colPadding, colWidths, texture );
         }
     }
     
@@ -320,6 +318,14 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
         
         propsCont.addProperty( abbreviate );
         propsCont.addProperty( displaySectors );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        colPadding = 4;
     }
     
     public TimeCompareWidget( String name )

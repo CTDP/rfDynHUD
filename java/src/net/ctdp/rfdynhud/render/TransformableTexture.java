@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.render;
 
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -513,10 +514,18 @@ public class TransformableTexture
             
             texCanvas.setTransform( at );
             
+            Object oldAA = texCanvas.getRenderingHint( RenderingHints.KEY_ANTIALIASING );
+            texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+            Object oldInter = texCanvas.getRenderingHint( RenderingHints.KEY_INTERPOLATION );
+            texCanvas.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+            
             if ( clipRectWidth > 0 && clipRectHeight > 0 )
                 texCanvas.drawImage( getTexture().getBufferedImage(), clipRectX, clipRectY, clipRectX + clipRectWidth, clipRectY + clipRectHeight, clipRectX, clipRectY, clipRectX + clipRectWidth, clipRectY + clipRectHeight );
             else
                 texCanvas.drawImage( getTexture().getBufferedImage(), 0, 0 );
+            
+            texCanvas.setRenderingHint( RenderingHints.KEY_INTERPOLATION, ( oldInter == null ) ? RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR : oldInter );
+            texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, oldAA );
         }
         finally
         {

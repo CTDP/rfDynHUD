@@ -208,6 +208,7 @@ public class FuelWidget extends Widget
     private int oldNextPitstopLapCorrection = -1;
     private int nextPitstopLapCorrection = 0;
     private int nextPitstopFuelLapsCorrection = 0;
+    private int nextPitstopFuelLapsCorrection2 = 0;
     private final IntValue pitstopFuel = new IntValue( ValidityTest.GREATER_THAN, 0 );
     private final IntValue stintLengthV = new IntValue( ValidityTest.GREATER_THAN, 0 );
     private final LongValue fuelUsage = new LongValue();
@@ -404,6 +405,7 @@ public class FuelWidget extends Widget
         
         this.nextPitstopLapCorrection = 0;
         this.nextPitstopFuelLapsCorrection = 0;
+        this.nextPitstopFuelLapsCorrection2 = 0;
         this.oldNextPitstopLapCorrection = ( ( nextPitstopLapCorrection + Short.MAX_VALUE / 2 ) << 16 ) | ( nextPitstopFuelLapsCorrection + Short.MAX_VALUE / 2 );
         this.pitstopFuel.reset();
         
@@ -425,6 +427,7 @@ public class FuelWidget extends Widget
         {
             this.nextPitstopLapCorrection = 0;
             this.nextPitstopFuelLapsCorrection = 0;
+            this.nextPitstopFuelLapsCorrection2 = 0;
         }
         
         this.stintLengthV.reset();
@@ -449,6 +452,9 @@ public class FuelWidget extends Widget
     {
         if ( action == INPUT_ACTION_INC_PITSTOP_LAP )
         {
+            nextPitstopFuelLapsCorrection += nextPitstopFuelLapsCorrection2;
+            nextPitstopFuelLapsCorrection2 = 0;
+            
             if ( nextPitstopLapCorrection < 0 )
             {
                 this.nextPitstopLapCorrection++;
@@ -457,15 +463,24 @@ public class FuelWidget extends Widget
         }
         else if ( action == INPUT_ACTION_DEC_PITSTOP_LAP )
         {
+            nextPitstopFuelLapsCorrection += nextPitstopFuelLapsCorrection2;
+            nextPitstopFuelLapsCorrection2 = 0;
+            
             this.nextPitstopLapCorrection--;
             this.nextPitstopFuelLapsCorrection++;
         }
         else if ( action == INPUT_ACTION_INC_PITSTOP_FUEL )
         {
+            nextPitstopFuelLapsCorrection += nextPitstopFuelLapsCorrection2;
+            nextPitstopFuelLapsCorrection2 = 0;
+            
             this.nextPitstopFuelLapsCorrection++;
         }
         else if ( action == INPUT_ACTION_DEC_PITSTOP_FUEL )
         {
+            nextPitstopFuelLapsCorrection += nextPitstopFuelLapsCorrection2;
+            nextPitstopFuelLapsCorrection2 = 0;
+            
             this.nextPitstopFuelLapsCorrection--;
         }
     }
@@ -679,8 +694,8 @@ public class FuelWidget extends Widget
             }
         }
         
-        final float fuel = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuel();
-        final float fuelL = isEditorMode ? ( tankSize * 3f / 4f ) : telemData.getFuelL();
+        final float fuel = telemData.getFuel();
+        final float fuelL = telemData.getFuelL();
         final float avgFuelUsage = telemData.getFuelUsageAverage();
         final float lastFuelUsage = telemData.getFuelUsageLastLap();
         final float stintLength = ( editorPresets == null ) ? vsi.getStintLength() : 5.2f;
@@ -836,7 +851,13 @@ public class FuelWidget extends Widget
                 if ( vsi.getSessionLimit() == SessionLimit.TIME )
                     maxLaps++; // In a timed race we never know, if we might be fast enough to drive another lap.
             }
-            if ( !isEditorMode && ( avgFuelUsage > 0f ) )
+            
+            if ( isEditorMode )
+            {
+                nextPitstopLap = 31;
+                pitstopLaps = (int)( 72 / avgFuelUsage );
+            }
+            else if ( avgFuelUsage > 0f )
             {
                 int currLap = vsi.getCurrentLap();
                 
@@ -852,27 +873,24 @@ public class FuelWidget extends Widget
                     nextPitstopLap = vsi.getLapsCompleted() + remainingFuelLaps + nextPitstopLapCorrection;
                 }
                 
+                nextPitstopFuelLapsCorrection2 = 0;
+                
                 int nextPitstopIndex = Math.min( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getNumPitstopsMade() + 1, gameData.getSetup().getGeneral().getNumPitstops() );
                 float pitstopFuel0 = gameData.getSetup().getGeneral().getFuel( nextPitstopIndex );
                 pitstopLaps = (int)Math.floor( pitstopFuel0 / avgFuelUsage );
-                pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
+                pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection + nextPitstopFuelLapsCorrection2 ) * avgFuelUsage );
                 
                 while ( pitstopFuel_ < avgFuelUsage )
                 {
-                    nextPitstopFuelLapsCorrection++;
-                    pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
+                    nextPitstopFuelLapsCorrection2++;
+                    pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection + nextPitstopFuelLapsCorrection2 ) * avgFuelUsage );
                 }
                 
-                while ( ( pitstopFuel_ > tankSize ) || ( scoringInfo.getSessionType().isRace() && ( maxLaps > 0 ) && ( nextPitstopLap + pitstopLaps + nextPitstopFuelLapsCorrection > maxLaps ) ) )
+                while ( ( pitstopFuel_ > tankSize ) || ( scoringInfo.getSessionType().isRace() && ( maxLaps > 0 ) && ( nextPitstopLap + pitstopLaps + nextPitstopFuelLapsCorrection + nextPitstopFuelLapsCorrection2 > maxLaps ) ) )
                 {
-                    nextPitstopFuelLapsCorrection--;
-                    pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection ) * avgFuelUsage );
+                    nextPitstopFuelLapsCorrection2--;
+                    pitstopFuel_ = (int)Math.ceil( ( pitstopLaps + nextPitstopFuelLapsCorrection + nextPitstopFuelLapsCorrection2 ) * avgFuelUsage );
                 }
-            }
-            else if ( isEditorMode )
-            {
-                nextPitstopLap = 31;
-                pitstopLaps = (int)( 72 / avgFuelUsage );
             }
             
             if ( isEditorMode )
@@ -880,7 +898,7 @@ public class FuelWidget extends Widget
             else
                 pitstopFuel.update( pitstopFuel_ );
             
-            int tmp = ( ( nextPitstopLapCorrection + Short.MAX_VALUE / 2 ) << 16 ) | ( nextPitstopFuelLapsCorrection + Short.MAX_VALUE / 2 );
+            int tmp = ( ( nextPitstopLapCorrection + Short.MAX_VALUE / 2 ) << 16 ) | ( nextPitstopFuelLapsCorrection + nextPitstopFuelLapsCorrection2 + Short.MAX_VALUE / 2 );
             
             if ( needsCompleteRedraw || ( tmp != oldNextPitstopLapCorrection ) || pitstopFuel.hasChanged() )
             {
@@ -893,7 +911,7 @@ public class FuelWidget extends Widget
                         String string = String.valueOf( nextPitstopLap ) + " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")";
                         nextPitstopLapString.draw( offsetX, offsetY, string, texture );
                         
-                        string = String.valueOf( pitstopFuel.getValue() + (int)Math.ceil( avgFuelUsage * 0.25f ) ) + getFuelUnits( measurementUnits ) + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection ) + Loc.nextPitstopFuel_laps + "," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
+                        string = String.valueOf( pitstopFuel.getValue() + (int)Math.ceil( avgFuelUsage * 0.25f ) ) + getFuelUnits( measurementUnits ) + " (" + ( pitstopLaps + nextPitstopFuelLapsCorrection + nextPitstopFuelLapsCorrection2 ) + Loc.nextPitstopFuel_laps + "," + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + ")";
                         nextPitstopFuelString.draw( offsetX, offsetY, string, texture );
                     }
                     else
@@ -905,7 +923,7 @@ public class FuelWidget extends Widget
                 else
                 {
                     nextPitstopLapString.draw( offsetX, offsetY, Loc.nextPitstopLap_na + " (" + NumberUtil.delta( nextPitstopLapCorrection ) + ")", texture );
-                    nextPitstopFuelString.draw( offsetX, offsetY, Loc.nextPitstopFuel_na + " (" + NumberUtil.delta( nextPitstopFuelLapsCorrection ) + " " + Loc.nextPitstopFuel_laps + ")", texture );
+                    nextPitstopFuelString.draw( offsetX, offsetY, Loc.nextPitstopFuel_na + " (" + NumberUtil.delta( nextPitstopFuelLapsCorrection + nextPitstopFuelLapsCorrection2 ) + " " + Loc.nextPitstopFuel_laps + ")", texture );
                 }
             }
         }

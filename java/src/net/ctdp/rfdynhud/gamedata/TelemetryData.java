@@ -50,6 +50,7 @@ public class TelemetryData
     
     private final LiveGameData gameData;
     
+    private float engineRPM = -1f;
     private float engineBaseMaxRPM = 1000.12345f;
     private float engineMaxRPM = 1000.12345f;
     
@@ -61,6 +62,8 @@ public class TelemetryData
     float brakeDiscThicknessFR = 0.0f;
     float brakeDiscThicknessRL = 0.0f;
     float brakeDiscThicknessRR = 0.0f;
+    
+    private float fuelLoad = -1f;
     
     float fuelUsageLastLap = -1f;
     float fuelUsageAverage = -1f;
@@ -164,6 +167,17 @@ public class TelemetryData
             return;
         
         setEngineBoostMapping( editorPresets.getEngineBoost() );
+        
+        this.engineRPM = editorPresets.getEngineRPM();
+        
+        this.engineLifetime = editorPresets.getEngineLifetime();
+        
+        this.brakeDiscThicknessFL = editorPresets.getBrakeDiscThicknessFL();
+        this.brakeDiscThicknessFR = editorPresets.getBrakeDiscThicknessFR();
+        this.brakeDiscThicknessRL = editorPresets.getBrakeDiscThicknessRL();
+        this.brakeDiscThicknessRR = editorPresets.getBrakeDiscThicknessRR();
+        
+        this.fuelLoad = editorPresets.getFuelLoad();
     }
     
     void onDataUpdated( EditorPresets editorPresets )
@@ -562,6 +576,9 @@ public class TelemetryData
      */
     public final float getEngineRPM()
     {
+        if ( engineRPM >= 0 )
+            return ( engineRPM );
+        
         return ( data.getEngineRPM() );
     }
     
@@ -680,6 +697,9 @@ public class TelemetryData
      */
     public final float getFuelL()
     {
+        if ( fuelLoad >= 0f )
+            return ( fuelLoad );
+        
         return ( data.getFuel() );
     }
     
@@ -688,6 +708,9 @@ public class TelemetryData
      */
     public final float getFuelGal()
     {
+        if ( fuelLoad >= 0f )
+            return ( fuelLoad * MeasurementUnits.Convert.LITERS_TO_GALONS );
+        
         return ( getFuelL() * MeasurementUnits.Convert.LITERS_TO_GALONS );
     }
     

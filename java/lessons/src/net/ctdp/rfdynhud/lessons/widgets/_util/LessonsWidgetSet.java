@@ -31,7 +31,7 @@ public class LessonsWidgetSet
      */
     private static final int version = WidgetPackage.composeVersion( 1, 0, 0 );
     
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Lessons", version, LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/ctdp.png" ), LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/lessons.jpeg" ) );
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Lessons", version, LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/ctdp.png" ), LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/lessons.png" ) );
     
     public static final String MY_FONT_COLOR_NAME = "MyFontColor";
     

@@ -99,7 +99,7 @@ public class StandardWidgetSet
         return ( new java.awt.Dimension( Math.max( 1, width ), Math.max( 1, height ) ) );
     }
     
-    public static int drawPositionItem( TextureImage2D texture, int offsetX, int offsetY, int radius, int place, Color backgroundColor, boolean blackBorder, Font numberFont, boolean numberFontAntialiased, Color numberFontColor, LabelPositioning namePositioning, String driverName, Font nameFont, boolean nameFontAntialiased, Color nameFontColor )
+    public static int drawPositionItem( TextureImage2D texture, int offsetX, int offsetY, int radius, int place, Color backgroundColor, int blackBorderWidth, Font numberFont, boolean numberFontAntialiased, Color numberFontColor, LabelPositioning namePositioning, String driverName, Font nameFont, boolean nameFontAntialiased, Color nameFontColor )
     {
         int width = radius + radius;
         int height = radius + radius;
@@ -150,12 +150,12 @@ public class StandardWidgetSet
         texCanvas.setAntialiazingEnabled( true );
         texCanvas.fillArc( circleOffsetX, circleOffsetY, radius + radius, radius + radius, 0, 360 );
         
-        if ( blackBorder )
+        if ( blackBorderWidth > 0 )
         {
             Stroke oldStroke = texCanvas.getStroke();
             Color oldColor = texCanvas.getColor();
             
-            texCanvas.setStroke( new BasicStroke( 2 ) );
+            texCanvas.setStroke( new BasicStroke( blackBorderWidth ) );
             texCanvas.setColor( Color.BLACK );
             
             texCanvas.drawArc( circleOffsetX, circleOffsetY, radius + radius - 1, radius + radius - 1, 0, 360 );

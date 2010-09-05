@@ -153,30 +153,28 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         super.updateVisibility( clock1, clock2, gameData, editorPresets );
         
+        final boolean isEditorMode = ( editorPresets != null );
+        
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         VehicleScoringInfo refVSI = scoringInfo.getFastestLapVSI();
         Laptime relTime = refVSI.getFastestLaptime();
         
-        LapState ls = LapState.getLapState( vsi, relTime, visibleTimeBeforeSector.getIntValue(), visibleTimeAfterSector.getIntValue(), true );
+        LapState ls = isEditorMode ? LapState.AFTER_SECTOR1_START : LapState.getLapState( vsi, relTime, visibleTimeBeforeSector.getIntValue(), visibleTimeAfterSector.getIntValue(), true );
         
         lapState.update( ls );
         
-        if ( editorPresets != null )
-        {
-            referenceTimeAbs = new Laptime( 2, 28.733f, 29.649f, 26.36f, false, false, true );
-            referenceTimePers = editorPresets.getLastLaptime();
-            referencePlace = 1;
-            
-            setUserVisible2( true );
-            return;
-        }
-        
-        if ( ( ls != LapState.AFTER_SECTOR1_START ) && ( ( vsi.getStintLength() % 1.0f ) > 0.1f ) )
+        if ( isEditorMode || ( ( ls != LapState.AFTER_SECTOR1_START ) && ( ( vsi.getStintLength() % 1.0f ) > 0.1f ) ) )
         {
             referenceTimeAbs = relTime;
             referenceTimePers = vsi.getFastestLaptime();
-            referencePlace = refVSI.getPlace( getConfiguration().getUseClassScoring() );
+            referencePlace = isEditorMode ? 1 : refVSI.getPlace( getConfiguration().getUseClassScoring() );
+        }
+        
+        if ( isEditorMode )
+        {
+            setUserVisible2( true );
+            return;
         }
         
         if ( scoringInfo.getSessionType().isRace() )
@@ -264,6 +262,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         super.drawBackground( gameData, editorPresets, texture, offsetX, offsetY, width, height, isRoot );
         
+        final boolean isEditorMode = ( editorPresets != null );
+        
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -281,7 +281,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         else
             ETVUtils.drawDataBackground( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
         
-        if ( ( editorPresets != null ) || ( referenceTimeAbs != null ) )
+        if ( isEditorMode || ( referenceTimeAbs != null ) )
         {
             BGType bgType = BGType.NEUTRAL;
             Color capBgColor = captionBackgroundColor.getColor();
@@ -292,68 +292,11 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             }
             
             Color dataBgColor = dataBackgroundColor.getColor();
-            if ( editorPresets != null )
-            {
-                switch ( vsi.getSector() )
-                {
-                    case 1:
-                        if ( editorPresets.getLastLapTime() < referenceTimeAbs.getLapTime() )
-                        {
-                            bgType = BGType.FASTEST;
-                            dataBgColor = dataBackgroundColorFastest.getColor();
-                        }
-                        else if ( editorPresets.getLastLapTime() < referenceTimePers.getLapTime() )
-                        {
-                            bgType = BGType.FASTER;
-                            dataBgColor = dataBackgroundColorFaster.getColor();
-                        }
-                        else
-                        {
-                            bgType = BGType.SLOWER;
-                            dataBgColor = dataBackgroundColorSlower.getColor();
-                        }
-                        break;
-                    case 2:
-                        if ( editorPresets.getCurrentSector1Time() < referenceTimeAbs.getSector1() )
-                        {
-                            bgType = BGType.FASTEST;
-                            dataBgColor = dataBackgroundColorFastest.getColor();
-                        }
-                        else if ( editorPresets.getCurrentSector1Time() < referenceTimePers.getSector1() )
-                        {
-                            bgType = BGType.FASTER;
-                            dataBgColor = dataBackgroundColorFaster.getColor();
-                        }
-                        else
-                        {
-                            bgType = BGType.SLOWER;
-                            dataBgColor = dataBackgroundColorSlower.getColor();
-                        }
-                        break;
-                    case 3:
-                        if ( editorPresets.getCurrentSector2Time( true ) < referenceTimeAbs.getSector2( true ) )
-                        {
-                            bgType = BGType.FASTEST;
-                            dataBgColor = dataBackgroundColorFastest.getColor();
-                        }
-                        else if ( editorPresets.getCurrentSector2Time( true ) < referenceTimePers.getSector2( true ) )
-                        {
-                            bgType = BGType.FASTER;
-                            dataBgColor = dataBackgroundColorFaster.getColor();
-                        }
-                        else
-                        {
-                            bgType = BGType.SLOWER;
-                            dataBgColor = dataBackgroundColorSlower.getColor();
-                        }
-                        break;
-                }
-            }
-            else if ( referenceTimeAbs != null )
+            if ( referenceTimeAbs != null )
             {
                 LapState ls = lapState.getValue();
                 
-                if ( !ls.isAfterSectorStart() )
+                if ( !isEditorMode && !ls.isAfterSectorStart() )
                 {
                     dataBgColor = dataBackgroundColor1st.getColor();
                 }
@@ -439,6 +382,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     @Override
     public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, EditorPresets editorPresets, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        final boolean isEditorMode = ( editorPresets != null );
+        
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -451,22 +396,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         }
         
         LapState ls = lapState.getValue();
-        if ( editorPresets != null )
-        {
-            switch ( vsi.getSector() )
-            {
-                case 1:
-                    ownLaptime.update( editorPresets.getLastLapTime() );
-                    break;
-                case 2:
-                    ownLaptime.update( editorPresets.getCurrentSector1Time() );
-                    break;
-                case 3:
-                    ownLaptime.update( editorPresets.getCurrentSector2Time( true ) );
-                    break;
-            }
-        }
-        else if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
+        if ( isEditorMode && ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() ) )
         {
             ownLaptime.update( vsi.getCurrentLaptime() );
         }
@@ -498,7 +428,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
                 laptimeString.draw( offsetX, offsetY, "", texture );
         }
         
-        if ( ( editorPresets != null ) || ( referenceTimeAbs != null ) )
+        if ( isEditorMode || ( referenceTimeAbs != null ) )
         {
             relPlace.update( referencePlace );
             
@@ -509,43 +439,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             
             Color dataColor = getFontColor();
             
-            if ( editorPresets != null )
-            {
-                switch ( vsi.getSector() )
-                {
-                    case 1:
-                        relLaptime.update( editorPresets.getLastLapTime() - referenceTimeAbs.getLapTime() );
-                        
-                        if ( vsi.getLastLapTime() < referenceTimeAbs.getLapTime() )
-                            dataColor = dataColorFastest.getColor();
-                        else if ( ( referenceTimePers != null ) && ( vsi.getLastLapTime() < referenceTimePers.getLapTime() ) )
-                            dataColor = dataColorFaster.getColor();
-                        else
-                            dataColor = dataColorSlower.getColor();
-                        break;
-                    case 2:
-                        relLaptime.update( editorPresets.getCurrentSector1Time() - referenceTimeAbs.getSector1() );
-                        
-                        if ( editorPresets.getCurrentSector1Time() < referenceTimeAbs.getSector1() )
-                            dataColor = dataColorFastest.getColor();
-                        else if ( editorPresets.getCurrentSector1Time() < referenceTimePers.getSector1() )
-                            dataColor = dataColorFaster.getColor();
-                        else
-                            dataColor = dataColorSlower.getColor();
-                        break;
-                    case 3:
-                        relLaptime.update( editorPresets.getCurrentSector2Time( true ) - referenceTimeAbs.getSector2( true ) );
-                        
-                        if ( editorPresets.getCurrentSector2Time( true ) < referenceTimeAbs.getSector2( true ) )
-                            dataColor = dataColorFastest.getColor();
-                        else if ( editorPresets.getCurrentSector2Time( true ) < referenceTimePers.getSector2( true ) )
-                            dataColor = dataColorFaster.getColor();
-                        else
-                            dataColor = dataColorSlower.getColor();
-                        break;
-                }
-            }
-            else if ( referenceTimeAbs == null )
+            if ( referenceTimeAbs == null )
             {
                 relLaptime.update( relLaptime.getResetValue() );
             }
@@ -609,7 +503,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             {
                 if ( relLaptime.isValid() )
                 {
-                    if ( ls.isAfterSectorStart() || ( editorPresets != null ) )
+                    if ( ls.isAfterSectorStart() )
                         relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( relLaptime.getValue() ), dataColor, texture );
                     else if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
                         relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( relLaptime.getValue() ), texture );

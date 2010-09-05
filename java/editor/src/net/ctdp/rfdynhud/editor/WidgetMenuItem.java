@@ -29,6 +29,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.values.RelativePositioning;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -38,11 +39,10 @@ public class WidgetMenuItem extends JMenuItem
 {
     private static final long serialVersionUID = -94966687191731871L;
     
-    static final int ICON_WIDTH = 64;
-    static final int ICON_HEIGHT = 50;
-    static final float ICON_ASPECT = (float)ICON_WIDTH / (float)ICON_HEIGHT;
-    private static final WidgetsDrawingManager widgetsConfig1 = new WidgetsDrawingManager( 1920, 1200 );
-    private static final WidgetsDrawingManager widgetsConfig2 = new WidgetsDrawingManager( ICON_WIDTH, ICON_HEIGHT );
+    public static final int ICON_WIDTH = 64;
+    public static final int ICON_HEIGHT = 50;
+    public static final float ICON_ASPECT = (float)ICON_WIDTH / (float)ICON_HEIGHT;
+    private static final WidgetsDrawingManager tempWidgetsConfig = new WidgetsDrawingManager( 1920, 1200 );
     
     private final RFDynHUDEditor editor;
     //private final Class<Widget> widgetClass;
@@ -96,7 +96,7 @@ public class WidgetMenuItem extends JMenuItem
         super.paintComponent( g );
     }
     
-    public WidgetMenuItem( RFDynHUDEditor editor, Class<Widget> widgetClass )
+    public WidgetMenuItem( RFDynHUDEditor editor, Class<Widget> widgetClass, WidgetsConfiguration widgetsConfig )
     {
         super( widgetClass.getSimpleName() );
         
@@ -114,12 +114,12 @@ public class WidgetMenuItem extends JMenuItem
         
         if ( widget != null )
         {
-            __WCPrivilegedAccess.addWidget( widgetsConfig1, widget, false );
+            __WCPrivilegedAccess.addWidget( tempWidgetsConfig, widget, false );
             
             float aspect = (float)widget.getSize().getEffectiveWidth() / (float)widget.getSize().getEffectiveHeight();
             
-            __WCPrivilegedAccess.removeWidget( widgetsConfig1, widget );
-            __WCPrivilegedAccess.addWidget( widgetsConfig2, widget, false );
+            __WCPrivilegedAccess.removeWidget( tempWidgetsConfig, widget );
+            __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
             
             if ( aspect > ICON_ASPECT )
                 widget.getSize().setEffectiveSize( ICON_WIDTH, (int)( ICON_WIDTH / aspect ) );

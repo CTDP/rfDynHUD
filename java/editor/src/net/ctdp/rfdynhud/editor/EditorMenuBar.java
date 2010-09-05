@@ -49,7 +49,11 @@ import net.ctdp.rfdynhud.editor.help.AboutPage;
 import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
+import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
@@ -262,11 +266,11 @@ public class EditorMenuBar extends JMenuBar
         editor.getEditorPanel().setComponentPopupMenu( menu );
     }
     
-    private JMenuItem createWidgetMenuItem( final Class<Widget> clazz )
+    private JMenuItem createWidgetMenuItem( final Class<Widget> clazz, WidgetsConfiguration widgetsConfig )
     {
         try
         {
-            JMenuItem widgetMenuItem = new WidgetMenuItem( editor, clazz );
+            JMenuItem widgetMenuItem = new WidgetMenuItem( editor, clazz, widgetsConfig );
             widgetMenuItem.setName( clazz.getName() );
             widgetMenuItem.addActionListener( new ActionListener()
             {
@@ -384,7 +388,7 @@ public class EditorMenuBar extends JMenuBar
     }
     
     @SuppressWarnings( "unchecked" )
-    private JMenu createWidgetsMenu()
+    private JMenu createWidgetsMenu( LiveGameData gameData, EditorPresets editorPresets )
     {
         JMenu menu = new JMenu( "Widgets" );
         menu.setDisplayedMnemonicIndex( 0 );
@@ -450,6 +454,8 @@ public class EditorMenuBar extends JMenuBar
                 getMenu( menu, path, 0, widgetPackage );
         }
         
+        WidgetsDrawingManager widgetsConfig = new WidgetsDrawingManager( WidgetMenuItem.ICON_WIDTH, WidgetMenuItem.ICON_HEIGHT );
+        
         it = classes.iterator();
         while ( it.hasNext() )
         {
@@ -461,7 +467,7 @@ public class EditorMenuBar extends JMenuBar
                 String pkgName = ( widget.getWidgetPackage() == null ) ? "" : widget.getWidgetPackage().getName();
                 String[] path = pkgName.split( "/" );
                 
-                JMenuItem mi = createWidgetMenuItem( clazz );
+                JMenuItem mi = createWidgetMenuItem( clazz, widgetsConfig );
                 
                 if ( mi != null )
                 {
@@ -478,6 +484,8 @@ public class EditorMenuBar extends JMenuBar
                 Logger.log( t );
             }
         }
+        
+        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, editorPresets );
         
         menu.addMenuListener( new MenuListener()
         {
@@ -814,7 +822,7 @@ public class EditorMenuBar extends JMenuBar
         
         this.add( createFileMenu() );
         this.add( createEditMenu() );
-        this.add( createWidgetsMenu() );
+        this.add( createWidgetsMenu( editor.getGameData(), editor.getEditorPresets() ) );
         this.add( createResolutionsMenu() );
         this.add( createToolsMenu() );
         this.add( createHelpMenu() );

@@ -49,6 +49,7 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.MapTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -65,7 +66,7 @@ public class MapWidget extends Widget
     private boolean isBgClean = false;
     private Track track = null;
     private float scale = 1f;
-    private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9 )
+    private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9, 1, 100, false )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -73,12 +74,17 @@ public class MapWidget extends Widget
             super.onValueChanged( oldValue, newValue );
             
             if ( getConfiguration() != null )
-                itemRadius = Math.round( newValue * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+                updateItemRadius();
             
             forceAndSetDirty( false );
         }
     };
     private int itemRadius = baseItemRadius.getIntValue();
+    private void updateItemRadius()
+    {
+        itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
+    }
+    private int itemBlackBorderWidth = 2;
     
     private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
     
@@ -99,6 +105,7 @@ public class MapWidget extends Widget
             return ( Math.round( value / 2f ) * 2 );
         }
     };
+    private float pitlaneRoadWidth = 2f;
     
     private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", "colorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
     private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", "colorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
@@ -170,6 +177,17 @@ public class MapWidget extends Widget
     public boolean hasMasterCanvas( boolean isEditorMode )
     {
         return ( !rotationEnabled.getBooleanValue() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.afterConfigurationLoaded( widgetsConfig, gameData, editorPresets );
+        
+        updateItemRadius();
     }
     
     /**
@@ -263,8 +281,6 @@ public class MapWidget extends Widget
             subTextures[0] = TransformableTexture.getOrCreate( widgetWidth, widgetHeight, isEditorMode, subTextures[0], isEditorMode );
         }
         
-        itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
-        
         if ( subTextures[subTexOff] == null )
             subTextures[subTexOff] = new TransformableTexture( 1, 1, isEditorMode, false );
         
@@ -297,8 +313,6 @@ public class MapWidget extends Widget
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, EditorPresets editorPresets, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final boolean isEditorMode = ( editorPresets != null );
-        
-        itemRadius = Math.round( baseItemRadius.getIntValue() * getConfiguration().getGameResolution().getViewportHeight() / 960f );
         
         initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
@@ -457,7 +471,7 @@ public class MapWidget extends Widget
                     tc.setColor( roadBoundaryColorSec2.getColor() );
                 else if ( oldSec == 3 )
                     tc.setColor( roadBoundaryColorSec3.getColor() );
-                tc.setStroke( new BasicStroke( roadWidth.getIntValue() ) );
+                tc.setStroke( new BasicStroke( roadWidth.getFloatValue() ) );
                 tc.setAntialiazingEnabled( true );
                 
                 tc.drawPolyline( xPoints, yPoints, j );
@@ -477,7 +491,7 @@ public class MapWidget extends Widget
             }
             
             tc.setColor( pitlaneColor.getColor() );
-            tc.setStroke( new BasicStroke( 2f ) );
+            tc.setStroke( new BasicStroke( pitlaneRoadWidth ) );
             tc.setAntialiazingEnabled( true );
             
             n = track.getNumWaypoints( true );
@@ -668,7 +682,7 @@ public class MapWidget extends Widget
                     {
                         itemStates[i] = itemState;
                         
-                        StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, place, color, true, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
+                        StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, place, color, itemBlackBorderWidth, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
                     }
                     
                     if ( rotationEnabled.getBooleanValue() )
@@ -805,6 +819,18 @@ public class MapWidget extends Widget
     protected boolean canHaveBackground()
     {
         return ( false );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        roadWidth.setIntValue( 4 );
+        pitlaneRoadWidth = 1f;
+        //baseItemRadius.setIntValue( 20 );
+        itemRadius = 3;
+        itemBlackBorderWidth = 0;
     }
     
     public MapWidget( String name )

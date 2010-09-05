@@ -432,7 +432,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             ETVUtils.drawDataBackground( offsetX + coords.rowOffset2 + coords.offsetD, offsetY, coords.widthD, coords.rowHeight, captionBackgroundColor.getColor(), texture, false );
         lapCaptionString3.draw( offsetX, offsetY, Loc.caption_lap + " " + ( vsi.getLapsCompleted() - 0 ), texture, false );
         
-        float laptime1 = isEditorMode ? 84.567f : getLaptime( vsi, vsi.getLapsCompleted() - 2 );
+        float laptime1 = getLaptime( vsi, vsi.getLapsCompleted() - 2 );
         
         if ( useImages )
             ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset1 + coords.offsetB, offsetY + coords.rowHeight + gap, coords.widthBC, coords.rowHeight, images, BGType.NEUTRAL, texture, false );
@@ -443,7 +443,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             laptimeString1.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime1 ), texture, false );
         }
         
-        float laptime2 = isEditorMode ? editorPresets.getLastLapTime() : getLaptime( vsi, vsi.getLapsCompleted() - 1 );
+        float laptime2 = getLaptime( vsi, vsi.getLapsCompleted() - 1 );
         
         if ( useImages )
             ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset1 + coords.offsetC, offsetY + coords.rowHeight + gap, coords.widthBC, coords.rowHeight, images, BGType.NEUTRAL, texture, false );
@@ -454,7 +454,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             laptimeString2.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( laptime2 ), texture, false );
         }
         
-        float laptime3 = isEditorMode ? editorPresets.getCurrentLapTime() : getLaptime( vsi, vsi.getLapsCompleted() - 0 );
+        float laptime3 = getLaptime( vsi, vsi.getLapsCompleted() - 0 );
         
         if ( useImages )
             ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset1 + coords.offsetD, offsetY + coords.rowHeight + gap, coords.widthD, coords.rowHeight, images, BGType.NEUTRAL, texture, false );
@@ -467,7 +467,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         
         float gap1, gap2, gap3;
         String gapStr1, gapStr2, gapStr3;
-        if ( editorPresets != null )
+        if ( isEditorMode )
         {
             gap1 = -1.234f;
             gap2 = +0.123f;

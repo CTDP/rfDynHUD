@@ -736,7 +736,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     {
                         if ( group == null )
                         {
-                            
                         }
                         else if ( group.equals( "General" ) )
                         {
@@ -784,6 +783,42 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         return ( resolution );
     }
     
+    private void loadEditorPresets()
+    {
+        File userSettingsFile = getEditorSettingsFile();
+        
+        if ( !userSettingsFile.exists() )
+            return;
+        
+        final EditorPropertyLoader loader = new EditorPropertyLoader();
+        
+        try
+        {
+            new AbstractIniParser()
+            {
+                @Override
+                protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
+                {
+                    loader.setCurrentSetting( key, value );
+                    
+                    if ( group == null )
+                    {
+                    }
+                    else if ( group.equals( "EditorPresets" ) )
+                    {
+                        __EDPrivilegedAccess.loadProperty( presets, loader );
+                    }
+                    
+                    return ( true );
+                }
+            }.parse( userSettingsFile );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+    }
+    
     private Object[] loadUserSettings()
     {
         final Object[] result = new Object[] { false, null };
@@ -806,7 +841,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                     
                     if ( group == null )
                     {
-                        
                     }
                     else if ( group.equals( "General" ) )
                     {
@@ -1633,7 +1667,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         }
     }
     
-    private EditorPanel createEditorPanel()
+    private void initGameDataObjects()
     {
         int[] resolution = loadResolutionFromUserSettings();
         
@@ -1644,6 +1678,23 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         eventsManager.setGameData( this.gameData );
         __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
         eventsManager.setGameData( gameData );
+        
+        __GDPrivilegedAccess.setUpdatedInTimescope( gameData.getSetup() );
+        __GDPrivilegedAccess.updateInfo( gameData );
+        
+        eventsManager.onSessionStarted( presets );
+        eventsManager.onTelemetryDataUpdated( presets );
+        eventsManager.onScoringInfoUpdated( presets );
+        
+        __GDPrivilegedAccess.setRealtimeMode( true, gameData, presets );
+        
+        loadEditorPresets();
+        initTestGameData( gameData, presets );
+    }
+    
+    private EditorPanel createEditorPanel()
+    {
+        WidgetsDrawingManager drawingManager = (WidgetsDrawingManager)widgetsConfig;
         
         EditorPanel editorPanel = new EditorPanel( this, gameData, drawingManager.getMainTexture(), drawingManager );
         editorPanel.setPreferredSize( new Dimension( drawingManager.getGameResolution().getViewportWidth(), drawingManager.getGameResolution().getViewportHeight() ) );
@@ -1665,6 +1716,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
+        
+        initGameDataObjects();
         
         this.window = new JFrame( BASE_WINDOW_TITLE );
         
@@ -1760,16 +1813,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
                 if ( editor.checkResolution( dm.getWidth(), dm.getHeight() ) )
                     editor.switchToGameResolution( dm.getWidth(), dm.getHeight() );
             }
-            
-            __GDPrivilegedAccess.setUpdatedInTimescope( editor.gameData.getSetup() );
-            __GDPrivilegedAccess.updateInfo( editor.gameData );
-            
-            editor.eventsManager.onSessionStarted( editor.presets );
-            editor.eventsManager.onTelemetryDataUpdated( editor.presets );
-            editor.eventsManager.onScoringInfoUpdated( editor.presets );
-            
-            __GDPrivilegedAccess.setRealtimeMode( true, editor.gameData, editor.presets );
-            initTestGameData( editor.gameData, editor.presets );
             
             if ( editor.currentConfigFile == null )
             {

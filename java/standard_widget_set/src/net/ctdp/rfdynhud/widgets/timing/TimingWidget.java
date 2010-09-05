@@ -108,7 +108,7 @@ public class TimingWidget extends Widget
     
     private boolean delayedAbsFastestIsOwn = false;
     
-    private static final int padding = 10;
+    private int colPadding = 10;
     
     private final LongValue scoringInfoUpdateID = new LongValue();
     private final String[][] oldClStrings = new String[ 4 ][ 0 ];
@@ -291,7 +291,6 @@ public class TimingWidget extends Widget
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         scoringInfoUpdateID.update( scoringInfo.getUpdateId() );
-        //final boolean hasScoringInfoChanged = scoringInfoUpdateID.hasChanged();
         
         VehicleScoringInfo myVSI = scoringInfo.getViewedVehicleScoringInfo();
         
@@ -305,7 +304,7 @@ public class TimingWidget extends Widget
                 absFastestIsSecond = true;
             }
         }
-        Laptime afLaptime = afVSI.getFastestLaptime();
+        
         if ( isEditorMode && ( afVSI == myVSI ) )
         {
             // Just to get differences...
@@ -315,6 +314,8 @@ public class TimingWidget extends Widget
             else
                 afVSI = scoringInfo.getLeadersVehicleScoringInfo();
         }
+        
+        Laptime afLaptime = afVSI.getFastestLaptime();
         
         if ( displayAbsFastest.getBooleanValue() )
         {
@@ -347,13 +348,6 @@ public class TimingWidget extends Widget
                     float sec1 = ( afLaptime != null ) ? afLaptime.getSector1() : -1f;
                     float sec2 = ( afLaptime != null ) ? afLaptime.getSector2( cumulativeSectors.getBooleanValue() ) : -1f;
                     float sec3 = ( afLaptime != null ) ? ( cumulativeSectors.getBooleanValue() ? sec2 + afLaptime.getSector3() : afLaptime.getSector3() ) : -1f;
-                    
-                    if ( isEditorMode )
-                    {
-                        sec1 = 12.345f;
-                        sec2 = 35.226f;
-                        sec3 = 34.567f;
-                    }
                     
                     int cols = 3;
                     String[][] s = new String[4][cols];
@@ -394,17 +388,17 @@ public class TimingWidget extends Widget
                     s[3][1] = null;
                     s[3][2] = TimingUtil.getTimeAsLaptimeString( lap );
                     
-                    absSector1String.getMaxColWidths( s[0], aligns, padding, texture, colWidths );
-                    absSector2String.getMaxColWidths( s[1], aligns, padding, texture, colWidths );
+                    absSector1String.getMaxColWidths( s[0], aligns, colPadding, texture, colWidths );
+                    absSector2String.getMaxColWidths( s[1], aligns, colPadding, texture, colWidths );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        absSector3String.getMaxColWidths( s[2], aligns, padding, texture, colWidths );
-                    absFastestLapString.getMaxColWidths( s[3], aligns, padding, texture, colWidths );
+                        absSector3String.getMaxColWidths( s[2], aligns, colPadding, texture, colWidths );
+                    absFastestLapString.getMaxColWidths( s[3], aligns, colPadding, texture, colWidths );
                     
-                    absSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, texture );
-                    absSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, texture );
+                    absSector1String.drawColumns( offsetX, offsetY, s[0], aligns, colPadding, colWidths, texture );
+                    absSector2String.drawColumns( offsetX, offsetY, s[1], aligns, colPadding, colWidths, texture );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        absSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, texture );
-                    absFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, texture );
+                        absSector3String.drawColumns( offsetX, offsetY, s[2], aligns, colPadding, colWidths, texture );
+                    absFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, colPadding, colWidths, texture );
                 }
                 else
                 {
@@ -449,18 +443,6 @@ public class TimingWidget extends Widget
                     float sec2 = ( laptime != null ) ? laptime.getSector2( displayCumul ) : -1f; //vsi.getBestSector2( displayCumul );
                     float sec3 = ( laptime != null ) ? ( displayCumul ? sec2 + laptime.getSector3() : laptime.getSector3() ) : -1f; //displayCumul ? sec2 + vsi.getBestSector3() : vsi.getBestSector3();
                     
-                    if ( isEditorMode )
-                    {
-                        afSec1 = 12.345f;
-                        afSec2 = 35.226f;
-                        afSec3 = 34.567f;
-                        afLap = 82.138f;
-                        
-                        sec1 = 34.567f;
-                        sec2 = 32.750f;
-                        sec3 = 12.345f;
-                    }
-                    
                     final boolean dispGapToAbs = ( displayAbsFastest.getBooleanValue() && ( myVSI != afVSI ) );
                     int cols = dispGapToAbs ? 4 : 3;
                     String[][] s = new String[4][cols];
@@ -488,7 +470,7 @@ public class TimingWidget extends Widget
                         }
                         else
                         {
-                            s[0][32] = null;
+                            s[0][3] = null;
                         }
                     }
                     
@@ -560,25 +542,32 @@ public class TimingWidget extends Widget
                     s[3][2] = TimingUtil.getTimeAsLaptimeString( lap );
                     if ( dispGapToAbs )
                     {
-                        s[3][3] = "(" + TimingUtil.getTimeAsGapString( lap - afLap  ) + ")";
-                        sfColorL = ( lap - afLap < 0f )? fasterColor.getColor() : slowerColor.getColor();
+                        if ( afLap > 0f )
+                        {
+                            s[3][3] = "(" + TimingUtil.getTimeAsGapString( lap - afLap  ) + ")";
+                            sfColorL = ( lap - afLap < 0f )? fasterColor.getColor() : slowerColor.getColor();
+                        }
+                        else
+                        {
+                            s[3][3] = null;
+                        }
                     }
                     
-                    ownSector1String.getMaxColWidths( s[0], aligns, padding, texture, colWidths );
-                    ownSector2String.getMaxColWidths( s[1], aligns, padding, texture, colWidths );
+                    ownSector1String.getMaxColWidths( s[0], aligns, colPadding, texture, colWidths );
+                    ownSector2String.getMaxColWidths( s[1], aligns, colPadding, texture, colWidths );
                     if ( !displayCumul )
-                        ownSector3String.getMaxColWidths( s[2], aligns, padding, texture, colWidths );
-                    ownFastestLapString.getMaxColWidths( s[3], aligns, padding, texture, colWidths );
+                        ownSector3String.getMaxColWidths( s[2], aligns, colPadding, texture, colWidths );
+                    ownFastestLapString.getMaxColWidths( s[3], aligns, colPadding, texture, colWidths );
                     
                     fontColors[3] = sfColor1;
-                    ownSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, fontColors, texture );
+                    ownSector1String.drawColumns( offsetX, offsetY, s[0], aligns, colPadding, colWidths, fontColors, texture );
                     fontColors[3] = sfColor2;
-                    ownSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, fontColors, texture );
+                    ownSector2String.drawColumns( offsetX, offsetY, s[1], aligns, colPadding, colWidths, fontColors, texture );
                     fontColors[3] = sfColor3;
                     if ( !displayCumul )
-                        ownSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, fontColors, texture );
+                        ownSector3String.drawColumns( offsetX, offsetY, s[2], aligns, colPadding, colWidths, fontColors, texture );
                     fontColors[3] = sfColorL;
-                    ownFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, fontColors, texture );
+                    ownFastestLapString.drawColumns( offsetX, offsetY, s[3], aligns, colPadding, colWidths, fontColors, texture );
                 }
                 else
                 {
@@ -609,45 +598,26 @@ public class TimingWidget extends Widget
                 currLapValid.setUnchanged();
                 
                 final boolean isDelaying = isEditorMode || ( scoringInfo.getSessionTime() <= lastLapDisplayTime );
+                final boolean isDelaying2 = !isEditorMode && isDelaying;
                 
                 final boolean absFastestIsOwn = isDelaying ? delayedAbsFastestIsOwn : ( myVSI == afVSI );
                 final short sector = myVSI.getSector();
                 final boolean displayCumul = cumulativeSectors.getBooleanValue() || forceCurrentCumulSectors.getBooleanValue();
                 
-                float afSec1 = isDelaying ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getSector1() : -1f ) : ( afLaptime != null ) ? afLaptime.getSector1(): -1f; //afVSI.getBestSector1();
-                float afSec2 = isDelaying ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getSector2( displayCumul ) : -1f ) : ( afLaptime != null ) ? afLaptime.getSector2( displayCumul ): -1f; //afVSI.getBestSector2( displayCumul );
-                float afSec3 = isDelaying ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getSector3() : -1f ) : ( displayCumul ? ( delayedAbsFastestLap != null ? afSec2 + delayedAbsFastestLap.getSector3() : -1f ) : ( afLaptime != null ? afLaptime.getSector3() : -1f ) );
-                float afLap = isDelaying ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getLapTime() : -1f ) : ( afLaptime != null ? afLaptime.getLapTime() : -1f );
+                float afSec1 = isDelaying2 ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getSector1() : -1f ) : ( afLaptime != null ) ? afLaptime.getSector1(): -1f; //afVSI.getBestSector1();
+                float afSec2 = isDelaying2 ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getSector2( displayCumul ) : -1f ) : ( afLaptime != null ) ? afLaptime.getSector2( displayCumul ): -1f; //afVSI.getBestSector2( displayCumul );
+                float afSec3 = isDelaying2 ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getSector3() : -1f ) : ( displayCumul ? ( delayedAbsFastestLap != null ? afSec2 + delayedAbsFastestLap.getSector3() : -1f ) : ( afLaptime != null ? afLaptime.getSector3() : -1f ) );
+                float afLap = isDelaying2 ? ( delayedAbsFastestLap != null ? delayedAbsFastestLap.getLapTime() : -1f ) : ( afLaptime != null ? afLaptime.getLapTime() : -1f );
                 
                 Laptime ofLaptime = myVSI.getFastestLaptime();
-                float ofSec1 = isDelaying ? ( delayedOwnFastestLap != null ? delayedOwnFastestLap.getSector1() : -1f ) : ( ownFastestLaptime != null ? ownFastestLaptime.getSector1() : -1f );
-                float ofSec2 = isDelaying ? ( delayedOwnFastestLap != null ? delayedOwnFastestLap.getSector2( displayCumul ) : -1f ) : ( ownFastestLaptime != null ? ownFastestLaptime.getSector2( displayCumul ) : -1f );
-                float ofSec3 = isDelaying ? ( delayedOwnFastestLap != null ? delayedOwnFastestLap.getSector3() : -1f ) : ( displayCumul ? ( delayedOwnFastestLap != null ? ofSec2 + delayedOwnFastestLap.getSector3() : -1f ) : ( ofLaptime != null ? ofLaptime.getSector3() : -1f ) );
-                float ofLap = isDelaying ? ( delayedOwnFastestLap != null ? delayedOwnFastestLap.getLapTime() : -1f ) : ( ofLaptime != null ? ofLaptime.getLapTime() : -1f );
+                float ofSec1 = isDelaying2 ? ( delayedOwnFastestLap != null ? delayedOwnFastestLap.getSector1() : -1f ) : ( ownFastestLaptime != null ? ownFastestLaptime.getSector1() : -1f );
+                float ofSec2 = isDelaying2 ? ( delayedOwnFastestLap != null ? delayedOwnFastestLap.getSector2( displayCumul ) : -1f ) : ( ownFastestLaptime != null ? ownFastestLaptime.getSector2( displayCumul ) : -1f );
+                float ofSec3 = isDelaying2 ? ( delayedOwnFastestLap != null ? delayedOwnFastestLap.getSector3() : -1f ) : ( displayCumul ? ( delayedOwnFastestLap != null ? ofSec2 + delayedOwnFastestLap.getSector3() : -1f ) : ( ofLaptime != null ? ofLaptime.getSector3() : -1f ) );
+                float ofLap = isDelaying2 ? ( delayedOwnFastestLap != null ? delayedOwnFastestLap.getLapTime() : -1f ) : ( ofLaptime != null ? ofLaptime.getLapTime() : -1f );
                 
                 float sec1 = isDelaying ? myVSI.getLastSector1() : myVSI.getCurrentSector1();
                 float sec2 = isDelaying ? myVSI.getLastSector2( displayCumul ) : myVSI.getCurrentSector2( displayCumul );
                 float sec3 = isDelaying ? myVSI.getLastSector3() : ( ( sec2 > 0f ) ? ( displayCumul ? lap : lap - sec2 ) : -1f );
-                
-                if ( isEditorMode )
-                {
-                    afSec1 = 12.345f;
-                    afSec2 = 35.226f;
-                    afSec3 = 34.567f;
-                    afLap = 82.138f;
-                    
-                    ofSec1 = 34.567f;
-                    ofSec2 = 32.750f;
-                    ofSec3 = 12.345f;
-                    ofLap = 79.662f;
-                    
-                    //sec1 = 34.561f;
-                    //sec2 = 32.552f;
-                    //sec3 = 12.432f;
-                    sec1 = editorPresets.getCurrentSector1Time();
-                    sec2 = editorPresets.getCurrentSector2Time( false );
-                    sec3 = editorPresets.getCurrentSector3Time();
-                }
                 
                 if ( isDelaying )
                 {
@@ -894,14 +864,14 @@ public class TimingWidget extends Widget
                         s[3][4] = null;
                 }
                 
-                currSector1String.getMaxColWidths( s[0], aligns, padding, texture, colWidths );
-                currSector2String.getMaxColWidths( s[1], aligns, padding, texture, colWidths );
+                currSector1String.getMaxColWidths( s[0], aligns, colPadding, texture, colWidths );
+                currSector2String.getMaxColWidths( s[1], aligns, colPadding, texture, colWidths );
                 if ( !displayCumul )
-                    currSector3String.getMaxColWidths( s[2], aligns, padding, texture, colWidths );
+                    currSector3String.getMaxColWidths( s[2], aligns, colPadding, texture, colWidths );
                 
                 String s31 = s[3][2];
                 s[3][2] = TimingUtil.getTimeAsLaptimeString( 90.0f );
-                currLapString.getMaxColWidths( s[3], aligns, padding, texture, colWidths );
+                currLapString.getMaxColWidths( s[3], aligns, colPadding, texture, colWidths );
                 s[3][2] = s31;
                 
                 if ( oldClStrings[0].length != s[0].length )
@@ -911,7 +881,7 @@ public class TimingWidget extends Widget
                     System.arraycopy( s[0], 0, oldClStrings[0], 0, s[0].length );
                     fontColors[3] = sfColor1a;
                     fontColors[4] = sfColor1b;
-                    currSector1String.drawColumns( offsetX, offsetY, s[0], aligns, padding, colWidths, fontColors, texture );
+                    currSector1String.drawColumns( offsetX, offsetY, s[0], aligns, colPadding, colWidths, fontColors, texture );
                 }
                 
                 if ( oldClStrings[1].length != s[1].length )
@@ -921,7 +891,7 @@ public class TimingWidget extends Widget
                     System.arraycopy( s[1], 0, oldClStrings[1], 0, s[1].length );
                     fontColors[3] = sfColor2a;
                     fontColors[4] = sfColor2b;
-                    currSector2String.drawColumns( offsetX, offsetY, s[1], aligns, padding, colWidths, fontColors, texture );
+                    currSector2String.drawColumns( offsetX, offsetY, s[1], aligns, colPadding, colWidths, fontColors, texture );
                 }                
                 if ( !displayCumul )
                 {
@@ -932,7 +902,7 @@ public class TimingWidget extends Widget
                         System.arraycopy( s[2], 0, oldClStrings[2], 0, s[2].length );
                         fontColors[3] = sfColor3a;
                         fontColors[4] = sfColor3b;
-                        currSector3String.drawColumns( offsetX, offsetY, s[2], aligns, padding, colWidths, fontColors, texture );
+                        currSector3String.drawColumns( offsetX, offsetY, s[2], aligns, colPadding, colWidths, fontColors, texture );
                     }
                 }
                 
@@ -944,7 +914,7 @@ public class TimingWidget extends Widget
                     System.arraycopy( s[3], 0, oldClStrings[3], 0, s[3].length );
                     fontColors[3] = sfColorLa;
                     fontColors[4] = sfColorLb;
-                    currLapString.drawColumns( offsetX, offsetY, s[3], aligns, padding, colWidths, fontColors, texture );
+                    currLapString.drawColumns( offsetX, offsetY, s[3], aligns, colPadding, colWidths, fontColors, texture );
                 }
             }
         }
@@ -999,6 +969,14 @@ public class TimingWidget extends Widget
         propsCont.addProperty( lastLapDisplayDelay );
         propsCont.addProperty( slowerColor );
         propsCont.addProperty( fasterColor );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        colPadding = 1;
     }
     
     public TimingWidget( String name )

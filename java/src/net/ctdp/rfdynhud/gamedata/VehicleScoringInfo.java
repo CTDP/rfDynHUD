@@ -78,6 +78,10 @@ public class VehicleScoringInfo
     Laptime oldAverageLaptime = null;
     Laptime averageLaptime = null;
     
+    private Laptime editor_lastLaptime = null;
+    private Laptime editor_currLaptime = null;
+    private Laptime editor_fastestLaptime = null;
+    
     float topspeed = 0f;
     
     private static final HashMap<String, Integer> classToIDMap = new HashMap<String, Integer>();
@@ -111,6 +115,71 @@ public class VehicleScoringInfo
             nameID = data.refreshID();
             nameId = nameID.intValue();
         }
+        
+        int lc = getLapsCompleted();
+        if ( ( laptimes.size() < lc ) || ( laptimes.get( lc - 1 ) == null ) || ( laptimes.get( lc - 1 ).getSector1() != editorPresets.getLastSector1Time() ) || ( laptimes.get( lc - 1 ).getSector2() != editorPresets.getLastSector2Time( false ) || ( laptimes.get( lc - 1 ).getSector3() != editorPresets.getLastSector3Time() ) ) )
+        {
+            fastestLaptime = null;
+            java.util.Random rnd = new java.util.Random( System.nanoTime() );
+            
+            float ls1 = isPlayer() ? editorPresets.getLastSector1Time() : data.getLastSector1();
+            float ls2 = isPlayer() ? editorPresets.getLastSector2Time( false ) : data.getLastSector2() - data.getLastSector1();
+            float ls3 = isPlayer() ? editorPresets.getLastSector3Time() : data.getLastLapTime() - data.getLastSector2();
+            
+            for ( int l = 1; l <= lc; l++ )
+            {
+                float s1 = ls1 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
+                float s2 = ls2 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
+                float s3 = ls3 + ( ( l == lc ) ? 0.0f : -0.33f * rnd.nextFloat() * 0.66f );
+                
+                Laptime lt;
+                if ( ( l > laptimes.size() ) || ( laptimes.get( l - 1 ) == null ) )
+                {
+                    lt = new Laptime( l, s1, s2, s3, false, l == 1, true );
+                    if ( l > laptimes.size() )
+                        laptimes.add( lt );
+                    else
+                        laptimes.set( l - 1, lt );
+                }
+                else
+                {
+                    lt = laptimes.get( l - 1 );
+                    lt.sector1 = s1;
+                    lt.sector2 = s2;
+                    lt.sector3 = s3;
+                    lt.updateLaptimeFromSectors();
+                }
+                
+                if ( ( l == 1 ) || ( lt.getLapTime() < fastestLaptime.getLapTime() ) )
+                    fastestLaptime = lt;
+            }
+            
+            editor_fastestLaptime = fastestLaptime;
+            
+            LaptimesRecorder.calcAvgLaptime( this );
+            oldAverageLaptime = averageLaptime;
+        }
+        
+        float cs1 = isPlayer() ? editorPresets.getCurrentSector1Time() : data.getCurrentSector1();
+        float cs2 = isPlayer() ? editorPresets.getCurrentSector2Time( false ) : data.getCurrentSector2() - data.getCurrentSector1();
+        
+        if ( laptimes.size() < lc + 1 )
+        {
+            Laptime lt = new Laptime( lc + 1, cs1, cs2, -1f, false, false, false );
+            lt.isInLap = null;
+            
+            laptimes.add( lt );
+        }
+        else
+        {
+            Laptime lt = laptimes.get( lc );
+            lt.sector1 = cs1;
+            lt.sector2 = cs2;
+            lt.updateLaptimeFromSectors();
+        }
+        
+        editor_lastLaptime = laptimes.get( lc - 1 );
+        editor_currLaptime = laptimes.get( lc );
         
         topspeed = editorPresets.getTopSpeed( getPlace( false ) - 1 );
     }
@@ -579,6 +648,9 @@ public class VehicleScoringInfo
      */
     public final float getBestSector1()
     {
+        if ( editor_fastestLaptime != null )
+            return ( editor_fastestLaptime.getSector1() );
+        
         return ( data.getBestSector1() );
     }
     
@@ -589,6 +661,9 @@ public class VehicleScoringInfo
      */
     public final float getBestSector2( boolean includingSector1 )
     {
+        if ( editor_fastestLaptime != null )
+            return ( editor_fastestLaptime.getSector2( includingSector1 ) );
+        
         float sec2 = data.getBestSector2();
         
         if ( !includingSector1 )
@@ -602,6 +677,9 @@ public class VehicleScoringInfo
      */
     public final float getBestLapTime()
     {
+        if ( editor_fastestLaptime != null )
+            return ( editor_fastestLaptime.getLapTime() );
+        
         return ( data.getBestLapTime() );
     }
     
@@ -610,6 +688,9 @@ public class VehicleScoringInfo
      */
     public final float getBestSector3()
     {
+        if ( editor_fastestLaptime != null )
+            return ( editor_fastestLaptime.getSector3() );
+        
         return ( getBestLapTime() - getBestSector2( true ) );
     }
     
@@ -618,7 +699,8 @@ public class VehicleScoringInfo
      */
     public final float getLastSector1()
     {
-        // float mLastSector1
+        if ( editor_lastLaptime != null )
+            return ( editor_lastLaptime.getSector1() );
         
         return ( data.getLastSector1() );
     }
@@ -630,7 +712,8 @@ public class VehicleScoringInfo
      */
     public final float getLastSector2( boolean includingSector1 )
     {
-        // float mLastSector2
+        if ( editor_lastLaptime != null )
+            return ( editor_lastLaptime.getSector2( includingSector1 ) );
         
         float sec2 = data.getLastSector2();
         
@@ -645,7 +728,21 @@ public class VehicleScoringInfo
      */
     public final float getLastLapTime()
     {
+        if ( editor_lastLaptime != null )
+            return ( editor_lastLaptime.getLapTime() );
+        
         return ( data.getLastLapTime() );
+    }
+    
+    /**
+     * last lap time
+     */
+    public final Laptime getLastLaptime()
+    {
+        if ( editor_lastLaptime != null )
+            return ( editor_lastLaptime );
+        
+        return ( getLaptime( getLapsCompleted() ) );
     }
     
     /**
@@ -653,6 +750,9 @@ public class VehicleScoringInfo
      */
     public final float getLastSector3()
     {
+        if ( editor_lastLaptime != null )
+            return ( editor_lastLaptime.getSector3() );
+        
         return ( getLastLapTime() - getLastSector2( true ) );
     }
     
@@ -661,6 +761,9 @@ public class VehicleScoringInfo
      */
     public final float getCurrentSector1()
     {
+        if ( editor_currLaptime != null )
+            return ( editor_currLaptime.getSector1() );
+        
         return ( data.getCurrentSector1() );
     }
     
@@ -671,6 +774,9 @@ public class VehicleScoringInfo
      */
     public final float getCurrentSector2( boolean includingSector1 )
     {
+        if ( editor_currLaptime != null )
+            return ( editor_currLaptime.getSector2( includingSector1 ) );
+        
         float sec2 = data.getCurrentSector2();
         
         if ( !includingSector1 && ( sec2 > 0f ) )

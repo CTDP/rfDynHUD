@@ -29,7 +29,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
     @Override
     public void onRealtimeEntered( LiveGameData gameData, EditorPresets editorPresets ) {}
     
-    private ArrayList<Laptime> addLaptime( VehicleScoringInfo vsi, int lapsCompleted, Laptime laptime )
+    private static ArrayList<Laptime> addLaptime( VehicleScoringInfo vsi, int lapsCompleted, Laptime laptime )
     {
         ArrayList<Laptime> laps = vsi.laptimes;
         
@@ -41,7 +41,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
         return ( laps );
     }
     
-    private void calcAvgLaptime( VehicleScoringInfo vsi )
+    static void calcAvgLaptime( VehicleScoringInfo vsi )
     {
         if ( vsi.fastestLaptime == null )
         {

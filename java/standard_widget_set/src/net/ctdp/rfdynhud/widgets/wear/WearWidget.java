@@ -156,6 +156,7 @@ public class WearWidget extends Widget
     
     private float engineLifetimeAtLapStart = -1f;
     private float engineLifetimeLossPerLap = -1f;
+    private boolean testLifetimeAtLapStart = false;
     
     @Override
     public WidgetPackage getWidgetPackage()
@@ -264,6 +265,7 @@ public class WearWidget extends Widget
             oldTireWear[i] = -1;
         
         engineLifetimeAtLapStart = -1f;
+        testLifetimeAtLapStart = false;
         engineLifetimeLossPerLap = -1f;
         
         //forceReinitialization();
@@ -292,31 +294,6 @@ public class WearWidget extends Widget
         super.onVehicleControlChanged( viewedVSI, gameData, editorPresets );
         
         setControlVisibility( viewedVSI );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
-    {
-        super.onLapStarted( vsi, gameData, editorPresets );
-        
-        VehicleScoringInfo pvsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
-        
-        if ( vsi.equals( pvsi ) && ( vsi.getLapsCompleted() >= 1 ) )
-        {
-            if ( engineLifetimeAtLapStart < 0f )
-            {
-                engineLifetimeAtLapStart = gameData.getTelemetryData().getEngineLifetime();
-                engineLifetimeLossPerLap = -1f;
-            }
-            else
-            {
-                engineLifetimeLossPerLap = engineLifetimeAtLapStart - gameData.getTelemetryData().getEngineLifetime();
-                engineLifetimeAtLapStart = gameData.getTelemetryData().getEngineLifetime();
-            }
-        }
     }
     
     private final float getHundredPercentBaseLifetime( VehiclePhysics.Engine engine, double raceLengthPercentage )
@@ -348,6 +325,32 @@ public class WearWidget extends Widget
                 return ( ( engine.getMaxLifetimeTotal( raceLengthPercentage ) - engine.getBadLifetimeTotal( raceLengthPercentage ) ) * 100f / hundredPercentBase );
             case MAX_RANGE:
                 return ( 0.0f );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, EditorPresets editorPresets )
+    {
+        super.onLapStarted( vsi, gameData, editorPresets );
+        
+        VehicleScoringInfo pvsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+        
+        if ( vsi.equals( pvsi ) && ( vsi.getLapsCompleted() >= 1 ) )
+        {
+            if ( !testLifetimeAtLapStart )
+            {
+                engineLifetimeAtLapStart = gameData.getTelemetryData().getEngineLifetime();
+                engineLifetimeLossPerLap = -1f;
+                testLifetimeAtLapStart = true;
+            }
+            else
+            {
+                engineLifetimeLossPerLap = engineLifetimeAtLapStart - gameData.getTelemetryData().getEngineLifetime();
+                engineLifetimeAtLapStart = gameData.getTelemetryData().getEngineLifetime();
+            }
         }
     }
     
@@ -797,7 +800,7 @@ public class WearWidget extends Widget
         if ( displayEngine.getBooleanValue() )
         {
             final double raceLengthPercentage = gameData.getScoringInfo().getRaceLengthPercentage();
-            float lifetime = isEditorMode ? editorPresets.getEngineLifetime() : gameData.getTelemetryData().getEngineLifetime();
+            float lifetime = gameData.getTelemetryData().getEngineLifetime();
             final int hundredPercentBase;
             switch ( this.hundredPercentBase.getEnumValue() )
             {
@@ -958,7 +961,7 @@ public class WearWidget extends Widget
             
             Wheel wheel = Wheel.FRONT_LEFT;
             VehiclePhysics.Brakes.WheelBrake brake = physics.getBrakes().getBrake( wheel );
-            float brakeDiscThickness = isEditorMode ? editorPresets.getBrakeDiscThicknessFL() : telemData.getBrakeDiscThickness( wheel );
+            float brakeDiscThickness = telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearFL.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
             if ( needsCompleteRedraw || ( clock1 && brakeDiscWearFL.hasChanged( false ) ) )
@@ -983,7 +986,7 @@ public class WearWidget extends Widget
             
             wheel = Wheel.FRONT_RIGHT;
             brake = physics.getBrakes().getBrake( wheel );
-            brakeDiscThickness = isEditorMode ? editorPresets.getBrakeDiscThicknessFR() : telemData.getBrakeDiscThickness( wheel );
+            brakeDiscThickness = telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearFR.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
             if ( needsCompleteRedraw || ( clock1 && brakeDiscWearFR.hasChanged( false ) ) )
@@ -1008,7 +1011,7 @@ public class WearWidget extends Widget
             
             wheel = Wheel.REAR_LEFT;
             brake = physics.getBrakes().getBrake( wheel );
-            brakeDiscThickness = isEditorMode ? editorPresets.getBrakeDiscThicknessRL() : telemData.getBrakeDiscThickness( wheel );
+            brakeDiscThickness = telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearRL.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
             if ( needsCompleteRedraw || ( clock1 && brakeDiscWearRL.hasChanged( false ) ) )
@@ -1033,7 +1036,7 @@ public class WearWidget extends Widget
             
             wheel = Wheel.REAR_RIGHT;
             brake = physics.getBrakes().getBrake( wheel );
-            brakeDiscThickness = isEditorMode ? editorPresets.getBrakeDiscThicknessRR() : telemData.getBrakeDiscThickness( wheel );
+            brakeDiscThickness = telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearRR.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
             if ( needsCompleteRedraw || ( clock1 && brakeDiscWearRR.hasChanged( false ) ) )
