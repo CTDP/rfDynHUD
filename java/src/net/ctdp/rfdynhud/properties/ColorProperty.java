@@ -131,6 +131,18 @@ public class ColorProperty extends Property
     }
     
     /**
+     * Gets, whether this {@link ColorProperty} hosts a visible color value.
+     * 
+     * @return <code>true</code>, if and only if {@link #getColor()} returns a non <code>null</code> value with an alpha channel > 0.
+     */
+    public final boolean hasVisibleColor()
+    {
+        Color color = getColor();
+        
+        return ( ( color != null ) && ( color.getAlpha() > 0 ) );
+    }
+    
+    /**
      * {@inheritDoc}
      */
     @Override

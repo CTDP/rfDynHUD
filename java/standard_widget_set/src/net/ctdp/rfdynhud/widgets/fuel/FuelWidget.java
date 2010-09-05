@@ -79,6 +79,8 @@ public class FuelWidget extends Widget
     private final FontProperty tankSizeFont = new FontProperty( this, "tankSizeFont", "Monospaced-PLAIN-9v" );
     private final FontProperty fuelFont = new FontProperty( this, "fuelFont", FontProperty.STANDARD_FONT_NAME );
     
+    private final ImageProperty fuelBarImage = new ImageProperty( this, "fuelBarImage", null, "", false, true );
+    private TextureImage2D fuelBarTexture = null;
     private final ColorProperty fuelBarBackgroundColor = new ColorProperty( this, "fuelBarBackgroundColor", "fuelBarBackground", "#000000" );
     private final ColorProperty fuelBarColor = new ColorProperty( this, "fuelBarColor", "#54760B" );
     private final BooleanProperty horizontalFuelBar = new BooleanProperty( this, "horizontalFuelBar", false );
@@ -190,20 +192,6 @@ public class FuelWidget extends Widget
     private DrawnString nextPitstopLapString = null;
     private DrawnString nextPitstopFuelString = null;
     
-    /*
-    private static final class StintFuel
-    {
-        public final float stintLength;
-        public final float fuelConsumption;
-        
-        public StintFuel( float stintLength, float fuelConsumption )
-        {
-            this.stintLength = stintLength;
-            this.fuelConsumption = fuelConsumption;
-        }
-    }
-    */
-    
     private int oldNextPitstopLapCorrection = -1;
     private int nextPitstopLapCorrection = 0;
     private int nextPitstopFuelLapsCorrection = 0;
@@ -264,6 +252,11 @@ public class FuelWidget extends Widget
         
         fuelBarWidth.setWidthToPixels();
         fuelBarWidth.setHeightToPixels();
+    }
+    
+    private final boolean getDrawFuelBar()
+    {
+        return ( displayFuelBar.getBooleanValue() || displayTankSize.getBooleanValue() || displayFuelLoad.getBooleanValue() || displayFuelWeight.getBooleanValue() || displayFuelLaps.getBooleanValue() );
     }
     
     private final boolean isLowFuelWaningUsed()
@@ -524,6 +517,29 @@ public class FuelWidget extends Widget
         return ( Loc.fuel_units_METRIC );
     }
     
+    private void initFuelBarTexture( boolean isEditorMode, int width, int height )
+    {
+        if ( displayFuelBar.getBooleanValue() )
+        {
+            ImageTemplate it = fuelBarImage.getImage();
+            
+            if ( it == null )
+            {
+                fuelBarTexture = null;
+                return;
+            }
+            
+            if ( horizontalFuelBar.getBooleanValue() )
+                fuelBarTexture = it.getScaledTextureImage( width, height * 2, fuelBarTexture, isEditorMode );
+            else
+                fuelBarTexture = it.getScaledTextureImage( width * 2, height, fuelBarTexture, isEditorMode );
+        }
+        else
+        {
+            fuelBarTexture = null;
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -541,11 +557,11 @@ public class FuelWidget extends Widget
         final boolean fuelFontAntiAliased = this.fuelFont.isAntiAliased();
         final java.awt.Color fuelFontColor = this.fuelFontColor.getColor();
         
-        //fuelHeaderString = dsf.newDrawnString( "fuelHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.fuelHeader_prefix + ": (", ")" );
-        
         boolean showAnyAdditionalText = displayFuelUsage.getBooleanValue() || displayPitstopInfo.getBooleanValue();
         int fuelBarWidth = showAnyAdditionalText ? this.fuelBarWidth.getEffectiveWidth() : width;
         int fuelBarCenter = showAnyAdditionalText ? ( fuelBarWidth / 2 ) : ( width / 2 );
+        
+        initFuelBarTexture( isEditorMode, fuelBarWidth, height );
         
         DrawnString relY = null;
         
@@ -622,7 +638,7 @@ public class FuelWidget extends Widget
         resetBlink( isEditorMode );
     }
     
-    private void drawFuelBar( float fuel, int tankSize, TextureImage2D texture, int x, int y, int height )
+    private void drawFuelBar( float fuel, int tankSize, TextureImage2D texture, int offsetX, int offsetY, int x, int y, int height )
     {
         final boolean displayFuelBar = this.displayFuelBar.getBooleanValue();
         
@@ -634,15 +650,37 @@ public class FuelWidget extends Widget
         {
             int barWidth = displayFuelBar ? Math.min( (int)( w * fuel / tankSize ), w ) : 0;
             
-            if ( !displayFuelBar || ( barWidth < h ) )
+            if ( !displayFuelBar || ( barWidth < w ) )
             {
-                if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && ( fuelBarBackgroundColor.getColor() != null ) && ( fuelBarBackgroundColor.getColor().getAlpha() > 0 ) )
-                    texture.clear( fuelBarBackgroundColor.getColor(), x + barWidth, y, w - barWidth, h, false, null );
+                if ( fuelBarTexture != null )
+                {
+                    if ( fuelBarTexture.hasAlphaChannel() )
+                        clearBackgroundRegion( texture, offsetX, offsetY, x, y, w, h, false, null );
+                    
+                    texture.drawImage( fuelBarTexture, 0, 0, fuelBarTexture.getWidth(), fuelBarTexture.getHeight() / 2, offsetX + x, offsetY + y, w, h, false, null );
+                }
+                else if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && fuelBarBackgroundColor.hasVisibleColor() )
+                {
+                    if ( fuelBarBackgroundColor.getColor().getAlpha() < 255 )
+                        clearBackgroundRegion( texture, offsetX, offsetY, x + barWidth, y, w - barWidth, h, false, null );
+                    
+                    texture.fillRectangle( fuelBarBackgroundColor.getColor(), offsetX + x + barWidth, offsetY + y, w - barWidth, h, false, null );
+                }
             }
             
             if ( displayFuelBar )
             {
-                texture.clear( fuelBarColor.getColor(), x, y, barWidth, h, false, null );
+                if ( fuelBarTexture != null )
+                {
+                    texture.drawImage( fuelBarTexture, 0, fuelBarTexture.getHeight() / 2, barWidth, fuelBarTexture.getHeight() / 2, offsetX + x, offsetY + y, barWidth, h, false, null );
+                }
+                else
+                {
+                    if ( fuelBarColor.getColor().getAlpha() < 255 )
+                        clearBackgroundRegion( texture, offsetX, offsetY, x, y, barWidth, h, false, null );
+                    
+                    texture.fillRectangle( fuelBarColor.getColor(), offsetX + x, offsetY + y, barWidth, h, false, null );
+                }
             }
         }
         else
@@ -651,17 +689,39 @@ public class FuelWidget extends Widget
             
             if ( !displayFuelBar || ( barHeight < h ) )
             {
-                if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && ( fuelBarBackgroundColor.getColor() != null ) && ( fuelBarBackgroundColor.getColor().getAlpha() > 0 ) )
-                    texture.clear( fuelBarBackgroundColor.getColor(), x, y, w, h - barHeight, false, null );
+                if ( fuelBarTexture != null )
+                {
+                    if ( fuelBarTexture.hasAlphaChannel() )
+                        clearBackgroundRegion( texture, offsetX, offsetY, x, y, w, h, false, null );
+                    
+                    texture.drawImage( fuelBarTexture, 0, 0, fuelBarTexture.getWidth() / 2, fuelBarTexture.getHeight(), offsetX + x, offsetY + y, w, h, false, null );
+                }
+                else if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && fuelBarBackgroundColor.hasVisibleColor() )
+                {
+                    if ( fuelBarBackgroundColor.getColor().getAlpha() < 255 )
+                        clearBackgroundRegion( texture, offsetX, offsetY, x, y, w, h - barHeight, false, null );
+                    
+                    texture.fillRectangle( fuelBarBackgroundColor.getColor(), offsetX + x, offsetY + y, w, h - barHeight, false, null );
+                }
             }
             
             if ( displayFuelBar )
             {
-                texture.clear( fuelBarColor.getColor(), x, y + h - barHeight, w, barHeight, false, null );
+                if ( fuelBarTexture != null )
+                {
+                    texture.drawImage( fuelBarTexture, fuelBarTexture.getWidth() / 2, 0, fuelBarTexture.getWidth() / 2, barHeight, offsetX + x, offsetY + y, w, barHeight, false, null );
+                }
+                else
+                {
+                    if ( fuelBarColor.getColor().getAlpha() < 255 )
+                        clearBackgroundRegion( texture, offsetX, offsetY, x, y + h - barHeight, w, barHeight, false, null );
+                    
+                    texture.fillRectangle( fuelBarColor.getColor(), offsetX + x, offsetY + y + h - barHeight, w, barHeight, false, null );
+                }
             }
         }
         
-        texture.markDirty( x, y, w, h );
+        texture.markDirty( offsetX + x, offsetY + y, w, h );
     }
     
     @Override
@@ -760,13 +820,12 @@ public class FuelWidget extends Widget
             oldFuel = fuel_;
             oldAverage = avgFuelUsage;
             
-            //int fuelY = fuelHeaderString.getAbsY() + fuelHeaderString.getMaxHeight( true ) + 0;
             int fuelY = 0;
             int fuelHeight = height;
             
-            boolean fuelBarDrawn = ( displayFuelBar.getBooleanValue() || displayTankSize.getBooleanValue() || displayFuelLoad.getBooleanValue() || displayFuelWeight.getBooleanValue() || displayFuelLaps.getBooleanValue() );
+            boolean fuelBarDrawn = getDrawFuelBar();
             if ( fuelBarDrawn )
-                drawFuelBar( fuel, tankSize, texture, offsetX , offsetY + fuelY, fuelHeight );
+                drawFuelBar( fuel, tankSize, texture, offsetX, offsetY, 0, fuelY, fuelHeight );
             
             if ( displayTankSize.getBooleanValue() )
                 fuelLoadString0.draw( offsetX, offsetY + fuelY, "(" + String.valueOf( tankSize ) + getFuelUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", texture, !fuelBarDrawn );
@@ -936,6 +995,7 @@ public class FuelWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( font2, "The used (smaller) font." );
+        writer.writeProperty( fuelBarImage, "An image to paint the fuel bar from." );
         writer.writeProperty( fuelBarBackgroundColor, "The color used for the fuel bar's background." );
         writer.writeProperty( horizontalFuelBar, "Whether to render the fuel bar as a horizontal instead of a vertical bar." );
         writer.writeProperty( fuelBarColor, "The color used for the fuel bar." );
@@ -971,6 +1031,7 @@ public class FuelWidget extends Widget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( font2 ) );
+        else if ( loader.loadProperty( fuelBarImage ) );
         else if ( loader.loadProperty( fuelBarBackgroundColor ) );
         else if ( loader.loadProperty( fuelBarColor ) );
         else if ( loader.loadProperty( horizontalFuelBar ) );
@@ -1016,6 +1077,7 @@ public class FuelWidget extends Widget
         
         propsCont.addGroup( "Specific" );
         
+        propsCont.addProperty( fuelBarImage );
         propsCont.addProperty( fuelBarBackgroundColor );
         propsCont.addProperty( fuelBarColor );
         propsCont.addProperty( horizontalFuelBar );
