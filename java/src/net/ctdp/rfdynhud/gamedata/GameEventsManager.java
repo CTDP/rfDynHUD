@@ -818,7 +818,7 @@ public class GameEventsManager implements ConfigurationClearListener
     
     /**
      * 
-     * @param editorPresets
+     * @param isEditorMode
      */
     public final void checkAndFireOnLapStarted( boolean isEditorMode )
     {

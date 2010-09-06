@@ -1574,8 +1574,6 @@ public abstract class Widget implements Documented
     /**
      * Adds the font and font color properties to the container.
      * 
-     * @param font
-     * @param fontColor
      * @param propsCont the container to add the properties to
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.

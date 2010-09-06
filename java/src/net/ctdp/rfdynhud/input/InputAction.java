@@ -170,7 +170,7 @@ public class InputAction implements Comparable<InputAction>
      * 
      * @param name the action's name as displayed in the editor
      * @param acceptedState <code>null</code> to accept any state, <code>true</code> or <code>false</code> to accept only this state.
-     *        {@link Widget#onBoundInputStateChanged(InputAction, boolean, int, long, net.ctdp.rfdynhud.gamedata.LiveGameData, net.ctdp.rfdynhud.editor.EditorPresets)}
+     *        {@link Widget#onBoundInputStateChanged(InputAction, boolean, int, long, net.ctdp.rfdynhud.gamedata.LiveGameData, boolean)}
      *        will only be fired for the accepted states.
      */
     public InputAction( String name, Boolean acceptedState )
@@ -180,7 +180,7 @@ public class InputAction implements Comparable<InputAction>
     
     /**
      * Creates a new InputAction.
-     * It will only accept true state, so the {@link Widget#onBoundInputStateChanged(InputAction, boolean, int, long, net.ctdp.rfdynhud.gamedata.LiveGameData, net.ctdp.rfdynhud.editor.EditorPresets)}
+     * It will only accept true state, so the {@link Widget#onBoundInputStateChanged(InputAction, boolean, int, long, net.ctdp.rfdynhud.gamedata.LiveGameData, boolean)}
      * event will only be fired when the key/button is pressed while released state changes will be ignored.
      * 
      * @param name the action's name as displayed in the editor

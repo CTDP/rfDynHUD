@@ -296,7 +296,7 @@ public class WidgetBackground
     /**
      * Gets the merged background, composed of the backgrounds of this (possibly assembled) {@link Widget} and the parts of this Widget.
      * If this {@link Widget} is not an {@link AssembledWidget} and has a background color (no image)
-     * and doesn't override the {@link Widget#drawBackground(net.ctdp.rfdynhud.gamedata.LiveGameData, net.ctdp.rfdynhud.editor.EditorPresets, TextureImage2D, int, int, int, int, boolean)} method,
+     * and doesn't override the {@link Widget#drawBackground(net.ctdp.rfdynhud.gamedata.LiveGameData, boolean, TextureImage2D, int, int, int, int, boolean)} method,
      * this method returns <code>null</code>.
      * 
      * @return the marged background texture or <code>null</code>.

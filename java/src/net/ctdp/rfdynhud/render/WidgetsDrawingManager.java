@@ -77,7 +77,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is executed when a new track was loaded.<br>
      * <br>
-     * Calls {@link Widget#onTrackChanged(String, LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onTrackChanged(String, LiveGameData, boolean)} on each Widget.
      */
     public void fireOnTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
@@ -100,7 +100,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a new session was started.<br>
      * <br>
-     * Calls {@link Widget#onSessionStarted(SessionType, LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onSessionStarted(SessionType, LiveGameData, boolean)} on each Widget.
      */
     public void fireOnSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
@@ -130,7 +130,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeEntered(LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onRealtimeEntered(LiveGameData, boolean)} on each Widget.
      */
     public void fireOnRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
@@ -169,7 +169,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a the user entered realtime mode.<br>
      * <br>
-     * Calls {@link Widget#onRealtimeEntered(LiveGameData, EditorPresets)} on each Widget.
+     * Calls {@link Widget#onRealtimeEntered(LiveGameData, boolean)} on each Widget.
      */
     public void checkAndFireOnNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
     {
