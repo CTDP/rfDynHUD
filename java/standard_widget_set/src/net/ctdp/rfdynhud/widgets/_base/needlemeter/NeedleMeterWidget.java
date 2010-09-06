@@ -56,6 +56,8 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public abstract class NeedleMeterWidget extends Widget
 {
+    public static final int NEEDLE_LOCAL_Z_INDEX = 1000;
+    
     @Override
     protected String getInitialBackground()
     {
@@ -85,7 +87,6 @@ public abstract class NeedleMeterWidget extends Widget
         @Override
         protected void onValueChanged( String oldValue, String newValue )
         {
-            needleTexture = null;
             onNeedleImageNameChanged();
         }
     };
@@ -311,6 +312,8 @@ public abstract class NeedleMeterWidget extends Widget
             int w = Math.round( it.getBaseWidth() * scale );
             int h = Math.round( it.getBaseHeight() * scale );
             needleTexture = it.getScaledTransformableTexture( w, h, needleTexture, isEditorMode );
+            
+            needleTexture.setLocalZIndex( NEEDLE_LOCAL_Z_INDEX );
         }
         catch ( Throwable t )
         {
@@ -393,8 +396,6 @@ public abstract class NeedleMeterWidget extends Widget
         {
             needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * backgroundScaleX ) );
             needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * backgroundScaleX ) );
-            //needleTexture.setRotation( 0f );
-            //needleTexture.setScale( 1f, 1f );
         }
         
         if ( displayValue.getBooleanValue() )

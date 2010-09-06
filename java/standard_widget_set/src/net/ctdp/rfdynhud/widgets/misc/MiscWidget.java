@@ -530,7 +530,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 relTopspeed = floatVelocity;
                 getLocalStore().lastRelTopspeedTime = scoringInfo.getSessionNanos();
             }
-            else if ( ( getLocalStore().lastRelTopspeedTime + relTopspeedResetDelay.getDelay() < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
+            else if ( ( getLocalStore().lastRelTopspeedTime + relTopspeedResetDelay.getDelayNanos() < scoringInfo.getSessionNanos() ) && ( floatVelocity < relTopspeed - 50f ) )
             {
                 relTopspeed = floatVelocity;
                 oldRelTopspeed = -1f;

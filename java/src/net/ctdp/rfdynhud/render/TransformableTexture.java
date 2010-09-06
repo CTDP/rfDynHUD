@@ -21,9 +21,12 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.openmali.types.twodee.Rect2i;
@@ -121,6 +124,8 @@ public class TransformableTexture
     private static final byte TRANSFORM_FLAG_SCALE = 8;
     
     private boolean isDynamic = false;
+    
+    private int localZIndex = 0;
     
     private final boolean isTransformed;
     private byte transformFlags = 0;
@@ -243,6 +248,28 @@ public class TransformableTexture
     public final boolean isDynamic()
     {
         return ( isDynamic );
+    }
+    
+    /**
+     * Sets the {@link Widget}-local z-index. The only affects subtextures of a single {@link Widget} or {@link AssembledWidget}.
+     * Higher values make the sub texture be drawn later then those with smaller values.
+     * 
+     * @param zIndex
+     */
+    public void setLocalZIndex( int zIndex )
+    {
+        this.localZIndex = zIndex;
+    }
+    
+    /**
+     * Gets the {@link Widget}-local z-index. The only affects subtextures of a single {@link Widget} or {@link AssembledWidget}.
+     * Higher values make the sub texture be drawn later then those with smaller values.
+     * 
+     * @return the local z-index.
+     */
+    public final int getLocalZIndex()
+    {
+        return ( localZIndex );
     }
     
     /**
@@ -660,5 +687,23 @@ public class TransformableTexture
         }
         
         return ( new TransformableTexture( width, height, pixelPerfectPositioning, usePowerOfTwoSizes ) );
+    }
+    
+    public static final void sortByLocalZIndex( TransformableTexture[] tts )
+    {
+        Arrays.sort( tts, new Comparator<TransformableTexture>()
+        {
+            @Override
+            public int compare( TransformableTexture tt1, TransformableTexture tt2 )
+            {
+                if ( tt1.getLocalZIndex() < tt2.getLocalZIndex() )
+                    return ( -1 );
+                
+                if ( tt1.getLocalZIndex() > tt2.getLocalZIndex() )
+                    return ( +1 );
+                
+                return ( 0 );
+            }
+        } );
     }
 }

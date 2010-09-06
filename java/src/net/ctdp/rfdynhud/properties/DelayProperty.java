@@ -37,7 +37,8 @@ public class DelayProperty extends IntProperty
     
     private final DisplayUnits displayUnits;
     
-    private long delay;
+    private long delayNanos;
+    private float delaySeconds;
     
     /**
      * Gets the used {@link DisplayUnits}.
@@ -78,7 +79,8 @@ public class DelayProperty extends IntProperty
     {
         super.onValueChanged( oldValue, newValue );
         
-        this.delay = deriveDelay( newValue, displayUnits );
+        this.delayNanos = deriveDelay( newValue, displayUnits );
+        this.delaySeconds = (float)( delayNanos / 1000000000.0 );
     }
     
     /**
@@ -86,9 +88,19 @@ public class DelayProperty extends IntProperty
      * 
      * @return actual delay values in nanoseconds.
      */
-    public final long getDelay()
+    public final long getDelayNanos()
     {
-        return ( delay );
+        return ( delayNanos );
+    }
+    
+    /**
+     * The actual delay values in seconds.
+     * 
+     * @return actual delay values in seconds.
+     */
+    public final float getDelaySeconds()
+    {
+        return ( delaySeconds );
     }
     
     /**
@@ -107,7 +119,8 @@ public class DelayProperty extends IntProperty
         super( widget, name, nameForDisplay, defaultValue, minValue, maxValue, readonly );
         
         this.displayUnits = displayUnits;
-        this.delay = deriveDelay( getIntValue(), displayUnits );
+        this.delayNanos = deriveDelay( getIntValue(), displayUnits );
+        this.delaySeconds = (float)( delayNanos / 1000000000.0 );
     }
     
     /**

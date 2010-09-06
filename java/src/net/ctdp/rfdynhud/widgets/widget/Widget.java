@@ -334,6 +334,8 @@ public abstract class Widget implements Documented
             
             if ( subTextures != null )
             {
+                TransformableTexture.sortByLocalZIndex( subTextures );
+                
                 for ( int i = 0; i < subTextures.length; i++ )
                 {
                     if ( subTextures[i].getOwnerWidget() == null )

@@ -708,7 +708,7 @@ public class TemperaturesWidget extends Widget
                 brakesUpdateAllowed = true;
                 lastBrakeTempTime = gameData.getScoringInfo().getSessionNanos();
             }
-            else if ( lastBrakeTempTime + brakeTempsPeekDelay.getDelay() < gameData.getScoringInfo().getSessionNanos() )
+            else if ( lastBrakeTempTime + brakeTempsPeekDelay.getDelayNanos() < gameData.getScoringInfo().getSessionNanos() )
             {
                 brakesUpdateAllowed = true;
             }

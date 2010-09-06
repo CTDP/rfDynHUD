@@ -33,6 +33,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
@@ -64,6 +65,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class RevMeterWidget extends NeedleMeterWidget
 {
+    public static final int PEAK_NEEDLE_LOCAL_Z_INDEX = NEEDLE_LOCAL_Z_INDEX - 1;
     public static final String DEFAULT_GEAR_FONT_NAME = "GearFont";
     
     private final BooleanProperty hideWhenViewingOtherCar = new BooleanProperty( this, "hideWhenViewingOtherCar", false );
@@ -115,6 +117,16 @@ public class RevMeterWidget extends NeedleMeterWidget
     {
         return ( 20 );
     }
+    
+    private final ImageProperty peakNeedleImageName = new ImageProperty( this, "peakNeedleImageName", "imageName", "default_rev_meter_needle.png", false, true );
+    private final IntProperty peakNeedlePivotBottomOffset = new IntProperty( this, "peakNeedlePivotBottomOffset", "pivotBottomOffset", 60 );
+    private TransformableTexture peakNeedleTexture = null;
+    
+    private final DelayProperty peakNeedleCooldown = new DelayProperty( this, "peakNeedleCooldown", "cooldown", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
+    private final DelayProperty peakNeedleWaitTime = new DelayProperty( this, "peakNeedleWaitTime", "wait", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
+    private final DelayProperty peakNeedleDownshiftIgnoreTime = new DelayProperty( this, "peakNeedleDownshiftIgnoreTime", "downshiftIgnoreTime", DelayProperty.DisplayUnits.MILLISECONDS, 1500, 0, 5000, false );
+    private long nextPeakRecordTime = -1L;
+    private long lastPeakRecordTime = -1L;
     
     private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
     private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numberBGImageName", "", false, true );
@@ -214,6 +226,9 @@ public class RevMeterWidget extends NeedleMeterWidget
     private final IntValue gear = new IntValue();
     private final IntValue boost = new IntValue();
     
+    private float peakRPM = 0f;
+    private short lastGear = 0;
+    
     @Override
     public WidgetPackage getWidgetPackage()
     {
@@ -298,6 +313,41 @@ public class RevMeterWidget extends NeedleMeterWidget
     protected String getMarkerLabelForValue( LiveGameData gameData, boolean isEditorMode, float value )
     {
         return ( String.valueOf( Math.round( value / 1000 ) ) );
+    }
+    
+    private int loadPeakNeedleTexture( boolean isEditorMode )
+    {
+        if ( peakNeedleImageName.isNoImage() )
+        {
+            peakNeedleTexture = null;
+            return ( 0 );
+        }
+        
+        try
+        {
+            ImageTemplate it = peakNeedleImageName.getImage();
+            
+            if ( it == null )
+            {
+                peakNeedleTexture = null;
+                return ( 0 );
+            }
+            
+            float scale = getBackground().getScaleX();
+            int w = Math.round( it.getBaseWidth() * scale );
+            int h = Math.round( it.getBaseHeight() * scale );
+            peakNeedleTexture = it.getScaledTransformableTexture( w, h, peakNeedleTexture, isEditorMode );
+            
+            peakNeedleTexture.setLocalZIndex( PEAK_NEEDLE_LOCAL_Z_INDEX );
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+            
+            return ( 0 );
+        }
+        
+        return ( 1 );
     }
     
     private int loadGearBackgroundTexture( boolean isEditorMode )
@@ -394,6 +444,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
             n += shiftLights[s].loadTextures( isEditorMode );
         
+        n += loadPeakNeedleTexture( isEditorMode );
         n += loadGearBackgroundTexture( isEditorMode );
         n += loadBoostNumberBackgroundTexture( isEditorMode );
         
@@ -401,6 +452,8 @@ public class RevMeterWidget extends NeedleMeterWidget
         System.arraycopy( superResult, 0, result, 0, superResult.length );
         
         int i = superResult.length;
+        if ( peakNeedleTexture != null )
+            result[i++] = peakNeedleTexture;
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
             i = shiftLights[s].writeTexturesToArray( result, i );
         if ( gearBackgroundTexture != null )
@@ -419,6 +472,8 @@ public class RevMeterWidget extends NeedleMeterWidget
     {
         super.onRealtimeEntered( gameData, isEditorMode );
         
+        lastGear = 0;
+        peakRPM = 0f;
         maxRPMCheck.reset();
         gear.reset();
     }
@@ -431,6 +486,8 @@ public class RevMeterWidget extends NeedleMeterWidget
     {
         super.onNeededDataComplete( gameData, isEditorMode );
         
+        lastGear = 0;
+        peakRPM = 0f;
         maxRPMCheck.reset();
         gear.reset();
     }
@@ -521,6 +578,11 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         rpmString1 = dsf.newDrawnStringIf( displayRPMString1.getBooleanValue(), "rpmString1", width - Math.round( rpmPosX1.getIntValue() * getBackground().getScaleX() ), Math.round( rpmPosY1.getIntValue() * getBackground().getScaleY() ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
         rpmString2 = dsf.newDrawnStringIf( displayRPMString2.getBooleanValue(), "rpmString2", width - Math.round( rpmPosX2.getIntValue() * getBackground().getScaleX() ), Math.round( rpmPosY2.getIntValue() * getBackground().getScaleY() ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
+        
+        loadPeakNeedleTexture( isEditorMode );
+        
+        peakNeedleTexture.setTranslation( (int)( ( width - peakNeedleTexture.getWidth() ) / 2 ), (int)( height / 2 - peakNeedleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * getBackground().getScaleX() ) );
+        peakNeedleTexture.setRotationCenter( (int)( peakNeedleTexture.getWidth() / 2 ), (int)( peakNeedleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * getBackground().getScaleX() ) );
     }
     
     /**
@@ -816,6 +878,72 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         if ( boostNumberBackgroundTexture != null )
             boostNumberBackgroundTexture.setTranslation( boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY );
+        
+        if ( peakNeedleTexture != null )
+        {
+            if ( doRenderNeedle( gameData, isEditorMode ) )
+            {
+                long sessionNanos = gameData.getScoringInfo().getSessionNanos();
+                float maxRPM2 = maxRPM;
+                if ( useBoostRevLimit1.getBooleanValue() )
+                    maxRPM2 = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
+                
+                float value;
+                
+                if ( isEditorMode )
+                {
+                    value = maxRPM2;
+                }
+                else
+                {
+                    float rpm2 = vsi.isPlayer() ? rpm : 0f;
+                    
+                    value = peakRPM;
+                    
+                    if ( rpm2 < peakRPM - 5f )
+                    {
+                        if ( sessionNanos > lastPeakRecordTime + peakNeedleWaitTime.getDelayNanos() )
+                        {
+                            float cooldown = (float)( ( sessionNanos - lastPeakRecordTime - peakNeedleWaitTime.getDelayNanos() ) / 1000000000.0 ) / ( peakNeedleCooldown.getDelaySeconds() * ( peakRPM / maxRPM2 ) );
+                            if ( cooldown > 1.0f )
+                                cooldown = 1.0f;
+                            
+                            value = Math.max( rpm2, peakRPM - ( peakRPM * cooldown ) );
+                        }
+                    }
+                    
+                    if ( gear.getValue() < lastGear )
+                    {
+                        nextPeakRecordTime = sessionNanos + peakNeedleDownshiftIgnoreTime.getDelayNanos();
+                    }
+                    
+                    lastGear = (short)gear.getValue();
+                    
+                    if ( sessionNanos > nextPeakRecordTime )
+                    {
+                        if ( ( rpm2 >= peakRPM ) || ( rpm2 >= value ) )
+                        {
+                            peakRPM = rpm2;
+                        }
+                        
+                        if ( Math.abs( rpm2 - peakRPM ) < 5f )
+                        {
+                            lastPeakRecordTime = sessionNanos;
+                        }
+                    }
+                }
+                
+                float rot0 = needleRotationForMinValue.getFactoredValue();
+                float rot = -( value / maxRPM2 ) * ( needleRotationForMinValue.getFactoredValue() - needleRotationForMaxValue.getFactoredValue() );
+                
+                peakNeedleTexture.setRotation( rot0 + rot );
+                peakNeedleTexture.setVisible( true );
+            }
+            else
+            {
+                peakNeedleTexture.setVisible( false );
+            }
+        }
     }
     
     @Override
@@ -836,31 +964,38 @@ public class RevMeterWidget extends NeedleMeterWidget
         super.saveProperties( writer );
         
         writer.writeProperty( hideWhenViewingOtherCar, "Hide the Widget when another car is being observed?" );
+        
         writer.writeProperty( useMaxRevLimit, "Whether to use maximum possible (by setup) rev limit" );
+        
         writer.writeProperty( revMarkersMediumColor, "The color used to draw the rev markers for medium boost." );
         writer.writeProperty( revMarkersHighColor, "The color used to draw the rev markers for high revs." );
         writer.writeProperty( fillHighBackground, "Fill the rev markers' background with medium and high color instead of coloring the markers." );
         writer.writeProperty( interpolateMarkerColors, "Interpolate medium and high colors." );
+        
         writer.writeProperty( numShiftLights, "The number of shift lights to render." );
         for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
             shiftLights[i].saveProperties( writer );
+        
         writer.writeProperty( displayGear, "Display the gear?" );
         writer.writeProperty( gearBackgroundImageName, "The name of the image to render behind the gear number." );
         writer.writeProperty( gearPosX, "The x-offset in pixels to the gear label." );
         writer.writeProperty( gearPosY, "The y-offset in pixels to the gear label." );
         writer.writeProperty( gearFont, "The font used to draw the gear." );
         writer.writeProperty( gearFontColor, "The font color used to draw the gear." );
+        
         writer.writeProperty( displayBoostBar, "Display a graphical bar for engine boost mapping?" );
         writer.writeProperty( boostBarPosX, "The x-position of the boost bar." );
         writer.writeProperty( boostBarPosY, "The y-position of the boost bar." );
         writer.writeProperty( boostBarWidth, "The width of the boost bar." );
         writer.writeProperty( boostBarHeight, "The height of the boost bar." );
+        
         writer.writeProperty( displayBoostNumber, "Display a number for engine boost mapping?" );
         writer.writeProperty( boostNumberBackgroundImageName, "The name of the image to render behind the boost number." );
         writer.writeProperty( boostNumberPosX, "The x-position of the boost number." );
         writer.writeProperty( boostNumberPosY, "The y-position of the boost number." );
         writer.writeProperty( boostNumberFont, "The font used to draw the boost number." );
         writer.writeProperty( boostNumberFontColor, "The font color used to draw the boost bar." );
+        
         writer.writeProperty( displayRPMString1, "whether to display the digital RPM/Revs string or not" );
         writer.writeProperty( displayCurrRPM1, "whether to display the current revs or to hide them" );
         writer.writeProperty( displayMaxRPM1, "whether to display the maximum revs or to hide them" );
@@ -870,6 +1005,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         writer.writeProperty( rpmFont1, "The font used to draw the RPM." );
         writer.writeProperty( rpmFontColor1, "The font color used to draw the RPM." );
         writer.writeProperty( rpmJoinString1, "The String to use to join the current and max RPM." );
+        
         writer.writeProperty( displayRPMString2, "whether to display the digital RPM/Revs string or not" );
         writer.writeProperty( displayCurrRPM2, "whether to display the current revs or to hide them" );
         writer.writeProperty( displayMaxRPM2, "whether to display the maximum revs or to hide them" );
@@ -879,6 +1015,12 @@ public class RevMeterWidget extends NeedleMeterWidget
         writer.writeProperty( rpmFont2, "The font used to draw the RPM." );
         writer.writeProperty( rpmFontColor2, "The font color used to draw the RPM." );
         writer.writeProperty( rpmJoinString2, "The String to use to join the current and max RPM." );
+        
+        writer.writeProperty( peakNeedleImageName, "The name of the peak needle image." );
+        writer.writeProperty( peakNeedlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the peak needle's axis is." );
+        writer.writeProperty( peakNeedleWaitTime, "The time in milliseconds to let the peak needle stay at the peak value." );
+        writer.writeProperty( peakNeedleCooldown, "The time in milliseconds, that the peak needle takes to go down from max RPM to zero." );
+        writer.writeProperty( peakNeedleDownshiftIgnoreTime, "The time in milliseconds to ignore current revs after a downshift." );
     }
     
     private boolean loadShiftLightProperty( PropertyLoader loader )
@@ -945,6 +1087,11 @@ public class RevMeterWidget extends NeedleMeterWidget
         else if ( loader.loadProperty( rpmFont2 ) );
         else if ( loader.loadProperty( rpmFontColor2 ) );
         else if ( loader.loadProperty( rpmJoinString2 ) );
+        else if ( loader.loadProperty( peakNeedleImageName ) );
+        else if ( loader.loadProperty( peakNeedlePivotBottomOffset ) );
+        else if ( loader.loadProperty( peakNeedleWaitTime ) );
+        else if ( loader.loadProperty( peakNeedleCooldown ) );
+        else if ( loader.loadProperty( peakNeedleDownshiftIgnoreTime ) );
     }
     
     /**
@@ -959,6 +1106,23 @@ public class RevMeterWidget extends NeedleMeterWidget
         propsCont.addProperty( hideWhenViewingOtherCar );
         
         return ( true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getNeedleProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Peak Needle" );
+        
+        propsCont.addProperty( peakNeedleImageName );
+        propsCont.addProperty( peakNeedlePivotBottomOffset );
+        propsCont.addProperty( peakNeedleWaitTime );
+        propsCont.addProperty( peakNeedleCooldown );
+        propsCont.addProperty( peakNeedleDownshiftIgnoreTime );
     }
     
     /**
