@@ -1838,7 +1838,7 @@ public class VehiclePhysics
             fuelRange.set( 6.0f, 1.0f, 127 );
 	        frontWingRange.set( 14.0f, 0.25f, 65 );
 	        
-	        engine.revLimitRange.set( 20000.0f, 250f, 9 );
+	        engine.revLimitRange.set( 20000.0f, -250f, 9 );
 	        engine.boostRange.set( 0f, 1.0f, 9 );
             engine.rpmIncreasePerBoostSetting = -200.0f;
             engine.fuelUsageIncreasePerBoostSetting = -0.001f;
@@ -1849,8 +1849,8 @@ public class VehiclePhysics
             engine.lifetimeVariance = 1000;//1600;
 	        engine.baseLifetimeOilTemperature = 126.2f; //114.7f;
             engine.halfLifetimeOilTempOffset = 4.15f;
-            engine.baseLifetimeRPM = 16680.0f;
-            engine.halfLifetimeRPMOffset = 510.0f;
+            engine.baseLifetimeRPM = 16661.3f;
+            engine.halfLifetimeRPMOffset = 594.0f;
 	        
 	        brakes.brakeFrontLeft.setTemperatures( 200f, 450f, 750f, 1050f );
 	        brakes.brakeFrontRight.setTemperatures( 200f, 450f, 750f, 1050f );

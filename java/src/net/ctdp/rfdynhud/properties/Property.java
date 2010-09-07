@@ -161,18 +161,32 @@ public abstract class Property
     {
         StringBuilder sb = new StringBuilder( String.valueOf( Character.toLowerCase( nameForDisplay.charAt( 0 ) ) ) );
         
+        boolean lastUpper = Character.isUpperCase( nameForDisplay.charAt( 0 ) );
+        
         for ( int i = 1; i < nameForDisplay.length(); i++ )
         {
             char ch = nameForDisplay.charAt( i );
             
             if ( Character.isUpperCase( ch ) )
             {
-                sb.append( ' ' );
-                sb.append( Character.toLowerCase( ch ) );
+                if ( lastUpper )
+                {
+                    sb.setCharAt( sb.length() - 1, Character.toUpperCase( sb.charAt( sb.length() - 1 ) ) );
+                    sb.append( ch );
+                }
+                else
+                {
+                    sb.append( ' ' );
+                    sb.append( Character.toLowerCase( ch ) );
+                }
+                
+                lastUpper = true;
             }
             else
             {
                 sb.append( ch );
+                
+                lastUpper = false;
             }
         }
         
