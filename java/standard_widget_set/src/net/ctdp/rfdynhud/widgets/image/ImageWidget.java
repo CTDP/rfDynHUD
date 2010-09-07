@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.widgets.image;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -37,7 +37,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class ImageWidget extends Widget
 {
-    private final ImageProperty imageProp = new ImageProperty( this, "imageName", "ctdp.png" )
+    private final ImagePropertyWithTexture imageProp = new ImagePropertyWithTexture( this, "imageName", "ctdp.png" )
     {
         @Override
         public void onValueChanged( String oldValue, String newValue )
@@ -47,8 +47,6 @@ public class ImageWidget extends Widget
             forceCompleteRedraw( true );
         }
     };
-    
-    private TextureImage2D scaled = null;
     
     @Override
     public WidgetPackage getWidgetPackage()
@@ -62,7 +60,7 @@ public class ImageWidget extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        scaled = imageProp.getImage().getScaledTextureImage( width, height, scaled, isEditorMode );
+        imageProp.updateSize( width, height, isEditorMode );
     }
     
     @Override
@@ -70,7 +68,7 @@ public class ImageWidget extends Widget
     {
         if ( needsCompleteRedraw )
         {
-            texture.clear( scaled, 0, 0, width, height, offsetX, offsetY, width, height, true, null );
+            texture.clear( imageProp.getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
         }
     }
     

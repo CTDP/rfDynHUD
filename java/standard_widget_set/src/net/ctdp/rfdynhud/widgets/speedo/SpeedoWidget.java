@@ -170,5 +170,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     public SpeedoWidget( String name )
     {
         super( name, 16.3125f, 21.75f );
+        
+        lastMarkerBig.setBooleanValue( true );
     }
 }

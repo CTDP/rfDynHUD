@@ -21,14 +21,14 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
-import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -45,14 +45,13 @@ public class Lesson4cWidget_SubTextures extends Widget
     /*
      * We need an image for our sub texture.
      */
-    private final ImageProperty subImage = new ImageProperty( this, "subImage", "cyan_circle.png" );
+    private final ImagePropertyWithTexture subImage = new ImagePropertyWithTexture( this, "subImage", "cyan_circle.png" );
     
     /*
      * A sub texture is represented by a TransformableTexture. They are pulled by rfDynHUD in an array,
      * So we create it here. As we know, that we have exactly one texture, we can create a fixed size here.
      */
     private final TransformableTexture[] subTextures = new TransformableTexture[ 1 ];
-    private TextureImage2D cache = null;
     
     private final IntValue lapNumber = new IntValue();
     
@@ -84,7 +83,7 @@ public class Lesson4cWidget_SubTextures extends Widget
         int s = Math.min( w, h );
         
         subTextures[0] = subImage.getImage().getScaledTransformableTexture( s, s, subTextures[0], isEditorMode );
-        cache = subImage.getImage().getScaledTextureImage( s, s, cache, isEditorMode );
+        subImage.updateSize( s, s, isEditorMode );
     }
     
     @Override
@@ -98,8 +97,6 @@ public class Lesson4cWidget_SubTextures extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        loadSubTextures( isEditorMode, width, height );
-        
         int h = texture.getStringHeight( "0", getFont(), isFontAntiAliased() );
         lapString = drawnStringFactory.newDrawnString( "lapString", subTextures[0].getWidth() / 2, ( subTextures[0].getHeight() - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
     }
@@ -141,7 +138,7 @@ public class Lesson4cWidget_SubTextures extends Widget
         
         if ( needsCompleteRedraw || ( clock1 && lapNumber.hasChanged() ) )
         {
-            lapString.draw( 0, 0, lapNumber.getValueAsString(), cache, subTextures[0].getTexture() );
+            lapString.draw( 0, 0, lapNumber.getValueAsString(), subImage.getTexture(), subTextures[0].getTexture() );
         }
     }
     

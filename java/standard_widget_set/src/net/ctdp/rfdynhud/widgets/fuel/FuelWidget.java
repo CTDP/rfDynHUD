@@ -634,7 +634,6 @@ public class FuelWidget extends Widget
             nextPitstopFuelString = dsf.newDrawnStringIf( b, "nextPitstopFuelString", null, nextPitstopLapString, textLeft + 10, 0, Alignment.LEFT, false, font2, font2AntiAliased, fontColor, Loc.nextPitstopFuel_prefix + ": ", null );
         }
         
-        loadLowFuelWarningImages( isEditorMode );
         resetBlink( isEditorMode );
     }
     

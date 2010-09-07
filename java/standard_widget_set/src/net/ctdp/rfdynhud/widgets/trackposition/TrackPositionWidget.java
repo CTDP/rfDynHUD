@@ -204,6 +204,7 @@ public class TrackPositionWidget extends Widget
     
     private void initSubTextures( boolean isEditorMode, ModInfo modInfo )
     {
+        updateItemRadius();
         initMaxDisplayedVehicles( isEditorMode, modInfo );
         
         if ( ( itemTextures == null ) || ( itemTextures.length != maxDisplayedVehicles ) )
@@ -246,8 +247,6 @@ public class TrackPositionWidget extends Widget
         
         if ( isEditorMode )
             updateVSIs( gameData, isEditorMode );
-        
-        initSubTextures( isEditorMode, gameData.getModInfo() );
     }
     
     @Override

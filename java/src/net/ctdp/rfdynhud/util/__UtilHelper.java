@@ -54,6 +54,8 @@ public class __UtilHelper
                 return ( stripDotDots( s ).getParentFile().getParentFile().getAbsoluteFile() );
         }
         
+        // fallback in development mode:
+        
         File f = new File( "." );
         try
         {
@@ -61,7 +63,7 @@ public class __UtilHelper
         }
         catch ( IOException e )
         {
-            return ( new File( "." ).getAbsoluteFile() );
+            return ( f.getAbsoluteFile() );
         }
     }
     

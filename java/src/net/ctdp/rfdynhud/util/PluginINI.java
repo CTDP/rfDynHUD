@@ -29,7 +29,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class PluginINI
 {
-    private static final File IDE_DATA_FOLDER = ResourceManager.isJarMode() ? null : new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ).getAbsoluteFile();
+    private static final File IDE_DATA_FOLDER = ResourceManager.isJarMode() ? null : new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "yyy_data" ).getAbsoluteFile();
     
     private final File pluginFolder;
     private final File iniFile;

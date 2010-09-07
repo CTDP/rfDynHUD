@@ -393,7 +393,6 @@ public class ControlsWidget extends Widget
     @Override
     protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        initSubTextures( isEditorMode, width, height );
     }
     
     @Override

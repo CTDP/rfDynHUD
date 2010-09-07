@@ -39,6 +39,10 @@ public class KeyCellRenderer extends KeyValueCellRenderer< KeyRenderLabel >
         component.setLevel( tm.getLevel( row ) );
         component.setLastInGroup( tm.getLastInGroup( row ) );
         
+        component.setForeground( java.awt.Color.BLACK );
+        if ( !component.getFont().isBold() )
+            component.setFont( component.getFont().deriveFont( component.getFont().getStyle() | java.awt.Font.BOLD ) );
+        
         component.setText( String.valueOf( value ) );
     }
     

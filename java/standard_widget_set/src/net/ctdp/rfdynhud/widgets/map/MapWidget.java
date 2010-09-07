@@ -260,6 +260,7 @@ public class MapWidget extends Widget
     
     private void initSubTextures( boolean isEditorMode, ModInfo modInfo, int widgetWidth, int widgetHeight )
     {
+        updateItemRadius();
         initMaxDisplayedVehicles( isEditorMode, modInfo );
         
         int numTextures = maxDisplayedVehicles;
@@ -315,8 +316,6 @@ public class MapWidget extends Widget
         
         if ( isEditorMode )
             updateVSIs( gameData, isEditorMode );
-        
-        initSubTextures( isEditorMode, gameData.getModInfo(), width, height );
         
         cacheTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, cacheTexture, isEditorMode );
         cacheTexture.clear( true, null );

@@ -17,52 +17,84 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.render.ImageTemplate;
-import net.ctdp.rfdynhud.util.TextureManager;
+import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
- * The {@link ImageProperty} serves for customizing an image.
+ * The {@link ImagePropertyWithTexture} serves for customizing an image
+ * and provides a {@link TextureImage2D} instance with a given size.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ImageProperty extends StringProperty
+public class ImagePropertyWithTexture extends ImageProperty
 {
-    public static final boolean DEFAULT_NO_IMAGE_ALOWED = false;
+    private TextureImage2D texture = null;
+    private boolean knownEditorMode = false;
     
-    private final boolean noImageAllowed;
+    private boolean textureDirty = false;
     
-    public final boolean getNoImageAllowed()
+    /**
+     * Updates the stored {@link TextureImage2D} to the given size and returns the texture.
+     * 
+     * @param width
+     * @param height
+     * @param isEditorMode
+     * 
+     * @return the scaled texture.
+     */
+    public TextureImage2D updateSize( int width, int height, boolean isEditorMode )
     {
-        return ( noImageAllowed );
-    }
-    
-    public final void setImageName( String imageName )
-    {
-        setStringValue( imageName );
-    }
-    
-    public final String getImageName()
-    {
-        return ( getStringValue() );
-    }
-    
-    public final boolean isNoImage()
-    {
-        return ( ( getStringValue() == null ) || getStringValue().equals( "" ) );
+        if ( isNoImage() )
+            texture = null;
+        else
+            texture = getImage().getScaledTextureImage( width, height, texture, isEditorMode );
+        
+        knownEditorMode = isEditorMode;
+        textureDirty = false;
+        
+        return ( texture );
     }
     
     /**
-     * Gets the {@link ImageTemplate} defined by this {@link ImageProperty}.
+     * Gets the scaled texture. Make sure to call {@link #updateSize(int, int, boolean)} before.
      * 
-     * @return the {@link ImageTemplate} defined by this {@link ImageProperty} or <code>null</code>, if set to no image.
+     * @return the scaled texture.
      */
-    public final ImageTemplate getImage()
+    public final TextureImage2D getTexture()
     {
-        if ( isNoImage() )
-            return ( null );
+        if ( textureDirty && ( texture != null ) )
+            updateSize( texture.getWidth(), texture.getHeight(), knownEditorMode );
         
-        return ( TextureManager.getImage( getImageName() ) );
+        return ( texture );
+    }
+    
+    /**
+     * Gets whether this property keeps a scaled texture instance.
+     * 
+     * @return whether this property keeps a scaled texture instance.
+     */
+    public final boolean hasTexture()
+    {
+        return ( getTexture() != null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onValueChanged( String oldValue, String newValue )
+    {
+        super.onValueChanged( oldValue, newValue );
+        
+        if ( isNoImage() )
+        {
+            texture = null;
+            textureDirty = false;
+        }
+        else
+        {
+            textureDirty = true;
+        }
     }
     
     /**
@@ -74,11 +106,9 @@ public class ImageProperty extends StringProperty
      * @param readonly
      * @param noImageAllowed
      */
-    public ImageProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
+    public ImagePropertyWithTexture( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
-        super( widget, name, nameForDisplay, defaultValue, true, readonly, PropertyEditorType.IMAGE );
-        
-        this.noImageAllowed = noImageAllowed;
+        super( widget, name, nameForDisplay, defaultValue, readonly, noImageAllowed );
     }
     
     /**
@@ -88,7 +118,7 @@ public class ImageProperty extends StringProperty
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue
      */
-    public ImageProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
+    public ImagePropertyWithTexture( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
         this( widget, name, nameForDisplay, defaultValue, false, DEFAULT_NO_IMAGE_ALOWED );
     }
@@ -100,7 +130,7 @@ public class ImageProperty extends StringProperty
      * @param defaultValue
      * @param readonly
      */
-    public ImageProperty( Widget widget, String name, String defaultValue, boolean readonly )
+    public ImagePropertyWithTexture( Widget widget, String name, String defaultValue, boolean readonly )
     {
         this( widget, name, null, defaultValue, readonly, DEFAULT_NO_IMAGE_ALOWED );
     }
@@ -111,7 +141,7 @@ public class ImageProperty extends StringProperty
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue
      */
-    public ImageProperty( Widget widget, String name, String defaultValue )
+    public ImagePropertyWithTexture( Widget widget, String name, String defaultValue )
     {
         this( widget, name, defaultValue, false );
     }
@@ -125,7 +155,7 @@ public class ImageProperty extends StringProperty
      * @param readonly
      * @param noImageAllowed
      */
-    public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
+    public ImagePropertyWithTexture( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
         this( (Widget)null, name, nameForDisplay, defaultValue, readonly, noImageAllowed );
         
@@ -139,7 +169,7 @@ public class ImageProperty extends StringProperty
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue
      */
-    public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
+    public ImagePropertyWithTexture( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
     {
         this( w2pf, name, nameForDisplay, defaultValue, false, DEFAULT_NO_IMAGE_ALOWED );
     }
@@ -151,7 +181,7 @@ public class ImageProperty extends StringProperty
      * @param defaultValue
      * @param readonly
      */
-    public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
+    public ImagePropertyWithTexture( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
     {
         this( w2pf, name, null, defaultValue, readonly, DEFAULT_NO_IMAGE_ALOWED );
     }
@@ -162,7 +192,7 @@ public class ImageProperty extends StringProperty
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue
      */
-    public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
+    public ImagePropertyWithTexture( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
     {
         this( w2pf, name, defaultValue, false );
     }

@@ -34,6 +34,7 @@ public abstract class Property
     
     private final String name;
     private final String nameForDisplay;
+    private final String nameForDisplay2;
     private final boolean readonly;
     private final PropertyEditorType editorType;
     private final String buttonText;
@@ -54,7 +55,8 @@ public abstract class Property
     
     public String getNameForDisplay()
     {
-        return ( nameForDisplay );
+        //return ( nameForDisplay );
+        return ( nameForDisplay2 );
     }
     
     public final boolean isReadOnly()
@@ -155,6 +157,28 @@ public abstract class Property
         return ( this.getClass().getSimpleName() + "( \"" + getName() + "\" = \"" + String.valueOf( getValue() ) + "\" )" );
     }
     
+    private static String generateNameForDisplay( String nameForDisplay )
+    {
+        StringBuilder sb = new StringBuilder( String.valueOf( Character.toLowerCase( nameForDisplay.charAt( 0 ) ) ) );
+        
+        for ( int i = 1; i < nameForDisplay.length(); i++ )
+        {
+            char ch = nameForDisplay.charAt( i );
+            
+            if ( Character.isUpperCase( ch ) )
+            {
+                sb.append( ' ' );
+                sb.append( Character.toLowerCase( ch ) );
+            }
+            else
+            {
+                sb.append( ch );
+            }
+        }
+        
+        return ( sb.toString() );
+    }
+    
     /**
      * 
      * @param widgetsConfig
@@ -171,6 +195,7 @@ public abstract class Property
         this.widget = null;
         this.name = name;
         this.nameForDisplay = nameForDisplay;
+        this.nameForDisplay2 = generateNameForDisplay( this.nameForDisplay );
         this.readonly = readonly;
         this.editorType = editorType;
         this.buttonText = buttonText;
@@ -193,6 +218,7 @@ public abstract class Property
         this.widget = widget;
         this.name = name;
         this.nameForDisplay = ( nameForDisplay == null ) ? name : nameForDisplay;
+        this.nameForDisplay2 = generateNameForDisplay( this.nameForDisplay );
         this.readonly = readonly;
         this.editorType = editorType;
         this.buttonText = buttonText;
@@ -263,6 +289,7 @@ public abstract class Property
         this.widget = null;
         this.name = name;
         this.nameForDisplay = ( nameForDisplay == null ) ? name : nameForDisplay;
+        this.nameForDisplay2 = generateNameForDisplay( this.nameForDisplay );
         this.readonly = readonly;
         this.editorType = editorType;
         this.buttonText = buttonText;

@@ -139,7 +139,7 @@ public abstract class GameFileSystem
         if ( ResourceManager.isJarMode() )
             return ( new File( pluginFolder, "editor" ).getAbsoluteFile() );
         
-        return ( new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "data" ).getAbsoluteFile() );
+        return ( new File( new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "yyy_data" ), "editor" ).getAbsoluteFile() );
     }
     
     /**

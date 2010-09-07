@@ -1330,8 +1330,6 @@ public abstract class Widget implements Documented
      */
     public final void drawWidget( boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
-        boolean wasInitialized = initialized;
-        
         int offsetX = position.getEffectiveX();
         int offsetY = position.getEffectiveY();
         int width = size.getEffectiveWidth();
@@ -1354,6 +1352,13 @@ public abstract class Widget implements Documented
         
         final Texture2DCanvas texCanvas = texture.getTextureCanvas();
         final TextureImage2D texture2 = hasMasterCanvas( isEditorMode ) ? texture : null;
+        
+        TransformableTexture[] subTextures = null;
+        
+        if ( isEditorMode )
+        {
+            subTextures = getSubTextures( gameData, isEditorMode, width2, height2 );
+        }
         
         if ( !initialized )
         {
@@ -1403,20 +1408,13 @@ public abstract class Widget implements Documented
         
         drawWidget( clock1, clock2, completeRedrawForced, gameData, isEditorMode, texture2, offsetX2, offsetY2, width2, height2 );
         
-        if ( isEditorMode )
+        if ( isEditorMode && ( subTextures != null ) )
         {
-            initialized = wasInitialized;
-            TransformableTexture[] subTextures = getSubTextures( gameData, isEditorMode, width2, height2 );
-            initialized = true;
+            texCanvas.setClip( (Rect2i)null );
             
-            if ( subTextures != null )
+            for ( int i = 0; i < subTextures.length; i++ )
             {
-                texCanvas.setClip( (Rect2i)null );
-                
-                for ( int i = 0; i < subTextures.length; i++ )
-                {
-                    subTextures[i].drawInEditor( texCanvas, offsetX2 + subTextures[i].getOwnerWidget().getOffsetXToMasterWidget(), offsetY2 + subTextures[i].getOwnerWidget().getOffsetYToMasterWidget() );
-                }
+                subTextures[i].drawInEditor( texCanvas, offsetX2 + subTextures[i].getOwnerWidget().getOffsetXToMasterWidget(), offsetY2 + subTextures[i].getOwnerWidget().getOffsetYToMasterWidget() );
             }
         }
         

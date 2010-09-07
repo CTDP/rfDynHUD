@@ -91,6 +91,14 @@ public abstract class NeedleMeterWidget extends Widget
         }
     };
     
+    private final IntProperty needleMountX = new IntProperty( this, "needleMountX", -1, -1, 5000 );
+    private final IntProperty needleMountY = new IntProperty( this, "needleMountY", -1, -1, 5000 );
+    
+    protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
+    
+    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
+    
     private final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
     
     private final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "cyan_circle.png", false, true );
@@ -104,13 +112,9 @@ public abstract class NeedleMeterWidget extends Widget
     private final FontProperty valueFont = new FontProperty( this, "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty valueFontColor = new ColorProperty( this, "valueFontColor", "fontColor", "#1A261C" );
     
-    protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
-    
-    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
-    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
-    
     protected final BooleanProperty displayMarkers = new BooleanProperty( this, "displayMarkers", true );
     protected final BooleanProperty displayMarkerNumbers = new BooleanProperty( this, "displayMarkerNumbers", "displayNumbers", true );
+    protected final BooleanProperty markerNumbersInside = new BooleanProperty( this, "markerNumbersInside", "numbersInside", false );
     protected final IntProperty markersInnerRadius = new IntProperty( this, "markersInnerRadius", "innerRadius", 224, 1, Integer.MAX_VALUE, false );
     protected final IntProperty markersLength = new IntProperty( this, "markersLength", "length", 50, 4, Integer.MAX_VALUE, false );
     
@@ -141,6 +145,9 @@ public abstract class NeedleMeterWidget extends Widget
             fixSmallStep();
         }
     };
+    
+    protected final BooleanProperty lastMarkerBig = new BooleanProperty( this, "lastMarkerBig", false );
+    
     protected final ColorProperty markersColor = new ColorProperty( this, "markersColor", "color", "#FFFFFF" );
     protected final FontProperty markersFont = new FontProperty( this, "markersFont", "font", "Monospaced-BOLD-9va" );
     protected final ColorProperty markersFontColor = new ColorProperty( this, "markersFontColor", "fontColor", "#FFFFFF" );
@@ -169,6 +176,11 @@ public abstract class NeedleMeterWidget extends Widget
         return ( displayMarkerNumbers.getBooleanValue() );
     }
     
+    protected boolean getMarkerNumbersInside()
+    {
+        return ( markerNumbersInside.getBooleanValue() );
+    }
+    
     protected int getMarkersInnerRadius()
     {
         return ( markersInnerRadius.getIntValue() );
@@ -187,6 +199,37 @@ public abstract class NeedleMeterWidget extends Widget
     protected final TransformableTexture getNeedleTexture()
     {
         return ( needleTexture );
+    }
+    
+    protected int getNeedlePivotBottomOffset()
+    {
+        return ( needlePivotBottomOffset.getIntValue() );
+    }
+    
+    protected int getNeedleMountX( int widgetWidth )
+    {
+        if ( needleMountX.getIntValue() < 0 )
+            return ( widgetWidth / 2 );
+        
+        return ( Math.round( needleMountX.getIntValue() * getBackground().getScaleX() ) );
+    }
+    
+    protected int getNeedleMountY( int widgetHeight )
+    {
+        if ( needleMountY.getIntValue() < 0 )
+            return ( widgetHeight / 2 );
+        
+        return ( Math.round( needleMountY.getIntValue() * getBackground().getScaleY() ) );
+    }
+    
+    protected float getNeedleRotationForMinValue()
+    {
+        return ( needleRotationForMinValue.getFactoredValue() );
+    }
+    
+    protected float getNeedleRotationForMaxValue()
+    {
+        return ( needleRotationForMaxValue.getFactoredValue() );
     }
     
     protected ImageTemplate getValueBackgroundImage()
@@ -229,21 +272,6 @@ public abstract class NeedleMeterWidget extends Widget
     protected ColorProperty getValueFontColor()
     {
         return ( valueFontColor );
-    }
-    
-    protected int getNeedlePivotBottomOffset()
-    {
-        return ( needlePivotBottomOffset.getIntValue() );
-    }
-    
-    protected float getNeedleRotationForMinValue()
-    {
-        return ( needleRotationForMinValue.getFactoredValue() );
-    }
-    
-    protected float getNeedleRotationForMaxValue()
-    {
-        return ( needleRotationForMaxValue.getFactoredValue() );
     }
     
     private int loadValueBackgroundTexture( boolean isEditorMode )
@@ -390,11 +418,12 @@ public abstract class NeedleMeterWidget extends Widget
         final float backgroundScaleX = getBackground().getScaleX();
         final float backgroundScaleY = getBackground().getScaleY();
         
-        loadNeedleTexture( isEditorMode );
-        
         if ( needleTexture != null )
         {
-            needleTexture.setTranslation( (int)( ( width - needleTexture.getWidth() ) / 2 ), (int)( height / 2 - needleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * backgroundScaleX ) );
+            int mountX = getNeedleMountX( width );
+            int mountY = getNeedleMountY( height );
+            
+            needleTexture.setTranslation( mountX - needleTexture.getWidth() / 2, mountY - needleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * backgroundScaleX );
             needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * backgroundScaleX ) );
         }
         
@@ -408,8 +437,6 @@ public abstract class NeedleMeterWidget extends Widget
             //double fw = bounds.getWidth();
             double fh = metrics.getAscent() - metrics.getDescent();
             int fx, fy;
-            
-            loadValueBackgroundTexture( isEditorMode );
             
             if ( valueBackgroundTexture == null )
             {
@@ -525,6 +552,22 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     /**
+     * Gets a certain marker number's color at the given value.
+     * 
+     * @param gameData
+     * @param isEditorMode
+     * @param value
+     * @param minValue
+     * @param maxValue
+     * 
+     * @return a certain marker's color at the given value.
+     */
+    protected Color getMarkerNumberColorForValue( LiveGameData gameData, boolean isEditorMode, int value, int minValue, int maxValue )
+    {
+        return ( markersFontColor.getColor() );
+    }
+    
+    /**
      * Draws the markers.
      * 
      * @param gameData
@@ -537,85 +580,96 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected void drawMarkers( LiveGameData gameData, boolean isEditorMode, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
+        final boolean dm = getDisplayMarkers();
+        final boolean dmn = getDisplayMarkerNumbers();
+        final boolean mni = getMarkerNumbersInside();
+        
         final float backgroundScaleX = getBackground().getScaleX();
         //final float backgroundScaleY = getBackground().getBackgroundScaleY();
         
         int minValue = (int)getMinValue( gameData, isEditorMode );
         int maxValue = (int)getMaxValue( gameData, isEditorMode );
         
-        float centerX = offsetX + width / 2;
-        float centerY = offsetY + height / 2;
+        float centerX = offsetX + getNeedleMountX( width );
+        float centerY = offsetY + getNeedleMountY( height );
         
         texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
         
         float innerRadius = markersInnerRadius.getIntValue() * backgroundScaleX;
-        float bigOuterRadius = ( markersInnerRadius.getIntValue() + markersLength.getIntValue() - 1 ) * backgroundScaleX;
+        float markersLength2 = markersLength.getIntValue() * backgroundScaleX;
+        float bigOuterRadius0 = ( markersInnerRadius.getIntValue() + markersLength.getIntValue() - 1 ) * backgroundScaleX;
+        float bigOuterRadius = ( markersInnerRadius.getIntValue() + ( dm ? markersLength.getIntValue() - 1 : 0 ) ) * backgroundScaleX;
+        float smallOuterRadius0 = innerRadius + ( bigOuterRadius0 - innerRadius ) * 0.75f;
         float smallOuterRadius = innerRadius + ( bigOuterRadius - innerRadius ) * 0.75f;
         
-        prepareMarkersBackground( gameData, isEditorMode, texCanvas, offsetX, offsetY, width, height, innerRadius, bigOuterRadius, smallOuterRadius );
+        prepareMarkersBackground( gameData, isEditorMode, texCanvas, offsetX, offsetY, width, height, innerRadius, bigOuterRadius, smallOuterRadius0 );
         
-        if ( displayMarkers.getBooleanValue() )
+        Stroke oldStroke = texCanvas.getStroke();
+        
+        Stroke bigStroke = new BasicStroke( 2 );
+        Stroke smallStroke = new BasicStroke( 1 );
+        
+        FontProperty numberFont = markersFont;
+        texCanvas.setFont( numberFont.getFont() );
+        FontMetrics metrics = numberFont.getMetrics();
+        
+        AffineTransform at0 = new AffineTransform( texCanvas.getTransform() );
+        AffineTransform at1 = new AffineTransform( at0 );
+        AffineTransform at2 = new AffineTransform();
+        
+        String biggestString = String.valueOf( getMarkerLabelForValue( gameData, isEditorMode, Math.max( minValue, maxValue ) ) );
+        
+        final int smallStep = markersSmallStep.getIntValue();
+        for ( int value = minValue; value <= maxValue; value += smallStep )
         {
-            Stroke oldStroke = texCanvas.getStroke();
+            float angle = +( needleRotationForMinValue.getFactoredValue() + ( needleRotationForMaxValue.getFactoredValue() - needleRotationForMinValue.getFactoredValue() ) * ( value / (float)maxValue ) );
             
-            Stroke bigStroke = new BasicStroke( 2 );
-            Stroke smallStroke = new BasicStroke( 1 );
+            at2.setToRotation( angle, centerX, centerY );
+            texCanvas.setTransform( at2 );
             
-            FontProperty numberFont = markersFont;
-            texCanvas.setFont( numberFont.getFont() );
-            FontMetrics metrics = numberFont.getMetrics();
+            texCanvas.setColor( getMarkerColorForValue( gameData, isEditorMode, value, minValue, maxValue ) );
             
-            AffineTransform at0 = new AffineTransform( texCanvas.getTransform() );
-            AffineTransform at1 = new AffineTransform( at0 );
-            AffineTransform at2 = new AffineTransform();
-            
-            final int smallStep = markersSmallStep.getIntValue();
-            for ( int value = minValue; value <= maxValue; value += smallStep )
+            if ( ( ( value % markersBigStep.getIntValue() ) == 0 ) || ( lastMarkerBig.getBooleanValue() && ( value + smallStep > maxValue ) ) )
             {
-                float angle = +( needleRotationForMinValue.getFactoredValue() + ( needleRotationForMaxValue.getFactoredValue() - needleRotationForMinValue.getFactoredValue() ) * ( value / (float)maxValue ) );
-                
-                at2.setToRotation( angle, centerX, centerY );
-                texCanvas.setTransform( at2 );
-                
-                texCanvas.setColor( getMarkerColorForValue( gameData, isEditorMode, value, minValue, maxValue ) );
-                
-                if ( ( value % markersBigStep.getIntValue() ) == 0 )
+                if ( dm )
                 {
                     texCanvas.setStroke( bigStroke );
                     texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - bigOuterRadius ) );
                     //texCanvas.drawLine( Math.round( centerX ), Math.round( ( centerY - innerRadius ) * backgroundScaleY / backgroundScaleX ), Math.round( centerX ), Math.round( ( centerY - outerRadius ) * backgroundScaleY / backgroundScaleX ) );
+                }
+                
+                if ( dmn )
+                {
+                    String s = getMarkerLabelForValue( gameData, isEditorMode, value );
                     
-                    if ( displayMarkerNumbers.getBooleanValue() )
+                    if ( s != null )
                     {
-                        String s = getMarkerLabelForValue( gameData, isEditorMode, value );
+                        Rectangle2D bounds = metrics.getStringBounds( mni ? biggestString : s, texCanvas );
+                        float fw = (float)bounds.getWidth();
+                        float fh = (float)( metrics.getAscent() - metrics.getDescent() );
+                        float off = (float)Math.sqrt( fw * fw + fh * fh ) / 2f;
                         
-                        if ( s != null )
-                        {
-                            Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
-                            float fw = (float)bounds.getWidth();
-                            float fh = (float)( metrics.getAscent() - metrics.getDescent() );
-                            float off = (float)Math.sqrt( fw * fw + fh * fh ) / 2f;
-                            
-                            at1.setToTranslation( 0f, -off );
-                            at2.concatenate( at1 );
-                            at1.setToRotation( -angle, Math.round( centerX ), Math.round( centerY - bigOuterRadius ) - fh / 2f );
-                            at2.concatenate( at1 );
-                            texCanvas.setTransform( at2 );
-                            
-                            texCanvas.drawString( s, Math.round( centerX ) - fw / 2f, Math.round( centerY - bigOuterRadius ) );
-                        }
+                        at1.setToTranslation( 0f, mni ? +off * 2 + markersLength2 : -off );
+                        at2.concatenate( at1 );
+                        at1.setToRotation( -angle, Math.round( centerX ), Math.round( centerY - bigOuterRadius ) - fh / 2f );
+                        at2.concatenate( at1 );
+                        texCanvas.setTransform( at2 );
+                        
+                        texCanvas.setColor( getMarkerNumberColorForValue( gameData, isEditorMode, value, minValue, maxValue ) );
+                        
+                        texCanvas.drawString( s, Math.round( centerX ) - fw / 2f, Math.round( centerY - bigOuterRadius ) );
                     }
                 }
-                else
-                {
-                    texCanvas.setStroke( smallStroke );
-                    texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - smallOuterRadius ) );
-                }
             }
-            
-            texCanvas.setTransform( at0 );
-            texCanvas.setStroke( oldStroke );
+            else if ( dm )
+            {
+                texCanvas.setStroke( smallStroke );
+                texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - smallOuterRadius ) );
+            }
         }
+        
+        texCanvas.setTransform( at0 );
+        texCanvas.setStroke( oldStroke );
         
         texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT );
     }
@@ -625,7 +679,7 @@ public abstract class NeedleMeterWidget extends Widget
     {
         super.drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
         
-        if ( getDisplayMarkers() )
+        if ( getDisplayMarkers() || getDisplayMarkerNumbers() )
         {
             drawMarkers( gameData, isEditorMode, texture.getTextureCanvas(), offsetX, offsetY, width, height );
         }
@@ -704,15 +758,19 @@ public abstract class NeedleMeterWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( needleImageName, "The name of the needle image." );
+        writer.writeProperty( needleMountX, "The x-offset in background image pixels to the needle mount (-1 for center)." );
+        writer.writeProperty( needleMountY, "The y-offset in background image pixels to the needle mount (-1 for center)." );
         writer.writeProperty( needlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
         writer.writeProperty( needleRotationForMinValue, "The rotation for the needle image, that it has for min value (in degrees)." );
         writer.writeProperty( needleRotationForMaxValue, "The rotation for the needle image, that it has for max value (in degrees)." );
         writer.writeProperty( displayMarkers, "Display markers?" );
         writer.writeProperty( displayMarkerNumbers, "Display marker numbers?" );
+        writer.writeProperty( markerNumbersInside, "Render marker numbers inside of the markers?" );
         writer.writeProperty( markersInnerRadius, "The inner radius of the markers (in background image space)" );
         writer.writeProperty( markersLength, "The length of the markers (in background image space)" );
         writer.writeProperty( markersBigStep, "Step size of bigger rev markers" );
         writer.writeProperty( markersSmallStep, "Step size of smaller rev markers" );
+        writer.writeProperty( lastMarkerBig, "Whether to force the last marker to be treated as a big one." );
         writer.writeProperty( markersColor, "The color used to draw the markers." );
         writer.writeProperty( markersFont, "The font used to draw the marker numbers." );
         writer.writeProperty( markersFontColor, "The font color used to draw the marker numbers." );
@@ -732,15 +790,19 @@ public abstract class NeedleMeterWidget extends Widget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( needleImageName ) );
+        else if ( loader.loadProperty( needleMountX ) );
+        else if ( loader.loadProperty( needleMountY ) );
         else if ( loader.loadProperty( needlePivotBottomOffset ) );
         else if ( loader.loadProperty( needleRotationForMinValue ) );
         else if ( loader.loadProperty( needleRotationForMaxValue ) );
         else if ( loader.loadProperty( displayMarkers ) );
         else if ( loader.loadProperty( displayMarkerNumbers ) );
+        else if ( loader.loadProperty( markerNumbersInside ) );
         else if ( loader.loadProperty( markersInnerRadius ) );
         else if ( loader.loadProperty( markersLength ) );
         else if ( loader.loadProperty( markersBigStep ) );
         else if ( loader.loadProperty( markersSmallStep ) );
+        else if ( loader.loadProperty( lastMarkerBig ) );
         else if ( loader.loadProperty( markersColor ) );
         else if ( loader.loadProperty( markersFont ) );
         else if ( loader.loadProperty( markersFontColor ) );
@@ -775,6 +837,8 @@ public abstract class NeedleMeterWidget extends Widget
     protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( needleImageName );
+        propsCont.addProperty( needleMountX );
+        propsCont.addProperty( needleMountY );
         propsCont.addProperty( needlePivotBottomOffset );
         propsCont.addProperty( needleRotationForMinValue );
         propsCont.addProperty( needleRotationForMaxValue );
@@ -791,10 +855,12 @@ public abstract class NeedleMeterWidget extends Widget
     {
         propsCont.addProperty( displayMarkers );
         propsCont.addProperty( displayMarkerNumbers );
+        propsCont.addProperty( markerNumbersInside );
         propsCont.addProperty( markersInnerRadius );
         propsCont.addProperty( markersLength );
         propsCont.addProperty( markersBigStep );
         propsCont.addProperty( markersSmallStep );
+        propsCont.addProperty( lastMarkerBig );
         propsCont.addProperty( markersColor );
         propsCont.addProperty( markersFont );
         propsCont.addProperty( markersFontColor );

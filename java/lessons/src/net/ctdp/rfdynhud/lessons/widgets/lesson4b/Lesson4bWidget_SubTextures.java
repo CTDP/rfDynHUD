@@ -22,14 +22,14 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.lessons.widgets._util.LessonsWidgetSet;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -50,7 +50,7 @@ public class Lesson4bWidget_SubTextures extends Widget
     /*
      * We need an image for our sub texture.
      */
-    private final ImageProperty subImage = new ImageProperty( this, "subImage", "cyan_circle.png" );
+    private final ImagePropertyWithTexture subImage = new ImagePropertyWithTexture( this, "subImage", "cyan_circle.png" );
     
     private final ColorProperty myFontColor = new ColorProperty( this, "myFontColor", "#000000" );
     
@@ -59,7 +59,6 @@ public class Lesson4bWidget_SubTextures extends Widget
      * So we create it here. As we know, that we have exactly one texture, we can create a fixed size here.
      */
     private final TransformableTexture[] subTextures = new TransformableTexture[ 1 ];
-    private TextureImage2D cache = null;
     
     private final IntValue lapNumber = new IntValue();
     
@@ -86,7 +85,7 @@ public class Lesson4bWidget_SubTextures extends Widget
          * This loads the image as defined in the property and gets a scaled instance as a TransformableTexture.
          */
         subTextures[0] = subImage.getImage().getScaledTransformableTexture( 32, 32, subTextures[0], isEditorMode );
-        cache = subImage.getImage().getScaledTextureImage( 32, 32, cache, isEditorMode );
+        subImage.updateSize( 32, 32, isEditorMode );
     }
     
     @Override
@@ -136,7 +135,7 @@ public class Lesson4bWidget_SubTextures extends Widget
             /*
              * We draw the lap number on the sub texture using our cached texture as clear image.
              */
-            lapString.draw( 0, 0, lapNumber.getValueAsString(), cache, subTextures[0].getTexture() );
+            lapString.draw( 0, 0, lapNumber.getValueAsString(), subImage.getTexture(), subTextures[0].getTexture() );
         }
     }
     

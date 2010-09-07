@@ -28,7 +28,6 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
-import net.ctdp.rfdynhud.gamedata.VehiclePhysics.PhysicsSetting;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
@@ -513,16 +512,11 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         final Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
-        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            shiftLights[s].loadTextures( isEditorMode );
-        
         FontMetrics metrics = null;
         Rectangle2D bounds = null;
         double fw = 0, fh = 0;
         double fd = 0;
         int fx = 0, fy = 0;
-        
-        loadGearBackgroundTexture( isEditorMode );
         
         if ( displayGear.getBooleanValue() )
         {
@@ -548,8 +542,6 @@ public class RevMeterWidget extends NeedleMeterWidget
         }
         
         gearString = dsf.newDrawnStringIf( displayGear.getBooleanValue(), "gearString", fx - (int)( fw / 2.0 ), fy - (int)( fd + fh / 2.0 ), Alignment.LEFT, false, gearFont.getFont(), gearFont.isAntiAliased(), gearFontColor.getColor() );
-        
-        loadBoostNumberBackgroundTexture( isEditorMode );
         
         if ( displayBoostNumber.getBooleanValue() )
         {
@@ -579,10 +571,11 @@ public class RevMeterWidget extends NeedleMeterWidget
         rpmString1 = dsf.newDrawnStringIf( displayRPMString1.getBooleanValue(), "rpmString1", width - Math.round( rpmPosX1.getIntValue() * getBackground().getScaleX() ), Math.round( rpmPosY1.getIntValue() * getBackground().getScaleY() ), Alignment.RIGHT, false, rpmFont1.getFont(), rpmFont1.isAntiAliased(), rpmFontColor1.getColor() );
         rpmString2 = dsf.newDrawnStringIf( displayRPMString2.getBooleanValue(), "rpmString2", width - Math.round( rpmPosX2.getIntValue() * getBackground().getScaleX() ), Math.round( rpmPosY2.getIntValue() * getBackground().getScaleY() ), Alignment.RIGHT, false, rpmFont2.getFont(), rpmFont2.isAntiAliased(), rpmFontColor2.getColor() );
         
-        loadPeakNeedleTexture( isEditorMode );
+        int mountX = getNeedleMountX( width );
+        int mountY = getNeedleMountY( height );
         
-        peakNeedleTexture.setTranslation( (int)( ( width - peakNeedleTexture.getWidth() ) / 2 ), (int)( height / 2 - peakNeedleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * getBackground().getScaleX() ) );
-        peakNeedleTexture.setRotationCenter( (int)( peakNeedleTexture.getWidth() / 2 ), (int)( peakNeedleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * getBackground().getScaleX() ) );
+        peakNeedleTexture.setTranslation( mountX - peakNeedleTexture.getWidth() / 2, mountY - peakNeedleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * getBackground().getScaleX() );
+        peakNeedleTexture.setRotationCenter( (int)( peakNeedleTexture.getWidth() / 2 ), (int)( peakNeedleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * getBackground().getScaleY() ) );
     }
     
     /**
@@ -660,7 +653,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             texCanvas.fillArc( Math.round( centerX - smallOuterRadius ), Math.round( centerY - smallOuterRadius ), Math.round( smallOuterRadius + smallOuterRadius ), Math.round( smallOuterRadius + smallOuterRadius ), Math.round( 90f - angle ), ( angle < maxAngle - oneDegree - oneDegree ) ? -2 : -1 );
         }
         
-        //texCanvas.setClip( oldClip );
+        texCanvas.setClip( oldClip );
     }
     
     /*
@@ -686,17 +679,20 @@ public class RevMeterWidget extends NeedleMeterWidget
     @Override
     protected void drawMarkers( LiveGameData gameData, boolean isEditorMode, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
-        float baseMaxRPM = gameData.getTelemetryData().getEngineBaseMaxRPM();
-        
         VehiclePhysics.Engine engine = gameData.getPhysics().getEngine();
+        /*
         PhysicsSetting boostRange = engine.getBoostRange();
         
         int minBoost = ( engine.getRPMIncreasePerBoostLevel() > 0f ) ? (int)boostRange.getMinValue() : (int)boostRange.getMaxValue();
         //int maxBoost = ( engine.getRPMIncreasePerBoostLevel() > 0f ) ? (int)boostRange.getMaxValue() : (int)boostRange.getMinValue();
         int mediumBoost = Math.round( boostRange.getMinValue() + ( boostRange.getMaxValue() - boostRange.getMinValue() ) / 2f );
         
-        lowRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, minBoost );
-        mediumRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, mediumBoost );
+        float baseMaxRPM = gameData.getTelemetryData().getEngineBaseMaxRPM();
+        lowRPM = engine.getMaxRPM( baseMaxRPM, minBoost );
+        mediumRPM = engine.getMaxRPM( baseMaxRPM, mediumBoost );
+        */
+        lowRPM = engine.getBaseLifetimeRPM();
+        mediumRPM = engine.getBaseLifetimeRPM() + engine.getHalfLifetimeRPMOffset();
         
         super.drawMarkers( gameData, isEditorMode, texCanvas, offsetX, offsetY, width, height );
     }

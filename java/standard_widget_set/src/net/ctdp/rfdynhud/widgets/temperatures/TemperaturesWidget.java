@@ -33,12 +33,14 @@ import net.ctdp.rfdynhud.gamedata.WheelPart;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
+import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
@@ -68,7 +70,14 @@ public class TemperaturesWidget extends Widget
     private final Size tireSize = Size.newLocalSize( this, 10.0f, true, 10.0f, true );
     private final Size brakeSize = Size.newLocalSize( this, 7.0f, true, 20.0f, true );
     
-    private final DelayProperty brakeTempsPeekDelay = new DelayProperty( this, "brakeTempsPeekDelay", DelayProperty.DisplayUnits.MILLISECONDS, 7000, 0, 20000 );
+    private int gap = 7;
+    
+    private final ImagePropertyWithTexture tireIcon = new ImagePropertyWithTexture( this, "tireIcon", "icon", "tire_small.png", false, true );
+    private final ImagePropertyWithTexture brakeDiscIcon = new ImagePropertyWithTexture( this, "brakeDiscIcon", "icon", "brake_disc_small.png", false, true );
+    
+    private int maxIconWidth = 0;
+    
+    private final DelayProperty brakeTempsPeakDelay = new DelayProperty( this, "brakeTempsPeakDelay", "peakDelay", DelayProperty.DisplayUnits.MILLISECONDS, 7000, 0, 20000, false );
     
     private DrawnString engineHeaderString = null;
     private DrawnString engineWaterTempString = null;
@@ -229,6 +238,30 @@ public class TemperaturesWidget extends Widget
         return ( Loc.temperature_units_METRIC );
     }
     
+    private void loadTireImage( boolean isEditorMode, int height )
+    {
+        if ( tireIcon.isNoImage() )
+            return;
+        
+        ImageTemplate it = tireIcon.getImage();
+        
+        int width = Math.round( height * it.getBaseAspect() );
+        
+        tireIcon.updateSize( width, height, isEditorMode );
+    }
+    
+    private void loadBrakeDiscImage( boolean isEditorMode, int height )
+    {
+        if ( brakeDiscIcon.isNoImage() )
+            return;
+        
+        ImageTemplate it = brakeDiscIcon.getImage();
+        
+        int width = Math.round( height * it.getBaseAspect() );
+        
+        brakeDiscIcon.updateSize( width, height, isEditorMode );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -246,8 +279,29 @@ public class TemperaturesWidget extends Widget
         final int brakeWidth = brakeSize.getEffectiveWidth();
         final int brakeHeight = brakeSize.getEffectiveHeight();
         
-        int left = 2;
-        int center = width / 2;
+        maxIconWidth = 0;
+        
+        if ( displayTires.getBooleanValue() && !tireIcon.isNoImage() )
+        {
+            int tiresHeight = Math.min( tireHeight, brakeHeight ) * 2 + gap;
+            
+            loadTireImage( isEditorMode, tiresHeight );
+            
+            maxIconWidth = Math.max( maxIconWidth, tireIcon.getTexture().getWidth() );
+        }
+        
+        if ( displayBrakes.getBooleanValue() && !brakeDiscIcon.isNoImage() )
+        {
+            int brakesHeight = Math.min( tireHeight, brakeHeight ) * 2 + gap;
+            
+            loadBrakeDiscImage( isEditorMode, brakesHeight );
+            
+            maxIconWidth = Math.max( maxIconWidth, brakeDiscIcon.getTexture().getWidth() );
+        }
+        
+        int left0 = 2;
+        //int left = left0 + maxIconWidth;
+        int center = maxIconWidth + ( width - maxIconWidth ) / 2;
         int top = -2;
         DrawnString relY = null;
         
@@ -255,7 +309,7 @@ public class TemperaturesWidget extends Widget
         
         if ( displayEngine.getBooleanValue() )
         {
-            engineHeaderString = dsf.newDrawnString( "engineHeaderString", left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.engine_header_prefix + ": ", null );
+            engineHeaderString = dsf.newDrawnString( "engineHeaderString", left0, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.engine_header_prefix + ": ", null );
             if ( displayWaterTemp.getBooleanValue() )
             {
                 engineWaterTempString = dsf.newDrawnString( "engineWaterTempString", null, engineHeaderString, width, 2, Alignment.RIGHT, false, font2, font2AntiAliased, fontColor, "(" + Loc.engine_watertemp_prefix + ":", getTempUnits( measurementUnits ) + ")" );
@@ -275,15 +329,15 @@ public class TemperaturesWidget extends Widget
         
         if ( displayTires.getBooleanValue() )
         {
-            tiresHeaderString = dsf.newDrawnString( "tiresHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tires: ", null );
-            tireTempFLString = dsf.newDrawnString( "tireTempFLString", null, tiresHeaderString, center - 7 - imgWidth, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
-            tireTempFRString = dsf.newDrawnString( "tireTempFRString", null, tiresHeaderString, center + 7 + imgWidth, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
-            tireTempRLString = dsf.newDrawnString( "tireTempRLString", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
-            tireTempRRString = dsf.newDrawnString( "tireTempRRString", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
-            tireTempFLString2 = dsf.newDrawnString( "tireTempFLString2", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits( measurementUnits ) + ")" );
-            tireTempFRString2 = dsf.newDrawnString( "tireTempFRString2", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits( measurementUnits ) + ")" );
-            tireTempRLString2 = dsf.newDrawnString( "tireTempRLString2", null, tiresHeaderString, center - 7 - imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits( measurementUnits ) + ")" );
-            tireTempRRString2 = dsf.newDrawnString( "tireTempRRString2", null, tiresHeaderString, center + 7 + imgWidth, 0 + tireHeight - 2 + tireHeight + 7, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits( measurementUnits ) + ")" );
+            tiresHeaderString = dsf.newDrawnString( "tiresHeaderString", null, relY, left0, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, "Tires: ", null );
+            tireTempFLString = dsf.newDrawnString( "tireTempFLString", null, tiresHeaderString, center - gap - imgWidth, 0, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
+            tireTempFRString = dsf.newDrawnString( "tireTempFRString", null, tiresHeaderString, center + gap + imgWidth, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
+            tireTempRLString = dsf.newDrawnString( "tireTempRLString", null, tiresHeaderString, center - gap - imgWidth, 0 + tireHeight + gap, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
+            tireTempRRString = dsf.newDrawnString( "tireTempRRString", null, tiresHeaderString, center + gap + imgWidth, 0 + tireHeight + gap, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
+            tireTempFLString2 = dsf.newDrawnString( "tireTempFLString2", null, tiresHeaderString, center - gap - imgWidth, 0 + tireHeight - 2, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits( measurementUnits ) + ")" );
+            tireTempFRString2 = dsf.newDrawnString( "tireTempFRString2", null, tiresHeaderString, center + gap + imgWidth, 0 + tireHeight - 2, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits( measurementUnits ) + ")" );
+            tireTempRLString2 = dsf.newDrawnString( "tireTempRLString2", null, tiresHeaderString, center - gap - imgWidth, 0 + tireHeight - 2 + tireHeight + gap, Alignment.RIGHT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits( measurementUnits ) + ")" );
+            tireTempRRString2 = dsf.newDrawnString( "tireTempRRString2", null, tiresHeaderString, center + gap + imgWidth, 0 + tireHeight - 2 + tireHeight + gap, Alignment.LEFT, true, font2, font2AntiAliased, fontColor, "(", getTempUnits( measurementUnits ) + ")" );
             
             relY = tiresHeaderString;
             top = tireHeight * 2 + 15;
@@ -291,11 +345,11 @@ public class TemperaturesWidget extends Widget
         
         if ( displayBrakes.getBooleanValue() )
         {
-            brakesHeaderString = dsf.newDrawnString( "brakesHeaderString", null, relY, left, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            brakeTempFLString = dsf.newDrawnString( "brakeTempFLString", null, brakesHeaderString, center - 7 - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
-            brakeTempFRString = dsf.newDrawnString( "brakeTempFRString", null, brakesHeaderString, center + 7 + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
-            brakeTempRLString = dsf.newDrawnString( "brakeTempRLString", null, brakesHeaderString, center - 7 - imgWidth, 2 + brakeHeight + 7, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
-            brakeTempRRString = dsf.newDrawnString( "brakeTempRRString", null, brakesHeaderString, center + 7 + imgWidth, 2 + brakeHeight + 7, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
+            brakesHeaderString = dsf.newDrawnString( "brakesHeaderString", null, relY, left0, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            brakeTempFLString = dsf.newDrawnString( "brakeTempFLString", null, brakesHeaderString, center - gap - imgWidth, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
+            brakeTempFRString = dsf.newDrawnString( "brakeTempFRString", null, brakesHeaderString, center + gap + imgWidth, 2, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
+            brakeTempRLString = dsf.newDrawnString( "brakeTempRLString", null, brakesHeaderString, center - gap - imgWidth, 2 + brakeHeight + gap, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
+            brakeTempRRString = dsf.newDrawnString( "brakeTempRRString", null, brakesHeaderString, center + gap + imgWidth, 2 + brakeHeight + gap, Alignment.LEFT, false, font, fontAntiAliased, fontColor, null, getTempUnits( measurementUnits ) );
         }
     }
     
@@ -642,6 +696,13 @@ public class TemperaturesWidget extends Widget
                 drawTire( telemData, Wheel.FRONT_LEFT, wheel, texture, offsetX + tireTempFLString.getAbsX() + 3, offsetY + tireTempFLString.getAbsY() + 2 );
             }
             
+            if ( needsCompleteRedraw && tireIcon.hasTexture() )
+            {
+                int top = tireTempFLString.getAbsY() + 2;
+                top += ( tireSize.getEffectiveHeight() * 2 + gap - tireIcon.getTexture().getHeight() ) / 2;
+                texture.drawImage( tireIcon.getTexture(), offsetX, offsetY + top, true, null );
+            }
+            
             int tireTempFR = Math.round( telemData.getTireTemperature( Wheel.FRONT_RIGHT ) * 10f );
             if ( needsCompleteRedraw || ( clock1 && ( tireTempFR != oldTireTemps[1] ) ) )
             {
@@ -708,7 +769,7 @@ public class TemperaturesWidget extends Widget
                 brakesUpdateAllowed = true;
                 lastBrakeTempTime = gameData.getScoringInfo().getSessionNanos();
             }
-            else if ( lastBrakeTempTime + brakeTempsPeekDelay.getDelayNanos() < gameData.getScoringInfo().getSessionNanos() )
+            else if ( lastBrakeTempTime + brakeTempsPeakDelay.getDelayNanos() < gameData.getScoringInfo().getSessionNanos() )
             {
                 brakesUpdateAllowed = true;
             }
@@ -721,6 +782,13 @@ public class TemperaturesWidget extends Widget
                 brakeTempFLString.draw( offsetX, offsetY, string, texture );
                 
                 drawBrake( brakeTempFL, physics.getBrakes().getBrake( Wheel.FRONT_LEFT ), texture, offsetX + brakeTempFLString.getAbsX() + 3, offsetY + brakeTempFLString.getAbsY() );
+            }
+            
+            if ( needsCompleteRedraw && brakeDiscIcon.hasTexture() )
+            {
+                int top = brakeTempFLString.getAbsY();
+                top += ( brakeSize.getEffectiveHeight() * 2 + gap - brakeDiscIcon.getTexture().getHeight() ) / 2;
+                texture.drawImage( brakeDiscIcon.getTexture(), offsetX, offsetY + top, true, null );
             }
             
             if ( needsCompleteRedraw || ( clock1 && brakesUpdateAllowed && ( brakeTempFR != oldBrakeTemps[1] ) ) )
@@ -767,14 +835,16 @@ public class TemperaturesWidget extends Widget
         writer.writeProperty( font2, "The used (smaller) font." );
         writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
         writer.writeProperty( displayWaterTemp, "Display water temperature?" );
-        writer.writeProperty( engineHeight.getHeightProperty( "engineHeight" ), "The height of the engine bar." );
+        writer.writeProperty( engineHeight.getHeightProperty( "engineHeight", "height" ), "The height of the engine bar." );
         writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
-        writer.writeProperty( tireSize.getWidthProperty( "tireWidth" ), "The width of a tire image." );
-        writer.writeProperty( tireSize.getHeightProperty( "tireHeight" ), "The height of a tire image." );
+        writer.writeProperty( tireIcon, "The image name for the tire icon." );
+        writer.writeProperty( tireSize.getWidthProperty( "tireWidth", "width" ), "The width of a tire image." );
+        writer.writeProperty( tireSize.getHeightProperty( "tireHeight", "height" ), "The height of a tire image." );
         writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
-        writer.writeProperty( brakeSize.getWidthProperty( "brakeWidth" ), "The width of a brake image." );
-        writer.writeProperty( brakeSize.getHeightProperty( "brakeHeight" ), "The height of a brake image." );
-        writer.writeProperty( brakeTempsPeekDelay, "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
+        writer.writeProperty( brakeDiscIcon, "The image name for the brake disc icon." );
+        writer.writeProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ), "The width of a brake image." );
+        writer.writeProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ), "The height of a brake image." );
+        writer.writeProperty( brakeTempsPeakDelay, "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
     }
     
     /**
@@ -788,14 +858,16 @@ public class TemperaturesWidget extends Widget
         if ( loader.loadProperty( font2 ) );
         else if ( loader.loadProperty( displayEngine ) );
         else if ( loader.loadProperty( displayWaterTemp ) );
-        else if ( loader.loadProperty( engineHeight.getHeightProperty( "engineHeight" ) ) );
+        else if ( loader.loadProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) ) );
         else if ( loader.loadProperty( displayTires ) );
-        else if ( loader.loadProperty( tireSize.getWidthProperty( "tireWidth" ) ) );
-        else if ( loader.loadProperty( tireSize.getHeightProperty( "tireHeight" ) ) );
+        else if ( loader.loadProperty( tireIcon ) );
+        else if ( loader.loadProperty( tireSize.getWidthProperty( "tireWidth", "width" ) ) );
+        else if ( loader.loadProperty( tireSize.getHeightProperty( "tireHeight", "height" ) ) );
         else if ( loader.loadProperty( displayBrakes ) );
-        else if ( loader.loadProperty( brakeSize.getWidthProperty( "brakeWidth" ) ) );
-        else if ( loader.loadProperty( brakeSize.getHeightProperty( "brakeHeight" ) ) );
-        else if ( loader.loadProperty( brakeTempsPeekDelay ) );
+        else if ( loader.loadProperty( brakeDiscIcon ) );
+        else if ( loader.loadProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) ) );
+        else if ( loader.loadProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) ) );
+        else if ( loader.loadProperty( brakeTempsPeakDelay ) );
     }
     
     /**
@@ -817,18 +889,34 @@ public class TemperaturesWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Engine" );
         
         propsCont.addProperty( displayEngine );
         propsCont.addProperty( displayWaterTemp );
-        propsCont.addProperty( engineHeight.getHeightProperty( "engineHeight" ) );
+        propsCont.addProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) );
+        
+        propsCont.addGroup( "Tires" );
+        
         propsCont.addProperty( displayTires );
-        propsCont.addProperty( tireSize.getWidthProperty( "tireWidth" ) );
-        propsCont.addProperty( tireSize.getHeightProperty( "tireHeight" ) );
+        propsCont.addProperty( tireIcon );
+        propsCont.addProperty( tireSize.getWidthProperty( "tireWidth", "width" ) );
+        propsCont.addProperty( tireSize.getHeightProperty( "tireHeight", "height" ) );
+        
+        propsCont.addGroup( "Brakes" );
+        
         propsCont.addProperty( displayBrakes );
-        propsCont.addProperty( brakeSize.getWidthProperty( "brakeWidth" ) );
-        propsCont.addProperty( brakeSize.getHeightProperty( "brakeHeight" ) );
-        propsCont.addProperty( brakeTempsPeekDelay );
+        propsCont.addProperty( brakeDiscIcon );
+        propsCont.addProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) );
+        propsCont.addProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) );
+        propsCont.addProperty( brakeTempsPeakDelay );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        gap = 1;
     }
     
     public TemperaturesWidget( String name )
