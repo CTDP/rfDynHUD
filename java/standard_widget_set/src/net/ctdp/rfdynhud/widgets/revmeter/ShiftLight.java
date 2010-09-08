@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.widgets.revmeter;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
@@ -173,9 +172,8 @@ public class ShiftLight
         return ( offset );
     }
     
-    public void updateTextures( LiveGameData gameData, float rpm, float baseMaxRPM, int boost, float backgroundScaleX, float backgroundScaleY )
+    public void updateTextures( float rpm, float maxRPM, float backgroundScaleX, float backgroundScaleY )
     {
-        float maxRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, boost );
         boolean isOn = ( rpm >= maxRPM + activationRPM.getIntValue() );
         
         if ( isOffStatePartOfBackground() )

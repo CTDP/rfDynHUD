@@ -302,11 +302,22 @@ public class TelemetryData
         return ( tempBoostFlag );
     }
     
+    /**
+     * Gets the currently selected engine boost mapping.
+     * 
+     * @return the currently selected engine boost mapping.
+     */
     public final int getEngineBoostMapping()
     {
         return ( engineBoostMapping );
     }
     
+    /**
+     * If temp boost is activated, this returns the maximum (highest valued) boost mapping,
+     * otherwise it returns the result of {@link #getEngineBoostMapping()}.
+     * 
+     * @return the effective engine boost mapping.
+     */
     public final int getEffectiveEngineBoostMapping()
     {
         if ( tempBoostFlag )

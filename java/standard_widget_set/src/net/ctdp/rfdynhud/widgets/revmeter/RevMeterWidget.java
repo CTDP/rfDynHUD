@@ -285,10 +285,17 @@ public class RevMeterWidget extends NeedleMeterWidget
     @Override
     protected float getMaxValue( LiveGameData gameData, boolean isEditorMode )
     {
+        /*
         if ( useMaxRevLimit.getBooleanValue() )
             return ( gameData.getPhysics().getEngine().getRevLimitRange().getMaxValue() );
         
         return ( gameData.getTelemetryData().getEngineMaxRPM() );
+        */
+        
+        if ( useMaxRevLimit.getBooleanValue() )
+            return ( gameData.getPhysics().getEngine().getMaxRPM( gameData.getPhysics().getEngine().getRevLimitRange().getMaxValue() ) );
+        
+        return ( gameData.getPhysics().getEngine().getMaxRPM( gameData.getSetup().getEngine().getRevLimit() ) );
     }
     
     @Override
@@ -656,14 +663,6 @@ public class RevMeterWidget extends NeedleMeterWidget
         texCanvas.setClip( oldClip );
     }
     
-    /*
-    @Override
-    protected boolean getDisplayMarkers()
-    {
-        return ( super.getDisplayMarkers() || fillHighBackground.getBooleanValue() );
-    }
-    */
-    
     @Override
     protected Color getMarkerColorForValue( LiveGameData gameData, boolean isEditorMode, int value, int minValue, int maxValue )
     {
@@ -810,12 +809,9 @@ public class RevMeterWidget extends NeedleMeterWidget
         }
         
         float rpm = telemData.getEngineRPM();
-        float maxRPM = telemData.getEngineMaxRPM();
-        
-        if ( useMaxRevLimit.getBooleanValue() )
-        {
-            maxRPM = gameData.getPhysics().getEngine().getRevLimitRange().getMaxValue();
-        }
+        //float maxRPM = telemData.getEngineMaxRPM();
+        float maxRPM = gameData.getPhysics().getEngine().getMaxRPM( gameData.getSetup().getEngine().getRevLimit() );
+        float boostMaxRPM = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
         
         if ( displayRPMString1.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
         {
@@ -828,9 +824,7 @@ public class RevMeterWidget extends NeedleMeterWidget
                     string += rpmJoinString1.getStringValue();
                 if ( displayMaxRPM1.getBooleanValue() )
                 {
-                    float maxRPM2 = maxRPM;
-                    if ( useBoostRevLimit1.getBooleanValue() )
-                        maxRPM2 = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
+                    float maxRPM2 = useBoostRevLimit1.getBooleanValue() ? boostMaxRPM : maxRPM;
                     
                     string += NumberUtil.formatFloat( maxRPM2, 0, false );
                 }
@@ -850,9 +844,7 @@ public class RevMeterWidget extends NeedleMeterWidget
                     string += rpmJoinString2.getStringValue();
                 if ( displayMaxRPM2.getBooleanValue() )
                 {
-                    float maxRPM2 = maxRPM;
-                    if ( useBoostRevLimit2.getBooleanValue() )
-                        maxRPM2 = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
+                    float maxRPM2 = useBoostRevLimit2.getBooleanValue() ? boostMaxRPM : maxRPM;
                     
                     string += NumberUtil.formatFloat( maxRPM2, 0, false );
                 }
@@ -864,9 +856,8 @@ public class RevMeterWidget extends NeedleMeterWidget
         if ( numShiftLights.getIntValue() > 0 )
         {
             float rpm2 = vsi.isPlayer() ? rpm : 0f;
-            float baseMaxRPM = vsi.isPlayer() ? telemData.getEngineBaseMaxRPM() : 100000f;
             for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-                shiftLights[s].updateTextures( gameData, rpm2, baseMaxRPM, boost.getValue(), getBackground().getScaleX(), getBackground().getScaleY() );
+                shiftLights[s].updateTextures( rpm2, boostMaxRPM, getBackground().getScaleX(), getBackground().getScaleY() );
         }
         
         if ( gearBackgroundTexture != null )

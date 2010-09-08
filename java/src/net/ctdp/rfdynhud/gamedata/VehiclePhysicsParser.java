@@ -262,6 +262,8 @@ class VehiclePhysicsParser
             currentLabel = null;
             wearGrip1 = null;
             
+            group = group.toUpperCase();
+            
             if ( group.equals( "SLIPCURVE" ) )
             {
                 currentSlipCurve = new VehiclePhysics.SlipCurve();
@@ -276,16 +278,18 @@ class VehiclePhysicsParser
         
         private static final boolean isFrontLabel( String label )
         {
-            if ( label.equalsIgnoreCase( "FRONT" ) )
+            label = label.toUpperCase();
+            
+            if ( label.equals( "FRONT" ) )
                 return ( true );
             
-            if ( label.equalsIgnoreCase( "FRONTLEFT" ) )
+            if ( label.equals( "FRONTLEFT" ) )
                 return ( true );
             
-            if ( label.equalsIgnoreCase( "FRONTRIGHT" ) )
+            if ( label.equals( "FRONTRIGHT" ) )
                 return ( true );
             
-            if ( label.equalsIgnoreCase( "ALL" ) )
+            if ( label.equals( "ALL" ) )
                 return ( true );
             
             return ( false );
@@ -293,16 +297,18 @@ class VehiclePhysicsParser
         
         private static final boolean isRearLabel( String label )
         {
-            if ( label.equalsIgnoreCase( "REAR" ) )
+            label = label.toUpperCase();
+            
+            if ( label.equals( "REAR" ) )
                 return ( true );
             
-            if ( label.equalsIgnoreCase( "REARLEFT" ) )
+            if ( label.equals( "REARLEFT" ) )
                 return ( true );
             
-            if ( label.equalsIgnoreCase( "REARRIGHT" ) )
+            if ( label.equals( "REARRIGHT" ) )
                 return ( true );
             
-            if ( label.equalsIgnoreCase( "ALL" ) )
+            if ( label.equals( "ALL" ) )
                 return ( true );
             
             return ( false );
@@ -312,30 +318,32 @@ class VehiclePhysicsParser
         protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
         {
             if ( group == null )
+                return ( true );
+            
+            group = group.toUpperCase();
+            
+            if ( group.equals( "SLIPCURVE" ) )
             {
-            }
-            else if ( group.equals( "SLIPCURVE" ) )
-            {
-                if ( key.equals( "Name" ) )
+                if ( key.equalsIgnoreCase( "Name" ) )
                 {
                     currentSlipCurve.name = value;
                 }
-                else if ( key.equals( "Step" ) )
+                else if ( key.equalsIgnoreCase( "Step" ) )
                 {
                     currentSlipCurve.step = Float.parseFloat( value );
                 }
-                else if ( key.equals( "DropoffFunction" ) )
+                else if ( key.equalsIgnoreCase( "DropoffFunction" ) )
                 {
                     currentSlipCurve.dropoffFunction = Float.parseFloat( value );
                 }
             }
             else if ( group.equals( "COMPOUND" ) )
             {
-                if ( key.equals( "Name" ) )
+                if ( key.equalsIgnoreCase( "Name" ) )
                 {
                     currentCompound.name = value;
                 }
-                else if ( key.equals( "DryLatLong" ) )
+                else if ( key.equalsIgnoreCase( "DryLatLong" ) )
                 {
                     if ( currentLabel != null )
                     {
@@ -355,7 +363,7 @@ class VehiclePhysicsParser
                         }
                     }
                 }
-                else if ( key.equals( "Temperatures" ) )
+                else if ( key.equalsIgnoreCase( "Temperatures" ) )
                 {
                     if ( currentLabel != null )
                     {
@@ -371,7 +379,7 @@ class VehiclePhysicsParser
                         }
                     }
                 }
-                else if ( key.equals( "OptimumPressure" ) )
+                else if ( key.equalsIgnoreCase( "OptimumPressure" ) )
                 {
                     if ( currentLabel != null )
                     {
@@ -391,7 +399,7 @@ class VehiclePhysicsParser
                         }
                     }
                 }
-                else if ( key.equals( "TempAndPressGrip" ) ) // old style
+                else if ( key.equalsIgnoreCase( "TempAndPressGrip" ) ) // old style
                 {
                     if ( currentLabel != null )
                     {
@@ -401,7 +409,7 @@ class VehiclePhysicsParser
                             rearTempAndPressGrip = value;
                     }
                 }
-                else if ( key.equals( "GripTempPress" ) ) // new style
+                else if ( key.equalsIgnoreCase( "GripTempPress" ) ) // new style
                 {
                     if ( currentLabel != null )
                     {
@@ -411,11 +419,11 @@ class VehiclePhysicsParser
                             rearGripTempPress = value;
                     }
                 }
-                else if ( key.equals( "WearGrip1" ) )
+                else if ( key.equalsIgnoreCase( "WearGrip1" ) )
                 {
                     wearGrip1 = value;
                 }
-                else if ( key.equals( "WearGrip2" ) )
+                else if ( key.equalsIgnoreCase( "WearGrip2" ) )
                 {
                     StringTokenizer st = new StringTokenizer(
                             wearGrip1.substring( wearGrip1.indexOf( "(" ) + 1, wearGrip1.indexOf( ")" ) ) + "," +
@@ -434,21 +442,21 @@ class VehiclePhysicsParser
                     
                     wearGrip1 = null;
                 }
-                else if ( key.equals( "LatCurve" ) )
+                else if ( key.equalsIgnoreCase( "LatCurve" ) )
                 {
                     if ( ( currentLabel == null ) || isFrontLabel( currentLabel ) )
                         currentCompound.frontLatitudeSlipCurve = slipCurves.get( value );
                     if ( ( currentLabel == null ) || isRearLabel( currentLabel ) )
                         currentCompound.rearLatitudeSlipCurve = slipCurves.get( value );
                 }
-                else if ( key.equals( "BrakingCurve" ) )
+                else if ( key.equalsIgnoreCase( "BrakingCurve" ) )
                 {
                     if ( ( currentLabel == null ) || isFrontLabel( currentLabel ) )
                         currentCompound.frontBrakingSlipCurve = slipCurves.get( value );
                     if ( ( currentLabel == null ) || isRearLabel( currentLabel ) )
                         currentCompound.rearBrakingSlipCurve = slipCurves.get( value );
                 }
-                else if ( key.equals( "TractiveCurve" ) )
+                else if ( key.equalsIgnoreCase( "TractiveCurve" ) )
                 {
                     if ( ( currentLabel == null ) || isFrontLabel( currentLabel ) )
                         currentCompound.frontTractiveSlipCurve = slipCurves.get( value );
@@ -481,7 +489,7 @@ class VehiclePhysicsParser
                 return ( true );
             }
             
-            if ( !"Data".equals( currentLabel ) || ( currentSlipCurve == null ) )
+            if ( !"Data".equalsIgnoreCase( currentLabel ) || ( currentSlipCurve == null ) )
                 return ( false );
             
             String[] values = line.split( " " );
@@ -579,11 +587,11 @@ class VehiclePhysicsParser
         
         public static void parseEngineSetting( String key, String value, String op, VehiclePhysics.Engine engine )
         {
-            if ( key.equals( "OptimumOilTemp" ) )
+            if ( key.equalsIgnoreCase( "OptimumOilTemp" ) )
             {
                 engine.optimumOilTemperature = parseFloat( engine.optimumOilTemperature, Float.parseFloat( value ), op );
             }
-            else if ( key.equals( "LifetimeOilTemp" ) )
+            else if ( key.equalsIgnoreCase( "LifetimeOilTemp" ) )
             {
                 String[] values = value.substring( 1, value.length() - 1 ).split( "," );
                 float v1 = Float.parseFloat( values[0] );
@@ -591,7 +599,7 @@ class VehiclePhysicsParser
                 engine.baseLifetimeOilTemperature = parseFloat( engine.baseLifetimeOilTemperature, v1, op );
                 engine.halfLifetimeOilTempOffset = parseFloat( engine.halfLifetimeOilTempOffset, v2, op );
             }
-            else if ( key.equals( "LifetimeEngineRPM" ) )
+            else if ( key.equalsIgnoreCase( "LifetimeEngineRPM" ) )
             {
                 String[] values = value.substring( 1, value.length() - 1 ).split( "," );
                 float v1 = Float.parseFloat( values[0] );
@@ -599,30 +607,30 @@ class VehiclePhysicsParser
                 engine.baseLifetimeRPM = parseFloat( engine.baseLifetimeRPM, v1, op );
                 engine.halfLifetimeRPMOffset = parseFloat( engine.halfLifetimeRPMOffset, v2, op );
             }
-            else if ( key.equals( "LifetimeAvg" ) )
+            else if ( key.equalsIgnoreCase( "LifetimeAvg" ) )
             {
                 engine.lifetimeAverage = Math.round( parseFloat( engine.lifetimeAverage, Float.parseFloat( value ), op ) );
             }
-            else if ( key.equals( "LifetimeVar" ) )
+            else if ( key.equalsIgnoreCase( "LifetimeVar" ) )
             {
                 engine.lifetimeVariance = Math.round( parseFloat( engine.lifetimeVariance, Float.parseFloat( value ), op ) );
             }
-            else if ( key.equals( "RevLimitRange" ) )
+            else if ( key.equalsIgnoreCase( "RevLimitRange" ) )
             {
                 parsePhysicsSetting( value, engine.getRevLimitRange(), op );
             }
-            else if ( key.equals( "EngineBoostRange" ) )
+            else if ( key.equalsIgnoreCase( "EngineBoostRange" ) )
             {
                 parsePhysicsSetting( value, engine.getBoostRange(), op );
             }
-            else if ( key.equals( "BoostEffects" ) )
+            else if ( key.equalsIgnoreCase( "BoostEffects" ) )
             {
                 String[] values = value.substring( 1, value.length() - 1 ).split( "," );
                 engine.rpmIncreasePerBoostSetting = parseFloat( engine.rpmIncreasePerBoostSetting, Float.parseFloat( values[0] ), op );
                 engine.fuelUsageIncreasePerBoostSetting = parseFloat( engine.fuelUsageIncreasePerBoostSetting, Float.parseFloat( values[1] ), op );
                 engine.wearIncreasePerBoostSetting = parseFloat( engine.wearIncreasePerBoostSetting, Float.parseFloat( values[2] ), op );
             }
-            else if ( key.equals( "RamEffects" ) )
+            else if ( key.equalsIgnoreCase( "RamEffects" ) )
             {
                 String[] values = value.substring( 1, value.length() - 1 ).split( "," );
                 engine.wearIncreasePerVelocity = parseFloat( engine.wearIncreasePerVelocity, Float.parseFloat( values[3] ), op );
@@ -703,13 +711,15 @@ class VehiclePhysicsParser
         
         public static void parseHDVLine( File path, String group, String key, String op, String value, VehiclePhysics physics )
         {
-            if ( group.equals( "GENERAL" ) )
+            group = group.toUpperCase();
+            
+            if ( group.equalsIgnoreCase( "GENERAL" ) )
             {
-                if ( key.equals( "TireBrand" ) )
+                if ( key.equalsIgnoreCase( "TireBrand" ) )
                 {
                     TBCParser.parseTBCFile( path, value, physics );
                 }
-                else if ( key.equals( "FuelRange" ) )
+                else if ( key.equalsIgnoreCase( "FuelRange" ) )
                 {
                     parsePhysicsSetting( value, physics.getFuelRangeL(), op );
                     parsePhysicsSetting( value, physics.getFuelRange(), op );
@@ -717,110 +727,110 @@ class VehiclePhysicsParser
             }
             else if ( group.equals( "FRONTWING" ) )
             {
-                if ( key.equals( "FWRange" ) )
+                if ( key.equalsIgnoreCase( "FWRange" ) )
                     parsePhysicsSetting( value, physics.getFrontWingRange(), op );
             }
             else if ( group.equals( "ENGINE" ) )
             {
-                if ( key.equals( "Normal" ) )
+                if ( key.equalsIgnoreCase( "Normal" ) )
                 {
                     EnginePhysicsParser.parseEngineFile( path, value, physics.getEngine() );
                 }
             }
             else if ( group.equals( "FRONTLEFT" ) )
             {
-                if ( key.equals( "BrakeDiscRange" ) )
+                if ( key.equalsIgnoreCase( "BrakeDiscRange" ) )
                     parsePhysicsSetting( value, physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).getDiscRange(), op );
-                else if ( key.equals( "BrakeResponseCurve" ) )
+                else if ( key.equalsIgnoreCase( "BrakeResponseCurve" ) )
                     parseResponseCurve( value, physics.getBrakes().getBrake( Wheel.FRONT_LEFT ) );
-                else if ( key.equals( "BrakeWearRate" ) )
+                else if ( key.equalsIgnoreCase( "BrakeWearRate" ) )
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).wearRate = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).wearRate, Float.parseFloat( value ), op );
-                else if ( key.equals( "BrakeFailure" ) )
+                else if ( key.equalsIgnoreCase( "BrakeFailure" ) )
                 {
                     String[] values = parseTuple( value );
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).discFailureAverage = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).discFailureAverage, Float.parseFloat( values[0] ), op );
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).discFailureVariance = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).discFailureVariance, Float.parseFloat( values[1] ), op );
                 }
-                else if ( key.equals( "BrakeTorque" ) )
+                else if ( key.equalsIgnoreCase( "BrakeTorque" ) )
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torque, Float.parseFloat( value ), op );
-                else if ( key.equals( "PressureRange" ) )
+                else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.FRONT_LEFT ), op );
-                else if ( key.equals( "BrakeFadeRange" ) )
+                else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
             else if ( group.equals( "FRONTRIGHT" ) )
             {
-                if ( key.equals( "BrakeDiscRange" ) )
+                if ( key.equalsIgnoreCase( "BrakeDiscRange" ) )
                     parsePhysicsSetting( value, physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).getDiscRange(), op );
-                else if ( key.equals( "BrakeResponseCurve" ) )
+                else if ( key.equalsIgnoreCase( "BrakeResponseCurve" ) )
                     parseResponseCurve( value, physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ) );
-                else if ( key.equals( "BrakeWearRate" ) )
+                else if ( key.equalsIgnoreCase( "BrakeWearRate" ) )
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).wearRate = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).wearRate, Float.parseFloat( value ), op );
-                else if ( key.equals( "BrakeFailure" ) )
+                else if ( key.equalsIgnoreCase( "BrakeFailure" ) )
                 {
                     String[] values = parseTuple( value );
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).discFailureAverage = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).discFailureAverage, Float.parseFloat( values[0] ), op );
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).discFailureVariance = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).discFailureVariance, Float.parseFloat( values[1] ), op );
                 }
-                else if ( key.equals( "BrakeTorque" ) )
+                else if ( key.equalsIgnoreCase( "BrakeTorque" ) )
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torque, Float.parseFloat( value ), op );
-                else if ( key.equals( "PressureRange" ) )
+                else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.FRONT_RIGHT ), op );
-                else if ( key.equals( "BrakeFadeRange" ) )
+                else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
             else if ( group.equals( "REARLEFT" ) )
             {
-                if ( key.equals( "BrakeDiscRange" ) )
+                if ( key.equalsIgnoreCase( "BrakeDiscRange" ) )
                     parsePhysicsSetting( value, physics.getBrakes().getBrake( Wheel.REAR_LEFT ).getDiscRange(), op );
-                else if ( key.equals( "BrakeResponseCurve" ) )
+                else if ( key.equalsIgnoreCase( "BrakeResponseCurve" ) )
                     parseResponseCurve( value, physics.getBrakes().getBrake( Wheel.REAR_LEFT ) );
-                else if ( key.equals( "BrakeWearRate" ) )
+                else if ( key.equalsIgnoreCase( "BrakeWearRate" ) )
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).wearRate = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).wearRate, Float.parseFloat( value ), op );
-                else if ( key.equals( "BrakeFailure" ) )
+                else if ( key.equalsIgnoreCase( "BrakeFailure" ) )
                 {
                     String[] values = parseTuple( value );
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).discFailureAverage = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).discFailureAverage, Float.parseFloat( values[0] ), op );
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).discFailureVariance = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).discFailureVariance, Float.parseFloat( values[1] ), op );
                 }
-                else if ( key.equals( "BrakeTorque" ) )
+                else if ( key.equalsIgnoreCase( "BrakeTorque" ) )
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torque, Float.parseFloat( value ), op );
-                else if ( key.equals( "PressureRange" ) )
+                else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.REAR_LEFT ), op );
-                else if ( key.equals( "BrakeFadeRange" ) )
+                else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
             else if ( group.equals( "REARRIGHT" ) )
             {
-                if ( key.equals( "BrakeDiscRange" ) )
+                if ( key.equalsIgnoreCase( "BrakeDiscRange" ) )
                     parsePhysicsSetting( value, physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).getDiscRange(), op );
-                else if ( key.equals( "BrakeResponseCurve" ) )
+                else if ( key.equalsIgnoreCase( "BrakeResponseCurve" ) )
                     parseResponseCurve( value, physics.getBrakes().getBrake( Wheel.REAR_RIGHT ) );
-                else if ( key.equals( "BrakeWearRate" ) )
+                else if ( key.equalsIgnoreCase( "BrakeWearRate" ) )
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).wearRate = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).wearRate, Float.parseFloat( value ), op );
-                else if ( key.equals( "BrakeFailure" ) )
+                else if ( key.equalsIgnoreCase( "BrakeFailure" ) )
                 {
                     String[] values = parseTuple( value );
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).discFailureAverage = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).discFailureAverage, Float.parseFloat( values[0] ), op );
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).discFailureVariance = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).discFailureVariance, Float.parseFloat( values[1] ), op );
                 }
-                else if ( key.equals( "BrakeTorque" ) )
+                else if ( key.equalsIgnoreCase( "BrakeTorque" ) )
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torque, Float.parseFloat( value ), op );
-                else if ( key.equals( "PressureRange" ) )
+                else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.REAR_RIGHT ), op );
-                else if ( key.equals( "BrakeFadeRange" ) )
+                else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
             else if ( group.equals( "CONTROLS" ) )
             {
-                if ( key.equals( "RearBrakeRange" ) )
+                if ( key.equalsIgnoreCase( "RearBrakeRange" ) )
                     parsePhysicsSetting( value, physics.getBrakes().getRearDistributionRange(), op );
-                else if ( key.equals( "BrakePressureRange" ) )
+                else if ( key.equalsIgnoreCase( "BrakePressureRange" ) )
                     parsePhysicsSetting( value, physics.getBrakes().getPressureRange(), op );
             }
             else if ( group.equals( "DRIVELINE" ) )
             {
-                if ( key.equals( "WheelDrive" ) )
+                if ( key.equalsIgnoreCase( "WheelDrive" ) )
                     physics.wheelDrive = VehiclePhysics.WheelDrive.valueOf( value.toUpperCase() );
             }
         }
@@ -919,7 +929,7 @@ class VehiclePhysicsParser
             }
             else if ( group.equals( "VEHICLE" ) )
             {
-                if ( key.equals( "File" ) && value.equalsIgnoreCase( vehicleFile ) )
+                if ( key.equalsIgnoreCase( "File" ) && value.equalsIgnoreCase( vehicleFile ) )
                 {
                     groupFound = true;
                 }
@@ -934,7 +944,7 @@ class VehiclePhysicsParser
             String label = TBCParser.parseLabel( line );
             if ( label != null )
             {
-                if ( label.equals( "UpgradeList" ) )
+                if ( label.equalsIgnoreCase( "UpgradeList" ) )
                 {
                     upgradeListStarted = groupFound;
                     
@@ -1048,13 +1058,15 @@ class VehiclePhysicsParser
         
         private void parseHDVValue( String group, String key, String op, String value )
         {
+            group = group.toUpperCase();
+            
             if ( group.equals( "GENERAL" ) )
             {
-                if ( key.equals( "TireBrand" ) && op.equals( "=" ) )
+                if ( key.equalsIgnoreCase( "TireBrand" ) && op.equals( "=" ) )
                 {
                     TBCParser.parseTBCFile( path, value, physics );
                 }
-                else if ( key.equals( "FuelRange" ) )
+                else if ( key.equalsIgnoreCase( "FuelRange" ) )
                 {
                     parsePhysicsSetting( value, physics.getFuelRangeL(), op );
                     parsePhysicsSetting( value, physics.getFuelRange(), op );
@@ -1062,12 +1074,12 @@ class VehiclePhysicsParser
             }
             else if ( group.equals( "FRONTWING" ) )
             {
-                if ( key.equals( "FWRange" ) )
+                if ( key.equalsIgnoreCase( "FWRange" ) )
                 {
                     parsePhysicsSetting( value, physics.getFrontWingRange(), op );
                 }
             }
-            else if ( group.equals( "ENGINE" ) )
+            else if ( group.equalsIgnoreCase( "ENGINE" ) )
             {
                 EnginePhysicsParser.parseEngineSetting( key, value, op, physics.getEngine() );
             }
@@ -1229,7 +1241,7 @@ class VehiclePhysicsParser
         {
             if ( group == null )
             {
-                if ( key.equals( "HDVehicle" ) )
+                if ( key.equalsIgnoreCase( "HDVehicle" ) )
                 {
                     if ( !value.toLowerCase().endsWith( ".hdv" ) )
                         value = value + ".hdv";
@@ -1252,7 +1264,7 @@ class VehiclePhysicsParser
                         Logger.log( "Warning: Unable to find HDV file \"" + value + "\"." );
                     }
                 }
-                else if ( key.equals( "Upgrades" ) )
+                else if ( key.equalsIgnoreCase( "Upgrades" ) )
                 {
                     if ( upgradesList != null )
                     {
@@ -1324,7 +1336,7 @@ class VehiclePhysicsParser
             Object[] upgrade2 = upgradesList.get( i );
             String upgradeName2 = ( (String)upgrade2[0] ).toLowerCase();
             
-            if ( upgradeName2.equals( upgradeName ) )
+            if ( upgradeName2.equalsIgnoreCase( upgradeName ) )
             {
                 upgradesList.set( i, upgrade );
                 return;
