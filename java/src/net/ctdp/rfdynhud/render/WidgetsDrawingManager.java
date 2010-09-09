@@ -125,7 +125,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public void fireOnRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        clock.init();
+        clock.init( gameData.getScoringInfo().getSessionNanos() );
         frameCounter = 0;
         
         waitingWidgets.clear();

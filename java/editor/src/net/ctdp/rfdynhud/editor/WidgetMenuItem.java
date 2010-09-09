@@ -43,7 +43,7 @@ public class WidgetMenuItem extends JMenuItem
     private static final class FakeClock extends Clock
     {
         @Override
-        protected void initImpl()
+        protected void initImpl( long nanoTime )
         {
         }
 

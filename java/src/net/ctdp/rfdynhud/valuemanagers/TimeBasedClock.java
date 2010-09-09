@@ -42,7 +42,7 @@ public class TimeBasedClock extends Clock
      * {@inheritDoc}
      */
     @Override
-    protected void initImpl()
+    protected void initImpl( long nanoTime )
     {
         measureEnd = -1L;
     }

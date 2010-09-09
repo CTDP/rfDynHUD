@@ -22,7 +22,7 @@ package net.ctdp.rfdynhud.valuemanagers;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public abstract class Clock
+public abstract class Clock implements ManagedValue
 {
     public static final long ONE_SECOND_NANOS = 1000000000L;
     
@@ -31,18 +31,21 @@ public abstract class Clock
     
     /**
      * Implementation specific code for initialization.
+     * 
+     * @param nanoTime
      */
-    protected abstract void initImpl();
+    protected abstract void initImpl( long nanoTime );
     
     /**
-     * Initializes/resets the {@link Clock}.
+     * {@inheritDoc}
      */
-    public final void init()
+    @Override
+    public final void init( long nanoTime )
     {
         c = false;
         ticks = 0L;
         
-        initImpl();
+        initImpl( nanoTime );
     }
     
     private void setC( boolean c )
@@ -117,12 +120,9 @@ public abstract class Clock
     protected abstract boolean updateImpl( long nanoTime, long frameCounter, boolean force );
     
     /**
-     * Invokes the implementation specific update code.
-     * 
-     * @param nanoTime
-     * @param frameCounter
-     * @param force
+     * {@inheritDoc}
      */
+    @Override
     public final void update( long nanoTime, long frameCounter, boolean force )
     {
         setC( updateImpl( nanoTime, frameCounter, force ) );
