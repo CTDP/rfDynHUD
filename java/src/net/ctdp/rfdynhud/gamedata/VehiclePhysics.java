@@ -194,6 +194,13 @@ public class VehiclePhysics
         return ( wheelDrive );
     }
     
+    short numForwardGears;
+    
+    public final short getNumForwardGears()
+    {
+        return ( numForwardGears );
+    }
+    
     /**
      * Model of engine physics parameters.
      * 
@@ -1833,6 +1840,7 @@ public class VehiclePhysics
     	try
     	{
     	    wheelDrive = WheelDrive.REAR;
+    	    numForwardGears = 7;
     	    
 	        fuelRangeL.set( 6.0f, 1.0f, 127 );
             fuelRange.set( 6.0f, 1.0f, 127 );

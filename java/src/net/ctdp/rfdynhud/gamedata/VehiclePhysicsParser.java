@@ -68,7 +68,6 @@ class VehiclePhysicsParser
             return ( f1 );
     }
     
-    @SuppressWarnings( "unused" )
     private static final int parseInt( int f0, int f1, String op )
     {
         if ( op == null )
@@ -832,6 +831,8 @@ class VehiclePhysicsParser
             {
                 if ( key.equalsIgnoreCase( "WheelDrive" ) )
                     physics.wheelDrive = VehiclePhysics.WheelDrive.valueOf( value.toUpperCase() );
+                else if ( key.equalsIgnoreCase( "ForwardGears" ) )
+                    physics.numForwardGears = (short)parseInt( physics.numForwardGears, Integer.parseInt( value ), op );
             }
         }
         
