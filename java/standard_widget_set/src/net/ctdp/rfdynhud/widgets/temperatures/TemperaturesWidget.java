@@ -45,6 +45,7 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -266,7 +267,7 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize(boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -621,8 +622,10 @@ public class TemperaturesWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        final boolean c = clock.c();
+        
         final TelemetryData telemData = gameData.getTelemetryData();
         final VehiclePhysics physics = gameData.getPhysics();
         final VehicleSetup setup = gameData.getSetup();
@@ -645,7 +648,7 @@ public class TemperaturesWidget extends Widget
             if ( displayWaterTemp.getBooleanValue() )
             {
                 int waterTemp = Math.round( telemData.getEngineWaterTemperature() * 10f );
-                if ( needsCompleteRedraw || ( clock1 && ( waterTemp != oldWaterTemp ) ) )
+                if ( needsCompleteRedraw || ( c && ( waterTemp != oldWaterTemp ) ) )
                 {
                     oldWaterTemp = waterTemp;
                     
@@ -655,7 +658,7 @@ public class TemperaturesWidget extends Widget
             }
             
             int oilTemp = Math.round( telemData.getEngineOilTemperature() * 10f );
-            if ( needsCompleteRedraw || ( clock1 && ( oilTemp != oldOilTemp ) ) )
+            if ( needsCompleteRedraw || ( c && ( oilTemp != oldOilTemp ) ) )
             {
                 oldOilTemp = oilTemp;
                 
@@ -680,7 +683,7 @@ public class TemperaturesWidget extends Widget
             final int tireWidth = tireSize.getEffectiveWidth();
             
             int tireTempFL = Math.round( telemData.getTireTemperature( Wheel.FRONT_LEFT ) * 10f );
-            if ( needsCompleteRedraw || ( clock1 && ( tireTempFL != oldTireTemps[0] ) ) )
+            if ( needsCompleteRedraw || ( c && ( tireTempFL != oldTireTemps[0] ) ) )
             {
                 oldTireTemps[0] = tireTempFL;
                 
@@ -704,7 +707,7 @@ public class TemperaturesWidget extends Widget
             }
             
             int tireTempFR = Math.round( telemData.getTireTemperature( Wheel.FRONT_RIGHT ) * 10f );
-            if ( needsCompleteRedraw || ( clock1 && ( tireTempFR != oldTireTemps[1] ) ) )
+            if ( needsCompleteRedraw || ( c && ( tireTempFR != oldTireTemps[1] ) ) )
             {
                 oldTireTemps[1] = tireTempFR;
                 
@@ -721,7 +724,7 @@ public class TemperaturesWidget extends Widget
             }
             
             int tireTempRL = Math.round( telemData.getTireTemperature( Wheel.REAR_LEFT ) * 10f );
-            if ( needsCompleteRedraw || ( clock1 && ( tireTempRL != oldTireTemps[2] ) ) )
+            if ( needsCompleteRedraw || ( c && ( tireTempRL != oldTireTemps[2] ) ) )
             {
                 oldTireTemps[2] = tireTempRL;
                 
@@ -738,7 +741,7 @@ public class TemperaturesWidget extends Widget
             }
             
             int tireTempRR = Math.round( telemData.getTireTemperature( Wheel.REAR_RIGHT ) * 10f );
-            if ( needsCompleteRedraw || ( clock1 && ( tireTempRR != oldTireTemps[3] ) ) )
+            if ( needsCompleteRedraw || ( c && ( tireTempRR != oldTireTemps[3] ) ) )
             {
                 oldTireTemps[3] = tireTempRR;
                 
@@ -774,7 +777,7 @@ public class TemperaturesWidget extends Widget
                 brakesUpdateAllowed = true;
             }
             
-            if ( needsCompleteRedraw || ( clock1 && brakesUpdateAllowed && ( brakeTempFL != oldBrakeTemps[0] ) ) )
+            if ( needsCompleteRedraw || ( c && brakesUpdateAllowed && ( brakeTempFL != oldBrakeTemps[0] ) ) )
             {
                 oldBrakeTemps[0] = brakeTempFL;
                 
@@ -791,7 +794,7 @@ public class TemperaturesWidget extends Widget
                 texture.drawImage( brakeDiscIcon.getTexture(), offsetX, offsetY + top, true, null );
             }
             
-            if ( needsCompleteRedraw || ( clock1 && brakesUpdateAllowed && ( brakeTempFR != oldBrakeTemps[1] ) ) )
+            if ( needsCompleteRedraw || ( c && brakesUpdateAllowed && ( brakeTempFR != oldBrakeTemps[1] ) ) )
             {
                 oldBrakeTemps[1] = brakeTempFR;
                 
@@ -801,7 +804,7 @@ public class TemperaturesWidget extends Widget
                 drawBrake( brakeTempFR, physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ), texture, offsetX + brakeTempFRString.getAbsX() - brakeWidth - 3, offsetY + brakeTempFRString.getAbsY() );
             }
             
-            if ( needsCompleteRedraw || ( clock1 && brakesUpdateAllowed && ( brakeTempRL != oldBrakeTemps[2] ) ) )
+            if ( needsCompleteRedraw || ( c && brakesUpdateAllowed && ( brakeTempRL != oldBrakeTemps[2] ) ) )
             {
                 oldBrakeTemps[2] = brakeTempRL;
                 
@@ -811,7 +814,7 @@ public class TemperaturesWidget extends Widget
                 drawBrake( brakeTempRL, physics.getBrakes().getBrake( Wheel.REAR_LEFT ), texture, offsetX + brakeTempRLString.getAbsX() + 3, offsetY + brakeTempRLString.getAbsY() );
             }
             
-            if ( needsCompleteRedraw || ( clock1 && brakesUpdateAllowed && ( brakeTempRR != oldBrakeTemps[3] ) ) )
+            if ( needsCompleteRedraw || ( c && brakesUpdateAllowed && ( brakeTempRR != oldBrakeTemps[3] ) ) )
             {
                 oldBrakeTemps[3] = brakeTempRR;
                 

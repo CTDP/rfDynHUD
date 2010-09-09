@@ -42,6 +42,7 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
@@ -175,7 +176,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -224,7 +225,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         texCanvas.setFont( getFont() );
@@ -260,7 +261,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -275,7 +276,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         {
             sessionTime.update( gameData.getScoringInfo().getSessionTime() );
             float endTime = gameData.getScoringInfo().getEndTime();
-            if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase.hasChanged( false ) ) ) )
+            if ( needsCompleteRedraw || ( clock.c() && ( sessionTime.hasChanged( false ) || gamePhase.hasChanged( false ) ) ) )
             {
                 sessionTime.setUnchanged();
                 gamePhase.setUnchanged();
@@ -299,7 +300,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
             else
                 lap.update( vsi.getLapsCompleted() );
             
-            if ( needsCompleteRedraw || ( clock1 && lap.hasChanged() ) )
+            if ( needsCompleteRedraw || ( clock.c() && lap.hasChanged() ) )
             {
                 int maxLaps = scoringInfo.getMaxLaps();
                 String maxLapsStr = ( maxLaps < 10000 ) ? String.valueOf( maxLaps ) : "--";

@@ -28,6 +28,7 @@ import javax.swing.JMenuItem;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
@@ -38,6 +39,27 @@ import org.openmali.types.twodee.Rect2i;
 public class WidgetMenuItem extends JMenuItem
 {
     private static final long serialVersionUID = -94966687191731871L;
+    
+    private static final class FakeClock extends Clock
+    {
+        @Override
+        protected void initImpl()
+        {
+        }
+
+        @Override
+        protected boolean updateImpl( long nanoTime, long frameCounter, boolean force )
+        {
+            return ( true );
+        }
+        
+        public FakeClock()
+        {
+            update( 0L, 0L, true );
+        }
+    }
+    
+    private static final Clock fakeClock = new FakeClock();
     
     public static final int ICON_WIDTH = 64;
     public static final int ICON_HEIGHT = 50;
@@ -76,10 +98,10 @@ public class WidgetMenuItem extends JMenuItem
         if ( !iconDrawn || ( checkState != lastCheckState ) )
         {
             widget.prepareForMenuItem();
-            widget.updateVisibility( true, true, editor.getGameData(), true );
+            widget.updateVisibility( editor.getGameData(), true );
             
             texture.clear( true, null );
-            widget.drawWidget( true, true, true, editor.getGameData(), true, texture );
+            widget.drawWidget( fakeClock, true, editor.getGameData(), true, texture );
             
             if ( checkState )
             {

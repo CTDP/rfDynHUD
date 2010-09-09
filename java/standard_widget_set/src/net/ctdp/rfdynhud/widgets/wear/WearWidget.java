@@ -42,6 +42,7 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -410,7 +411,7 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -806,8 +807,10 @@ public class WearWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        final boolean c = clock.c();
+        
         final VehiclePhysics physics = gameData.getPhysics();
         final TelemetryData telemData = gameData.getTelemetryData();
         final VehicleSetup setup = gameData.getSetup();
@@ -888,7 +891,7 @@ public class WearWidget extends Widget
             int top = 0, left = 0;
             float tireWearFLf = telemData.getTireWear( Wheel.FRONT_LEFT );
             int tireWearFL = Math.round( tireWearFLf * 100f );
-            if ( needsCompleteRedraw || ( clock1 && ( tireWearFL != oldTireWear[0] ) ) )
+            if ( needsCompleteRedraw || ( c && ( tireWearFL != oldTireWear[0] ) ) )
             {
                 oldTireWear[0] = tireWearFL;
                 
@@ -920,7 +923,7 @@ public class WearWidget extends Widget
             
             float tireWearFRf = telemData.getTireWear( Wheel.FRONT_RIGHT );
             int tireWearFR = Math.round( tireWearFRf * 100f );
-            if ( needsCompleteRedraw || ( clock1 && ( tireWearFR != oldTireWear[1] ) ) )
+            if ( needsCompleteRedraw || ( c && ( tireWearFR != oldTireWear[1] ) ) )
             {
                 oldTireWear[1] = tireWearFR;
                 
@@ -946,7 +949,7 @@ public class WearWidget extends Widget
             
             float tireWearRLf = telemData.getTireWear( Wheel.REAR_LEFT );
             int tireWearRL = Math.round( tireWearRLf * 100f );
-            if ( needsCompleteRedraw || ( clock1 && ( tireWearRL != oldTireWear[2] ) ) )
+            if ( needsCompleteRedraw || ( c && ( tireWearRL != oldTireWear[2] ) ) )
             {
                 oldTireWear[2] = tireWearRL;
                 
@@ -972,7 +975,7 @@ public class WearWidget extends Widget
             
             float tireWearRRf = telemData.getTireWear( Wheel.REAR_RIGHT );
             int tireWearRR = Math.round( tireWearRRf * 100f );
-            if ( needsCompleteRedraw || ( clock1 && ( tireWearRR != oldTireWear[3] ) ) )
+            if ( needsCompleteRedraw || ( c && ( tireWearRR != oldTireWear[3] ) ) )
             {
                 oldTireWear[3] = tireWearRR;
                 
@@ -1007,7 +1010,7 @@ public class WearWidget extends Widget
             float brakeDiscThickness = telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearFL.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
-            if ( needsCompleteRedraw || ( clock1 && brakeDiscWearFL.hasChanged( false ) ) )
+            if ( needsCompleteRedraw || ( c && brakeDiscWearFL.hasChanged( false ) ) )
             {
                 brakeDiscWearFL.setUnchanged();
                 
@@ -1038,7 +1041,7 @@ public class WearWidget extends Widget
             brakeDiscThickness = telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearFR.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
-            if ( needsCompleteRedraw || ( clock1 && brakeDiscWearFR.hasChanged( false ) ) )
+            if ( needsCompleteRedraw || ( c && brakeDiscWearFR.hasChanged( false ) ) )
             {
                 brakeDiscWearFR.setUnchanged();
                 
@@ -1063,7 +1066,7 @@ public class WearWidget extends Widget
             brakeDiscThickness = telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearRL.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
-            if ( needsCompleteRedraw || ( clock1 && brakeDiscWearRL.hasChanged( false ) ) )
+            if ( needsCompleteRedraw || ( c && brakeDiscWearRL.hasChanged( false ) ) )
             {
                 brakeDiscWearRL.setUnchanged();
                 
@@ -1088,7 +1091,7 @@ public class WearWidget extends Widget
             brakeDiscThickness = telemData.getBrakeDiscThickness( wheel );
             brakeDiscWearRR.update( ( brakeDiscThickness - brake.getMaxDiscFailure() ) / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() ) );
             
-            if ( needsCompleteRedraw || ( clock1 && brakeDiscWearRR.hasChanged( false ) ) )
+            if ( needsCompleteRedraw || ( c && brakeDiscWearRR.hasChanged( false ) ) )
             {
                 brakeDiscWearRR.setUnchanged();
                 

@@ -41,6 +41,7 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.StandingsTools;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.values.NameDisplayType;
 import net.ctdp.rfdynhud.values.StandingsView;
@@ -882,7 +883,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         lastScoringUpdateId.reset( true );
         
@@ -903,7 +904,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -946,8 +947,10 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        final boolean clock2 = clock.c3();
+        
         oldPosStrings = ensureCapacity( oldPosStrings, numVehicles, true );
         
         if ( clock2 && !Arrays.equals( oldColWidths, colWidths ) )

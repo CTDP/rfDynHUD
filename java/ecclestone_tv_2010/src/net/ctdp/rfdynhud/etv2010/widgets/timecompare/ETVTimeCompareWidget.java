@@ -42,6 +42,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -136,9 +137,9 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
+    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( clock1, clock2, gameData, isEditorMode );
+        super.updateVisibility( gameData, isEditorMode );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -347,7 +348,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         Rectangle2D posBounds = texture.getStringBounds( "00", getFontProperty() );
         
@@ -597,7 +598,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( needsCompleteRedraw )
         {

@@ -28,6 +28,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
@@ -69,17 +70,17 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
+    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
         //log( "updateVisibility()" );
         
         // This method is executed 1st and each frame.
         
-        super.updateVisibility( clock1, clock2, gameData, isEditorMode );
+        super.updateVisibility( gameData, isEditorMode );
     }
     
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
         //log( "initialize()" );
         
@@ -87,7 +88,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int width, int height )
     {
         //log( "checkForChanges()" );
         
@@ -117,7 +118,7 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         //log( "drawWidget()" );
         

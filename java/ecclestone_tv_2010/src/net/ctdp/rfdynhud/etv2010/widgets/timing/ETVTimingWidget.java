@@ -40,6 +40,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
@@ -148,9 +149,9 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
+    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( clock1, clock2, gameData, isEditorMode );
+        super.updateVisibility( gameData, isEditorMode );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -211,7 +212,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int width, int height )
     {
         if ( lapState.hasChanged() )
             return ( true );
@@ -233,7 +234,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         Rectangle2D bigPosBounds = texture.getStringBounds( "00", getPositionFont(), isFontAntiAliased() );
         Rectangle2D posBounds = texture.getStringBounds( "00", getFontProperty() );
@@ -375,7 +376,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     }
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -383,7 +384,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         ownPlace.update( vsi.getPlace( getConfiguration().getUseClassScoring() ) );
         
-        if ( needsCompleteRedraw || ( clock1 && ownPlace.hasChanged() ) )
+        if ( needsCompleteRedraw || ( clock.c() && ownPlace.hasChanged() ) )
         {
             bigPositionString.draw( offsetX, offsetY, ownPlace.getValueAsString(), captionColor.getColor(), texture );
         }
@@ -413,7 +414,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             ownLaptime.update( -1f );
         }
         
-        if ( needsCompleteRedraw || ( clock1 && ownLaptime.hasChanged() ) )
+        if ( needsCompleteRedraw || ( clock.c() && ownLaptime.hasChanged() ) )
         {
             if ( ownLaptime.isValid() )
                 laptimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( ownLaptime.getValue() ), texture );
@@ -425,7 +426,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         {
             relPlace.update( referencePlace );
             
-            if ( needsCompleteRedraw || ( clock1 && relPlace.hasChanged() ) )
+            if ( needsCompleteRedraw || ( clock.c() && relPlace.hasChanged() ) )
             {
                 relPositionString.draw( offsetX, offsetY, relPlace.getValueAsString(), texture );
             }
@@ -492,7 +493,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
                 relLaptime.update( relLaptime.getResetValue() );
             }
             
-            if ( needsCompleteRedraw || ( clock1 && relLaptime.hasChanged() ) )
+            if ( needsCompleteRedraw || ( clock.c() && relLaptime.hasChanged() ) )
             {
                 if ( relLaptime.isValid() )
                 {

@@ -45,6 +45,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -413,7 +414,7 @@ public abstract class NeedleMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         final float backgroundScaleX = getBackground().getScaleX();
         final float backgroundScaleY = getBackground().getScaleY();
@@ -699,7 +700,7 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( needleTexture != null )
         {
@@ -723,7 +724,7 @@ public abstract class NeedleMeterWidget extends Widget
         if ( displayValue.getBooleanValue() )
         {
             valueValue.update( getValueForValueDisplay( gameData, isEditorMode ) );
-            if ( needsCompleteRedraw || ( clock1 && valueValue.hasChanged() ) )
+            if ( needsCompleteRedraw || ( clock.c() && valueValue.hasChanged() ) )
             {
                 String string = valueValue.getValueAsString();
                 

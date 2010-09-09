@@ -49,6 +49,7 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -513,9 +514,9 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
-        super.initialize( clock1, clock2, gameData, isEditorMode, dsf, texture, offsetX, offsetY, width, height );
+        super.initialize( gameData, isEditorMode, dsf, texture, width, height );
         
         final Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
@@ -589,7 +590,7 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int width, int height )
     {
         maxRPMCheck.update( gameData.getTelemetryData().getEngineMaxRPM() );
         if ( maxRPMCheck.hasChanged() )
@@ -747,9 +748,9 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        super.drawWidget( clock1, clock2, needsCompleteRedraw, gameData, isEditorMode, texture, offsetX, offsetY, width, height );
+        super.drawWidget( clock, needsCompleteRedraw, gameData, isEditorMode, texture, offsetX, offsetY, width, height );
         
         TelemetryData telemData = gameData.getTelemetryData();
         
@@ -813,7 +814,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         float maxRPM = gameData.getPhysics().getEngine().getMaxRPM( gameData.getSetup().getEngine().getRevLimit() );
         float boostMaxRPM = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
         
-        if ( displayRPMString1.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
+        if ( displayRPMString1.getBooleanValue() && ( needsCompleteRedraw || clock.c() ) )
         {
             String string = "";
             if ( vsi.isPlayer() )
@@ -833,7 +834,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             rpmString1.draw( offsetX, offsetY, string, texture );
         }
         
-        if ( displayRPMString2.getBooleanValue() && ( needsCompleteRedraw || clock1 ) )
+        if ( displayRPMString2.getBooleanValue() && ( needsCompleteRedraw || clock.c() ) )
         {
             String string = "";
             if ( vsi.isPlayer() )

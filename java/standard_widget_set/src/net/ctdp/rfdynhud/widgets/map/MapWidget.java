@@ -48,6 +48,7 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.MapTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -310,7 +311,7 @@ public class MapWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
@@ -599,7 +600,7 @@ public class MapWidget extends Widget
     private final AffineTransform at = new AffineTransform();
     
     @Override
-    public void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    public void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         final VehicleScoringInfo viewedVSI = scoringInfo.getViewedVehicleScoringInfo();

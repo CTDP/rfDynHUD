@@ -48,6 +48,7 @@ import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.InnerSize;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
@@ -843,12 +844,10 @@ public abstract class Widget implements Documented
     /**
      * This method is called first by the rendering system each frame before {@link #isVisible()} is checked.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
+    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
     }
     
@@ -1171,37 +1170,29 @@ public abstract class Widget implements Documented
     /**
      * This method is called once to initialized {@link DrawnString}s used on this Widget.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param drawnStringFactory
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     * @param offsetX the x-offset on the texture
-     * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
+    protected abstract void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height );
     
     /**
      * Checks, if the Widget needs any changes before it is drawn. If true, {@link #drawBorder(boolean, BorderWrapper, TextureImage2D, int, int, int, int)}
      * and possibly {@link #drawBackground(LiveGameData, boolean, TextureImage2D, int, int, int, int, boolean)} are (re-)invoked.<br />
      * The original method is just an empty stub returning false.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     * @param offsetX the x-offset on the texture
-     * @param offsetY the y-offset on the texture
      * @param width the width on the texture
      * @param height the height on the texture
      * 
      * @return true, if size has changed.
      */
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int width, int height )
     {
         return ( false );
     }
@@ -1258,7 +1249,7 @@ public abstract class Widget implements Documented
         }
     }
     
-    void drawBackground_( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    void _drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
         texture.getTextureCanvas().pushClip( offsetX, offsetY, width, height, true );
         
@@ -1305,8 +1296,7 @@ public abstract class Widget implements Documented
     /**
      * This method must contain the actual drawing code for this Widget.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
+     * @param clock this is a clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
      * @param needsCompleteRedraw whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
@@ -1316,19 +1306,18 @@ public abstract class Widget implements Documented
      * @param width the width on the texture
      * @param height the height on the texture
      */
-    protected abstract void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
+    protected abstract void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
     
     /**
      * This method invokes the parts of the actual drawing code for this Widget.
      * 
-     * @param clock1 this is a small-stepped clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
-     * @param clock2 this is a larger-stepped clock for very dynamic content, that doesn't need smooth display. If 'needsCompleteRedraw' is true, clock2 is also true.
-     * @param completeRedrawForced
+     * @param clock this is a clock for very dynamic content, that needs smooth display. If 'needsCompleteRedraw' is true, clock1 is also true.
+     * @param completeRedrawForced whether this widget needs to be completely redrawn (true) or just the changed parts (false)
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      */
-    public final void drawWidget( boolean clock1, boolean clock2, boolean completeRedrawForced, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
+    public final void drawWidget( Clock clock, boolean completeRedrawForced, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
     {
         int offsetX = position.getEffectiveX();
         int offsetY = position.getEffectiveY();
@@ -1362,12 +1351,12 @@ public abstract class Widget implements Documented
         
         if ( !initialized )
         {
-            initialize( clock1, clock2, gameData, isEditorMode, drawnStringFactory, texture2, offsetX2, offsetY2, width2, height2 );
+            initialize( gameData, isEditorMode, drawnStringFactory, texture2, width2, height2 );
             
             initialized = true;
         }
         
-        if ( checkForChanges( clock1, clock2, gameData, isEditorMode, texture2, offsetX2, offsetY2, width2, height2 ) )
+        if ( checkForChanges( gameData, isEditorMode, texture2, width2, height2 ) )
         {
             forceCompleteRedraw( true );
             completeRedrawForced = true;
@@ -1406,7 +1395,7 @@ public abstract class Widget implements Documented
         
         texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
-        drawWidget( clock1, clock2, completeRedrawForced, gameData, isEditorMode, texture2, offsetX2, offsetY2, width2, height2 );
+        drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture2, offsetX2, offsetY2, width2, height2 );
         
         if ( isEditorMode && ( subTextures != null ) )
         {

@@ -35,6 +35,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 public abstract class AssembledWidget extends StatefulWidget<Object, Object>
@@ -454,13 +455,13 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode )
+    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( clock1, clock2, gameData, isEditorMode );
+        super.updateVisibility( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].updateVisibility( clock1, clock2, gameData, isEditorMode );
+            parts[i].updateVisibility( gameData, isEditorMode );
         }
     }
     
@@ -724,7 +725,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
         Widget part;
         
@@ -732,12 +733,10 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         {
             part = parts[i];
             
-            int offsetX2 = offsetX + part.getPosition().getEffectiveX();
-            int offsetY2 = offsetY + part.getPosition().getEffectiveY();
             int width2 = part.getEffectiveWidth();
             int height2 = part.getEffectiveHeight();
             
-            part.initialize( clock1, clock2, gameData, isEditorMode, drawnStringFactory, texture, offsetX2, offsetY2, width2, height2 );
+            part.initialize( gameData, isEditorMode, drawnStringFactory, texture, width2, height2 );
         }
     }
     
@@ -745,7 +744,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    protected boolean checkForChanges( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected boolean checkForChanges( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int width, int height )
     {
         boolean result = false;
         
@@ -755,21 +754,19 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         {
             part = parts[i];
             
-            int offsetX2 = offsetX + part.getPosition().getEffectiveX();
-            int offsetY2 = offsetY + part.getPosition().getEffectiveY();
             int width2 = part.getEffectiveWidth();
             int height2 = part.getEffectiveHeight();
             
-            result = part.checkForChanges( clock1, clock2, gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2 ) || result;
+            result = part.checkForChanges( gameData, isEditorMode, texture, width2, height2 ) || result;
         }
         
         return ( result );
     }
     
     @Override
-    void drawBackground_( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
+    void _drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
     {
-        super.drawBackground_( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
+        super._drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
         
         Widget part;
         
@@ -782,7 +779,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
             int width2 = part.getEffectiveWidth();
             int height2 = part.getEffectiveHeight();
             
-            part.drawBackground_( gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2, false );
+            part._drawBackground( gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2, false );
         }
     }
     
@@ -790,7 +787,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Widget part;
         
@@ -805,7 +802,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
             int width2 = part.getEffectiveWidth();
             int height2 = part.getEffectiveHeight();
             
-            part.drawWidget( clock1, clock2, needsCompleteRedraw, gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2 );
+            part.drawWidget( clock, needsCompleteRedraw, gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2 );
         }
     }
     

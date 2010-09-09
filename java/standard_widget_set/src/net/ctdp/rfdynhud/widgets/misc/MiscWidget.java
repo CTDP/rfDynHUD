@@ -37,6 +37,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
@@ -203,7 +204,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -308,7 +309,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -473,7 +474,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             else
                 sessionTimeStringValue[1] = TimingUtil.getTimeAsString( Math.min( sessionTime.getValue() - endTime, 0f ), true, false );
             
-            if ( needsCompleteRedraw || ( clock1 && ( sessionTime.hasChanged( false ) || gamePhase2.hasChanged( false ) ) ) )
+            if ( needsCompleteRedraw || ( clock.c() && ( sessionTime.hasChanged( false ) || gamePhase2.hasChanged( false ) ) ) )
             {
                 sessionTime.setUnchanged();
                 gamePhase2.setUnchanged();
@@ -559,7 +560,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             
             final String speedUnits = getSpeedUnits( gameData.getProfileInfo().getSpeedUnits() );
             
-            if ( needsCompleteRedraw || ( ( clock1 || forceUpdateAbs ) && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
+            if ( needsCompleteRedraw || ( ( clock.c() || forceUpdateAbs ) && updateAbs && ( topspeed > oldAbsTopspeed ) ) )
             {
                 if ( !needsCompleteRedraw )
                     getLocalStore().lastDisplayedAbsTopspeed = topspeed;
@@ -569,13 +570,13 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 absTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed1_prefix + ":", NumberUtil.formatFloat( getLocalStore().lastDisplayedAbsTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );
             }
             
-            if ( needsCompleteRedraw || ( clock1 && ( relTopspeed > oldRelTopspeed ) ) )
+            if ( needsCompleteRedraw || ( clock.c() && ( relTopspeed > oldRelTopspeed ) ) )
             {
                 oldRelTopspeed = relTopspeed;
                 relTopspeedString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_topspeed2_prefix + ":", NumberUtil.formatFloat( oldRelTopspeed, 1, true ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );
             }
             
-            if ( needsCompleteRedraw || ( clock1 && ( velocity != oldVelocity ) ) )
+            if ( needsCompleteRedraw || ( clock.c() && ( velocity != oldVelocity ) ) )
             {
                 oldVelocity = velocity;
                 velocityString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_velocity_prefix + ":", String.valueOf( velocity ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );

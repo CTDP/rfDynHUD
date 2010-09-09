@@ -41,6 +41,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LongValue;
@@ -544,7 +545,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -724,7 +725,7 @@ public class FuelWidget extends Widget
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         TelemetryData telemData = gameData.getTelemetryData();
@@ -814,7 +815,7 @@ public class FuelWidget extends Widget
         }
         
         int fuel_ = Math.round( fuel * 10f );
-        if ( needsCompleteRedraw || ( clock1 && ( ( fuel_ != oldFuel ) || ( avgFuelUsage != oldAverage ) ) ) )
+        if ( needsCompleteRedraw || ( clock.c() && ( ( fuel_ != oldFuel ) || ( avgFuelUsage != oldAverage ) ) ) )
         {
             oldFuel = fuel_;
             oldAverage = avgFuelUsage;
@@ -860,7 +861,7 @@ public class FuelWidget extends Widget
         {
             fuelUsage.update( ( (long)Float.floatToIntBits( lastFuelUsage ) << 32 ) | (long)Float.floatToIntBits( avgFuelUsage ) );
             
-            if ( needsCompleteRedraw || ( clock1 && fuelUsage.hasChanged() ) )
+            if ( needsCompleteRedraw || ( clock.c() && fuelUsage.hasChanged() ) )
             {
                 if ( avgFuelUsage < 0f )
                 {

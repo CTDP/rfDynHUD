@@ -36,6 +36,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LongValue;
@@ -198,7 +199,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
         final java.awt.Font font = getFont();
         final boolean fontAntiAliased = isFontAntiAliased();
@@ -283,7 +284,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
@@ -590,7 +591,7 @@ public class TimingWidget extends Widget
             float lap = scoringInfo.getSessionTime() - myVSI.getLapStartTime();
             
             currLapValid.update( lap > 0f );
-            if ( needsCompleteRedraw || clock1 || ( clock1 && ( currLapValid.hasChanged( false ) ) ) )
+            if ( needsCompleteRedraw || clock.c() || ( clock.c() && ( currLapValid.hasChanged( false ) ) ) )
             {
                 currLapValid.setUnchanged();
                 

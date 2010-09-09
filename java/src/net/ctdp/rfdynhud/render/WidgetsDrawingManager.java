@@ -31,6 +31,8 @@ import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
+import net.ctdp.rfdynhud.valuemanagers.TimeBasedClock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -46,20 +48,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     private TransformableTexture[][] widgetSubTextures = null;
     private final ByteBuffer textureBuffer = TransformableTexture.createByteBuffer();
     
-    private long frameCounter = 0;
+    private long frameCounter = 0L;
     
-    private long measureStart = -1L;
-    private long measureEnd = -1L;
-    private long measureFrameCounter = 0;
-    
-    //private long nextClockTime1 = -1L;
-    //private long nextClockTime2 = -1L;
-    
-    private final long CLOCK_DELAY1 = 50000000L; // 50 ms
-    private final long CLOCK_DELAY2 = 150000000L; // 100 ms
-    
-    private long clock1Frames = 10;
-    private long clock2Frames = 30;
+    private final Clock clock = new TimeBasedClock( 50000000L ); // 50 ms
     
     public void resizeMainTexture( int gameResX, int gameResY )
     {
@@ -134,7 +125,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public void fireOnRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
-        measureEnd = -1L;
+        clock.init();
         frameCounter = 0;
         
         waitingWidgets.clear();
@@ -620,57 +611,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         long sessionNanos = gameData.getScoringInfo().getSessionNanos();
         
-        if ( measureEnd == -1L )
-        {
-            measureStart = sessionNanos;
-            measureEnd = sessionNanos + 1000000000L;
-            measureFrameCounter = 0;
-        }
-        else if ( sessionNanos >= measureEnd )
-        {
-            long dt = sessionNanos - measureStart;
-            clock1Frames = Math.max( 10L, measureFrameCounter * CLOCK_DELAY1 / dt );
-            clock2Frames = Math.max( 30L, measureFrameCounter * CLOCK_DELAY2 / dt );
-            //Logger.log( "Clock1: " + clock1Frames + " ( " + measureFrameCounter + ", " + CLOCK_DELAY1 + ", " + dt + " )" );
-            //Logger.log( "Clock2: " + clock2Frames + " ( " + measureFrameCounter + ", " + CLOCK_DELAY2 + ", " + dt + " )" );
-            
-            measureStart = sessionNanos;
-            measureEnd = sessionNanos + 1000000000L;
-            measureFrameCounter = 0;
-        }
-        
-        measureFrameCounter++;
-        
-        /*
-        boolean clock1 = false;
-        if ( sessionNanos >= nextClockTime1 )
-        {
-            //nextClockTime1 = Math.max( nextClockTime1 + CLOCK_DELAY1, sessionTime );
-            nextClockTime1 = sessionNanos + CLOCK_DELAY1;
-            clock1 = true;
-        }
-        
-        boolean clock2 = false;
-        if ( sessionNanos >= nextClockTime2 )
-        {
-            //nextClockTime2 = Math.max( nextClockTime2 + CLOCK_DELAY2, sessionTime );
-            nextClockTime2 = sessionNanos + CLOCK_DELAY2;
-            clock2 = true;
-        }
-        */
-        
-        boolean clock1 = ( frameCounter % clock1Frames ) == 0L;
-        boolean clock2 = ( frameCounter % clock2Frames ) == 0L;
-        //boolean clock1 = true;
-        //boolean clock2 = true;
-        //boolean clock1 = ( frameCounter % 10 ) == 0L;
-        //boolean clock2 = ( frameCounter % 30 ) == 0L;
-        
-        if ( completeRedrawForced )
-        {
-            clock1 = true;
-            clock2 = true;
-        }
+        clock.update( sessionNanos, frameCounter, completeRedrawForced );
         
         frameCounter++;
         
@@ -683,13 +624,13 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             {
                 if ( isWidgetReady( widget, gameData ) )
                 {
-                    widget.updateVisibility( clock1, clock2, gameData, isEditorMode );
+                    widget.updateVisibility( gameData, isEditorMode );
                     
                     if ( isEditorMode )
                     {
                         if ( widget.getDirtyFlag( true ) )
                         {
-                            widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, isEditorMode, texture );
+                            widget.drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture );
                         }
                     }
                     else if ( !widget.isVisible() && widget.visibilityChangedSinceLastDraw() )
@@ -716,7 +657,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                     {
                         if ( widget.isVisible() )
                         {
-                            widget.drawWidget( clock1, clock2, completeRedrawForced, gameData, isEditorMode, texture );
+                            widget.drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture );
                         }
                     }
                 }

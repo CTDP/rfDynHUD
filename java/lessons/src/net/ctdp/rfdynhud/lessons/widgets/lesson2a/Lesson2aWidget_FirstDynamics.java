@@ -23,6 +23,7 @@ import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
@@ -42,13 +43,13 @@ public class Lesson2aWidget_FirstDynamics extends Widget
     }
     
     @Override
-    protected void initialize( boolean clock1, boolean clock2, LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
         ds = drawnStringFactory.newDrawnString( "ds", 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
     }
     
     @Override
-    protected void drawWidget( boolean clock1, boolean clock2, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         /*
          * Here you can see one of the very important tricks, that rfDynHUD uses to optimize performace.
@@ -71,7 +72,7 @@ public class Lesson2aWidget_FirstDynamics extends Widget
          * AND we hit a time spot to redraw. Since the velocity will most likely change most of the time,
          * we simply ask for that time spot (clock).
          */
-        if ( needsCompleteRedraw || clock1 )
+        if ( needsCompleteRedraw || clock.c() )
         {
             /*
              * Here we can use getScalarVelocityKPH() or getScalarVelocityMPH() to explicitly use these units

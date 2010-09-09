@@ -245,7 +245,7 @@ public class WidgetBackground
         
         mergedBackgroundTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, mergedBackgroundTexture, isEditorMode );
         
-        widget.drawBackground_( gameData, isEditorMode, mergedBackgroundTexture, 0, 0, width, height, true );
+        widget._drawBackground( gameData, isEditorMode, mergedBackgroundTexture, 0, 0, width, height, true );
         mergedBgTexDirty = false;
     }
     
