@@ -145,7 +145,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
     private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
-    private final ShiftLight[] shiftLights = { null, null, null, null, null };
+    private final ShiftLight[] shiftLights = { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null };
     
     private void initShiftLights( int oldNumber, int newNumber )
     {
@@ -171,7 +171,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         }
     }
     
-    private final IntProperty numShiftLights = new IntProperty( this, "numShiftLights", 0, 0, 5 )
+    private final IntProperty numShiftLights = new IntProperty( this, "numShiftLights", 0, 0, 20 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )

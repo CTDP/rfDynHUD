@@ -37,6 +37,21 @@ public class ShiftLight
         "shiftlight_on_yellow.png",
         "shiftlight_on_lightgreen.png",
         "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
+        "shiftlight_on_green.png",
     };
     
     public static final ShiftLight DEFAULT_SHIFT_LIGHT1 = new ShiftLight( null, 1 );
@@ -44,6 +59,21 @@ public class ShiftLight
     public static final ShiftLight DEFAULT_SHIFT_LIGHT3 = new ShiftLight( null, 3 );
     public static final ShiftLight DEFAULT_SHIFT_LIGHT4 = new ShiftLight( null, 4 );
     public static final ShiftLight DEFAULT_SHIFT_LIGHT5 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT6 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT7 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT8 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT9 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT10 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT11 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT12 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT13 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT14 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT15 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT16 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT17 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT18 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT19 = new ShiftLight( null, 5 );
+    public static final ShiftLight DEFAULT_SHIFT_LIGHT20 = new ShiftLight( null, 5 );
     
     private final RevMeterWidget widget;
     private final int indexOneBased;
