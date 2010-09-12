@@ -775,6 +775,7 @@ public abstract class NeedleMeterWidget extends Widget
         writer.writeProperty( markersColor, "The color used to draw the markers." );
         writer.writeProperty( markersFont, "The font used to draw the marker numbers." );
         writer.writeProperty( markersFontColor, "The font color used to draw the marker numbers." );
+        writer.writeProperty( displayValue, "Display the digital value?" );
         writer.writeProperty( valueBackgroundImageName, "The name of the image to render behind the value number." );
         writer.writeProperty( valuePosX, "The x-offset in pixels to the value label." );
         writer.writeProperty( valuePosY, "The y-offset in pixels to the value label." );
@@ -807,6 +808,7 @@ public abstract class NeedleMeterWidget extends Widget
         else if ( loader.loadProperty( markersColor ) );
         else if ( loader.loadProperty( markersFont ) );
         else if ( loader.loadProperty( markersFontColor ) );
+        else if ( loader.loadProperty( displayValue ) );
         else if ( loader.loadProperty( valueBackgroundImageName ) );
         else if ( loader.loadProperty( valuePosX ) );
         else if ( loader.loadProperty( valuePosY ) );
