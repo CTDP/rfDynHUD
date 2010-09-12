@@ -78,7 +78,7 @@ public class TextureManager
     {
         if ( MISSING_IMAGE == null )
         {
-            MISSING_IMAGE = new ImageTemplate( createMissingImage( 128, 128 ) );
+            MISSING_IMAGE = new ImageTemplate( "MISSING", createMissingImage( 128, 128 ) );
         }
         
         return ( MISSING_IMAGE );
@@ -157,7 +157,7 @@ public class TextureManager
             return ( getMissingImage() );
         }
         
-        template = new ImageTemplate( image );
+        template = new ImageTemplate( name, image );
         
         if ( useCache )
             cache.add( name, f.lastModified(), template );

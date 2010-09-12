@@ -37,7 +37,18 @@ import sun.awt.image.ByteInterleavedRaster;
  */
 public class ImageTemplate
 {
+    private final String name;
     private final BufferedImage bufferedImage;
+    
+    /**
+     * Gets the image template's name.
+     * 
+     * @return the image template's name.
+     */
+    public final String getName()
+    {
+        return ( name );
+    }
     
     /**
      * Gets the base width of the image. This can be the physical image size
@@ -103,18 +114,23 @@ public class ImageTemplate
             final int w = getBaseWidth();
             final int h = getBaseHeight();
             
-            int offset = 0;
+            int sOffset = 0;
+            int dOffset = 0;
             for ( int j = 0; j < h; j++ )
             {
                 for ( int i = 0; i < w; i++ )
                 {
-                    data[offset + ByteOrderManager.RED] = srcBytes[offset + byteOffsets[0]];
-                    data[offset + ByteOrderManager.GREEN] = srcBytes[offset + byteOffsets[1]];
-                    data[offset + ByteOrderManager.BLUE] = srcBytes[offset + byteOffsets[2]];
+                    data[dOffset + ByteOrderManager.RED] = srcBytes[sOffset + byteOffsets[0]];
+                    data[dOffset + ByteOrderManager.GREEN] = srcBytes[sOffset + byteOffsets[1]];
+                    data[dOffset + ByteOrderManager.BLUE] = srcBytes[sOffset + byteOffsets[2]];
                     if ( pixelStride == 4 )
-                        data[offset + ByteOrderManager.ALPHA] = srcBytes[offset + byteOffsets[3]];
-                    offset += pixelStride;
+                        data[dOffset + ByteOrderManager.ALPHA] = srcBytes[sOffset + byteOffsets[3]];
+                    
+                    dOffset += pixelStride;
+                    sOffset += pixelStride;
                 }
+                
+                dOffset += pixelStride * ( texture.getMaxWidth() - texture.getWidth() );
             }
             
             //texture = TextureImage2D.createOfflineTexture( bi.getWidth(), bi.getHeight(), bi.getColorModel().hasAlpha(), data );
@@ -137,7 +153,7 @@ public class ImageTemplate
      */
     public void drawScaled( int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, TextureImage2D texture, boolean clearBefore )
     {
-        if ( ( bufferedImage.getData() instanceof ByteInterleavedRaster ) && ( bufferedImage.getColorModel().hasAlpha() == texture.hasAlphaChannel() ) && ( sx == 0 ) && ( sy == 0 ) && ( sw == getBaseWidth() ) && ( sh == getBaseHeight() ) && ( dx == 0 ) && ( dy == 0 ) && ( dw == getBaseWidth() ) && ( dh == getBaseHeight() ) && clearBefore )
+        if ( ( bufferedImage.getData() instanceof ByteInterleavedRaster ) && ( bufferedImage.getColorModel().hasAlpha() == texture.hasAlphaChannel() ) && ( sx == 0 ) && ( sy == 0 ) && ( sw == getBaseWidth() ) && ( sh == getBaseHeight() ) && ( dx == 0 ) && ( dy == 0 ) && ( dw == sw ) && ( dh == sh ) && clearBefore )
         {
             copyPixels( texture );
         }
@@ -322,8 +338,9 @@ public class ImageTemplate
         return ( getScaledTransformableTexture( getBaseWidth(), getBaseHeight(), false ) );
     }
     
-    public ImageTemplate( BufferedImage bufferedImage )
+    public ImageTemplate( String name, BufferedImage bufferedImage )
     {
+        this.name = name;
         this.bufferedImage = bufferedImage;
     }
 }
