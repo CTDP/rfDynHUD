@@ -258,11 +258,13 @@ public class EditorTable extends HierarchicalTable
         
         ( (HierarchicalTableModel)this.getModel() ).apply( null, (HierarchicalTableColumnModel)this.getColumnModel(), selectedRow );
         
+        /*
         selectedRow = Math.min( selectedRow, getRowCount() - 1 );
         if ( selectedRow < 0 )
             clearSelection();
         else
             setRowSelectionInterval( selectedRow, selectedRow );
+        */
     }
     
     private static ValueAccessor acc = new ValueAccessor()

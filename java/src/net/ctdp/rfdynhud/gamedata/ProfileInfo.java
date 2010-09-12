@@ -156,7 +156,7 @@ public class ProfileInfo
         
         if ( plrFile == null )
         {
-            Logger.log( "ERROR: No Profile with PLR file found. Plugin unusable!" );
+            Logger.log( "ERROR: No Profile with PLR file found under \"" + USERDATA_FOLDER.getAbsolutePath() + "\". Plugin unusable!" );
             
             reset();
             return ( false );
@@ -168,6 +168,8 @@ public class ProfileInfo
         }
         
         reset();
+        
+        Logger.log( "INFO: Using PLR file \"" + plrFile.getAbsolutePath() + "\"" );
         
         try
         {

@@ -259,9 +259,12 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
-    private boolean snapPositionToRail( Widget widget, Point point )
+    private static final byte FLAG_SNAP_X = 1;
+    private static final byte FLAG_SNAP_Y = 2;
+    
+    private byte snapPositionToRail( Widget widget, Point point )
     {
-        boolean result = false;
+        byte result = 0;
         
         if ( !isControlDown )
         {
@@ -299,13 +302,13 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 if ( Math.abs( closestRailX ) < panel.getRailDistanceX() )
                 {
                     point.x += closestRailX;
-                    result = true;
+                    result |= FLAG_SNAP_X;
                 }
                 
                 if ( Math.abs( closestRailY ) < panel.getRailDistanceY() )
                 {
                     point.y += closestRailY;
-                    result = true;
+                    result |= FLAG_SNAP_Y;
                 }
             }
             
@@ -314,7 +317,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 point.x = panel.snapXToGrid( point.x );
                 point.y = panel.snapYToGrid( point.y );
                 
-                result = true;
+                result = FLAG_SNAP_X | FLAG_SNAP_Y;
             }
         }
         
@@ -379,10 +382,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     private boolean setWidgetPosition( Widget widget, int x, int y )
     {
         Point p = new Point( x, y );
-        boolean snapped1 = snapPositionToRail( widget, p );
+        byte snapped1 = snapPositionToRail( widget, p );
         
-        int dx1 = snapped1 ? p.x - x : Integer.MAX_VALUE;
-        int dy1 = snapped1 ? p.y - y : Integer.MAX_VALUE;
+        int dx1 = ( ( snapped1 & FLAG_SNAP_X ) != 0 ) ? p.x - x : Integer.MAX_VALUE;
+        int dy1 = ( ( snapped1 & FLAG_SNAP_Y ) != 0 ) ? p.y - y : Integer.MAX_VALUE;
         
         final int effWidth = widget.getSize().getEffectiveWidth();
         final int effHeight = widget.getSize().getEffectiveHeight();
@@ -391,30 +394,30 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         int y2 = y + effHeight - 1;
         
         p.setLocation( x2, y2 );
-        boolean snapped2 = snapPositionToRail( widget, p );
+        byte snapped2 = snapPositionToRail( widget, p );
         
-        int dx2 = snapped2 ? p.x - x2 : Integer.MAX_VALUE;
-        int dy2 = snapped2 ? p.y - y2 : Integer.MAX_VALUE;
+        int dx2 = ( ( snapped2 & FLAG_SNAP_X ) != 0 ) ? p.x - x2 : Integer.MAX_VALUE;
+        int dy2 = ( ( snapped2 & FLAG_SNAP_Y ) != 0 ) ? p.y - y2 : Integer.MAX_VALUE;
         
         if ( Math.abs( dx1 ) < Math.abs( dx2 ) )
         {
-            if ( snapped1 )
+            if ( ( ( snapped1 & FLAG_SNAP_X ) != 0 ) )
                 x += dx1;
         }
         else
         {
-            if ( snapped2 )
+            if ( ( ( snapped2 & FLAG_SNAP_X ) != 0 ) )
                 x += dx2;
         }
         
         if ( Math.abs( dy1 ) < Math.abs( dy2 ) )
         {
-            if ( snapped1 )
+            if ( ( ( snapped1 & FLAG_SNAP_Y ) != 0 ) )
                 y += dy1;
         }
         else
         {
-            if ( snapped2 )
+            if ( ( ( snapped2 & FLAG_SNAP_Y ) != 0 ) )
                 y += dy2;
         }
         
@@ -433,8 +436,8 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             final int gameResX = selectedWidget.getConfiguration().getGameResolution().getViewportWidth();
             final int gameResY = selectedWidget.getConfiguration().getGameResolution().getViewportHeight();
             
-            final int dx = ( e.getX() - mousePressedX );
-            final int dy = ( e.getY() - mousePressedY );
+            int dx = ( e.getX() - mousePressedX );
+            int dy = ( e.getY() - mousePressedY );
             
             boolean changed = false;
             
@@ -443,35 +446,68 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 int x = widgetDragStartX;
                 int y = widgetDragStartY;
                 
+                switch ( editor.getEditorPanel().getCursor().getType() )
+                {
+                    case Cursor.NW_RESIZE_CURSOR:
+                        x += dx;
+                        y += dy;
+                        break;
+                    case Cursor.N_RESIZE_CURSOR:
+                        y += dy;
+                        break;
+                    case Cursor.NE_RESIZE_CURSOR:
+                        y += dy;
+                        break;
+                    case Cursor.W_RESIZE_CURSOR:
+                        x += dx;
+                        break;
+                    case Cursor.E_RESIZE_CURSOR:
+                        break;
+                    case Cursor.SW_RESIZE_CURSOR:
+                        x += dx;
+                        break;
+                    case Cursor.S_RESIZE_CURSOR:
+                        break;
+                    case Cursor.SE_RESIZE_CURSOR:
+                        break;
+                }
+                
+                Point p = new Point( x, y );
+                snapPositionToRail( selectedWidget, p );
+                if ( ( overBorderPart == BorderPart.TOP_LEFT ) || ( overBorderPart == BorderPart.LEFT ) || ( overBorderPart == BorderPart.BOTTOM_LEFT ) )
+                {
+                    dx += p.x - x;
+                    x = p.x;
+                }
+                if ( ( overBorderPart == BorderPart.TOP_LEFT ) || ( overBorderPart == BorderPart.TOP ) || ( overBorderPart == BorderPart.TOP_RIGHT ) )
+                {
+                    dy += p.y - y;
+                    y = p.y;
+                }
+                
                 int w = widgetDragStartWidth;
                 int h = widgetDragStartHeight;
                 
                 switch ( editor.getEditorPanel().getCursor().getType() )
                 {
                     case Cursor.NW_RESIZE_CURSOR:
-                        x += dx;
-                        y += dy;
                         w -= dx;
                         h -= dy;
                         break;
                     case Cursor.N_RESIZE_CURSOR:
-                        y += dy;
                         h -= dy;
                         break;
                     case Cursor.NE_RESIZE_CURSOR:
-                        y += dy;
                         w += dx;
                         h -= dy;
                         break;
                     case Cursor.W_RESIZE_CURSOR:
-                        x += dx;
                         w -= dx;
                         break;
                     case Cursor.E_RESIZE_CURSOR:
                         w += dx;
                         break;
                     case Cursor.SW_RESIZE_CURSOR:
-                        x += dx;
                         w -= dx;
                         h += dy;
                         break;
@@ -525,20 +561,22 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                     }
                 }
                 
-                Point p = new Point( x, y );
                 Point s = new Point( x + w - 1, y + h - 1 );
-                snapPositionToRail( selectedWidget, p );
-                x = p.x;
-                y = p.y;
                 snapPositionToRail( selectedWidget, s );
-                if ( w != widgetDragStartWidth )
+                if ( ( w != widgetDragStartWidth ) && ( ( overBorderPart == BorderPart.TOP_RIGHT ) || ( overBorderPart == BorderPart.RIGHT ) || ( overBorderPart == BorderPart.BOTTOM_RIGHT ) ) )
                     w = s.x + 1 - x;
-                if ( h != widgetDragStartHeight )
+                if ( ( h != widgetDragStartHeight ) && ( ( overBorderPart == BorderPart.BOTTOM_LEFT ) || ( overBorderPart == BorderPart.BOTTOM ) || ( overBorderPart == BorderPart.BOTTOM_RIGHT ) ) )
                     h = s.y + 1 - y;
                 
                 RelativePositioning positioning = fixPositioning( selectedWidget, x, y, w, h );
                 
                 boolean b1 = selectedWidget.getSize().setEffectiveSize( w, h );
+                int eh = selectedWidget.getSize().getEffectiveHeight();
+                if ( ( h < eh ) && ( ( overBorderPart == BorderPart.TOP_LEFT ) || ( overBorderPart == BorderPart.TOP ) || ( overBorderPart == BorderPart.TOP_RIGHT ) ) )
+                    y -= eh - h;
+                int ew = selectedWidget.getSize().getEffectiveWidth();
+                if ( ( w < ew ) && ( ( overBorderPart == BorderPart.BOTTOM_LEFT ) || ( overBorderPart == BorderPart.LEFT ) || ( overBorderPart == BorderPart.TOP_LEFT ) ) )
+                    x -= ew - w;
                 boolean b2 = selectedWidget.getPosition().setEffectivePosition( positioning, x, y );
                 
                 changed = b1 || b2;

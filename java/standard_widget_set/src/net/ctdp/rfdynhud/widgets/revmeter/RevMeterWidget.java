@@ -582,8 +582,11 @@ public class RevMeterWidget extends NeedleMeterWidget
         int mountX = getNeedleMountX( width );
         int mountY = getNeedleMountY( height );
         
-        peakNeedleTexture.setTranslation( mountX - peakNeedleTexture.getWidth() / 2, mountY - peakNeedleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * getBackground().getScaleX() );
-        peakNeedleTexture.setRotationCenter( (int)( peakNeedleTexture.getWidth() / 2 ), (int)( peakNeedleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * getBackground().getScaleY() ) );
+        if ( peakNeedleTexture != null )
+        {
+            peakNeedleTexture.setTranslation( mountX - peakNeedleTexture.getWidth() / 2, mountY - peakNeedleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * getBackground().getScaleX() );
+            peakNeedleTexture.setRotationCenter( (int)( peakNeedleTexture.getWidth() / 2 ), (int)( peakNeedleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * getBackground().getScaleY() ) );
+        }
     }
     
     /**
@@ -698,6 +701,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     /**
+     * Draws the boost bar.
      * 
      * @param boost
      * @param maxBoost
@@ -709,7 +713,7 @@ public class RevMeterWidget extends NeedleMeterWidget
      * @param width
      * @param height
      */
-    private void drawBoostBar( int boost, int maxBoost, boolean inverted, boolean tempBoost, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
+    protected void drawBoostBar( int boost, int maxBoost, boolean inverted, boolean tempBoost, Texture2DCanvas texCanvas, int offsetX, int offsetY, int width, int height )
     {
         if ( inverted )
             boost = maxBoost - boost + 1;
@@ -1086,14 +1090,14 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected boolean getSpecificPropertiesFirst( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addVisibilityPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        if ( super.getSpecificPropertiesFirst( propsCont, forceAll ) )
-            propsCont.addGroup( "Specific" );
+        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
         
-        propsCont.addProperty( hideWhenViewingOtherCar );
-        
-        return ( true );
+        if ( getMasterWidget() == null )
+        {
+            propsCont.addProperty( hideWhenViewingOtherCar );
+        }
     }
     
     /**
