@@ -82,13 +82,13 @@ public class SpeedoWidget extends NeedleMeterWidget
     */
     
     @Override
-    protected float getMinValue( LiveGameData gameData, boolean isEditorMode )
+    protected float getMinDataValue( LiveGameData gameData, boolean isEditorMode )
     {
         return ( 0 );
     }
     
     @Override
-    protected float getMaxValue( LiveGameData gameData, boolean isEditorMode )
+    protected float getMaxDataValue( LiveGameData gameData, boolean isEditorMode )
     {
         if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
             return ( maxVelocity.getFloatValue() * SpeedUnits.Convert.KPH_TO_MPH );
@@ -142,6 +142,15 @@ public class SpeedoWidget extends NeedleMeterWidget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( maxVelocity ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addMaxValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        // We don't need this here!
     }
     
     @Override

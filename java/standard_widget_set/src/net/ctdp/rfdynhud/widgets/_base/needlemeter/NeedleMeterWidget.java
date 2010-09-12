@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FactoredFloatProperty;
+import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
@@ -99,6 +100,11 @@ public abstract class NeedleMeterWidget extends Widget
     
     protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
     protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
+    
+    protected static final float MIN_MAX_VALUE_NONE = 1000000000f;
+    
+    protected final FloatProperty minValue = new FloatProperty( this, "minValue", -MIN_MAX_VALUE_NONE );
+    protected final FloatProperty maxValue = new FloatProperty( this, "maxValue", +MIN_MAX_VALUE_NONE );
     
     private final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
     
@@ -232,6 +238,8 @@ public abstract class NeedleMeterWidget extends Widget
     {
         return ( needleRotationForMaxValue.getFactoredValue() );
     }
+    
+    //protected 
     
     protected ImageTemplate getValueBackgroundImage()
     {
@@ -489,24 +497,84 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     /**
-     * Gets the minimum value for the needle and gauge.
+     * Gets the minimum value for the markers and needle coming from game data or known limits.
      * 
      * @param gameData
      * @param isEditorMode
      * 
-     * @return the minimum value for the needle and gauge.
+     * @return the minimum value for the markers and needle.
      */
-    protected abstract float getMinValue( LiveGameData gameData, boolean isEditorMode );
+    protected abstract float getMinDataValue( LiveGameData gameData, boolean isEditorMode );
     
     /**
-     * Gets the maximum value for the needle and gauge.
+     * Gets the maximum value for the markers and needle coming from game data or known limits.
      * 
      * @param gameData
      * @param isEditorMode
      * 
-     * @return the maximum value for the needle and gauge.
+     * @return the maximum value for the markers and needle.
      */
-    protected abstract float getMaxValue( LiveGameData gameData, boolean isEditorMode );
+    protected abstract float getMaxDataValue( LiveGameData gameData, boolean isEditorMode );
+    
+    /**
+     * Gets the minimum value for the markers and needle.
+     * If the minValue property is set to a valid value, the value is returned, otherwise the result of {@link #getMinDataValue(LiveGameData, boolean)} is returned.
+     * 
+     * @param gameData
+     * @param isEditorMode
+     * 
+     * @return the minimum value for the markers and needle.
+     */
+    protected final float getMinValue( LiveGameData gameData, boolean isEditorMode )
+    {
+        float minDataValue = getMinDataValue( gameData, isEditorMode );
+        
+        if ( minValue.getFloatValue() > minDataValue )
+            return ( minValue.getFloatValue() );
+        
+        return ( minDataValue );
+    }
+    
+    /**
+     * Gets the maximum value for the markers and needle.
+     * If the maxValue property is set to a valid value, the value is returned, otherwise the result of {@link #getMaxDataValue(LiveGameData, boolean)} is returned.
+     * 
+     * @param gameData
+     * @param isEditorMode
+     * 
+     * @return the maximum value for the markers and needle.
+     */
+    protected final float getMaxValue( LiveGameData gameData, boolean isEditorMode )
+    {
+        float maxDataValue = getMaxDataValue( gameData, isEditorMode );
+        
+        if ( maxValue.getFloatValue() < maxDataValue )
+            return ( maxValue.getFloatValue() );
+        
+        return ( maxDataValue );
+    }
+    
+    /**
+     * Gets, whether the needle may go below the {@link #getMinValue(LiveGameData, boolean)} result.
+     * The default implementation returns <code>false</code>.
+     * 
+     * @return whether the needle may go below the {@link #getMinValue(LiveGameData, boolean)} result.
+     */
+    protected boolean getNeedleMayExceedMinimum()
+    {
+        return ( false );
+    }
+    
+    /**
+     * Gets, whether the needle may go beyond the {@link #getMaxValue(LiveGameData, boolean)} result.
+     * The default implementation returns <code>true</code>.
+     * 
+     * @return whether the needle may go beyond the {@link #getMaxValue(LiveGameData, boolean)} result.
+     */
+    protected boolean getNeedleMayExceedMaximum()
+    {
+        return ( true );
+    }
     
     /**
      * Gets the text label for the big markers at the given value.
@@ -590,6 +658,7 @@ public abstract class NeedleMeterWidget extends Widget
         
         int minValue = (int)getMinValue( gameData, isEditorMode );
         int maxValue = (int)getMaxValue( gameData, isEditorMode );
+        float range = ( maxValue - minValue );
         
         float centerX = offsetX + getNeedleMountX( width );
         float centerY = offsetY + getNeedleMountY( height );
@@ -620,10 +689,13 @@ public abstract class NeedleMeterWidget extends Widget
         
         String biggestString = String.valueOf( getMarkerLabelForValue( gameData, isEditorMode, Math.max( minValue, maxValue ) ) );
         
+        if ( this.getClass().getSimpleName().equals( "SpeedoWidget" ) )
+            System.out.println( minValue + ", " + maxValue );
+        
         final int smallStep = markersSmallStep.getIntValue();
         for ( int value = minValue; value <= maxValue; value += smallStep )
         {
-            float angle = +( needleRotationForMinValue.getFactoredValue() + ( needleRotationForMaxValue.getFactoredValue() - needleRotationForMinValue.getFactoredValue() ) * ( value / (float)maxValue ) );
+            float angle = +( needleRotationForMinValue.getFactoredValue() + ( needleRotationForMaxValue.getFactoredValue() - needleRotationForMinValue.getFactoredValue() ) * ( ( value - minValue ) / range ) );
             
             at2.setToRotation( angle, centerX, centerY );
             texCanvas.setTransform( at2 );
@@ -707,10 +779,15 @@ public abstract class NeedleMeterWidget extends Widget
             if ( doRenderNeedle( gameData, isEditorMode ) )
             {
                 float value = getValue( gameData, isEditorMode );
+                float minValue = getMinValue( gameData, isEditorMode );
                 float maxValue = getMaxValue( gameData, isEditorMode );
+                if ( !getNeedleMayExceedMinimum() )
+                    value = Math.max( minValue, value );
+                if ( !getNeedleMayExceedMaximum() )
+                    value = Math.min( value, maxValue );
                 
                 float rot0 = needleRotationForMinValue.getFactoredValue();
-                float rot = -( value / maxValue ) * ( needleRotationForMinValue.getFactoredValue() - needleRotationForMaxValue.getFactoredValue() );
+                float rot = -( ( value - minValue ) / ( maxValue - minValue ) ) * ( needleRotationForMinValue.getFactoredValue() - needleRotationForMaxValue.getFactoredValue() );
                 
                 needleTexture.setRotation( rot0 + rot );
                 needleTexture.setVisible( true );
@@ -758,12 +835,9 @@ public abstract class NeedleMeterWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( needleImageName, "The name of the needle image." );
-        writer.writeProperty( needleMountX, "The x-offset in background image pixels to the needle mount (-1 for center)." );
-        writer.writeProperty( needleMountY, "The y-offset in background image pixels to the needle mount (-1 for center)." );
-        writer.writeProperty( needlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
-        writer.writeProperty( needleRotationForMinValue, "The rotation for the needle image, that it has for min value (in degrees)." );
-        writer.writeProperty( needleRotationForMaxValue, "The rotation for the needle image, that it has for max value (in degrees)." );
+        writer.writeProperty( minValue, "The minimum value accepted for the markers and needle" );
+        writer.writeProperty( maxValue, "The maximum value accepted for the markers and needle" );
+        
         writer.writeProperty( displayMarkers, "Display markers?" );
         writer.writeProperty( displayMarkerNumbers, "Display marker numbers?" );
         writer.writeProperty( markerNumbersInside, "Render marker numbers inside of the markers?" );
@@ -775,6 +849,14 @@ public abstract class NeedleMeterWidget extends Widget
         writer.writeProperty( markersColor, "The color used to draw the markers." );
         writer.writeProperty( markersFont, "The font used to draw the marker numbers." );
         writer.writeProperty( markersFontColor, "The font color used to draw the marker numbers." );
+        
+        writer.writeProperty( needleImageName, "The name of the needle image." );
+        writer.writeProperty( needleMountX, "The x-offset in background image pixels to the needle mount (-1 for center)." );
+        writer.writeProperty( needleMountY, "The y-offset in background image pixels to the needle mount (-1 for center)." );
+        writer.writeProperty( needlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
+        writer.writeProperty( needleRotationForMinValue, "The rotation for the needle image, that it has for min value (in degrees)." );
+        writer.writeProperty( needleRotationForMaxValue, "The rotation for the needle image, that it has for max value (in degrees)." );
+        
         writer.writeProperty( displayValue, "Display the digital value?" );
         writer.writeProperty( valueBackgroundImageName, "The name of the image to render behind the value number." );
         writer.writeProperty( valuePosX, "The x-offset in pixels to the value label." );
@@ -791,12 +873,9 @@ public abstract class NeedleMeterWidget extends Widget
     {
         super.loadProperty( loader );
         
-        if ( loader.loadProperty( needleImageName ) );
-        else if ( loader.loadProperty( needleMountX ) );
-        else if ( loader.loadProperty( needleMountY ) );
-        else if ( loader.loadProperty( needlePivotBottomOffset ) );
-        else if ( loader.loadProperty( needleRotationForMinValue ) );
-        else if ( loader.loadProperty( needleRotationForMaxValue ) );
+        if ( loader.loadProperty( minValue ) );
+        else if ( loader.loadProperty( maxValue ) );
+        
         else if ( loader.loadProperty( displayMarkers ) );
         else if ( loader.loadProperty( displayMarkerNumbers ) );
         else if ( loader.loadProperty( markerNumbersInside ) );
@@ -808,12 +887,44 @@ public abstract class NeedleMeterWidget extends Widget
         else if ( loader.loadProperty( markersColor ) );
         else if ( loader.loadProperty( markersFont ) );
         else if ( loader.loadProperty( markersFontColor ) );
+        
+        else if ( loader.loadProperty( needleImageName ) );
+        else if ( loader.loadProperty( needleMountX ) );
+        else if ( loader.loadProperty( needleMountY ) );
+        else if ( loader.loadProperty( needlePivotBottomOffset ) );
+        else if ( loader.loadProperty( needleRotationForMinValue ) );
+        else if ( loader.loadProperty( needleRotationForMaxValue ) );
+        
         else if ( loader.loadProperty( displayValue ) );
         else if ( loader.loadProperty( valueBackgroundImageName ) );
         else if ( loader.loadProperty( valuePosX ) );
         else if ( loader.loadProperty( valuePosY ) );
         else if ( loader.loadProperty( valueFont ) );
         else if ( loader.loadProperty( valueFontColor ) );
+    }
+    
+    /**
+     * Adds the minValue property to the container.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void addMinValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( minValue );
+    }
+    
+    /**
+     * Adds the maxValue property to the container.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void addMaxValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( maxValue );
     }
     
     /**
@@ -827,24 +938,12 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected boolean getSpecificPropertiesFirst( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        return ( false );
-    }
-    
-    /**
-     * Collects the properties for the needle.
-     * 
-     * @param propsCont the container to add the properties to
-     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
-     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
-     */
-    protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
-    {
-        propsCont.addProperty( needleImageName );
-        propsCont.addProperty( needleMountX );
-        propsCont.addProperty( needleMountY );
-        propsCont.addProperty( needlePivotBottomOffset );
-        propsCont.addProperty( needleRotationForMinValue );
-        propsCont.addProperty( needleRotationForMaxValue );
+        propsCont.addGroup( "Specific" );
+        
+        addMinValuePropertyToContainer( propsCont, forceAll );
+        addMaxValuePropertyToContainer( propsCont, forceAll );
+        
+        return ( true );
     }
     
     /**
@@ -867,6 +966,23 @@ public abstract class NeedleMeterWidget extends Widget
         propsCont.addProperty( markersColor );
         propsCont.addProperty( markersFont );
         propsCont.addProperty( markersFontColor );
+    }
+    
+    /**
+     * Collects the properties for the needle.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addProperty( needleImageName );
+        propsCont.addProperty( needleMountX );
+        propsCont.addProperty( needleMountY );
+        propsCont.addProperty( needlePivotBottomOffset );
+        propsCont.addProperty( needleRotationForMinValue );
+        propsCont.addProperty( needleRotationForMaxValue );
     }
     
     /**
@@ -906,13 +1022,13 @@ public abstract class NeedleMeterWidget extends Widget
         
         getSpecificPropertiesFirst( propsCont, forceAll );
         
-        propsCont.addGroup( "Needle" );
-        
-        getNeedleProperties( propsCont, forceAll );
-        
         propsCont.addGroup( "Markers" );
         
         getMarkersProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Needle" );
+        
+        getNeedleProperties( propsCont, forceAll );
         
         propsCont.addGroup( getDigiValuePropertiesGroupName() );
         

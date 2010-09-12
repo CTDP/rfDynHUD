@@ -19,6 +19,9 @@ package net.ctdp.rfdynhud.editor.properties;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -37,6 +40,8 @@ import net.ctdp.rfdynhud.properties.Property;
 public class FloatCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
 {
     private static final long serialVersionUID = -7299720233662747237L;
+    
+    private static final DecimalFormat FORMAT = new DecimalFormat( "0.#", DecimalFormatSymbols.getInstance( Locale.US ) );
     
     private final JPanel panel = new JPanel( new BorderLayout() );
     private final JTextField textfield = new JTextField();
@@ -80,7 +85,7 @@ public class FloatCellEditor extends KeyValueCellRenderer<JPanel> implements Tab
         textfield.setFont( table.getFont() );
         textfield.setBorder( null );
         
-        textfield.setText( String.valueOf( value ) );
+        textfield.setText( FORMAT.format( value ) );
         
         this.table = table;
         

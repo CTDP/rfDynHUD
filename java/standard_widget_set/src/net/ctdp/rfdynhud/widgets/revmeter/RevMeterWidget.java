@@ -278,13 +278,13 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected float getMinValue( LiveGameData gameData, boolean isEditorModes )
+    protected float getMinDataValue( LiveGameData gameData, boolean isEditorModes )
     {
         return ( 0 );
     }
     
     @Override
-    protected float getMaxValue( LiveGameData gameData, boolean isEditorMode )
+    protected float getMaxDataValue( LiveGameData gameData, boolean isEditorMode )
     {
         /*
         if ( useMaxRevLimit.getBooleanValue() )
@@ -876,27 +876,25 @@ public class RevMeterWidget extends NeedleMeterWidget
             if ( doRenderNeedle( gameData, isEditorMode ) )
             {
                 long sessionNanos = gameData.getScoringInfo().getSessionNanos();
-                float maxRPM2 = maxRPM;
-                if ( useBoostRevLimit1.getBooleanValue() )
-                    maxRPM2 = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
+                float rpmRange = ( getMaxValue( gameData, isEditorMode ) - getMinValue( gameData, isEditorMode ) );
                 
                 float value;
                 
                 if ( isEditorMode )
                 {
-                    value = maxRPM2;
+                    value = getMaxValue( gameData, isEditorMode );
                 }
                 else
                 {
-                    float rpm2 = vsi.isPlayer() ? rpm : 0f;
-                    
                     value = peakRPM;
+                    
+                    float rpm2 = vsi.isPlayer() ? rpm : 0f;
                     
                     if ( rpm2 < peakRPM - 5f )
                     {
                         if ( sessionNanos > lastPeakRecordTime + peakNeedleWaitTime.getDelayNanos() )
                         {
-                            float cooldown = (float)( ( sessionNanos - lastPeakRecordTime - peakNeedleWaitTime.getDelayNanos() ) / 1000000000.0 ) / ( peakNeedleCooldown.getDelaySeconds() * ( peakRPM / maxRPM2 ) );
+                            float cooldown = (float)( ( sessionNanos - lastPeakRecordTime - peakNeedleWaitTime.getDelayNanos() ) / 1000000000.0 ) / ( peakNeedleCooldown.getDelaySeconds() * ( peakRPM / rpmRange ) );
                             if ( cooldown > 1.0f )
                                 cooldown = 1.0f;
                             
@@ -925,8 +923,16 @@ public class RevMeterWidget extends NeedleMeterWidget
                     }
                 }
                 
+                float minValue = getMinValue( gameData, isEditorMode );
+                float maxValue = getMaxValue( gameData, isEditorMode );
+                if ( !getNeedleMayExceedMinimum() )
+                    value = Math.max( minValue, value );
+                if ( !getNeedleMayExceedMaximum() )
+                    value = Math.min( value, maxValue );
+                
+                
                 float rot0 = needleRotationForMinValue.getFactoredValue();
-                float rot = -( value / maxRPM2 ) * ( needleRotationForMinValue.getFactoredValue() - needleRotationForMaxValue.getFactoredValue() );
+                float rot = -( ( value - minValue ) / rpmRange ) * ( needleRotationForMinValue.getFactoredValue() - needleRotationForMaxValue.getFactoredValue() );
                 
                 peakNeedleTexture.setRotation( rot0 + rot );
                 peakNeedleTexture.setVisible( true );
@@ -1104,17 +1110,9 @@ public class RevMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addMaxValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        super.getNeedleProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Peak Needle" );
-        
-        propsCont.addProperty( peakNeedleImageName );
-        propsCont.addProperty( peakNeedlePivotBottomOffset );
-        propsCont.addProperty( peakNeedleWaitTime );
-        propsCont.addProperty( peakNeedleCooldown );
-        propsCont.addProperty( peakNeedleDownshiftIgnoreTime );
+        // We don't need this here!
     }
     
     /**
@@ -1130,6 +1128,23 @@ public class RevMeterWidget extends NeedleMeterWidget
         propsCont.addProperty( revMarkersHighColor );
         propsCont.addProperty( fillHighBackground );
         propsCont.addProperty( interpolateMarkerColors );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getNeedleProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Peak Needle" );
+        
+        propsCont.addProperty( peakNeedleImageName );
+        propsCont.addProperty( peakNeedlePivotBottomOffset );
+        propsCont.addProperty( peakNeedleWaitTime );
+        propsCont.addProperty( peakNeedleCooldown );
+        propsCont.addProperty( peakNeedleDownshiftIgnoreTime );
     }
     
     /**
