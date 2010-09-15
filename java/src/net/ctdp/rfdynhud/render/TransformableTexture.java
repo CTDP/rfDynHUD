@@ -57,7 +57,7 @@ public class TransformableTexture
         private final short width;
         private final short height;
         
-        private byte visible = 1;
+        private byte visible = VISIBLE;
         
         private boolean setVisible( boolean visible )
         {
@@ -133,10 +133,10 @@ public class TransformableTexture
     private boolean visible = true;
     
     private final boolean pixelPerfectPositioning;
-    private float transX, transY;
-    private int rotCenterX, rotCenterY;
-    private float rotation;
-    private float scaleX, scaleY;
+    private float transX = 0.0f, transY = 0.0f;
+    private int rotCenterX = 0, rotCenterY = 0;
+    private float rotation = 0.0f;
+    private float scaleX = 1.0f, scaleY = 1.0f;
     private int clipRectX = 0, clipRectY = 0, clipRectWidth = 0, clipRectHeight = 0;
     
     private boolean dirty = true;
@@ -196,7 +196,7 @@ public class TransformableTexture
         return ( texture.getTextureCanvas() );
     }
     
-    protected void generateSubRectangles( LiveGameData gameData, boolean isEditorMode, WidgetsDrawingManager widgetsManager )
+    protected void generateRectangles( LiveGameData gameData, boolean isEditorMode, WidgetsDrawingManager widgetsManager )
     {
         final int n = widgetsManager.getNumWidgets();
         Rectangle[] tmp = new Rectangle[ n ];
@@ -205,7 +205,7 @@ public class TransformableTexture
         {
             Widget w = widgetsManager.getWidget( i );
             if ( w.hasMasterCanvas( isEditorMode ) )
-                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, isEditorMode, widgetsManager.getMainTexture() ), w.getMaxHeight( gameData, isEditorMode, widgetsManager.getMainTexture() ) );
+                tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, isEditorMode ), w.getMaxHeight( gameData, isEditorMode ) );
         }
         
         this.usedRectangles = new Rectangle[ m ];
@@ -476,7 +476,7 @@ public class TransformableTexture
             this.dirty = false;
         }
         
-        return ( Math.min( rectangleIndex + usedRectangles.length, MAX_TOTAL_NUM_RECTANGLES ) );
+        return ( Math.min( rectangleIndex + ( usedRectangles == null ? 0 : usedRectangles.length ), MAX_TOTAL_NUM_RECTANGLES ) );
     }
     
     /*
@@ -572,16 +572,20 @@ public class TransformableTexture
      * @param dummy
      * @param width
      * @param height
+     * @param transformable
      */
-    private TransformableTexture( String dummy, int width, int height )
+    private TransformableTexture( String dummy, int width, int height, boolean transformable )
     {
         this.isDynamic = true;
         this.texture = createTexture( width, height, false );
-        this.isTransformed = false;
-        this.transformFlags = 0;
+        this.isTransformed = transformable;
+        this.transformFlags = (byte)( transformable ? 1 : 0 );
         this.pixelPerfectPositioning = true;
         
-        this.dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 1024 );
+        this.dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( transformable ? 128 : 1024 );
+        
+        if ( transformable )
+            this.usedRectangles = new Rectangle[] { new Rectangle( 0, 0, width, height ) };
     }
     
     /**
@@ -589,11 +593,13 @@ public class TransformableTexture
      * 
      * @param width
      * @param height
+     * @param transformable
+     * 
      * @return a main render texture.
      */
-    static TransformableTexture createMainTexture( int width, int height )
+    static TransformableTexture createMainTexture( int width, int height, boolean transformable )
     {
-        return ( new TransformableTexture( "", width, height ) );
+        return ( new TransformableTexture( "", width, height, transformable ) );
     }
     
     public TransformableTexture( int width, int height,

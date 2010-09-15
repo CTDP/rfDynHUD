@@ -244,7 +244,7 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         stateString = dsf.newDrawnString( "stateString", dataAreaCenter, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         if ( sessionLimit == SessionLimit.LAPS )
-            stateString.getMinColWidths( new String[] { "00", "/", "00" }, colAligns, colPadding, texture, colWidths );
+            stateString.getMinColWidths( new String[] { "00", "/", "00" }, colAligns, colPadding, colWidths );
         
         forceCompleteRedraw( false );
     }

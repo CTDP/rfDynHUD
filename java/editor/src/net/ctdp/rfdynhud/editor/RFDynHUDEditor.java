@@ -1040,7 +1040,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             int n = widgetsConfig.getNumWidgets();
             for ( int i = 0; i < n; i++ )
             {
-                widgetsConfig.getWidget( i ).clearRegion( true, getOverlayTexture() );
+                Widget widget = widgetsConfig.getWidget( i );
+                
+                widget.clearRegion( getOverlayTexture(), widget.getPosition().getEffectiveX(), widget.getPosition().getEffectiveY() );
             }
             
             __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), configFile, widgetsConfig, gameData, true, null );
@@ -1671,7 +1673,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         int[] resolution = loadResolutionFromUserSettings();
         
-        WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( resolution[0], resolution[1] );
+        WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( true, resolution[0], resolution[1], true );
         this.widgetsConfig = drawingManager;
         this.eventsManager = new GameEventsManager( null, drawingManager );
         this.gameData = new LiveGameData( drawingManager.getGameResolution(), eventsManager );
@@ -1696,7 +1698,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         WidgetsDrawingManager drawingManager = (WidgetsDrawingManager)widgetsConfig;
         
-        EditorPanel editorPanel = new EditorPanel( this, gameData, drawingManager.getMainTexture(), drawingManager );
+        EditorPanel editorPanel = new EditorPanel( this, gameData, drawingManager );
         editorPanel.setPreferredSize( new Dimension( drawingManager.getGameResolution().getViewportWidth(), drawingManager.getGameResolution().getViewportHeight() ) );
         
         return ( editorPanel );

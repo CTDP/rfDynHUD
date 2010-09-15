@@ -177,7 +177,7 @@ public class StartingLightWidget extends Widget
     }
     
     @Override
-    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode )
     {
         loadImages( isEditorMode, getInnerSize().getEffectiveHeight() );
         

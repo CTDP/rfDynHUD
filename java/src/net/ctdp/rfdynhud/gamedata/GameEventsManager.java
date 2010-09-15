@@ -26,14 +26,14 @@ import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
 
 /**
  * The events manager receives events from rFactor and modifies state-flags appropriately.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class GameEventsManager implements ConfigurationClearListener
+public class GameEventsManager implements ConfigurationLoadListener
 {
     private final RFDynHUD rfDynHUD;
     private final WidgetsDrawingManager widgetsManager;
@@ -84,9 +84,19 @@ public class GameEventsManager implements ConfigurationClearListener
     @Override
     public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig )
     {
+        /*
         int n = widgetsConfig.getNumWidgets();
         for ( int i = 0; i < n; i++ )
-            widgetsConfig.getWidget( i ).clearRegion( false, ( (WidgetsDrawingManager)widgetsConfig ).getMainTexture() );
+            widgetsConfig.getWidget( i ).clearRegion( false, ( (WidgetsDrawingManager)widgetsConfig ).getMainTexture( i ) );
+        */
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig )
+    {
     }
     
     /**

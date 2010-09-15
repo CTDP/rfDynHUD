@@ -216,7 +216,7 @@ public class TrackPositionWidget extends Widget
         if ( itemTextures[0] == null )
             itemTextures[0] = new TransformableTexture( 1, 1, isEditorMode, false );
         
-        java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( itemTextures[0].getTexture(), itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
+        java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
         int w = size.width;
         int h = size.height;
         

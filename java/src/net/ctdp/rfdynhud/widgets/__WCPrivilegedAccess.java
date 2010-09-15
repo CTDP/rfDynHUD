@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.widgets;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputMappings;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationClearListener;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -39,9 +39,9 @@ public class __WCPrivilegedAccess
         config.removeWidget( widget );
     }
     
-    public static final void clear( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener )
+    public static final void clear( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener )
     {
-        config.clear( gameData, isEditorMode, clearListener );
+        config.clear( gameData, isEditorMode, loadListener );
     }
     
     public static final void setInputMappings( WidgetsConfiguration config, InputMappings inputMappings )
@@ -59,9 +59,9 @@ public class __WCPrivilegedAccess
         config.setValid( valid );
     }
     
-    public static final void setJustLoaded( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode )
+    public static final void setJustLoaded( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener )
     {
-        config.setJustLoaded( gameData, isEditorMode );
+        config.setJustLoaded( gameData, isEditorMode, loadListener );
     }
     
     public static final boolean setViewport( int x, int y, int w, int h, WidgetsConfiguration widgetsConfig )

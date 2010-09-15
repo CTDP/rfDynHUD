@@ -41,7 +41,7 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 81 );
+    public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 82 );
     
     private final WidgetsDrawingManager drawingManager;
     private final LiveGameData gameData;
@@ -64,7 +64,7 @@ public class RFDynHUD
     
     public final ByteBuffer getTextureInfoBuffer()
     {
-        return ( drawingManager.getSubTextureBuffer() );
+        return ( drawingManager.getTextureInfoBuffer() );
     }
     
     public final ByteBuffer getDirtyRectsBuffer( int textureIndex )
@@ -170,7 +170,7 @@ public class RFDynHUD
     /**
      * Will and must be called any time, the game is redendered (called from the C++-Plugin).
      * 
-     * @return 0, if nothing shouldbe rendered anymore, 1 to render something, 2 to render and update texture info.
+     * @return 0, if nothing should be rendered anymore, 1 to render something, 2 to render and update texture info.
      */
     public final byte update()
     {
@@ -185,9 +185,9 @@ public class RFDynHUD
             
             __GDPrivilegedAccess.updateSessionTime( gameData, false, System.nanoTime() );
             
-            drawingManager.refreshSubTextureBuffer( false, gameData, newConfig );
+            drawingManager.refreshTextureInfoBuffer( false, gameData, newConfig );
             
-            drawingManager.drawWidgets( gameData, false, TextureDirtyRectsManager.isCompleteRedrawForced(), drawingManager.getTexture( 0 ).getTexture() );
+            drawingManager.drawWidgets( gameData, false, TextureDirtyRectsManager.isCompleteRedrawForced() );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             
             int n = drawingManager.getNumTextures();
@@ -219,7 +219,7 @@ public class RFDynHUD
         
         Logger.log( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "...", false );
         
-        this.drawingManager = new WidgetsDrawingManager( gameResX, gameResY );
+        this.drawingManager = new WidgetsDrawingManager( false, gameResX, gameResY, true );
         Logger.log( " done." );
         
         this.eventsManager = new GameEventsManager( this, drawingManager );

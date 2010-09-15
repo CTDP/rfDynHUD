@@ -105,7 +105,7 @@ public class Lesson4bWidget_SubTextures extends Widget
         /*
          * Just to play around with the parameters we define the text to be drawn at the center location this time.
          */
-        int h = texture.getStringHeight( "Ay", getFont(), isFontAntiAliased() );
+        int h = TextureImage2D.getStringHeight( "Ay", getFont(), isFontAntiAliased() );
         ds = drawnStringFactory.newDrawnString( "ds", width / 2, ( height - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         lapString = drawnStringFactory.newDrawnString( "lapString", subTextures[0].getWidth() / 2, ( subTextures[0].getHeight() - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), myFontColor.getColor() );

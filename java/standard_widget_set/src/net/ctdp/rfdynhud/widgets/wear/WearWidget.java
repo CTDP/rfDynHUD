@@ -461,9 +461,9 @@ public class WearWidget extends Widget
                 final double raceLengthPercentage = gameData.getScoringInfo().getRaceLengthPercentage();
                 float minLifetime = Math.round( getEngineMinLifetimePercent( gameData.getPhysics().getEngine(), raceLengthPercentage, getHundredPercentBaseLifetime( gameData.getPhysics().getEngine(), raceLengthPercentage ) ) * 10f ) / 10f;
                 if ( gameData.getPhysics().getEngine().hasLifetimeVariance() )
-                    engineWearStringMaxWidth = Math.max( engineWearString.getWidth( "-" + NumberUtil.formatFloat( minLifetime, 1, true ) + "%", texture ), engineWearString.getWidth( "100%", texture ) );
+                    engineWearStringMaxWidth = Math.max( engineWearString.getWidth( "-" + NumberUtil.formatFloat( minLifetime, 1, true ) + "%" ), engineWearString.getWidth( "100%" ) );
                 else
-                    engineWearStringMaxWidth = engineWearString.getWidth( "100.0%", texture );
+                    engineWearStringMaxWidth = engineWearString.getWidth( "100.0%" );
             }
             else
             {

@@ -431,7 +431,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     {
         if ( selectedWidget != null )
         {
-            selectedWidget.clearRegion( true, editor.getOverlayTexture() );
+            selectedWidget.clearRegion( editor.getOverlayTexture(), selectedWidget.getPosition().getEffectiveX(), selectedWidget.getPosition().getEffectiveY() );
             
             final int gameResX = selectedWidget.getConfiguration().getGameResolution().getViewportWidth();
             final int gameResY = selectedWidget.getConfiguration().getGameResolution().getViewportHeight();
@@ -637,7 +637,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             {
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    w.clearRegion( true, editor.getOverlayTexture() );
+                    w.clearRegion( editor.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
                     {
                         editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
@@ -651,7 +651,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             {
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    w.clearRegion( true, editor.getOverlayTexture() );
+                    w.clearRegion( editor.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
                     {
                         editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
@@ -665,7 +665,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             {
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    w.clearRegion( true, editor.getOverlayTexture() );
+                    w.clearRegion( editor.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
                     {
                         editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
@@ -679,7 +679,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             {
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    w.clearRegion( true, editor.getOverlayTexture() );
+                    w.clearRegion( editor.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
                     {
                         editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );

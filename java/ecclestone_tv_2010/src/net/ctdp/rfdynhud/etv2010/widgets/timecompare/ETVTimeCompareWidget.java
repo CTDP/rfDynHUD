@@ -350,7 +350,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
-        Rectangle2D posBounds = texture.getStringBounds( "00", getFontProperty() );
+        Rectangle2D posBounds = TextureImage2D.getStringBounds( "00", getFontProperty() );
         
         final int gap = itemGap.getIntValue();
         coords.update( getImages(), width, height, gap, posBounds );

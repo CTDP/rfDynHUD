@@ -689,9 +689,6 @@ public abstract class NeedleMeterWidget extends Widget
         
         String biggestString = String.valueOf( getMarkerLabelForValue( gameData, isEditorMode, Math.max( minValue, maxValue ) ) );
         
-        if ( this.getClass().getSimpleName().equals( "SpeedoWidget" ) )
-            System.out.println( minValue + ", " + maxValue );
-        
         final int smallStep = markersSmallStep.getIntValue();
         for ( int value = minValue; value <= maxValue; value += smallStep )
         {

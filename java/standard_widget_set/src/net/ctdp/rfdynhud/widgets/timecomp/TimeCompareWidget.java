@@ -161,7 +161,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
         headerString = dsf.newDrawnString( "headerString", 0, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
-        int rowHeight = headerString.getMaxHeight( texture, false );
+        int rowHeight = headerString.calcMaxHeight( false );
         numDisplayedLaps = Math.max( 1, ( h - rowHeight - rowHeight - 5 ) / rowHeight );
         
         store.displayedLaps = new Laptime[ numDisplayedLaps ];
@@ -182,18 +182,18 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
         if ( displaySectors.getBooleanValue() )
         {
             if ( abbreviate.getBooleanValue() )
-                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, colPadding, texture, colWidths );
+                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, colPadding, colWidths );
             else
-                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, colPadding, texture, colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, colAligns, colPadding, texture, colWidths );
+                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, colPadding, colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, colAligns, colPadding, colWidths );
         }
         else
         {
             if ( abbreviate.getBooleanValue() )
-                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, colPadding, texture, colWidths );
+                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, colPadding, colWidths );
             else
-                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, colPadding, texture, colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, colAligns, colPadding, texture, colWidths );
+                headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, colPadding, colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, colAligns, colPadding, colWidths );
         }
         
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();

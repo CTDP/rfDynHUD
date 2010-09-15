@@ -368,7 +368,7 @@ public class EditorPanel extends JPanel
         
         Logger.log( "Removing selected Widget of type \"" + selectedWidget.getClass().getName() + "\" and name \"" + selectedWidget.getName() + "\"..." );
         
-        selectedWidget.clearRegion( true, overlay );
+        selectedWidget.clearRegion( overlay, selectedWidget.getPosition().getEffectiveX(), selectedWidget.getPosition().getEffectiveY() );
         __WCPrivilegedAccess.removeWidget( drawingManager, selectedWidget );
         setSelectedWidget( null, false );
         editor.setDirtyFlag();
@@ -396,7 +396,7 @@ public class EditorPanel extends JPanel
         if ( widget == null )
             return;
         
-        widget.clearRegion( true, overlay );
+        widget.clearRegion( overlay, widget.getPosition().getEffectiveX(), widget.getPosition().getEffectiveY() );
     }
     
     public void clearSelectedWidgetRegion()
@@ -462,7 +462,7 @@ public class EditorPanel extends JPanel
                 }
             }
             
-            drawingManager.drawWidgets( gameData, true, true, overlay );
+            drawingManager.drawWidgets( gameData, true, true );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             TextureDirtyRectsManager.getDirtyRects( frameIndex, overlay, dirtyRectsBuffer, true );
             
@@ -525,7 +525,7 @@ public class EditorPanel extends JPanel
         drawWidgets( (Graphics2D)g, false, true );
     }
     
-    public EditorPanel( RFDynHUDEditor editor, LiveGameData gameData, TextureImage2D overlay, WidgetsDrawingManager drawingManager )
+    public EditorPanel( RFDynHUDEditor editor, LiveGameData gameData, WidgetsDrawingManager drawingManager )
     {
         super();
         
@@ -533,7 +533,7 @@ public class EditorPanel extends JPanel
         
         this.gameData = gameData;
         
-        this.overlay = overlay;
+        this.overlay = drawingManager.getMainTexture( 0 );
         this.drawingManager = drawingManager;
         this.gameResolution = drawingManager.getGameResolution();
         

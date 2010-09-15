@@ -63,6 +63,7 @@ Minor:
 * Widgets menu in the editor looks nicer with small Widget icons.
 * Added support for key combinations for input bindings.
 * Added peak needle to the RevMeterWidget.
+* Tweaked rendering code to allow for overlapping Widgets.
 
 TODO:
 

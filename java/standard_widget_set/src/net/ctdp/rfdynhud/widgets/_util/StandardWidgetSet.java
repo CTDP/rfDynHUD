@@ -71,14 +71,14 @@ public class StandardWidgetSet
         return ( null );
     }
     
-    public static java.awt.Dimension getPositionItemSize( TextureImage2D texture, int radius, LabelPositioning namePositioning, Font nameFont, boolean nameFontAntialiased )
+    public static java.awt.Dimension getPositionItemSize( int radius, LabelPositioning namePositioning, Font nameFont, boolean nameFontAntialiased )
     {
         int width = radius + radius;
         int height = radius + radius;
         
         if ( ( namePositioning != null ) && ( nameFont != null ) )
         {
-            Rectangle2D nameBounds = texture.getStringBounds( "WWW", nameFont, nameFontAntialiased );
+            Rectangle2D nameBounds = TextureImage2D.getStringBounds( "WWW", nameFont, nameFontAntialiased );
             
             switch ( namePositioning )
             {
@@ -111,7 +111,7 @@ public class StandardWidgetSet
         int circleOffsetY = 0;
         if ( ( namePositioning != null ) && ( driverName != null ) && ( nameFont != null ) && ( nameFontColor != null ) )
         {
-            nameBounds = texture.getStringBounds( "WWW", nameFont, nameFontAntialiased );
+            nameBounds = TextureImage2D.getStringBounds( "WWW", nameFont, nameFontAntialiased );
             switch ( namePositioning )
             {
                 case ABOVE:
@@ -167,9 +167,9 @@ public class StandardWidgetSet
         if ( ( place > 0 ) && ( numberFont != null ) && ( numberFontColor != null ) )
         {
             String posStr = String.valueOf( place );
-            Rectangle2D bounds = texture.getStringBounds( posStr, numberFont, numberFontAntialiased );
+            Rectangle2D bounds = TextureImage2D.getStringBounds( posStr, numberFont, numberFontAntialiased );
             float fw = (float)bounds.getWidth();
-            float fh = (float)( texture.getFontAscent( numberFont ) - texture.getFontDescent( numberFont ) );
+            float fh = (float)( TextureImage2D.getFontAscent( numberFont ) - TextureImage2D.getFontDescent( numberFont ) );
             
             texture.drawString( posStr, circleOffsetX + radius - (int)( fw / 2 ), circleOffsetY + radius + (int)( fh / 2 ), bounds, numberFont, numberFontAntialiased, numberFontColor, false, null );
         }
@@ -178,7 +178,7 @@ public class StandardWidgetSet
         {
             if ( ( namePositioning == LabelPositioning.ABOVE ) || ( namePositioning == LabelPositioning.BELOW ) )
             {
-                nameBounds = texture.getStringBounds( driverName, nameFont, nameFontAntialiased );
+                nameBounds = TextureImage2D.getStringBounds( driverName, nameFont, nameFontAntialiased );
                 nx = ( width - (int)nameBounds.getWidth() ) / 2;
                 ny -= nameBounds.getY();
             }

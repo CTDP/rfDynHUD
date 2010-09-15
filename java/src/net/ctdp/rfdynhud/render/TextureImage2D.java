@@ -2065,7 +2065,7 @@ public class TextureImage2D
     }
     */
     
-    public final java.awt.geom.Rectangle2D getStringBounds( String s, java.awt.Font font, boolean antiAliased )
+    public static final java.awt.geom.Rectangle2D getStringBounds( String s, java.awt.Font font, boolean antiAliased )
     {
         if ( !textGraphics.getFont().equals( font ) )
         {
@@ -2078,32 +2078,32 @@ public class TextureImage2D
         return ( fontMetrics.getStringBounds( s, textGraphics ) );
     }
     
-    public final java.awt.geom.Rectangle2D getStringBounds( String s, FontProperty font )
+    public static final java.awt.geom.Rectangle2D getStringBounds( String s, FontProperty font )
     {
         return ( getStringBounds( s, font.getFont(), font.isAntiAliased() ) );
     }
     
-    public final int getStringWidth( String s, java.awt.Font font, boolean antiAliased )
+    public static final int getStringWidth( String s, java.awt.Font font, boolean antiAliased )
     {
         return ( (int)getStringBounds( s, font, antiAliased ).getWidth() );
     }
     
-    public final int getStringWidth( String s, FontProperty font )
+    public static final int getStringWidth( String s, FontProperty font )
     {
         return ( (int)getStringBounds( s, font.getFont(), font.isAntiAliased() ).getWidth() );
     }
     
-    public final int getStringHeight( String s, java.awt.Font font, boolean antiAliased )
+    public static final int getStringHeight( String s, java.awt.Font font, boolean antiAliased )
     {
         return ( (int)getStringBounds( s, font, antiAliased ).getHeight() );
     }
     
-    public final int getStringHeight( String s, FontProperty font )
+    public static final int getStringHeight( String s, FontProperty font )
     {
         return ( (int)getStringBounds( s, font.getFont(), font.isAntiAliased() ).getHeight() );
     }
     
-    public final int getFontAscent( java.awt.Font font )
+    public static final int getFontAscent( java.awt.Font font )
     {
         if ( !textGraphics.getFont().equals( font ) )
         {
@@ -2115,7 +2115,7 @@ public class TextureImage2D
         return ( fontMetrics.getAscent() );
     }
     
-    public final int getFontDescent( java.awt.Font font )
+    public static final int getFontDescent( java.awt.Font font )
     {
         if ( !textGraphics.getFont().equals( font ) )
         {

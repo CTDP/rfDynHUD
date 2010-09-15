@@ -99,7 +99,7 @@ public class Lesson5Widget_InputActions extends Widget
         /*
          * Just to play around with the parameters we define the text to be drawn at the center location this time.
          */
-        int h = texture.getStringHeight( "0", getFont(), isFontAntiAliased() );
+        int h = TextureImage2D.getStringHeight( "0", getFont(), isFontAntiAliased() );
         ds = drawnStringFactory.newDrawnString( "ds", width / 2, ( height - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         value.update( 100 );

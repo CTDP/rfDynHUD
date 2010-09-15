@@ -552,11 +552,10 @@ public abstract class Widget implements Documented
      * 
      * @param gameData
      * @param isEditorMode
-     * @param texture
      * 
      * @return the maximum width covered by this {@link Widget}.
      */
-    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode )
     {
         return ( size.getEffectiveWidth() );
     }
@@ -568,11 +567,10 @@ public abstract class Widget implements Documented
      * 
      * @param gameData
      * @param isEditorMode
-     * @param texture
      * 
      * @return the maximum height covered by this {@link Widget}.
      */
-    public int getMaxHeight( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
+    public int getMaxHeight( LiveGameData gameData, boolean isEditorMode )
     {
         return ( size.getEffectiveHeight() );
     }
@@ -1083,20 +1081,10 @@ public abstract class Widget implements Documented
         return ( true );
     }
     
-    /**
-     * 
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     */
-    public void clearRegion( boolean isEditorMode, TextureImage2D texture )
+    private void clearRegion( TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        if ( ( texture == null ) && !isEditorMode )
+        if ( texture == null )
             return;
-        
-        int offsetX = position.getEffectiveX();
-        int offsetY = position.getEffectiveY();
-        int width = size.getEffectiveWidth();
-        int height = size.getEffectiveHeight();
         
         texture.getTextureCanvas().pushClip( offsetX, offsetY, width, height );
         
@@ -1105,6 +1093,21 @@ public abstract class Widget implements Documented
         texture.getTextureCanvas().popClip();
         
         this.visibilityChangedSinceLastDraw = false;
+    }
+    
+    /**
+     * Clears the region on the texture, that is covered by this {@link Widget}.
+     * 
+     * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param offsetX the x offset of the {@link Widget} on the drawing texture
+     * @param offsetY the y offset of the {@link Widget} on the drawing texture
+     */
+    public void clearRegion( TextureImage2D texture, int offsetX, int offsetY )
+    {
+        int width = size.getEffectiveWidth();
+        int height = size.getEffectiveHeight();
+        
+        clearRegion( texture, offsetX, offsetY, width, height );
     }
     
     /**
@@ -1316,11 +1319,12 @@ public abstract class Widget implements Documented
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
+     * @param drawAtZero
      */
-    public final void drawWidget( Clock clock, boolean completeRedrawForced, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
+    public final void drawWidget( Clock clock, boolean completeRedrawForced, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, boolean drawAtZero )
     {
-        int offsetX = position.getEffectiveX();
-        int offsetY = position.getEffectiveY();
+        int offsetX = drawAtZero ? 0 : position.getEffectiveX();
+        int offsetY = drawAtZero ? 0 : position.getEffectiveY();
         int width = size.getEffectiveWidth();
         int height = size.getEffectiveHeight();
         
@@ -1339,8 +1343,10 @@ public abstract class Widget implements Documented
         int width2 = width - borderLW - borderRW;
         int height2 = height - borderTH - borderBH;
         
-        final Texture2DCanvas texCanvas = texture.getTextureCanvas();
-        final TextureImage2D texture2 = hasMasterCanvas( isEditorMode ) ? texture : null;
+        if ( !isEditorMode && !hasMasterCanvas( isEditorMode ) )
+            texture = null;
+        
+        final Texture2DCanvas texCanvas = ( texture == null ) ? null : texture.getTextureCanvas();
         
         TransformableTexture[] subTextures = null;
         
@@ -1351,18 +1357,19 @@ public abstract class Widget implements Documented
         
         if ( !initialized )
         {
-            initialize( gameData, isEditorMode, drawnStringFactory, texture2, width2, height2 );
+            initialize( gameData, isEditorMode, drawnStringFactory, texture, width2, height2 );
             
             initialized = true;
         }
         
-        if ( checkForChanges( gameData, isEditorMode, texture2, width2, height2 ) )
+        if ( checkForChanges( gameData, isEditorMode, texture, width2, height2 ) )
         {
+            clearRegion( texture, offsetX, offsetY, width, height );
             forceCompleteRedraw( true );
             completeRedrawForced = true;
             
-            offsetX = position.getEffectiveX();
-            offsetY = position.getEffectiveY();
+            //offsetX = position.getEffectiveX();
+            //offsetY = position.getEffectiveY();
             width = size.getEffectiveWidth();
             height = size.getEffectiveHeight();
             
@@ -1372,7 +1379,8 @@ public abstract class Widget implements Documented
             height2 = height - borderTH - borderBH;
         }
         
-        texCanvas.setClip( offsetX, offsetY, width, height );
+        if ( texCanvas != null )
+            texCanvas.setClip( offsetX, offsetY, width, height );
         
         completeRedrawForced = needsCompleteRedraw() || completeRedrawForced;
         
@@ -1380,26 +1388,28 @@ public abstract class Widget implements Documented
         {
             __RenderPrivilegedAccess.onWidgetCleared( drawnStringFactory );
             
-            drawBorder( isEditorMode, getBorder(), texture2, offsetX, offsetY, width, height );
+            drawBorder( isEditorMode, getBorder(), texture, offsetX, offsetY, width, height );
             
-            if ( texture2 != null )
-                texture2.markDirty( offsetX, offsetY, width, height );
+            if ( texture != null )
+                texture.markDirty( offsetX, offsetY, width, height );
             
             if ( ( getMasterWidget() == null ) && ( background != null ) )
             {
                 background.updateMergedBackground( gameData, isEditorMode );
                 
-                clearBackground( background, !isEditorMode ? texture2 : texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
+                clearBackground( background, texture, offsetX2 - getBorder().getPaddingLeft(), offsetY2 - getBorder().getPaddingTop(), width2 + getBorder().getPaddingLeft() + getBorder().getPaddingRight(), height2 + getBorder().getPaddingTop() + getBorder().getPaddingBottom() );
             }
         }
         
-        texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
+        if ( texCanvas != null )
+            texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
-        drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture2, offsetX2, offsetY2, width2, height2 );
+        drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2 );
         
         if ( isEditorMode && ( subTextures != null ) )
         {
-            texCanvas.setClip( (Rect2i)null );
+            if ( texCanvas != null )
+                texCanvas.setClip( (Rect2i)null );
             
             for ( int i = 0; i < subTextures.length; i++ )
             {

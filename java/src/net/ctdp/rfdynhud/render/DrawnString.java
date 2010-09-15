@@ -225,11 +225,10 @@ public class DrawnString
      * Gets the drawn string's width in pixels.
      * 
      * @param str the string to draw
-     * @param texture the texture to draw on
      * 
      * @return the drawn string's width in pixels.
      */
-    public int getWidth( String str, TextureImage2D texture )
+    public int getWidth( String str )
     {
         String s;
         if ( ( prefix != null ) && ( postfix != null ) )
@@ -241,7 +240,7 @@ public class DrawnString
         else
             s = str;
         
-        Rectangle2D bounds = texture.getStringBounds( s, font, fontAntiAliased );
+        Rectangle2D bounds = TextureImage2D.getStringBounds( s, font, fontAntiAliased );
         
         return ( (int)Math.round( bounds.getWidth() ) );
     }
@@ -252,12 +251,11 @@ public class DrawnString
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding padding per column
-     * @param texture the texture to draw on
      * @param colWidths the array to write column widths to
      * 
      * @return the drawn strings' minimum total width in pixels.
      */
-    public int getMinColWidths( String[] strs, Alignment[] aligns, int padding, TextureImage2D texture, int[] colWidths )
+    public int getMinColWidths( String[] strs, Alignment[] aligns, int padding, int[] colWidths )
     {
         int total = 0;
         int w;
@@ -296,7 +294,7 @@ public class DrawnString
                 else if ( ( i == strs.length - 1 ) && ( align == Alignment.RIGHT ) )
                     pad = 0;
                 
-                w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
+                w = (int)Math.round( TextureImage2D.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
                 
                 total += w;
             }
@@ -314,12 +312,11 @@ public class DrawnString
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding padding per column
-     * @param texture the texture to draw on
      * @param colWidths the array to write column widths to
      * 
      * @return the drawn strings' maximum total width in pixels.
      */
-    public int getMaxColWidths( String[] strs, Alignment[] aligns, int padding, TextureImage2D texture, int[] colWidths )
+    public int getMaxColWidths( String[] strs, Alignment[] aligns, int padding, int[] colWidths )
     {
         int total = 0;
         int w;
@@ -356,7 +353,7 @@ public class DrawnString
                 else if ( ( i == strs.length - 1 ) && ( align == Alignment.RIGHT ) )
                     pad = 0;
                 
-                w = (int)Math.round( texture.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
+                w = (int)Math.round( TextureImage2D.getStringBounds( str, font, fontAntiAliased ).getWidth() ) + pad;
                 
                 colWidths[i] = Math.max( colWidths[i], w );
             }
@@ -378,14 +375,14 @@ public class DrawnString
         return ( maxWidth );
     }
     
-    private int calcMaxHeight( java.awt.Font font, boolean antiAliased, TextureImage2D texture )
+    private int calcMaxHeight( java.awt.Font font, boolean antiAliased )
     {
         if ( maxHeight > 0 )
             return ( maxHeight );
         
-        Rectangle2D bounds = texture.getStringBounds( MAX_HEIGHT_STRING, font, antiAliased );
+        Rectangle2D bounds = TextureImage2D.getStringBounds( MAX_HEIGHT_STRING, font, antiAliased );
         
-        this.fontDescent = texture.getFontDescent( font );
+        this.fontDescent = TextureImage2D.getFontDescent( font );
         this.maxHeight = (int)( bounds.getHeight() + fontDescent );
         
         return ( maxHeight );
@@ -407,13 +404,12 @@ public class DrawnString
     
     /**
      * Gets the last drawn string's height.<br />
-     * This value will be invalid, if this {@link DrawnString} has not yet been drawn.
      * 
      * @return the last drawn string's height.
      */
-    public final int getMaxHeight( TextureImage2D texture, boolean includingDescent )
+    public final int calcMaxHeight( boolean includingDescent )
     {
-        calcMaxHeight( font, fontAntiAliased, texture );
+        calcMaxHeight( font, fontAntiAliased );
         
         return ( getMaxHeight( includingDescent ) );
     }
@@ -498,10 +494,10 @@ public class DrawnString
         else
             totalString = str;
         
-        bounds = texture.getStringBounds( totalString, font, fontAntiAliased );
+        bounds = TextureImage2D.getStringBounds( totalString, font, fontAntiAliased );
         maxWidth = (int)bounds.getWidth();
         //maxHeight = (int)bounds.getHeight();
-        calcMaxHeight( font, fontAntiAliased, texture );
+        calcMaxHeight( font, fontAntiAliased );
         
         int x = this.getAbsX();
         if ( getAlignment() == Alignment.RIGHT )
@@ -674,7 +670,7 @@ public class DrawnString
         maxWidth = 0;
         //maxHeight = 0;
         int lastDrawnColWidth = -1;
-        calcMaxHeight( font, fontAntiAliased, texture );
+        calcMaxHeight( font, fontAntiAliased );
         
         final int ax = getAbsX();
         final int ay = getAbsY();
@@ -716,7 +712,7 @@ public class DrawnString
             
             if ( str != null )
             {
-                bounds = texture.getStringBounds( str, font, fontAntiAliased );
+                bounds = TextureImage2D.getStringBounds( str, font, fontAntiAliased );
                 
                 if ( str.length() > 0 )
                 {

@@ -28,7 +28,7 @@ public class __RenderPrivilegedAccess
 {
     public static TransformableTexture createMainTexture( int width, int height )
     {
-        return ( TransformableTexture.createMainTexture( width, height ) );
+        return ( TransformableTexture.createMainTexture( width, height, false ) );
     }
     
     public static void setOwnerWidget( Widget ownerWidget, TransformableTexture tt )

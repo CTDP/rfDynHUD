@@ -285,7 +285,7 @@ public class MapWidget extends Widget
         if ( subTextures[subTexOff] == null )
             subTextures[subTexOff] = new TransformableTexture( 1, 1, isEditorMode, false );
         
-        java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( subTextures[0].getTexture(), itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
+        java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
         int w = size.width;
         int h = size.height;
         

@@ -820,16 +820,16 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode )
     {
         if ( !useAutoWidth.getBooleanValue() )
-            return ( super.getMaxWidth( gameData, isEditorMode, texture ) );
+            return ( super.getMaxWidth( gameData, isEditorMode ) );
         
         DrawnString ds = getDrawnStringFactory().newDrawnString( null, 10, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
         String[] strs = { "99.", ( nameDisplayType.getEnumValue() == NameDisplayType.THREE_LETTER_CODE ) ? "AAAA" : ( ( nameDisplayType.getEnumValue() == NameDisplayType.SHORT_FORM ) ? "G. Fisichella___" : "Giancarlo Fisichella___" ), "-1:99:99.999", "99" + ( abbreviate.getBooleanValue() ? "S" : " Stops" ) };
         
-        int total = ds.getMinColWidths( strs, colAligns, colPadding, texture, colWidths );
+        int total = ds.getMinColWidths( strs, colAligns, colPadding, colWidths );
         
         return ( total );
     }
@@ -852,14 +852,14 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         }
     }
     
-    private int updateColumnWidths( TextureImage2D texture, int widgetWidth )
+    private int updateColumnWidths( int widgetWidth )
     {
         Arrays.fill( colWidths, 0 );
         
         int minWidth = 0;
         for ( int i = 0; i < numVehicles; i++ )
         {
-            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], colAligns, colPadding, texture, colWidths );
+            int w = positionStrings[i].getMaxColWidths( currPosStrings[i], colAligns, colPadding, colWidths );
             if ( w > minWidth )
                 minWidth = w;
         }
@@ -890,7 +890,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         initPositionStrings( gameData.getScoringInfo().getNumVehicles() );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
-        int rowHeight = positionStrings[0].getMaxHeight( texture, false );
+        int rowHeight = positionStrings[0].calcMaxHeight( false );
         maxDisplayedDrivers = Math.max( 1, h / rowHeight );
         
         vehicleScoringInfos = new VehicleScoringInfo[ maxDisplayedDrivers ];
@@ -926,7 +926,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
             result = true;
         }
         
-        int minWidth = updateColumnWidths( texture, width );
+        int minWidth = updateColumnWidths( width );
         
         if ( !useAutoWidth.getBooleanValue() )
             return ( result );
@@ -937,7 +937,6 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         
         if ( ( isEditorMode && ( Math.abs( ( width + padding ) - minWidth ) > 1 ) ) || ( width + padding != minWidth ) )
         {
-            clearRegion( isEditorMode, texture );
             getSize().setEffectiveSize( getBorder().getWidgetWidth( minWidth ), getBorder().getWidgetHeight( height ) );
             
             result = true;
@@ -1040,6 +1039,17 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
+    protected void addPositionAndSizePropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addPositionAndSizePropertiesToContainer( propsCont, forceAll );
+        
+        propsCont.addProperty( useAutoWidth );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
@@ -1049,7 +1059,6 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         propsCont.addProperty( fontColor_me );
         propsCont.addProperty( fontColor_out );
         propsCont.addProperty( fontColor_finished );
-        propsCont.addProperty( useAutoWidth );
         
         propsCont.addProperty( initialView );
         //propsCont.addProperty( allowAbsTimesView );

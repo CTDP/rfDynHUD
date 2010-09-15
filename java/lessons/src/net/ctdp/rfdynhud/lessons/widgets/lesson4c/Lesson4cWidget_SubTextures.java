@@ -98,7 +98,7 @@ public class Lesson4cWidget_SubTextures extends Widget
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
-        int h = texture.getStringHeight( "0", getFont(), isFontAntiAliased() );
+        int h = TextureImage2D.getStringHeight( "0", getFont(), isFontAntiAliased() );
         lapString = drawnStringFactory.newDrawnString( "lapString", subTextures[0].getWidth() / 2, ( subTextures[0].getHeight() - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
     }
     

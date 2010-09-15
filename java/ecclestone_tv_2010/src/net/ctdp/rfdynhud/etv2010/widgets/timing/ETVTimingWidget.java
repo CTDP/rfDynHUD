@@ -236,8 +236,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
-        Rectangle2D bigPosBounds = texture.getStringBounds( "00", getPositionFont(), isFontAntiAliased() );
-        Rectangle2D posBounds = texture.getStringBounds( "00", getFontProperty() );
+        Rectangle2D bigPosBounds = TextureImage2D.getStringBounds( "00", getPositionFont(), isFontAntiAliased() );
+        Rectangle2D posBounds = TextureImage2D.getStringBounds( "00", getFontProperty() );
         int gap = itemGap.getIntValue();
         coords.update( getImages(), width, height, gap, positionItemGap.getIntValue(), bigPosBounds, posBounds );
         

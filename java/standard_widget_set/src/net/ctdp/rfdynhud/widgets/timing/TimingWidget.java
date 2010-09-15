@@ -386,11 +386,11 @@ public class TimingWidget extends Widget
                     s[3][1] = null;
                     s[3][2] = TimingUtil.getTimeAsLaptimeString( lap );
                     
-                    absSector1String.getMaxColWidths( s[0], aligns, colPadding, texture, colWidths );
-                    absSector2String.getMaxColWidths( s[1], aligns, colPadding, texture, colWidths );
+                    absSector1String.getMaxColWidths( s[0], aligns, colPadding, colWidths );
+                    absSector2String.getMaxColWidths( s[1], aligns, colPadding, colWidths );
                     if ( !cumulativeSectors.getBooleanValue() )
-                        absSector3String.getMaxColWidths( s[2], aligns, colPadding, texture, colWidths );
-                    absFastestLapString.getMaxColWidths( s[3], aligns, colPadding, texture, colWidths );
+                        absSector3String.getMaxColWidths( s[2], aligns, colPadding, colWidths );
+                    absFastestLapString.getMaxColWidths( s[3], aligns, colPadding, colWidths );
                     
                     absSector1String.drawColumns( offsetX, offsetY, s[0], aligns, colPadding, colWidths, texture );
                     absSector2String.drawColumns( offsetX, offsetY, s[1], aligns, colPadding, colWidths, texture );
@@ -551,11 +551,11 @@ public class TimingWidget extends Widget
                         }
                     }
                     
-                    ownSector1String.getMaxColWidths( s[0], aligns, colPadding, texture, colWidths );
-                    ownSector2String.getMaxColWidths( s[1], aligns, colPadding, texture, colWidths );
+                    ownSector1String.getMaxColWidths( s[0], aligns, colPadding, colWidths );
+                    ownSector2String.getMaxColWidths( s[1], aligns, colPadding, colWidths );
                     if ( !displayCumul )
-                        ownSector3String.getMaxColWidths( s[2], aligns, colPadding, texture, colWidths );
-                    ownFastestLapString.getMaxColWidths( s[3], aligns, colPadding, texture, colWidths );
+                        ownSector3String.getMaxColWidths( s[2], aligns, colPadding, colWidths );
+                    ownFastestLapString.getMaxColWidths( s[3], aligns, colPadding, colWidths );
                     
                     fontColors[3] = sfColor1;
                     ownSector1String.drawColumns( offsetX, offsetY, s[0], aligns, colPadding, colWidths, fontColors, texture );
@@ -862,14 +862,14 @@ public class TimingWidget extends Widget
                         s[3][4] = null;
                 }
                 
-                currSector1String.getMaxColWidths( s[0], aligns, colPadding, texture, colWidths );
-                currSector2String.getMaxColWidths( s[1], aligns, colPadding, texture, colWidths );
+                currSector1String.getMaxColWidths( s[0], aligns, colPadding, colWidths );
+                currSector2String.getMaxColWidths( s[1], aligns, colPadding, colWidths );
                 if ( !displayCumul )
-                    currSector3String.getMaxColWidths( s[2], aligns, colPadding, texture, colWidths );
+                    currSector3String.getMaxColWidths( s[2], aligns, colPadding, colWidths );
                 
                 String s31 = s[3][2];
                 s[3][2] = TimingUtil.getTimeAsLaptimeString( 90.0f );
-                currLapString.getMaxColWidths( s[3], aligns, colPadding, texture, colWidths );
+                currLapString.getMaxColWidths( s[3], aligns, colPadding, colWidths );
                 s[3][2] = s31;
                 
                 if ( oldClStrings[0].length != s[0].length )

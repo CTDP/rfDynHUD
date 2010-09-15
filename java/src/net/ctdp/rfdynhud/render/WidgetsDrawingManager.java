@@ -44,9 +44,12 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class WidgetsDrawingManager extends WidgetsConfiguration
 {
+    private final boolean oneTextureForAllWidgets;
+    
     private TransformableTexture[] textures;
+    private TransformableTexture[] widgetTextures;
     private TransformableTexture[][] widgetSubTextures = null;
-    private final ByteBuffer textureBuffer = TransformableTexture.createByteBuffer();
+    private final ByteBuffer textureInfoBuffer = TransformableTexture.createByteBuffer();
     
     private long frameCounter = 0L;
     
@@ -54,15 +57,26 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     
     public void resizeMainTexture( int gameResX, int gameResY )
     {
-        this.textures[0] = __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY );
+        if ( oneTextureForAllWidgets )
+        {
+            this.textures[0] = TransformableTexture.createMainTexture( gameResX, gameResY, false );
+        }
         
         __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
         __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
     }
     
-    public final TextureImage2D getMainTexture()
+    public final TextureImage2D getMainTexture( int widgetIndex )
     {
-        return ( textures[0].getTexture() );
+        if ( oneTextureForAllWidgets )
+            return ( textures[0].getTexture() );
+        
+        TransformableTexture tt = widgetTextures[widgetIndex];
+        
+        if ( tt == null )
+            return ( null );
+        
+        return ( tt.getTexture() );
     }
     
     /**
@@ -202,15 +216,46 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     
     public int collectTextures( LiveGameData gameData, boolean isEditorMode )
     {
-        textures[0].generateSubRectangles( gameData, isEditorMode, this );
-        
-        widgetSubTextures = new TransformableTexture[ getNumWidgets() ][];
+        int numTextures = 0;
         
         final int numWidgets = getNumWidgets();
-        int numTextures = 1;
+        
+        if ( oneTextureForAllWidgets )
+        {
+            numTextures = 1;
+            textures[0].generateRectangles( gameData, isEditorMode, this );
+        }
+        else
+        {
+            numTextures = 0;
+            textures = new TransformableTexture[ numWidgets ];
+            widgetTextures = new TransformableTexture[ numWidgets ];
+            
+            for ( int i = 0; i < numWidgets; i++ )
+            {
+                Widget widget = getWidget( i );
+                
+                if ( widget.hasMasterCanvas( isEditorMode ) )
+                {
+                    textures[numTextures] = TransformableTexture.createMainTexture( widget.getMaxWidth( gameData, isEditorMode ), widget.getMaxHeight( gameData, isEditorMode ), true );
+                    textures[numTextures].setTranslation( widget.getPosition().getEffectiveX(), widget.getPosition().getEffectiveY() );
+                    
+                    widgetTextures[i] = textures[numTextures];
+                    numTextures++;
+                }
+                else
+                {
+                    widgetTextures[i] = null;
+                }
+            }
+        }
+        
+        widgetSubTextures = new TransformableTexture[ numWidgets ][];
+        
         for ( int i = 0; i < numWidgets; i++ )
         {
             Widget widget = getWidget( i );
+            
             TransformableTexture[] subTextures = widget.getSubTextures( gameData, isEditorMode, widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth(), widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight() );
             if ( ( subTextures != null ) && ( subTextures.length > 0 ) )
             {
@@ -246,19 +291,19 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             textures = tmp;
         }
         
-        textureBuffer.position( 0 );
-        textureBuffer.limit( textureBuffer.capacity() );
+        textureInfoBuffer.position( 0 );
+        textureInfoBuffer.limit( textureInfoBuffer.capacity() );
         
-        textureBuffer.put( (byte)textures.length );
+        textureInfoBuffer.put( (byte)textures.length );
         
         int rectOffset = 0;
         for ( int i = 0; i < textures.length; i++ )
         {
-            rectOffset = textures[i].fillBuffer( true, 0 + textures[i].getOffsetXToMasterWidget(), 0 + textures[i].getOffsetYToMasterWidget(), i, rectOffset, textureBuffer );
+            rectOffset = textures[i].fillBuffer( true, 0 + textures[i].getOffsetXToMasterWidget(), 0 + textures[i].getOffsetYToMasterWidget(), i, rectOffset, textureInfoBuffer );
         }
         
-        textureBuffer.position( textures.length * TransformableTexture.STRUCT_SIZE );
-        textureBuffer.flip();
+        textureInfoBuffer.position( textures.length * TransformableTexture.STRUCT_SIZE );
+        textureInfoBuffer.flip();
         
         return ( textures.length );
     }
@@ -282,42 +327,65 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         }
     }
     
-    public void refreshSubTextureBuffer( boolean isEditorMode, LiveGameData gameData, boolean newConfig )
+    public void refreshTextureInfoBuffer( boolean isEditorMode, LiveGameData gameData, boolean newConfig )
     {
-        textureBuffer.position( 0 );
-        textureBuffer.limit( textureBuffer.capacity() );
+        textureInfoBuffer.position( 0 );
+        textureInfoBuffer.limit( textureInfoBuffer.capacity() );
         
-        textureBuffer.put( (byte)textures.length );
+        textureInfoBuffer.put( (byte)textures.length );
         
         final int n = getNumWidgets();
-        int j = 0;
-        for ( int i = 0; i < n; i++ )
+        if ( oneTextureForAllWidgets )
         {
-            if ( getWidget( i ).hasMasterCanvas( isEditorMode ) )
-                textures[0].setRectangleVisible( j++, getWidget( i ).isVisible() );
+            int j = 0;
+            for ( int i = 0; i < n; i++ )
+            {
+                Widget widget = getWidget( i );
+                
+                if ( widget.hasMasterCanvas( isEditorMode ) )
+                    textures[0].setRectangleVisible( j++, widget.isVisible() );
+            }
         }
         
         int k = 0;
+        int rectOffset = 0;
+        int testRectOffset = 0;
         
-        int rectOffset = textures[0].fillBuffer( true, 0, 0, k++, 0, textureBuffer );
-        int testRectOffset = textures[0].getNumUsedRectangles();
-        
-        for ( int i = 0; i < widgetSubTextures.length; i++ )
+        if ( oneTextureForAllWidgets )
         {
-            Widget widget = getWidget( i );
-            TransformableTexture[] textures = widgetSubTextures[i];
-            if ( textures != null )
+            rectOffset = textures[0].fillBuffer( true, 0, 0, k++, rectOffset, textureInfoBuffer );
+            testRectOffset += textures[0].getNumUsedRectangles();
+        }
+        else
+        {
+            for ( int i = 0; i < n; i++ )
             {
-                for ( j = 0; j < textures.length; j++ )
+                if ( widgetTextures[i] != null )
                 {
-                    rectOffset = textures[j].fillBuffer( widget.isVisible(), widget.getPosition().getEffectiveX() + widget.getBorder().getInnerLeftWidth() + textures[j].getOffsetXToMasterWidget(), widget.getPosition().getEffectiveY() + widget.getBorder().getInnerTopHeight() + textures[j].getOffsetYToMasterWidget(), k++, rectOffset, textureBuffer );
-                    testRectOffset += textures[j].getNumUsedRectangles();
+                    Widget widget = getWidget( i );
+                    
+                    rectOffset = widgetTextures[i].fillBuffer( widget.isVisible(), 0, 0, k++, rectOffset, textureInfoBuffer );
+                    testRectOffset += widgetTextures[i].getNumUsedRectangles();
                 }
             }
         }
         
-        textureBuffer.position( textures.length * TransformableTexture.STRUCT_SIZE );
-        textureBuffer.flip();
+        for ( int i = 0; i < widgetSubTextures.length; i++ )
+        {
+            Widget widget = getWidget( i );
+            TransformableTexture[] subTextures = widgetSubTextures[i];
+            if ( subTextures != null )
+            {
+                for ( int j = 0; j < subTextures.length; j++ )
+                {
+                    rectOffset = subTextures[j].fillBuffer( widget.isVisible(), widget.getPosition().getEffectiveX() + widget.getBorder().getInnerLeftWidth() + subTextures[j].getOffsetXToMasterWidget(), widget.getPosition().getEffectiveY() + widget.getBorder().getInnerTopHeight() + subTextures[j].getOffsetYToMasterWidget(), k++, rectOffset, textureInfoBuffer );
+                    testRectOffset += subTextures[j].getNumUsedRectangles();
+                }
+            }
+        }
+        
+        textureInfoBuffer.position( textures.length * TransformableTexture.STRUCT_SIZE );
+        textureInfoBuffer.flip();
         
         if ( newConfig && ( rectOffset < testRectOffset ) )
         {
@@ -330,9 +398,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         return ( textures.length );
     }
     
-    public final ByteBuffer getSubTextureBuffer()
+    public final ByteBuffer getTextureInfoBuffer()
     {
-        return ( textureBuffer );
+        return ( textureInfoBuffer );
     }
     
     public final TransformableTexture getTexture( int textureIndex )
@@ -598,14 +666,11 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * @param gameData
      * @param isEditorMode
      * @param completeRedrawForced
-     * @param texture
      */
-    public void drawWidgets( LiveGameData gameData, boolean isEditorMode, boolean completeRedrawForced, TextureImage2D texture )
+    public void drawWidgets( LiveGameData gameData, boolean isEditorMode, boolean completeRedrawForced )
     {
         if ( !isValid() )
             return;
-        
-        texture.getTextureCanvas().setClip( 0, 0, texture.getWidth(), texture.getHeight() );
         
         checkFixAndBakeConfiguration( isEditorMode );
         
@@ -619,6 +684,10 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = getWidget( i );
+            TextureImage2D texture = getMainTexture( i );
+            
+            if ( texture != null )
+                texture.getTextureCanvas().setClip( 0, 0, texture.getWidth(), texture.getHeight() );
             
             try
             {
@@ -630,12 +699,15 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                     {
                         if ( widget.getDirtyFlag( true ) )
                         {
-                            widget.drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture );
+                            widget.drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture, !oneTextureForAllWidgets );
                         }
                     }
                     else if ( !widget.isVisible() && widget.visibilityChangedSinceLastDraw() )
                     {
-                        widget.clearRegion( isEditorMode, texture );
+                        int offsetX = oneTextureForAllWidgets ? widget.getPosition().getEffectiveX() : 0;
+                        int offsetY = oneTextureForAllWidgets ? widget.getPosition().getEffectiveY() : 0;
+                        
+                        widget.clearRegion( texture, offsetX, offsetY );
                     }
                 }
             }
@@ -650,6 +722,10 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             for ( int i = 0; i < n; i++ )
             {
                 Widget widget = getWidget( i );
+                TextureImage2D texture = getMainTexture( i );
+                
+                if ( texture != null )
+                    texture.getTextureCanvas().setClip( 0, 0, texture.getWidth(), texture.getHeight() );
                 
                 try
                 {
@@ -657,7 +733,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                     {
                         if ( widget.isVisible() )
                         {
-                            widget.drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture );
+                            widget.drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture, !oneTextureForAllWidgets );
                         }
                     }
                 }
@@ -672,12 +748,26 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * Creates a new {@link WidgetsDrawingManager}.
      * 
+     * @param isEditorMode
      * @param gameResX
      * @param gameResY
+     * @param createTexture
      */
-    public WidgetsDrawingManager( int gameResX, int gameResY )
+    public WidgetsDrawingManager( boolean isEditorMode, int gameResX, int gameResY, boolean createTexture )
     {
-        this.textures = new TransformableTexture[] { __RenderPrivilegedAccess.createMainTexture( gameResX, gameResY ) };
+        this.oneTextureForAllWidgets = isEditorMode;
+        
+        if ( createTexture )
+        {
+            if ( oneTextureForAllWidgets )
+                this.textures = new TransformableTexture[] { TransformableTexture.createMainTexture( gameResX, gameResY, false ) };
+            else
+                this.textures = new TransformableTexture[] {};
+        }
+        else
+        {
+            this.textures = null;
+        }
         
         __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
         __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );

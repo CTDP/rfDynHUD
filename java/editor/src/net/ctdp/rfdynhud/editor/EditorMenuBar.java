@@ -454,7 +454,7 @@ public class EditorMenuBar extends JMenuBar
                 getMenu( menu, path, 0, widgetPackage );
         }
         
-        WidgetsDrawingManager widgetsConfig = new WidgetsDrawingManager( WidgetMenuItem.ICON_WIDTH, WidgetMenuItem.ICON_HEIGHT );
+        WidgetsDrawingManager widgetsConfig = new WidgetsDrawingManager( true, WidgetMenuItem.ICON_WIDTH, WidgetMenuItem.ICON_HEIGHT, true );
         
         it = classes.iterator();
         while ( it.hasNext() )
@@ -485,7 +485,7 @@ public class EditorMenuBar extends JMenuBar
             }
         }
         
-        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, true );
+        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, true, null );
         
         menu.addMenuListener( new MenuListener()
         {

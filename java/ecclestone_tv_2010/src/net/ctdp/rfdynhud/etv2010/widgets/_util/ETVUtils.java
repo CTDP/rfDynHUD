@@ -269,7 +269,7 @@ public class ETVUtils
         
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
-        Rectangle2D capBounds = texture.getStringBounds( caption, font );
+        Rectangle2D capBounds = TextureImage2D.getStringBounds( caption, font );
         int capWidth = (int)Math.ceil( capBounds.getWidth() );
         
         texCanvas.setColor( captionBgColor );
@@ -312,7 +312,7 @@ public class ETVUtils
         if ( clearBefore )
             texture.clear( x, y, width, height, true, null );
         
-        Rectangle2D capBounds = texture.getStringBounds( caption, font );
+        Rectangle2D capBounds = TextureImage2D.getStringBounds( caption, font );
         int capWidth = (int)Math.ceil( capBounds.getWidth() );
         
         final ImageTemplate it = images.getLabeledDataImage( type );
@@ -365,7 +365,7 @@ public class ETVUtils
         if ( clearBefore )
             texture.clear( x, y, width, height, true, null );
         
-        Rectangle2D capBounds = texture.getStringBounds( caption, font );
+        Rectangle2D capBounds = TextureImage2D.getStringBounds( caption, font );
         int capWidth = (int)Math.ceil( capBounds.getWidth() );
         
         final ImageTemplate it = images.getCompareImage( type );

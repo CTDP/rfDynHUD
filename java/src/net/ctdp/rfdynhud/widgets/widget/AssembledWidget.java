@@ -346,10 +346,10 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
+    public int getMaxWidth( LiveGameData gameData, boolean isEditorMode )
     {
         //if ( parts.length == 0 )
-            return ( getEffectiveWidth() );
+        return ( super.getMaxWidth( gameData, isEditorMode ) );
         
         /*
         int mw = 0;
@@ -360,7 +360,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         {
             part = parts[i];
             
-            mw = Math.max( mw, part.getPosition().getEffectiveX() + part.getMaxWidth( gameData, isEditorMode, texture ) );
+            mw = Math.max( mw, part.getPosition().getEffectiveX() + part.getMaxWidth( gameData, isEditorMode ) );
         }
         
         return ( mw );
@@ -371,10 +371,10 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public int getMaxHeight( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture )
+    public int getMaxHeight( LiveGameData gameData, boolean isEditorMode )
     {
         //if ( parts.length == 0 )
-            return ( getEffectiveHeight() );
+        return ( super.getMaxHeight( gameData, isEditorMode ) );
         
         /*
         int mh = 0;
@@ -385,7 +385,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
         {
             part = parts[i];
             
-            mh = Math.max( mh, part.getPosition().getEffectiveY() + part.getMaxHeight( gameData, isEditorMode, texture ) );
+            mh = Math.max( mh, part.getPosition().getEffectiveY() + part.getMaxHeight( gameData, isEditorMode ) );
         }
         
         return ( mh );

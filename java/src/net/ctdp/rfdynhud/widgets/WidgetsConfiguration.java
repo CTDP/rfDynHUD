@@ -86,9 +86,10 @@ public class WidgetsConfiguration implements Documented
         }
     };
     
-    public static interface ConfigurationClearListener
+    public static interface ConfigurationLoadListener
     {
         public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig );
+        public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig );
     }
     
     private int id = 0;
@@ -212,7 +213,7 @@ public class WidgetsConfiguration implements Documented
      * Removes all {@link Widget}s and clears all name- and alias maps.
      */
     @SuppressWarnings( "rawtypes" )
-    void clear( LiveGameData gameData, boolean isEditorMode, ConfigurationClearListener clearListener )
+    void clear( LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener clearListener )
     {
         if ( clearListener != null )
             clearListener.beforeWidgetsConfigurationCleared( this );
@@ -306,7 +307,7 @@ public class WidgetsConfiguration implements Documented
     }
     
     @SuppressWarnings( "rawtypes" )
-    void setJustLoaded( LiveGameData gameData, boolean isEditorMode )
+    void setJustLoaded( LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener )
     {
         this.id++;
         this.needsCheckFixAndBake = true;
@@ -340,6 +341,9 @@ public class WidgetsConfiguration implements Documented
             
             widget.afterConfigurationLoaded( this, gameData, isEditorMode );
         }
+        
+        if ( loadListener != null )
+            loadListener.afterWidgetsConfigurationLoaded( this );
     }
     
     private void fixVirtualNamedFonts()

@@ -64,7 +64,7 @@ public class WidgetMenuItem extends JMenuItem
     public static final int ICON_WIDTH = 64;
     public static final int ICON_HEIGHT = 50;
     public static final float ICON_ASPECT = (float)ICON_WIDTH / (float)ICON_HEIGHT;
-    private static final WidgetsDrawingManager tempWidgetsConfig = new WidgetsDrawingManager( 1920, 1200 );
+    private static final WidgetsDrawingManager tempWidgetsConfig = new WidgetsDrawingManager( true, 1920, 1200, false );
     
     private final RFDynHUDEditor editor;
     //private final Class<Widget> widgetClass;
@@ -101,7 +101,7 @@ public class WidgetMenuItem extends JMenuItem
             widget.updateVisibility( editor.getGameData(), true );
             
             texture.clear( true, null );
-            widget.drawWidget( fakeClock, true, editor.getGameData(), true, texture );
+            widget.drawWidget( fakeClock, true, editor.getGameData(), true, texture, false );
             
             if ( checkState )
             {

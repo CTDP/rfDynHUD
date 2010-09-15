@@ -266,9 +266,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             velocityColWidths[1] = 0;
             velocityColWidths[2] = 0;
             
-            absTopspeedString.getMaxColWidths( new String[] { Loc.velocity_topspeed1_prefix + ":", "000.0", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
-            relTopspeedString.getMaxColWidths( new String[] { Loc.velocity_topspeed2_prefix + ":", "000.0", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
-            velocityString.getMaxColWidths( new String[] { Loc.velocity_velocity_prefix + ":", "000", speedUnits }, velocityAlignment, padding, texture, velocityColWidths );
+            absTopspeedString.getMaxColWidths( new String[] { Loc.velocity_topspeed1_prefix + ":", "000.0", speedUnits }, velocityAlignment, padding, velocityColWidths );
+            relTopspeedString.getMaxColWidths( new String[] { Loc.velocity_topspeed2_prefix + ":", "000.0", speedUnits }, velocityAlignment, padding, velocityColWidths );
+            velocityString.getMaxColWidths( new String[] { Loc.velocity_velocity_prefix + ":", "000", speedUnits }, velocityAlignment, padding, velocityColWidths );
         }
         else
         {
@@ -278,31 +278,31 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         }
     }
     
-    private void updateScoringColWidths( ScoringInfo scoringInfo, String leaderName, TextureImage2D texture )
+    private void updateScoringColWidths( ScoringInfo scoringInfo, String leaderName )
     {
         scoringColWidths[0] = 0;
         scoringColWidths[1] = 0;
         
-        scoringString1.getMaxColWidths( new String[] { Loc.scoring_leader_prefix + ":", leaderName }, scoringAlignment, padding, texture, scoringColWidths );
+        scoringString1.getMaxColWidths( new String[] { Loc.scoring_leader_prefix + ":", leaderName }, scoringAlignment, padding, scoringColWidths );
         if ( place.isValid() )
-            scoringString2.getMaxColWidths( new String[] { Loc.scoring_place_prefix + ":", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString2.getMaxColWidths( new String[] { Loc.scoring_place_prefix + ":", place.getValueAsString() + "/" + scoringInfo.getNumVehicles() }, scoringAlignment, padding, scoringColWidths );
         else
-            scoringString2.getMaxColWidths( new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString2.getMaxColWidths( new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, scoringColWidths );
         
         if ( fastestLap.isValid() )
-            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort() + ")" }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort() + ")" }, scoringAlignment, padding, scoringColWidths );
         else
-            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, texture, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, scoringColWidths );
     }
     
-    private void updateTimingColWidths( String[] lapStringValue, String[] stintStringValue, String[] sessionTimeStringValue, TextureImage2D texture )
+    private void updateTimingColWidths( String[] lapStringValue, String[] stintStringValue, String[] sessionTimeStringValue )
     {
         timingColWidths[0] = 0;
         timingColWidths[1] = 0;
         
-        lapString.getMaxColWidths( lapStringValue, timingAlignment, padding, texture, timingColWidths );
-        stintString.getMaxColWidths( stintStringValue, timingAlignment, padding, texture, timingColWidths );
-        sessionTimeString.getMaxColWidths( sessionTimeStringValue, timingAlignment, padding, texture, timingColWidths );
+        lapString.getMaxColWidths( lapStringValue, timingAlignment, padding, timingColWidths );
+        stintString.getMaxColWidths( stintStringValue, timingAlignment, padding, timingColWidths );
+        sessionTimeString.getMaxColWidths( sessionTimeStringValue, timingAlignment, padding, timingColWidths );
     }
     
     /**
@@ -334,7 +334,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, leaderName, texture );
+                    updateScoringColWidths( scoringInfo, leaderName );
                     colWidthsUpdated = true;
                 }
                 
@@ -355,7 +355,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, leaderName, texture );
+                    updateScoringColWidths( scoringInfo, leaderName );
                     colWidthsUpdated = true;
                 }
                 
@@ -369,7 +369,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateScoringColWidths( scoringInfo, leaderName, texture );
+                    updateScoringColWidths( scoringInfo, leaderName );
                     colWidthsUpdated = true;
                 }
                 
@@ -488,7 +488,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue, texture );
+                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue );
                     
                     colWidthsUpdated = true;
                 }
@@ -500,7 +500,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue, texture );
+                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue );
                     
                     colWidthsUpdated = true;
                 }
@@ -512,7 +512,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             {
                 if ( !colWidthsUpdated )
                 {
-                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue, texture );
+                    updateTimingColWidths( lapStringValue, stintStringValue, sessionTimeStringValue );
                     
                     colWidthsUpdated = true;
                 }
