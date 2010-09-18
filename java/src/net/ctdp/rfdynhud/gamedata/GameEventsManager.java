@@ -423,6 +423,9 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.isInPits = true;
         this.isInGarage = true;
         
+        this.waitingForGraphics = true;
+        this.waitingForData = true;
+        
         try
         {
             if ( gameData.getProfileInfo().isValid() )
