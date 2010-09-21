@@ -1,19 +1,8 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This piece of code has been provided by and with kind
+ * permission of INFOLOG GmbH from Germany.
+ * It is released under the terms of the GPL, but INFOLOG
+ * is still permitted to use it in closed source software.
  */
 package net.ctdp.rfdynhud.editor.hiergrid;
 
@@ -23,13 +12,16 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.IOException;
+import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicTableUI;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -39,11 +31,17 @@ import javax.swing.table.TableColumnModel;
  * The {@link HierarchicalTable} is a JTable, that displays hierarchical (structured) data in a
  * nice looking and compressed form.
  * 
+ * @param <P> the property type
+ * 
  * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
-public class HierarchicalTable extends JTable
+public class HierarchicalTable<P extends Object> extends JTable
 {
     private static final long serialVersionUID = -8967196361910507049L;
+    
+    private final HierarchicalGridStyle style;
+    
+    private final ArrayList<PropertySelectionListener<P>> selectionListeners = new ArrayList<PropertySelectionListener<P>>();
     
     private class TableUI extends BasicTableUI
     {
@@ -65,7 +63,7 @@ public class HierarchicalTable extends JTable
 
         private void paintCells( Graphics g, int rMin, int rMax, int cMin, int cMax )
         {
-            boolean hasHierarchy = ( (HierarchicalTableModel)table.getModel() ).hasExpandableItems();
+            boolean hasHierarchy = ( (HierarchicalTableModel<?>)table.getModel() ).hasExpandableItems();
             int majorColumn = hasHierarchy ? 1 : 0;
             
             TableColumnModel cm = table.getColumnModel();
@@ -176,10 +174,50 @@ public class HierarchicalTable extends JTable
         }
     }
     
+    public final HierarchicalGridStyle getStyle()
+    {
+        return ( style );
+    }
+    
+    public void addPropertySelectionListener( PropertySelectionListener<P> l )
+    {
+        selectionListeners.add( l );
+    }
+    
+    public void removePropertySelectionListener( PropertySelectionListener<P> l )
+    {
+        selectionListeners.remove( l );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings( "unchecked" )
+    @Override
+    public HierarchicalTableModel<P> getModel()
+    {
+        return ( (HierarchicalTableModel<P>)super.getModel() );
+    }
+    
+    public void applyToModel()
+    {
+        int selectedRow = getSelectedRow();
+        
+        this.getModel().apply( null, selectedRow );
+        
+        /*
+        selectedRow = Math.min( selectedRow, getRowCount() - 1 );
+        if ( selectedRow < 0 )
+            clearSelection();
+        else
+            setRowSelectionInterval( selectedRow, selectedRow );
+        */
+    }
+    
     @Override
     public Rectangle getCellRect( int row, int column, boolean includeSpacing )
     {
-        HierarchicalTableModel model = (HierarchicalTableModel)getModel();
+        HierarchicalTableModel<P> model = getModel();
         
         if ( model.hasExpandableItems() && ( column == 0 ) )
         {
@@ -234,7 +272,7 @@ public class HierarchicalTable extends JTable
             }
         }
         
-        if ( ( (HierarchicalTableModel)getModel() ).hasExpandableItems() && ( column == 0 ) )
+        if ( ( (HierarchicalTableModel<?>)getModel() ).hasExpandableItems() && ( column == 0 ) )
             return ( super.getCellRenderer( row, column ) );
         
         TableCellRenderer renderer = getColumnModel().getColumn( column ).getCellRenderer();
@@ -264,38 +302,101 @@ public class HierarchicalTable extends JTable
         return ( null );
     }
     
-    private static HierarchicalTableModel createModel( GridItemsContainer data, ValueAccessor accessor, int columnCount )
+    public class HierarchicalTableColumnModel extends DefaultTableColumnModel
     {
-        return ( new HierarchicalTableModel( data, accessor, columnCount ) );
-    }
-    
-    private static HierarchicalTableColumnModel createColumnModel( HierarchicalTableModel tableModel, Image minusImage, Image plusImage )
-    {
-        return ( new HierarchicalTableColumnModel( tableModel, minusImage, plusImage ) );
-    }
-    
-    protected ValueAccessor createValueAccessor()
-    {
-        throw new Error( "This method must be overridden and implemented, if a null accessor is passed to the constructor." );
-        /*
-        Property prop = getProperty( row );
-        if ( prop != null )
-        {
-            if ( needsAreaClear( prop ) )
-                editor.getEditorPanel().clearSelectedWidget();
-            
-            prop.setValue( value );
-            
-            editor.getEditorPanel().repaint();
-        }
-        */
-    }
-    
-    public HierarchicalTable( GridItemsContainer data, ValueAccessor accessor, int columnCount, Image minusImage, Image plusImage )
-    {
-        super( createModel( data, accessor, columnCount ) );
+        private static final long serialVersionUID = 5238687005871052922L;
         
-        setColumnModel( createColumnModel( (HierarchicalTableModel)getModel(), minusImage, plusImage ) );
+        private Image minusImage;
+        private Image plusImage;
+        
+        public void init()
+        {
+            for ( int i = getColumnCount() - 1; i >= 0; i-- )
+                removeColumn( getColumn( i ) );
+            
+            TableColumn column;
+            
+            HierarchicalTableModel<P> model = HierarchicalTable.this.getModel();
+            
+            if ( model.hasExpandableItems() )
+            {
+                column = new TableColumn( 0, 18, new ExpanderColumnCellRenderer( minusImage, plusImage ), null );
+                column.setMinWidth( 18 );
+                column.setMaxWidth( 18 );
+                column.setHeaderValue( model.getColumnName( 0 ) );
+                column.setResizable( false );
+                
+                addColumn( column );
+            }
+            
+            column = new TableColumn( 1, 20000, new KeyCellRenderer<P>(), null );
+            //column = new TableColumn( 1, 20000, null, null );
+            column.setHeaderValue( model.getColumnName( 1 ) );
+            addColumn( column );
+            
+            //column = new TableColumn( 2, 20000, new StringKeyValueCellRenderer(), null );
+            column = new TableColumn( 2, 20000, null, null );
+            column.setHeaderValue( model.getColumnName( 2 ) );
+            addColumn( column );
+        }
+        
+        public HierarchicalTableColumnModel( Image minusImage, Image plusImage )
+        {
+            super();
+            
+            this.minusImage = minusImage;
+            this.plusImage = plusImage;
+            
+            init();
+        }
+    }
+    
+    private void addSelectionListener()
+    {
+        getSelectionModel().addListSelectionListener( new ListSelectionListener()
+        {
+            @SuppressWarnings( "unchecked" )
+            @Override
+            public void valueChanged( ListSelectionEvent e )
+            {
+                if ( !e.getValueIsAdjusting() && ( selectionListeners != null ) )
+                {
+                    final P property;
+                    if ( HierarchicalTable.this.getModel().isDataRow( HierarchicalTable.this.getSelectedRow() ) )
+                        property = (P)HierarchicalTable.this.getModel().getRowAt( HierarchicalTable.this.getSelectedRow() );
+                    else
+                        property = null;
+                    
+                    for ( int i = 0; i < selectionListeners.size(); i++ )
+                    {
+                        selectionListeners.get( i ).onPropertySelected( property, HierarchicalTable.this.getSelectedRow() );
+                    }
+                }
+            }
+        } );
+    }
+    
+    public JScrollPane createScrollPane()
+    {
+        JScrollPane scrollPane = new JScrollPane( this );
+        scrollPane.getViewport().setBackground( java.awt.Color.WHITE );
+        scrollPane.getVerticalScrollBar().setUnitIncrement( getStyle().getRowHeight() );
+        
+        return ( scrollPane );
+    }
+    
+    public HierarchicalTable( HierarchicalTableModel<P> model, HierarchicalGridStyle style )
+    {
+        super( model );
+        
+        if ( model == null )
+            throw new IllegalArgumentException( "model must not be null." );
+        
+        model.setTable( this );
+        
+        this.style = style;
+        
+        setColumnModel( new HierarchicalTableColumnModel( style.getExpandedImage(), style.getCollapsedImage() ) );
         
         getTableHeader().setReorderingAllowed( false );
         getSelectionModel().setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
@@ -303,39 +404,21 @@ public class HierarchicalTable extends JTable
         setShowHorizontalLines( false );
         setShowVerticalLines( false );
         setRowMargin( 0 );
+        setRowHeight( style.getRowHeight() );
         setIntercellSpacing( new Dimension( 0, 0 ) );
         
         setUI( new TableUI() );
         
-        //this.setBackground( new java.awt.Color( 212, 208, 200 ) );
+        style.applyDefaults( this );
+        
+        if ( style.getTableBackgroundColor() != null )
+            this.setBackground( style.getTableBackgroundColor() );
+        
+        addSelectionListener();
     }
     
-    private static Image getDefaultCollapseImage()
+    public HierarchicalTable( HierarchicalTableModel<P> model )
     {
-        try
-        {
-            return ( ImageIO.read( HierarchicalTable.class.getClassLoader().getResource( HierarchicalTable.class.getPackage().getName().replace( '.', '/' ) + "/collapse_16x16.gif" ) ) );
-        }
-        catch ( IOException e )
-        {
-            throw new Error( e );
-        }
-    }
-    
-    private static Image getDefaultExpandImage()
-    {
-        try
-        {
-            return ( ImageIO.read( HierarchicalTable.class.getClassLoader().getResource( HierarchicalTable.class.getPackage().getName().replace( '.', '/' ) + "/expand_16x16.gif" ) ) );
-        }
-        catch ( IOException e )
-        {
-            throw new Error( e );
-        }
-    }
-    
-    public HierarchicalTable( GridItemsContainer data, ValueAccessor accessor, int columnCount )
-    {
-        this( data, accessor, columnCount, getDefaultCollapseImage(), getDefaultExpandImage() );
+        this( model, new HierarchicalGridStyle() );
     }
 }

@@ -1,19 +1,8 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This piece of code has been provided by and with kind
+ * permission of INFOLOG GmbH from Germany.
+ * It is released under the terms of the GPL, but INFOLOG
+ * is still permitted to use it in closed source software.
  */
 package net.ctdp.rfdynhud.editor.hiergrid;
 
@@ -26,15 +15,19 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
 /**
+ * @param <P> the property type
+ * 
  * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
-public class HierarchicalTableModel extends AbstractTableModel implements MouseListener
+public abstract class HierarchicalTableModel<P extends Object> extends AbstractTableModel implements MouseListener
 {
     private static final long serialVersionUID = -2560300004859208195L;
     
+    private HierarchicalTable<P> table = null;
+    
     private final String[] columnNames;
     
-    private GridItemsContainer data;
+    private GridItemsContainer<P> data;
     private final ArrayList<Object> flatData = new ArrayList<Object>();
     private final ArrayList<boolean[]> lastInGroup = new ArrayList<boolean[]>();
     private final ArrayList<Integer> levels = new ArrayList<Integer>();
@@ -44,7 +37,15 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
     private int columnCount;
     private boolean hasExpandableItems = false;
     
-    private final ValueAccessor accessor;
+    void setTable( HierarchicalTable<P> table )
+    {
+        this.table = table;
+    }
+    
+    public final HierarchicalTable<P> getTable()
+    {
+        return ( table );
+    }
     
     public final boolean hasExpandableItems()
     {
@@ -59,17 +60,17 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return ( 0 );
     }
     
-    private boolean computeFlatData( GridItemsContainer items, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
+    private boolean computeFlatData( GridItemsContainer<P> items, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
     {
         boolean hasExpandableItems = false;
         
-        for ( int i = 0; i < items.size(); i++ )
+        for ( int i = 0; i < items.getNumberOfItems(); i++ )
         {
-            Object item = items.get( i );
+            Object item = items.getItem( i );
             
             flatData.add( item );
             
-            ligTrace[level] = ( i == items.size() - 1 );
+            ligTrace[level] = ( i == items.getNumberOfItems() - 1 );
             
             if ( lastInGroup.size() < flatData.size() )
             {
@@ -89,7 +90,8 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
             {
                 hasExpandableItems = true;
                 
-                GridItemsContainer list = (GridItemsContainer)item;
+                @SuppressWarnings( "unchecked" )
+                GridItemsContainer<P> list = (GridItemsContainer<P>)item;
                 
                 if ( list.getExpandFlag() )
                 {
@@ -101,16 +103,19 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return ( hasExpandableItems );
     }
     
-    private void computeFlatData( GridItemsContainer items )
+    private void computeFlatData( GridItemsContainer<P> items )
     {
         flatData.clear();
         //lastInGroup.clear();
         levels.clear();
         
-        this.hasExpandableItems = computeFlatData( items, 0, flatData, ligTrace, lastInGroup, levels );
+        if ( items == null )
+            this.hasExpandableItems = false;
+        else
+            this.hasExpandableItems = computeFlatData( items, 0, flatData, ligTrace, lastInGroup, levels );
     }
     
-    public void setData( GridItemsContainer data )
+    public void setData( GridItemsContainer<P> data )
     {
         this.data = data;
         this.columnCount = columnNames.length;
@@ -121,11 +126,13 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
     /**
      * 
      * @param changedPropertyName
-     * @param columnModel
      * @param selectedRow
      */
-    public void apply( String changedPropertyName, HierarchicalTableColumnModel columnModel, int selectedRow )
+    public void apply( String changedPropertyName, int selectedRow )
     {
+        @SuppressWarnings( "unchecked" )
+        HierarchicalTable<P>.HierarchicalTableColumnModel columnModel = (HierarchicalTable<P>.HierarchicalTableColumnModel)table.getColumnModel();
+        
         boolean oldHEI = hasExpandableItems;
         
         setData( this.data );
@@ -183,41 +190,13 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         return ( levels.get( row ) );
     }
     
-    /*
-    @Override
-    protected Object getValueAtRow( FlaggedList items, int rowOffset, int row )
-    {
-        for ( int i = 0; i < items.size(); i++ )
-        {
-            Object item = items.get( i );
-            
-            if ( rowOffset == row )
-                return ( item );
-            
-            rowOffset++;
-            
-            if ( item instanceof FlaggedList )
-            {
-                FlaggedList list = (FlaggedList)item;
-                
-                if ( list.getExpandFlag() )
-                {
-                    Object result = getValueAtRow( list, rowOffset, row );
-                    
-                    if ( !( result instanceof Integer ) )
-                        return ( result );
-                    
-                    rowOffset = ( (Integer)result ).intValue();
-                }
-            }
-        }
-        
-        return ( rowOffset );
-    }
-    */
+    protected abstract void setValueImpl( HierarchicalTable<P> table, P property, int index, Object newValue );
     
+    protected abstract Object getValueImpl( HierarchicalTable<P> table, P property, int index );
+    
+    @SuppressWarnings( "unchecked" )
     @Override
-    public void setValueAt( Object value, int row, int column )
+    public final void setValueAt( Object value, int row, int column )
     {
         if ( value == null )
             throw new IllegalArgumentException( "value must not be null." );
@@ -237,7 +216,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
             {
                 if ( rowData instanceof GridItemsContainer )
                 {
-                    ( (GridItemsContainer)rowData ).setExpandFlag( (Boolean)value );
+                    ( (GridItemsContainer<P>)rowData ).setExpandFlag( (Boolean)value );
                     computeFlatData( data );
                     
                     fireTableDataChanged();
@@ -254,7 +233,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
                 return;
             }
             
-            //accessor.setValue( (JTable)this.getTableModelListeners()[this.getTableModelListeners().length - 1], this, rowData, column - 1, value );
+            //setValueImpl( table, (P)rowData, column - 1, value );
             
             //fireTableDataChanged();
         }
@@ -262,13 +241,14 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         if ( value.equals( getValueAt( row, column ) ) )
             return;
         
-        accessor.setValue( (JTable)this.getTableModelListeners()[this.getTableModelListeners().length - 1], this, rowData, column - 1, value );
+        setValueImpl( table, (P)rowData, column - 1, value );
         
         fireTableDataChanged();
     }
     
+    @SuppressWarnings( "unchecked" )
     @Override
-    public Object getValueAt( int row, int column )
+    public final Object getValueAt( int row, int column )
     {
         /*
         Object rowData = getValueAtRow( data, 0, row );
@@ -285,7 +265,7 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
             {
                 if ( rowData instanceof GridItemsContainer )
                 {
-                    return ( ( (GridItemsContainer)rowData ).getExpandFlag() );
+                    return ( ( (GridItemsContainer<?>)rowData ).getExpandFlag() );
                 }
                 
                 return ( null );
@@ -299,10 +279,10 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
                 return ( null );
             }
             
-            return ( accessor.getValue( (JTable)this.getTableModelListeners()[this.getTableModelListeners().length - 1], this, rowData, column - 1 ) );
+            return ( getValueImpl( table, (P)rowData, column - 1 ) );
         }
         
-        return ( accessor.getValue( (JTable)this.getTableModelListeners()[this.getTableModelListeners().length - 1], this, rowData, column - 1 ) ); // Why minus 1 ???
+        return ( getValueImpl( table, (P)rowData, column - 1 ) ); // Why minus 1 ???
     }
     
     public Object getRowAt( int row )
@@ -415,25 +395,21 @@ public class HierarchicalTableModel extends AbstractTableModel implements MouseL
         }
     }
     
-    public HierarchicalTableModel( GridItemsContainer data, ValueAccessor accessor, int columnCount )
+    public HierarchicalTableModel( GridItemsContainer<P> data, int columnCount )
     {
         super();
         
         this.columnNames = new String[ columnCount ];
         
         setData( data );
-        
-        this.accessor = accessor;
     }
     
-    public HierarchicalTableModel( GridItemsContainer data, ValueAccessor accessor, String... columnNames )
+    public HierarchicalTableModel( GridItemsContainer<P> data, String... columnNames )
     {
         super();
         
         this.columnNames = columnNames;
         
         setData( data );
-        
-        this.accessor = accessor;
     }
 }

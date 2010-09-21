@@ -27,8 +27,8 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 
 public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
 {
-    private final Stack<GridItemsContainer> groupStack = new Stack<GridItemsContainer>();
-    private GridItemsContainer currList = null;
+    private final Stack<GridItemsContainer<Property>> groupStack = new Stack<GridItemsContainer<Property>>();
+    private GridItemsContainer<Property> currList = null;
     
     @Override
     protected void clearImpl()
@@ -44,10 +44,10 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
             groupStack.pop();
         }
         
-        GridItemsContainer group = new GridItemsContainerImpl( groupName, initiallyExpanded );
+        GridItemsContainer<Property> group = new GridItemsContainerImpl( groupName, initiallyExpanded );
         
-        GridItemsContainer parentGroup = groupStack.peek();
-        parentGroup.add( group );
+        GridItemsContainer<Property> parentGroup = groupStack.peek();
+        parentGroup.addGroup( group );
         groupStack.push( group );
         currList = group;
     }
@@ -62,23 +62,23 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
     @Override
     protected void addPropertyImpl( Property property )
     {
-        currList.add( property );
+        currList.addProperty( property );
     }
     
-    private void dump( GridItemsContainer group, PrintStream ps, int level )
+    private void dump( GridItemsContainer<?> group, PrintStream ps, int level )
     {
-        for ( int i = 0; i < group.size(); i++ )
+        for ( int i = 0; i < group.getNumberOfItems(); i++ )
         {
             for ( int j = 0; j < level; j++ )
                 ps.print( "  " );
             
-            Object o = group.get( i );
+            Object o = group.getItem( i );
             
             if ( o instanceof GridItemsContainer )
             {
-                ps.println( ( (GridItemsContainer)o ).getName() );
+                ps.println( ( (GridItemsContainer<?>)o ).getNameForGrid() );
                 
-                dump( (GridItemsContainer)o, ps, level + 1 );
+                dump( (GridItemsContainer<?>)o, ps, level + 1 );
             }
             else
             {
@@ -93,7 +93,7 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
         dump( groupStack.get( 0 ), ps, 0 );
     }
     
-    public DefaultWidgetPropertiesContainer( GridItemsContainer root )
+    public DefaultWidgetPropertiesContainer( GridItemsContainer<Property> root )
     {
         groupStack.push( root );
         

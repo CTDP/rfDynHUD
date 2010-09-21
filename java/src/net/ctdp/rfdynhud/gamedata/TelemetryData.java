@@ -326,6 +326,13 @@ public class TelemetryData
         return ( engineBoostMapping );
     }
     
+    /**
+     * Gets the currently remaining engine's lifetime in seconds.
+     * When you enter the cockpit the value will be the result of
+     * gameData.getPhysics().getEngine().getSafeLifetimeTotal( gameData.getScoringInfo().getRaceLengthPercentage() );
+     * 
+     * @return the currently remaining engine's lifetime in seconds.
+     */
     public final float getEngineLifetime()
     {
         return ( engineLifetime );

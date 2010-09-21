@@ -41,7 +41,7 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 82 );
+    public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 83 );
     
     private final WidgetsDrawingManager drawingManager;
     private final LiveGameData gameData;

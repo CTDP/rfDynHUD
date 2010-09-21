@@ -28,17 +28,18 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
-import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
+import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.editor.util.BackgroundSelector;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class BackgroundCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
+public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel> implements TableCellEditor
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -55,14 +56,13 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<JPanel> implement
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
-    protected void prepareComponent( JPanel component, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         setComponent( panel );
         
-        super.prepareComponent( panel, table, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column );
         
-        //this.prop = ( (PropertiesEditor)table.getModel() ).getProperty( row );
-        this.prop = (BackgroundProperty)( (HierarchicalTableModel)table.getModel() ).getRowAt( row );
+        this.prop = (BackgroundProperty)property;
         
         if ( prop.getButtonText() == null )
         {

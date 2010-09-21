@@ -61,13 +61,13 @@ import javax.swing.text.html.HTMLDocument;
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
-import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
+import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.EditorTable;
+import net.ctdp.rfdynhud.editor.properties.EditorTableModel;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
-import net.ctdp.rfdynhud.editor.properties.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
@@ -110,7 +110,7 @@ import org.jagatoo.util.ini.IniWriter;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class RFDynHUDEditor implements Documented, PropertySelectionListener
+public class RFDynHUDEditor implements Documented, PropertySelectionListener<Property>
 {
     static
     {
@@ -538,28 +538,28 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         widgetsConfig.getProperties( propsCont, false );
     }
     
-    private static void readExpandFlags( GridItemsContainer list, String keyPrefix, HashMap<String, Boolean> map )
+    private static void readExpandFlags( GridItemsContainer<?> list, String keyPrefix, HashMap<String, Boolean> map )
     {
-        for ( int i = 0; i < list.size(); i++ )
+        for ( int i = 0; i < list.getNumberOfItems(); i++ )
         {
-            if ( list.get( i ) instanceof GridItemsContainer )
+            if ( list.getItem( i ) instanceof GridItemsContainer )
             {
-                GridItemsContainer gic = (GridItemsContainer)list.get( i );
-                map.put( keyPrefix + gic.getName(), gic.getExpandFlag() );
+                GridItemsContainer<?> gic = (GridItemsContainer<?>)list.getItem( i );
+                map.put( keyPrefix + gic.getNameForGrid(), gic.getExpandFlag() );
                 
                 readExpandFlags( gic, keyPrefix, map );
             }
         }
     }
     
-    private static void restoreExpandFlags( GridItemsContainer list, String keyPrefix, HashMap<String, Boolean> map )
+    private static void restoreExpandFlags( GridItemsContainer<?> list, String keyPrefix, HashMap<String, Boolean> map )
     {
-        for ( int i = 0; i < list.size(); i++ )
+        for ( int i = 0; i < list.getNumberOfItems(); i++ )
         {
-            if ( list.get( i ) instanceof GridItemsContainer )
+            if ( list.getItem( i ) instanceof GridItemsContainer )
             {
-                GridItemsContainer gic = (GridItemsContainer)list.get( i );
-                Boolean b = map.get( keyPrefix + gic.getName() );
+                GridItemsContainer<?> gic = (GridItemsContainer<?>)list.getItem( i );
+                Boolean b = map.get( keyPrefix + gic.getNameForGrid() );
                 if ( b != null )
                     gic.setExpandFlag( b.booleanValue() );
                 
@@ -572,7 +572,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
     {
         editorPanel.setSelectedWidget( widget, doubleClick );
         
-        GridItemsContainer propsList = propsEditor.getPropertiesList();
+        GridItemsContainer<Property> propsList = propsEditor.getPropertiesList();
         
         HashMap<String, Boolean> expandedRows = new HashMap<String, Boolean>();
         readExpandFlags( propsList, "", expandedRows );
@@ -591,7 +591,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
         onPropertySelected( null, -1 );
         restoreExpandFlags( propsList, "", expandedRows );
         
-        editorTable.apply();
+        editorTable.applyToModel();
     }
     
     //private long nextRedrawTime = -1L;
@@ -617,7 +617,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener
             //editorTable.apply();
             //onWidgetSelected( widget, false );
             
-            HierarchicalTableModel m = (HierarchicalTableModel)editorTable.getModel();
+            EditorTableModel m = (EditorTableModel)editorTable.getModel();
             int rc = m.getRowCount();
             for ( int i = 0; i < rc; i++ )
             {

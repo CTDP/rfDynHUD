@@ -136,14 +136,14 @@ public class ProfileInfo
         profileFolder = null;
         plrFile = null;
         
-        modName = null;
-        vehFilename = null;
-        teamName = null;
+        modName = "N/A";
+        vehFilename = "N/A";
+        teamName = "N/A";
         lastUsedTrackFile = null;
-        multiRaceLength = null;
-        showCurrentLap = null;
-        numReconLaps = null;
-        formationLapFlag = null;
+        multiRaceLength = 1.0f;
+        showCurrentLap = true;
+        numReconLaps = 0;
+        formationLapFlag = 1;
         measurementUnits = MeasurementUnits.METRIC;
         speedUnits = SpeedUnits.KPH;
     }

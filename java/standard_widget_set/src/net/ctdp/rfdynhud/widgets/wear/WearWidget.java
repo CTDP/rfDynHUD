@@ -345,16 +345,18 @@ public class WearWidget extends Widget
         
         if ( vsi.equals( pvsi ) && ( vsi.getLapsCompleted() >= 1 ) )
         {
+            float engineLifetime = gameData.getTelemetryData().getEngineLifetime();
+            
             if ( !testLifetimeAtLapStart )
             {
-                engineLifetimeAtLapStart = gameData.getTelemetryData().getEngineLifetime();
+                engineLifetimeAtLapStart = engineLifetime;
                 engineLifetimeLossPerLap = -1f;
                 testLifetimeAtLapStart = true;
             }
             else
             {
-                engineLifetimeLossPerLap = engineLifetimeAtLapStart - gameData.getTelemetryData().getEngineLifetime();
-                engineLifetimeAtLapStart = gameData.getTelemetryData().getEngineLifetime();
+                engineLifetimeLossPerLap = engineLifetimeAtLapStart - engineLifetime;
+                engineLifetimeAtLapStart = engineLifetime;
             }
         }
     }

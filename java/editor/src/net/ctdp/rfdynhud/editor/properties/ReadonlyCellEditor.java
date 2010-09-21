@@ -23,13 +23,15 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
+import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ReadonlyCellEditor extends KeyValueCellRenderer<JLabel> implements TableCellEditor
+public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel> implements TableCellEditor
 {
     private static final long serialVersionUID = 7979822630367678241L;
     
@@ -37,11 +39,11 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<JLabel> implements 
     
     @Override
     //public JLabel getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
-    protected void prepareComponent( JLabel component, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( JLabel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         setComponent( label );
         
-        super.prepareComponent( label, table, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( label, table, property, value, isSelected, hasFocus, row, column );
         
         if ( isSelected )
             label.setBackground( table.getSelectionBackground() );
@@ -59,8 +61,11 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<JLabel> implements 
     @Override
     public JLabel getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
+        //Property property = (Property)( (EditorTableModel)table.getModel() ).getRowAt( row );
+        Property property = null;
+        
         //JLabel label = getTableCellRendererComponent( table, value, isSelected, true, row, column );
-        prepareComponent( label, table, value, isSelected, true, row, column );
+        prepareComponent( label, (EditorTable)table, property, value, isSelected, true, row, column );
         
         if ( isSelected )
             label.setBackground( table.getSelectionBackground() );

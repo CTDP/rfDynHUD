@@ -573,7 +573,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             {
                 __GDPrivilegedAccess.onSessionStarted2( gameData, isEditorMode );
                 
-                if ( !gameData.isInRealtimeMode() )
+                if ( !gameData.isInRealtimeMode() || gameData.getScoringInfo().getSessionType().isRace() )
                 {
                     String modName = gameData.getModInfo().getName();
                     String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();

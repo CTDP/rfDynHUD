@@ -111,7 +111,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
         return ( !changed.isEmpty() );
     }
     
-    private void fillPropertiesList( GridItemsContainer props )
+    private void fillPropertiesList( GridItemsContainer<Property> props )
     {
         DefaultWidgetPropertiesContainer propsCont = new DefaultWidgetPropertiesContainer( props );
         

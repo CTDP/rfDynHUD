@@ -125,6 +125,16 @@ public class TrackInfo
     
     private void readTrackHeader( File trackFolder, String trackname )
     {
+        if ( ( trackFolder == null ) || !trackFolder.exists() )
+        {
+            Logger.log( "WARNING: Track folder not found: " + trackFolder );
+            
+            this.trackName = "N/A";
+            this.raceLaps = 60;
+            
+            return;
+        }
+        
         for ( File f : trackFolder.listFiles() )
         {
             if ( f.isFile() && f.getName().toLowerCase().endsWith( ".gdb" ) )

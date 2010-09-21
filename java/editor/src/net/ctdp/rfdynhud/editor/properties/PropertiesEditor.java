@@ -31,7 +31,7 @@ public class PropertiesEditor
 {
     private static final long serialVersionUID = -1723298567515621091L;
     
-    private GridItemsContainer properties;
+    private GridItemsContainer<Property> properties;
     
     private final ArrayList<PropertyChangeListener> changeListeners = new ArrayList<PropertyChangeListener>();
     
@@ -58,19 +58,19 @@ public class PropertiesEditor
         properties.clear();
     }
     
-    public final GridItemsContainer getPropertiesList()
+    public final GridItemsContainer<Property> getPropertiesList()
     {
         return ( properties );
     }
     
     public void addProperty( Property p )
     {
-        properties.add( p );
+        properties.addProperty( p );
     }
     
-    public void addProperties( GridItemsContainer props )
+    public void addGroup( GridItemsContainer<Property> group )
     {
-        properties.add( props );
+        properties.addGroup( group );
     }
     
     /*

@@ -31,10 +31,86 @@ public class ModInfo
     private String modName = null;
     private File rfmFile = null;
     private int maxOpponents = -1;
+    private float raceDuration = -1f;
     
-    private static int readMaxOpponents( File rfmFile )
+    private static String parseValuePart( String line, int keyLength )
     {
+        int p = line.indexOf( '=', keyLength );
+        
+        if ( p >= 0 )
+        {
+            String s = line.substring( p + 1 ).trim();
+            
+            p = s.indexOf( ' ' );
+            
+            if ( p > 0 )
+                s = s.substring( 0, p ).trim();
+            
+            p = s.indexOf( '\t' );
+            
+            if ( p > 0 )
+                s = s.substring( 0, p ).trim();
+            
+            return ( s );
+        }
+        
+        return ( null );
+    }
+    
+    private static int parseMaxOpponents( String line )
+    {
+        // 'line' is trimmed and starts with "Max Opponents".
+        
         int maxOpponents = 0;
+        
+        String value = parseValuePart( line, 13 );
+        
+        if ( value != null )
+        {
+            try
+            {
+                int mo = Integer.parseInt( value );
+                
+                maxOpponents = Math.max( maxOpponents, mo );
+            }
+            catch ( NumberFormatException e )
+            {
+                Logger.log( e );
+            }
+        }
+        
+        return ( maxOpponents );
+    }
+    
+    private static float parseRaceTime( String line )
+    {
+        // 'line' is trimmed and starts with "RaceTime".
+        
+        float raceTime = -1f;
+        
+        String value = parseValuePart( line, 8 );
+        
+        if ( value != null )
+        {
+            try
+            {
+                float rt = Float.parseFloat( value );
+                
+                raceTime = Math.max( raceTime, rt );
+            }
+            catch ( NumberFormatException e )
+            {
+                Logger.log( e );
+            }
+        }
+        
+        return ( raceTime );
+    }
+    
+    private void parseRFM( File rfmFile )
+    {
+        maxOpponents = 0;
+        raceDuration = -1f;
         
         BufferedReader br = null;
         
@@ -42,41 +118,53 @@ public class ModInfo
         {
             br = new BufferedReader( new FileReader( rfmFile ) );
             
+            String lastLine = null;
             String line;
+            String[] groupStack = new String[ 16 ]; // should be enough
+            int level = 0;
             while ( ( line = br.readLine() ) != null )
             {
                 line = line.trim();
                 
-                if ( line.toLowerCase().startsWith( "max opponents" ) )
+                if ( line.length() == 0 )
+                    continue;
+                
+                if ( line.startsWith( "//" ) || line.startsWith( "#" ) )
+                    continue;
+                
+                int p = line.indexOf( '{' );
+                if ( p >= 0 )
                 {
-                    int p = line.indexOf( '=' );
-                    
-                    if ( p >= 0 )
-                    {
-                        String s = line.substring( p + 1 ).trim();
-                        
-                        p = s.indexOf( ' ' );
-                        
-                        if ( p > 0 )
-                            s = s.substring( 0, p ).trim();
-                        
-                        p = s.indexOf( '\t' );
-                        
-                        if ( p > 0 )
-                            s = s.substring( 0, p ).trim();
-                        
-                        try
-                        {
-                            int mo = Integer.parseInt( s );
-                            
-                            maxOpponents = Math.max( maxOpponents, mo );
-                        }
-                        catch ( NumberFormatException e )
-                        {
-                            Logger.log( e );
-                        }
-                    }
+                    groupStack[level++] = lastLine;
+                    p++;
                 }
+                p = Math.max( 0, p );
+                int p2 = line.indexOf( '}', p );
+                if ( p2 >= 0 )
+                {
+                    groupStack[--level] = null;
+                    p = p2 + 1;
+                }
+                p = Math.max( 0, p );
+                p2 = line.indexOf( '{', p );
+                if ( p2 >= 0 )
+                {
+                    groupStack[level++] = lastLine;
+                    p = p2 + 1;
+                }
+                
+                String lLine = line.toLowerCase();
+                
+                if ( lLine.startsWith( "max opponents" ) )
+                {
+                    maxOpponents = parseMaxOpponents( line );
+                }
+                else if ( lLine.startsWith( "racetime" ) && ( level == 1 ) && "DefaultScoring".equalsIgnoreCase( groupStack[0] ) )
+                {
+                    raceDuration = parseRaceTime( line ) * 60f;
+                }
+                
+                lastLine = line;
             }
         }
         catch ( IOException e )
@@ -88,8 +176,6 @@ public class ModInfo
             if ( br != null )
                 try { br.close(); } catch ( IOException e ) {}
         }
-        
-        return ( maxOpponents );
     }
     
     void update()
@@ -97,7 +183,7 @@ public class ModInfo
         this.modName = profileInfo.getModName();
         this.rfmFile = new File( new File( GameFileSystem.INSTANCE.getGameFolder(), "rfm" ), modName + ".rfm" );
         
-        maxOpponents = readMaxOpponents( rfmFile );
+        parseRFM( rfmFile );
     }
     
     public final String getName()
@@ -113,6 +199,16 @@ public class ModInfo
     public final int getMaxOpponents()
     {
         return ( maxOpponents );
+    }
+    
+    /**
+     * Gets the race duration in seconds.
+     * 
+     * @return the race duration in seconds.
+     */
+    public final float getRaceDuration()
+    {
+        return ( raceDuration );
     }
     
     public ModInfo( ProfileInfo profileInfo )

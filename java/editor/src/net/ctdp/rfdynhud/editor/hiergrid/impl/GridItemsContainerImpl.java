@@ -20,13 +20,14 @@ package net.ctdp.rfdynhud.editor.hiergrid.impl;
 import java.util.ArrayList;
 
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
+import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * Default implementation of the {@link GridItemsContainer}.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class GridItemsContainerImpl extends ArrayList< Object > implements GridItemsContainer
+public class GridItemsContainerImpl extends ArrayList< Object > implements GridItemsContainer<Property>
 {
     private static final long serialVersionUID = -2178071328264336996L;
     
@@ -37,7 +38,7 @@ public class GridItemsContainerImpl extends ArrayList< Object > implements GridI
      * {@inheritDoc}
      */
     @Override
-    public final String getName()
+    public final String getNameForGrid()
     {
         return ( name );
     }
@@ -64,9 +65,45 @@ public class GridItemsContainerImpl extends ArrayList< Object > implements GridI
      * {@inheritDoc}
      */
     @Override
+    public final int getNumberOfItems()
+    {
+        return ( size() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addGroup( GridItemsContainer<Property> group )
+    {
+        add( group );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addProperty( Property property )
+    {
+        add( property );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object getItem( int index )
+    {
+        return ( get( index ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString()
     {
-        return ( getClass().getSimpleName() + " \"" + getName() + "\"" );
+        return ( getClass().getSimpleName() + " \"" + getNameForGrid() + "\"" );
     }
     
     public GridItemsContainerImpl( String name, boolean expandFlag, int initialCapacity )

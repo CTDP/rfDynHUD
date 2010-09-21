@@ -445,9 +445,22 @@ public class ScoringInfo
             }
             
             VehicleScoringInfo leader = getLeadersVehicleScoringInfo();
+            SessionLimit sessionLimit = leader.getSessionLimit();
             
-            if ( leader.getSessionLimit() == SessionLimit.TIME )
+            if ( sessionLimit == SessionLimit.TIME )
             {
+                if ( gameData.getModInfo().getRaceDuration() < 0f )
+                {
+                    // fall back to lap limited to at least have something.
+                    
+                    Logger.log( "WARNING: No \"RaceTime\" found in RFM." );
+                    sessionLimit = SessionLimit.LAPS;
+                }
+            }
+            
+            if ( sessionLimit == SessionLimit.TIME )
+            {
+                /*
                 int raceLaps = getEstimatedMaxLaps( leader );
                 
                 if ( raceLaps > 0 )
@@ -459,6 +472,22 @@ public class ScoringInfo
                     {
                         LifetimeManager.INSTANCE.applyActualLifetime( gameData, oldRLP, raceLengthPercentage );
                     }
+                }
+                else
+                {
+                    raceLengthPercentage = 1.0;
+                }
+                */
+                
+                float modRaceSeconds = gameData.getModInfo().getRaceDuration();
+                float raceSeconds = getEndTime();
+                
+                if ( raceSeconds > 0f )
+                {
+                    // Time limit is always in minutes without fractions. rFactor adds some seconds to the end time.
+                    raceSeconds = (float)Math.floor( raceSeconds / 60f ) * 60f;
+                    
+                    raceLengthPercentage = ( raceSeconds + 150f ) / modRaceSeconds;
                 }
                 else
                 {
@@ -477,6 +506,8 @@ public class ScoringInfo
             raceLengthPercentage = 1.0;
         }
     }
+    
+    private GamePhase lastGamePhase = null;
     
     void onDataUpdated( EditorPresets editorPresets )
     {
@@ -502,9 +533,12 @@ public class ScoringInfo
             
             applyEditorPresets( editorPresets );
             
+            boolean rlpUpdated = false;
+            
             if ( sessionJustStarted > 0 )
             {
                 updateRaceLengthPercentage();
+                rlpUpdated = true;
                 
                 for ( int i = 0; i < n; i++ )
                 {
@@ -512,13 +546,22 @@ public class ScoringInfo
                 }
                 
                 this.sessionJustStarted = 0;
+                lastGamePhase = null;
             }
             
-            if ( getLeadersVehicleScoringInfo().isLapJustStarted() )
+            if ( getLeadersVehicleScoringInfo().isLapJustStarted() && !rlpUpdated )
             {
                 updateRaceLengthPercentage();
+                rlpUpdated = true;
             }
             
+            GamePhase gamePhase = getGamePhase();
+            if ( ( gamePhase != lastGamePhase ) && !rlpUpdated )
+            {
+                updateRaceLengthPercentage();
+                rlpUpdated = true;
+            }
+            lastGamePhase = gamePhase;
             
             if ( updateListeners != null )
             {

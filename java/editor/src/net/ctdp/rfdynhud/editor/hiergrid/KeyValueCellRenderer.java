@@ -1,19 +1,8 @@
 /**
- * Copyright (C) 2009-2010 Cars and Tracks Development Project (CTDP).
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * This piece of code has been provided by and with kind
+ * permission of INFOLOG GmbH from Germany.
+ * It is released under the terms of the GPL, but INFOLOG
+ * is still permitted to use it in closed source software.
  */
 package net.ctdp.rfdynhud.editor.hiergrid;
 
@@ -29,9 +18,12 @@ import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
 /**
+ * @param <P> the proerty type
+ * @param <C> the render component type
+ * 
  * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
-public abstract class KeyValueCellRenderer < C extends JComponent > extends AbstractCellEditor implements Border, TableCellRenderer
+public abstract class KeyValueCellRenderer<P extends Object, C extends JComponent> extends AbstractCellEditor implements Border, TableCellRenderer
 {
     private static final long serialVersionUID = 6279484353820779292L;
     
@@ -88,14 +80,17 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
      * 
      * @param component
      * @param table
+     * @param property
      * @param value
      * @param isSelected
      * @param hasFocus
      * @param row
      * @param column
      */
-    protected void prepareComponent( C component, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( C component, HierarchicalTable<P> table, P property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
+        HierarchicalGridStyle style = table.getStyle();
+        
         component.setBorder( this );
         
         if ( isSelected )
@@ -109,21 +104,25 @@ public abstract class KeyValueCellRenderer < C extends JComponent > extends Abst
             component.setBackground( table.getBackground() );
         }
         
-        component.setFont( table.getFont() );
+        component.setFont( style.getValueCellFont() );
         
         oldValue = value;
     }
     
+    @SuppressWarnings( "unchecked" )
     @Override
     public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
-        HierarchicalTableModel model = (HierarchicalTableModel)table.getModel();
+        HierarchicalTableModel<?> model = (HierarchicalTableModel<?>)table.getModel();
         
         this.level = model.getLevel( row );
         this.row = row;
         this.gridColor = table.getGridColor();
         
-        prepareComponent( component, table, value, isSelected, hasFocus, row, column );
+        if ( model.isDataRow( row ) )
+            prepareComponent( component, (HierarchicalTable<P>)table, (P)model.getRowAt( row ), value, isSelected, hasFocus, row, column );
+        else
+            prepareComponent( component, (HierarchicalTable<P>)table, null, value, isSelected, hasFocus, row, column );
         
         return ( component );
     }

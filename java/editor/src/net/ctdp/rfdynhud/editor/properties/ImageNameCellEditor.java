@@ -27,17 +27,18 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
-import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
+import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.editor.util.ImageSelector;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements TableCellEditor
+public class ImageNameCellEditor extends KeyValueCellRenderer<Property, JPanel> implements TableCellEditor
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -52,13 +53,13 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<JPanel> implements
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
-    protected void prepareComponent( JPanel component, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
         setComponent( panel );
         
-        super.prepareComponent( panel, table, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column );
         
-        this.prop = (ImageProperty)( (HierarchicalTableModel)table.getModel() ).getRowAt( row );
+        this.prop = (ImageProperty)property;
         
         if ( prop.getButtonText() == null )
         {

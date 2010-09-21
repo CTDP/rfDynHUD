@@ -755,7 +755,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public WidgetsDrawingManager( boolean isEditorMode, int gameResX, int gameResY, boolean createTexture )
     {
-        this.oneTextureForAllWidgets = isEditorMode;
+        this.oneTextureForAllWidgets = true; //isEditorMode;
         
         if ( createTexture )
         {
