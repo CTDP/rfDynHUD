@@ -385,7 +385,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             positions[i].update( place );
             
             if ( ( needsCompleteRedraw || visibilityChanged || positions[i].hasChanged() ) && visible )
-                captionStrings[i].draw( offsetX, offsetY + offsetY2, positions[i].getValueAsString(), getFontColor(), texture, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY );
+                captionStrings[i].draw( offsetX, offsetY + offsetY2, positions[i].getValueAsString(), captionColor.getColor(), texture, itemClearImage, offsetX, offsetY + offsetY2 - srcOffsetY );
             
             driverNames[i].update( vsi.getDriverNameTLC() );
             
