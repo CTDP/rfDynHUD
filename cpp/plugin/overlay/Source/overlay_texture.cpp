@@ -342,7 +342,7 @@ void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, cha
         texVis = ( idx_t > 0 ) || ( texVisibleFlags[idx_t] > 0 );
         for ( idx_r = 0; idx_r < m_numRectangles[idx_t]; idx_r++ )
         {
-            z = ZERO_Z_INDEX + ( (float)r * zIndexUnit );
+            z = 0.5f; //ZERO_Z_INDEX + ( (float)r * zIndexUnit );
             
             if ( texVis && ( rectangleVisibleFlags[r] > 0 ) )
             {
@@ -684,7 +684,7 @@ char handleVisibleFlag( char* visibleFlags, const unsigned short i )
     return ( result );
 }
 
-bool checkVisibleFlags( char* texVisibleFlags, const unsigned char numTextures, char* rectangleVisibleFlags, const unsigned char* numRectangles )
+bool checkVisibleFlags( char* texVisibleFlags, const unsigned char numTextures, const char* isTransformed, char* rectangleVisibleFlags, const unsigned char* numRectangles )
 {
     unsigned short i = 0;
     bool result = false;
@@ -693,13 +693,15 @@ bool checkVisibleFlags( char* texVisibleFlags, const unsigned char numTextures, 
     for ( unsigned char idx_t = 0; idx_t < numTextures; idx_t++ )
     {
         b = handleVisibleFlag( texVisibleFlags, idx_t );
-        if ( ( idx_t == 0 ) && ( ( b == -1 ) || ( b == +2 ) ) )
+        //if ( ( idx_t == 0 ) && ( ( b == -1 ) || ( b == +2 ) ) )
+        if ( ( isTransformed[idx_t] == 0 ) && ( ( b == -1 ) || ( b == +2 ) ) )
             result = true;
         
         for ( unsigned char idx_r = 0; idx_r < numRectangles[idx_t]; idx_r++ )
         {
             b = handleVisibleFlag( rectangleVisibleFlags, i );
-            if ( ( idx_t == 0 ) && ( ( b == -1 ) || ( b == +2 ) ) )
+            //if ( ( idx_t == 0 ) && ( ( b == -1 ) || ( b == +2 ) ) )
+	        if ( ( isTransformed[idx_t] == 0 ) && ( ( b == -1 ) || ( b == +2 ) ) )
                 result = true;
             
             i++;
@@ -778,7 +780,7 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
     D3DXMatrixIdentity( &m_texMatrix );
     device->SetTransform( D3DTS_TEXTURE0, &m_texMatrix );
     
-    if ( checkVisibleFlags( texVisibleFlags, m_numSourceTextures, rectangleVisibleFlags, m_numRectangles ) || m_justBuilt )
+    if ( checkVisibleFlags( texVisibleFlags, m_numSourceTextures, isTransformed, rectangleVisibleFlags, m_numRectangles ) || m_justBuilt )
         updateVertexBuffer( vertexBuffer, texVisibleFlags, rectangleVisibleFlags, isTransformed );
     
     m_justBuilt = false;
@@ -884,7 +886,8 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
             numSubRects = 0;
             for ( idx_r = 0; idx_r < m_numRectangles[idx_t]; idx_r++ )
             {
-                if ( ( idx_t > 0 ) || ( texVis && ( rectangleVisibleFlags[r] > 0 ) ) )
+                //if ( ( idx_t > 0 ) || ( texVis && ( rectangleVisibleFlags[r] > 0 ) ) )
+                if ( ( isTransformed[idx_t] != 0 ) || ( texVis && ( rectangleVisibleFlags[r] > 0 ) ) )
                 {
                     numSubRects += m_numSubRects[idx_t][idx_r];
                 }

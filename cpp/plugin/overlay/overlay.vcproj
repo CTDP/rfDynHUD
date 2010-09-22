@@ -115,7 +115,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\common\Include&quot;;&quot;$(ProjectDir)\Include&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(WINSDK_DIR)\Include&quot;;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)\common\Include&quot;;&quot;$(ProjectDir)\Include&quot;;&quot;$(WINSDK_DIR)\Include&quot;;&quot;$(DXSDK2006_DIR)\Include&quot;;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -136,7 +136,7 @@
 				AdditionalDependencies="&quot;$(WINSDK_DIR)\Lib\user32.lib&quot; &quot;$(WINSDK_DIR)\Lib\Advapi32.lib&quot;"
 				OutputFile="$(OutDir)\d3d9.dll"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="&quot;$(WINSDK_DIR)\Lib&quot;;&quot;$(WINSDK_DIR)\Lib\x86&quot;;&quot;$(DXSDK_DIR)\Lib&quot;;&quot;$(DXSDK_DIR)\Lib\x86&quot;"
+				AdditionalLibraryDirectories="&quot;$(WINSDK_DIR)\Lib&quot;;&quot;$(WINSDK_DIR)\Lib\x86&quot;;&quot;$(DXSDK2006_DIR)\Lib&quot;;&quot;$(DXSDK2006_DIR)\Lib\x86&quot;"
 				ModuleDefinitionFile=".\d3d9.def"
 				TargetMachine="1"
 			/>
