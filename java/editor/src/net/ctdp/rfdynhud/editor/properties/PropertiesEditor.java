@@ -19,8 +19,8 @@ package net.ctdp.rfdynhud.editor.properties;
 
 import java.util.ArrayList;
 
+
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
-import net.ctdp.rfdynhud.editor.hiergrid.impl.GridItemsContainerImpl;
 import net.ctdp.rfdynhud.properties.Property;
 
 /**

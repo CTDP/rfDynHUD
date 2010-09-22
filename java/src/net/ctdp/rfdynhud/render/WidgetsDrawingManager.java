@@ -59,7 +59,8 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     {
         if ( oneTextureForAllWidgets )
         {
-            this.textures[0] = TransformableTexture.createMainTexture( gameResX, gameResY, false );
+            if ( ( textures[0].getWidth() != gameResX ) || ( textures[0].getHeight() != gameResY ) )
+                textures[0] = TransformableTexture.createMainTexture( gameResX, gameResY, false );
         }
         
         __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
@@ -755,7 +756,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      */
     public WidgetsDrawingManager( boolean isEditorMode, int gameResX, int gameResY, boolean createTexture )
     {
-        this.oneTextureForAllWidgets = true; //isEditorMode;
+        this.oneTextureForAllWidgets = isEditorMode;
         
         if ( createTexture )
         {

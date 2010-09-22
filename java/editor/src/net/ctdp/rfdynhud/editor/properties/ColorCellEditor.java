@@ -35,6 +35,7 @@ import net.ctdp.rfdynhud.properties.Property;
 
 import org.jagatoo.gui.awt_swing.util.ColorChooser;
 
+
 /**
  * 
  * @author Marvin Froehlich (CTDP)

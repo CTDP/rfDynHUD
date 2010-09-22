@@ -249,9 +249,16 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
             }
             
             int v0 = getView().ordinal();
-            for ( int i = 1; i < views.length; i++ )
+            for ( int i = 1; i < views.length + 1; i++ )
             {
-                StandingsView sv = views[( v0 + i ) % views.length];
+                int i_ = ( v0 + i ) % ( views.length + 1 );
+                if ( i_ == views.length )
+                {
+                    setInputVisible( false );
+                    return ( null );
+                }
+                
+                StandingsView sv = views[i_];
                 if ( checkView( isEditorMode, sv, sessionType ) )
                 {
                     setView( sv );

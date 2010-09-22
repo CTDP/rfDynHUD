@@ -27,6 +27,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
@@ -87,9 +88,7 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
-import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.Logger;
@@ -102,9 +101,11 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
+import org.jagatoo.gui.awt_swing.util.GUITools;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 import org.jagatoo.util.ini.IniWriter;
+
 
 /**
  * 
@@ -774,10 +775,10 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         
         if ( !resFound[0] )
         {
-            DisplayMode dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
+            Rectangle screenBounds = GUITools.getCurrentScreenBounds();
             
-            resolution[0] = dm.getWidth();
-            resolution[1] = dm.getHeight();
+            resolution[0] = screenBounds.width;
+            resolution[1] = screenBounds.height;
         }
         
         return ( resolution );
@@ -1405,12 +1406,12 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
     public void switchToGameResolution( int resX, int resY )
     {
         BufferedImage backgroundImage = loadBackgroundImage( resX, resY );
-        __GDPrivilegedAccess.setGameResolution( resX, resY, widgetsConfig );
-        __WCPrivilegedAccess.setViewport( 0, 0, resX, resY, widgetsConfig );
-        TransformableTexture overlayTexture = __RenderPrivilegedAccess.createMainTexture( resX, resY );
+        ( (WidgetsDrawingManager)widgetsConfig ).resizeMainTexture( resX, resY );
+        //__GDPrivilegedAccess.setGameResolution( resX, resY, widgetsConfig );
+        //__WCPrivilegedAccess.setViewport( 0, 0, resX, resY, widgetsConfig );
         
         editorPanel.setBackgroundImage( backgroundImage );
-        editorPanel.setOverlayTexture( overlayTexture.getTexture() );
+        editorPanel.setOverlayTexture( ( (WidgetsDrawingManager)widgetsConfig ).getMainTexture( 0 ) );
         editorPanel.setPreferredSize( new Dimension( resX, resY ) );
         editorPanel.setMaximumSize( new Dimension( resX, resY ) );
         editorPanel.setMinimumSize( new Dimension( resX, resY ) );
@@ -1802,18 +1803,17 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             
             final RFDynHUDEditor editor = new RFDynHUDEditor();
             
-            GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-            DisplayMode dm = graphDev.getDisplayMode();
+            Rectangle screenBounds = GUITools.getCurrentScreenBounds();
             
-            editor.getMainWindow().setSize( dm.getWidth(), dm.getHeight() );
+            editor.getMainWindow().setBounds( screenBounds );
             editor.getMainWindow().setExtendedState( JFrame.MAXIMIZED_BOTH );
             
             Object[] result = editor.loadUserSettings();
             
             if ( !(Boolean)result[0] )
             {
-                if ( editor.checkResolution( dm.getWidth(), dm.getHeight() ) )
-                    editor.switchToGameResolution( dm.getWidth(), dm.getHeight() );
+                if ( editor.checkResolution( screenBounds.width, screenBounds.height ) )
+                    editor.switchToGameResolution( screenBounds.width, screenBounds.height );
             }
             
             if ( editor.currentConfigFile == null )
@@ -1831,24 +1831,20 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             
             //editor.getEditorPanel().getWidgetsDrawingManager().collectTextures( true, editor.gameData );
             
-            editor.getEditorPanel().setBackgroundImage( editor.loadBackgroundImage( editor.gameResolution.getViewportWidth(), editor.gameResolution.getViewportHeight() ) );
+            if ( (Boolean)result[0] )
+                editor.getEditorPanel().setBackgroundImage( editor.loadBackgroundImage( editor.gameResolution.getViewportWidth(), editor.gameResolution.getViewportHeight() ) );
             
             editor.getMainWindow().addWindowListener( new WindowAdapter()
             {
-                private boolean shot = false;
-                
                 @Override
                 public void windowOpened( WindowEvent e )
                 {
-                    if ( shot )
-                        return;
+                    ( (JFrame)e.getSource() ).removeWindowListener( this );
                     
                     if ( editor.alwaysShowHelpOnStartup )
                     {
                         editor.alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( editor.window, true ).getAlwaysShowOnStartup();
                     }
-                    
-                    shot = true;
                 }
             } );
             

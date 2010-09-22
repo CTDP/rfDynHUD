@@ -20,8 +20,8 @@ package net.ctdp.rfdynhud.editor.properties;
 import java.io.PrintStream;
 import java.util.Stack;
 
+
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
-import net.ctdp.rfdynhud.editor.hiergrid.impl.GridItemsContainerImpl;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 

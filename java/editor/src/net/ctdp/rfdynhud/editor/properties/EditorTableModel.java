@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.editor.properties;
 
+
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;

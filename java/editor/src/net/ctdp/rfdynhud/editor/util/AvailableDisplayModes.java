@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.editor.util;
 
 import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,10 +29,34 @@ public class AvailableDisplayModes
     static
     {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        for ( DisplayMode dm : ge.getDefaultScreenDevice().getDisplayModes() )
+        for ( GraphicsDevice gd : ge.getScreenDevices() )
         {
-            if ( ( dm.getWidth() >= 800 ) && ( dm.getWidth() >= 600 ) && ( dm.getBitDepth() == 32 ) )
+            int n = 0;
+            for ( DisplayMode dm : gd.getDisplayModes() )
             {
+                if ( ( dm.getWidth() >= 800 ) && ( dm.getWidth() >= 600 ) && ( dm.getBitDepth() == 32 ) )
+                {
+                    String key = dm.getWidth() + "x" + dm.getHeight();
+                    
+                    DisplayMode dm2 = displayModes.get( key );
+                    if ( dm2 == null )
+                    {
+                        displayModes.put( key, dm );
+                    }
+                    else if ( dm.getRefreshRate() > dm2.getRefreshRate() )
+                    {
+                        displayModes.remove( key );
+                        displayModes.put( key, dm );
+                    }
+                    
+                    n++;
+                }
+            }
+            
+            if ( n == 0 )
+            {
+                DisplayMode dm = gd.getDisplayMode();
+                
                 String key = dm.getWidth() + "x" + dm.getHeight();
                 
                 DisplayMode dm2 = displayModes.get( key );
@@ -39,13 +64,10 @@ public class AvailableDisplayModes
                 {
                     displayModes.put( key, dm );
                 }
-                else
+                else if ( dm.getRefreshRate() > dm2.getRefreshRate() )
                 {
-                    if ( dm.getRefreshRate() > dm2.getRefreshRate() )
-                    {
-                        displayModes.remove( key );
-                        displayModes.put( key, dm );
-                    }
+                    displayModes.remove( key );
+                    displayModes.put( key, dm );
                 }
             }
         }

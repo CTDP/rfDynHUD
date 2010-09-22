@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.editor.properties;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.properties.Property;

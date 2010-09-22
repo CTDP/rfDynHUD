@@ -1191,15 +1191,15 @@ public class VehiclePhysics
             
             /**
              * @param belowTempC TBC "GripTempPress" value 1
-             * @param aboveTemp TBC "GripTempPress" value 2
+             * @param aboveTempC TBC "GripTempPress" value 2
              * @param offPress TBC "GripTempPress" value 3
              */
-            void setAboveAndBelowTempsAndPressures( float belowTempC, float aboveTemp, float offPress )
+            void setAboveAndBelowTempsAndPressures( float belowTempC, float aboveTempC, float offPress )
             {
                 float recipOptimumTemperature = ( optimumTemperature != 0.0f ) ? ( 1.0f / optimumTemperature ) : 0.0f;
                 
                 this.gripLossPerDegreeBelowOptimum = belowTempC * recipOptimumTemperature;
-                this.gripLossPerDegreeAboveOptimum = aboveTemp * recipOptimumTemperature;
+                this.gripLossPerDegreeAboveOptimum = aboveTempC * recipOptimumTemperature;
                 
                 this.offPressure = offPress;
             }
@@ -1365,12 +1365,12 @@ public class VehiclePhysics
             {
                 float diffTemp = avgTemperatureC - optimumTemperature;
                 
-                return ( ( diffTemp < 0.0f ) ? ( gripLossPerDegreeBelowOptimum * -diffTemp ) : ( gripLossPerDegreeAboveOptimum * diffTemp ) );
+                return ( 1.0f - ( ( diffTemp < 0.0f ) ? ( gripLossPerDegreeBelowOptimum * -diffTemp ) : ( gripLossPerDegreeAboveOptimum * diffTemp ) ) );
             }
             
             /**
-             * @param optPress TBC "OptimuPressure" field 1
-             * @param mult TBC "OptimuPressure" field 2
+             * @param optPress TBC "OptimumPressure" field 1
+             * @param mult TBC "OptimumPressure" field 2
              */
             void setOptimumPressure( float optPress, float mult )
             {
@@ -1972,5 +1972,16 @@ public class VehiclePhysics
     {
         // We initialize with factory defaults, so that in case of parsing errors we at least have "some" values.
         loadDefaults();
+    }
+    
+    public static void main( String[] args )
+    {
+        VehiclePhysics vp = new VehiclePhysics();
+        TireCompound tc = vp.getTireCompound( 0 );
+        TireCompound.CompoundWheel cw = tc.getWheel( Wheel.FRONT_LEFT );
+        
+        cw.optimumTemperature = 100f;
+        cw.setAboveAndBelowTempsAndPressures( 1f, 1f, 0f );
+        System.out.println( tc.getWheel( Wheel.FRONT_LEFT ).getGripFactorByTemperatureC( 500 ) );
     }
 }
