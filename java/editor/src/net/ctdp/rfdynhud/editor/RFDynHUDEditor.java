@@ -1034,17 +1034,34 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         return ( templateConfigFile );
     }
     
+    private void clearWidetRegions()
+    {
+        int n = widgetsConfig.getNumWidgets();
+        for ( int i = 0; i < n; i++ )
+        {
+            Widget widget = widgetsConfig.getWidget( i );
+            
+            widget.clearRegion( getOverlayTexture(), widget.getPosition().getEffectiveX(), widget.getPosition().getEffectiveY() );
+        }
+    }
+    
+    private void loadFallbackConfig() throws IOException
+    {
+        clearWidetRegions();
+        
+        __WCPrivilegedAccess.clear( widgetsConfig, gameData, true, null );
+        __UtilPrivilegedAccess.loadFactoryDefaults( new ConfigurationLoader(), widgetsConfig, gameData, true, null );
+        
+        getOverlayTexture().clear( true, null );
+        onWidgetSelected( null, false );
+        getEditorPanel().repaint();
+    }
+    
     public void openConfig( File configFile )
     {
         try
         {
-            int n = widgetsConfig.getNumWidgets();
-            for ( int i = 0; i < n; i++ )
-            {
-                Widget widget = widgetsConfig.getWidget( i );
-                
-                widget.clearRegion( getOverlayTexture(), widget.getPosition().getEffectiveX(), widget.getPosition().getEffectiveY() );
-            }
+            clearWidetRegions();
             
             __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), configFile, widgetsConfig, gameData, true, null );
             
@@ -1824,7 +1841,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
                 if ( configFile.exists() )
                     editor.openConfig( configFile );
                 else
-                    __UtilPrivilegedAccess.loadFactoryDefaults( new ConfigurationLoader(), editor.widgetsConfig, editor.gameData, true, null );
+                    editor.loadFallbackConfig();
             }
             
             editor.eventsManager.onRealtimeEntered( true );

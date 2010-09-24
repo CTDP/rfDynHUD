@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.util;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Stack;
 
@@ -31,6 +30,7 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
+import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
@@ -460,12 +460,27 @@ public class ConfigurationLoader implements PropertyLoader
         return ( null );
     }
     
+    /**
+     * 
+     * @param widgetsConfig
+     * @param gameData
+     * @param isEditorMode
+     * @param loadListener
+     * @throws IOException
+     */
     void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
     {
         Logger.log( "Loading factory default configuration." );
         
-        __loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, isEditorMode, loadListener );
+        //__loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, isEditorMode, loadListener );
         
+        net.ctdp.rfdynhud.widgets.hidden.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.hidden.internal.InternalWidget();
+        internalWidget.setMessage( "Couldn't find any overlay file." );
+        __WCPrivilegedAccess.addWidget( widgetsConfig, internalWidget, true );
+        internalWidget.getPosition().setEffectivePosition( RelativePositioning.TOP_CENTER, ( widgetsConfig.getGameResolution().getViewportWidth() - internalWidget.getEffectiveWidth() ) / 2, 200 );
+        
+        __WCPrivilegedAccess.sortWidgets( widgetsConfig );
+        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode, loadListener );
         __WCPrivilegedAccess.setValid( widgetsConfig, true );
         
         currentlyLoadedConfigFile = null;

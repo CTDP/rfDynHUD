@@ -387,14 +387,27 @@ public class EditorMenuBar extends JMenuBar
         return ( m );
     }
     
-    @SuppressWarnings( "unchecked" )
-    private JMenu createWidgetsMenu( LiveGameData gameData )
+    private static List<Class<?>> findWidgetClasses()
     {
-        JMenu menu = new JMenu( "Widgets" );
-        menu.setDisplayedMnemonicIndex( 0 );
-        
         List<String> packages = PackageSearcher.findPackages( "*widgets*" );
+        ArrayList<String> tmp = new ArrayList<String>();
+        
+        for ( String pkg : packages )
+        {
+            if ( !pkg.startsWith( "net.ctdp.rfdynhud.widgets.hidden" ) )
+                tmp.add( pkg );
+        }
+        packages = tmp;
+        
         List<Class<?>> classes = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ), packages.toArray( new String[ packages.size() ] ) );
+        ArrayList<Class<?>> tmp2 = new ArrayList<Class<?>>();
+        
+        for ( Class<?> c : classes )
+        {
+            if ( !c.getPackage().getName().startsWith( "net.ctdp.rfdynhud.widgets.hidden" ) )
+                tmp2.add( c );
+        }
+        classes = tmp2;
         
         Collections.sort( classes, new Comparator< Class<?> >()
         {
@@ -404,6 +417,17 @@ public class EditorMenuBar extends JMenuBar
                 return ( String.CASE_INSENSITIVE_ORDER.compare( o1.getSimpleName(), o2.getSimpleName() ) );
             }
         } );
+        
+        return ( classes );
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    private JMenu createWidgetsMenu( LiveGameData gameData )
+    {
+        JMenu menu = new JMenu( "Widgets" );
+        menu.setDisplayedMnemonicIndex( 0 );
+        
+        List<Class<?>> classes = findWidgetClasses();
         
         HashMap<Class<?>, Widget> instances = new HashMap<Class<?>, Widget>();
         /*

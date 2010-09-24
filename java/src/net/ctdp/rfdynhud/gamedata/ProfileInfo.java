@@ -195,6 +195,7 @@ public class ProfileInfo
                     {
                         if ( key.equalsIgnoreCase( "Game Description" ) )
                         {
+                            value = value.trim();
                             if ( value.toLowerCase().endsWith( ".rfm" ) )
                                 modName = value.substring( 0, value.length() - 4 );
                             else
