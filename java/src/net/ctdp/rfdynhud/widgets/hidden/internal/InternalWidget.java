@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.widgets.hidden.internal;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -62,6 +63,11 @@ public class InternalWidget extends Widget
         {
             ds.draw( offsetX, offsetY, message, texture );
         }
+    }
+    
+    @Override
+    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
     }
     
     public InternalWidget()
