@@ -50,7 +50,7 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
 {
     private static final long serialVersionUID = -7356477183079086811L;
     
-    private static final Dimension COLOR_CHOOSER_SIZE = new Dimension( 416, 308 );
+    private static final Dimension COLOR_CHOOSER_SIZE = new Dimension( 416, 341 );
     
     private final ColorChooser colorChooser;
     private final ImageSelector imageSelector;

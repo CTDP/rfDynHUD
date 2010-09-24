@@ -26,12 +26,14 @@ import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
@@ -39,6 +41,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -59,6 +63,12 @@ public class ColorChooser extends JPanel
     private JDialog dialog = null;
     
     private String startColor = null;
+    
+    private JRadioButton rdoUnnamed = null;
+    private JRadioButton rdoNamed = null;
+    private boolean colorNameSelected = false;
+    
+    private boolean updatingText = false;
     
     private class ComponentSelector extends JPanel
     {
@@ -93,6 +103,9 @@ public class ColorChooser extends JPanel
                 @Override
                 public void stateChanged( ChangeEvent e )
                 {
+                    if ( updatingText )
+                        return;
+                    
                     textField.setText( String.valueOf( slider.getValue() ) );
                     ColorChooser.this.updateSelectedColorFromSelectors();
                 }
@@ -103,6 +116,9 @@ public class ColorChooser extends JPanel
                 @Override
                 public void actionPerformed( ActionEvent e )
                 {
+                    if ( updatingText )
+                        return;
+                    
                     try
                     {
                         setValue( Integer.parseInt( textField.getText() ) );
@@ -180,10 +196,12 @@ public class ColorChooser extends JPanel
             
             sampleColor.setBackground( new Color( color.getRed(), color.getGreen(), color.getBlue() ) );
             
-            if ( setResult )
-                hexValue.setText( ColorUtils.colorToHex( color ) );
+            String hex = ColorUtils.colorToHex( color );
             
-            this.selectedColor = ColorUtils.colorToHex( color );
+            if ( setResult )
+                hexValue.setText( hex );
+            
+            this.selectedColor = hex;
         }
         else
         {
@@ -201,8 +219,8 @@ public class ColorChooser extends JPanel
     public void setSelectedColorFromKey( String colorKey, WidgetsConfiguration widgetsConfig )
     {
         Color color = widgetsConfig.getNamedColor( colorKey );
-        boolean isName = ( color != null );
-        if ( isName )
+        colorNameSelected = ( color != null );
+        if ( colorNameSelected )
         {
             refillNameCombo( widgetsConfig, combo, colorKey );
             if ( colorKey == null )
@@ -219,6 +237,11 @@ public class ColorChooser extends JPanel
         
         setSelectedColor( color );
         
+        if ( colorNameSelected )
+            rdoNamed.doClick();
+        else
+            rdoUnnamed.doClick();
+        
         valueChanged = false;
     }
     
@@ -234,7 +257,8 @@ public class ColorChooser extends JPanel
     
     public final String getSelectedColorName()
     {
-        if ( combo.getSelectedIndex() == 0 )
+        //if ( combo.getSelectedIndex() == 0 )
+        if ( !colorNameSelected )
             return ( null );
         
         return ( (String)combo.getSelectedItem() );
@@ -276,7 +300,7 @@ public class ColorChooser extends JPanel
         Arrays.sort( namesCache, String.CASE_INSENSITIVE_ORDER );
         
         combo.removeAllItems();
-        combo.addItem( "<NONE>" );
+        //combo.addItem( "<NONE>" );
         for ( String s : namesCache )
         {
             combo.addItem( s );
@@ -287,7 +311,8 @@ public class ColorChooser extends JPanel
             nameSelectionIgnored = true;
             combo.setEditable( false );
             combo.setSelectedItem( selectedItem );
-            combo.setEditable( combo.getSelectedIndex() > 0 );
+            //combo.setEditable( combo.getSelectedIndex() > 0 );
+            combo.setEditable( true );
             nameSelectionIgnored = false;
             lastNameComboSelectedIndex = combo.getSelectedIndex();
         }
@@ -333,7 +358,8 @@ public class ColorChooser extends JPanel
     
     private void checkNameComboValue( int selIndex, String newValue, WidgetsConfiguration widgetsConfig )
     {
-        String oldValue = namesCache[selIndex - 1];
+        //String oldValue = namesCache[selIndex - 1];
+        String oldValue = namesCache[selIndex];
         
         if ( !oldValue.equals( newValue ) )
         {
@@ -413,14 +439,57 @@ public class ColorChooser extends JPanel
         return ( valueChanged );
     }
     
+    private void applyColorFromNameCombo( WidgetsConfiguration widgetsConfig, JButton remove )
+    {
+        /*
+        if ( combo.getSelectedIndex() == 0 )
+        {
+            setSelectedColor( ColorUtils.hexToColor( composeSelectedColor() ) );
+        }
+        else */if ( combo.getSelectedIndex() >= 0 )
+        {
+            //String colorName = (String)e.getItem();
+            String colorName = (String)combo.getSelectedItem();
+            
+            Color color = widgetsConfig.getNamedColor( colorName );
+            
+            setSelectedColor( color );
+        }
+        
+        if ( combo.getSelectedIndex() >= 0 )
+        {
+            lastNameComboSelectedIndex = combo.getSelectedIndex();
+        }
+        
+        //remove.setEnabled( combo.getSelectedIndex() > 0 );
+        remove.setEnabled( combo.getSelectedIndex() >= 0 );
+    }
+    
     protected JPanel createNamedColorSelector( String currentNamedColor, final WidgetsConfiguration widgetsConfig )
     {
         JPanel panel = new JPanel( new BorderLayout() );
         
+        JPanel wrapper0 = new JPanel( new BorderLayout() );
+        
         JPanel wrapper = new JPanel( new BorderLayout() );
-        wrapper.setBorder( new EmptyBorder( 0, 5, 5, 5 ) );
+        wrapper.setBorder( new EmptyBorder( 0, 0, 5, 5 ) );
         
         JPanel west = new JPanel( new BorderLayout() );
+        ButtonGroup namedUnnamed = new ButtonGroup();
+        
+        JPanel unnamed = new JPanel( new BorderLayout() );
+        rdoUnnamed = new JRadioButton();
+        namedUnnamed.add( rdoUnnamed );
+        final JLabel lblUnnamed = new JLabel( "<html>No named color.<br>Use this to define a color for this property only.<br>A named color would apply to every property, that uses it.</html>" );
+        lblUnnamed.setBorder( new EmptyBorder( 0, 0, 5, 0 ) );
+        unnamed.add( lblUnnamed, BorderLayout.CENTER );
+        unnamed.add( rdoUnnamed, BorderLayout.WEST );
+        
+        wrapper0.add( unnamed, BorderLayout.NORTH );
+        
+        rdoNamed = new JRadioButton();
+        namedUnnamed.add( rdoNamed );
+        west.add( rdoNamed, BorderLayout.WEST );
         
         final JButton remove = new JButton( "remove" );
         
@@ -429,7 +498,8 @@ public class ColorChooser extends JPanel
         if ( currentNamedColor == null )
             combo.setSelectedIndex( 0 );
         lastNameComboSelectedIndex = combo.getSelectedIndex();
-        combo.setEditable( combo.getSelectedItem().equals( currentNamedColor ) );
+        //combo.setEditable( combo.getSelectedItem().equals( currentNamedColor ) );
+        combo.setEditable( true );
         combo.addItemListener( new ItemListener()
         {
             //private int revertIndex = -1;
@@ -443,35 +513,18 @@ public class ColorChooser extends JPanel
                 switch ( e.getStateChange() )
                 {
                     case ItemEvent.DESELECTED:
-                        if ( lastNameComboSelectedIndex > 0 )
+                        //if ( lastNameComboSelectedIndex > 0 )
                         {
                             applyNamedColor( String.valueOf( e.getItem() ), ColorUtils.hexToColor( composeSelectedColor() ), widgetsConfig );
                         }
                         break;
                     case ItemEvent.SELECTED:
-                        if ( combo.getSelectedIndex() == 0 )
-                        {
-                            setSelectedColor( ColorUtils.hexToColor( composeSelectedColor() ) );
-                        }
-                        else if ( combo.getSelectedIndex() > 0 )
-                        {
-                            String colorName = (String)e.getItem();
-                            
-                            Color color = widgetsConfig.getNamedColor( colorName );
-                            
-                            setSelectedColor( color );
-                        }
-                        
-                        if ( combo.getSelectedIndex() >= 0 )
-                        {
-                            lastNameComboSelectedIndex = combo.getSelectedIndex();
-                        }
-                        
-                        remove.setEnabled( combo.getSelectedIndex() > 0 );
+                        applyColorFromNameCombo( widgetsConfig, remove );
                         break;
                 }
                 
-                combo.setEditable( combo.getSelectedIndex() != 0 );
+                //combo.setEditable( combo.getSelectedIndex() != 0 );
+                combo.setEditable( true );
             }
         } );
         combo.addPopupMenuListener( new PopupMenuListener()
@@ -487,7 +540,8 @@ public class ColorChooser extends JPanel
                     lastNameComboSelectedIndex = combo.getSelectedIndex();
                 }
                 
-                if ( combo.getSelectedIndex() > 0 )
+                //if ( combo.getSelectedIndex() > 0 )
+                if ( combo.getSelectedIndex() >= 0 )
                 {
                     checkNameComboValue( lastNameComboSelectedIndex, String.valueOf( combo.getEditor().getItem() ), widgetsConfig );
                 }
@@ -510,7 +564,7 @@ public class ColorChooser extends JPanel
             {
                 if ( ( e.getKeyChar() == 10 ) || ( e.getKeyChar() == 13 ) ) // Enter
                 {
-                    if ( lastNameComboSelectedIndex > 0 )
+                    //if ( lastNameComboSelectedIndex > 0 )
                         checkNameComboValue( lastNameComboSelectedIndex, String.valueOf( combo.getEditor().getItem() ), widgetsConfig );
                 }
             }
@@ -520,14 +574,15 @@ public class ColorChooser extends JPanel
             @Override
             public void focusLost( FocusEvent e )
             {
-                if ( lastNameComboSelectedIndex > 0 )
+                //if ( lastNameComboSelectedIndex > 0 )
                     checkNameComboValue( lastNameComboSelectedIndex, String.valueOf( combo.getEditor().getItem() ), widgetsConfig );
                 
                 lastNameComboSelectedIndex = combo.getSelectedIndex();
             }
         } );
         
-        west.add( combo, BorderLayout.NORTH );
+        west.add( combo, BorderLayout.CENTER );
+        
         wrapper.add( west, BorderLayout.CENTER );
         
         final JPanel east = new JPanel( new BorderLayout( 5, 0 ) );
@@ -569,18 +624,23 @@ public class ColorChooser extends JPanel
                 
                 applyNamedColor( newName, ColorUtils.hexToColor( composeSelectedColor() ), widgetsConfig );
                 refillNameCombo( widgetsConfig, combo, newName );
-                remove.setEnabled( combo.getSelectedIndex() > 0 );
+                //remove.setEnabled( combo.getSelectedIndex() > 0 );
+                remove.setEnabled( combo.getSelectedIndex() >= 0 );
             }
         } );
         
-        remove.setEnabled( combo.getSelectedIndex() > 0 );
+        //remove.setEnabled( combo.getSelectedIndex() > 0 );
+        remove.setEnabled( combo.getSelectedIndex() >= 0 );
         
         remove.addActionListener( new ActionListener()
         {
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                if ( combo.getSelectedIndex() < 1 )
+                int selIndex = combo.getSelectedIndex();
+                
+                //if ( selIndex < 1 )
+                if ( selIndex < 0 )
                     return;
                 
                 Window window = (Window)east.getRootPane().getParent();
@@ -594,9 +654,12 @@ public class ColorChooser extends JPanel
                 
                 nameSelectionIgnored = true;
                 combo.setEditable( false );
-                combo.setSelectedIndex( 0 );
+                if ( combo.getItemCount() > 0 )
+                    combo.setSelectedIndex( Math.min( selIndex, combo.getItemCount() - 1 ) );
+                combo.setEditable( true );
                 nameSelectionIgnored = false;
                 lastNameComboSelectedIndex = combo.getSelectedIndex();
+                applyColorFromNameCombo( widgetsConfig, remove );
             }
         } );
         
@@ -604,7 +667,50 @@ public class ColorChooser extends JPanel
         
         panel.setBorder( new TitledBorder( "Named Color selection" ) );
         
-        panel.add( wrapper );
+        wrapper0.add( wrapper, BorderLayout.SOUTH );
+        
+        panel.add( wrapper0 );
+        
+        rdoUnnamed.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                colorNameSelected = false;
+                
+                lblUnnamed.setEnabled( true );
+                lblUnnamed.setForeground( Color.BLACK );
+                combo.setEnabled( false );
+                add.setEnabled( false );
+                remove.setEnabled( false );
+                
+                setSelectedColor( ColorUtils.hexToColor( composeSelectedColor() ) );
+            }
+        } );
+        
+        rdoNamed.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                colorNameSelected = true;
+                
+                lblUnnamed.setEnabled( false );
+                lblUnnamed.setForeground( Color.LIGHT_GRAY );
+                combo.setEnabled( true );
+                add.setEnabled( true );
+                remove.setEnabled( true );
+                
+                if ( combo.getSelectedIndex() >= 0 )
+                {
+                    String colorName = (String)combo.getSelectedItem();
+                    
+                    Color color = widgetsConfig.getNamedColor( colorName );
+                    
+                    setSelectedColor( color );
+                }
+            }
+        } );
         
         return ( panel );
     }
@@ -725,7 +831,7 @@ public class ColorChooser extends JPanel
             {
                 super.paintComponent( g );
                 
-                drawColorTriangle( ColorUtils.hexToColor( selectedColor ), (Graphics2D)g, 5, 5, getWidth() - 10, getHeight() - 10 );
+                drawColorTriangle( ColorUtils.hexToColor( getSelectedColor() ), (Graphics2D)g, 5, 5, getWidth() - 10, getHeight() - 10 );
             }
         };
         
@@ -746,6 +852,21 @@ public class ColorChooser extends JPanel
         panel.setMaximumSize( new Dimension( 150, Integer.MAX_VALUE ) );
         
         return ( panel );
+    }
+    
+    protected void onHexValueChanged()
+    {
+        updatingText = true;
+        
+        try
+        {
+            setSelectedColor( ColorUtils.hexToColor( hexValue.getText() ), false );
+        }
+        catch ( Throwable t )
+        {
+        }
+        
+        updatingText = false;
     }
     
     protected JPanel createEastPanel( Color startColor )
@@ -785,18 +906,24 @@ public class ColorChooser extends JPanel
         hexCaption.setMaximumSize( new Dimension( 40, 20 ) );
         hexValue = new JTextField();
         
-        hexValue.addKeyListener( new KeyAdapter()
+        hexValue.getDocument().addDocumentListener( new DocumentListener()
         {
             @Override
-            public void keyPressed( KeyEvent e )
+            public void removeUpdate( DocumentEvent e )
             {
-                try
-                {
-                    setSelectedColor( ColorUtils.hexToColor( hexValue.getText() ), false );
-                }
-                catch ( Throwable t )
-                {
-                }
+                onHexValueChanged();
+            }
+            
+            @Override
+            public void insertUpdate( DocumentEvent e )
+            {
+                onHexValueChanged();
+            }
+            
+            @Override
+            public void changedUpdate( DocumentEvent e )
+            {
+                onHexValueChanged();
             }
         } );
         
@@ -926,15 +1053,15 @@ public class ColorChooser extends JPanel
         JPanel main = new JPanel( new BorderLayout( 0, 5 ) );
         
         Color color = widgetsConfig.getNamedColor( startColor );
-        boolean isName = ( color != null );
-        if ( !isName )
+        colorNameSelected = ( color != null );
+        if ( !colorNameSelected )
         {
             color = ColorUtils.hexToColor( startColor, false );
             if ( color == null )
                 color = ColorProperty.FALLBACK_COLOR;
         }
         
-        main.add( createNamedColorSelector( isName ? startColor : null, widgetsConfig ), BorderLayout.NORTH );
+        main.add( createNamedColorSelector( colorNameSelected ? startColor : null, widgetsConfig ), BorderLayout.NORTH );
         
         main.add( createWestPanel( color ), BorderLayout.WEST );
         main.add( createEastPanel( color ), BorderLayout.CENTER );

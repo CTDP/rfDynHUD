@@ -30,6 +30,7 @@
 package org.jagatoo.gui.awt_swing.util;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -50,6 +51,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -58,6 +60,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
@@ -84,6 +87,8 @@ public class FontChooser extends JPanel
 {
     private static final long serialVersionUID = 9197134250358596790L;
     
+    private JRadioButton rdoUnnamed = null;
+    private JRadioButton rdoNamed = null;
     private JComboBox combo;
     private int lastNameComboSelectedIndex = -1;
     private String[] namesCache;
@@ -95,6 +100,7 @@ public class FontChooser extends JPanel
     private JCheckBox antiAliasedBox;
     private JLabel sampleLabel;
     private String selectedFont;
+    private boolean fontNameSelected = false;
     private boolean valueChanged = false;
     
     private JDialog dialog = null;
@@ -153,8 +159,8 @@ public class FontChooser extends JPanel
     public void setSelectedFontFromKey( String fontKey, WidgetsConfiguration widgetsConfig )
     {
         Font font = widgetsConfig.getNamedFont( fontKey );
-        boolean isName = ( font != null );
-        if ( isName )
+        fontNameSelected = ( font != null );
+        if ( fontNameSelected )
         {
             refillNameCombo( widgetsConfig, combo, fontKey );
             if ( fontKey == null )
@@ -169,6 +175,11 @@ public class FontChooser extends JPanel
         }
         
         applySelectedFont( fontKey, widgetsConfig.getGameResolution().getViewportHeight() );
+        
+        if ( fontNameSelected )
+            rdoNamed.doClick();
+        else
+            rdoUnnamed.doClick();
         
         valueChanged = false;
     }
@@ -185,7 +196,8 @@ public class FontChooser extends JPanel
     
     public final String getSelectedFontName()
     {
-        if ( combo.getSelectedIndex() == 0 )
+        //if ( combo.getSelectedIndex() == 0 )
+        if ( !fontNameSelected )
             return ( null );
         
         return ( (String)combo.getSelectedItem() );
@@ -258,7 +270,7 @@ public class FontChooser extends JPanel
         Arrays.sort( namesCache, String.CASE_INSENSITIVE_ORDER );
         
         combo.removeAllItems();
-        combo.addItem( "<NONE>" );
+        //combo.addItem( "<NONE>" );
         for ( String s : namesCache )
         {
             combo.addItem( s );
@@ -269,7 +281,8 @@ public class FontChooser extends JPanel
             nameSelectionIgnored = true;
             combo.setEditable( false );
             combo.setSelectedItem( selectedItem );
-            combo.setEditable( combo.getSelectedIndex() > 0 );
+            //combo.setEditable( combo.getSelectedIndex() > 0 );
+            combo.setEditable( true );
             nameSelectionIgnored = false;
             lastNameComboSelectedIndex = combo.getSelectedIndex();
         }
@@ -310,8 +323,8 @@ public class FontChooser extends JPanel
     
     private void checkNameComboValue( int selIndex, String newValue, WidgetsConfiguration widgetsConfig )
     {
-        //Thread.dumpStack();
-        String oldValue = namesCache[selIndex - 1];
+        //String oldValue = namesCache[selIndex - 1];
+        String oldValue = namesCache[selIndex];
         
         //System.out.println( oldValue + ", " + newValue );
         if ( !oldValue.equals( newValue ) )
@@ -369,14 +382,70 @@ public class FontChooser extends JPanel
         return ( false );
     }
     
+    private void applyFontFromNameCombo( WidgetsConfiguration widgetsConfig, JButton remove )
+    {
+        /*
+        if ( combo.getSelectedIndex() == 0 )
+        {
+            setSelectedFont( composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
+        }
+        else */if ( combo.getSelectedIndex() >= 0 )
+        {
+            //String fontName = (String)e.getItem();
+            String fontName = (String)combo.getSelectedItem();
+            
+            String fontStr = widgetsConfig.getNamedFontString( fontName );
+            
+            applySelectedFont( fontStr, widgetsConfig.getGameResolution().getViewportHeight() );
+            setSelectedFont( fontStr, widgetsConfig.getGameResolution().getViewportHeight() );
+        }
+        
+        /*
+        if ( revertIndex >= 0 )
+        {
+            int index = revertIndex;
+            revertIndex = -1;
+            combo.setSelectedIndex( index );
+            System.out.println( combo.getEditor().getEditorComponent() );
+            if ( index > 0 )
+                combo.getEditor().setItem( lastNameComboEditorValue );
+        }
+        */
+        
+        if ( combo.getSelectedIndex() >= 0 )
+        {
+            lastNameComboSelectedIndex = combo.getSelectedIndex();
+        }
+        
+        //remove.setEnabled( combo.getSelectedIndex() > 0 );
+        remove.setEnabled( combo.getSelectedIndex() >= 0 );
+    }
+    
     protected JPanel createNamedFontSelector( String currentNamedFont, final WidgetsConfiguration widgetsConfig )
     {
         JPanel panel = new JPanel( new BorderLayout() );
         
+        JPanel wrapper0 = new JPanel( new BorderLayout() );
+        
         JPanel wrapper = new JPanel( new BorderLayout() );
-        wrapper.setBorder( new EmptyBorder( 0, 5, 5, 5 ) );
+        wrapper.setBorder( new EmptyBorder( 0, 0, 5, 5 ) );
         
         JPanel west = new JPanel( new BorderLayout() );
+        ButtonGroup namedUnnamed = new ButtonGroup();
+        
+        JPanel unnamed = new JPanel( new BorderLayout() );
+        rdoUnnamed = new JRadioButton();
+        namedUnnamed.add( rdoUnnamed );
+        final JLabel lblUnnamed = new JLabel( "<html>No named font.<br>Use this to define a font for this property only.<br>A named font would apply to every property, that uses it.</html>" );
+        lblUnnamed.setBorder( new EmptyBorder( 0, 0, 5, 0 ) );
+        unnamed.add( lblUnnamed, BorderLayout.CENTER );
+        unnamed.add( rdoUnnamed, BorderLayout.WEST );
+        
+        wrapper0.add( unnamed, BorderLayout.NORTH );
+        
+        rdoNamed = new JRadioButton();
+        namedUnnamed.add( rdoNamed );
+        west.add( rdoNamed, BorderLayout.WEST );
         
         final JButton remove = new JButton( "remove" );
         
@@ -385,7 +454,8 @@ public class FontChooser extends JPanel
         if ( currentNamedFont == null )
             combo.setSelectedIndex( 0 );
         lastNameComboSelectedIndex = combo.getSelectedIndex();
-        combo.setEditable( combo.getSelectedItem().equals( currentNamedFont ) );
+        //combo.setEditable( combo.getSelectedItem().equals( currentNamedFont ) );
+        combo.setEditable( true );
         combo.addItemListener( new ItemListener()
         {
             //private int revertIndex = -1;
@@ -399,7 +469,7 @@ public class FontChooser extends JPanel
                 switch ( e.getStateChange() )
                 {
                     case ItemEvent.DESELECTED:
-                        if ( lastNameComboSelectedIndex > 0 )
+                        //if ( lastNameComboSelectedIndex > 0 )
                         {
                             applyNamedFont( String.valueOf( e.getItem() ), composeSelectedFont(), widgetsConfig );
                         }
@@ -412,42 +482,12 @@ public class FontChooser extends JPanel
                         */
                         break;
                     case ItemEvent.SELECTED:
-                        if ( combo.getSelectedIndex() == 0 )
-                        {
-                            setSelectedFont( composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
-                        }
-                        else if ( combo.getSelectedIndex() > 0 )
-                        {
-                            String fontName = (String)e.getItem();
-                            
-                            String fontStr = widgetsConfig.getNamedFontString( fontName );
-                            
-                            applySelectedFont( fontStr, widgetsConfig.getGameResolution().getViewportHeight() );
-                            setSelectedFont( fontStr, widgetsConfig.getGameResolution().getViewportHeight() );
-                        }
-                        
-                        /*
-                        if ( revertIndex >= 0 )
-                        {
-                            int index = revertIndex;
-                            revertIndex = -1;
-                            combo.setSelectedIndex( index );
-                            System.out.println( combo.getEditor().getEditorComponent() );
-                            if ( index > 0 )
-                                combo.getEditor().setItem( lastNameComboEditorValue );
-                        }
-                        */
-                        
-                        if ( combo.getSelectedIndex() >= 0 )
-                        {
-                            lastNameComboSelectedIndex = combo.getSelectedIndex();
-                        }
-                        
-                        remove.setEnabled( combo.getSelectedIndex() > 0 );
+                        applyFontFromNameCombo( widgetsConfig, remove );
                         break;
                 }
                 
-                combo.setEditable( combo.getSelectedIndex() != 0 );
+                //combo.setEditable( combo.getSelectedIndex() != 0 );
+                combo.setEditable( true );
             }
         } );
         combo.addPopupMenuListener( new PopupMenuListener()
@@ -463,7 +503,8 @@ public class FontChooser extends JPanel
                     lastNameComboSelectedIndex = combo.getSelectedIndex();
                 }
                 
-                if ( combo.getSelectedIndex() > 0 )
+                //if ( combo.getSelectedIndex() > 0 )
+                if ( combo.getSelectedIndex() >= 0 )
                 {
                     checkNameComboValue( lastNameComboSelectedIndex, String.valueOf( combo.getEditor().getItem() ), widgetsConfig );
                 }
@@ -496,14 +537,15 @@ public class FontChooser extends JPanel
             @Override
             public void focusLost( FocusEvent e )
             {
-                if ( lastNameComboSelectedIndex > 0 )
+                //if ( lastNameComboSelectedIndex > 0 )
                     checkNameComboValue( lastNameComboSelectedIndex, String.valueOf( combo.getEditor().getItem() ), widgetsConfig );
                 
                 lastNameComboSelectedIndex = combo.getSelectedIndex();
             }
         } );
         
-        west.add( combo, BorderLayout.NORTH );
+        west.add( combo, BorderLayout.CENTER );
+        
         wrapper.add( west, BorderLayout.CENTER );
         
         final JPanel east = new JPanel( new BorderLayout( 5, 0 ) );
@@ -545,18 +587,23 @@ public class FontChooser extends JPanel
                 
                 applyNamedFont( newName, getSelectedFont(), widgetsConfig );
                 refillNameCombo( widgetsConfig, combo, newName );
-                remove.setEnabled( combo.getSelectedIndex() > 0 );
+                //remove.setEnabled( combo.getSelectedIndex() > 0 );
+                remove.setEnabled( combo.getSelectedIndex() >= 0 );
             }
         } );
         
-        remove.setEnabled( combo.getSelectedIndex() > 0 );
+        //remove.setEnabled( combo.getSelectedIndex() > 0 );
+        remove.setEnabled( combo.getSelectedIndex() >= 0 );
         
         remove.addActionListener( new ActionListener()
         {
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                if ( combo.getSelectedIndex() < 1 )
+                int selIndex = combo.getSelectedIndex();
+                
+                //if ( selIndex < 1 )
+                if ( selIndex < 0 )
                     return;
                 
                 Window window = (Window)east.getRootPane().getParent();
@@ -570,9 +617,11 @@ public class FontChooser extends JPanel
                 
                 nameSelectionIgnored = true;
                 combo.setEditable( false );
-                combo.setSelectedIndex( 0 );
+                if ( combo.getItemCount() > 0 )
+                    combo.setSelectedIndex( Math.min( selIndex, combo.getItemCount() - 1 ) );
                 nameSelectionIgnored = false;
                 lastNameComboSelectedIndex = combo.getSelectedIndex();
+                applyFontFromNameCombo( widgetsConfig, remove );
             }
         } );
         
@@ -580,7 +629,51 @@ public class FontChooser extends JPanel
         
         panel.setBorder( new TitledBorder( "Named Font selection" ) );
         
-        panel.add( wrapper );
+        wrapper0.add( wrapper, BorderLayout.SOUTH );
+        
+        panel.add( wrapper0 );
+        
+        rdoUnnamed.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                fontNameSelected = false;
+                
+                lblUnnamed.setEnabled( true );
+                lblUnnamed.setForeground( Color.BLACK );
+                combo.setEnabled( false );
+                add.setEnabled( false );
+                remove.setEnabled( false );
+                
+                setSelectedFont( composeSelectedFont(), widgetsConfig.getGameResolution().getViewportHeight() );
+            }
+        } );
+        
+        rdoNamed.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                fontNameSelected = true;
+                
+                lblUnnamed.setEnabled( false );
+                lblUnnamed.setForeground( Color.LIGHT_GRAY );
+                combo.setEnabled( true );
+                add.setEnabled( true );
+                remove.setEnabled( true );
+                
+                if ( combo.getSelectedIndex() >= 0 )
+                {
+                    String fontName = (String)combo.getSelectedItem();
+                    
+                    String fontStr = widgetsConfig.getNamedFontString( fontName );
+                    
+                    applySelectedFont( fontStr, widgetsConfig.getGameResolution().getViewportHeight() );
+                    setSelectedFont( fontStr, widgetsConfig.getGameResolution().getViewportHeight() );
+                }
+            }
+        } );
         
         return ( panel );
     }
@@ -878,8 +971,8 @@ public class FontChooser extends JPanel
         
         Font font = widgetsConfig.getNamedFont( startFont );
         boolean virtual, antiAliased;
-        boolean isName = ( font != null );
-        if ( isName )
+        fontNameSelected = ( font != null );
+        if ( fontNameSelected )
         {
             String fontString = widgetsConfig.getNamedFontString( startFont );
             font = FontUtils.parseVirtualFont( fontString, false, true );
@@ -893,7 +986,7 @@ public class FontChooser extends JPanel
             antiAliased = FontUtils.parseAntiAliasFlag( startFont, false, true );
         }
         
-        wrapper.add( createNamedFontSelector( isName ? startFont : null, widgetsConfig ), BorderLayout.NORTH );
+        wrapper.add( createNamedFontSelector( fontNameSelected ? startFont : null, widgetsConfig ), BorderLayout.NORTH );
         
         JPanel main = new JPanel( new BorderLayout( 0, 5 ) );
         
