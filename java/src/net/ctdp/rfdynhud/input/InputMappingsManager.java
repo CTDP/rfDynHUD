@@ -271,110 +271,113 @@ public class InputMappingsManager
         {
             File configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), CONFIG_FILE_NAME );
             
-            if ( !configFile.exists() )
-            {
-                Logger.log( "    No " + CONFIG_FILE_NAME + " config file found in the config folder." );
-                return ( null );
-            }
-            
             final ArrayList<Object[]> rawBindings = new ArrayList<Object[]>();
-            
-            new AbstractIniParser()
-            {
-                @Override
-                protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
-                {
-                    Object[] tmp = parseMapping( lineNr, key, value, devManager );
-                    
-                    if ( tmp == null )
-                        return ( true );
-                    
-                    InputMapping mapping = (InputMapping)tmp[0];
-                    
-                    String device = mapping.getDeviceComponent().split( "::" )[0];
-                    String component = mapping.getDeviceComponent().split( "::" )[1];
-                    String widgetName = mapping.getWidgetName();
-                    String actionName = ( mapping.getAction() == null ) ? null : mapping.getAction().getName();
-                    int keyCode = mapping.getKeyCode();
-                    int modifierMask = mapping.getModifierMask();
-                    int hitTimes = mapping.getHitTimes();
-                    
-                    rawBindings.add( new Object[] { device, component, widgetName, actionName, keyCode, modifierMask, hitTimes } );
-                    
-                    return ( true );
-                }
-                
-                @Override
-                protected void onParsingFinished()
-                {
-                }
-            }.parse( configFile );
-            
-            
-            Collections.sort( rawBindings, new Comparator<Object[]>()
-            {
-                @Override
-                public int compare( Object[] o1, Object[] o2 )
-                {
-                    int cmp = ( (String)o1[0] ).compareTo( ( (String)o2[0] ) );
-                    if ( cmp != 0 )
-                        return ( cmp );
-                    
-                    cmp = ( (String)o1[1] ).compareTo( (String)o2[1] );
-                    if ( cmp != 0 )
-                        return ( cmp );
-                    
-                    return ( 0 );
-                }
-            } );
-            
             String lastDevice = null;
-            numDevices = 0;
-            numComponents = new int[ 256 ];
-            int maxNumComponents = 0;
-            int nc = 0;
-            for ( int i = 0; i < rawBindings.size(); i++ )
+            
+            if ( !configFile.exists() || !configFile.canRead() )
             {
-                String device = (String)rawBindings.get( i )[0];
-                if ( !device.equals( lastDevice ) )
+                Logger.log( "    WARNING: No readable " + CONFIG_FILE_NAME + " config file found in the config folder." );
+                
+                numDevices = 0;
+                numComponents = null;
+            }
+            else
+            {
+                new AbstractIniParser()
                 {
-                    if ( numDevices == 1 )
+                    @Override
+                    protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
                     {
-                        numComponents[0] = nc;
-                        if ( numComponents[0] > maxNumComponents )
-                            maxNumComponents = numComponents[0];
-                    }
-                    else if ( numDevices > 1 )
-                    {
-                        numComponents[numDevices - 1] = nc - numComponents[numDevices - 2];
-                        if ( numComponents[numDevices - 1] > maxNumComponents )
-                            maxNumComponents = numComponents[numDevices - 1];
+                        Object[] tmp = parseMapping( lineNr, key, value, devManager );
+                        
+                        if ( tmp == null )
+                            return ( true );
+                        
+                        InputMapping mapping = (InputMapping)tmp[0];
+                        
+                        String device = mapping.getDeviceComponent().split( "::" )[0];
+                        String component = mapping.getDeviceComponent().split( "::" )[1];
+                        String widgetName = mapping.getWidgetName();
+                        String actionName = ( mapping.getAction() == null ) ? null : mapping.getAction().getName();
+                        int keyCode = mapping.getKeyCode();
+                        int modifierMask = mapping.getModifierMask();
+                        int hitTimes = mapping.getHitTimes();
+                        
+                        rawBindings.add( new Object[] { device, component, widgetName, actionName, keyCode, modifierMask, hitTimes } );
+                        
+                        return ( true );
                     }
                     
-                    numDevices++;
-                    lastDevice = device;
+                    @Override
+                    protected void onParsingFinished()
+                    {
+                    }
+                }.parse( configFile );
+                
+                
+                Collections.sort( rawBindings, new Comparator<Object[]>()
+                {
+                    @Override
+                    public int compare( Object[] o1, Object[] o2 )
+                    {
+                        int cmp = ( (String)o1[0] ).compareTo( ( (String)o2[0] ) );
+                        if ( cmp != 0 )
+                            return ( cmp );
+                        
+                        cmp = ( (String)o1[1] ).compareTo( (String)o2[1] );
+                        if ( cmp != 0 )
+                            return ( cmp );
+                        
+                        return ( 0 );
+                    }
+                } );
+                
+                numDevices = 0;
+                numComponents = new int[ 256 ];
+                int maxNumComponents = 0;
+                int nc = 0;
+                for ( int i = 0; i < rawBindings.size(); i++ )
+                {
+                    String device = (String)rawBindings.get( i )[0];
+                    if ( !device.equals( lastDevice ) )
+                    {
+                        if ( numDevices == 1 )
+                        {
+                            numComponents[0] = nc;
+                            if ( numComponents[0] > maxNumComponents )
+                                maxNumComponents = numComponents[0];
+                        }
+                        else if ( numDevices > 1 )
+                        {
+                            numComponents[numDevices - 1] = nc - numComponents[numDevices - 2];
+                            if ( numComponents[numDevices - 1] > maxNumComponents )
+                                maxNumComponents = numComponents[numDevices - 1];
+                        }
+                        
+                        numDevices++;
+                        lastDevice = device;
+                    }
+                    
+                    nc++;
                 }
                 
-                nc++;
+                if ( numDevices == 1 )
+                {
+                    numComponents[0] = nc;
+                    if ( numComponents[0] > maxNumComponents )
+                        maxNumComponents = numComponents[0];
+                }
+                else if ( numDevices > 1 )
+                {
+                    numComponents[numDevices - 1] = nc - numComponents[numDevices - 2];
+                    if ( numComponents[numDevices - 1] > maxNumComponents )
+                        maxNumComponents = numComponents[numDevices - 1];
+                }
+                
+                int[] tmp = new int[ numDevices ];
+                System.arraycopy( numComponents, 0, tmp, 0, numDevices );
+                numComponents = tmp;
             }
-            
-            if ( numDevices == 1 )
-            {
-                numComponents[0] = nc;
-                if ( numComponents[0] > maxNumComponents )
-                    maxNumComponents = numComponents[0];
-            }
-            else if ( numDevices > 1 )
-            {
-                numComponents[numDevices - 1] = nc - numComponents[numDevices - 2];
-                if ( numComponents[numDevices - 1] > maxNumComponents )
-                    maxNumComponents = numComponents[numDevices - 1];
-            }
-            
-            int[] tmp = new int[ numDevices ];
-            System.arraycopy( numComponents, 0, tmp, 0, numDevices );
-            numComponents = tmp;
-            
             // { numDevices[1], deviceType_0[1], deviceIndex_0[1], arrayOffset_0[2], numComponents_0[1], ... , deviceType_n[1], deviceIndex_n[1], arrayOffset_n[2], numComponents_n[1], componentIndex_0_0[2], ..., componentIndex_0_n[2], state_0_0[1], ..., state_0_n[1], ...... , componentIndex_n_0[2], ..., componentIndex_n_n[2], state_n_0[1], ..., state_n_n[1]
             buffer = ByteBuffer.allocateDirect( 1 + ( 1 + 1 + 2 + 1 ) * numDevices + 3 * rawBindings.size() ).order( ByteOrder.nativeOrder() );
             
