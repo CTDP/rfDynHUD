@@ -24,11 +24,8 @@ import java.util.List;
 
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
-
-import org.jagatoo.util.classes.ClassSearcher;
-import org.jagatoo.util.classes.PackageSearcher;
-import org.jagatoo.util.classes.SuperClassCriterium;
 
 public class KnownInputActions
 {
@@ -77,8 +74,7 @@ public class KnownInputActions
             
             try
             {
-                List<String> packages = PackageSearcher.findPackages( "*widgets*" );
-                List<Class<?>> classes = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ), packages.toArray( new String[ packages.size() ] ) );
+                List<Class<Widget>> classes = WidgetTools.findWidgetClasses();
                 
                 for ( int i = 0; i < classes.size(); i++ )
                 {

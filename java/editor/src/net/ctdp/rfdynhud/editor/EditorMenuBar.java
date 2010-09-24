@@ -27,7 +27,6 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,14 +51,11 @@ import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
-
-import org.jagatoo.util.classes.ClassSearcher;
-import org.jagatoo.util.classes.PackageSearcher;
-import org.jagatoo.util.classes.SuperClassCriterium;
 
 /**
  * 
@@ -387,49 +383,14 @@ public class EditorMenuBar extends JMenuBar
         return ( m );
     }
     
-    private static List<Class<?>> findWidgetClasses()
-    {
-        List<String> packages = PackageSearcher.findPackages( "*widgets*" );
-        ArrayList<String> tmp = new ArrayList<String>();
-        
-        for ( String pkg : packages )
-        {
-            if ( !pkg.startsWith( "net.ctdp.rfdynhud.widgets.hidden" ) )
-                tmp.add( pkg );
-        }
-        packages = tmp;
-        
-        List<Class<?>> classes = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ), packages.toArray( new String[ packages.size() ] ) );
-        ArrayList<Class<?>> tmp2 = new ArrayList<Class<?>>();
-        
-        for ( Class<?> c : classes )
-        {
-            if ( !c.getPackage().getName().startsWith( "net.ctdp.rfdynhud.widgets.hidden" ) )
-                tmp2.add( c );
-        }
-        classes = tmp2;
-        
-        Collections.sort( classes, new Comparator< Class<?> >()
-        {
-            @Override
-            public int compare( Class<?> o1, Class<?> o2 )
-            {
-                return ( String.CASE_INSENSITIVE_ORDER.compare( o1.getSimpleName(), o2.getSimpleName() ) );
-            }
-        } );
-        
-        return ( classes );
-    }
-    
-    @SuppressWarnings( "unchecked" )
     private JMenu createWidgetsMenu( LiveGameData gameData )
     {
         JMenu menu = new JMenu( "Widgets" );
         menu.setDisplayedMnemonicIndex( 0 );
         
-        List<Class<?>> classes = findWidgetClasses();
+        List<Class<Widget>> classes = WidgetTools.findWidgetClasses();
         
-        HashMap<Class<?>, Widget> instances = new HashMap<Class<?>, Widget>();
+        HashMap<Class<Widget>, Widget> instances = new HashMap<Class<Widget>, Widget>();
         /*
         HashMap<String, Object> hierarchy = buildHierarchy( classes, instances );
         System.out.println( hierarchy );
@@ -445,10 +406,10 @@ public class EditorMenuBar extends JMenuBar
         */
         
         ArrayList<WidgetPackage> widgetPackages = new ArrayList<WidgetPackage>();
-        Iterator<Class<?>> it = classes.iterator();
+        Iterator<Class<Widget>> it = classes.iterator();
         while ( it.hasNext() )
         {
-            Class<Widget> clazz = (Class<Widget>)it.next();
+            Class<Widget> clazz = it.next();
             
             try
             {
