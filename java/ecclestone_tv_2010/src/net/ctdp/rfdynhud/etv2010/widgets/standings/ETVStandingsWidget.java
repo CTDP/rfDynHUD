@@ -172,7 +172,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
     @Override
     protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
-        if ( isEditorMode || ( gameData.getScoringInfo().getSessionType().isRace() && !showFastestLapsInRace.getBooleanValue() ) )
+        if ( !isEditorMode && gameData.getScoringInfo().getSessionType().isRace() && !showFastestLapsInRace.getBooleanValue() )
         {
             flagTextures = null;
             
@@ -424,31 +424,32 @@ public class ETVStandingsWidget extends ETVWidgetBase
                 }
             }
             
-            if ( flagTextures != null )
+            if ( ( flagTextures != null ) && visible && ( numDisplayedLaptimes < flagTextures.length - 1 ) )
             {
-                if ( !isEditorMode && visible && ( numDisplayedLaptimes < flagTextures.length - 1 ) )
+                Laptime lt = vsi.getFastestLaptime();
+                boolean show = ( ( lt != null ) && ( lt.getLap() == vsi.getCurrentLap() - 1 ) && ( vsi.getStintStartLap() != vsi.getCurrentLap() ) && ( scoringInfo.getSessionTime() - vsi.getLapStartTime() < 20.0f ) );
+                if ( isEditorMode )
+                    show = ( numDisplayedLaptimes < 2 );
+                
+                if ( show )
                 {
-                    Laptime lt = vsi.getFastestLaptime();
-                    if ( ( lt != null ) && ( lt.getLap() == vsi.getCurrentLap() - 1 ) && ( vsi.getStintStartLap() != vsi.getCurrentLap() ) && ( scoringInfo.getSessionTime() - vsi.getLapStartTime() < 20.0f ) )
+                    int tti = numDisplayedLaptimes++;
+                    TransformableTexture tt = flagTextures[tti];
+                    
+                    laptimes[tti].update( lt.getLapTime() );
+                    
+                    if ( laptimes[tti].hasChanged() )
                     {
-                        int tti = numDisplayedLaptimes++;
-                        TransformableTexture tt = flagTextures[tti];
-                        
-                        laptimes[tti].update( lt.getLapTime() );
-                        
-                        if ( laptimes[tti].hasChanged() )
-                        {
-                            laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), tt.getTexture(), dataBackgroundColor.getColor() );
-                        }
-                        
-                        int off = useImages.getBooleanValue() ? getImages().getDataDataLeft( itemHeight ) / 2 : ( ETVUtils.getTriangleWidth( itemHeight ) / 2 );
-                        
-                        if ( isOnLeftSide )
-                            tt.setTranslation( width - off, offsetY2 );
-                        else
-                            tt.setTranslation( -width + off, offsetY2 );
-                        tt.setVisible( true );
+                        laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), tt.getTexture(), dataBackgroundColor.getColor() );
                     }
+                    
+                    int off = useImages.getBooleanValue() ? getImages().getDataDataLeft( itemHeight ) / 2 : ( ETVUtils.getTriangleWidth( itemHeight ) / 2 );
+                    
+                    if ( isOnLeftSide )
+                        tt.setTranslation( width - off, offsetY2 );
+                    else
+                        tt.setTranslation( -width + off, offsetY2 );
+                    tt.setVisible( true );
                 }
             }
         }

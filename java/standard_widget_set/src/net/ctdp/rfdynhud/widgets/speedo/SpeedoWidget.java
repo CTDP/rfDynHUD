@@ -114,12 +114,6 @@ public class SpeedoWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    
-    @Override
     protected void initParentProperties()
     {
         super.initParentProperties();
@@ -180,6 +174,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     {
         super( name, 16.3125f, 21.75f );
         
+        getBorderProperty().setBorder( "" );
         lastMarkerBig.setBooleanValue( true );
     }
 }

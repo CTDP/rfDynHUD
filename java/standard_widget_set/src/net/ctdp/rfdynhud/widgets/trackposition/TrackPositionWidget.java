@@ -203,10 +203,11 @@ public class TrackPositionWidget extends Widget
         updateVSIs( gameData, isEditorMode );
     }
     
-    private void initSubTextures( boolean isEditorMode, ModInfo modInfo )
+    @Override
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         updateItemRadius();
-        initMaxDisplayedVehicles( isEditorMode, modInfo );
+        initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
         if ( ( itemTextures == null ) || ( itemTextures.length != maxDisplayedVehicles ) )
         {
@@ -220,20 +221,14 @@ public class TrackPositionWidget extends Widget
         int w = size.width;
         int h = size.height;
         
-        if ( ( itemTextures[maxDisplayedVehicles - 1] != null ) && ( itemTextures[maxDisplayedVehicles - 1].getWidth() == w ) && ( itemTextures[maxDisplayedVehicles - 1].getHeight() == h ) )
-            return;
-        
-        for ( int i = 0; i < maxDisplayedVehicles; i++ )
+        if ( ( itemTextures[maxDisplayedVehicles - 1] == null ) || ( itemTextures[maxDisplayedVehicles - 1].getWidth() != w ) || ( itemTextures[maxDisplayedVehicles - 1].getHeight() != h ) )
         {
-            itemTextures[i] = TransformableTexture.getOrCreate( w, h, isEditorMode, itemTextures[i], isEditorMode );
-            itemTextures[i].setVisible( false );
+            for ( int i = 0; i < maxDisplayedVehicles; i++ )
+            {
+                itemTextures[i] = TransformableTexture.getOrCreate( w, h, isEditorMode, itemTextures[i], isEditorMode );
+                itemTextures[i].setVisible( false );
+            }
         }
-    }
-    
-    @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
-    {
-        initSubTextures( isEditorMode, gameData.getModInfo() );
         
         return ( itemTextures );
     }

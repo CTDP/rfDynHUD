@@ -1281,7 +1281,7 @@ public class TextureImage2D
     private final byte[] getPixelLineBuffer1( int size )
     {
         if ( ( pixelRow1 == null ) || ( pixelRow1.length < size ) )
-            pixelRow1 = new byte[ Math.max( size, getMaxWidth() * getPixelBytes() ) ];
+            pixelRow1 = new byte[ Math.min( size, getMaxWidth() * getPixelBytes() ) ];
         
         return ( pixelRow1 );
     }
@@ -1289,7 +1289,7 @@ public class TextureImage2D
     private final byte[] getPixelLineBuffer2( int size )
     {
         if ( ( pixelRow2 == null ) || ( pixelRow2.length < size ) )
-            pixelRow2 = new byte[ Math.max( size, getMaxWidth() * getPixelBytes() ) ];
+            pixelRow2 = new byte[ Math.min( size, getMaxWidth() * getPixelBytes() ) ];
         
         return ( pixelRow2 );
     }
@@ -1808,7 +1808,15 @@ public class TextureImage2D
      */
     public void clearOutline( java.awt.Color color, int offsetX, int offsetY, final int width, int height, int lineWidth, boolean markDirty, Rect2i dirtyRect )
     {
-        final byte[] pixel = getPixelLineBuffer1( this.getPixelBytes() );
+        final int x0 = Math.max( clipRect.getLeft(), offsetX );
+        final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth(), offsetX + width - 1 );
+        final int w = x1 - x0 + 1;
+        final int y0 = Math.max( clipRect.getTop(), offsetY );
+        final int y1 = Math.min( clipRect.getTop() + clipRect.getHeight(), offsetY + height - 1 );
+        final int h = y1 - y0 + 1;
+        
+        final byte[] pixel = getPixelLineBuffer1( Math.max( 1, w ) * this.getPixelBytes() );
+        //final byte[] pixel = getPixelLineBuffer1( this.getPixelBytes() );
         
         switch ( this.getPixelBytes() )
         {
@@ -1817,7 +1825,7 @@ public class TextureImage2D
                 pixel[ByteOrderManager.GREEN] = (byte)color.getGreen();
                 pixel[ByteOrderManager.BLUE] = (byte)color.getBlue();
                 pixel[ByteOrderManager.ALPHA] = (byte)color.getAlpha(); //( (byte)255 - color.getAlphaByte() );
-                for ( int i = 4; i < width * 4; i += 4 )
+                for ( int i = 4; i < w * 4; i += 4 )
                 {
                     System.arraycopy( pixel, 0, pixel, i, 4 );
                 }
@@ -1826,19 +1834,12 @@ public class TextureImage2D
                 pixel[ByteOrderManager.RED] = (byte)color.getRed();
                 pixel[ByteOrderManager.GREEN] = (byte)color.getGreen();
                 pixel[ByteOrderManager.BLUE] = (byte)color.getBlue();
-                for ( int i = 3; i < width * 3; i += 3 )
+                for ( int i = 3; i < w * 3; i += 3 )
                 {
                     System.arraycopy( pixel, 0, pixel, i, 3 );
                 }
                 break;
         }
-        
-        final int x0 = Math.max( clipRect.getLeft(), offsetX );
-        final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth(), offsetX + width - 1 );
-        final int w = x1 - x0 + 1;
-        final int y0 = Math.max( clipRect.getTop(), offsetY );
-        final int y1 = Math.min( clipRect.getTop() + clipRect.getHeight(), offsetY + height - 1 );
-        final int h = y1 - y0 + 1;
         
         final int y_ = yUp ? ( getMaxHeight() - getHeight() ) : 0;
         
@@ -1891,8 +1892,15 @@ public class TextureImage2D
      */
     public void clear( java.awt.Color color, int offsetX, int offsetY, final int width, int height, boolean markDirty, Rect2i dirtyRect )
     {
-        //final byte[] pixel = getPixelLineBuffer1( width * this.getPixelBytes() );
-        final byte[] pixel = getPixelLineBuffer1( this.getPixelBytes() );
+        final int x0 = Math.max( clipRect.getLeft(), offsetX );
+        final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth() - 1, offsetX + width - 1 );
+        final int w = x1 - x0 + 1;
+        final int y0 = Math.max( clipRect.getTop(), offsetY );
+        final int y1 = Math.min( clipRect.getTop() + clipRect.getHeight() - 1, offsetY + height - 1 );
+        final int h = y1 - y0 + 1;
+        
+        final byte[] pixel = getPixelLineBuffer1( Math.max( 1, w ) * this.getPixelBytes() );
+        //final byte[] pixel = getPixelLineBuffer1( this.getPixelBytes() );
         
         switch ( this.getPixelBytes() )
         {
@@ -1901,7 +1909,7 @@ public class TextureImage2D
                 pixel[ByteOrderManager.GREEN] = (byte)color.getGreen();
                 pixel[ByteOrderManager.BLUE] = (byte)color.getBlue();
                 pixel[ByteOrderManager.ALPHA] = (byte)color.getAlpha(); //( (byte)255 - color.getAlphaByte() );
-                for ( int i = 4; i < width * 4; i += 4 )
+                for ( int i = 4; i < w * 4; i += 4 )
                 {
                     System.arraycopy( pixel, 0, pixel, i, 4 );
                 }
@@ -1910,19 +1918,12 @@ public class TextureImage2D
                 pixel[ByteOrderManager.RED] = (byte)color.getRed();
                 pixel[ByteOrderManager.GREEN] = (byte)color.getGreen();
                 pixel[ByteOrderManager.BLUE] = (byte)color.getBlue();
-                for ( int i = 3; i < width * 3; i += 3 )
+                for ( int i = 3; i < w * 3; i += 3 )
                 {
                     System.arraycopy( pixel, 0, pixel, i, 3 );
                 }
                 break;
         }
-        
-        final int x0 = Math.max( clipRect.getLeft(), offsetX );
-        final int x1 = Math.min( clipRect.getLeft() + clipRect.getWidth() - 1, offsetX + width - 1 );
-        final int w = x1 - x0 + 1;
-        final int y0 = Math.max( clipRect.getTop(), offsetY );
-        final int y1 = Math.min( clipRect.getTop() + clipRect.getHeight() - 1, offsetY + height - 1 );
-        final int h = y1 - y0 + 1;
         
         if ( ( w <= 0 ) || ( h <= 0 ) )
         {

@@ -64,11 +64,11 @@ Minor:
 * Added support for key combinations for input bindings.
 * Added peak needle to the RevMeterWidget.
 * Tweaked rendering code to allow for overlapping Widgets.
+* Sub textures are now properly drawn in the editor.
 
 TODO:
 
 * Select Widget in background
-* Draw sub textures in editor (clickable?)
 * Add RideHeightWidget
 * Add DashboardWidget
 * Bar meter for temp, etc.

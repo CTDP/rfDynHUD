@@ -26,6 +26,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
@@ -98,10 +99,16 @@ public class WidgetMenuItem extends JMenuItem
         if ( !iconDrawn || ( checkState != lastCheckState ) )
         {
             widget.prepareForMenuItem();
+            
+            Rect2i innerRect = EditorPanel.getWidgetInnerRect( widget );
+            TransformableTexture[] subTextures = widget.getSubTextures( editor.getGameData(), true, innerRect.getWidth(), innerRect.getHeight() );
+            
             widget.updateVisibility( editor.getGameData(), true );
             
             texture.clear( true, null );
             widget.drawWidget( fakeClock, true, editor.getGameData(), true, texture, false );
+            
+            EditorPanel.drawSubTextures( widget, subTextures, texture.getTextureCanvas() );
             
             if ( checkState )
             {

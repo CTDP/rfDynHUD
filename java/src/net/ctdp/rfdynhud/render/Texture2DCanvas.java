@@ -41,7 +41,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -83,6 +82,11 @@ public class Texture2DCanvas extends Graphics2D
         return ( texImg );
     }
     
+    private final java.awt.geom.Point2D.Float pUL = new java.awt.geom.Point2D.Float();
+    private final java.awt.geom.Point2D.Float pUR = new java.awt.geom.Point2D.Float();
+    private final java.awt.geom.Point2D.Float pLL = new java.awt.geom.Point2D.Float();
+    private final java.awt.geom.Point2D.Float pLR = new java.awt.geom.Point2D.Float();
+    
     private final void markDirty( int x, int y, int width, int height )
     {
         if ( texImg == null )
@@ -90,16 +94,23 @@ public class Texture2DCanvas extends Graphics2D
         
         if ( !isIdentityTransform )
         {
-            Point p0 = new Point( x, y );
-            Point p1 = new Point( x + width - 1, y + height - 1 );
+            pUL.setLocation( x, y );
+            pUR.setLocation( x + width - 1, y );
+            pLL.setLocation( x, y + height - 1 );
+            pLR.setLocation( x + width - 1, y + height - 1 );
             
-            getTransform().transform( p0, p0 );
-            getTransform().transform( p1, p1 );
+            java.awt.geom.AffineTransform t = getTransform();
+            t.transform( pUL, pUL );
+            t.transform( pUR, pUR );
+            t.transform( pLL, pLL );
+            t.transform( pLR, pLR );
             
-            x = Math.min( p0.x, p1.x );
-            y = Math.min( p0.y, p1.y );
-            width = Math.abs( p1.x - p0.x );
-            height = Math.abs( p1.y - p0.y );
+            x = Math.round( Math.min( Math.min( Math.min( pUL.x, pUR.x ), pLL.x ), pLR.x ) );
+            y = Math.round( Math.min( Math.min( Math.min( pUL.y, pUR.y ), pLL.y ), pLR.y ) );
+            int x1 = Math.round( Math.max( Math.max( Math.max( pUL.x, pUR.x ), pLL.x ), pLR.x ) );
+            int y1 = Math.round( Math.max( Math.max( Math.max( pUL.y, pUR.y ), pLL.y ), pLR.y ) );
+            width = x1 - x + 1;
+            height = y1 - y + 1;
         }
         
         if ( currentUpdateRect != null )

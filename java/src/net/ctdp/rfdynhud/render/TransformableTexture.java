@@ -17,7 +17,9 @@
  */
 package net.ctdp.rfdynhud.render;
 
+import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -295,6 +297,11 @@ public class TransformableTexture
         return ( visible );
     }
     
+    public final boolean isVisibleInEditor()
+    {
+        return ( isVisible() && ( !isTransformed() || isRectangleVisible( 0 ) ) );
+    }
+    
     public final int getWidth()
     {
         return ( texture.getWidth() );
@@ -515,49 +522,111 @@ public class TransformableTexture
     }
     */
     
-    public void drawInEditor( Texture2DCanvas texCanvas, int offsetX, int offsetY )
+    public AffineTransform getTransformForEditor( int offsetX, int offsetY )
     {
-        if ( !isVisible() || ( isTransformed() && !isRectangleVisible( 0 ) ) )
+        AffineTransform at = new AffineTransform();
+        
+        AffineTransform atTrans = AffineTransform.getTranslateInstance( offsetX + getTransX(), offsetY + getTransY() );
+        AffineTransform atRotCenter1 = AffineTransform.getTranslateInstance( +getRotCenterX(), +getRotCenterY() );
+        AffineTransform atRot = AffineTransform.getRotateInstance( getRotation() );
+        AffineTransform atRotCenter2 = AffineTransform.getTranslateInstance( -getRotCenterX(), -getRotCenterY() );
+        AffineTransform atScale = AffineTransform.getScaleInstance( getScaleX(), getScaleY() );
+        
+        at.concatenate( atTrans );
+        at.concatenate( atRotCenter1 );
+        at.concatenate( atRot );
+        at.concatenate( atRotCenter2 );
+        at.concatenate( atScale );
+        
+        return ( at );
+    }
+    
+    private final java.awt.geom.Point2D.Float pUL = new java.awt.geom.Point2D.Float();
+    private final java.awt.geom.Point2D.Float pUR = new java.awt.geom.Point2D.Float();
+    private final java.awt.geom.Point2D.Float pLL = new java.awt.geom.Point2D.Float();
+    private final java.awt.geom.Point2D.Float pLR = new java.awt.geom.Point2D.Float();
+    
+    public Rect2i getTransformedRectForEditor( AffineTransform at )
+    {
+        if ( !isVisibleInEditor() )
+            return ( null );
+        
+        if ( ( clipRectWidth > 0 ) && ( clipRectHeight > 0 ) )
+        {
+            pUL.setLocation( clipRectX, clipRectY );
+            pUR.setLocation( clipRectX + clipRectWidth - 1, clipRectY );
+            pLL.setLocation( clipRectX, clipRectY + clipRectHeight - 1 );
+            pLR.setLocation( clipRectX + clipRectWidth - 1, clipRectY + clipRectHeight - 1 );
+        }
+        else
+        {
+            pUL.setLocation( 0, 0 );
+            pUR.setLocation( getWidth() - 1, 0 );
+            pLL.setLocation( 0, getHeight() - 1 );
+            pLR.setLocation( getWidth() - 1, getHeight() - 1 );
+        }
+        
+        at.transform( pUL, pUL );
+        at.transform( pUR, pUR );
+        at.transform( pLL, pLL );
+        at.transform( pLR, pLR );
+        
+        int x = Math.round( Math.min( Math.min( Math.min( pUL.x, pUR.x ), pLL.x ), pLR.x ) );
+        int y = Math.round( Math.min( Math.min( Math.min( pUL.y, pUR.y ), pLL.y ), pLR.y ) );
+        int x1 = Math.round( Math.max( Math.max( Math.max( pUL.x, pUR.x ), pLL.x ), pLR.x ) );
+        int y1 = Math.round( Math.max( Math.max( Math.max( pUL.y, pUR.y ), pLL.y ), pLR.y ) );
+        int w = x1 - x + 1;
+        int h = y1 - y + 1;
+        
+        return ( new Rect2i( x, y, w, h ) );
+    }
+    
+    public void drawInEditor( Graphics2D texCanvas, AffineTransform at, Rect2i transformedRect )
+    {
+        if ( !isVisibleInEditor() )
             return;
         
-        texCanvas.pushClip( -1, -1, Integer.MAX_VALUE, Integer.MAX_VALUE, false );
+        AffineTransform at0 = new AffineTransform( texCanvas.getTransform() );
+        AffineTransform tmp = new AffineTransform( at0 );
+        tmp.concatenate( at );
+        at = tmp;
+        
+        Rect2i r = transformedRect;
+        
+        //texCanvas.pushClip( r.getLeft(), r.getTop(), r.getWidth(), r.getHeight(), false );
+        Shape oldClip = texCanvas.getClip();
+        texCanvas.setClip( r.getLeft(), r.getTop(), r.getWidth(), r.getHeight() );
+        
+        texCanvas.setTransform( at );
+        
+        Object oldAA = texCanvas.getRenderingHint( RenderingHints.KEY_ANTIALIASING );
+        texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+        Object oldInter = texCanvas.getRenderingHint( RenderingHints.KEY_INTERPOLATION );
+        texCanvas.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
         
         try
         {
-            AffineTransform at = new AffineTransform( texCanvas.getTransform() );
-            
-            AffineTransform atTrans = AffineTransform.getTranslateInstance( offsetX + getTransX(), offsetY + getTransY() );
-            AffineTransform atRotCenter1 = AffineTransform.getTranslateInstance( +getRotCenterX(), +getRotCenterY() );
-            AffineTransform atRot = AffineTransform.getRotateInstance( getRotation() );
-            AffineTransform atRotCenter2 = AffineTransform.getTranslateInstance( -getRotCenterX(), -getRotCenterY() );
-            AffineTransform atScale = AffineTransform.getScaleInstance( getScaleX(), getScaleY() );
-            
-            at.concatenate( atTrans );
-            at.concatenate( atRotCenter1 );
-            at.concatenate( atRot );
-            at.concatenate( atRotCenter2 );
-            at.concatenate( atScale );
-            
-            texCanvas.setTransform( at );
-            
-            Object oldAA = texCanvas.getRenderingHint( RenderingHints.KEY_ANTIALIASING );
-            texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-            Object oldInter = texCanvas.getRenderingHint( RenderingHints.KEY_INTERPOLATION );
-            texCanvas.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-            
-            if ( clipRectWidth > 0 && clipRectHeight > 0 )
-                texCanvas.drawImage( getTexture().getBufferedImage(), clipRectX, clipRectY, clipRectX + clipRectWidth, clipRectY + clipRectHeight, clipRectX, clipRectY, clipRectX + clipRectWidth, clipRectY + clipRectHeight );
+            if ( ( clipRectWidth > 0 ) && ( clipRectHeight > 0 ) )
+                texCanvas.drawImage( getTexture().getBufferedImage(), clipRectX, clipRectY, clipRectX + clipRectWidth, clipRectY + clipRectHeight, clipRectX, clipRectY, clipRectX + clipRectWidth, clipRectY + clipRectHeight, null );
             else
-                texCanvas.drawImage( getTexture().getBufferedImage(), 0, 0 );
-            
-            texCanvas.setRenderingHint( RenderingHints.KEY_INTERPOLATION, ( oldInter == null ) ? RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR : oldInter );
-            texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, oldAA );
+                texCanvas.drawImage( getTexture().getBufferedImage(), 0, 0, null );
         }
         finally
         {
-            texCanvas.resetTransform();
-            texCanvas.popClip();
+            texCanvas.setRenderingHint( RenderingHints.KEY_INTERPOLATION, ( oldInter == null ) ? RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR : oldInter );
+            texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, oldAA );
+            
+            //texCanvas.resetTransform();
+            texCanvas.setTransform( at0 );
+            //texCanvas.popClip();
+            texCanvas.setClip( oldClip );
         }
+        
+        /*
+        texCanvas.setClip( (org.openmali.types.twodee.Rect2i)null );
+        texCanvas.setColor( java.awt.Color.GREEN );
+        texCanvas.drawRect( r.getLeft(), r.getTop(), r.getWidth(), r.getHeight() );
+        */
     }
     
     private static TextureImage2D createTexture( int width, int height, boolean usePowerOfTwoSizes )

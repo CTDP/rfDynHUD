@@ -1348,13 +1348,6 @@ public abstract class Widget implements Documented
         
         final Texture2DCanvas texCanvas = ( texture == null ) ? null : texture.getTextureCanvas();
         
-        TransformableTexture[] subTextures = null;
-        
-        if ( isEditorMode )
-        {
-            subTextures = getSubTextures( gameData, isEditorMode, width2, height2 );
-        }
-        
         if ( !initialized )
         {
             initialize( gameData, isEditorMode, drawnStringFactory, texture, width2, height2 );
@@ -1405,17 +1398,6 @@ public abstract class Widget implements Documented
             texCanvas.setClip( offsetX + borderOLW, offsetY + borderOTH, width - borderOLW - borderORW, height - borderOTH - borderOBH );
         
         drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture, offsetX2, offsetY2, width2, height2 );
-        
-        if ( isEditorMode && ( subTextures != null ) )
-        {
-            if ( texCanvas != null )
-                texCanvas.setClip( (Rect2i)null );
-            
-            for ( int i = 0; i < subTextures.length; i++ )
-            {
-                subTextures[i].drawInEditor( texCanvas, offsetX2 + subTextures[i].getOwnerWidget().getOffsetXToMasterWidget(), offsetY2 + subTextures[i].getOwnerWidget().getOffsetYToMasterWidget() );
-            }
-        }
         
         this.visibilityChangedSinceLastDraw = false;
     }

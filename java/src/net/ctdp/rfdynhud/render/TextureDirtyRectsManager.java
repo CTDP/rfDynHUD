@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 
+import net.ctdp.rfdynhud.util.Logger;
+
 import org.openmali.types.twodee.Rect2i;
 
 /**
@@ -74,21 +76,9 @@ public class TextureDirtyRectsManager
         
         if ( buffer != null )
         {
-            if ( resetBufferToStart )
-                buffer.position( 0 );
-            
-            buffer.limit( buffer.capacity() );
-            
-            if ( buffer.limit() - buffer.position() < 2 + 2 * numDirtyRects )
-            {
-                writeShort( (short)0, buffer );
-                buffer.flip();
-                
-                return ( (short)-numDirtyRects );
-            }
-            
             boolean completeDirtyRect = needsCompleteDirtyRect;
             needsCompleteDirtyRect = false;
+            
             if ( completeDirtyRect )
                 completeRedrawFrameIndex = frameIndex;
             else if ( completeRedrawFrameIndex == frameIndex )
@@ -96,8 +86,29 @@ public class TextureDirtyRectsManager
             else
                 completeRedrawFrameIndex = -1L;
             
+            if ( resetBufferToStart )
+                buffer.position( 0 );
+            
+            buffer.limit( buffer.capacity() );
+            
             if ( completeDirtyRect )
             {
+                if ( buffer.limit() - buffer.position() < 2 + 2 * 4 )
+                {
+                    Logger.log( "WARNING: Cannot write dirty rects to the buffer." );
+                    
+                    if ( buffer.limit() - buffer.position() < 2 )
+                    {
+                    }
+                    else
+                    {
+                        writeShort( (short)0, buffer );
+                        buffer.flip();
+                    }
+                    
+                    return ( (short)-numDirtyRects );
+                }
+                
                 writeShort( (short)1, buffer );
                 
                 writeShort( (short)0, buffer );
@@ -107,6 +118,22 @@ public class TextureDirtyRectsManager
             }
             else
             {
+                if ( buffer.limit() - buffer.position() < 2 + 2 * 4 * numDirtyRects )
+                {
+                    Logger.log( "WARNING: Cannot write dirty rects to the buffer." );
+                    
+                    if ( buffer.limit() - buffer.position() < 2 )
+                    {
+                    }
+                    else
+                    {
+                        writeShort( (short)0, buffer );
+                        buffer.flip();
+                    }
+                    
+                    return ( (short)-numDirtyRects );
+                }
+                
                 writeShort( (short)numDirtyRects, buffer );
                 
                 for ( int i = 0; i < numDirtyRects; i++ )
@@ -124,6 +151,9 @@ public class TextureDirtyRectsManager
         }
         
         texture.clearUpdateList();
+        
+        if ( buffer == null )
+            return ( (short)-numDirtyRects );
         
         return ( (short)numDirtyRects );
     }

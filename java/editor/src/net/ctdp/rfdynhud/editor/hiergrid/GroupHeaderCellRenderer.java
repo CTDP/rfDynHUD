@@ -66,8 +66,10 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
         //component.setText( String.valueOf( value ) );
         if ( value == null )
             component.setText( null );
-        else
+        else if ( value instanceof GridItemsContainer<?> )
             component.setText( ( (GridItemsContainer<?>)value ).getNameForGrid() );
+        else
+            component.setText( String.valueOf( value ) );
         component.setHorizontalAlignment( SwingConstants.CENTER );
     }
     

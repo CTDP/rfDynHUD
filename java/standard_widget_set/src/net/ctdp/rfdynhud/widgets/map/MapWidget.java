@@ -259,10 +259,11 @@ public class MapWidget extends Widget
         updateVSIs( gameData, isEditorMode );
     }
     
-    private void initSubTextures( boolean isEditorMode, ModInfo modInfo, int widgetWidth, int widgetHeight )
+    @Override
+    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
     {
         updateItemRadius();
-        initMaxDisplayedVehicles( isEditorMode, modInfo );
+        initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
         
         int numTextures = maxDisplayedVehicles;
         int subTexOff = 0;
@@ -277,9 +278,9 @@ public class MapWidget extends Widget
             subTextures = new TransformableTexture[ numTextures ];
         }
         
-        if ( !hasMasterCanvas( isEditorMode ) && ( ( subTextures[0] == null ) || ( subTextures[0].getWidth() != widgetWidth ) || ( subTextures[0].getHeight() != widgetHeight ) ) )
+        if ( !hasMasterCanvas( isEditorMode ) && ( ( subTextures[0] == null ) || ( subTextures[0].getWidth() != widgetInnerWidth ) || ( subTextures[0].getHeight() != widgetInnerHeight ) ) )
         {
-            subTextures[0] = TransformableTexture.getOrCreate( widgetWidth, widgetHeight, isEditorMode, subTextures[0], isEditorMode );
+            subTextures[0] = TransformableTexture.getOrCreate( widgetInnerWidth, widgetInnerHeight, isEditorMode, subTextures[0], isEditorMode );
         }
         
         if ( subTextures[subTexOff] == null )
@@ -289,20 +290,14 @@ public class MapWidget extends Widget
         int w = size.width;
         int h = size.height;
         
-        if ( ( subTextures[subTextures.length - 1] != null ) && ( subTextures[subTextures.length - 1].getWidth() == w ) && ( subTextures[subTextures.length - 1].getHeight() == h ) )
-            return;
-        
-        for ( int i = 0; i < maxDisplayedVehicles; i++ )
+        if ( ( subTextures[subTextures.length - 1] == null ) || ( subTextures[subTextures.length - 1].getWidth() != w ) || ( subTextures[subTextures.length - 1].getHeight() != h ) )
         {
-            subTextures[subTexOff + i] = TransformableTexture.getOrCreate( w, h, isEditorMode, subTextures[subTexOff + i], isEditorMode );
-            subTextures[subTexOff + i].setVisible( false );
+            for ( int i = 0; i < maxDisplayedVehicles; i++ )
+            {
+                subTextures[subTexOff + i] = TransformableTexture.getOrCreate( w, h, isEditorMode, subTextures[subTexOff + i], isEditorMode );
+                subTextures[subTexOff + i].setVisible( false );
+            }
         }
-    }
-    
-    @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
-    {
-        initSubTextures( isEditorMode, gameData.getModInfo(), widgetInnerWidth, widgetInnerHeight );
         
         return ( subTextures );
     }

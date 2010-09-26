@@ -1234,16 +1234,11 @@ public class RevMeterWidget extends NeedleMeterWidget
         propsCont.addProperty( rpmJoinString2 );
     }
     
-    @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    
     public RevMeterWidget( String name )
     {
         super( name, 16.3125f, 21.75f );
         
+        getBorderProperty().setBorder( "" );
         numShiftLights.setIntValue( 2 );
         initShiftLights( 0, 2 );
     }
