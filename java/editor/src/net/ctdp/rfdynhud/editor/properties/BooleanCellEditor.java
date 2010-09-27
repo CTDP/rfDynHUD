@@ -23,10 +23,7 @@ import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.TableCellEditor;
-
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
@@ -36,7 +33,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel> implements TableCellEditor
+public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -46,16 +43,16 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel> im
     private final JCheckBox checkbox = new JCheckBox();
     private final JButton button = new JButton();
     
-    private JTable table = null;
+    private HierarchicalTable<Property> table = null;
     private Property prop = null;
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
-    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         setComponent( panel );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         this.prop = property;
         
@@ -70,7 +67,7 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel> im
             button.setToolTipText( prop.getButtonTooltip() );
         }
         
-        if ( isSelected )
+        if ( isSelected || forEditor )
         {
             panel.setBackground( table.getSelectionBackground() );
             panel.setForeground( table.getSelectionForeground() );
@@ -80,11 +77,11 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel> im
         else
         {
             panel.setBackground( table.getBackground() );
-            panel.setForeground( table.getForeground() );
+            panel.setForeground( table.getStyle().getValueCellFontColor() );
             checkbox.setBackground( table.getBackground() );
-            checkbox.setForeground( table.getForeground() );
+            checkbox.setForeground( table.getStyle().getValueCellFontColor() );
         }
-        checkbox.setFont( table.getFont() );
+        checkbox.setFont( table.getStyle().getValueCellFont() );
         
         checkbox.setBorder( border );
         
@@ -96,19 +93,6 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel> im
         this.table = table;
         
         //return ( panel );
-    }
-    
-    @Override
-    public java.awt.Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
-    {
-        getTableCellRendererComponent( table, value, isSelected, true, row, column );
-        
-        checkbox.setBackground( table.getSelectionBackground() );
-        checkbox.setForeground( table.getSelectionForeground() );
-        
-        setComponent( panel );
-        
-        return ( panel );
     }
     
     @Override

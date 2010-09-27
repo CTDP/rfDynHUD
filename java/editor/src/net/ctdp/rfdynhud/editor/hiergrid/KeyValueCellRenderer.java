@@ -26,6 +26,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.border.Border;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 /**
@@ -34,7 +35,7 @@ import javax.swing.table.TableCellRenderer;
  * 
  * @author Marvin Froehlich
  */
-public abstract class KeyValueCellRenderer<P extends Object, C extends JComponent> extends AbstractCellEditor implements Border, TableCellRenderer
+public abstract class KeyValueCellRenderer<P extends Object, C extends JComponent> extends AbstractCellEditor implements Border, TableCellRenderer, TableCellEditor
 {
     private static final long serialVersionUID = 6279484353820779292L;
     
@@ -97,8 +98,9 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
      * @param hasFocus
      * @param row
      * @param column
+     * @param forEditor
      */
-    protected void prepareComponent( C component, HierarchicalTable<P> table, P property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( C component, HierarchicalTable<P> table, P property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         HierarchicalGridStyle style = table.getStyle();
         
@@ -121,8 +123,7 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
     }
     
     @SuppressWarnings( "unchecked" )
-    @Override
-    public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    private Component getTableCellComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         HierarchicalTableModel<?> model = (HierarchicalTableModel<?>)table.getModel();
         
@@ -131,11 +132,23 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
         this.gridColor = table.getGridColor();
         
         if ( model.isDataRow( row ) )
-            prepareComponent( component, (HierarchicalTable<P>)table, (P)model.getRowAt( row ), value, isSelected, hasFocus, row, column );
+            prepareComponent( component, (HierarchicalTable<P>)table, (P)model.getRowAt( row ), value, isSelected, hasFocus, row, column, forEditor );
         else
-            prepareComponent( component, (HierarchicalTable<P>)table, null, value, isSelected, hasFocus, row, column );
+            prepareComponent( component, (HierarchicalTable<P>)table, null, value, isSelected, hasFocus, row, column, forEditor );
         
         return ( component );
+    }
+    
+    @Override
+    public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    {
+        return ( getTableCellComponent( table, value, isSelected, hasFocus, row, column, false ) );
+    }
+    
+    @Override
+    public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
+    {
+        return ( getTableCellComponent( table, value, isSelected, true, row, column, false ) );
     }
     
     protected abstract Object getCellEditorValueImpl() throws Throwable;

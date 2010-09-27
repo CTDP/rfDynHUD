@@ -24,9 +24,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellEditor;
-
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
@@ -37,7 +34,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel> implements TableCellEditor
+public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -46,16 +43,16 @@ public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel> imple
     private final DefaultComboBoxModel model = (DefaultComboBoxModel)combobox.getModel();
     private final JButton button = new JButton();
     
-    private JTable table = null;
+    private HierarchicalTable<Property> table = null;
     private Property prop = null;
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
-    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         setComponent( panel );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         this.prop = property;
         
@@ -70,9 +67,17 @@ public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel> imple
             button.setToolTipText( prop.getButtonTooltip() );
         }
         
-        combobox.setBackground( table.getBackground() );
-        combobox.setForeground( table.getForeground() );
-        combobox.setFont( table.getFont() );
+        if ( /*isSelected ||*/ forEditor )
+        {
+            combobox.setBackground( table.getSelectionBackground() );
+            combobox.setForeground( table.getSelectionForeground() );
+        }
+        else
+        {
+            combobox.setBackground( table.getBackground() );
+            combobox.setForeground( table.getStyle().getValueCellFontColor() );
+        }
+        combobox.setFont( table.getStyle().getValueCellFont() );
         
         model.removeAllElements();
         for ( Object o : ( (ListProperty<?, ?>)prop ).getList() )
@@ -82,17 +87,6 @@ public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel> imple
         this.table = table;
         
         //return ( panel );
-    }
-    
-    @Override
-    public java.awt.Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
-    {
-        getTableCellRendererComponent( table, value, isSelected, true, row, column );
-        
-        combobox.setBackground( table.getSelectionBackground() );
-        combobox.setForeground( table.getSelectionForeground() );
-        
-        return ( panel );
     }
     
     @Override

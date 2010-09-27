@@ -454,9 +454,16 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         propsCont.addProperty( new ListProperty<String, ArrayList<String>>( (Widget)null, "screenshotSet", screenshotSet, getScreenshotSets() )
         {
             @Override
+            protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+            {
+                return ( true );
+            }
+            
+            @Override
             public void setValue( Object value )
             {
-                switchScreenshotSet( (String)value );
+                if ( !Tools.objectsEqual( value, screenshotSet ) )
+                    switchScreenshotSet( (String)value );
             }
             
             @Override
@@ -489,6 +496,12 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         
         propsCont.addProperty( new ListProperty<String, ArrayList<String>>( (Widget)null, "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
         {
+            @Override
+            protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+            {
+                return ( true );
+            }
+            
             @Override
             public void setValue( Object value )
             {
@@ -626,7 +639,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
                 if ( v instanceof String )
                 {
                     String pn = (String)v;
-                    if ( pn.equals( "x" ) || pn.equals( "y" ) || pn.equals( "width" ) || pn.equals( "height" ) )
+                    if ( pn.equals( "positioning" ) || pn.equals( "x" ) || pn.equals( "y" ) || pn.equals( "width" ) || pn.equals( "height" ) )
                         m.fireTableCellUpdated( i, 2 );
                 }
                 else

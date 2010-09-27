@@ -46,9 +46,9 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
      * {@inheritDoc}
      */
     @Override
-    protected void prepareComponent( GroupHeaderRenderLabel component, HierarchicalTable<Object> table, Object property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( GroupHeaderRenderLabel component, HierarchicalTable<Object> table, Object property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         HierarchicalGridStyle style = ( (HierarchicalTable<?>)table ).getStyle();
         

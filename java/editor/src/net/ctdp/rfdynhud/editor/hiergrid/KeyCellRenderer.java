@@ -30,9 +30,9 @@ public class KeyCellRenderer<P extends Object> extends KeyValueCellRenderer<P, K
      * {@inheritDoc}
      */
     @Override
-    protected void prepareComponent( KeyRenderLabel component, HierarchicalTable<P> table, P property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( KeyRenderLabel component, HierarchicalTable<P> table, P property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         HierarchicalGridStyle style = table.getStyle();
         HierarchicalTableModel<P> tm = table.getModel();

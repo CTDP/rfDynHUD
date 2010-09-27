@@ -23,6 +23,8 @@ import java.awt.event.ItemListener;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -113,6 +115,25 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
                     
                     showInputActionDoc( e.getItem() );
                 }
+            }
+        } );
+        
+        combo.addPopupMenuListener( new PopupMenuListener()
+        {
+            @Override
+            public void popupMenuWillBecomeVisible( PopupMenuEvent e )
+            {
+            }
+            
+            @Override
+            public void popupMenuWillBecomeInvisible( PopupMenuEvent e )
+            {
+                stopCellEditing();
+            }
+            
+            @Override
+            public void popupMenuCanceled( PopupMenuEvent e )
+            {
             }
         } );
         

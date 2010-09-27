@@ -49,7 +49,7 @@ public interface GridItemsContainer<P extends Object>
     
     public int getNumberOfItems();
     
-    public void addGroup( GridItemsContainer<P> group );
+    //public void addGroup( GridItemsContainer<P> group );
     
     public void addProperty( P property );
     

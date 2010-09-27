@@ -25,8 +25,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellEditor;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
@@ -35,12 +33,11 @@ import net.ctdp.rfdynhud.properties.Property;
 
 import org.jagatoo.gui.awt_swing.util.ColorChooser;
 
-
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel> implements TableCellEditor
+public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -48,7 +45,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
     private final JLabel label = new JLabel();
     private final JButton button = new JButton();
     
-    private JTable table = null;
+    private HierarchicalTable<Property> table = null;
     private int row = -1;
     private int column = -1;
     private ColorProperty prop = null;
@@ -57,11 +54,11 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
-    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         setComponent( panel );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         this.prop = (ColorProperty)property;
         
@@ -80,7 +77,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
         }
         
         /*
-        if ( isSelected )
+        if ( isSelected || forEditor )
         {
             label.setBackground( table.getSelectionBackground() );
             label.setForeground( table.getSelectionForeground() );
@@ -88,7 +85,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
         else
         {
             label.setBackground( table.getBackground() );
-            label.setForeground( table.getForeground() );
+            label.setForeground( table.getStyle().getValueCellFontColor() );
         }
         */
         
@@ -100,7 +97,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
             label.setForeground( Color.BLACK );
         
         label.setBackground( color );
-        label.setFont( table.getFont() );
+        label.setFont( table.getStyle().getValueCellFont() );
         
         label.setText( (String)value );
         
@@ -109,27 +106,6 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
         this.column = column;
         
         //return ( panel );
-    }
-    
-    @Override
-    public java.awt.Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
-    {
-        getTableCellRendererComponent( table, value, isSelected, true, row, column );
-        
-        //if ( isSelected )
-        {
-            //label.setBackground( table.getSelectionBackground() );
-            //label.setForeground( table.getSelectionForeground() );
-        }
-        /*
-        else
-        {
-            label.setBackground( table.getBackground() );
-            label.setForeground( table.getForeground() );
-        }
-        */
-        
-        return ( panel );
     }
     
     @Override

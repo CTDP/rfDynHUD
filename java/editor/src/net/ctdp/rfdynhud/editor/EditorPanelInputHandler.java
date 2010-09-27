@@ -329,7 +329,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         final int gameResX = widget.getConfiguration().getGameResolution().getViewportWidth();
         final int gameResY = widget.getConfiguration().getGameResolution().getViewportHeight();
         
-        RelativePositioning positioning = editor.getEditorPanel().getSelectedWidget().getPosition().getPositioning();
+        RelativePositioning positioning = widget.getPosition().getPositioning();
         
         if ( positioning.isLeft() )
         {
@@ -340,7 +340,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
         else if ( positioning.isRight() )
         {
-            if ( x / (float)( gameResX - x - w ) < 2.5f )
+            if ( (float)( gameResX - x - w ) / x > 0.4f )
                 positioning = positioning.deriveHCenter();
             else if ( x + w / 2 < gameResX / 2 - 50 )
                 positioning = positioning.deriveLeft();
@@ -363,7 +363,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
         else if ( positioning.isBottom() )
         {
-            if ( y / (float)( gameResY - y - h ) < 2.5f )
+            if ( (float)( gameResY - y - h ) / y > 0.4f )
                 positioning = positioning.deriveVCenter();
             //else if ( y + effHeight / 2 < gameResY * 8 / 10 )
             //    positioning = positioning.deriveTop();

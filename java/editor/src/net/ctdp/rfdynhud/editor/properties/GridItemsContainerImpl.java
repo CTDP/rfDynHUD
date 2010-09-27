@@ -71,10 +71,10 @@ public class GridItemsContainerImpl extends ArrayList< Object > implements GridI
         return ( size() );
     }
     
-    /**
+    /*
      * {@inheritDoc}
      */
-    @Override
+    //@Override
     public void addGroup( GridItemsContainer<Property> group )
     {
         add( group );

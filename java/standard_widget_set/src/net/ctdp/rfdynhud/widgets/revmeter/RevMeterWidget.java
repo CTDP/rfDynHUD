@@ -81,9 +81,10 @@ public class RevMeterWidget extends NeedleMeterWidget
     {
         super.onBackgroundChanged( deltaScaleX, deltaScaleY );
         
-        // TODO: Don't set to null!
         for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
-            shiftLights[i].resetTextures();
+            shiftLights[i].onBackgroundChanged( deltaScaleX, deltaScaleY );
+        
+        // TODO: Don't set to null!
         gearBackgroundTexture = null;
         gearBackgroundTexture_bak = null;
         boostNumberBackgroundTexture = null;

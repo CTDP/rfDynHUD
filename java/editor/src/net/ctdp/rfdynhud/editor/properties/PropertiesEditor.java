@@ -70,7 +70,7 @@ public class PropertiesEditor
     
     public void addGroup( GridItemsContainer<Property> group )
     {
-        properties.addGroup( group );
+        ( (GridItemsContainerImpl)properties ).addGroup( group );
     }
     
     /*

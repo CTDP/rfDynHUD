@@ -65,13 +65,29 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     
     public final int getFirstNonExpanderColumn()
     {
-        if ( hasExpandableItems )
+        if ( hasExpandableItems() )
             return ( 1 );
         
         return ( 0 );
     }
     
-    private boolean computeFlatData( GridItemsContainer<P> items, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
+    protected boolean isGroup( Object item )
+    {
+        return ( item instanceof GridItemsContainer<?> );
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    protected GridItemsContainer<P> toGroup( Object item )
+    {
+        return ( (GridItemsContainer<P>)item ); 
+    }
+    
+    protected String getGroupCaption( Object item )
+    {
+        return ( toGroup( item ).getNameForGrid() );
+    }
+    
+    private boolean computeFlatData( GridItemsContainer<P> items, Boolean expandFlags, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
     {
         boolean hasExpandableItems = false;
         
@@ -97,16 +113,18 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
             
             levels.add( level );
             
-            if ( item instanceof GridItemsContainer )
+            if ( isGroup( item ) )
             {
                 hasExpandableItems = true;
                 
-                @SuppressWarnings( "unchecked" )
-                GridItemsContainer<P> list = (GridItemsContainer<P>)item;
+                GridItemsContainer<P> list = toGroup( item );
+                
+                if ( expandFlags != null )
+                    list.setExpandFlag( expandFlags.booleanValue() );
                 
                 if ( list.getExpandFlag() )
                 {
-                    /*boolean result = */computeFlatData( list, level + 1, flatData, ligTrace, lastInGroup, levels );
+                    /*boolean result = */computeFlatData( list, expandFlags, level + 1, flatData, ligTrace, lastInGroup, levels );
                 }
             }
         }
@@ -114,16 +132,16 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         return ( hasExpandableItems );
     }
     
-    private void computeFlatData( GridItemsContainer<P> items )
+    private void computeFlatData( Boolean expandFlags )
     {
         flatData.clear();
         //lastInGroup.clear();
         levels.clear();
         
-        if ( items == null )
+        if ( data == null )
             this.hasExpandableItems = false;
         else
-            this.hasExpandableItems = computeFlatData( items, 0, flatData, ligTrace, lastInGroup, levels );
+            this.hasExpandableItems = computeFlatData( data, expandFlags, 0, flatData, ligTrace, lastInGroup, levels );
     }
     
     public void setData( GridItemsContainer<P> data )
@@ -131,7 +149,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         this.data = data;
         this.columnCount = columnNames.length;
         
-        computeFlatData( data );
+        computeFlatData( null );
     }
     
     /**
@@ -144,7 +162,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         @SuppressWarnings( "unchecked" )
         HierarchicalTable<P>.HierarchicalTableColumnModel columnModel = (HierarchicalTable<P>.HierarchicalTableColumnModel)table.getColumnModel();
         
-        boolean oldHEI = hasExpandableItems;
+        boolean oldHEI = hasExpandableItems();
         
         setData( this.data );
         if ( ( selectedRow >= 0 ) && ( selectedRow >= getRowCount() ) )
@@ -156,7 +174,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         fireTableDataChanged();
         columnModel.init();
         
-        if ( oldHEI != hasExpandableItems )
+        if ( oldHEI != hasExpandableItems() )
         {
             fireTableStructureChanged();
             columnModel.init();
@@ -190,7 +208,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     @Override
     public int getColumnCount()
     {
-        if ( hasExpandableItems )
+        if ( hasExpandableItems() )
             return ( 1 + columnCount );
         
         return ( columnCount );
@@ -202,8 +220,6 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     }
     
     protected abstract void setValueImpl( HierarchicalTable<P> table, P property, int index, Object newValue );
-    
-    protected abstract Object getValueImpl( HierarchicalTable<P> table, P property, int index );
     
     @SuppressWarnings( "unchecked" )
     @Override
@@ -221,14 +237,14 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         
         Object rowData = flatData.get( row );
         
-        if ( hasExpandableItems )
+        if ( hasExpandableItems() )
         {
             if ( column == 0 )
             {
-                if ( rowData instanceof GridItemsContainer )
+                if ( isGroup( rowData ) )
                 {
-                    ( (GridItemsContainer<P>)rowData ).setExpandFlag( (Boolean)value );
-                    computeFlatData( data );
+                    toGroup( rowData ).setExpandFlag( (Boolean)value );
+                    computeFlatData( null );
                     
                     fireTableDataChanged();
                 }
@@ -236,7 +252,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
                 return;
             }
             
-            if ( rowData instanceof GridItemsContainer )
+            if ( isGroup( rowData ) )
             {
                 if ( column == 1 )
                     return;
@@ -257,6 +273,8 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         fireTableDataChanged();
     }
     
+    protected abstract Object getValueImpl( HierarchicalTable<P> table, P property, int index );
+    
     @SuppressWarnings( "unchecked" )
     @Override
     public final Object getValueAt( int row, int column )
@@ -270,22 +288,22 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         
         Object rowData = flatData.get( row );
         
-        if ( hasExpandableItems )
+        if ( hasExpandableItems() )
         {
             if ( column == 0 )
             {
-                if ( rowData instanceof GridItemsContainer )
+                if ( isGroup( rowData ) )
                 {
-                    return ( ( (GridItemsContainer<?>)rowData ).getExpandFlag() );
+                    return ( toGroup( rowData ).getExpandFlag() );
                 }
                 
                 return ( null );
             }
             
-            if ( rowData instanceof GridItemsContainer )
+            if ( isGroup( rowData ) )
             {
                 if ( column == 1 )
-                    return ( rowData );
+                    return ( getGroupCaption( rowData ) );
                 
                 return ( null );
             }
@@ -318,7 +336,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         //Object rowData = getValueAtRow( data, 0, row );
         Object rowData = flatData.get( row );
         
-        return ( !( rowData instanceof GridItemsContainer ) );
+        return ( !isGroup( rowData ) );
     }
     
     public boolean[] getLastInGroup( int row )
@@ -329,6 +347,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     @Override
     public boolean isCellEditable( int row, int column )
     {
+        /*
         if ( column != getColumnCount() - 1 )
         {
             return ( false );
@@ -337,6 +356,39 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         Object value = getValueAt( row, column );
         
         return ( value != null );
+        */
+        
+        return ( column >= getFirstNonExpanderColumn() + 1 );
+    }
+    
+    public void expandAll()
+    {
+        if ( !hasExpandableItems() )
+            return;
+        
+        for ( int i = 0; i < flatData.size(); i++ )
+        {
+            Object item = flatData.get( i );
+            if ( isGroup( item ) )
+                toGroup( item ).setExpandFlag( true );
+        }
+        
+        fireTableDataChanged();
+    }
+    
+    public void collapseAll()
+    {
+        if ( !hasExpandableItems() )
+            return;
+        
+        for ( int i = 0; i < flatData.size(); i++ )
+        {
+            Object item = flatData.get( i );
+            if ( isGroup( item ) )
+                toGroup( item ).setExpandFlag( false );
+        }
+        
+        fireTableDataChanged();
     }
     
     @Override

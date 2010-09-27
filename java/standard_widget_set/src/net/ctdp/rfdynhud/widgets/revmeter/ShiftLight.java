@@ -93,6 +93,14 @@ public class ShiftLight
         this.textureOn = null;
     }
     
+    public void onBackgroundChanged( float deltaScaleX, float deltaScaleY )
+    {
+        resetTextures();
+        
+        posX.setIntValue( Math.round( posX.getIntValue() * deltaScaleX ) );
+        posY.setIntValue( Math.round( posY.getIntValue() * deltaScaleY ) );
+    }
+    
     private final boolean isOffStatePartOfBackground()
     {
         return ( imageNameOff.getValue().equals( "" ) );

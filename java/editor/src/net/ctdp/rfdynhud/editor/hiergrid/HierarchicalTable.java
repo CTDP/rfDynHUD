@@ -50,6 +50,7 @@ public class HierarchicalTable<P extends Object> extends JTable
 {
     private static final long serialVersionUID = -8967196361910507049L;
     
+    private final TableCellRendererProvider<P> rendererProvider;
     private final HierarchicalGridStyle style;
     
     private final ArrayList<PropertySelectionListener<P>> selectionListeners = new ArrayList<PropertySelectionListener<P>>();
@@ -58,7 +59,7 @@ public class HierarchicalTable<P extends Object> extends JTable
     {
         private void paintCell( Graphics g, Rectangle cellRect, int row, int column )
         {
-            if ( table.isEditing() && table.getEditingRow() == row && table.getEditingColumn() == column )
+            if ( table.isEditing() && ( table.getEditingRow() == row ) && ( table.getEditingColumn() == column ) )
             {
                 Component component = table.getEditorComponent();
                 component.setBounds( cellRect );
@@ -230,87 +231,89 @@ public class HierarchicalTable<P extends Object> extends JTable
     {
         HierarchicalTableModel<P> model = getModel();
         
+        Rectangle rect = super.getCellRect( row, column, includeSpacing );
+        
         if ( model.hasExpandableItems() && ( column == 0 ) )
         {
-            return ( super.getCellRect( row, column, includeSpacing ) );
+            return ( rect );
         }
         
-        Object value = model.getValueAt( row, column );
-        
-        if ( value == null )
+        if ( !model.isDataRow( row ) )
         {
-            Rectangle rect = super.getCellRect( row, column, includeSpacing );
-            rect.x += rect.width - 1;
-            rect.width = 1;
+            int firstCol = getModel().getFirstNonExpanderColumn();
+            
+            if ( column == firstCol )
+            {
+                TableColumnModel cm = getColumnModel();
+                
+                int width = 0;
+                for ( int i = column; i < cm.getColumnCount(); i++ )
+                    width += cm.getColumn( i ).getWidth();
+                
+                rect.width = width;
+            }
+            else
+            {
+                rect.x += rect.width - 1;
+                rect.width = 1;
+            }
             
             return ( rect );
         }
         
-        if ( value instanceof GridItemsContainer )
-        {
-            Rectangle rect = super.getCellRect( row, column, includeSpacing );
-            
-            TableColumnModel cm = getColumnModel();
-            
-            int width = 0;
-            for ( int i = column; i < cm.getColumnCount(); i++ )
-                width += cm.getColumn( i ).getWidth();
-            
-            rect.width = width;
-            
-            return ( rect );
-        }
-        
-        return ( super.getCellRect( row, column, includeSpacing ) );
+        return ( rect );
     }
     
     private final GroupHeaderCellRenderer groupHeaderRenderer = new GroupHeaderCellRenderer();
     
-    protected TableCellRenderer getDataCellRenderer( int row, int column )
-    {
-        return ( super.getCellRenderer( row, column ) );
-    }
-    
+    @SuppressWarnings( "unchecked" )
     @Override
     public TableCellRenderer getCellRenderer( int row, int column )
     {
-        if ( column != 0 )
-        {
-            Object value = getValueAt( row, getColumnCount() - 1 );
-            if ( value == null )
-            {
-                return ( groupHeaderRenderer );
-            }
-        }
+        boolean hasExpandables = getModel().hasExpandableItems();
         
-        if ( ( (HierarchicalTableModel<?>)getModel() ).hasExpandableItems() && ( column == 0 ) )
+        if ( hasExpandables && ( column == 0 ) )
             return ( super.getCellRenderer( row, column ) );
+        
+        if ( !getModel().isDataRow( row ) )
+            return ( groupHeaderRenderer );
         
         TableCellRenderer renderer = getColumnModel().getColumn( column ).getCellRenderer();
         if ( renderer == null )
-            return ( getDataCellRenderer( row, column ) );
+        {
+            if ( rendererProvider == null )
+                return ( super.getCellRenderer( row, column ) );
+            
+            renderer = rendererProvider.getDataCellRenderer( this, row, hasExpandables ? column - 2 : column - 1, (P)getModel().getRowAt( row ) );
+            
+            if ( renderer == null )
+                renderer = super.getCellRenderer( row, column );
+        }
         
         return ( renderer );
-    }
-    
-    protected TableCellEditor getDataCellEditor( int row, int column )
-    {
-        return ( super.getCellEditor( row, column ) );
     }
     
     @Override
     public TableCellEditor getCellEditor( int row, int column )
     {
-        if ( column == getColumnCount() - 1 )
-        {
-            Object value = getValueAt( row, column );
-            if ( value == null )
-                return ( null );
-            
-            return ( getDataCellEditor( row, column ) );
-        }
+        boolean hasExpandables = getModel().hasExpandableItems();
         
-        return ( null );
+        if ( column == 0 )
+            return ( null );
+        
+        if ( ( hasExpandables ) && ( column == 1 ) )
+            return ( null );
+        
+        if ( rendererProvider == null )
+            return ( super.getCellEditor( row, column ) );
+        
+        @SuppressWarnings( "unchecked" )
+        TableCellEditor editor = rendererProvider.getDataCellEditor( this, row, hasExpandables ? column - 2 : column - 1, (P)getModel().getRowAt( row ) );
+        
+        if ( editor == null )
+            editor = super.getCellEditor( row, column );
+        
+        return ( editor );
     }
     
     public class HierarchicalTableColumnModel extends DefaultTableColumnModel
@@ -329,9 +332,11 @@ public class HierarchicalTable<P extends Object> extends JTable
             
             HierarchicalTableModel<P> model = HierarchicalTable.this.getModel();
             
+            int c = 0;
+            
             if ( model.hasExpandableItems() )
             {
-                column = new TableColumn( 0, 18, new ExpanderColumnCellRenderer( minusImage, plusImage ), null );
+                column = new TableColumn( c++, 18, new ExpanderColumnCellRenderer( minusImage, plusImage ), null );
                 column.setMinWidth( 18 );
                 column.setMaxWidth( 18 );
                 column.setHeaderValue( model.getColumnName( 0 ) );
@@ -340,13 +345,13 @@ public class HierarchicalTable<P extends Object> extends JTable
                 addColumn( column );
             }
             
-            column = new TableColumn( 1, 20000, new KeyCellRenderer<P>(), null );
-            //column = new TableColumn( 1, 20000, null, null );
+            column = new TableColumn( c++, 20000, new KeyCellRenderer<P>(), null );
+            //column = new TableColumn( c++, 20000, null, null );
             column.setHeaderValue( model.getColumnName( 1 ) );
             addColumn( column );
             
-            //column = new TableColumn( 2, 20000, new StringKeyValueCellRenderer(), null );
-            column = new TableColumn( 2, 20000, null, null );
+            //column = new TableColumn( c++, 20000, new StringKeyValueCellRenderer(), null );
+            column = new TableColumn( c++, 20000, null, null );
             column.setHeaderValue( model.getColumnName( 2 ) );
             addColumn( column );
         }
@@ -396,7 +401,7 @@ public class HierarchicalTable<P extends Object> extends JTable
         return ( scrollPane );
     }
     
-    public HierarchicalTable( HierarchicalTableModel<P> model, HierarchicalGridStyle style )
+    public HierarchicalTable( HierarchicalTableModel<P> model, TableCellRendererProvider<P> rendererProvider, HierarchicalGridStyle style )
     {
         super( model );
         
@@ -405,6 +410,7 @@ public class HierarchicalTable<P extends Object> extends JTable
         
         model.setTable( this );
         
+        this.rendererProvider = rendererProvider;
         this.style = style;
         
         setColumnModel( new HierarchicalTableColumnModel( style.getExpandedImage(), style.getCollapsedImage() ) );
@@ -428,8 +434,8 @@ public class HierarchicalTable<P extends Object> extends JTable
         addSelectionListener();
     }
     
-    public HierarchicalTable( HierarchicalTableModel<P> model )
+    public HierarchicalTable( HierarchicalTableModel<P> model, TableCellRendererProvider<P> rendererProvider )
     {
-        this( model, new HierarchicalGridStyle() );
+        this( model, rendererProvider, new HierarchicalGridStyle() );
     }
 }

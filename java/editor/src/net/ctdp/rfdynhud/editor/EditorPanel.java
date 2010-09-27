@@ -93,6 +93,12 @@ public class EditorPanel extends JPanel
     private final BooleanProperty drawGrid = new BooleanProperty( (Widget)null, "drawGrid", false )
     {
         @Override
+        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+        {
+            return ( true );
+        }
+        
+        @Override
         protected void onValueChanged( boolean newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
@@ -102,6 +108,12 @@ public class EditorPanel extends JPanel
     
     private final IntProperty gridOffsetX = new IntProperty( (Widget)null, "gridOffsetX", 0 )
     {
+        @Override
+        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+        {
+            return ( true );
+        }
+        
         @Override
         protected void onValueChanged( int oldValue, int newValue )
         {
@@ -113,6 +125,12 @@ public class EditorPanel extends JPanel
     private final IntProperty gridOffsetY = new IntProperty( (Widget)null, "gridOffsetY", 0 )
     {
         @Override
+        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+        {
+            return ( true );
+        }
+        
+        @Override
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
@@ -123,6 +141,12 @@ public class EditorPanel extends JPanel
     private final IntProperty gridSizeX = new IntProperty((Widget) null, "gridSizeX", 10, 0, 5000 )
     {
         @Override
+        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+        {
+            return ( true );
+        }
+        
+        @Override
         protected void onValueChanged( int oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
@@ -132,6 +156,12 @@ public class EditorPanel extends JPanel
     
     private final IntProperty gridSizeY = new IntProperty( (Widget)null, "gridSizeY", 10, 0, 5000 )
     {
+        @Override
+        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+        {
+            return ( true );
+        }
+        
         @Override
         protected void onValueChanged( int oldValue, int newValue )
         {
@@ -791,11 +821,11 @@ public class EditorPanel extends JPanel
                     else
                         drawSubTextures( widget, subTextures, affineTransforms[i], transformedSubRects[i], cacheGraphics );
                     
-                    if ( widget == selectedWidget )
-                        selSubRects = transformedSubRects[i];
-                    
                     oldWidgetSubTexRects.put( widget, transformedSubRects[i] );
                 }
+                
+                if ( widget == selectedWidget )
+                    selSubRects = transformedSubRects[i];
                 
                 // Remember this Widget's rect as old.
                 Rect2i oldWidgetRect = oldWidgetRects.get( widget );

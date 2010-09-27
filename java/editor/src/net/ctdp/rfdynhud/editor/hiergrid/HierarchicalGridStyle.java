@@ -58,6 +58,7 @@ public class HierarchicalGridStyle
     private Color tableBackgroundColor = null; //new Color( 212, 208, 200 )
     
     private int rowHeight = 20;
+    private int levelIndentation = 14;
     
     private Image minusImage = getDefaultCollapseImage();
     private Image plusImage = getDefaultExpandImage();
@@ -82,7 +83,7 @@ public class HierarchicalGridStyle
         return ( tableBackgroundColor );
     }
     
-    public void setrowHeight( int rowHeight )
+    public void setRowHeight( int rowHeight )
     {
         this.rowHeight = rowHeight;
     }
@@ -90,6 +91,16 @@ public class HierarchicalGridStyle
     public final int getRowHeight()
     {
         return ( rowHeight );
+    }
+    
+    public void setLevelIndentation( int li )
+    {
+        this.levelIndentation = li;
+    }
+    
+    public final int getLevelIndentation()
+    {
+        return ( levelIndentation );
     }
     
     public void setExpandedImage( Image image )

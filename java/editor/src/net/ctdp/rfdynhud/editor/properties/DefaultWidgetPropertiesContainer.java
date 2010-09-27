@@ -47,7 +47,7 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
         GridItemsContainer<Property> group = new GridItemsContainerImpl( groupName, initiallyExpanded );
         
         GridItemsContainer<Property> parentGroup = groupStack.peek();
-        parentGroup.addGroup( group );
+        ( (GridItemsContainerImpl)parentGroup ).addGroup( group );
         groupStack.push( group );
         currList = group;
     }

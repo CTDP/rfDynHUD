@@ -193,7 +193,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
                 headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, colPadding, colWidths );
             else
                 headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, colPadding, colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000" }, colAligns, colPadding, colWidths );
+            timeStrings[0].getMaxColWidths( new String[] { "00", "-0:00.000" }, colAligns, colPadding, colWidths );
         }
         
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();

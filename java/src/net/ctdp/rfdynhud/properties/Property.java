@@ -154,7 +154,12 @@ public abstract class Property
     @Override
     public String toString()
     {
-        return ( this.getClass().getSimpleName() + "( \"" + getName() + "\" = \"" + String.valueOf( getValue() ) + "\" )" );
+        Class<?> clazz = this.getClass();
+        //while ( clazz.getName().lastIndexOf( '$' ) >= 0 )
+        while ( clazz.getSimpleName().equals( "" ) )
+            clazz = clazz.getSuperclass();
+        
+        return ( clazz.getSimpleName() + "( \"" + getName() + "\" = \"" + String.valueOf( getValue() ) + "\" )" );
     }
     
     private static String generateNameForDisplay( String nameForDisplay )

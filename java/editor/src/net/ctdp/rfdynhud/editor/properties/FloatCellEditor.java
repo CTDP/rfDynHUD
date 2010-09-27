@@ -25,10 +25,7 @@ import java.util.Locale;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.TableCellEditor;
-
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
@@ -38,7 +35,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel> implements TableCellEditor
+public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -48,16 +45,16 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
     private final JTextField textfield = new JTextField();
     private final JButton button = new JButton();
     
-    private JTable table = null;
+    private HierarchicalTable<Property> table = null;
     private Property prop = null;
     
     @Override
     //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
-    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         setComponent( panel );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         this.prop = property;
         
@@ -72,7 +69,7 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
             button.setToolTipText( prop.getButtonTooltip() );
         }
         
-        if ( isSelected )
+        if ( isSelected /*|| forEditor*/ )
         {
             textfield.setBackground( table.getSelectionBackground() );
             textfield.setForeground( table.getSelectionForeground() );
@@ -80,9 +77,9 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
         else
         {
             textfield.setBackground( table.getBackground() );
-            textfield.setForeground( table.getForeground() );
+            textfield.setForeground( table.getStyle().getValueCellFontColor() );
         }
-        textfield.setFont( table.getFont() );
+        textfield.setFont( table.getStyle().getValueCellFont() );
         textfield.setBorder( null );
         
         textfield.setText( FORMAT.format( value ) );
@@ -90,19 +87,6 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel> impl
         this.table = table;
         
         //return ( panel );
-    }
-    
-    @Override
-    public java.awt.Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
-    {
-        getTableCellRendererComponent( table, value, isSelected, true, row, column );
-        
-        //textfield.setBackground( table.getSelectionBackground() );
-        //textfield.setForeground( table.getSelectionForeground() );
-        textfield.setBackground( table.getBackground() );
-        textfield.setForeground( table.getForeground() );
-        
-        return ( panel );
     }
     
     @Override

@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -227,12 +228,15 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         rows.get( row )[0] = newM;
         rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
         fireTableRowsUpdated( row, row );
-        dirtyFlag = true;
+        setDirtyFlag();
     }
     
     @Override
     public void setValueAt( Object value, int row, int column )
     {
+        if ( Tools.objectsEqual( value, getValueAt( row, column ) ) )
+            return;
+        
         if ( column == 0 )
         {
             String widgetName = String.valueOf( value );
@@ -244,7 +248,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 
                 rows.add( new Object[] { new InputMapping( widgetName, null, DEFAULT_INPUT_DEVICE, -1, 0, 1 ), DEFAULT_INPUT_DEVICE } );
                 fireTableRowsUpdated( row, row );
-                dirtyFlag = true;
+                setDirtyFlag();
             }
             else
             {
@@ -253,7 +257,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 rows.get( row )[0] = newM;
                 rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
                 fireTableRowsUpdated( row, row );
-                dirtyFlag = true;
+                setDirtyFlag();
             }
         }
         else if ( column == 1 )
@@ -267,7 +271,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                     rows.add( new Object[] { new InputMapping( getDefaultWidgetName( action ), action, DEFAULT_INPUT_DEVICE, -1, 0, 1 ), DEFAULT_INPUT_DEVICE } );
                     fireTableRowsInserted( row, row );
                     fireTableRowsUpdated( row, row );
-                    dirtyFlag = true;
+                    setDirtyFlag();
                 }
                 else
                 {
@@ -276,7 +280,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                     rows.get( row )[0] = newM;
                     rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
                     fireTableRowsUpdated( row, row );
-                    dirtyFlag = true;
+                    setDirtyFlag();
                 }
             }
             else
@@ -286,7 +290,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
                 rows.get( row )[0] = newM;
                 rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
                 fireTableRowsUpdated( row, row );
-                dirtyFlag = true;
+                setDirtyFlag();
             }
         }
         else if ( column == 2 )
@@ -298,13 +302,13 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
             {
                 rows.add( new Object[] { new InputMapping( "WIDGET_NAME", null, device_comp ), device_comp } );
                 fireTableRowsUpdated( row, row );
-                dirtyFlag = true;
+                setDirtyFlag();
             }
             else
             {
                 rows.get( row )[1] = device_comp;
                 fireTableRowsUpdated( row, row );
-                dirtyFlag = true;
+                setDirtyFlag();
             }
             */
         }
@@ -317,7 +321,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
             rows.get( row )[0] = newM;
             rows.get( row )[1] = InputMappingsManager.getComponentNameForTable( newM );
             fireTableRowsUpdated( row, row );
-            dirtyFlag = true;
+            setDirtyFlag();
         }
     }
     
@@ -333,8 +337,11 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
             
             if ( ( action != null ) && widgetHostsAction( widget, action ) )
             {
-                table.getCellEditor( row, column ).stopCellEditing();
-                setValueAt( widget.getName(), row, column );
+                if ( table.isEditing() && ( table.getEditingColumn() == 0 ) )
+                {
+                    table.getCellEditor().stopCellEditing();
+                    setValueAt( widget.getName(), row, column );
+                }
             }
         }
     }
@@ -443,7 +450,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
             
             writer.close();
             
-            dirtyFlag = false;
+            resetDirtyFlag();
         }
         catch ( Throwable t )
         {

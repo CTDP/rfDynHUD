@@ -17,12 +17,10 @@
  */
 package net.ctdp.rfdynhud.editor.properties;
 
+import java.awt.Font;
 import java.util.EventObject;
 
 import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellEditor;
-
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
@@ -32,50 +30,37 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel> implements TableCellEditor
+public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel>
 {
     private static final long serialVersionUID = 7979822630367678241L;
     
     private final JLabel label = new JLabel();
     
+    private static Font font = null;
+    
     @Override
     //public JLabel getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
-    protected void prepareComponent( JLabel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column )
+    protected void prepareComponent( JLabel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         setComponent( label );
         
-        super.prepareComponent( label, table, property, value, isSelected, hasFocus, row, column );
+        super.prepareComponent( label, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         if ( isSelected )
             label.setBackground( table.getSelectionBackground() );
         else
             label.setBackground( table.getBackground() );
-        //label.setForeground( table.getForeground() );
+        //label.setForeground( table.getStyle().getValueCellFontColor() );
         label.setForeground( java.awt.Color.LIGHT_GRAY );
-        label.setFont( table.getFont().deriveFont( java.awt.Font.ITALIC ) );
+        
+        if ( font == null )
+            font = table.getStyle().getValueCellFont().deriveFont( Font.ITALIC );
+        
+        label.setFont( font );
         
         label.setText( String.valueOf( value ) );
         
         //return ( label );
-    }
-    
-    @Override
-    public JLabel getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
-    {
-        //Property property = (Property)( (EditorTableModel)table.getModel() ).getRowAt( row );
-        Property property = null;
-        
-        //JLabel label = getTableCellRendererComponent( table, value, isSelected, true, row, column );
-        prepareComponent( label, (EditorTable)table, property, value, isSelected, true, row, column );
-        
-        if ( isSelected )
-            label.setBackground( table.getSelectionBackground() );
-        else
-            label.setBackground( table.getBackground() );
-        //label.setForeground( table.getSelectionForeground() );
-        label.setForeground( java.awt.Color.LIGHT_GRAY );
-        
-        return ( label );
     }
     
     @Override
