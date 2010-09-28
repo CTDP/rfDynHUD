@@ -106,15 +106,15 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
         
         component.setBorder( this );
         
-        if ( isSelected )
+        if ( isSelected && !forEditor )
         {
-            component.setForeground( table.getSelectionForeground() );
             component.setBackground( table.getSelectionBackground() );
+            component.setForeground( table.getSelectionForeground() );
         }
         else
         {
-            component.setForeground( table.getForeground() );
             component.setBackground( table.getBackground() );
+            component.setForeground( style.getValueCellFontColor() );
         }
         
         component.setFont( style.getValueCellFont() );
@@ -148,7 +148,7 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
     @Override
     public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
-        return ( getTableCellComponent( table, value, isSelected, true, row, column, false ) );
+        return ( getTableCellComponent( table, value, isSelected, true, row, column, true ) );
     }
     
     protected abstract Object getCellEditorValueImpl() throws Throwable;

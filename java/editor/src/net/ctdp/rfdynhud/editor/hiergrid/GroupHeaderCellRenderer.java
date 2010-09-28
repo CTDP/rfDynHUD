@@ -57,7 +57,7 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
         
         HierarchicalTableModel<?> tm = (HierarchicalTableModel<?>)table.getModel();
         
-        component.setLevel( tm.getLevel( row ) );
+        component.setLevel( tm.getLevel( row ), style.getLevelIndentation() );
         component.setLastInGroup( tm.getLastInGroup( row ) );
         component.setExpanded( tm.getValueAt( row, 0 ) == Boolean.TRUE );
         

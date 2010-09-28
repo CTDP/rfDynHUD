@@ -49,13 +49,11 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private Property prop = null;
     
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
-        
+        this.table = table;
         this.prop = property;
         
         if ( prop.getButtonText() == null )
@@ -69,7 +67,7 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel>
             button.setToolTipText( prop.getButtonTooltip() );
         }
         
-        if ( isSelected /*|| forEditor*/ )
+        if ( isSelected && !forEditor )
         {
             textfield.setBackground( table.getSelectionBackground() );
             textfield.setForeground( table.getSelectionForeground() );
@@ -79,14 +77,11 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel>
             textfield.setBackground( table.getBackground() );
             textfield.setForeground( table.getStyle().getValueCellFontColor() );
         }
+        panel.setBackground( textfield.getBackground() );
         textfield.setFont( table.getStyle().getValueCellFont() );
         textfield.setBorder( null );
         
         textfield.setText( FORMAT.format( value ) );
-        
-        this.table = table;
-        
-        //return ( panel );
     }
     
     @Override
@@ -104,6 +99,8 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel>
     public FloatCellEditor()
     {
         super( false, null );
+        
+        setComponent( panel );
         
         textfield.addActionListener( new java.awt.event.ActionListener()
         {

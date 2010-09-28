@@ -44,14 +44,12 @@ public class StringCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private Property prop = null;
     
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
-        
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         this.prop = property;
+        this.table = table;
         
         if ( prop.getButtonText() == null )
         {
@@ -64,7 +62,29 @@ public class StringCellEditor extends KeyValueCellRenderer<Property, JPanel>
             button.setToolTipText( prop.getButtonTooltip() );
         }
         
-        if ( isSelected /*|| forEditor*/ )
+        /*
+        if ( isSelected )
+        {
+            if ( forEditor )
+            {
+                Color c = table.getSelectionBackground();
+                //c = new Color( 255 - (int)( ( 255 - c.getRed() ) * 0.8 ), 255 - (int)( ( 255 - c.getGreen() ) * 0.8 ), 255 - (int)( ( 255 - c.getBlue() ) * 0.8 ), c.getAlpha() );
+                textfield.setBackground( c );
+                textfield.setForeground( Color.BLACK );
+            }
+            else
+            {
+                textfield.setBackground( table.getSelectionBackground() );
+                textfield.setForeground( table.getSelectionForeground() );
+            }
+        }
+        else
+        {
+            textfield.setBackground( table.getBackground() );
+            textfield.setForeground( table.getStyle().getValueCellFontColor() );
+        }
+        */
+        if ( isSelected && !forEditor )
         {
             textfield.setBackground( table.getSelectionBackground() );
             textfield.setForeground( table.getSelectionForeground() );
@@ -74,14 +94,11 @@ public class StringCellEditor extends KeyValueCellRenderer<Property, JPanel>
             textfield.setBackground( table.getBackground() );
             textfield.setForeground( table.getStyle().getValueCellFontColor() );
         }
+        panel.setBackground( textfield.getBackground() );
         textfield.setFont( table.getStyle().getValueCellFont() );
         textfield.setBorder( null );
         
         textfield.setText( String.valueOf( value ) );
-        
-        this.table = table;
-        
-        //return ( panel );
     }
     
     @Override
@@ -98,6 +115,8 @@ public class StringCellEditor extends KeyValueCellRenderer<Property, JPanel>
     public StringCellEditor()
     {
         super( false, null );
+        
+        setComponent( panel );
         
         textfield.addActionListener( new java.awt.event.ActionListener()
         {

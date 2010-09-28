@@ -47,13 +47,11 @@ public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private Property prop = null;
     
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
-        
+        this.table = table;
         this.prop = property;
         
         if ( prop.getButtonText() == null )
@@ -67,7 +65,7 @@ public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel>
             button.setToolTipText( prop.getButtonTooltip() );
         }
         
-        if ( /*isSelected ||*/ forEditor )
+        if ( isSelected && !forEditor )
         {
             combobox.setBackground( table.getSelectionBackground() );
             combobox.setForeground( table.getSelectionForeground() );
@@ -77,16 +75,18 @@ public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel>
             combobox.setBackground( table.getBackground() );
             combobox.setForeground( table.getStyle().getValueCellFontColor() );
         }
+        
+        if ( isSelected )
+            panel.setBackground( table.getSelectionBackground() );
+        else
+            panel.setBackground( table.getBackground() );
+        
         combobox.setFont( table.getStyle().getValueCellFont() );
         
         model.removeAllElements();
         for ( Object o : ( (ListProperty<?, ?>)prop ).getList() )
             model.addElement( o );
         model.setSelectedItem( value );
-        
-        this.table = table;
-        
-        //return ( panel );
     }
     
     @Override
@@ -103,6 +103,8 @@ public class ListCellEditor extends KeyValueCellRenderer<Property, JPanel>
     public ListCellEditor()
     {
         super( false, null );
+        
+        setComponent( panel );
         
         combobox.addActionListener( new java.awt.event.ActionListener()
         {

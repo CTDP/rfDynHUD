@@ -72,7 +72,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
         button1.setPreferredSize( new Dimension( 30, 5 ) );
         button2.setPreferredSize( new Dimension( 30, 5 ) );
         
-        if ( isSelected /*|| forEditor*/ )
+        if ( isSelected && !forEditor )
         {
             textfield.setBackground( table.getSelectionBackground() );
             textfield.setForeground( table.getSelectionForeground() );
@@ -82,6 +82,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
             textfield.setBackground( table.getBackground() );
             textfield.setForeground( table.getStyle().getValueCellFontColor() );
         }
+        panel.setBackground( textfield.getBackground() );
         textfield.setFont( table.getStyle().getValueCellFont() );
         textfield.setBorder( null );
         

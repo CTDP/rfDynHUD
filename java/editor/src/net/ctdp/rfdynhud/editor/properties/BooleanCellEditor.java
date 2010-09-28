@@ -47,13 +47,11 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private Property prop = null;
     
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
-        
+        this.table = table;
         this.prop = property;
         
         if ( prop.getButtonText() == null )
@@ -69,18 +67,15 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
         
         if ( isSelected || forEditor )
         {
-            panel.setBackground( table.getSelectionBackground() );
-            panel.setForeground( table.getSelectionForeground() );
             checkbox.setBackground( table.getSelectionBackground() );
             checkbox.setForeground( table.getSelectionForeground() );
         }
         else
         {
-            panel.setBackground( table.getBackground() );
-            panel.setForeground( table.getStyle().getValueCellFontColor() );
             checkbox.setBackground( table.getBackground() );
             checkbox.setForeground( table.getStyle().getValueCellFontColor() );
         }
+        panel.setBackground( checkbox.getBackground() );
         checkbox.setFont( table.getStyle().getValueCellFont() );
         
         checkbox.setBorder( border );
@@ -89,10 +84,6 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
             checkbox.setSelected( (Boolean)value );
         else
             checkbox.setSelected( Boolean.parseBoolean( String.valueOf( value ) ) );
-        
-        this.table = table;
-        
-        //return ( panel );
     }
     
     @Override
@@ -109,6 +100,8 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
     public BooleanCellEditor()
     {
         super( false, null );
+        
+        setComponent( panel );
         
         checkbox.setHorizontalAlignment( JCheckBox.CENTER );
         

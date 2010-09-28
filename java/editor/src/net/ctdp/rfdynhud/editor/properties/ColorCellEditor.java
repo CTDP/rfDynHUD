@@ -53,13 +53,13 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private static ColorChooser colorChooser = null;
     
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
-        
+        this.table = table;
+        this.row = row;
+        this.column = column;
         this.prop = (ColorProperty)property;
         
         if ( prop.getButtonText() == null )
@@ -97,15 +97,10 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
             label.setForeground( Color.BLACK );
         
         label.setBackground( color );
+        panel.setBackground( label.getBackground() );
         label.setFont( table.getStyle().getValueCellFont() );
         
         label.setText( (String)value );
-        
-        this.table = table;
-        this.row = row;
-        this.column = column;
-        
-        //return ( panel );
     }
     
     @Override
@@ -122,6 +117,8 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
     public ColorCellEditor()
     {
         super( false, null );
+        
+        setComponent( panel );
         
         button.setMargin( new Insets( 0, 3, 0 , 3 ) );
         

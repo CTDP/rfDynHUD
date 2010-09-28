@@ -39,12 +39,9 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel>
     private static Font font = null;
     
     @Override
-    //public JLabel getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JLabel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( label );
-        
-        super.prepareComponent( label, table, property, value, isSelected, hasFocus, row, column, forEditor );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
         if ( isSelected )
             label.setBackground( table.getSelectionBackground() );
@@ -59,8 +56,6 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel>
         label.setFont( font );
         
         label.setText( String.valueOf( value ) );
-        
-        //return ( label );
     }
     
     @Override
@@ -83,5 +78,7 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel>
     public ReadonlyCellEditor()
     {
         super( false, null );
+        
+        setComponent( label );
     }
 }

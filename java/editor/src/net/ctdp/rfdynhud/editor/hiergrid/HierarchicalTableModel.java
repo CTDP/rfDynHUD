@@ -87,6 +87,16 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         return ( toGroup( item ).getNameForGrid() );
     }
     
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    protected boolean isItemIgnored( Object item )
+    {
+        return ( false );
+    }
+    
     private boolean computeFlatData( GridItemsContainer<P> items, Boolean expandFlags, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
     {
         boolean hasExpandableItems = false;
@@ -94,6 +104,9 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         for ( int i = 0; i < items.getNumberOfItems(); i++ )
         {
             Object item = items.getItem( i );
+            
+            if ( isItemIgnored( item ) )
+                continue;
             
             flatData.add( item );
             
@@ -366,12 +379,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         if ( !hasExpandableItems() )
             return;
         
-        for ( int i = 0; i < flatData.size(); i++ )
-        {
-            Object item = flatData.get( i );
-            if ( isGroup( item ) )
-                toGroup( item ).setExpandFlag( true );
-        }
+        computeFlatData( true );
         
         fireTableDataChanged();
     }
@@ -381,12 +389,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         if ( !hasExpandableItems() )
             return;
         
-        for ( int i = 0; i < flatData.size(); i++ )
-        {
-            Object item = flatData.get( i );
-            if ( isGroup( item ) )
-                toGroup( item ).setExpandFlag( false );
-        }
+        computeFlatData( false );
         
         fireTableDataChanged();
     }

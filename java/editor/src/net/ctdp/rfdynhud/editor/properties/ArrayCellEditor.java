@@ -47,13 +47,11 @@ public class ArrayCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private Property prop = null;
     
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
-        
+        this.table = table;
         this.prop = property;
         
         if ( prop.getButtonText() == null )
@@ -67,7 +65,7 @@ public class ArrayCellEditor extends KeyValueCellRenderer<Property, JPanel>
             button.setToolTipText( prop.getButtonTooltip() );
         }
         
-        if ( isSelected || forEditor )
+        if ( isSelected && !forEditor )
         {
             combobox.setBackground( table.getSelectionBackground() );
             combobox.setForeground( table.getSelectionForeground() );
@@ -78,16 +76,17 @@ public class ArrayCellEditor extends KeyValueCellRenderer<Property, JPanel>
             combobox.setForeground( table.getStyle().getValueCellFontColor() );
         }
         
+        if ( isSelected )
+            panel.setBackground( table.getSelectionBackground() );
+        else
+            panel.setBackground( table.getBackground() );
+        
         combobox.setFont( table.getStyle().getValueCellFont() );
         
         model.removeAllElements();
         for ( Object o : ( (ArrayProperty<?>)prop ).getArray() )
             model.addElement( o );
         model.setSelectedItem( value );
-        
-        this.table = table;
-        
-        //return ( panel );
     }
     
     @Override
@@ -105,6 +104,8 @@ public class ArrayCellEditor extends KeyValueCellRenderer<Property, JPanel>
     {
         super( false, null );
         
+        setComponent( panel );
+        
         combobox.addActionListener( new java.awt.event.ActionListener()
         {
             @Override
@@ -115,7 +116,7 @@ public class ArrayCellEditor extends KeyValueCellRenderer<Property, JPanel>
             }
         } );
         
-        button.setMargin( new Insets( 0, 3, 0 , 3 ) );
+        button.setMargin( new Insets( 0, 3, 0, 3 ) );
         
         button.addActionListener( new java.awt.event.ActionListener()
         {

@@ -37,7 +37,7 @@ public class KeyCellRenderer<P extends Object> extends KeyValueCellRenderer<P, K
         HierarchicalGridStyle style = table.getStyle();
         HierarchicalTableModel<P> tm = table.getModel();
         
-        component.setLevel( tm.getLevel( row ) );
+        component.setLevel( tm.getLevel( row ), style.getLevelIndentation() );
         component.setLastInGroup( tm.getLastInGroup( row ) );
         
         component.setForeground( style.getKeyCellFontColor() );

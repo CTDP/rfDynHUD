@@ -31,11 +31,13 @@ public class KeyRenderLabel extends JLabel
     private static final long serialVersionUID = 1L;
     
     private int level = 0;
+    private int indent = 14;
     private boolean[] lastInGroup = null;
     
-    public void setLevel( int level )
+    public void setLevel( int level, int indent )
     {
         this.level = level;
+        this.indent = indent;
     }
     
     public void setLastInGroup( boolean[] lig )
@@ -54,8 +56,6 @@ public class KeyRenderLabel extends JLabel
             
             Color oldColor = g2.getColor();
             g2.setColor( Color.BLACK );
-            
-            int indent = 14;
             
             for ( int i = 1; i <= level; i++ )
             {

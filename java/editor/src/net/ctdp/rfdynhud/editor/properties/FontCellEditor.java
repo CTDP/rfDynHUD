@@ -52,13 +52,13 @@ public class FontCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private static FontChooser fontChooser = null;
     
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
-        
+        this.table = table;
+        this.row = row;
+        this.column = column;
         this.prop = (FontProperty)property;
         
         if ( prop.getButtonText() == null )
@@ -85,15 +85,10 @@ public class FontCellEditor extends KeyValueCellRenderer<Property, JPanel>
             label.setBackground( table.getBackground() );
             label.setForeground( table.getStyle().getValueCellFontColor() );
         }
+        panel.setBackground( label.getBackground() );
         label.setFont( table.getStyle().getValueCellFont() );
         
         label.setText( (String)value );
-        
-        this.table = table;
-        this.row = row;
-        this.column = column;
-        
-        //return ( panel );
     }
     
     @Override
@@ -110,6 +105,8 @@ public class FontCellEditor extends KeyValueCellRenderer<Property, JPanel>
     public FontCellEditor()
     {
         super( false, null );
+        
+        setComponent( panel );
         
         button.setMargin( new Insets( 0, 3, 0 , 3 ) );
         
