@@ -38,13 +38,13 @@ public class StringProperty extends Property
     {
     }
     
-    public void setStringValue( String value )
+    public boolean setStringValue( String value )
     {
         if ( forceTrimOnSet && ( value != null ) )
             value = value.trim();
         
         if ( ( ( value == null ) && ( this.value == null ) ) || ( ( value != null ) && value.equals( this.value ) ) )
-            return;
+            return ( false );
         
         String oldValue = this.value;
         this.value = value;
@@ -55,6 +55,8 @@ public class StringProperty extends Property
         triggerCommonOnValueChanged( oldValue, value );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             onValueChanged( oldValue, value );
+        
+        return ( true );
     }
     
     public final String getStringValue()

@@ -55,12 +55,12 @@ public class FloatProperty extends Property
     {
     }
     
-    public void setFloatValue( float value )
+    public boolean setFloatValue( float value )
     {
         value = fixValue( value );
         
         if ( value == this.value )
-            return;
+            return ( false );
         
         float oldValue = this.value;
         this.value = value;
@@ -71,6 +71,8 @@ public class FloatProperty extends Property
         triggerCommonOnValueChanged( oldValue, value );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             onValueChanged( oldValue, value );
+        
+        return ( true );
     }
     
     public final float getFloatValue()

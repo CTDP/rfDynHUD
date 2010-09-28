@@ -55,12 +55,12 @@ public class IntProperty extends Property
     {
     }
     
-    public void setIntValue( int value )
+    public boolean setIntValue( int value )
     {
         value = fixValue( value );
         
         if ( value == this.value )
-            return;
+            return ( false );
         
         int oldValue = this.value;
         this.value = value;
@@ -71,6 +71,8 @@ public class IntProperty extends Property
         triggerCommonOnValueChanged( oldValue, value );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             onValueChanged( oldValue, value );
+        
+        return ( true );
     }
     
     public final int getIntValue()

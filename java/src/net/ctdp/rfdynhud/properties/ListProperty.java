@@ -50,10 +50,10 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
     {
     }
     
-    public void setSelectedValue( E value )
+    public boolean setSelectedValue( E value )
     {
         if ( Tools.objectsEqual( value, this.value ) )
-            return;
+            return ( false );
         
         E oldValue = this.value;
         this.value = value;
@@ -67,6 +67,8 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
         
         if ( widget != null )
             __WPrivilegedAccess.onPropertyChanged( this, oldValue, value, widget );
+        
+        return ( false );
     }
     
     public final E getSelectedValue()

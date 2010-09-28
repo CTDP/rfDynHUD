@@ -46,10 +46,10 @@ public class ArrayProperty<E extends Object> extends Property
     {
     }
     
-    public void setSelectedValue( E value )
+    public boolean setSelectedValue( E value )
     {
         if ( Tools.objectsEqual( value, this.value ) )
-            return;
+            return ( false );
         
         E oldValue = this.value;
         this.value = value;
@@ -60,6 +60,8 @@ public class ArrayProperty<E extends Object> extends Property
         triggerCommonOnValueChanged( oldValue, value );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             onValueChanged( oldValue, value );
+        
+        return ( true );
     }
     
     public final E getSelectedValue()

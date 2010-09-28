@@ -57,11 +57,16 @@ public class FactoredFloatProperty extends FloatProperty
      * {@inheritDoc}
      */
     @Override
-    protected void onValueChanged( float oldValue, float newValue )
+    public boolean setFloatValue( float value )
     {
-        super.onValueChanged( oldValue, newValue );
+        if ( super.setFloatValue( value ) )
+        {
+            this.factoredValue = deriveValue( value, factor );
+            
+            return ( true );
+        }
         
-        this.factoredValue = deriveValue( newValue, factor );
+        return ( false );
     }
     
     /**

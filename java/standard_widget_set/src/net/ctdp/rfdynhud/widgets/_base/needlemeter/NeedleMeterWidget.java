@@ -84,7 +84,12 @@ public abstract class NeedleMeterWidget extends Widget
     
     private TransformableTexture needleTexture = null;
     
-    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", "default_rev_meter_needle.png", false, true )
+    protected String getInitialNeedleImage()
+    {
+        return ( "default_rev_meter_needle.png" );
+    }
+    
+    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", getInitialNeedleImage(), false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -93,8 +98,8 @@ public abstract class NeedleMeterWidget extends Widget
         }
     };
     
-    private final IntProperty needleMountX = new IntProperty( this, "needleMountX", -1, -1, 5000 );
-    private final IntProperty needleMountY = new IntProperty( this, "needleMountY", -1, -1, 5000 );
+    protected final IntProperty needleMountX = new IntProperty( this, "needleMountX", -1, -1, 5000 );
+    protected final IntProperty needleMountY = new IntProperty( this, "needleMountY", -1, -1, 5000 );
     
     protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
     
@@ -106,7 +111,7 @@ public abstract class NeedleMeterWidget extends Widget
     protected final FloatProperty minValue = new FloatProperty( this, "minValue", -MIN_MAX_VALUE_NONE );
     protected final FloatProperty maxValue = new FloatProperty( this, "maxValue", +MIN_MAX_VALUE_NONE );
     
-    private final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
+    protected final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
     
     private final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "cyan_circle.png", false, true );
     private TransformableTexture valueBackgroundTexture = null;

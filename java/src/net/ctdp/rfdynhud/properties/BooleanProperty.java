@@ -37,16 +37,18 @@ public class BooleanProperty extends Property
     {
     }
     
-    public void setBooleanValue( boolean value )
+    public boolean setBooleanValue( boolean value )
     {
         if ( value == this.value )
-            return;
+            return ( false );
         
         this.value = value;
         
         triggerCommonOnValueChanged( !value, value );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             onValueChanged( value );
+        
+        return ( true );
     }
     
     public final boolean getBooleanValue()

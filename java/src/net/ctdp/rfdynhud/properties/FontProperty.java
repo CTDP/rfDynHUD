@@ -88,10 +88,10 @@ public class FontProperty extends Property
         this.font = null;
     }
     
-    public void setFont( String fontKey )
+    public boolean setFont( String fontKey )
     {
         if ( ( fontKey == null ) && ( this.fontKey == null ) )
-            return;
+            return ( false );
         
         final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
         
@@ -127,6 +127,8 @@ public class FontProperty extends Property
                     onValueChanged( oldValue, fontKey );
             }
         }
+        
+        return ( true );
     }
     
     public final void setFont( Font font, boolean virtual, boolean antiAliased )

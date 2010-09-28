@@ -75,12 +75,17 @@ public class DelayProperty extends IntProperty
      * {@inheritDoc}
      */
     @Override
-    protected void onValueChanged( int oldValue, int newValue )
+    public boolean setIntValue( int value )
     {
-        super.onValueChanged( oldValue, newValue );
+        if ( super.setIntValue( value ) )
+        {
+            this.delayNanos = deriveDelay( value, displayUnits );
+            this.delaySeconds = (float)( delayNanos / 1000000000.0 );
+            
+            return ( true );
+        }
         
-        this.delayNanos = deriveDelay( newValue, displayUnits );
-        this.delaySeconds = (float)( delayNanos / 1000000000.0 );
+        return ( false );
     }
     
     /**

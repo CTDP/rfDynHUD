@@ -180,20 +180,24 @@ public class BackgroundProperty extends Property
      * Sets this property to a color of the given value.
      * 
      * @param value
+     * 
+     * @return changed?
      */
-    public void setColorValue( String value )
+    public boolean setColorValue( String value )
     {
-        setPropertyFromValue( COLOR_INDICATOR + value, false );
+        return ( setPropertyFromValue( COLOR_INDICATOR + value, false ) );
     }
     
     /**
      * Sets this property to an image of the given value.
      * 
      * @param value
+     * 
+     * @return changed?
      */
-    public void setImageValue( String value )
+    public boolean setImageValue( String value )
     {
-        setPropertyFromValue( IMAGE_INDICATOR + value, false );
+        return ( setPropertyFromValue( IMAGE_INDICATOR + value, false ) );
     }
     
     public void setValues( BackgroundType type, String colorValue, String imageValue )

@@ -39,10 +39,10 @@ public class EnumProperty<E extends Enum<E>> extends Property
     {
     }
     
-    public void setEnumValue( E value )
+    public boolean setEnumValue( E value )
     {
         if ( value == this.value )
-            return;
+            return ( false );
         
         E oldValue = this.value;
         this.value = value;
@@ -53,6 +53,8 @@ public class EnumProperty<E extends Enum<E>> extends Property
         triggerCommonOnValueChanged( oldValue, value );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             onValueChanged( oldValue, value );
+        
+        return ( true );
     }
     
     public final E getEnumValue()

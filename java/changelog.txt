@@ -65,6 +65,7 @@ Minor:
 * Added peak needle to the RevMeterWidget.
 * Tweaked rendering code to allow for overlapping Widgets.
 * Sub textures are now properly drawn in the editor.
+* Added a FuelNeedleWidget.
 
 TODO:
 

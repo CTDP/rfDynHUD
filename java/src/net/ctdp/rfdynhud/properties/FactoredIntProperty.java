@@ -76,11 +76,16 @@ public class FactoredIntProperty extends IntProperty
      * {@inheritDoc}
      */
     @Override
-    protected void onValueChanged( int oldValue, int newValue )
+    public boolean setIntValue( int value )
     {
-        super.onValueChanged( oldValue, newValue );
+        if ( super.setIntValue( value ) )
+        {
+            this.factoredValue = deriveValue( value, factor, divisor );
+            
+            return ( true );
+        }
         
-        this.factoredValue = deriveValue( newValue, factor, divisor );
+        return ( false );
     }
     
     /**

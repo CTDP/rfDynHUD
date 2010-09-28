@@ -66,10 +66,10 @@ public class ColorProperty extends Property
         this.color = null;
     }
     
-    public void setColor( String colorKey )
+    public boolean setColor( String colorKey )
     {
         if ( ( ( colorKey == null ) && ( this.colorKey == null ) ) || ( ( colorKey != null ) && colorKey.equals( this.colorKey ) ) )
-            return;
+            return ( false );
         
         String oldValue = this.colorKey;
         this.colorKey = colorKey;
@@ -81,16 +81,18 @@ public class ColorProperty extends Property
         triggerCommonOnValueChanged( oldValue, colorKey );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             onValueChanged( oldValue, colorKey );
+        
+        return ( true );
     }
     
-    public final void setColor( Color color )
+    public final boolean setColor( Color color )
     {
-        setColor( ColorUtils.colorToHex( color ) );
+        return ( setColor( ColorUtils.colorToHex( color ) ) );
     }
     
-    public final void setColor( int red, int green, int blue )
+    public final boolean setColor( int red, int green, int blue )
     {
-        setColor( ColorUtils.colorToHex( red, green, blue ) );
+        return ( setColor( ColorUtils.colorToHex( red, green, blue ) ) );
     }
     
     public final String getColorKey()

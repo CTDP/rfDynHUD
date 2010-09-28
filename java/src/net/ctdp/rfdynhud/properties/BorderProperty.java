@@ -63,10 +63,10 @@ public class BorderProperty extends Property
         this.border = null;
     }
     
-    public void setBorder( String borderName )
+    public boolean setBorder( String borderName )
     {
         if ( ( ( borderName == null ) && ( this.borderName == null ) ) || ( ( borderName != null ) && borderName.equals( this.borderName ) ) )
-            return;
+            return ( false );
         
         String oldValue = this.borderName;
         this.borderName = borderName;
@@ -78,6 +78,8 @@ public class BorderProperty extends Property
         triggerCommonOnValueChanged( oldValue, borderName );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
             onValueChanged( oldValue, borderName );
+        
+        return ( true );
     }
     
     public final String getBorderName()
