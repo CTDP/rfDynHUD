@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.render;
 
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 
 import net.ctdp.rfdynhud.util.NumberUtil;
 import sun.awt.image.ByteInterleavedRaster;
@@ -94,10 +95,9 @@ public class ImageTemplate
     
     private void copyPixels( TextureImage2D texture )
     {
-        ByteInterleavedRaster raster = (ByteInterleavedRaster)bufferedImage.getData();
+        ByteInterleavedRaster raster = (ByteInterleavedRaster)bufferedImage.getRaster();
         int[] byteOffsets = raster.getDataOffsets();
-        byte[] srcBytes = raster.getDataStorage();
-        byte[] data;
+        byte[] srcBytes = ( (DataBufferByte)bufferedImage.getRaster().getDataBuffer() ).getData();
         
         /*
         if ( ( ByteOrderManager.RED == byteOffsets[0] ) && ( ByteOrderManager.GREEN == byteOffsets[1] ) && ( ByteOrderManager.BLUE == byteOffsets[2] ) && ( ByteOrderManager.ALPHA == byteOffsets[3] ) )
@@ -108,8 +108,8 @@ public class ImageTemplate
         */
         {
             int pixelStride = ( bufferedImage.getColorModel().hasAlpha() ? 4 : 3 );
-            //data = new byte[ bufferedImage.getWidth() * bufferedImage.getHeight() * pixelStride ];
-            data = texture.getData();
+            //byte[] data = new byte[ bufferedImage.getWidth() * bufferedImage.getHeight() * pixelStride ];
+            byte[] data = texture.getData();
             
             final int w = getBaseWidth();
             final int h = getBaseHeight();
@@ -153,7 +153,7 @@ public class ImageTemplate
      */
     public void drawScaled( int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, TextureImage2D texture, boolean clearBefore )
     {
-        if ( ( bufferedImage.getData() instanceof ByteInterleavedRaster ) && ( bufferedImage.getColorModel().hasAlpha() == texture.hasAlphaChannel() ) && ( sx == 0 ) && ( sy == 0 ) && ( sw == getBaseWidth() ) && ( sh == getBaseHeight() ) && ( dx == 0 ) && ( dy == 0 ) && ( dw == sw ) && ( dh == sh ) && clearBefore )
+        if ( ( bufferedImage.getRaster() instanceof ByteInterleavedRaster ) && ( bufferedImage.getColorModel().hasAlpha() == texture.hasAlphaChannel() ) && ( sx == 0 ) && ( sy == 0 ) && ( sw == getBaseWidth() ) && ( sh == getBaseHeight() ) && ( dx == 0 ) && ( dy == 0 ) && ( dw == sw ) && ( dh == sh ) && clearBefore )
         {
             copyPixels( texture );
         }
@@ -312,6 +312,8 @@ public class ImageTemplate
                         
                         possibleResult.getTexture().resize( width, height );
                         
+                        possibleResult.getTexture().clearUpdateList();
+                        
                         possibleResult.getTexture().clear( 0, 0, Math.max( oldW, width ), Math.max( oldH, height ), false, null );
                         drawScaled( 0, 0, width, height, possibleResult.getTexture(), false );
                     }
@@ -321,6 +323,8 @@ public class ImageTemplate
             }
             else if ( ( width == possibleResult.getTexture().getWidth() ) || ( height == possibleResult.getTexture().getHeight() ) )
             {
+                //possibleResult.getTexture().clearUpdateList();
+                
                 return ( possibleResult );
             }
         }

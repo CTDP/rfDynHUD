@@ -173,6 +173,11 @@ public class HierarchicalTable<P extends Object> extends JTable
                 cMax = table.getColumnCount() - 1;
             }
             
+            if ( cMax >= getColumnModel().getColumnCount() )
+            {
+                cMax = getColumnModel().getColumnCount() - 1;
+            }
+            
             // Paint the grid.
             //paintGrid(g, rMin, rMax, cMin, cMax);
             
@@ -336,9 +341,10 @@ public class HierarchicalTable<P extends Object> extends JTable
             
             if ( model.hasExpandableItems() )
             {
-                column = new TableColumn( c++, 18, new ExpanderColumnCellRenderer( minusImage, plusImage ), null );
-                column.setMinWidth( 18 );
-                column.setMaxWidth( 18 );
+                int w = minusImage.getWidth( null );
+                column = new TableColumn( c++, w + 2, new ExpanderColumnCellRenderer( minusImage, plusImage ), null );
+                column.setMinWidth( w + 2 );
+                column.setMaxWidth( w + 2 );
                 column.setHeaderValue( model.getColumnName( 0 ) );
                 column.setResizable( false );
                 

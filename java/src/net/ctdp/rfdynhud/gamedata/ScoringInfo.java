@@ -308,6 +308,28 @@ public class ScoringInfo
             
             idCapsuleMap.clear();
             
+            // Check for errors and do a workaround...
+            int somethingWrong = 0;
+            for ( int i = 0; i < n; i++ )
+            {
+                if ( vehicleScoringInfo[i] == null )
+                {
+                    somethingWrong++;
+                    vehicleScoringInfo[i] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
+                    vehicleScoringInfo[i].data = new VehicleScoringInfoCapsule();
+                }
+                else if ( vehicleScoringInfo[i].data == null )
+                {
+                    somethingWrong++;
+                    vehicleScoringInfo[i].data = new VehicleScoringInfoCapsule();
+                }
+            }
+            
+            if ( somethingWrong > 0 )
+            {
+                Logger.log( "WARNING: Something went wrong when initializing VehicleScoringInfos. Had to add " + somethingWrong + " instances. numVehicles = " + n + ", old = " + oldNumVehicles );
+            }
+            
             System.arraycopy( vehicleScoringInfo, 0, vehicleScoringInfo2, 0, n );
             
             //for ( int i = n; i < vehicleScoringInfo.length; i++ )

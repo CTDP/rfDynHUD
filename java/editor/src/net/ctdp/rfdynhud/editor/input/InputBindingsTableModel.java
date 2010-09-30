@@ -262,6 +262,9 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         }
         else if ( column == 1 )
         {
+            if ( ( value == InputActionEditor.NO_ACTION ) && ( getValueAt( row, column ) == null ) )
+                return;
+            
             if ( value instanceof InputAction )
             {
                 InputAction action = (InputAction)value;

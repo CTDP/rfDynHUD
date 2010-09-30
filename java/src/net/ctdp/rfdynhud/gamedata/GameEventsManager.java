@@ -23,6 +23,7 @@ import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
+import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
@@ -201,6 +202,10 @@ public class GameEventsManager implements ConfigurationLoadListener
                 widgetsManager.collectTextures( gameData, isEditorMode );
                 //if ( usePlayer )
                     widgetsManager.clearCompleteTexture();
+                
+                //System.gc();
+                Runtime runtime = Runtime.getRuntime();
+                Logger.log( "INFO: Free heap space memory: " + Tools.formatBytes( runtime.freeMemory() ) + " / " + Tools.formatBytes( runtime.totalMemory() ) + " / " + Tools.formatBytes( runtime.maxMemory() ) );
                 
                 result = 2;
             }

@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.editor.hiergrid;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.swing.JTable;
 import javax.swing.event.TableModelListener;
@@ -37,6 +38,8 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     private HierarchicalTable<P> table = null;
     
     private final String[] columnNames;
+    
+    private final GridItemsHandler<P> gridItemsHandler;
     
     private GridItemsContainer<P> data;
     private final ArrayList<Object> flatData = new ArrayList<Object>();
@@ -71,20 +74,19 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         return ( 0 );
     }
     
-    protected boolean isGroup( Object item )
+    protected final boolean isGroup( Object item )
     {
-        return ( item instanceof GridItemsContainer<?> );
+        return ( gridItemsHandler.isGroup( item ) );
     }
     
-    @SuppressWarnings( "unchecked" )
-    protected GridItemsContainer<P> toGroup( Object item )
+    protected final GridItemsContainer<P> toGroup( Object item )
     {
-        return ( (GridItemsContainer<P>)item ); 
+        return ( gridItemsHandler.toGroup( item ) ); 
     }
     
-    protected String getGroupCaption( Object item )
+    protected final String getGroupCaption( Object item )
     {
-        return ( toGroup( item ).getNameForGrid() );
+        return ( gridItemsHandler.getGroupCaption( item ) );
     }
     
     /**
@@ -229,7 +231,24 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     
     public final int getLevel( int row )
     {
+        if ( ( row < 0 ) || ( row >= levels.size() ) )
+            return ( -1 );
+        
         return ( levels.get( row ) );
+    }
+    
+    private static final boolean objectsEqual( Object o1, Object o2 )
+    {
+        if ( o1 == o2 )
+            return ( true );
+        
+        if ( ( o1 == null ) && ( o2 != null ) )
+            return ( false );
+        
+        if ( ( o1 != null ) && ( o2 == null ) )
+            return ( false );
+        
+        return ( o1.equals( o2 ) );
     }
     
     protected abstract void setValueImpl( HierarchicalTable<P> table, P property, int index, Object newValue );
@@ -238,50 +257,43 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     @Override
     public final void setValueAt( Object value, int row, int column )
     {
-        if ( value == null )
-            throw new IllegalArgumentException( "value must not be null." );
-        
-        /*
-        Object rowData = getValueAtRow( data, 0, row );
-        
-        if ( rowData instanceof Integer )
-            return;
-        */
-        
         Object rowData = flatData.get( row );
         
         if ( hasExpandableItems() )
         {
-            if ( column == 0 )
+            if ( isGroup( rowData ) )
             {
-                if ( isGroup( rowData ) )
+                if ( column == 0 )
                 {
-                    toGroup( rowData ).setExpandFlag( (Boolean)value );
+                    GridItemsContainer<P> group = toGroup( rowData );
+                    
+                    if ( group.getExpandFlag() == (Boolean)value )
+                        return;
+                    
+                    group.setExpandFlag( (Boolean)value );
                     computeFlatData( null );
                     
                     fireTableDataChanged();
+                }
+                else if ( column == 1 )
+                {
+                    System.out.println( "Cannot set the group caption in a hierarchical grid!" );
                 }
                 
                 return;
             }
             
-            if ( isGroup( rowData ) )
+            if ( column == 0 )
             {
-                if ( column == 1 )
-                    return;
-                
+                System.out.println( "Cannot set the value of the expander cell on a non group row in a hierarchical grid!" );
                 return;
             }
-            
-            //setValueImpl( table, (P)rowData, column - 1, value );
-            
-            //fireTableDataChanged();
         }
         
-        if ( value.equals( getValueAt( row, column ) ) )
+        if ( objectsEqual( value, getValueAt( row, column ) ) )
             return;
         
-        setValueImpl( table, (P)rowData, column - 1, value );
+        setValueImpl( table, (P)rowData, hasExpandableItems() ? column - 1 : column, value );
         
         fireTableDataChanged();
     }
@@ -292,53 +304,31 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     @Override
     public final Object getValueAt( int row, int column )
     {
-        /*
-        Object rowData = getValueAtRow( data, 0, row );
-        
-        if ( rowData instanceof Integer )
-            return ( null );
-        */
-        
         Object rowData = flatData.get( row );
         
         if ( hasExpandableItems() )
         {
-            if ( column == 0 )
-            {
-                if ( isGroup( rowData ) )
-                {
-                    return ( toGroup( rowData ).getExpandFlag() );
-                }
-                
-                return ( null );
-            }
-            
             if ( isGroup( rowData ) )
             {
+                if ( column == 0 )
+                    return ( toGroup( rowData ).getExpandFlag() );
+                
                 if ( column == 1 )
                     return ( getGroupCaption( rowData ) );
                 
                 return ( null );
             }
             
-            return ( getValueImpl( table, (P)rowData, column - 1 ) );
+            if ( column == 0 )
+                return ( null );
         }
         
-        return ( getValueImpl( table, (P)rowData, column - 1 ) ); // Why minus 1 ???
+        return ( getValueImpl( table, (P)rowData, hasExpandableItems() ? column - 1 : column ) );
     }
     
     public Object getRowAt( int row )
     {
-        /*
-        Object rowData = getValueAtRow( data, 0, row );
-        
-        if ( rowData instanceof Integer )
-            return ( null );
-        */
-        
-        Object rowData = flatData.get( row );
-        
-        return ( rowData );
+        return ( flatData.get( row ) );
     }
     
     public boolean isDataRow( int row )
@@ -346,10 +336,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         if ( ( row < 0 ) || ( row > flatData.size() ) )
             return ( false );
         
-        //Object rowData = getValueAtRow( data, 0, row );
-        Object rowData = flatData.get( row );
-        
-        return ( !isGroup( rowData ) );
+        return ( !isGroup( flatData.get( row ) ) );
     }
     
     public boolean[] getLastInGroup( int row )
@@ -394,6 +381,56 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         fireTableDataChanged();
     }
     
+    private static void readExpandFlags( GridItemsHandler<?> gridItemsHandler, GridItemsContainer<?> list, String keyPrefix, Map<String, Boolean> map )
+    {
+        for ( int i = 0; i < list.getNumberOfItems(); i++ )
+        {
+            if ( gridItemsHandler.isGroup( list.getItem( i ) ) )
+            {
+                GridItemsContainer<?> gic = gridItemsHandler.toGroup( list.getItem( i ) );
+                map.put( keyPrefix + gic.getNameForGrid(), gic.getExpandFlag() );
+                
+                readExpandFlags( gridItemsHandler, gic, keyPrefix, map );
+            }
+        }
+    }
+    
+    public static void readExpandFlags( GridItemsHandler<?> gridItemsHandler, GridItemsContainer<?> list, Map<String, Boolean> map )
+    {
+        readExpandFlags( gridItemsHandler, list, "", map );
+    }
+    
+    public void readExpandFlags( Map<String, Boolean> map )
+    {
+        readExpandFlags( gridItemsHandler, data, "", map );
+    }
+    
+    private static void restoreExpandFlags( GridItemsHandler<?> gridItemsHandler, GridItemsContainer<?> list, String keyPrefix, Map<String, Boolean> map )
+    {
+        for ( int i = 0; i < list.getNumberOfItems(); i++ )
+        {
+            if ( gridItemsHandler.isGroup( list.getItem( i ) ) )
+            {
+                GridItemsContainer<?> gic = gridItemsHandler.toGroup( list.getItem( i ) );
+                Boolean b = map.get( keyPrefix + gic.getNameForGrid() );
+                if ( b != null )
+                    gic.setExpandFlag( b.booleanValue() );
+                
+                restoreExpandFlags( gridItemsHandler, gic, keyPrefix, map );
+            }
+        }
+    }
+    
+    public static void restoreExpandFlags( GridItemsHandler<?> gridItemsHandler, GridItemsContainer<?> list, Map<String, Boolean> map )
+    {
+        restoreExpandFlags( gridItemsHandler, list, "", map );
+    }
+    
+    public void restoreExpandFlags( Map<String, Boolean> map )
+    {
+        restoreExpandFlags( gridItemsHandler, data, "", map );
+    }
+    
     @Override
     public void mouseEntered( MouseEvent e )
     {
@@ -402,10 +439,10 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     @Override
     public void mousePressed( MouseEvent e )
     {
-        JTable table = (JTable)e.getSource();
-        
         if ( hasExpandableItems() )
         {
+            JTable table = (JTable)e.getSource();
+            
             int column = table.columnAtPoint( e.getPoint() );
             
             if ( column == 0 )
@@ -418,7 +455,12 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
                 {
                     boolean b = ( (Boolean)value ).booleanValue();
                     
+                    if ( table.isEditing() )
+                        table.getCellEditor().stopCellEditing();
+                    
                     setValueAt( !b, row, column );
+                    
+                    table.editingCanceled( null );
                 }
             }
         }
@@ -461,18 +503,22 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         }
     }
     
-    public HierarchicalTableModel( GridItemsContainer<P> data, int columnCount )
+    public HierarchicalTableModel( GridItemsHandler<P> gridItemsHandler, GridItemsContainer<P> data, int columnCount )
     {
         super();
+        
+        this.gridItemsHandler= gridItemsHandler;
         
         this.columnNames = new String[ columnCount ];
         
         setData( data );
     }
     
-    public HierarchicalTableModel( GridItemsContainer<P> data, String... columnNames )
+    public HierarchicalTableModel( GridItemsHandler<P> gridItemsHandler, GridItemsContainer<P> data, String... columnNames )
     {
         super();
+        
+        this.gridItemsHandler= gridItemsHandler;
         
         this.columnNames = columnNames;
         

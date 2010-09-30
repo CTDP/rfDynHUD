@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
+import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
@@ -41,7 +42,9 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 84 );
+    public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 85 );
+    
+    private final SupportedGames gameId;
     
     private final WidgetsDrawingManager drawingManager;
     private final LiveGameData gameData;
@@ -51,6 +54,11 @@ public class RFDynHUD
     private final InputMappingsManager inputMappingsManager;
     
     private boolean renderMode = false;
+    
+    public final SupportedGames getGameId()
+    {
+        return ( gameId );
+    }
     
     public void setRenderMode( boolean renderMode )
     {
@@ -206,11 +214,34 @@ public class RFDynHUD
         return ( result );
     }
     
-    private RFDynHUD( int gameResX, int gameResY ) throws Throwable
+    private static String extractGameName( byte[] buffer )
+    {
+        return ( new String( buffer ) );
+    }
+    
+    private RFDynHUD( byte[] gameNameBuffer, int gameResX, int gameResY ) throws Throwable
     {
         //Logger.setStdStreams();
         
         Logger.log( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
+        
+        String gameName = extractGameName( gameNameBuffer );
+        
+        SupportedGames gameId = null;
+        try
+        {
+            gameId = SupportedGames.valueOf( gameName );
+        }
+        catch ( Throwable t )
+        {
+        }
+        
+        Logger.log( "    Detected game \"" + gameName + "\" (" + ( gameId == null ? "unsupported" : "supported" ) + ")." );
+        
+        if ( gameId == null )
+            throw new Error( "Unsupported game" );
+        
+        this.gameId = gameId;
         
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
@@ -236,11 +267,11 @@ public class RFDynHUD
         Logger.log( "Successfully created RFDynHUD instance." );
     }
     
-    public static final RFDynHUD createInstance( int gameResX, int gameResY )
+    public static final RFDynHUD createInstance( byte[] gameNameBuffer, int gameResX, int gameResY )
     {
         try
         {
-            return ( new RFDynHUD( gameResX, gameResY ) );
+            return ( new RFDynHUD( gameNameBuffer, gameResX, gameResY ) );
         }
         catch ( Throwable t )
         {

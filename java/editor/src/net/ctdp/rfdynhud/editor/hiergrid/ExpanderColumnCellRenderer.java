@@ -67,16 +67,9 @@ public class ExpanderColumnCellRenderer extends JPanel implements TableCellRende
     @Override
     public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     {
-        if ( value == null )
-        {
-            this.value = null;
-        }
-        else
-        {
-            this.value = (Boolean)value;
-        }
+        this.value = (Boolean)value;
         
-        return( this );
+        return ( this );
     }
     
     public ExpanderColumnCellRenderer( Image minusImage, Image plusImage )

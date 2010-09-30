@@ -518,6 +518,8 @@ public class EditorPanel extends JPanel
                 rect = tt.getTransformedRectForEditor( at );
             
             tt.drawInEditor( g2, at, rect );
+            
+            TextureDirtyRectsManager.getDirtyRects( -1, tt.getTexture(), null, false );
         }
     }
     

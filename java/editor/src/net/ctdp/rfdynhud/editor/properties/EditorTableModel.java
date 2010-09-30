@@ -20,11 +20,11 @@ package net.ctdp.rfdynhud.editor.properties;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
+import net.ctdp.rfdynhud.editor.hiergrid.GridItemsHandler;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
-import net.ctdp.rfdynhud.util.Tools;
 
 /**
  * Insert class comment here.
@@ -35,13 +35,11 @@ public class EditorTableModel extends HierarchicalTableModel<Property>
 {
     private static final long serialVersionUID = -5111097521627270775L;
     
+    public static final GridItemsHandler<Property> ITEMS_HANDLER = new GridItemsHandler<Property>();
+    
     @Override
     protected void setValueImpl( HierarchicalTable<Property> table, Property property, int index, Object newValue )
     {
-        Object oldValue = getValueImpl( table, property, index );
-        if ( Tools.objectsEqual( oldValue, newValue ) )
-            return;
-        
         final RFDynHUDEditor editor = ( (EditorTable)table ).editor;
         
         if ( editor != null )
@@ -50,6 +48,7 @@ public class EditorTableModel extends HierarchicalTableModel<Property>
                 editor.getEditorPanel().clearSelectedWidgetRegion();
         }
         
+        Object oldValue = getValueImpl( table, property, index );
         property.setValue( newValue );
         ( (EditorTable)table ).propsEditor.invokeChangeListeners( property, oldValue, newValue, table.getSelectedRow(), table.getSelectedColumn() );
         
@@ -71,6 +70,6 @@ public class EditorTableModel extends HierarchicalTableModel<Property>
     
     public EditorTableModel( GridItemsContainer<Property> data, int columnCount )
     {
-        super( data, columnCount );
+        super( ITEMS_HANDLER, data, columnCount );
     }
 }

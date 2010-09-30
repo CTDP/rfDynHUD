@@ -552,35 +552,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         widgetsConfig.getProperties( propsCont, false );
     }
     
-    private static void readExpandFlags( GridItemsContainer<?> list, String keyPrefix, HashMap<String, Boolean> map )
-    {
-        for ( int i = 0; i < list.getNumberOfItems(); i++ )
-        {
-            if ( list.getItem( i ) instanceof GridItemsContainer )
-            {
-                GridItemsContainer<?> gic = (GridItemsContainer<?>)list.getItem( i );
-                map.put( keyPrefix + gic.getNameForGrid(), gic.getExpandFlag() );
-                
-                readExpandFlags( gic, keyPrefix, map );
-            }
-        }
-    }
-    
-    private static void restoreExpandFlags( GridItemsContainer<?> list, String keyPrefix, HashMap<String, Boolean> map )
-    {
-        for ( int i = 0; i < list.getNumberOfItems(); i++ )
-        {
-            if ( list.getItem( i ) instanceof GridItemsContainer )
-            {
-                GridItemsContainer<?> gic = (GridItemsContainer<?>)list.getItem( i );
-                Boolean b = map.get( keyPrefix + gic.getNameForGrid() );
-                if ( b != null )
-                    gic.setExpandFlag( b.booleanValue() );
-                
-                restoreExpandFlags( gic, keyPrefix, map );
-            }
-        }
-    }
+    private final HashMap<String, Boolean> expandedRows = new HashMap<String, Boolean>();
     
     public void onWidgetSelected( Widget widget, boolean doubleClick )
     {
@@ -588,8 +560,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         
         GridItemsContainer<Property> propsList = propsEditor.getPropertiesList();
         
-        HashMap<String, Boolean> expandedRows = new HashMap<String, Boolean>();
-        readExpandFlags( propsList, "", expandedRows );
+        expandedRows.clear();
+        EditorTableModel.readExpandFlags( EditorTableModel.ITEMS_HANDLER, propsList, expandedRows );
         
         propsEditor.clear();
         
@@ -603,7 +575,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         }
         
         onPropertySelected( null, -1 );
-        restoreExpandFlags( propsList, "", expandedRows );
+        EditorTableModel.restoreExpandFlags( EditorTableModel.ITEMS_HANDLER, propsList, expandedRows );
         
         editorTable.applyToModel();
     }

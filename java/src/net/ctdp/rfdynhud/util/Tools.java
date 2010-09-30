@@ -19,6 +19,39 @@ package net.ctdp.rfdynhud.util;
 
 public class Tools
 {
+    public static final long KILO_BYTE = 1024L;
+    public static final long MEGA_BYTE = KILO_BYTE * 1024L;
+    public static final long GIGA_BYTE = MEGA_BYTE * 1024L;
+    public static final long TERA_BYTE = GIGA_BYTE * 1024L;
+    
+    public static final String formatBytes( long bytes )
+    {
+        //final double factor = 1024.0;
+        final double factor = 1000.0;
+        
+        if ( bytes >= TERA_BYTE )
+        {
+            return ( String.valueOf( Math.round( (double)bytes * factor / TERA_BYTE ) / factor ) + " TB" );
+        }
+        
+        if ( bytes >= GIGA_BYTE )
+        {
+            return ( String.valueOf( Math.round( (double)bytes * factor / GIGA_BYTE ) / factor ) + " GB" );
+        }
+        
+        if ( bytes >= MEGA_BYTE )
+        {
+            return ( String.valueOf( Math.round( (double)bytes * factor / MEGA_BYTE ) / factor ) + " MB" );
+        }
+        
+        if ( bytes >= KILO_BYTE )
+        {
+            return ( String.valueOf( Math.round( (double)bytes * factor / KILO_BYTE ) / factor ) + " KB" );
+        }
+        
+        return ( String.valueOf( bytes ) + " bytes" );
+    }
+    
     public static final Number getNumber( String string )
     {
         try

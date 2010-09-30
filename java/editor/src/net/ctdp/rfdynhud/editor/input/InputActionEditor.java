@@ -37,6 +37,7 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
     
     private final InputBindingsGUI gui;
     
+    public static final String NO_ACTION = "[No Action]";
     private static InputAction[] knownActions = KnownInputActions.getAll();
     
     private JTable lastTable = null;
@@ -49,7 +50,7 @@ public class InputActionEditor extends AbstractCellEditor implements TableCellEd
         
         combo = new JComboBox();
         
-        combo.addItem( "[No Action]" );
+        combo.addItem( NO_ACTION );
         
         for ( InputAction action : knownActions )
         {

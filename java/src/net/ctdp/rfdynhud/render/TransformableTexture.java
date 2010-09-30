@@ -634,7 +634,7 @@ public class TransformableTexture
         int width2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( width ) : width;
         int height2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( height ) : height;
         
-        return ( TextureImage2D.createDrawTexture( width2, height2, width, height, true ) );
+        return ( TextureImage2D.createOnlineTexture( width2, height2, width, height, true ) );
     }
     
     /**
@@ -750,6 +750,7 @@ public class TransformableTexture
                     {
                         possibleResult.getTexture().clear( false, null );
                         possibleResult.getTexture().resize( width, height );
+                        possibleResult.getTexture().clearUpdateList();
                     }
                     
                     return ( possibleResult );
@@ -757,6 +758,8 @@ public class TransformableTexture
             }
             else if ( ( width == possibleResult.getTexture().getWidth() ) || ( height == possibleResult.getTexture().getHeight() ) )
             {
+                //possibleResult.getTexture().clearUpdateList();
+                
                 return ( possibleResult );
             }
         }

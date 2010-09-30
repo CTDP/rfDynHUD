@@ -27,6 +27,8 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
 
+import net.ctdp.rfdynhud.util.Tools;
+
 /**
  * The memory panel displays information about free VM memory.
  * 
@@ -35,11 +37,6 @@ import javax.swing.JPanel;
 public class MemoryPanel extends JPanel implements Runnable
 {
     private static final long serialVersionUID = -4571334691231404766L;
-    
-    public static final long KILO_BYTE = 1024L;
-    public static final long MEGA_BYTE = KILO_BYTE * 1024L;
-    public static final long GIGA_BYTE = MEGA_BYTE * 1024L;
-    public static final long TERA_BYTE = GIGA_BYTE * 1024L;
     
     public static final long UPDATE_DELAY = 500L;
     
@@ -68,34 +65,6 @@ public class MemoryPanel extends JPanel implements Runnable
     public final long getFreeMemory()
     {
         return ( freeMemory );
-    }
-    
-    private static final String formatBytes( long bytes )
-    {
-        //final double factor = 1024.0;
-        final double factor = 1000.0;
-        
-        if ( bytes >= TERA_BYTE )
-        {
-            return ( String.valueOf( Math.round( (double)bytes * factor / TERA_BYTE ) / factor ) + " TB" );
-        }
-        
-        if ( bytes >= GIGA_BYTE )
-        {
-            return ( String.valueOf( Math.round( (double)bytes * factor / GIGA_BYTE ) / factor ) + " GB" );
-        }
-        
-        if ( bytes >= MEGA_BYTE )
-        {
-            return ( String.valueOf( Math.round( (double)bytes * factor / MEGA_BYTE ) / factor ) + " MB" );
-        }
-        
-        if ( bytes >= KILO_BYTE )
-        {
-            return ( String.valueOf( Math.round( (double)bytes * factor / KILO_BYTE ) / factor ) + " KB" );
-        }
-        
-        return ( String.valueOf( bytes ) + " bytes" );
     }
     
     private boolean updateMemInfo()
@@ -127,7 +96,7 @@ public class MemoryPanel extends JPanel implements Runnable
         {
             if ( updateMemInfo() )
             {
-                this.setToolTipText( "Memory: used: " + formatBytes( usedMemory ) + ", free: " + formatBytes( freeMemory ) + ", total: " + formatBytes( totalMemory ) + ", max: " + formatBytes( maxMemory ) );
+                this.setToolTipText( "Memory: used: " + Tools.formatBytes( usedMemory ) + ", free: " + Tools.formatBytes( freeMemory ) + ", total: " + Tools.formatBytes( totalMemory ) + ", max: " + Tools.formatBytes( maxMemory ) );
                 
                 this.repaint();
             }

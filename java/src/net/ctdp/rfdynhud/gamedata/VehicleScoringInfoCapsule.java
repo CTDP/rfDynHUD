@@ -736,4 +736,8 @@ class VehicleScoringInfoCapsule
     
     // Future use
     //unsigned char mExpansion[128];
+    
+    VehicleScoringInfoCapsule()
+    {
+    }
 }
