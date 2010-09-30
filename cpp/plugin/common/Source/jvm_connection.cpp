@@ -6,6 +6,8 @@
 #include "filesystem.h"
 #include "logging.h"
 
+const char* GAME_NAME = "rFactor";
+
 char* readJavaHomeFromRegistry()
 {
     char* buffer = (char*)malloc( MAX_PATH );
@@ -181,24 +183,28 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     
     free( searchPath2 );
     
-    const unsigned int nOptions = 10;
+	const bool WITH_PROFILER = false;
+	const unsigned int nOptions = WITH_PROFILER ? 11 : 10;
     JavaVMOption options[nOptions];
     
-    options[0].optionString = cropBuffer2( fileBuffer );
-    options[1].optionString = cropBuffer2( addPreFix( "-Dworkdir=", setBuffer( PLUGIN_PATH, fileBuffer ) ) );
-    options[2].optionString = "-Xms96m";
-    options[3].optionString = "-Xmx96m";
-    options[4].optionString = "-XX:MaxGCPauseMillis=5";
-    options[5].optionString = "-XX:+UseAdaptiveSizePolicy";
-    options[6].optionString = "-Xincgc";
-    options[7].optionString = "-Dsun.java2d.opengl=true";
-    options[8].optionString = "-Dsun.java2d.d3d=false";
-    options[9].optionString = "-Dsun.java2d.noddraw=true";
+    unsigned int i = 0;
+	options[i++].optionString = cropBuffer2( fileBuffer );
+    options[i++].optionString = cropBuffer2( addPreFix( "-Dworkdir=", setBuffer( PLUGIN_PATH, fileBuffer ) ) );
+    options[i++].optionString = "-Xms96m";
+    options[i++].optionString = "-Xmx96m";
+    options[i++].optionString = "-XX:MaxGCPauseMillis=5";
+    options[i++].optionString = "-XX:+UseAdaptiveSizePolicy";
+    options[i++].optionString = "-Xincgc";
+    options[i++].optionString = "-Dsun.java2d.opengl=true";
+    options[i++].optionString = "-Dsun.java2d.d3d=false";
+    options[i++].optionString = "-Dsun.java2d.noddraw=true";
+	if ( WITH_PROFILER )
+		options[i++].optionString = "-agentpath:c:\\Program Files (x86)\\YourKit Java Profiler 9.0.8\\bin\\win32\\yjpagent.dll";
     
     free( fileBuffer );
     
     logg( "JVM options:" );
-    for ( unsigned int i = 0; i < nOptions; i++ )
+    for ( i = 0; i < nOptions; i++ )
         logg2( "    ", options[i].optionString, true );
     
     JavaVMInitArgs vm_args;
@@ -258,15 +264,15 @@ bool JVMD3DUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobject _r
         return ( false );
     }
     
-    jobject bb = env->CallObjectMethod( rfdynhudObject, mid );
+    textureInfoBufferObj = env->CallObjectMethod( rfdynhudObject, mid );
     
-    if ( bb == NULL )
+    if ( textureInfoBufferObj == NULL )
     {
         logg( "ERROR: Failed to get the buffer for texture info." );
         return ( false );
     }
     
-    textureInfoBuffer = (char*)env->GetDirectBufferAddress( bb );
+    textureInfoBuffer = (char*)env->GetDirectBufferAddress( textureInfoBufferObj );
     
     textureSizes = (unsigned short*)( textureInfoBuffer + OFFSET_SIZE );
     textureVisibleFlags = (char*)( textureInfoBuffer + OFFSET_VISIBLE );
@@ -305,21 +311,41 @@ bool JVMD3DUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobject _r
     return ( true );
 }
 
-unsigned char JVMD3DUpdateFunctions::updateAllTextureInfos()
+void JVMD3DUpdateFunctions::releaseDirtyRectsBufferObjects()
 {
-    numTextures = *(unsigned char*)textureInfoBuffer;
+    if ( numTextures <= 0 )
+        return;
     
     for ( unsigned int i = 0; i < (unsigned int)numTextures; i++ )
     {
-        jobject bb = env->CallObjectMethod( rfdynhudObject, getDirtyRectsBufferMethod, (jint)i );
+        if ( dirtyRectsBufferObj[i] != NULL )
+            env->DeleteLocalRef( dirtyRectsBufferObj[i] );
+        dirtyRectsBufferObj[i] = NULL;
+    }
+    
+    free( dirtyRectsBufferObj );
+    dirtyRectsBufferObj = NULL;
+}
+
+unsigned char JVMD3DUpdateFunctions::updateAllTextureInfos()
+{
+    releaseDirtyRectsBufferObjects();
+    
+    numTextures = *(unsigned char*)textureInfoBuffer;
+    
+    dirtyRectsBufferObj = (jobject*)malloc( numTextures * sizeof( jobject ) );
+    
+    for ( unsigned int i = 0; i < (unsigned int)numTextures; i++ )
+    {
+        dirtyRectsBufferObj[i] = env->CallObjectMethod( rfdynhudObject, getDirtyRectsBufferMethod, (jint)i );
         
-        if ( bb == NULL )
+        if ( dirtyRectsBufferObj[i] == NULL )
         {
             logg( "ERROR: Failed to get the buffer for dirty rects." );
             continue;
         }
         
-        dirtyRectsBuffers[i] = (unsigned short*)env->GetDirectBufferAddress( bb );
+        dirtyRectsBuffers[i] = (unsigned short*)env->GetDirectBufferAddress( dirtyRectsBufferObj[i] );
         
         if ( dirtyRectsBuffers[i] == NULL )
         {
@@ -333,7 +359,7 @@ unsigned char JVMD3DUpdateFunctions::updateAllTextureInfos()
 
 unsigned char* JVMD3DUpdateFunctions::getPixelData( unsigned char textureIndex )
 {
-    pixelData = (jarray)env->CallObjectMethod( rfdynhudObject, getPixelDataMethod, (jint)textureIndex );
+    pixelData = (jbyteArray)env->CallObjectMethod( rfdynhudObject, getPixelDataMethod, (jint)textureIndex );
     
     if ( pixelData == NULL )
     {
@@ -341,17 +367,24 @@ unsigned char* JVMD3DUpdateFunctions::getPixelData( unsigned char textureIndex )
         return ( false );
     }
     
-    return ( (unsigned char*)env->GetPrimitiveArrayCritical( pixelData, &isCopy ) );
+	return ( (unsigned char*)env->GetPrimitiveArrayCritical( pixelData, &isCopy ) );
 }
 
 void JVMD3DUpdateFunctions::releasePixelData( unsigned char textureIndex, unsigned char* pointer )
 {
-    env->ReleasePrimitiveArrayCritical( pixelData, pointer, 0 );
+    env->ReleasePrimitiveArrayCritical( pixelData, (void*)pointer, 0 );
+	env->DeleteLocalRef( pixelData );
     pixelData = NULL;
 }
 
 void JVMD3DUpdateFunctions::destroy()
 {
+    releaseDirtyRectsBufferObjects();
+    
+    if ( textureInfoBufferObj != NULL )
+        env->DeleteLocalRef( textureInfoBufferObj );
+    textureInfoBufferObj = NULL;
+    
     updateMethod = NULL;
     
     rfdynhudObject = NULL;
@@ -405,7 +438,6 @@ bool JVMInputFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobject _rfdyn
     
     env->ReleasePrimitiveArrayCritical( arr, buffer, 0 );
     
-    
     jmethodID mid = env->GetMethodID( rfdynhudClass, "initInput", "([B)V" );
     
     if ( mid == 0 )
@@ -418,6 +450,8 @@ bool JVMInputFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobject _rfdyn
     env->CallVoidMethod( _rfdynhudObject, mid, arr );
     logg( "Finished initialization of input bindings." );
     
+    env->DeleteLocalRef( arr );
+    
     mid = env->GetMethodID( rfdynhudClass, "getInputBuffer", "()Ljava/nio/ByteBuffer;" );
     
     if ( mid == 0 )
@@ -426,15 +460,15 @@ bool JVMInputFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobject _rfdyn
         return ( false );
     }
     
-    jobject bb = env->CallObjectMethod( _rfdynhudObject, mid );
+    inputBufferObj = env->CallObjectMethod( _rfdynhudObject, mid );
     
-    if ( bb == NULL )
+    if ( inputBufferObj == NULL )
     {
         logg( "ERROR: Failed to get the input buffer." );
         return ( false );
     }
     
-    inputBuffer = (char*)env->GetDirectBufferAddress( bb );
+    inputBuffer = (char*)env->GetDirectBufferAddress( inputBufferObj );
     
     if ( inputBuffer == NULL )
     {
@@ -488,6 +522,9 @@ char JVMInputFunctions::updateInput( bool* isPluginEnabled )
 void JVMInputFunctions::destroy()
 {
     updateInputMethod = 0;
+    if ( inputBufferObj != NULL )
+        env->DeleteLocalRef( inputBufferObj );
+    inputBufferObj = NULL;
     inputBuffer = NULL;
     rfdynhudObject = NULL;
     env = NULL;
@@ -568,6 +605,7 @@ void JVMTelemtryUpdateFunctions::copyVehicleScoringInfoBuffer( long index, void*
     unsigned char* buffer = (unsigned char*)env->GetPrimitiveArrayCritical( vsiBuffer, &isCopy );
     memcpy( buffer, info, size );
     env->ReleasePrimitiveArrayCritical( vsiBuffer, buffer, 0 );
+	env->DeleteLocalRef( vsiBuffer );
     
     if ( isLast )
         env->CallVoidMethod( gameData_CPP_Adapter, notifyScoringInfoUpdated );
@@ -870,17 +908,35 @@ bool JVMTelemtryUpdateFunctions::init( JNIEnv* _env, jclass rfdynhudClass, jobje
 
 void JVMTelemtryUpdateFunctions::destroy()
 {
-    notifyCommentaryInfoUpdated = 0;
-    commentaryInfoBuffer = NULL;
-    notifyGraphicsInfoUpdated = 0;
-    graphicsInfoBuffer = NULL;
+    notifyTelemetryUpdated = 0;
+    if ( telemetryBuffer != NULL )
+        env->DeleteLocalRef( telemetryBuffer );
+    telemetryBuffer = NULL;
+    
     notifyScoringInfoUpdated = 0;
     getVehicleScoringInfoBuffer = 0;
     initVehicleScoringInfo = 0;
+    if ( scoringInfoBuffer != NULL )
+        env->DeleteLocalRef( scoringInfoBuffer );
     scoringInfoBuffer = NULL;
-    notifyTelemetryUpdated = 0;
-    telemetryBuffer = NULL;
     
+    notifyGraphicsInfoUpdated = 0;
+    if ( graphicsInfoBuffer != NULL )
+        env->DeleteLocalRef( graphicsInfoBuffer );
+    graphicsInfoBuffer = NULL;
+    
+    notifyCommentaryInfoUpdated = 0;
+    if ( commentaryInfoBuffer != NULL )
+        env->DeleteLocalRef( commentaryInfoBuffer );
+    commentaryInfoBuffer = NULL;
+    
+    gameEventsManager = NULL;
+    if ( gameEventsManager != NULL )
+        env->DeleteLocalRef( gameEventsManager );
+    GameEventsManager = NULL;
+    
+    if ( gameData_CPP_Adapter != NULL )
+        env->DeleteLocalRef( gameData_CPP_Adapter );
     gameData_CPP_Adapter = NULL;
     LiveGameData_CPP_Adapter = NULL;
     
@@ -890,9 +946,6 @@ void JVMTelemtryUpdateFunctions::destroy()
     onSessionStarted = 0;
     onShutdown = 0;
     onStartup = 0;
-    
-    GameEventsManager = NULL;
-    gameEventsManager = NULL;
     
     env = NULL;
 }
@@ -904,16 +957,16 @@ bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, cons
     
     logg( "Retrieving Java objects and methods..." );
     
-    rfdynhudClass = env->FindClass( "net/ctdp/rfdynhud/RFDynHUD" );
+    RFDynHUD = env->FindClass( "net/ctdp/rfdynhud/RFDynHUD" );
     
-    if ( rfdynhudClass == 0 )
+    if ( RFDynHUD == 0 )
     {
         logg( "ERROR: Failed to find the main class." );
         return ( false );
     }
     
-    //jmethodID mid = env->GetMethodID( rfdynhudClass, "<init>", "(II)V" );
-    jmethodID mid = env->GetStaticMethodID( rfdynhudClass, "createInstance", "(II)Lnet/ctdp/rfdynhud/RFDynHUD;" );
+    //jmethodID mid = env->GetMethodID( RFDynHUD, "<init>", "(II)V" );
+    jmethodID mid = env->GetStaticMethodID( RFDynHUD, "createInstance", "([BII)Lnet/ctdp/rfdynhud/RFDynHUD;" );
     
     if ( mid == 0 )
     {
@@ -921,22 +974,29 @@ bool JVMConnection::init( const char* PLUGIN_PATH, const unsigned int resX, cons
         return ( false );
     }
     
-    //rfdynhudObject = env->NewObject( rfdynhudClass, mid, resX, resY );
-    rfdynhudObject = env->CallStaticObjectMethod( rfdynhudClass, mid, resX, resY );
+    jbyteArray gameNameBuffer = env->NewByteArray( strlen( GAME_NAME ) );
+    void* gameNameBufferPtr = env->GetPrimitiveArrayCritical( gameNameBuffer, NULL );
+    memcpy( gameNameBufferPtr, GAME_NAME, strlen( GAME_NAME ) );
+    env->ReleasePrimitiveArrayCritical( gameNameBuffer, gameNameBufferPtr, 0 );
     
-    if ( rfdynhudObject == NULL )
+    //rfDynHUD = env->NewObject( RFDynHUD, mid, resX, resY );
+    rfDynHUD = env->CallStaticObjectMethod( RFDynHUD, mid, gameNameBuffer, resX, resY );
+    
+    env->DeleteLocalRef( gameNameBuffer );
+    
+    if ( rfDynHUD == NULL )
     {
-        logg( "ERROR: Failed to create the object through the constructor." );
+        logg( "ERROR: Failed to create the RFDynHUD object through the constructor." );
         return ( false );
     }
     
-    if ( !d3dFuncs.init( env, rfdynhudClass, rfdynhudObject ) )
+    if ( !d3dFuncs.init( env, RFDynHUD, rfDynHUD ) )
         return ( false );
     
-    if ( !inputFuncs.init( env, rfdynhudClass, rfdynhudObject ) )
+    if ( !inputFuncs.init( env, RFDynHUD, rfDynHUD ) )
         return ( false );
     
-    if ( !telemFuncs.init( env, rfdynhudClass, rfdynhudObject ) )
+    if ( !telemFuncs.init( env, RFDynHUD, rfDynHUD ) )
         return ( false );
     
     logg( "Successfully retrieved Java objects and methods." );
@@ -955,8 +1015,10 @@ void JVMConnection::destroy()
     inputFuncs.destroy();
     d3dFuncs.destroy();
     
-    rfdynhudObject = NULL;
-    rfdynhudClass = NULL;
+    if ( rfDynHUD != NULL )
+        env->DeleteLocalRef( rfDynHUD );
+    rfDynHUD = NULL;
+    RFDynHUD = NULL;
     
     jvm->DestroyJavaVM();
     

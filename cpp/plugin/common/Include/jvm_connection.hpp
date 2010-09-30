@@ -12,10 +12,12 @@ private:
     
     jmethodID updateMethod;
     
-    char* textureInfoBuffer;
+    jobject textureInfoBufferObj;
+	char* textureInfoBuffer;
     jmethodID getDirtyRectsBufferMethod;
+	jobject* dirtyRectsBufferObj;
     jmethodID getPixelDataMethod;
-    jarray pixelData;
+    jbyteArray pixelData;
     
     unsigned char numTextures;
     
@@ -34,6 +36,8 @@ private:
     static const unsigned int OFFSET_NUM_RECTANLES = OFFSET_CLIP_RECT + MAX_NUM_TEXTURES * 8;
     static const unsigned int OFFSET_RECT_VISIBLE_FLAGS = OFFSET_NUM_RECTANLES + MAX_NUM_TEXTURES * 1;
     static const unsigned int OFFSET_RECTANLES = OFFSET_RECT_VISIBLE_FLAGS + MAX_NUM_TEXTURES * SOFT_MAX_NUM_WIDGETS * 1;
+
+    void releaseDirtyRectsBufferObjects();
     
 public:
     unsigned short** dirtyRectsBuffers;
@@ -137,6 +141,7 @@ class JVMInputFunctions
 private:
     JNIEnv* env;
     jobject rfdynhudObject;
+    jobject inputBufferObj;
     char* inputBuffer;
     jmethodID updateInputMethod;
     
@@ -228,8 +233,8 @@ private:
     JavaVM* jvm;
     JNIEnv* env;
     
-    jclass rfdynhudClass;
-    jobject rfdynhudObject;
+    jclass RFDynHUD;
+    jobject rfDynHUD;
     
 public:
     JVMD3DUpdateFunctions d3dFuncs;
