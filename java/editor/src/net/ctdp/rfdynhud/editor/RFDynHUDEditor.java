@@ -79,7 +79,9 @@ import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.gamedata.__GameIDHelper;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.Property;
@@ -1721,6 +1723,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
+        
+        __GameIDHelper.gameId = SupportedGames.rFactor; // make this dynamic somehow!
         
         initGameDataObjects();
         

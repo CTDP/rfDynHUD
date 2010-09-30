@@ -351,15 +351,16 @@ public abstract class GameFileSystem
         this.gameScreenshotsFolder = findGameScreenshotsFolder( gameFolder );
     }
     
-    private static GameFileSystem createInstance()
+    private static GameFileSystem createInstance( SupportedGames gameId )
     {
-        // TODO: Decide somehow, which game is being used.
+        if ( gameId == SupportedGames.rFactor )
+            return ( new GameFileSystemRFactor() );
         
-        return ( new GameFileSystemRFactor() );
+        throw new Error( "Unsupported game: " + gameId );
     }
     
     /**
      * This is the public singleton instance of this class.
      */
-    public static final GameFileSystem INSTANCE = GameFileSystem.createInstance();
+    public static final GameFileSystem INSTANCE = GameFileSystem.createInstance( __GameIDHelper.gameId );
 }

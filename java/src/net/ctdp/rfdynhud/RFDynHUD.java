@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.gamedata.__GameIDHelper;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMappings;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
@@ -242,6 +243,7 @@ public class RFDynHUD
             throw new Error( "Unsupported game" );
         
         this.gameId = gameId;
+        __GameIDHelper.gameId = gameId;
         
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );

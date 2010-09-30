@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-
 /**
  * @author Marvin Froehlich (CTDP)
  */
