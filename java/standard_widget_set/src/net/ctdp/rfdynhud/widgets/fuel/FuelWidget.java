@@ -638,13 +638,15 @@ public class FuelWidget extends Widget
         resetBlink( isEditorMode );
     }
     
-    private void drawFuelBar( float fuel, int tankSize, TextureImage2D texture, int offsetX, int offsetY, int x, int y, int height )
+    private boolean drawFuelBar( float fuel, int tankSize, TextureImage2D texture, int offsetX, int offsetY, int x, int y, int height )
     {
         final boolean displayFuelBar = this.displayFuelBar.getBooleanValue();
         
         boolean showAnyAdditionalText = displayFuelUsage.getBooleanValue() || displayPitstopInfo.getBooleanValue();
         int w = showAnyAdditionalText ? this.fuelBarWidth.getEffectiveWidth() : getInnerSize().getEffectiveWidth();
         int h = height;
+        
+        boolean areaDrawn = false;
         
         if ( horizontalFuelBar.getBooleanValue() )
         {
@@ -658,6 +660,8 @@ public class FuelWidget extends Widget
                         clearBackgroundRegion( texture, offsetX, offsetY, x, y, w, h, false, null );
                     
                     texture.drawImage( fuelBarTexture, 0, 0, fuelBarTexture.getWidth(), fuelBarTexture.getHeight() / 2, offsetX + x, offsetY + y, w, h, false, null );
+                    
+                    areaDrawn = true;
                 }
                 else if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && fuelBarBackgroundColor.hasVisibleColor() )
                 {
@@ -665,6 +669,8 @@ public class FuelWidget extends Widget
                         clearBackgroundRegion( texture, offsetX, offsetY, x + barWidth, y, w - barWidth, h, false, null );
                     
                     texture.fillRectangle( fuelBarBackgroundColor.getColor(), offsetX + x + barWidth, offsetY + y, w - barWidth, h, false, null );
+                    
+                    areaDrawn = true;
                 }
             }
             
@@ -673,6 +679,8 @@ public class FuelWidget extends Widget
                 if ( fuelBarTexture != null )
                 {
                     texture.drawImage( fuelBarTexture, 0, fuelBarTexture.getHeight() / 2, barWidth, fuelBarTexture.getHeight() / 2, offsetX + x, offsetY + y, barWidth, h, false, null );
+                    
+                    areaDrawn = true;
                 }
                 else
                 {
@@ -680,6 +688,8 @@ public class FuelWidget extends Widget
                         clearBackgroundRegion( texture, offsetX, offsetY, x, y, barWidth, h, false, null );
                     
                     texture.fillRectangle( fuelBarColor.getColor(), offsetX + x, offsetY + y, barWidth, h, false, null );
+                    
+                    areaDrawn = true;
                 }
             }
         }
@@ -695,6 +705,8 @@ public class FuelWidget extends Widget
                         clearBackgroundRegion( texture, offsetX, offsetY, x, y, w, h, false, null );
                     
                     texture.drawImage( fuelBarTexture, 0, 0, fuelBarTexture.getWidth() / 2, fuelBarTexture.getHeight(), offsetX + x, offsetY + y, w, h, false, null );
+                    
+                    areaDrawn = true;
                 }
                 else if ( !getBackground().valueEquals( fuelBarBackgroundColor.getColor() ) && fuelBarBackgroundColor.hasVisibleColor() )
                 {
@@ -702,6 +714,8 @@ public class FuelWidget extends Widget
                         clearBackgroundRegion( texture, offsetX, offsetY, x, y, w, h - barHeight, false, null );
                     
                     texture.fillRectangle( fuelBarBackgroundColor.getColor(), offsetX + x, offsetY + y, w, h - barHeight, false, null );
+                    
+                    areaDrawn = true;
                 }
             }
             
@@ -710,6 +724,8 @@ public class FuelWidget extends Widget
                 if ( fuelBarTexture != null )
                 {
                     texture.drawImage( fuelBarTexture, fuelBarTexture.getWidth() / 2, 0, fuelBarTexture.getWidth() / 2, barHeight, offsetX + x, offsetY + y, w, barHeight, false, null );
+                    
+                    areaDrawn = true;
                 }
                 else
                 {
@@ -717,11 +733,15 @@ public class FuelWidget extends Widget
                         clearBackgroundRegion( texture, offsetX, offsetY, x, y + h - barHeight, w, barHeight, false, null );
                     
                     texture.fillRectangle( fuelBarColor.getColor(), offsetX + x, offsetY + y + h - barHeight, w, barHeight, false, null );
+                    
+                    areaDrawn = true;
                 }
             }
         }
         
         texture.markDirty( offsetX + x, offsetY + y, w, h );
+        
+        return ( areaDrawn );
     }
     
     @Override
@@ -825,7 +845,7 @@ public class FuelWidget extends Widget
             
             boolean fuelBarDrawn = getDrawFuelBar();
             if ( fuelBarDrawn )
-                drawFuelBar( fuel, tankSize, texture, offsetX, offsetY, 0, fuelY, fuelHeight );
+                fuelBarDrawn = drawFuelBar( fuel, tankSize, texture, offsetX, offsetY, 0, fuelY, fuelHeight );
             
             if ( displayTankSize.getBooleanValue() )
                 fuelLoadString0.draw( offsetX, offsetY + fuelY, "(" + String.valueOf( tankSize ) + getFuelUnits( gameData.getProfileInfo().getMeasurementUnits() ) + ")", texture, !fuelBarDrawn );
