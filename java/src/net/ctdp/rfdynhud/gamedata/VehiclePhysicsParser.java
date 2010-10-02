@@ -1469,11 +1469,9 @@ class VehiclePhysicsParser
         return ( ul );
     }
     
-    public static void parsePhysicsFiles( File cchFile, File rFactorFolder, String vehicleFilename, String trackName, VehiclePhysics physics ) throws Throwable
+    public static void parsePhysicsFiles( File cchFile, File vehicleFile, String trackName, VehiclePhysics physics ) throws Throwable
     {
-        File vehicleFile = new File( rFactorFolder, vehicleFilename );
-        
-        CCHParser cchParser = new CCHParser( cchFile.getAbsolutePath(), vehicleFilename );
+        CCHParser cchParser = new CCHParser( cchFile.getAbsolutePath(), vehicleFile.getName() );
         cchParser.parse( cchFile );
         
         ArrayList<Object[]> upgradesList = cchParser.getUpgradesList();

@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.File;
+
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
@@ -268,7 +270,29 @@ public class GameEventsManager implements ConfigurationLoadListener
             
             if ( gameData.getProfileInfo().isValid() )
             {
-                if ( !isEditorMode )
+                boolean loadPhysicsAndSetup = true;
+                
+                if ( isEditorMode )
+                {
+                    File cchFile = gameData.getProfileInfo().getCCHFile();
+                    File playerVEHFile = gameData.getProfileInfo().getVehicleFile();
+                    String trackName = gameData.getTrackInfo().getTrackName();
+                    File setupFile = GameFileSystem.INSTANCE.locateSetupFile( gameData );
+                    
+                    if ( ( cchFile == null ) || !cchFile.exists() )
+                        loadPhysicsAndSetup = false;
+                    
+                    if ( ( playerVEHFile == null ) || !playerVEHFile.exists() )
+                        loadPhysicsAndSetup = false;
+                    
+                    if ( ( trackName == null ) || trackName.equals( "" ) )
+                        loadPhysicsAndSetup = false;
+                    
+                    if ( ( setupFile == null ) || !setupFile.exists() )
+                        loadPhysicsAndSetup = false;
+                }
+                
+                if ( loadPhysicsAndSetup )
                 {
                     reloadPhysics( true );
                     reloadSetup();

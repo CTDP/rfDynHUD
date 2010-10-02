@@ -913,7 +913,7 @@ class VehicleSetupParser
     {
         if ( lastProfileUpdateId < gameData.getProfileInfo().getUpdateId() )
         {
-            file = new File( gameData.getProfileInfo().getProfileFolder(), "tempGarage.svm" );
+            file = GameFileSystem.INSTANCE.locateSetupFile( gameData );
             lastLastModified = -1L;
             lastProfileUpdateId = gameData.getProfileInfo().getUpdateId();
         }

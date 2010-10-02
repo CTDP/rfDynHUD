@@ -54,10 +54,10 @@ public class VehicleParserTester
 	{
 	    VehiclePhysics physics = new VehiclePhysics();
 	    
-		//VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\McLaren\\KR06.veh", "Silverstone", physics );
-		//VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\MS06.veh", "Silverstone", physics );
-        //VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\4r2009\\2008\\Equipos\\SToroRosso\\STR_15.veh", "Silverstone", physics );
-        __GDPrivilegedAccess.parsePhysicsFiles( CCH_FILE, RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\F248_MS05.veh", "Silverstone", physics );
+		//VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\McLaren\\KR06.veh" ), "Silverstone", physics );
+		//VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\MS06.veh" ), "Silverstone", physics );
+        //VehiclePhysicsParser.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\4r2009\\2008\\Equipos\\SToroRosso\\STR_15.veh" ), "Silverstone", physics );
+        __GDPrivilegedAccess.parsePhysicsFiles( CCH_FILE, new File( RFACTOR_FOLDER, "GameData\\Vehicles\\CTDP\\CTDP\\CTDPF1_2006\\Ferrari\\F248_MS05.veh" ), "Silverstone", physics );
         
         //testGripLoss( physics );
 	}

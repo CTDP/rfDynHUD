@@ -73,9 +73,9 @@ public class __GDPrivilegedAccess
         physics.loadFromPhysicsFiles( profileInfo, trackInfo );
     }
     
-    public static void parsePhysicsFiles( File cchFile, File rFactorFolder, String vehicleFilename, String trackName, VehiclePhysics physics ) throws Throwable
+    public static void parsePhysicsFiles( File cchFile, File vehicleFile, String trackName, VehiclePhysics physics ) throws Throwable
     {
-        VehiclePhysicsParser.parsePhysicsFiles( cchFile, rFactorFolder, vehicleFilename, trackName, physics );
+        VehiclePhysicsParser.parsePhysicsFiles( cchFile, vehicleFile, trackName, physics );
     }
     
     public static final boolean loadSetup( LiveGameData gameData )

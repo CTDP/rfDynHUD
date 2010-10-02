@@ -129,6 +129,15 @@ class GameFileSystemRFactor extends GameFileSystem
      * {@inheritDoc}
      */
     @Override
+    public File locateSetupFile( LiveGameData gameData )
+    {
+        return ( new File( gameData.getProfileInfo().getProfileFolder(), "tempGarage.svm" ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected File findGameScreenshotsFolder( File gameFolder )
     {
         return ( getPathFromGameConfigINI( "ScreenShotsDir", "UserData" + File.separator + "ScreenShots" ) );

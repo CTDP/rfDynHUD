@@ -218,6 +218,15 @@ public abstract class GameFileSystem
     }
     
     /**
+     * Locates the current vehicle setup file.
+     * 
+     * @param gameData the live game data
+     * 
+     * @return the setup file (where it should be, may not exist).
+     */
+    public abstract File locateSetupFile( LiveGameData gameData );
+    
+    /**
      * Gets the plugin's config folder.
      * 
      * @return the plugin's config folder.

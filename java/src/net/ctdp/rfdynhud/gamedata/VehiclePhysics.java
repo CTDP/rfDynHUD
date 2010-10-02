@@ -2187,14 +2187,11 @@ public class VehiclePhysics
     
     void loadFromPhysicsFiles( ProfileInfo profileInfo, TrackInfo trackInfo )
     {
-        File cchFile = profileInfo.getCCHFile();
-    	String playerVEHFile = profileInfo.getVehicleFile();
-    	
     	try
     	{
     	    long t0 = System.currentTimeMillis();
     	    
-			VehiclePhysicsParser.parsePhysicsFiles( cchFile, GameFileSystem.INSTANCE.getGameFolder(), playerVEHFile, trackInfo.getTrackName(), this );
+			VehiclePhysicsParser.parsePhysicsFiles( profileInfo.getCCHFile(), profileInfo.getVehicleFile(), trackInfo.getTrackName(), this );
 			
 			Logger.log( "Successfully parsed physics files. (Took " + ( System.currentTimeMillis() - t0 ) + "ms.)" );
 			

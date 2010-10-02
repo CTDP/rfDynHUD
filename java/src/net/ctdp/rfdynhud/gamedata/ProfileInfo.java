@@ -115,7 +115,7 @@ public class ProfileInfo
     private long updateId = 0L;
     
     private String modName = null;
-    private String vehFilename = null;
+    private File vehFile = null;
     private String teamName = null;
     private File lastUsedTrackFile = null;
     private Float multiRaceLength = null;
@@ -165,7 +165,7 @@ public class ProfileInfo
         plrFile = null;
         
         modName = "N/A";
-        vehFilename = "N/A";
+        vehFile = null;
         teamName = "N/A";
         lastUsedTrackFile = null;
         multiRaceLength = 1.0f;
@@ -231,7 +231,7 @@ public class ProfileInfo
                         }
                         else if ( key.equalsIgnoreCase( "Vehicle File" ) )
                         {
-                            vehFilename = value;
+                            vehFile = new File( GameFileSystem.INSTANCE.getGameFolder(), value );
                         }
                         else if ( key.equalsIgnoreCase( "Team" ) )
                         {
@@ -362,9 +362,9 @@ public class ProfileInfo
      * 
      * @return the currently used vehicle file.
      */
-    public final String getVehicleFile()
+    public final File getVehicleFile()
     {
-        return ( vehFilename );
+        return ( vehFile );
     }
     
     /**
