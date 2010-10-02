@@ -43,6 +43,8 @@ public class TransformableTexture
 {
     public static final boolean DEFAULT_PIXEL_PERFECT_POSITIONING = true;
     
+    private static final int MAX_RECTANGLE_SIZE = 500;
+    
     public static final float PI = (float)Math.PI;
     public static final float TWO_PI = (float)( Math.PI * 2.0 );
     public static final float PI_HALF = (float)( Math.PI / 2.0 );
@@ -198,7 +200,7 @@ public class TransformableTexture
         return ( texture.getTextureCanvas() );
     }
     
-    protected void generateRectangles( LiveGameData gameData, boolean isEditorMode, WidgetsDrawingManager widgetsManager )
+    protected void generateRectanglesForOneBigTexture( LiveGameData gameData, boolean isEditorMode, WidgetsDrawingManager widgetsManager )
     {
         final int n = widgetsManager.getNumWidgets();
         Rectangle[] tmp = new Rectangle[ n ];
@@ -637,6 +639,42 @@ public class TransformableTexture
         return ( TextureImage2D.createOnlineTexture( width2, height2, width, height, true ) );
     }
     
+    private static Rectangle[] generateRectangles( int width, int height )
+    {
+        if ( ( width <= MAX_RECTANGLE_SIZE ) && ( height <= MAX_RECTANGLE_SIZE ) )
+            return ( new Rectangle[] { new Rectangle( 0, 0, width, height ) } );
+        
+        Rectangle[] rects = new Rectangle[ (int)Math.ceil( (double)width / (double)MAX_RECTANGLE_SIZE ) * (int)Math.ceil( (double)height / (double)MAX_RECTANGLE_SIZE ) ];
+        
+        int offX = 0;
+        int offY = 0;
+        int w = width;
+        int h = height;
+        int i = 0;
+        
+        while ( h > 0 )
+        {
+            int h2 = Math.min( h, MAX_RECTANGLE_SIZE );
+            
+            while ( w > 0 )
+            {
+                int w2 = Math.min( w, MAX_RECTANGLE_SIZE );
+                
+                rects[i++] = new Rectangle( offX, offY, w2, h2 );
+                
+                offX += w2;
+                w -= w2;
+            }
+            
+            offX = 0;
+            offY += h2;
+            w = width;
+            h -= h2;
+        }
+        
+        return ( rects );
+    }
+    
     /**
      * @param dummy
      * @param width
@@ -654,7 +692,7 @@ public class TransformableTexture
         this.dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( transformable ? 128 : 1024 );
         
         if ( transformable )
-            this.usedRectangles = new Rectangle[] { new Rectangle( 0, 0, width, height ) };
+            this.usedRectangles = generateRectangles( width, height );
     }
     
     /**
@@ -696,7 +734,7 @@ public class TransformableTexture
         if ( ( scaleX != 1.0f ) || ( scaleY != 1.0f ) )
             this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_SCALE ) & 0xFF );
         
-        this.usedRectangles = new Rectangle[] { new Rectangle( 0, 0, width, height ) };
+        this.usedRectangles = generateRectangles( width, height );
         
         this.dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 128 );
     }

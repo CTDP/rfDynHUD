@@ -238,7 +238,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         if ( oneTextureForAllWidgets )
         {
             numTextures = 1;
-            textures[0].generateRectangles( gameData, isEditorMode, this );
+            textures[0].generateRectanglesForOneBigTexture( gameData, isEditorMode, this );
         }
         else
         {
