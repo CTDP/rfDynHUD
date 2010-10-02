@@ -20,7 +20,11 @@ package net.ctdp.rfdynhud.render;
 import java.awt.Color;
 import java.util.HashMap;
 
-public class BackgroundColorBorderRenderer extends BorderRenderer
+/**
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
+public class BackgroundColorBorderRenderer implements BorderRenderer
 {
     private final HashMap<Color, TextureImage2D> cache = new HashMap<Color, TextureImage2D>();
     
@@ -38,6 +42,11 @@ public class BackgroundColorBorderRenderer extends BorderRenderer
         return ( borderTexture );
     }
     
+    /**
+     * 
+     * @param backgroundColor
+     * @return
+     */
     public TextureImage2D getImage( Color backgroundColor )
     {
         TextureImage2D borderTexture = cache.get( backgroundColor );

@@ -141,7 +141,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Finds a free name starting with 'baseName'.
      * 
-     * @param baseName
+     * @param baseName the name prefix
      * 
      * @return the found free name.
      */
@@ -264,7 +264,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Gets the index-th {@link Widget} from this manager.
      * 
-     * @param index
+     * @param index the Widget's index
      * 
      * @return the index-th {@link Widget} from this manager.
      */
@@ -276,7 +276,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Gets the {@link Widget} with the specified name from this manager.
      * 
-     * @param name
+     * @param name the Widget's name
      * 
      * @return the {@link Widget} with the specified name from this manager.
      */
@@ -392,6 +392,8 @@ public class WidgetsConfiguration implements Documented
     /**
      * Checks, if all Widgets are within the game's bounds.
      * If not, they are moved and possibly resized to be in bounds.
+     * 
+     * @param isEditorMode editor mode?
      */
     protected void checkFixAndBakeConfiguration( boolean isEditorMode )
     {
@@ -494,8 +496,8 @@ public class WidgetsConfiguration implements Documented
     /**
      * Maps a new named color.
      * 
-     * @param name
-     * @param color
+     * @param name the name
+     * @param color the color
      * 
      * @return changed?
      */
@@ -509,7 +511,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Gets a named color from the map or <code>null</code>, if not found.
      * 
-     * @param name
+     * @param name the name
      * 
      * @return a named color from the map or <code>null</code>, if not found.
      */
@@ -531,7 +533,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Removes a mapped named color.
      * 
-     * @param name
+     * @param name the name
      * 
      * @return the previously mapped color.
      */
@@ -568,6 +570,12 @@ public class WidgetsConfiguration implements Documented
         }
     }
     
+    /**
+     * Renames the color.
+     * 
+     * @param oldName the old name
+     * @param newName the new name
+     */
     public void renameColor( String oldName, String newName )
     {
         Color color = colorMap.get( oldName );
@@ -587,6 +595,12 @@ public class WidgetsConfiguration implements Documented
         }
     }
     
+    /**
+     * Reset colors to defaults.
+     * 
+     * @param oldName the old name
+     * @param newValue the new name
+     */
     public void resetColors( String oldName, String newValue )
     {
         Color color = colorMap.get( oldName );
@@ -608,8 +622,8 @@ public class WidgetsConfiguration implements Documented
     /**
      * Maps a new named font.
      * 
-     * @param name
-     * @param fontStr
+     * @param name the name
+     * @param fontStr tje font definition
      * 
      * @return changed?
      */
@@ -628,7 +642,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Gets a named font from the map or <code>null</code>, if not found.
      * 
-     * @param name
+     * @param name the name
      * 
      * @return a named font from the map or <code>null</code>, if not found.
      */
@@ -640,7 +654,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Gets a named font from the map or <code>null</code>, if not found.
      * 
-     * @param name
+     * @param name the name
      * 
      * @return a named font from the map or <code>null</code>, if not found.
      */
@@ -652,7 +666,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Gets a named font's virtual flag from the map or <code>null</code>, if not found.
      * 
-     * @param name
+     * @param name the name
      * 
      * @return a named font's virtual flag from the map or <code>null</code>, if not found.
      */
@@ -674,7 +688,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Removes a mapped named font.
      * 
-     * @param name
+     * @param name the name
      * 
      * @return the previously mapped font.
      */
@@ -778,8 +792,8 @@ public class WidgetsConfiguration implements Documented
     /**
      * Maps a new border alias to its filename.
      * 
-     * @param alias
-     * @param border
+     * @param alias the alias name
+     * @param border the border
      * 
      * @return changed?
      */
@@ -793,7 +807,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Gets a border filename from the map or <code>null</code>, if not found.
      * 
-     * @param alias
+     * @param alias the alias name
      * 
      * @return a border filename from the map or <code>null</code>, if not found.
      */
@@ -815,7 +829,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Removes a mapped border alias.
      * 
-     * @param alias
+     * @param alias the alias name
      * 
      * @return the previously mapped border alias.
      */
@@ -896,7 +910,9 @@ public class WidgetsConfiguration implements Documented
     /**
      * Saves all settings to the config file.
      * 
-     * @param writer
+     * @param writer the writer to write to
+     * 
+     * @throws IOException if something went wrong
      */
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
@@ -906,7 +922,7 @@ public class WidgetsConfiguration implements Documented
     /**
      * Loads (and parses) a certain property from a config file.
      * 
-     * @param loader
+     * @param loader the loader to load from
      */
     public void loadProperty( ConfigurationLoader loader )
     {
@@ -916,8 +932,9 @@ public class WidgetsConfiguration implements Documented
     /**
      * Puts all editable properties to the editor.
      * 
-     * @param propsCont
-     * @param forceAll
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
     public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {

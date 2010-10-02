@@ -76,11 +76,12 @@ public class BackgroundProperty extends Property
     }
     
     /**
+     * Invoked when the value has changed.
      * 
-     * @param oldBGType
-     * @param newBGType
-     * @param oldValue
-     * @param newValue
+     * @param oldBGType the old background type
+     * @param newBGType thew new background type
+     * @param oldValue the old value
+     * @param newValue the new value
      */
     protected void onValueChanged( BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
     {
@@ -179,7 +180,7 @@ public class BackgroundProperty extends Property
     /**
      * Sets this property to a color of the given value.
      * 
-     * @param value
+     * @param value the new color value/name
      * 
      * @return changed?
      */
@@ -191,7 +192,7 @@ public class BackgroundProperty extends Property
     /**
      * Sets this property to an image of the given value.
      * 
-     * @param value
+     * @param value the new image name
      * 
      * @return changed?
      */
@@ -200,6 +201,13 @@ public class BackgroundProperty extends Property
         return ( setPropertyFromValue( IMAGE_INDICATOR + value, false ) );
     }
     
+    /**
+     * Sets the current value.
+     * 
+     * @param type
+     * @param colorValue
+     * @param imageValue
+     */
     public void setValues( BackgroundType type, String colorValue, String imageValue )
     {
         BackgroundType oldBGType = getBackgroundType();
@@ -289,10 +297,10 @@ public class BackgroundProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BackgroundProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
@@ -303,9 +311,9 @@ public class BackgroundProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BackgroundProperty( Widget widget, String name, String defaultValue )
     {
@@ -314,10 +322,10 @@ public class BackgroundProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BackgroundProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
     {
@@ -328,9 +336,9 @@ public class BackgroundProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BackgroundProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
     {

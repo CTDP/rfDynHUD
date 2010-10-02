@@ -96,7 +96,7 @@ class ScoringInfoCapsule
      */
     
     /**
-     * current track name
+     * @return current track name
      */
     public final String getTrackName()
     {
@@ -106,7 +106,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * current session
+     * @return current session
      */
     public final SessionType getSessionType()
     {
@@ -118,7 +118,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * current session time
+     * @return current session time
      */
     public final float getSessionTime()
     {
@@ -128,7 +128,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * session ending time
+     * @return session ending time
      */
     public final float getEndTime()
     {
@@ -138,7 +138,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * maximum laps
+     * @return maximum laps
      */
     public final int getMaxLaps()
     {
@@ -148,7 +148,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * distance around track
+     * @return distance around track
      */
     public final float getTrackLength()
     {
@@ -160,7 +160,7 @@ class ScoringInfoCapsule
     //char *mResultsStream;          // results stream additions since last update (newline-delimited and NULL-terminated)
     
     /**
-     * current number of vehicles
+     * @return current number of vehicles
      */
     public final int getNumVehicles()
     {
@@ -195,7 +195,7 @@ class ScoringInfoCapsule
      */
     
     /**
-     * Game phases
+     * @return Game phases
      */
     public final GamePhase getGamePhase()
     {
@@ -229,7 +229,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * Yellow flag states (applies to full-course only)
+     * @return Yellow flag states (applies to full-course only)
      */
     public final YellowFlagState getYellowFlagState()
     {
@@ -263,9 +263,9 @@ class ScoringInfoCapsule
     }
     
     /**
-     * whether there are any local yellows at the moment in each sector
+     * @return whether there are any local yellows at the moment in each sector
      * 
-     * @param sector
+     * @param sector the sector in question
      */
     public final boolean getSectorYellowFlag( int sector )
     {
@@ -280,7 +280,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * start light frame (number depends on track)
+     * @return start light frame (number depends on track)
      */
     public final int getStartLightFrame()
     {
@@ -290,7 +290,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * number of red lights in start sequence
+     * @return number of red lights in start sequence
      */
     public final int getNumRedLights()
     {
@@ -300,7 +300,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * in realtime as opposed to at the monitor
+     * @return in realtime as opposed to at the monitor
      */
     public final boolean isInRealtimeMode()
     {
@@ -310,7 +310,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * player name (including possible multiplayer override)
+     * @return player name (including possible multiplayer override)
      */
     public final String getPlayerName()
     {
@@ -320,7 +320,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * may be encoded to be a legal filename
+     * @return may be encoded to be a legal filename
      */
     public final String getPlayerFilename()
     {
@@ -332,7 +332,7 @@ class ScoringInfoCapsule
     // weather
     
     /**
-     * cloud darkness? 0.0-1.0
+     * @return cloud darkness? 0.0-1.0
      */
     public final float getCloudDarkness()
     {
@@ -342,7 +342,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * raining severity 0.0-1.0
+     * @return raining severity 0.0-1.0
      */
     public final float getRainingSeverity()
     {
@@ -352,7 +352,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * temperature (Celsius)
+     * @return temperature (Celsius)
      */
     public final float getAmbientTemperature()
     {
@@ -362,7 +362,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * temperature (Celsius)
+     * @return temperature (Celsius)
      */
     public final float getTrackTemperature()
     {
@@ -373,6 +373,8 @@ class ScoringInfoCapsule
     
     /**
      * wind speed
+     * 
+     * @param speed output buffer
      */
     public final void getWindSpeed( TelemVect3 speed )
     {
@@ -382,7 +384,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * on main path 0.0-1.0
+     * @return on main path 0.0-1.0
      */
     public final float getOnPathWetness()
     {
@@ -392,7 +394,7 @@ class ScoringInfoCapsule
     }
     
     /**
-     * on main path 0.0-1.0
+     * @return off main path 0.0-1.0
      */
     public final float getOffPathWetness()
     {

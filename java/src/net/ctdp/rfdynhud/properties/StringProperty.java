@@ -30,14 +30,22 @@ public class StringProperty extends Property
     private String value;
     
     /**
+     * Invoked when the property's value has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldValue the old value
+     * @param newValue the new value
      */
     protected void onValueChanged( String oldValue, String newValue )
     {
     }
     
+    /**
+     * Sets the property's new value.
+     * 
+     * @param value the new value
+     * 
+     * @return changed?
+     */
     public boolean setStringValue( String value )
     {
         if ( forceTrimOnSet && ( value != null ) )
@@ -59,6 +67,11 @@ public class StringProperty extends Property
         return ( true );
     }
     
+    /**
+     * Gets the property's current value.
+     * 
+     * @return the property's current value.
+     */
     public final String getStringValue()
     {
         return ( value );
@@ -93,13 +106,13 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param forceTrimOnSet
-     * @param readonly
-     * @param propEdType
+     * @param defaultValue the default value
+     * @param forceTrimOnSet trim value when set
+     * @param readonly read only property?
+     * @param propEdType property editor type
      */
     protected StringProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean forceTrimOnSet, boolean readonly, PropertyEditorType propEdType )
     {
@@ -111,11 +124,11 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public StringProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
@@ -124,10 +137,10 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public StringProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
@@ -136,10 +149,10 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public StringProperty( Widget widget, String name, String defaultValue, boolean readonly )
     {
@@ -148,9 +161,9 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public StringProperty( Widget widget, String name, String defaultValue )
     {
@@ -159,13 +172,13 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param forceTrimOnSet
-     * @param readonly
-     * @param propEdType
+     * @param defaultValue the default value
+     * @param forceTrimOnSet trim value when set
+     * @param readonly read only property?
+     * @param propEdType property editor type
      */
     protected StringProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean forceTrimOnSet, boolean readonly, PropertyEditorType propEdType )
     {
@@ -177,11 +190,11 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public StringProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
@@ -190,10 +203,10 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public StringProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
     {
@@ -202,10 +215,10 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public StringProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
     {
@@ -214,9 +227,9 @@ public class StringProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public StringProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
     {

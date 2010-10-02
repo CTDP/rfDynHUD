@@ -91,8 +91,9 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     
     /**
      * 
-     * @param item
-     * @return
+     * @param item the row data item
+     * 
+     * @return <code>true</code>, if the item is to be ignored for the current view, <code>false</code> otherwise.
      */
     protected boolean isItemIgnored( Object item )
     {
@@ -102,8 +103,19 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     private boolean computeFlatData( GridItemsContainer<P> items, Boolean expandFlags, int level, ArrayList<Object> flatData, boolean[] ligTrace, ArrayList<boolean[]> lastInGroup, ArrayList<Integer> levels )
     {
         boolean hasExpandableItems = false;
+        int n = items.getNumberOfItems();
         
-        for ( int i = 0; i < items.getNumberOfItems(); i++ )
+        int lastVisible = -1;
+        
+        for ( int i = 0; i < n; i++ )
+        {
+            Object item = items.getItem( i );
+            
+            if ( !isItemIgnored( item ) )
+                lastVisible = i;
+        }
+        
+        for ( int i = 0; i < n; i++ )
         {
             Object item = items.getItem( i );
             
@@ -112,7 +124,8 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
             
             flatData.add( item );
             
-            ligTrace[level] = ( i == items.getNumberOfItems() - 1 );
+            //ligTrace[level] = ( i == items.getNumberOfItems() - 1 );
+            ligTrace[level] = ( i == lastVisible );
             
             if ( lastInGroup.size() < flatData.size() )
             {
@@ -169,8 +182,8 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     
     /**
      * 
-     * @param changedPropertyName
-     * @param selectedRow
+     * @param changedPropertyName then ame of the changed property
+     * @param selectedRow the currently selected row
      */
     public void apply( String changedPropertyName, int selectedRow )
     {

@@ -50,21 +50,42 @@ public class VehiclePhysics
             this.numSteps = numSteps;
         }
         
+        /**
+         * The base value of this physics setting.
+         * {@link #getStepSize()} and {@link #getNumSteps()} add to it up to the {@link #getMaxValue()}.
+         * 
+         * @return base value of this physics setting.
+         */
         public final float getBaseValue()
         {
             return ( baseValue * factor );
         }
         
+        /**
+         * Gets the number size of each step for this setting.
+         * 
+         * @return the number size of each step for this setting.
+         */
         public final float getStepSize()
         {
             return ( stepSize * factor );
         }
         
+        /**
+         * Gets the number of steps for this setting.
+         * 
+         * @return the number of steps for this setting.
+         */
         public final int getNumSteps()
         {
             return ( numSteps );
         }
         
+        /**
+         * Gets the minimum value for this physics setting's range.
+         * 
+         * @return the minimum value for this physics setting's range.
+         */
         public final float getMinValue()
         {
             if ( stepSize > 0f )
@@ -73,6 +94,11 @@ public class VehiclePhysics
             return ( ( baseValue + ( numSteps - 1 ) * stepSize ) * factor );
         }
         
+        /**
+         * Gets the maximum value for this physics setting's range.
+         * 
+         * @return the maximum value for this physics setting's range.
+         */
         public final float getMaxValue()
         {
             if ( stepSize < 0f )
@@ -81,6 +107,13 @@ public class VehiclePhysics
             return ( ( baseValue + ( numSteps - 1 ) * stepSize ) * factor );
         }
         
+        /**
+         * Gets the value for the given setting.
+         * 
+         * @param setting the setting to get the value for
+         * 
+         * @return the value for the given setting.
+         */
         public final float getValueForSetting( int setting )
         {
             // There shuold be a range check. But since this cannot be used for cheating, it isn't necessary.
@@ -88,7 +121,14 @@ public class VehiclePhysics
             return ( ( baseValue + stepSize * setting ) * factor );
         }
         
-        public final float limitValue( float value )
+        /**
+         * Clamps the given value to the range of possible values in this physics setting.
+         * 
+         * @param value the value to be clamped.
+         * 
+         * @return the clamped value.
+         */
+        public final float clampValue( float value )
         {
             return ( Math.max( getMinValue(), Math.min( value, getMaxValue() ) ) );
         }
@@ -196,6 +236,11 @@ public class VehiclePhysics
     
     short numForwardGears;
     
+    /**
+     * Gets the number of forward gears.
+     * 
+     * @return the number of forward gears.
+     */
     public final short getNumForwardGears()
     {
         return ( numForwardGears );
@@ -236,16 +281,35 @@ public class VehiclePhysics
             return ( name );
         }
         
+        /**
+         * Gets the average lifetime for the given rance length in seconds.
+         * 
+         * @param raceLengthMultiplier the fraction of race length
+         * 
+         * @return the average lifetime for the given rance length in seconds.
+         */
         public final int getLifetimeAverage( double raceLengthMultiplier )
         {
             return ( (int)Math.round( lifetimeAverage * raceLengthMultiplier ) );
         }
         
+        /**
+         * Gets the variance of lifetime for the given rance length in seconds.
+         * 
+         * @param raceLengthMultiplier the fraction of race length
+         * 
+         * @return the variance of lifetime for the given rance length in seconds.
+         */
         public final int getLifetimeVariance( double raceLengthMultiplier )
         {
             return ( (int)Math.round( lifetimeVariance * raceLengthMultiplier ) );
         }
         
+        /**
+         * Gets, whether this engine has a lifetime variance.
+         * 
+         * @return whether this engine has a lifetime variance.
+         */
         public final boolean hasLifetimeVariance()
         {
             return ( lifetimeVariance != 0 );
@@ -254,7 +318,7 @@ public class VehiclePhysics
         /**
          * Gets the total lifetime in seconds, that the engine will last for sure.
          * 
-         * @param raceLengthMultiplier
+         * @param raceLengthMultiplier the fraction of race length
          * 
          * @return the total lifetime, that the engine will last for sure.
          */
@@ -266,7 +330,7 @@ public class VehiclePhysics
         /**
          * Gets the total lifetime in seconds, that the engine will most probably hold.
          * 
-         * @param raceLengthMultiplier
+         * @param raceLengthMultiplier the fraction of race length
          * 
          * @return the total lifetime in seconds, that the engine will most probably hold.
          */
@@ -278,7 +342,7 @@ public class VehiclePhysics
         /**
          * Gets the total lifetime seconds of the barrier, where the engine is in really bad shape.
          * 
-         * @param raceLengthMultiplier
+         * @param raceLengthMultiplier the fraction of race length
          * 
          * @return the total lifetime seconds of the barrier, where the engine is in really bad shape.
          */
@@ -290,7 +354,7 @@ public class VehiclePhysics
         /**
          * Gets the maximum number of lifetime seconds, that the engine can possibly last.
          * 
-         * @param raceLengthMultiplier
+         * @param raceLengthMultiplier the fraction of race length
          * 
          * @return the maximum number of lifetime seconds, that the engine can possibly last.
          */
@@ -302,7 +366,7 @@ public class VehiclePhysics
         /**
          * Gets the lower bound of lifetime values for the "safe" range (zero).
          * 
-         * @param raceLengthMultiplier
+         * @param raceLengthMultiplier the fraction of race length
          * 
          * @return the lower bound of lifetime values for the "safe" range (zero).
          */
@@ -314,7 +378,7 @@ public class VehiclePhysics
         /**
          * Gets the lower bound of lifetime values for the "good" range.
          * 
-         * @param raceLengthMultiplier
+         * @param raceLengthMultiplier the fraction of race length
          * 
          * @return the lower bound of lifetime values for the "good" range.
          */
@@ -326,7 +390,7 @@ public class VehiclePhysics
         /**
          * Gets the lower bound of lifetime values for the "bad" range.
          * 
-         * @param raceLengthMultiplier
+         * @param raceLengthMultiplier the fraction of race length
          * 
          * @return the lower bound of lifetime values for the "bad" range.
          */
@@ -338,7 +402,7 @@ public class VehiclePhysics
         /**
          * Gets the smalles lifetime value, that your engine can possibly have.
          * 
-         * @param raceLengthMultiplier
+         * @param raceLengthMultiplier the fraction of race length
          * 
          * @return the smalles lifetime value, that your engine can possibly have.
          */
@@ -347,26 +411,55 @@ public class VehiclePhysics
             return ( (int)Math.round( ( - lifetimeVariance - lifetimeVariance - lifetimeVariance - lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
+        /**
+         * Gets the size of the variance rance for engine lifetime in seconds.
+         * 
+         * @param raceLengthMultiplier the fraction of race length
+         * 
+         * @return the size of the variance rance for engine lifetime in seconds.
+         */
         public final int getLifetimeVarianceRange( double raceLengthMultiplier )
         {
             return ( (int)Math.round( ( lifetimeVariance + lifetimeVariance + lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
+        /**
+         * Gets the half size of the variance rance for engine lifetime in seconds.
+         * 
+         * @param raceLengthMultiplier the fraction of race length
+         * 
+         * @return the half size of the variance rance for engine lifetime in seconds.
+         */
         public final int getLifetimeVarianceHalfRange( double raceLengthMultiplier )
         {
             return ( (int)Math.round( ( lifetimeVariance + lifetimeVariance ) * raceLengthMultiplier ) );
         }
         
+        /**
+         * Gets the base temperature for engine life time in °C.
+         * 
+         * @return the base temperature for engine life time in °C.
+         */
         public final float getBaseLifetimeOilTemperatureC()
         {
             return ( baseLifetimeOilTemperature );
         }
         
+        /**
+         * Gets the base temperature for engine life time in °F.
+         * 
+         * @return the base temperature for engine life time in °F.
+         */
         public final float getBaseLifetimeOilTemperatureF()
         {
             return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + baseLifetimeOilTemperature * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
         }
         
+        /**
+         * Gets the base temperature for engine life time in the units selected in the PLR.
+         * 
+         * @return the base temperature for engine life time in the units selected in the PLR.
+         */
         public final float getBaseLifetimeOilTemperature()
         {
             if ( measurementUnits == MeasurementUnits.IMPERIAL )
@@ -375,16 +468,31 @@ public class VehiclePhysics
             return ( getBaseLifetimeOilTemperatureC() );
         }
         
+        /**
+         * Gets the offset to the base oil temperature for engine life time, where life time is halfed in °C.
+         * 
+         * @return the offset to the base oil temperature for engine life time, where life time is halfed in °C.
+         */
         public final float getHalfLifetimeOilTempOffsetC()
         {
             return ( halfLifetimeOilTempOffset );
         }
         
+        /**
+         * Gets the offset to the base oil temperature for engine life time, where life time is halfed in °F.
+         * 
+         * @return the offset to the base oil temperature for engine life time, where life time is halfed in °F.
+         */
         public final float getHalfLifetimeOilTempOffsetF()
         {
             return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + halfLifetimeOilTempOffset * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
         }
         
+        /**
+         * Gets the offset to the base oil temperature for engine life time, where life time is halfed in the units selected in the PLR.
+         * 
+         * @return the offset to the base oil temperature for engine life time, where life time is halfed in the units selected in the PLR.
+         */
         public final float getHalfLifetimeOilTempOffset()
         {
             if ( measurementUnits == MeasurementUnits.IMPERIAL )
@@ -414,7 +522,7 @@ public class VehiclePhysics
         }
         
         /**
-         * Gets the optimum oil temperature in the selected units. Engine will operatate optimally at this value.
+         * Gets the optimum oil temperature in the units selected in the PLR. Engine will operatate optimally at this value.
          * 
          * @return the optimum oil temperature.
          */
@@ -449,7 +557,7 @@ public class VehiclePhysics
         }
         
         /**
-         * Gets the temperature value in the selected units at which the engine starts to overheat.
+         * Gets the temperature value in the units selected in the PLR, at which the engine starts to overheat.
          * This value should serve as a peak level for temperatures during a race.
          * 
          * @return the temperature value at which the engine starts to overheat.
@@ -483,7 +591,7 @@ public class VehiclePhysics
         }
         
         /**
-         * Gets a strong overheating engine temperature in the selected units. At this level the engine will have half of its regular life time.
+         * Gets a strong overheating engine temperature in the units selected in the PLR. At this level the engine will have half of its regular life time.
          * 
          * @return a strong overheating engine temperature.
          */
@@ -495,6 +603,11 @@ public class VehiclePhysics
             return ( getStrongOverheatingOilTemperatureC() );
         }
         
+        /**
+         * Gets the engine wear increase per °C obove the optimum temperature.
+         * 
+         * @return the engine wear increase per °C obove the optimum temperature.
+         */
         public final float getWearIncreasePerDegreeC()
         {
             return ( wearIncreasePerDegree );
@@ -503,6 +616,8 @@ public class VehiclePhysics
         /**
          * Gets RPM for 'normal' lifetime. No decreased and no increased lifetime.
          * 
+         * @see #getHalfLifetimeRPMOffset()
+         * 
          * @return RPM for 'normal' lifetime. No decreased and no increased lifetime.
          */
         public final float getBaseLifetimeRPM()
@@ -510,6 +625,13 @@ public class VehiclePhysics
             return ( baseLifetimeRPM );
         }
         
+        /**
+         * Gets the offset above the base RPM, where lifetime is halfed.
+         * 
+         * @see #getBaseLifetimeRPM()
+         * 
+         * @return the offset above the base RPM, where lifetime is halfed.
+         */
         public final float getHalfLifetimeRPMOffset()
         {
             return ( halfLifetimeRPMOffset );
@@ -517,6 +639,9 @@ public class VehiclePhysics
         
         /**
          * Gets the range of possible max revs.
+         * 
+         * @see VehicleSetup.Engine#getRevLimitSetting()
+         * @see VehicleSetup.Engine#getRevLimit()
          * 
          * @return the range of possible max revs.
          */
@@ -528,6 +653,8 @@ public class VehiclePhysics
         /**
          * Gets the range of possible boost mappings.
          * 
+         * @see VehicleSetup.Engine#getBoostMapping()
+         * 
          * @return the range of possible boost mappings.
          */
         public final PhysicsSetting getBoostRange()
@@ -535,21 +662,41 @@ public class VehiclePhysics
             return ( boostRange );
         }
         
+        /**
+         * Gets the rev limit increase per boost setting.
+         * 
+         * @return the rev limit increase per boost setting.
+         */
         public final float getRPMIncreasePerBoostLevel()
         {
             return ( rpmIncreasePerBoostSetting );
         }
         
+        /**
+         * Gets the fuel usage increase per boost setting.
+         * 
+         * @return the fuel usage increase per boost setting.
+         */
         public final float getFuelUsageIncreasePerBoostLevel()
         {
             return ( fuelUsageIncreasePerBoostSetting );
         }
         
+        /**
+         * Gets the engine wear increase per boost setting.
+         * 
+         * @return the engine wear increase per boost setting.
+         */
         public final float getWearIncreasePerBoostLevel()
         {
             return ( wearIncreasePerBoostSetting );
         }
         
+        /**
+         * Gets the engine wear increase per km/h.
+         * 
+         * @return the engine wear increase per km/h.
+         */
         public final float getWearIncreasePerVelocity()
         {
             return ( wearIncreasePerVelocity );
@@ -589,6 +736,11 @@ public class VehiclePhysics
             return ( baseMaxRPM + ( boostRange.getMaxValue() - boostRange.getBaseValue() ) * rpmIncreasePerBoostSetting );
         }
         
+        /**
+         * Gets the boost level with smallest boost.
+         * 
+         * @return the boost level with smallest boost.
+         */
         public final int getLowestBoostLevel()
         {
             if ( rpmIncreasePerBoostSetting <= 0f )
@@ -597,6 +749,11 @@ public class VehiclePhysics
             return ( (int)boostRange.getMinValue() );
         }
         
+        /**
+         * Gets the boost level with biggest boost.
+         * 
+         * @return the boost level with biggest boost.
+         */
         public final int getHighestBoostLevel()
         {
             if ( rpmIncreasePerBoostSetting <= 0f )
@@ -646,6 +803,8 @@ public class VehiclePhysics
         /**
          * Gets the range for brake pressure values [0, 1].
          * 
+         * @see VehicleSetup.Controls#getBrakePressure()
+         * 
          * @return the range for brake pressure values [0, 1].
          */
         public final PhysicsSetting getPressureRange()
@@ -655,6 +814,11 @@ public class VehiclePhysics
             return ( pressureRange );
         }
         
+        /**
+         * Brake settings for a single wheel.
+         * 
+         * @author Marvin Froehlich (CTDP)
+         */
         public static class WheelBrake
         {
             public static final float DEFAULT_BRAKE_FADE_RANGE = Float.MAX_VALUE / 2f;
@@ -807,12 +971,26 @@ public class VehiclePhysics
                 return ( getOverheatingTemperatureC() );
             }
             
-            public final float getWearincreasePerDegreeCOverOptimum()
+            /**
+             * Gets the engine wear increase per °C over optimum temperature range.
+             * 
+             * @see #getOptimumTemperaturesUpperBoundC()
+             * 
+             * @return the engine wear increase per °C over optimum temperature range.
+             */
+            public final float getWearIncreasePerDegreeCOverOptimum()
             {
                 return ( wearIncreasePerDegreeOverOptimum );
             }
             
-            public final float getWeardecreasePerDegreeCBelowOptimum()
+            /**
+             * Gets the engine wear increase per °C below optimum temperature range.
+             * 
+             * @see #getOptimumTemperaturesLowerBoundC()
+             * 
+             * @return the engine wear increase per °C below optimum temperature range.
+             */
+            public final float getWearDecreasePerDegreeCBelowOptimum()
             {
                 return ( wearDecreasePerDegreeBelowOptimum );
             }
@@ -825,16 +1003,35 @@ public class VehiclePhysics
                 this.overheatingTemperature = overheatingTemperature;
             }
             
+            /**
+             * Gets the range, where brakes start to fade.
+             * 
+             * @return the range, where brakes start to fade.
+             */
             public final float getBrakeFadeRangeC()
             {
                 return ( brakeFadeRange );
             }
             
+            /**
+             * Gets the temperature below optimum in °C, where brakes are cold and only produce half of optimum effect.
+             * 
+             * @see #getOptimumTemperaturesLowerBoundC()
+             * 
+             * @return the temperature below optimum in °C, where brakes are cold and only produce half of optimum effect.
+             */
             public final float getBrakeFadeColdTemperatureC()
             {
                 return ( optimumTemperaturesLowerBound - brakeFadeRange );
             }
             
+            /**
+             * Gets the temperature above optimum in °C, where brakes are cold and only produce half of optimum effect.
+             * 
+             * @see #getOptimumTemperaturesUpperBoundC()
+             * 
+             * @return the temperature above optimum in °C, where brakes are cold and only produce half of optimum effect.
+             */
             public final float getBrakeFadeHotTemperatureC()
             {
                 return ( optimumTemperaturesUpperBound + brakeFadeRange );
@@ -842,6 +1039,8 @@ public class VehiclePhysics
             
             /**
              * Gets the disc thickness range in meters.
+             * 
+             * @see VehicleSetup.WheelAndTire#getBrakeDiscThickness()
              * 
              * @return the disc thickness range in meters.
              */
@@ -851,9 +1050,12 @@ public class VehiclePhysics
             }
             
             /**
-             * Brake disc wear per second at optimum temperature.
+             * Brake disc wear per second in optimum temperature range.
              * 
-             * @return Brake disc wear per second at optimum temperature
+             * @see #getOptimumTemperaturesLowerBoundC()
+             * @see #getOptimumTemperaturesUpperBoundC()
+             * 
+             * @return Brake disc wear per second in optimum temperature range.
              */
             public final float getWearRate()
             {
@@ -861,9 +1063,9 @@ public class VehiclePhysics
             }
             
             /**
-             * Gets the disc thickness at which it fails.
+             * Gets the disc thickness in meters at which it fails.
              * 
-             * @return the disc thickness at which it fails.
+             * @return the disc thickness in meters at which it fails.
              */
             public final float getDiscFailureAverage()
             {
@@ -871,24 +1073,29 @@ public class VehiclePhysics
             }
             
             /**
-             * Gets the disc thickness at which it fails.
+             * Gets the variance of disc thickness at which it fails.
              * 
-             * @return the disc thickness at which it fails.
+             * @return the variance of disc thickness at which it fails.
              */
             public final float getDiscFailureVariance()
             {
                 return ( discFailureVariance );
             }
             
+            /**
+             * Gets, whether this brake has a variance in fail thickness.
+             * 
+             * @return whether this brake has a variance in fail thickness.
+             */
             public final boolean hasDiscFailureVariance()
             {
                 return ( ( discFailureVariance < -0.0000001f ) || ( discFailureVariance > +0.0000001f ) );
             }
             
             /**
-             * Gets the disc thickness at which it fails.
+             * Gets minimum disc thickness, the disc can possibly reach in meters.
              * 
-             * @return the disc thickness at which it fails.
+             * @return minimum disc thickness, the disc can possibly reach in meters
              */
             public final float getMinDiscFailure()
             {
@@ -896,11 +1103,21 @@ public class VehiclePhysics
                 //return ( discFailureAverage );
             }
             
+            /**
+             * Gets the disc thickness in meters, that you can be pretty sure, it will reach.
+             * 
+             * @return the disc thickness in meters, that you can be pretty sure, it will reach.
+             */
             public final float getGoodDiscFailure()
             {
                 return ( discFailureAverage );
             }
             
+            /**
+             * You shouldn't let your brake disc go to this thickness in meters.
+             * 
+             * @return the thickness, that you shouldn't let your brakes go to. They will probably not gonna make it.
+             */
             public final float getBadDiscFailure()
             {
                 return ( discFailureAverage + discFailureVariance );
@@ -916,11 +1133,21 @@ public class VehiclePhysics
                 return ( discFailureAverage + discFailureVariance + discFailureVariance );
             }
             
+            /**
+             * Gets the absolute range of variance in meters.
+             * 
+             * @return the absolute range of variance in meters.
+             */
             public final float getDiscFailureVarianceRange()
             {
                 return ( discFailureVariance + discFailureVariance + discFailureVariance + discFailureVariance );
             }
             
+            /**
+             * Gets half of the absolute range of variance in meters.
+             * 
+             * @return half of the absolute range of variance in meters.
+             */
             public final float getDiscFailureVarianceHalfRange()
             {
                 return ( discFailureVariance + discFailureVariance );
@@ -949,7 +1176,7 @@ public class VehiclePhysics
         /**
          * Gets the brake model of the given wheel.
          * 
-         * @param wheel
+         * @param wheel the requested wheel
          * 
          * @return the brake model of the given wheel.
          */
@@ -974,6 +1201,11 @@ public class VehiclePhysics
     
     private final Brakes brakes = new Brakes();
     
+    /**
+     * Gets the model for all four brakes.
+     * 
+     * @return the model for all four brakes.
+     */
     public final Brakes getBrakes()
     {
         return ( brakes );
@@ -1007,7 +1239,7 @@ public class VehiclePhysics
             return ( step );
         }
         
-        public final float getDropoffFunction()
+        public final float getDropOffFunction()
         {
             return ( dropoffFunction );
         }
@@ -1029,6 +1261,11 @@ public class VehiclePhysics
     
     File usedTBCFile;
     
+    /**
+     * Gets TBC tire compound file, currently in use. (may depend on upgrades)
+     * 
+     * @return TBC tire compound file, currently in use.
+     */
     public final File getUsedTBCFile()
     {
         return ( usedTBCFile );
@@ -1274,7 +1511,7 @@ public class VehiclePhysics
              * Gets the temperature in Celsius, that a tire will have at the given grip fraction value.
              * This function will always return a value below {@link #getOptimumTemperature()}.
              * 
-             * @param grip
+             * @param grip the actual grip fraction
              * 
              * @return the temperature, that a tire will have at the given grip fraction value.
              */
@@ -1287,7 +1524,7 @@ public class VehiclePhysics
              * Gets the temperature in Fahrenheit, that a tire will have at the given grip fraction value.
              * This function will always return a value below {@link #getOptimumTemperature()}.
              * 
-             * @param grip
+             * @param grip the actual grip fraction
              * 
              * @return the temperature, that a tire will have at the given grip fraction value.
              */
@@ -1300,7 +1537,7 @@ public class VehiclePhysics
              * Gets the temperature in the selected units, that a tire will have at the given grip fraction value.
              * This function will always return a value below {@link #getOptimumTemperature()}.
              * 
-             * @param grip
+             * @param grip the actual grip fraction
              * 
              * @return the temperature, that a tire will have at the given grip fraction value.
              */
@@ -1316,7 +1553,7 @@ public class VehiclePhysics
              * Gets the temperature in Celsius, that a tire will have at the given grip fraction value.
              * This function will always return a value above {@link #getOptimumTemperature()}.
              * 
-             * @param grip
+             * @param grip the actual grip fraction
              * 
              * @return the temperature, that a tire will have at the given grip fraction value.
              */
@@ -1329,7 +1566,7 @@ public class VehiclePhysics
              * Gets the temperature in Fahrenheit, that a tire will have at the given grip fraction value.
              * This function will always return a value above {@link #getOptimumTemperature()}.
              * 
-             * @param grip
+             * @param grip the actual grip fraction
              * 
              * @return the temperature, that a tire will have at the given grip fraction value.
              */
@@ -1342,7 +1579,7 @@ public class VehiclePhysics
              * Gets the temperature in the selected units, that a tire will have at the given grip fraction value.
              * This function will always return a value above {@link #getOptimumTemperature()}.
              * 
-             * @param grip
+             * @param grip the actual grip fraction
              * 
              * @return the temperature, that a tire will have at the given grip fraction value.
              */
@@ -1393,7 +1630,7 @@ public class VehiclePhysics
             /**
              * Computes the optimum tire pressure for the given grip fraction and load.
              * 
-             * @param grip
+             * @param grip the actual grip fraction
              * @param load coming from {@link TelemetryData#getTireLoad(Wheel)}
              * 
              * @return the optimum tire pressure for the given grip fraction and load.
@@ -1490,6 +1727,8 @@ public class VehiclePhysics
                 
                 wear = 1.0f - wear;
                 
+                // TODO: Use binary search!
+                
                 if ( wear <= WEAR1 )
                     return ( w[0] - ( w[0] - w[1] ) * ( wear - WEAR0 ) / ( WEAR1 - WEAR0 ) );
                 
@@ -1541,6 +1780,11 @@ public class VehiclePhysics
                 return ( 0.0f );
             }
             
+            /**
+             * Gets the grip level at maximum tire wear.
+             * 
+             * @return the grip level at maximum tire wear.
+             */
             public final float getMinGrip()
             {
                 final float[] w = ( gripFactorPerWear == null ) ? DEFAULT_WEAR_GRIP : gripFactorPerWear;
@@ -1561,7 +1805,7 @@ public class VehiclePhysics
         /**
          * Gets the {@link CompoundWheel} for the given wheel.
          * 
-         * @param wheel
+         * @param wheel the requested wheel
          * 
          * @return the {@link CompoundWheel} for the given wheel.
          */
@@ -1646,7 +1890,7 @@ public class VehiclePhysics
     /**
      * Gets the {@link TireCompound} for the given wheel, that has the best grip compared to allother available ones.
      * 
-     * @param wheel
+     * @param wheel the requested wheel
      * 
      * @return the {@link TireCompound} for the given wheel, that has the best grip.
      */
@@ -1717,6 +1961,12 @@ public class VehiclePhysics
     
     /**
      * Gets the range of possible values for tire pressure.
+     * 
+     * @param wheel the requested wheel
+     * 
+     * @see VehicleSetup.WheelAndTire#getTirePressure()
+     * 
+     * @return the range of possible values for tire pressure.
      */
     public final PhysicsSetting getTirePressureRange( Wheel wheel )
     {

@@ -41,8 +41,9 @@ public class NumberUtil
     /**
      * Formats the given float to a String with the specified number of decimal places.
      * 
-     * @param f
-     * @param numDecPlaces
+     * @param f the number to format
+     * @param numDecPlaces the maximum number of decimal places
+     * @param forceFractions always format with maximum number of fractions?
      * 
      * @return the formatted String.
      */
@@ -76,7 +77,7 @@ public class NumberUtil
     /**
      * Gets the next greater power-of-two for the given number.
      * 
-     * @param v
+     * @param v the value to round up
      * 
      * @return the next greater power-of-two for the given number.
      */

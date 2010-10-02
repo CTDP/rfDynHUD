@@ -25,6 +25,11 @@ import net.ctdp.rfdynhud.util.Logger;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
+/**
+ * Model of the current player's profile information
+ * 
+ * @author Marvin Froehlich
+ */
 public class ProfileInfo
 {
     private static final FileFilter DIRECTORY_FILE_FILTER = new FileFilter()
@@ -36,6 +41,11 @@ public class ProfileInfo
         }
     };
     
+    /**
+     * Model of measurement units (everything but speed)
+     * 
+     * @author Marvin Froehlich (CTDP)
+     */
     public static enum MeasurementUnits
     {
         METRIC,
@@ -54,6 +64,13 @@ public class ProfileInfo
             }
         }
         
+        /**
+         * Converts the passed amount of fuel liers to the units selected in the PLR (liters, if you're a good boy).
+         * 
+         * @param liters
+         * 
+         * @return the amount converted to the selected units.
+         */
         public final float getFuelAmountFromLiters( float liters )
         {
             if ( this == METRIC )
@@ -63,6 +80,11 @@ public class ProfileInfo
         }
     }
     
+    /**
+     * Model of speed units
+     * 
+     * @author Marvin Froehlich (CTDP)
+     */
     public static enum SpeedUnits
     {
         MPH,
@@ -103,6 +125,12 @@ public class ProfileInfo
     private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
     private SpeedUnits speedUnits = SpeedUnits.KPH;
     
+    /**
+     * Gets whether this information in this instance is valid for the current session.
+     * This is false until rFactor is so kind to store the file.
+     * 
+     * @return whether this information in this instance is valid for the current session.
+     */
     public final boolean isValid()
     {
         return ( plrFile != null );
@@ -289,56 +317,111 @@ public class ProfileInfo
         return ( true );
     }
     
+    /**
+     * This is incremented every time the info is updated.
+     *  
+     * @return the current update id.
+     */
     public final long getUpdateId()
     {
         return ( updateId );
     }
     
+    /**
+     * Gets the folder, where rFactor stores profiles.
+     * 
+     * @return the folder, where rFactor stores profiles.
+     */
     public final File getProfileFolder()
     {
         return ( profileFolder );
     }
     
+    /**
+     * Gets the used PLR file.
+     * 
+     * @return the used PLR file.
+     */
     public final File getPLRFile()
     {
         return ( plrFile );
     }
     
+    /**
+     * Gets the current mod's name.
+     * 
+     * @return the current mod's name.
+     */
     final String getModName()
     {
         return ( modName );
     }
     
+    /**
+     * Gets the currently used vehicle file.
+     * 
+     * @return the currently used vehicle file.
+     */
     public final String getVehicleFile()
     {
         return ( vehFilename );
     }
     
+    /**
+     * Gets the currently used team's name.
+     * 
+     * @return the currently used team's name.
+     */
     public final String getTeamName()
     {
         return ( teamName );
     }
     
+    /**
+     * Gets the last used scene file.
+     * 
+     * @return the last used scene file.
+     */
     final File getLastUsedSceneFile()
     {
         return ( lastUsedTrackFile );
     }
     
+    /**
+     * Gets the current race length fraction.
+     * 
+     * @return the current race length fraction.
+     */
     public final Float getRaceLengthMultiplier()
     {
         return ( multiRaceLength );
     }
     
+    /**
+     * Gets whether the current lap is to be displayed or the number of laps completed.
+     * 
+     * @return whether the current lap is to be displayed or the number of laps completed
+     */
     public final Boolean getShowCurrentLap()
     {
         return ( showCurrentLap );
     }
     
+    /**
+     * Gets the number of configureed recon laps.
+     * 
+     * @return the number of configureed recon laps.
+     */
     public final Integer getNumReconLaps()
     {
         return ( numReconLaps );
     }
     
+    /**
+     * Drive formation lap?
+     * 
+     * @return drive formation lap?
+     */
     public final Boolean getFormationLap()
     {
         if ( formationLapFlag == null )
@@ -363,16 +446,35 @@ public class ProfileInfo
         return ( null );
     }
     
+    /**
+     * Gets the selected measurement units. (Applies to everything but speed.)
+     * 
+     * @see #getSpeedUnits()
+     * 
+     * @return the selected measurement units.
+     */
     public final MeasurementUnits getMeasurementUnits()
     {
         return ( measurementUnits );
     }
     
+    /**
+     * Gets the selected speed units.
+     * 
+     * @see #getMeasurementUnits()
+     * 
+     * @return the selected speed units.
+     */
     public final SpeedUnits getSpeedUnits()
     {
         return ( speedUnits );
     }
     
+    /**
+     * Gets the currently used CCH file.
+     * 
+     * @return the currently used CCH file.
+     */
     public final File getCCHFile()
     {
         if ( profileFolder == null )
@@ -384,6 +486,9 @@ public class ProfileInfo
         return ( new File( profileFolder, modName + ".cch" ) );
     }
     
+    /**
+     * Create a new instance.
+     */
     public ProfileInfo()
     {
     }

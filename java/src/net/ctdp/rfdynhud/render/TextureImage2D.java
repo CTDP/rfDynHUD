@@ -148,8 +148,8 @@ public class TextureImage2D
     /**
      * Resizes this texture to a size in range [1,getMaxWidth()],[1,getMaxHeight()].
      * 
-     * @param width
-     * @param height
+     * @param width the width to resize to
+     * @param height the height to resize to
      */
     public void resize( int width, int height )
     {
@@ -642,10 +642,10 @@ public class TextureImage2D
      * Marks a portion of the image component as dirty.
      * The region will be pushed to the graphics card on the next frame.
      * 
-     * @param x
-     * @param y
-     * @param width
-     * @param height
+     * @param x the left coordinate
+     * @param y the top coordinate
+     * @param width the width
+     * @param height the height
      */
     public final void markDirty( int x, int y, int width, int height )
     {
@@ -656,7 +656,7 @@ public class TextureImage2D
      * Marks a portion of the image component as dirty.
      * The region will be pushed to the graphics card on the next frame.
      * 
-     * @param r
+     * @param r the rectangle
      */
     public final void markDirty( Rect2i r )
     {
@@ -726,10 +726,10 @@ public class TextureImage2D
     /**
      * Sets the clip-rect, that will be clipping the drawn pixels.
      * 
-     * @param x
-     * @param y
-     * @param width
-     * @param height
+     * @param x the left coordinate
+     * @param y the top coordinate
+     * @param width the width
+     * @param height the height
      */
     public void setClipRect( int x, int y, int width, int height )
     {
@@ -741,7 +741,7 @@ public class TextureImage2D
     /**
      * Sets the clip-rect, that will be clipping the drawn pixels.
      * 
-     * @param clipRect
+     * @param clipRect the clip rectangle
      */
     public final void setClipRect( Rect2i clipRect )
     {
@@ -752,6 +752,8 @@ public class TextureImage2D
      * Gets the currently used clip-rect.
      * 
      * @param rect where the rectangle data will be written to.
+     * 
+     * @param <Rect2i_> the return and parameter type restriction
      * 
      * @return the passed-in rectangle back again.
      */
@@ -765,7 +767,9 @@ public class TextureImage2D
     /**
      * Clamps the given rect to the current effective clip rect.
      * 
-     * @param rect
+     * @param rect the rectangle
+     * 
+     * @param <Rect2i_> the return and parameter type restriction
      * 
      * @return the passed-in rectangle back again.
      */
@@ -1126,6 +1130,8 @@ public class TextureImage2D
      * @param y the y-cordinate of the starting location
      * @param data the target pixel data
      * @param length the number of pixels to read
+     * 
+     * @return the pixel data
      */
     public final byte[] getPixelLine( int x, int y, byte[] data, int length )
     {
@@ -1602,11 +1608,11 @@ public class TextureImage2D
     /**
      * Fills the given rectangle with the specified color and combines alpha channels if necessary.
      * 
-     * @param color
-     * @param offsetX
-     * @param offsetY
-     * @param width
-     * @param height
+     * @param color the color to fill with
+     * @param offsetX the destination x coordinate
+     * @param offsetY the destination y coordinate
+     * @param width the destination area width
+     * @param height the destination area height
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
@@ -1660,7 +1666,7 @@ public class TextureImage2D
     /**
      * Fills the complete (used part of the) texture with the specified color and combines alpha channels if necessary.
      * 
-     * @param color
+     * @param color the color to fill with
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
@@ -1819,11 +1825,12 @@ public class TextureImage2D
     /**
      * Clears the given rectangle's outline with the specified color.
      * 
-     * @param color
-     * @param offsetX
-     * @param offsetY
-     * @param width
-     * @param height
+     * @param color the color to draw with
+     * @param offsetX the destination x coordinate
+     * @param offsetY the destination y coordinate
+     * @param width the destination area width
+     * @param height the destination area height
+     * @param lineWidth the width of the outline
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
@@ -1903,11 +1910,11 @@ public class TextureImage2D
     /**
      * Clears the given rectangle with the specified color.
      * 
-     * @param color
-     * @param offsetX
-     * @param offsetY
-     * @param width
-     * @param height
+     * @param color the color to clear with
+     * @param offsetX the destination x coordinate
+     * @param offsetY the destination y coordinate
+     * @param width the destination area width
+     * @param height the destination area height
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
@@ -1978,7 +1985,7 @@ public class TextureImage2D
     /**
      * Clears the whole (used part of the) texture with the specified color.
      * 
-     * @param color
+     * @param color the color to clear with
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
@@ -1990,10 +1997,10 @@ public class TextureImage2D
     /**
      * Clears the given rectangle with a black-transparent color.
      * 
-     * @param offsetX
-     * @param offsetY
-     * @param width
-     * @param height
+     * @param offsetX the destination x coordinate
+     * @param offsetY the destination y coordinate
+     * @param width the destination area width
+     * @param height the destination area height
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance
      */
@@ -2157,7 +2164,7 @@ public class TextureImage2D
      * @param y the y-position of the String's baseline
      * @param bounds the String's bounds. If null, bounds will be created temporarily
      * @param font the Font to use
-     * @param antiAliased
+     * @param antiAliased anti aliased font?
      * @param color the Color to use
      * @param markDirty if true, the pixel is marked dirty
      * @param dirtyRect if non null, the dirty rect is written to this instance

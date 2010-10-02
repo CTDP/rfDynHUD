@@ -17,6 +17,10 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+/**
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public final class GameResolution
 {
     private int resX = 1280;

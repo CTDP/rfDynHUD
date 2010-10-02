@@ -67,7 +67,7 @@ public class WidgetToPropertyForwarder
     /**
      * Sets the {@link Widget} in the added Properties.
      * 
-     * @param widget
+     * @param widget the {@link Widget} to forward to
      */
     public void finish( Widget widget )
     {
@@ -99,6 +99,9 @@ public class WidgetToPropertyForwarder
         sizes = null;
     }
     
+    /**
+     * Creates a new instance.
+     */
     public WidgetToPropertyForwarder()
     {
     }

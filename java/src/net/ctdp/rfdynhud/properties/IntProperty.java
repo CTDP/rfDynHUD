@@ -31,30 +31,55 @@ public class IntProperty extends Property
     private final int minValue;
     private final int maxValue;
     
+    /**
+     * Gets the minimum value.
+     * 
+     * @return the minimum value.
+     */
     public final int getMinValue()
     {
         return ( minValue );
     }
     
+    /**
+     * Gets the maximum value.
+     * 
+     * @return the maximum value.
+     */
     public final int getMaxValue()
     {
         return ( maxValue );
     }
     
+    /**
+     * Fixes the value to stick to the limits.
+     * 
+     * @param value the unfixed value
+     * 
+     * @return the fixed value.
+     */
     protected int fixValue( int value )
     {
         return ( Math.max( minValue, Math.min( value, maxValue ) ) );
     }
     
     /**
+     * Invoked when the value has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldValue the old value
+     * @param newValue the new value
      */
     protected void onValueChanged( int oldValue, int newValue )
     {
     }
     
+    /**
+     * Sets the property's value.
+     * 
+     * @param value the new value
+     * 
+     * @return changed?
+     */
     public boolean setIntValue( int value )
     {
         value = fixValue( value );
@@ -75,11 +100,21 @@ public class IntProperty extends Property
         return ( true );
     }
     
+    /**
+     * Gets the current value.
+     * 
+     * @return the current value.
+     */
     public final int getIntValue()
     {
         return ( value );
     }
     
+    /**
+     * Gets the current value as a float.
+     * 
+     * @return the current value as a float.
+     */
     public final float getFloatValue()
     {
         return ( value );
@@ -114,13 +149,13 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
@@ -133,11 +168,11 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue, boolean readonly )
     {
@@ -146,10 +181,10 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue )
     {
@@ -158,10 +193,10 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public IntProperty( Widget widget, String name, int defaultValue, boolean readonly )
     {
@@ -170,9 +205,9 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public IntProperty( Widget widget, String name, int defaultValue )
     {
@@ -181,11 +216,11 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public IntProperty( Widget widget, String name, int defaultValue, int minValue, int maxValue )
     {
@@ -194,13 +229,13 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
@@ -211,11 +246,11 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue, boolean readonly )
     {
@@ -224,10 +259,10 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue )
     {
@@ -236,10 +271,10 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue, boolean readonly )
     {
@@ -248,9 +283,9 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue )
     {
@@ -259,11 +294,11 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue, int minValue, int maxValue )
     {

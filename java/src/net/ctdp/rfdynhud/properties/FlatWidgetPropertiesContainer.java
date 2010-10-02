@@ -21,10 +21,19 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class FlatWidgetPropertiesContainer extends WidgetPropertiesContainer
 {
     private final ArrayList<Property> properties = new ArrayList<Property>();
     
+    /**
+     * Gets the properties list.
+     * 
+     * @return the properties list.
+     */
     public final List<Property> getList()
     {
         return ( properties );

@@ -67,6 +67,8 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     /**
      * Gets the i-th {@link Widget}-part in this {@link AssembledWidget}.
      * 
+     * @param index the index
+     * 
      * @return the i-th {@link Widget}-part in this {@link AssembledWidget}.
      */
     public final Widget getPart( int index )
@@ -191,7 +193,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     /**
      * This method is called when the configuration has been loaded.
      * 
-     * @param parts
+     * @param parts the parts to arrange
      */
     protected void arrangeParts( Widget[] parts )
     {
@@ -881,7 +883,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     /**
      * Creates a new Widget.
      * 
-     * @param name
+     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
@@ -908,7 +910,7 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     /**
      * Creates a new Widget.
      * 
-     * @param name
+     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      */

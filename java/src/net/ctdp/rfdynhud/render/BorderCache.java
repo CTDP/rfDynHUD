@@ -209,11 +209,13 @@ public class BorderCache
     /**
      * Gets or creates a TexturedBorder with the given side widths.
      * 
-     * @param iniFilename
-     * @param paddingTop
-     * @param paddingLeft
-     * @param paddingRight
-     * @param paddingBottom
+     * @param iniFilename the ini filename
+     * @param paddingTop top padding property
+     * @param paddingLeft left padding property
+     * @param paddingRight right padding property
+     * @param paddingBottom bottom padding property
+     * 
+     * @return the border
      */
     public static BorderWrapper getBorder( String iniFilename, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {

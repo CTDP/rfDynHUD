@@ -501,11 +501,11 @@ public class InputMappingsManager
     
     /**
      * 
-     * @param widgetsManager
-     * @param gameData
-     * @param isEditorMode
-     * @param eventsManager
-     * @param modifierMask
+     * @param widgetsManager the manager to fire widget events on
+     * @param gameData the live game data
+     * @param isEditorMode editor mode? (certainly false)
+     * @param eventsManager the manager, the game fires events on
+     * @param modifierMask the key modifier mask
      * 
      * @return -1 if plugin got disabled, 0 if plugin was and is disabled, 1 if plugin was and is enabled., 2 if plugin got enabled.
      */

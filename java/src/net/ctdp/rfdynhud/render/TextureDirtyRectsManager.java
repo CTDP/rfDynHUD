@@ -65,7 +65,7 @@ public class TextureDirtyRectsManager
      * @param texture the texture to handle dirty rectangles of
      * @param buffer the buffer to write the information to
      * @param resetBufferToStart if true, the buffer is set to position zero before anything is written to it
-     * @param frameIndex
+     * @param frameIndex the current render frame index
      * 
      * @return the number of dirty rectangles. If the buffer iss too small the number is returned as a negative number.
      */
@@ -161,7 +161,7 @@ public class TextureDirtyRectsManager
     /**
      * This is just for debugging!
      * 
-     * @param texture
+     * @param texture the take dirty rects from and to draw on
      */
     public static void drawDirtyRects( TextureImage2D texture )
     {

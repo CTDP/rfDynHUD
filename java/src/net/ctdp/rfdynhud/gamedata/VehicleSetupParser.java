@@ -502,7 +502,7 @@ class VehicleSetupParser
                         //RearSplitSetting=0// 0.0:100.0
                         //int setting = Integer.parseInt( value );
                         float data = Float.parseFloat( comment.substring( 0, comment.indexOf( ':' ) ) ) / 100f;
-                        setup.differential.frontSplit = data;
+                        setup.differential.rearSplit = data;
                     }
                     */
                 }

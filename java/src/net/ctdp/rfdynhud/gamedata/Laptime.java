@@ -17,8 +17,18 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+/**
+ * Model for a lap time for a single lap.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class Laptime
 {
+    /**
+     * The type of a lap.
+     * 
+     * @author Marvin Froehlich
+     */
     public static enum LapType
     {
         UNKNOWN,

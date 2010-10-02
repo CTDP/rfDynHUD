@@ -140,16 +140,16 @@ public class ImageTemplate
     /**
      * Draws a scaled representation of this image template to the given texture image.
      * 
-     * @param sx
-     * @param sy
-     * @param sw
-     * @param sh
-     * @param dx
-     * @param dy
-     * @param dw
-     * @param dh
-     * @param texture
-     * @param clearBefore
+     * @param sx source x
+     * @param sy source y
+     * @param sw source width
+     * @param sh source height
+     * @param dx destination x
+     * @param dy destination y
+     * @param dw destination width
+     * @param dh destination height
+     * @param texture the texture to draw on
+     * @param clearBefore clear before drawing?
      */
     public void drawScaled( int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, TextureImage2D texture, boolean clearBefore )
     {
@@ -179,12 +179,12 @@ public class ImageTemplate
     /**
      * Draws a scaled representation of this image template to the given texture image.
      * 
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     * @param texture
-     * @param clearBefore
+     * @param x destination x
+     * @param y destination y
+     * @param width destination width
+     * @param height destination height
+     * @param texture the texture to draw on
+     * @param clearBefore clear before drawing?
      */
     public void drawScaled( int x, int y, int width, int height, TextureImage2D texture, boolean clearBefore )
     {
@@ -194,8 +194,8 @@ public class ImageTemplate
     /**
      * Gets a scaled representation of this image template.
      * 
-     * @param width
-     * @param height
+     * @param width destination width
+     * @param height destination height
      * @param usePowerOfTwoSize if true, the created texture is created with power of two width and height (with used size set to the desired values).
      *                          This is useful in editor mode avoid constant recreations.
      * 
@@ -217,9 +217,9 @@ public class ImageTemplate
      * Gets a scaled representation of this image template.
      * If the possibleResult is non null and has the correct size, it is returned.
      * 
-     * @param width
-     * @param height
-     * @param possibleResult
+     * @param width destination width
+     * @param height destination height
+     * @param possibleResult this instance is possibly returned, if parameters match
      * @param tryToResize if true, the passed in texture is resized to the given size, if the max size is sufficient.
      *                    This is useful in editor mode avoid constant recreations.
      * 
@@ -265,8 +265,8 @@ public class ImageTemplate
     /**
      * Gets a {@link TransformableTexture} with this image drawn onto it.
      * 
-     * @param width
-     * @param height
+     * @param width destination width
+     * @param height destination height
      * @param usePowerOfTwoSize if true, the created texture is created with power of two width and height (with used size set to the desired values).
      *                          This is useful in editor mode to avoid constant recreations.
      * 
@@ -285,9 +285,9 @@ public class ImageTemplate
      * Gets a {@link TransformableTexture} with this image drawn onto it.
      * If the possibleResult is non null and has the correct size, it is returned.
      * 
-     * @param width
-     * @param height
-     * @param possibleResult
+     * @param width destination width
+     * @param height destination height
+     * @param possibleResult this instance is possibly returned, if parameters match
      * @param tryToResize if true, the passed in texture is resized to the given size, if the max size is sufficient.
      *                    This is useful in editor mode avoid constant recreations.
      * 

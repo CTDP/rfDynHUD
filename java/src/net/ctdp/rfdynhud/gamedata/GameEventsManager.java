@@ -74,6 +74,11 @@ public class GameEventsManager implements ConfigurationLoadListener
     private long lastSessionStartedTimestamp = -1L;
     private float lastSessionTime = 0f;
     
+    /**
+     * Sets live game data instance.
+     * 
+     * @param gameData
+     */
     public void setGameData( LiveGameData gameData )
     {
         this.gameData = gameData;
@@ -152,7 +157,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param force
+     * @param force force reload ignoring, whether it is already in action?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public byte reloadConfigAndSetupTexture( boolean force )
@@ -223,7 +228,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param isEditorMode
+     * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public byte onSessionStarted( boolean isEditorMode )
@@ -299,7 +304,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param isEditorMode
+     * @param isEditorMode editor mode?
      */
     public void onSessionEnded( boolean isEditorMode )
     {
@@ -346,7 +351,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param isEditorMode
+     * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public byte onRealtimeEntered( boolean isEditorMode )
@@ -417,6 +422,11 @@ public class GameEventsManager implements ConfigurationLoadListener
         return ( onRealtimeEntered( false ) );
     }
     
+    /**
+     * This method must be called when the user exited realtime mode (pressed ESCAPE in the cockpit).
+     * 
+     * @param isEditorMode
+     */
     public void onRealtimeExited( boolean isEditorMode )
     {
         //Logger.log( ">>> onRealtimeExited()" );
@@ -614,10 +624,10 @@ public class GameEventsManager implements ConfigurationLoadListener
     /**
      * Will and must be called any time, the game is redendered (called from the C++-Plugin).
      * 
-     * @param viewportX
-     * @param viewportY
-     * @param viewportWidth
-     * @param viewportHeight
+     * @param viewportX the left coordinate of the viewport
+     * @param viewportY the top coordinate of the viewport
+     * @param viewportWidth the width of the viewport
+     * @param viewportHeight the height of the viewport
      * 
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
@@ -683,7 +693,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param isEditorMode
+     * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onTelemetryDataUpdated( boolean isEditorMode )
@@ -724,7 +734,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param isEditorMode
+     * @param isEditorMode editor mode?
      * @return 0 for no HUD to be drawn, 1 for HUD drawn, 2 for HUD drawn and texture re-requested.
      */
     public final byte onScoringInfoUpdated( boolean isEditorMode )
@@ -822,7 +832,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param updateTimestamp
+     * @param updateTimestamp the timestamp at the update
      */
     public final void checkRaceRestart( long updateTimestamp )
     {
@@ -836,7 +846,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     /**
      * 
-     * @param isEditorMode
+     * @param isEditorMode editor mode?
      */
     public final void checkAndFireOnLapStarted( boolean isEditorMode )
     {
@@ -860,8 +870,8 @@ public class GameEventsManager implements ConfigurationLoadListener
     /**
      * Creates a new {@link GameEventsManager}.
      * 
-     * @param rfDynHUD
-     * @param widgetsManager
+     * @param rfDynHUD the main {@link RFDynHUD} instance
+     * @param widgetsManager the widgets manager
      */
     public GameEventsManager( RFDynHUD rfDynHUD, WidgetsDrawingManager widgetsManager )
     {

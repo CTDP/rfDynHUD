@@ -190,7 +190,7 @@ public class TelemetryData
             this.updateTimestamp = System.nanoTime();
             
             float bmr = data.getEngineMaxRPM();
-            bmr = gameData.getPhysics().getEngine().getRevLimitRange().limitValue( bmr );
+            bmr = gameData.getPhysics().getEngine().getRevLimitRange().clampValue( bmr );
             
             if ( bmr != engineBaseMaxRPM )
             {
@@ -261,6 +261,11 @@ public class TelemetryData
         return ( updatedInTimeScope );
     }
     
+    /**
+     * This is incremented every time the info is updated.
+     *  
+     * @return the current update id.
+     */
     public final long getUpdateId()
     {
         return ( updateId );
@@ -297,6 +302,11 @@ public class TelemetryData
         this.tempBoostFlag = tempBoostFlag;
     }
     
+    /**
+     * Is temporary boost enabled?
+     * 
+     * @return whether temporary boost is enabled.
+     */
     public final boolean getTemporaryBoostFlag()
     {
         return ( tempBoostFlag );
@@ -338,6 +348,13 @@ public class TelemetryData
         return ( engineLifetime );
     }
     
+    /**
+     * Gets the current brake disc thickness.
+     * 
+     * @param wheel
+     * 
+     * @return
+     */
     public final float getBrakeDiscThickness( Wheel wheel )
     {
         switch ( wheel )
@@ -377,7 +394,9 @@ public class TelemetryData
     }
     
     /**
-     * time since last update (seconds)
+     * Gets the time since last update (seconds).
+     * 
+     * @return the time since last update (seconds).
      */
     public final float getDeltaTime()
     {
@@ -385,7 +404,9 @@ public class TelemetryData
     }
     
     /**
-     * current lap number
+     * Gets the current lap number.
+     * 
+     * @return the current lap number.
      */
     public final int getCurrentLapNumber()
     {
@@ -393,7 +414,9 @@ public class TelemetryData
     }
     
     /**
-     * time this lap was started
+     * Gets the time this lap was started at.
+     * 
+     * @return the time this lap was started at.
      */
     public final float getLapStartET()
     {
@@ -401,7 +424,9 @@ public class TelemetryData
     }
     
     /**
-     * current vehicle name
+     * Gets the current vehicle name.
+     * 
+     * @return the current vehicle name.
      */
     public final String getVehicleName()
     {
@@ -409,7 +434,9 @@ public class TelemetryData
     }
     
     /**
-     * current track name
+     * Gets the current track name.
+     * 
+     * @return the current track name.
      */
     public final String getTrackName()
     {
@@ -417,9 +444,11 @@ public class TelemetryData
     }
     
     /**
-     * world position in meters
+     * Gets world position in meters.
      * 
-     * @param position
+     * @param position output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getPosition( TelemVect3 position )
     {
@@ -427,7 +456,9 @@ public class TelemetryData
     }
     
     /**
-     * world position in meters
+     * Gets world position in meters.
+     * 
+     * @return world position in meters.
      */
     public final float getPositionX()
     {
@@ -435,7 +466,9 @@ public class TelemetryData
     }
     
     /**
-     * world position in meters
+     * Gets world position in meters.
+     * 
+     * @return world position in meters.
      */
     public final float getPositionY()
     {
@@ -443,7 +476,9 @@ public class TelemetryData
     }
     
     /**
-     * world position in meters
+     * Gets world position in meters.
+     * 
+     * @return world position in meters.
      */
     public final float getPositionZ()
     {
@@ -453,7 +488,9 @@ public class TelemetryData
     /**
      * velocity (meters/sec) in local vehicle coordinates
      * 
-     * @param localVel
+     * @param localVel output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLocalVelocity( TelemVect3 localVel )
     {
@@ -461,7 +498,9 @@ public class TelemetryData
     }
     
     /**
-     * velocity (meters/sec)
+     * Gets the velocity (meters/sec).
+     * 
+     * @return the velocity (meters/sec).
      */
     public final float getScalarVelocityMPS()
     {
@@ -469,7 +508,9 @@ public class TelemetryData
     }
     
     /**
-     * velocity (mph)
+     * Gets the velocity (mph).
+     * 
+     * @return the velocity (mph).
      */
     public final float getScalarVelocityMPH()
     {
@@ -479,7 +520,9 @@ public class TelemetryData
     }
     
     /**
-     * velocity (km/h)
+     * Gets the velocity (km/h).
+     * 
+     * @return the velocity (km/h).
      */
     public final float getScalarVelocityKPH()
     {
@@ -489,7 +532,9 @@ public class TelemetryData
     }
     
     /**
-     * velocity in the units selected in the PLR.
+     * Gets the velocity in the units selected in the PLR.
+     * 
+     * @return the velocity in the units selected in the PLR.
      */
     public final float getScalarVelocity()
     {
@@ -500,9 +545,11 @@ public class TelemetryData
     }
     
     /**
-     * acceleration (meters/sec^2) in local vehicle coordinates
+     * Gets the acceleration (meters/sec^2) in local vehicle coordinates.
      * 
-     * @param localAccel
+     * @param localAccel output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLocalAcceleration( TelemVect3 localAccel )
     {
@@ -510,7 +557,9 @@ public class TelemetryData
     }
     
     /**
-     * longitudinal acceleration (meters/sec^2)
+     * Gets longitudinal acceleration (meters/sec^2).
+     * 
+     * @return longitudinal acceleration (meters/sec^2).
      */
     public final float getLongitudinalAcceleration()
     {
@@ -518,7 +567,9 @@ public class TelemetryData
     }
     
     /**
-     * lateral acceleration (meters/sec^2)
+     * Gets the lateral acceleration (meters/sec^2).
+     * 
+     * @return the lateral acceleration (meters/sec^2).
      */
     public final float getLateralAcceleration()
     {
@@ -530,7 +581,9 @@ public class TelemetryData
      * 
      * (also converts local vehicle vectors into world X using dot product)
      * 
-     * @param oriX
+     * @param oriX output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getOrientationX( TelemVect3 oriX )
     {
@@ -542,7 +595,9 @@ public class TelemetryData
      * 
      * (also converts local vehicle vectors into world Y using dot product)
      * 
-     * @param oriY
+     * @param oriY output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getOrientationY( TelemVect3 oriY )
     {
@@ -554,7 +609,9 @@ public class TelemetryData
      * 
      * (also converts local vehicle vectors into world Z using dot product)
      * 
-     * @param oriZ
+     * @param oriZ output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getOrientationZ( TelemVect3 oriZ )
     {
@@ -564,7 +621,9 @@ public class TelemetryData
     /**
      * rotation (radians/sec) in local vehicle coordinates
      * 
-     * @param localRot
+     * @param localRot output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLocalRotation( TelemVect3 localRot )
     {
@@ -574,7 +633,9 @@ public class TelemetryData
     /**
      * rotational acceleration (radians/sec^2) in local vehicle coordinates
      * 
-     * @param localRotAccel
+     * @param localRotAccel output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLocalRotationalAcceleration( TelemVect3 localRotAccel )
     {
@@ -582,7 +643,9 @@ public class TelemetryData
     }
     
     /**
-     * -1=reverse, 0=neutral, 1+=forward gears
+     * Gets the current gear (-1=reverse, 0=neutral, 1+=forward gears).
+     * 
+     * @return the current gear.
      */
     public final short getCurrentGear()
     {
@@ -590,7 +653,9 @@ public class TelemetryData
     }
     
     /**
-     * engine RPM
+     * Gets the current engine RPM.
+     * 
+     * @return the current engine RPM.
      */
     public final float getEngineRPM()
     {
@@ -601,7 +666,9 @@ public class TelemetryData
     }
     
     /**
-     * Celsius
+     * Gets the current engine water temperature in Celsius.
+     * 
+     * @return the current engine water temperature in Celsius.
      */
     public final float getEngineWaterTemperatureC()
     {
@@ -609,7 +676,9 @@ public class TelemetryData
     }
     
     /**
-     * Fahrenheit
+     * Gets the current engine water temperature in Fahrenheit.
+     * 
+     * @return the current engine water temperature in Fahrenheit.
      */
     public final float getEngineWaterTemperatureF()
     {
@@ -617,7 +686,9 @@ public class TelemetryData
     }
     
     /**
-     * Selected units
+     * Gets the current engine water temperature in the units selected in the PLR.
+     * 
+     * @return the current engine water temperature in the units selected in the PLR.
      */
     public final float getEngineWaterTemperature()
     {
@@ -632,7 +703,9 @@ public class TelemetryData
     }
     
     /**
-     * Celsius
+     * Gets the current engine oil temperature in Celsius.
+     * 
+     * @return the current engine oil temperature in Celsius.
      */
     public final float getEngineOilTemperatureC()
     {
@@ -640,7 +713,9 @@ public class TelemetryData
     }
     
     /**
-     * Fahrenheit
+     * Gets the current engine oil temperature in Fahrenheit.
+     * 
+     * @return the current engine oil temperature in Fahrenheit.
      */
     public final float getEngineOilTemperatureF()
     {
@@ -648,7 +723,9 @@ public class TelemetryData
     }
     
     /**
-     * Selected units
+     * Gets the current engine oil temperature in the units selected in the PLR.
+     * 
+     * @return the current engine oil temperature in the units selected in the PLR.
      */
     public final float getEngineOilTemperature()
     {
@@ -663,7 +740,9 @@ public class TelemetryData
     }
     
     /**
-     * clutch RPM
+     * Gets the current clutch RPM.
+     * 
+     * @return the current clutch RPM.
      */
     public final float getClutchRPM()
     {
@@ -671,7 +750,9 @@ public class TelemetryData
     }
     
     /**
-     * ranges  0.0-1.0
+     * Get the current unfiltered throttle application [0.0,1.0].
+     * 
+     * @return the current unfiltered throttle application [0.0,1.0].
      */
     public final float getUnfilteredThrottle()
     {
@@ -679,7 +760,9 @@ public class TelemetryData
     }
     
     /**
-     * ranges  0.0-1.0
+     * Get the current unfiltered brake application [0.0,1.0].
+     * 
+     * @return the current unfiltered brake application [0.0,1.0].
      */
     public final float getUnfilteredBrake()
     {
@@ -687,15 +770,9 @@ public class TelemetryData
     }
     
     /**
-     * ranges -1.0-1.0 (left to right)
-     */
-    public final float getUnfilteredSteering()
-    {
-        return ( data.getUnfilteredSteering() );
-    }
-    
-    /**
-     * ranges  0.0-1.0
+     * Get the current unfiltered clutch application [0.0,1.0].
+     * 
+     * @return the current unfiltered clutch application [0.0,1.0].
      */
     public final float getUnfilteredClutch()
     {
@@ -703,7 +780,19 @@ public class TelemetryData
     }
     
     /**
-     * force on steering arms
+     * Get the current unfiltered steering application [-1.0,1.0] (left to right).
+     * 
+     * @return the current unfiltered steering application [-1.0,1.0] (left to right).
+     */
+    public final float getUnfilteredSteering()
+    {
+        return ( data.getUnfilteredSteering() );
+    }
+    
+    /**
+     * Gets the force on steering arms.
+     * 
+     * @return the force on steering arms.
      */
     public final float getSteeringArmForce()
     {
@@ -711,7 +800,9 @@ public class TelemetryData
     }
     
     /**
-     * amount of fuel (liters)
+     * Gets the amount of fuel (liters).
+     * 
+     * @return the amount of fuel (liters).
      */
     public final float getFuelL()
     {
@@ -722,7 +813,9 @@ public class TelemetryData
     }
     
     /**
-     * amount of fuel (galons)
+     * Gets the amount of fuel (galons).
+     * 
+     * @return the amount of fuel (galons).
      */
     public final float getFuelGal()
     {
@@ -733,7 +826,9 @@ public class TelemetryData
     }
     
     /**
-     * amount of fuel in the units selected in the PLR.
+     * Gets the amount of fuel (units selected in the PLR).
+     * 
+     * @return the amount of fuel (units selected in the PLR).
      */
     public final float getFuel()
     {
@@ -748,7 +843,9 @@ public class TelemetryData
     }
     
     /**
-     * rev limit (base as reported by plugin interface)
+     * Gets the current engine rev limit (base as reported by plugin interface).
+     * 
+     * @return the current engine rev limit (base as reported by plugin interface).
      */
     public final float getEngineBaseMaxRPM()
     {
@@ -756,7 +853,9 @@ public class TelemetryData
     }
     
     /**
-     * rev limit with max boost
+     * Gets the engine rev limit with max boost.
+     * 
+     * @return the engine rev limit with max boost.
      */
     public final float getEngineMaxRPM()
     {
@@ -764,7 +863,9 @@ public class TelemetryData
     }
     
     /**
-     * number of scheduled pitstops
+     * Gets the number of scheduled pitstops.
+     * 
+     * @return the number of scheduled pitstops.
      */
     public short getNumberOfScheduledPitstops()
     {
@@ -772,7 +873,9 @@ public class TelemetryData
     }
     
     /**
-     * whether overheating icon is shown
+     * Gets whether overheating icon is shown.
+     * 
+     * @return whether overheating icon is shown.
      */
     public final boolean isOverheating()
     {
@@ -780,7 +883,9 @@ public class TelemetryData
     }
     
     /**
-     * whether any parts (besides wheels) have been detached
+     * Gets whether any parts (besides wheels) have been detached.
+     * 
+     * @return whether any parts (besides wheels) have been detached
      */
     public final boolean isAnythingDetached()
     {
@@ -788,7 +893,9 @@ public class TelemetryData
     }
     
     /**
-     * dent severity at 8 locations around the car (0=none, 1=some, 2=more)
+     * Gets dent severity at 8 locations around the car (0=none, 1=some, 2=more).
+     * 
+     * @return dent severity at 8 locations around the car.
      */
     public final short[] getDentSevirity()
     {
@@ -796,7 +903,9 @@ public class TelemetryData
     }
     
     /**
-     * time of last impact
+     * Gets the time of last impact.
+     * 
+     * @return the time of last impact.
      */
     public final float getLastImpactTime()
     {
@@ -804,7 +913,9 @@ public class TelemetryData
     }
     
     /**
-     * magnitude of last impact
+     * Gets the magnitude of last impact.
+     * 
+     * @return the magnitude of last impact.
      */
     public final float getLastImpactMagnitude()
     {
@@ -814,7 +925,9 @@ public class TelemetryData
     /**
      * location of last impact
      * 
-     * @param lastImpactPos
+     * @param lastImpactPos output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLastImpactPosition( TelemVect3 lastImpactPos )
     {
@@ -822,7 +935,11 @@ public class TelemetryData
     }
     
     /**
-     * radians/sec
+     * Gets the curent wheel rotation in radians/sec.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the curent wheel rotation in radians/sec.
      */
     public final float getWheelRotation( Wheel wheel )
     {
@@ -830,7 +947,11 @@ public class TelemetryData
     }
     
     /**
-     * meters
+     * Gets the current suspension deflection in meters.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current suspension deflection in meters.
      */
     public final float getWheelSuspensionDeflection( Wheel wheel )
     {
@@ -838,7 +959,11 @@ public class TelemetryData
     }
     
     /**
-     * meters
+     * Gets the current ride height in meters.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current ride height in meters.
      */
     public final float getRideHeight( Wheel wheel )
     {
@@ -846,7 +971,11 @@ public class TelemetryData
     }
     
     /**
-     * Newtons
+     * Gets the current tire load in Newtons.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire load in Newtons.
      */
     public final float getTireLoad( Wheel wheel )
     {
@@ -854,7 +983,11 @@ public class TelemetryData
     }
     
     /**
-     * Newtons
+     * Gets the current lateral force in Newtons.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current lateral force in Newtons.
      */
     public final float getLateralForce( Wheel wheel )
     {
@@ -862,7 +995,11 @@ public class TelemetryData
     }
     
     /**
-     * an approximation of what fraction of the contact patch is sliding
+     * Gets an approximation of what fraction of the contact patch is sliding.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return an approximation of what fraction of the contact patch is sliding.
      */
     public final float getGripFraction( Wheel wheel )
     {
@@ -870,7 +1007,11 @@ public class TelemetryData
     }
     
     /**
-     * Kelvin
+     * Gets the current brake temperature in Kelvin.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current brake temperature in Kelvin.
      */
     public final float getBrakeTemperatureK( Wheel wheel )
     {
@@ -878,7 +1019,11 @@ public class TelemetryData
     }
     
     /**
-     * Celsius
+     * Gets the current brake temperature in Celsius.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current brake temperature in Celsius.
      */
     public final float getBrakeTemperatureC( Wheel wheel )
     {
@@ -888,7 +1033,11 @@ public class TelemetryData
     }
     
     /**
-     * Fahrenheit
+     * Gets the current brake temperature in Fahrenheit.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current brake temperature in Fahrenheit.
      */
     public final float getBrakeTemperatureF( Wheel wheel )
     {
@@ -898,7 +1047,11 @@ public class TelemetryData
     }
     
     /**
-     * Selected units
+     * Gets the current brake temperature in the units selected in the PLR.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current brake temperature in the units selected in the PLR.
      */
     public final float getBrakeTemperature( Wheel wheel )
     {
@@ -913,7 +1066,11 @@ public class TelemetryData
     }
     
     /**
-     * kPa
+     * Gets the current tire pressure in kPa.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire pressure in kPa.
      */
     public final float getTirePressure( Wheel wheel )
     {
@@ -921,7 +1078,12 @@ public class TelemetryData
     }
     
     /**
-     * Celsius
+     * Gets the current tire temperature in Celsius.
+     * 
+     * @param wheel the queried wheel
+     * @param part the wheel part
+     * 
+     * @return the current tire temperature in Celsius.
      */
     public final float getTireTemperatureC( Wheel wheel, WheelPart part )
     {
@@ -929,7 +1091,12 @@ public class TelemetryData
     }
     
     /**
-     * Fahrenheit
+     * Gets the current tire temperature in Fahrenheit.
+     * 
+     * @param wheel the queried wheel
+     * @param part the wheel part
+     * 
+     * @return the current tire temperature in Fahrenheit.
      */
     public final float getTireTemperatureF( Wheel wheel, WheelPart part )
     {
@@ -937,7 +1104,12 @@ public class TelemetryData
     }
     
     /**
-     * Selected units (Celsius or Fahrenheit)
+     * Gets the current tire temperature in the units selected in the PLR (Celsius or Fahrenheit).
+     * 
+     * @param wheel the queried wheel
+     * @param part the wheel part
+     * 
+     * @return the current tire temperature in the units selected in the PLR.
      */
     public final float getTireTemperature( Wheel wheel, WheelPart part )
     {
@@ -952,7 +1124,11 @@ public class TelemetryData
     }
     
     /**
-     * Celsius : ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     * Gets the current tire temperature in Celsius : ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire temperature in Celsius.
      */
     public final float getTireTemperatureC( Wheel wheel )
     {
@@ -964,7 +1140,11 @@ public class TelemetryData
     }
     
     /**
-     * Fahrenheit : ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     * Gets the current tire temperature in Fahrenheit : ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire temperature in Fahrenheit.
      */
     public final float getTireTemperatureF( Wheel wheel )
     {
@@ -976,7 +1156,11 @@ public class TelemetryData
     }
     
     /**
-     * Selected units (Celsius or Fahrenheit) : ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     * Gets the current tire temperature in the units selected in the PLR (Celsius or Fahrenheit) : ( (INSIDE + CENTER + OUTSIDE) / 3 )
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire temperature in the units selected in the PLR
      */
     public final float getTireTemperature( Wheel wheel )
     {
@@ -990,6 +1174,11 @@ public class TelemetryData
         }
     }
     
+    /**
+     * Gets the hottest wheel.
+     * 
+     * @return the hottest wheel.
+     */
     public final Wheel getHottestWheel()
     {
         Wheel wheel = Wheel.FRONT_LEFT;
@@ -1022,7 +1211,11 @@ public class TelemetryData
     // TelemWheelV2
     
     /**
-     * wear (0.0-1.0, fraction of maximum) ... this is not necessarily proportional with grip loss
+     * Gets current tire wear (0.0-1.0, fraction of maximum) ... this is not necessarily proportional with grip loss.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return current tire wear.
      */
     public final float getTireWear( Wheel wheel )
     {
@@ -1030,7 +1223,11 @@ public class TelemetryData
     }
     
     /**
-     * the material prefixes from the TDF file
+     * Gets the material prefixes from the TDF file.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the material prefixes from the TDF file.
      */
     public final String getTerrainName( Wheel wheel )
     {
@@ -1038,7 +1235,11 @@ public class TelemetryData
     }
     
     /**
-     * surface under the wheel
+     * Gets surface type under the tire.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return surface type under the tire.
      */
     public final SurfaceType getSurfaceType( Wheel wheel )
     {
@@ -1046,7 +1247,11 @@ public class TelemetryData
     }
     
     /**
-     * whether tire is flat
+     * Gets whether tire is flat.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return whether tire is flat.
      */
     public final boolean isWheelFlat( Wheel wheel )
     {
@@ -1054,7 +1259,11 @@ public class TelemetryData
     }
     
     /**
-     * whether wheel is detached
+     * Gets whether wheel is detached.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return whether wheel is detached.
      */
     public final boolean isWheelDetached( Wheel wheel )
     {

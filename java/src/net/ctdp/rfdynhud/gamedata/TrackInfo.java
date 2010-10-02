@@ -20,11 +20,20 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 
 import net.ctdp.rfdynhud.util.Logger;
 
+/**
+ * Model of the currently used track
+ * 
+ * @author Marvin Froehlich
+ */
 public class TrackInfo
 {
+    /**
+     * The game's locations foler
+     */
     public static final File LOCATIONS_FOLDER = GameFileSystem.INSTANCE.getPathFromGameConfigINI( "TracksDir", "GameData\\Locations\\" );
     
     private final ProfileInfo profileInfo;
@@ -169,10 +178,6 @@ public class TrackInfo
      * </p>
      * WARNING:<br>
      * This operation may take a long time.
-     * 
-     * @param trackname
-     * 
-     * @return the first matching folder (or null, if not found, but shouldn't happen).
      */
     void update()
     {
@@ -198,16 +203,31 @@ public class TrackInfo
         this.lastTrack = null;
     }
     
+    /**
+     * Gets the track's folder.
+     * 
+     * @return the track's folder.
+     */
     public final File getTrackFolder()
     {
         return ( trackFolder );
     }
     
+    /**
+     * Gets the track's scene file.
+     * 
+     * @return the track's scene file.
+     */
     public final File getSceneFile()
     {
         return ( profileInfo.getLastUsedSceneFile() );
     }
     
+    /**
+     * Gets the track's name.
+     * 
+     * @return the track's name.
+     */
     public final String getTrackName()
     {
         if ( trackName == null )
@@ -299,13 +319,26 @@ public class TrackInfo
             if ( aiw != null )
             {
                 this.aiwFile = aiw;
-                this.lastTrack = Track.parseTrackFromAIW( aiw );
+                try
+                {
+                    this.lastTrack = Track.parseTrackFromAIW( aiw );
+                }
+                catch ( IOException e )
+                {
+                    Logger.log( e );
+                    this.lastTrack = null;
+                }
             }
         }
         
         return ( lastTrack );
     }
     
+    /**
+     * Create a new instance.
+     * 
+     * @param profileInfo
+     */
     public TrackInfo( ProfileInfo profileInfo )
     {
         this.profileInfo = profileInfo;

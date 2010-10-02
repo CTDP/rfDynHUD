@@ -64,6 +64,8 @@ public class VehicleSetup
     
     /*
      * GENERAL::Symmetric=1
+     * 
+     * @return whether the setup is symmetric.
      *
     public final boolean isSymmetric()
     {
@@ -71,6 +73,11 @@ public class VehicleSetup
     }
     */
     
+    /**
+     * Model of the general part of the setup
+     * 
+     * @author Marvin Froehlich (CTDP)
+     */
     public static class General
     {
         private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
@@ -106,6 +113,8 @@ public class VehicleSetup
         
         /*
          * GENERAL::CGRightSetting=8//50.0:50.0
+         * 
+         * @return the fraction of weight, distributed to the left.
          *
         public final float getWeightDistributionLeft()
         {
@@ -114,6 +123,8 @@ public class VehicleSetup
         
         /*
          * GENERAL::CGRearSetting=12//46.3:53.7
+         * 
+         * @return the fraction of weight, distributed to the front.
          *
         public final float getWeightDistributionFront()
         {
@@ -122,6 +133,8 @@ public class VehicleSetup
         
         /*
          * GENERAL::WedgeSetting=0//0.00 turns
+         * 
+         * @return the wedge turns.
          *
         public final float getWedge()
         {
@@ -131,6 +144,8 @@ public class VehicleSetup
         
         /**
          * GENERAL::FrontTireCompoundSetting=7//04-Hot
+         * 
+         * @return the front tire compound.
          */
         public final TireCompound getFrontTireCompound()
         {
@@ -139,6 +154,8 @@ public class VehicleSetup
         
         /**
          * GENERAL::RearTireCompoundSetting=7//04-Hot
+         * 
+         * @return the rear tire compound.
          */
         public final TireCompound getRearTireCompound()
         {
@@ -147,6 +164,8 @@ public class VehicleSetup
         
         /**
          * GENERAL::NumPitstopsSetting=2//2
+         * 
+         * @return the number of planned pit stops.
          */
         public final int getNumPitstops()
         {
@@ -231,6 +250,8 @@ public class VehicleSetup
         
         /*
          * LEFTFENDER::FenderFlareSetting=0//1
+         * 
+         * @return the left fender flare.
          *
         public final float getLeftFenderFlare()
         {
@@ -239,6 +260,8 @@ public class VehicleSetup
         
         /*
          * RIGHTFENDER::FenderFlareSetting=0//1
+         * 
+         * @return the right fender flare.
          *
         public final float getRightFenderFlare()
         {
@@ -248,6 +271,8 @@ public class VehicleSetup
         
         /**
          * FRONTWING::FWSetting=64//65
+         * 
+         * @return the front wing level.
          */
         public final float getFrontWing()
         {
@@ -256,6 +281,8 @@ public class VehicleSetup
         
         /*
          * REARWING::RWSetting=62//63
+         * 
+         * @return the rear wing level.
          *
         public final float getRearWing()
         {
@@ -264,6 +291,8 @@ public class VehicleSetup
         
         /*
          * BODYAERO::RadiatorSetting=3//4
+         * 
+         * @return the size of the main radiator.
          *
         public final int getRadiatorSize()
         {
@@ -272,6 +301,8 @@ public class VehicleSetup
         
         /*
          * BODYAERO::BrakeDuctSetting=2//3
+         * 
+         * @return the size of the brake duct.
          *
         public final int getBrakeDuctSize()
         {
@@ -282,6 +313,11 @@ public class VehicleSetup
     
     final General general = new General();
     
+    /**
+     * Gets an interface to the general part of the setup.
+     * 
+     * @return an interface to the general part of the setup.
+     */
     public final General getGeneral()
     {
         return ( general );
@@ -303,6 +339,8 @@ public class VehicleSetup
         
         /**
          * SUSPENSION::FrontAntiSwaySetting=40//86 N/mm
+         * 
+         * @return the setting for the front anti sway bar.
          */
         public final int getFrontAntiSwayBar()
         {
@@ -311,6 +349,8 @@ public class VehicleSetup
         
         /**
          * SUSPENSION::FrontAntiSwaySetting=40//86 N/mm
+         * 
+         * @return the setting for the rear anti sway bar.
          */
         public final int getRearAntiSwayBar()
         {
@@ -319,6 +359,8 @@ public class VehicleSetup
         
         /**
          * SUSPENSION::FrontToeInSetting=36//-0.10 deg
+         * 
+         * @return the settings for the front toe in in degrees.
          */
         public final float getFrontToeIn()
         {
@@ -327,6 +369,8 @@ public class VehicleSetup
         
         /**
          * SUSPENSION::RearToeInSetting=14//0.10 deg
+         * 
+         * @return the settings for the rear toe in in degrees.
          */
         public final float getRearToeIn()
         {
@@ -335,6 +379,8 @@ public class VehicleSetup
         
         /**
          * SUSPENSION::LeftCasterSetting=25//3.5 deg
+         * 
+         * @return the setting for the left caster in degrees.
          */
         public final float getLeftCaster()
         {
@@ -343,6 +389,8 @@ public class VehicleSetup
         
         /**
          * SUSPENSION::RightCasterSetting=25//3.5 deg
+         * 
+         * @return the setting for the right caster in degrees.
          */
         public final float getRightCaster()
         {
@@ -351,6 +399,8 @@ public class VehicleSetup
         
         /**
          * SUSPENSION::LeftTrackBarSetting=0//0.0 cm
+         * 
+         * @return the setting for the left track bar in cm.
          */
         public final float getLeftTrackBar()
         {
@@ -359,6 +409,8 @@ public class VehicleSetup
         
         /**
          * SUSPENSION::RightTrackBarSetting=0//0.0 cm
+         * 
+         * @return the setting for the right track bar in cm.
          */
         public final float getRightTrackBar()
         {
@@ -377,6 +429,8 @@ public class VehicleSetup
             /**
              * SUSPENSION::Front3rdPackerSetting=9//1.0 cm
              * SUSPENSION::Rear3rdPackerSetting=19//2.0 cm
+             * 
+             * @return the packer size in cm.
              */
             public final float getPacker()
             {
@@ -386,6 +440,8 @@ public class VehicleSetup
             /**
              * SUSPENSION::Front3rdSpringSetting=30//60 N/mm
              * SUSPENSION::Rear3rdSpringSetting=25//50 N/mm
+             * 
+             * @return the spring rate in N/mm
              */
             public final int getSpringRate()
             {
@@ -395,6 +451,8 @@ public class VehicleSetup
             /**
              * SUSPENSION::Front3rdSlowBumpSetting=15//2062 N/m/s
              * SUSPENSION::Rear3rdSlowBumpSetting=15//2062 N/m/s
+             * 
+             * @return the slow bump settings in N/m/s
              */
             public final int getSlowBump()
             {
@@ -404,6 +462,8 @@ public class VehicleSetup
             /**
              * SUSPENSION::Front3rdFastBumpSetting=15//1031 N/m/s
              * SUSPENSION::Rear3rdFastBumpSetting=15//1031 N/m/s
+             * 
+             * @return the fast bump settings in N/m/s
              */
             public final int getFastBump()
             {
@@ -413,6 +473,8 @@ public class VehicleSetup
             /**
              * SUSPENSION::Front3rdSlowReboundSetting=13//4062 N/m/s
              * SUSPENSION::Rear3rdSlowReboundSetting=15//4688 N/m/s
+             * 
+             * @return the slow rebound settings in N/m/s
              */
             public final int getSlowRebound()
             {
@@ -422,6 +484,8 @@ public class VehicleSetup
             /**
              * SUSPENSION::Front3rdFastReboundSetting=15//2344 N/m/s
              * SUSPENSION::Rear3rdFastReboundSetting=15//2344 N/m/s
+             * 
+             * @return the fast rebound settings in N/m/s
              */
             public final int getFastRebound()
             {
@@ -432,11 +496,21 @@ public class VehicleSetup
         private final ThirdSpring font3dSpring = new ThirdSpring();
         private final ThirdSpring rear3dSpring = new ThirdSpring();
         
+        /**
+         * Gets an interface to the settings for the front third spring.
+         * 
+         * @return an interface to the settings for the front third spring.
+         */
         public final ThirdSpring getFront3dSpring()
         {
             return ( font3dSpring );
         }
         
+        /**
+         * Gets an interface to the settings for the rear third spring.
+         * 
+         * @return an interface to the settings for the rear third spring.
+         */
         public final ThirdSpring getRear3dSpring()
         {
             return ( rear3dSpring );
@@ -446,14 +520,19 @@ public class VehicleSetup
     //private final Suspension suspension = new Suspension();
     
     /*
+     * @return an interface to the settings for the suspension.
      * 
-     *
     public final Suspension getSuspension()
     {
         return ( suspension );
     }
     */
     
+    /**
+     * Model of the controls part of the setup
+     * 
+     * @author Marvin Froehlich
+     */
     public static class Controls
     {
         //float steeringLock; // CONTROLS::SteerLockSetting=23//17.5 deg
@@ -463,6 +542,8 @@ public class VehicleSetup
         
         /*
          * CONTROLS::SteerLockSetting=23//17.5 deg
+         * 
+         * @return the steering lock in degrees.
          *
         public final float getSteeringLock()
         {
@@ -472,6 +553,8 @@ public class VehicleSetup
         
         /**
          * CONTROLS::RearBrakeSetting=85//55.0:45.0
+         * 
+         * @return the fraction of brake power weighted to the front.
          */
         public final float getRearBrakeBalance()
         {
@@ -480,6 +563,10 @@ public class VehicleSetup
         
         /**
          * CONTROLS::BrakePressureSetting=40//100%
+         * 
+         * @see VehiclePhysics.Brakes#getPressureRange()
+         * 
+         * @return the fraction of brake pressure.
          */
         public final float getBrakePressure()
         {
@@ -488,6 +575,8 @@ public class VehicleSetup
         
         /*
          * CONTROLS::HandbrakePressSetting=0//0%
+         * 
+         * @return the fraction of hand brake pressure.
          *
         public final float getHandbrakePressure()
         {
@@ -499,13 +588,20 @@ public class VehicleSetup
     final Controls controls = new Controls();
     
     /**
+     * Gets an interface to the settings of the control part of the setup.
      * 
+     * @return an interface to the settings of the control part of the setup.
      */
     public final Controls getControls()
     {
         return ( controls );
     }
     
+    /**
+     * Model of the engine part of the setup
+     * 
+     * @author Marvin Froehlich
+     */
     public static class Engine
     {
         int revLimitSetting; // ENGINE::RevLimitSetting=0//20,000
@@ -513,6 +609,13 @@ public class VehicleSetup
         int boostMapping; // ENGINE::EngineBoostSetting=4//5
         //int engineBrakeMap; // ENGINE::EngineBrakingMapSetting=4//4
         
+        /**
+         * Gets the rev limit setting.
+         * 
+         * @see VehiclePhysics.Engine#getRevLimitRange()
+         * 
+         * @return the rev limit setting.
+         */
         public final int getRevLimitSetting()
         {
             return ( revLimitSetting );
@@ -520,6 +623,8 @@ public class VehicleSetup
         
         /**
          * ENGINE::RevLimitSetting=0//20,000
+         * 
+         * @return the absolute rev limit.
          */
         public final float getRevLimit()
         {
@@ -528,6 +633,8 @@ public class VehicleSetup
         
         /**
          * ENGINE::EngineBoostSetting=4//5
+         * 
+         * @return the engine boost mapping. See {@link VehiclePhysics.Engine#getBoostRange()} for the range.
          */
         public final int getBoostMapping()
         {
@@ -536,6 +643,8 @@ public class VehicleSetup
         
         /*
          * ENGINE::EngineBrakingMapSetting=4//4
+         * 
+         * @return the setting for the engine brake map.
          *
         public final int getEngineBrakeMap()
         {
@@ -547,7 +656,9 @@ public class VehicleSetup
     final Engine engine = new Engine();
     
     /**
+     * Gets an interface to the settings of the engine part of the setup.
      * 
+     * @return an interface to the settings of the engine part of the setup.
      */
     public final Engine getEngine()
     {
@@ -569,6 +680,8 @@ public class VehicleSetup
         
         /**
          * DRIVELINE::FinalDriveSetting=5//10/60 (bevel 18/20)
+         * 
+         * @return the 'final drive' setting.
          */
         public final float getFinalDrive()
         {
@@ -577,12 +690,19 @@ public class VehicleSetup
         
         /**
          * DRIVELINE::ReverseSetting=2//11/38 (23.030)
+         * 
+         * @return the setting for the reverse gear.
          */
         public final float getReverseGear()
         {
             return ( reverseGear );
         }
         
+        /**
+         * Gets the number of gears.
+         * 
+         * @return the number of gears.
+         */
         public final int getNumGears()
         {
             return ( numGears );
@@ -616,6 +736,8 @@ public class VehicleSetup
          * DRIVELINE::Gear9Setting=
          * 
          * @param gear one-based gear index
+         * 
+         * @return the setting for the passed gear.
          */
         public final float getGear( int gear )
         {
@@ -627,6 +749,7 @@ public class VehicleSetup
     
     /*
      * 
+     * @return an interface to the settings of the gear box.
      *
     public final GearBox getGearBox()
     {
@@ -640,10 +763,12 @@ public class VehicleSetup
         private float power; // DRIVELINE::DiffPowerSetting=15//15%
         private float coast; // DRIVELINE::DiffCoastSetting=20//20%
         private int preload; // DRIVELINE::DiffPreloadSetting=5//6
-        private float frontSplit; // DRIVELINE::RearSplitSetting=0// 0.0:100.0
+        private float rearSplit; // DRIVELINE::RearSplitSetting=0// 0.0:100.0
         
         /**
          * DRIVELINE::DiffPumpSetting=30//30%
+         * 
+         * @return the pump setting as a fraction.
          */
         public final float getPump()
         {
@@ -652,6 +777,8 @@ public class VehicleSetup
         
         /**
          * DRIVELINE::DiffPowerSetting=15//15%
+         * 
+         * @return the power setting as a fraction.
          */
         public final float getPower()
         {
@@ -660,6 +787,8 @@ public class VehicleSetup
         
         /**
          * DRIVELINE::DiffCoastSetting=20//20%
+         * 
+         * @return the coast setting as a fraction.
          */
         public final float getCoast()
         {
@@ -668,6 +797,8 @@ public class VehicleSetup
         
         /**
          * DRIVELINE::DiffPreloadSetting=5//6
+         * 
+         * @return the setting for the preload.
          */
         public final int getPreload()
         {
@@ -676,17 +807,19 @@ public class VehicleSetup
         
         /**
          * DRIVELINE::RearSplitSetting=0// 0.0:100.0
+         * 
+         * @return the weighted 'dingsbums' as a fraction... what ever... I don't know.
          */
-        public final float getFrontSplit()
+        public final float getRearSplit()
         {
-            return ( frontSplit );
+            return ( rearSplit );
         }
     }
     
     //private final Differential differential = new Differential();
     
     /*
-     * 
+     * @return an interface to the settings of the differential.
      *
     public final Differential getDifferential()
     {
@@ -694,6 +827,11 @@ public class VehicleSetup
     }
     */
     
+    /**
+     * Model of the wheel and tire part of the setup
+     * 
+     * @author Marvin Froehlich
+     */
     public static class WheelAndTire
     {
         //private float camber; // FRONTLEFT::CamberSetting=24//-3.3 deg
@@ -725,6 +863,10 @@ public class VehicleSetup
         
         /**
          * FRONTLEFT::PressureSetting=25//120 kPa
+         * 
+         * @see VehiclePhysics#getTirePressureRange(Wheel)
+         * 
+         * @return the initial tire pressure at mount time and room temperature in kPa
          */
         public final int getTirePressure()
         {
@@ -734,6 +876,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::PackerSetting=21//2.5 cm
+         * 
+         * @return the size of the packer in cm.
          *
         public final float getPacker()
         {
@@ -742,6 +886,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::SpringSetting=16//100 N/mm
+         * 
+         * @return the spring rate in N/mm.
          *
         public final int getSpringRate()
         {
@@ -750,6 +896,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::SpringRubberSetting=0//Detached
+         * 
+         * @return the spring rubber setting.
          *
         public final int getSpringRubber()
         {
@@ -758,6 +906,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::RideHeightSetting=11//3.0 cm
+         * 
+         * @return the ride height setting in cm.
          *
         public final float getRideHeight()
         {
@@ -766,6 +916,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::SlowBumpSetting=15//4590 N/m/s
+         * 
+         * @return the setting for the slow bump in N/m/s.
          *
         public final int getSlowBump()
         {
@@ -774,6 +926,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::FastBumpSetting=15//2295 N/m/s
+         * 
+         * @return the setting for the fast bump in N/m/s.
          *
         public final int getFastBump()
         {
@@ -782,6 +936,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::SlowReboundSetting=14//9840 N/m/s
+         * 
+         * @return the setting for the slow rebound in N/m/s.
          *
         public final int getSlowRebound()
         {
@@ -790,6 +946,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::FastReboundSetting=15//5100 N/m/s
+         * 
+         * @return the setting for the fast rebound in N/m/s.
          *
         public final int getFastRebound()
         {
@@ -799,6 +957,10 @@ public class VehicleSetup
         
         /**
          * FRONTLEFT::BrakeDiscSetting=5//2.8 cm
+         * 
+         * @see VehiclePhysics.Brakes.WheelBrake#getDiscRange()
+         * 
+         * @return the thickness of the brake disc in meters.
          */
         public final float getBrakeDiscThickness()
         {
@@ -807,6 +969,8 @@ public class VehicleSetup
         
         /*
          * FRONTLEFT::BrakePadSetting=2//3
+         * 
+         * @return the brake pad setting.
          *
         public final int getBrakePad()
         {
@@ -820,6 +984,13 @@ public class VehicleSetup
     final WheelAndTire rlWheelAndTire = new WheelAndTire();
     final WheelAndTire rrWheelAndTire = new WheelAndTire();
     
+    /**
+     * Gets an interface to the settings of the wheel and tire, suspension and brake disc for the passed wheel.
+     * 
+     * @param wheel the requested wheel
+     * 
+     * @return an interface to the settings of the wheel and tire, suspension and brake disc for the passed tire.
+     */
     public final WheelAndTire getWheelAndTire( Wheel wheel )
     {
         switch ( wheel )

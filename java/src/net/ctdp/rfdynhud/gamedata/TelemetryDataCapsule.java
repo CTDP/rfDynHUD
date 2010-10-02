@@ -136,7 +136,7 @@ class TelemetryDataCapsule
     // Time
     
     /**
-     * time since last update (seconds)
+     * @return time since last update (seconds)
      */
     public final float getDeltaTime()
     {
@@ -146,7 +146,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * current lap number
+     * @return current lap number
      */
     public final int getCurrentLapNumber()
     {
@@ -156,7 +156,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * time this lap was started
+     * @return time this lap was started
      */
     public final float getLapStartET()
     {
@@ -166,7 +166,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * current vehicle name
+     * @return current vehicle name
      */
     public final String getVehicleName()
     {
@@ -176,7 +176,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * current track name
+     * @return current track name
      */
     public final String getTrackName()
     {
@@ -190,7 +190,9 @@ class TelemetryDataCapsule
     /**
      * world position in meters
      * 
-     * @param position
+     * @param position output buffer
+     * 
+     * @return the outbut buffer back again.
      */
     public final TelemVect3 getPosition( TelemVect3 position )
     {
@@ -202,7 +204,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * world position in meters
+     * @return world position in meters
      */
     public final float getPositionX()
     {
@@ -212,7 +214,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * world position in meters
+     * @return world position in meters
      */
     public final float getPositionY()
     {
@@ -222,7 +224,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * world position in meters
+     * @return world position in meters
      */
     public final float getPositionZ()
     {
@@ -234,7 +236,11 @@ class TelemetryDataCapsule
     /**
      * velocity (meters/sec) in local vehicle coordinates
      * 
-     * @param localVel
+     * @param localVel output buffer
+     * 
+     * @see #getScalarVelocity()
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLocalVelocity( TelemVect3 localVel )
     {
@@ -246,7 +252,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * velocity (meters/sec)
+     * @return velocity (meters/sec)
+     * 
+     * @see #getLocalVelocity(TelemVect3)
      */
     public final float getScalarVelocity()
     {
@@ -260,7 +268,9 @@ class TelemetryDataCapsule
     /**
      * acceleration (meters/sec^2) in local vehicle coordinates
      * 
-     * @param localAccel
+     * @param localAccel output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLocalAcceleration( TelemVect3 localAccel )
     {
@@ -272,7 +282,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * longitudinal acceleration (meters/sec^2)
+     * @return longitudinal acceleration (meters/sec^2)
      */
     public final float getLongitudinalAcceleration()
     {
@@ -282,7 +292,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * lateral acceleration (meters/sec^2)
+     * @return lateral acceleration (meters/sec^2)
      */
     public final float getLateralAcceleration()
     {
@@ -298,7 +308,9 @@ class TelemetryDataCapsule
      * 
      * (also converts local vehicle vectors into world X using dot product)
      * 
-     * @param oriX
+     * @param oriX output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getOrientationX( TelemVect3 oriX )
     {
@@ -314,7 +326,9 @@ class TelemetryDataCapsule
      * 
      * (also converts local vehicle vectors into world Y using dot product)
      * 
-     * @param oriY
+     * @param oriY output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getOrientationY( TelemVect3 oriY )
     {
@@ -330,7 +344,9 @@ class TelemetryDataCapsule
      * 
      * (also converts local vehicle vectors into world Z using dot product)
      * 
-     * @param oriZ
+     * @param oriZ output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getOrientationZ( TelemVect3 oriZ )
     {
@@ -344,7 +360,9 @@ class TelemetryDataCapsule
     /**
      * rotation (radians/sec) in local vehicle coordinates
      * 
-     * @param localRot
+     * @param localRot output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLocalRotation( TelemVect3 localRot )
     {
@@ -358,7 +376,9 @@ class TelemetryDataCapsule
     /**
      * rotational acceleration (radians/sec^2) in local vehicle coordinates
      * 
-     * @param localRotAccel
+     * @param localRotAccel output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLocalRotationalAcceleration( TelemVect3 localRotAccel )
     {
@@ -372,7 +392,7 @@ class TelemetryDataCapsule
     // Vehicle status
     
     /**
-     * -1=reverse, 0=neutral, 1+=forward gears
+     * @return -1=reverse, 0=neutral, 1+=forward gears
      */
     public final short getCurrentGear()
     {
@@ -382,7 +402,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * engine RPM
+     * @return engine RPM
      */
     public final float getEngineRPM()
     {
@@ -392,7 +412,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * Celsius
+     * @return Celsius
      */
     public final float getEngineWaterTemperature()
     {
@@ -402,7 +422,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * Celsius
+     * @return Celsius
      */
     public final float getEngineOilTemperature()
     {
@@ -412,7 +432,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * clutch RPM
+     * @return clutch RPM
      */
     public final float getClutchRPM()
     {
@@ -424,7 +444,7 @@ class TelemetryDataCapsule
     // Driver input
     
     /**
-     * ranges  0.0-1.0
+     * @return ranges  0.0-1.0
      */
     public final float getUnfilteredThrottle()
     {
@@ -434,7 +454,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * ranges  0.0-1.0
+     * @return ranges  0.0-1.0
      */
     public final float getUnfilteredBrake()
     {
@@ -444,17 +464,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * ranges -1.0-1.0 (left to right)
-     */
-    public final float getUnfilteredSteering()
-    {
-        // float mUnfilteredSteering
-        
-        return ( ByteUtil.readFloat( buffer, OFFSET_UNFILTERED_STEERING ) );
-    }
-    
-    /**
-     * ranges  0.0-1.0
+     * @return ranges  0.0-1.0
      */
     public final float getUnfilteredClutch()
     {
@@ -463,10 +473,20 @@ class TelemetryDataCapsule
         return ( ByteUtil.readFloat( buffer, OFFSET_UNFILTERED_CLUTCH ) );
     }
     
+    /**
+     * @return ranges -1.0-1.0 (left to right)
+     */
+    public final float getUnfilteredSteering()
+    {
+        // float mUnfilteredSteering
+        
+        return ( ByteUtil.readFloat( buffer, OFFSET_UNFILTERED_STEERING ) );
+    }
+    
     // Misc
     
     /**
-     * force on steering arms
+     * @return force on steering arms
      */
     public final float getSteeringArmForce()
     {
@@ -484,7 +504,7 @@ class TelemetryDataCapsule
     // state/damage info
     
     /**
-     * amount of fuel (liters)
+     * @return amount of fuel (liters)
      */
     public final float getFuel()
     {
@@ -494,7 +514,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * rev limit
+     * @return rev limit
      */
     public final float getEngineMaxRPM()
     {
@@ -504,7 +524,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * number of scheduled pitstops
+     * @return number of scheduled pitstops
      */
     public short getNumberOfScheduledPitstops()
     {
@@ -514,7 +534,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * whether overheating icon is shown
+     * @return whether overheating icon is shown
      */
     public final boolean isOverheating()
     {
@@ -524,7 +544,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * whether any parts (besides wheels) have been detached
+     * @return whether any parts (besides wheels) have been detached
      */
     public final boolean isAnythingDetached()
     {
@@ -534,7 +554,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * dent severity at 8 locations around the car (0=none, 1=some, 2=more)
+     * @return dent severity at 8 locations around the car (0=none, 1=some, 2=more)
      */
     public final short[] getDentSevirity()
     {
@@ -551,7 +571,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * time of last impact
+     * @return time of last impact
      */
     public final float getLastImpactTime()
     {
@@ -561,7 +581,7 @@ class TelemetryDataCapsule
     }
     
     /**
-     * magnitude of last impact
+     * @return magnitude of last impact
      */
     public final float getLastImpactMagnitude()
     {
@@ -573,7 +593,9 @@ class TelemetryDataCapsule
     /**
      * location of last impact
      * 
-     * @param lastImpactPos
+     * @param lastImpactPos output buffer
+     * 
+     * @return the output buffer back again.
      */
     public final TelemVect3 getLastImpactPosition( TelemVect3 lastImpactPos )
     {
@@ -595,7 +617,9 @@ class TelemetryDataCapsule
      */
     
     /**
-     * radians/sec
+     * @return radians/sec
+     * 
+     * @param wheel the requested wheel
      */
     public final float getWheelRotation( Wheel wheel )
     {
@@ -618,7 +642,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * meters
+     * @return meters
+     * 
+     * @param wheel the requested wheel
      */
     public final float getWheelSuspensionDeflection( Wheel wheel )
     {
@@ -641,7 +667,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * meters
+     * @return meters
+     * 
+     * @param wheel the requested wheel
      */
     public final float getRideHeight( Wheel wheel )
     {
@@ -664,7 +692,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * Newtons
+     * @return Newtons
+     * 
+     * @param wheel the requested wheel
      */
     public final float getTireLoad( Wheel wheel )
     {
@@ -687,7 +717,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * Newtons
+     * @return Newtons
+     * 
+     * @param wheel the requested wheel
      */
     public final float getLateralForce( Wheel wheel )
     {
@@ -710,7 +742,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * an approximation of what fraction of the contact patch is sliding
+     * @return an approximation of what fraction of the contact patch is sliding
+     * 
+     * @param wheel the requested wheel
      */
     public final float getGripFraction( Wheel wheel )
     {
@@ -733,7 +767,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * Kelvin
+     * @return Kelvin
+     * 
+     * @param wheel the requested wheel
      */
     public final float getBrakeTemperature( Wheel wheel )
     {
@@ -756,7 +792,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * kPa
+     * @return kPa
+     * 
+     * @param wheel the requested wheel
      */
     public final float getTirePressure( Wheel wheel )
     {
@@ -779,7 +817,10 @@ class TelemetryDataCapsule
     }
     
     /**
-     * Kelvin
+     * @return Kelvin
+     * 
+     * @param wheel the requested wheel
+     * @param part the requested wheel part
      */
     public final float getTireTemperature( Wheel wheel, WheelPart part )
     {
@@ -804,7 +845,9 @@ class TelemetryDataCapsule
     // TelemWheelV2
     
     /**
-     * wear (0.0-1.0, fraction of maximum) ... this is not necessarily proportional with grip loss
+     * @return wear (0.0-1.0, fraction of maximum) ... this is not necessarily proportional with grip loss
+     * 
+     * @param wheel the requested wheel
      */
     public final float getTireWear( Wheel wheel )
     {
@@ -827,7 +870,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * the material prefixes from the TDF file
+     * @return the material prefixes from the TDF file
+     * 
+     * @param wheel the requested wheel
      */
     public final String getTerrainName( Wheel wheel )
     {
@@ -850,7 +895,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * surface under the wheel
+     * @return surface under the wheel
+     * 
+     * @param wheel the requested wheel
      */
     public final SurfaceType getSurfaceType( Wheel wheel )
     {
@@ -873,7 +920,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * whether tire is flat
+     * @return whether tire is flat
+     * 
+     * @param wheel the requested wheel
      */
     public final boolean isWheelFlat( Wheel wheel )
     {
@@ -896,7 +945,9 @@ class TelemetryDataCapsule
     }
     
     /**
-     * whether wheel is detached
+     * @return whether wheel is detached
+     * 
+     * @param wheel the requested wheel
      */
     public final boolean isWheelDetached( Wheel wheel )
     {

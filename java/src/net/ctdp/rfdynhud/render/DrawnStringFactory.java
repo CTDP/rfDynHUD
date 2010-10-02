@@ -47,10 +47,12 @@ public class DrawnStringFactory
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
+     * 
+     * @return the newly created {@link DrawnString}.
      */
     public final DrawnString newDrawnString( String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
@@ -71,10 +73,12 @@ public class DrawnStringFactory
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
+     * 
+     * @return the newly created {@link DrawnString}.
      */
     public final DrawnString newDrawnString( String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
@@ -92,8 +96,10 @@ public class DrawnStringFactory
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
+     * 
+     * @return the newly created {@link DrawnString}.
      */
     public final DrawnString newDrawnString( String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
@@ -109,8 +115,10 @@ public class DrawnStringFactory
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
+     * 
+     * @return the newly created {@link DrawnString}.
      */
     public final DrawnString newDrawnString( String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
@@ -126,10 +134,12 @@ public class DrawnStringFactory
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
+     * 
+     * @return the newly created {@link DrawnString}.
      */
     public final DrawnString newDrawnString( String name, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
@@ -143,10 +153,12 @@ public class DrawnStringFactory
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
+     * 
+     * @return the newly created {@link DrawnString}.
      */
     public final DrawnString newDrawnString( String name, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
@@ -162,8 +174,10 @@ public class DrawnStringFactory
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
+     * 
+     * @return the newly created {@link DrawnString}.
      */
     public final DrawnString newDrawnString( String name, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
@@ -177,8 +191,10 @@ public class DrawnStringFactory
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
+     * 
+     * @return the newly created {@link DrawnString}.
      */
     public final DrawnString newDrawnString( String name, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
@@ -198,10 +214,12 @@ public class DrawnStringFactory
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
+     * 
+     * @return the newly created {@link DrawnString} or <code>null</code>.
      */
     public final DrawnString newDrawnStringIf( boolean condition, String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
@@ -231,10 +249,12 @@ public class DrawnStringFactory
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
+     * 
+     * @return the newly created {@link DrawnString} or <code>null</code>.
      */
     public final DrawnString newDrawnStringIf( boolean condition, String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
@@ -253,8 +273,10 @@ public class DrawnStringFactory
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
+     * 
+     * @return the newly created {@link DrawnString} or <code>null</code>.
      */
     public final DrawnString newDrawnStringIf( boolean condition, String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
@@ -271,8 +293,10 @@ public class DrawnStringFactory
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
+     * 
+     * @return the newly created {@link DrawnString} or <code>null</code>.
      */
     public final DrawnString newDrawnStringIf( boolean condition, String name, DrawnString xRelativeTo, DrawnString yRelativeTo, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
@@ -289,10 +313,12 @@ public class DrawnStringFactory
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
+     * 
+     * @return the newly created {@link DrawnString} or <code>null</code>.
      */
     public final DrawnString newDrawnStringIf( boolean condition, String name, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
@@ -307,10 +333,12 @@ public class DrawnStringFactory
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
      * @param prefix a String, that is always drawn seamlessly to the left of the major string, that is passed to the draw() method (or null for no prefix).
      * @param postfix a String, that is always drawn seamlessly to the right of the major string, that is passed to the draw() method (or null for no postfix).
+     * 
+     * @return the newly created {@link DrawnString} or <code>null</code>.
      */
     public final DrawnString newDrawnStringIf( boolean condition, String name, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor, String prefix, String postfix )
     {
@@ -327,8 +355,10 @@ public class DrawnStringFactory
      * @param alignment the alignment
      * @param y_at_baseline if true, the String's baseline will be placed to the getAbsY() location. Otherwise the String's upper bound will be at that y-location.
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
+     * 
+     * @return the newly created {@link DrawnString} or <code>null</code>.
      */
     public final DrawnString newDrawnStringIf( boolean condition, String name, int x, int y, Alignment alignment, boolean y_at_baseline, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {
@@ -343,8 +373,10 @@ public class DrawnStringFactory
      * @param x the x-location
      * @param y the y-location
      * @param font the used font
-     * @param fontAntiAliased
+     * @param fontAntiAliased anti aliased font?
      * @param fontColor the used font color
+     * 
+     * @return the newly created {@link DrawnString} or <code>null</code>.
      */
     public final DrawnString newDrawnStringIf( boolean condition, String name, int x, int y, java.awt.Font font, boolean fontAntiAliased, java.awt.Color fontColor )
     {

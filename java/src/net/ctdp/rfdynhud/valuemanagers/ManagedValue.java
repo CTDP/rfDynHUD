@@ -27,16 +27,16 @@ public interface ManagedValue
     /**
      * Initializes/resets the {@link ManagedValue}.
      * 
-     * @param nanoTime
+     * @param nanoTime the starting time stamp
      */
     public void init( long nanoTime );
     
     /**
      * Invokes the implementation specific update code.
      * 
-     * @param nanoTime
-     * @param frameCounter
-     * @param force
+     * @param nanoTime the current timestamp in nano seconds
+     * @param frameCounter the current frame index
+     * @param force force clock to <code>true</code>.
      */
     public void update( long nanoTime, long frameCounter, boolean force );
 }

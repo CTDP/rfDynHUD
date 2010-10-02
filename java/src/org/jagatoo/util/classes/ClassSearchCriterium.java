@@ -40,7 +40,7 @@ public interface ClassSearchCriterium
     /**
      * Tests the given Class for a specific constraint.
      * 
-     * @param clazz
+     * @param clazz the class
      * 
      * @return true, if the test is successful
      */

@@ -17,6 +17,10 @@
  */
 package net.ctdp.rfdynhud.render;
 
+/**
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class BorderMeasures
 {
     private int leftWidth;

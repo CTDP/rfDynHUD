@@ -26,6 +26,11 @@ import net.ctdp.rfdynhud.util.PluginINI;
 import net.ctdp.rfdynhud.util.ResourceManager;
 import net.ctdp.rfdynhud.util.__UtilHelper;
 
+/**
+ * Model of the game's (e.g. rFactor) filesystem
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public abstract class GameFileSystem
 {
     private final File pluginFolder = __UtilHelper.PLUGIN_FOLDER;
@@ -66,7 +71,7 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the game's root folder.
      * 
-     * @param pluginFolder
+     * @param pluginFolder the plugin's main folder
      * 
      * @return the game's root folder.
      */
@@ -75,8 +80,8 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's config folder.
      * 
-     * @param pluginFolder
-     * @param pluginINI
+     * @param pluginFolder the plugin's main folder
+     * @param pluginINI an interface to the main plugin's ini file
      * 
      * @return the plugin's config folder.
      */
@@ -88,8 +93,8 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's cache folder.
      * 
-     * @param pluginFolder
-     * @param pluginINI
+     * @param pluginFolder the plugin's main folder
+     * @param pluginINI an interface to the main plugin's ini file
      * 
      * @return the plugin's cache folder.
      */
@@ -101,9 +106,9 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's border folder.
      * 
-     * @param pluginFolder
-     * @param pluginINI
-     * @param configFolder
+     * @param pluginFolder the plugin's main folder
+     * @param pluginINI an interface to the main plugin's ini file
+     * @param configFolder the plugin's config folder
      * 
      * @return the plugin's border folder.
      */
@@ -115,9 +120,9 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's images folder.
      * 
-     * @param pluginFolder
-     * @param pluginINI
-     * @param configFolder
+     * @param pluginFolder the plugin's main folder
+     * @param pluginINI an interface to the main plugin's ini file
+     * @param configFolder the plugin's config folder
      * 
      * @return the plugin's image's folder.
      */
@@ -129,8 +134,8 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's editor folder.
      * 
-     * @param pluginFolder
-     * @param pluginINI
+     * @param pluginFolder the plugin's main folder
+     * @param pluginINI an interface to the main plugin's ini file
      * 
      * @return the plugin's editor folder.
      */
@@ -145,8 +150,8 @@ public abstract class GameFileSystem
     /**
      * Gets an absolute path from the game's config ini file.
      * 
-     * @param setting
-     * @param fallback
+     * @param setting the setting to query
+     * @param fallback the fallback value, if the setting couldn't be read
      * 
      * @return the path as a File object.
      */
@@ -155,7 +160,7 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the game's screenshots folder.
      * 
-     * @param gameFolder
+     * @param gameFolder the game's root folder
      * 
      * @return the game's screenshots folder.
      */

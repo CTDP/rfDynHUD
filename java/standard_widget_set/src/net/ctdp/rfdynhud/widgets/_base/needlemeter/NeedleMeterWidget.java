@@ -279,9 +279,9 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     /**
-     * Gets the {@link FontColorProperty} for the value.
+     * Gets the {@link ColorProperty} for the value.
      * 
-     * @return the {@link FontColorProperty} for the value.
+     * @return the {@link ColorProperty} for the value.
      */
     protected ColorProperty getValueFontColor()
     {
@@ -477,7 +477,7 @@ public abstract class NeedleMeterWidget extends Widget
     
     /**
      * Gets the value for the needle and the digital value display.
-     * Override {@link #getValueForValueDisplay(LiveGameData, EditorPresets)} to use a different value
+     * Override {@link #getValueForValueDisplay(LiveGameData, boolean)} to use a different value
      * for the digital value.
      * 
      * @param gameData
@@ -489,7 +489,7 @@ public abstract class NeedleMeterWidget extends Widget
     
     /**
      * Gets the value for the digital value display.
-     * The default implementation simply gets the result of {@link #getValue(LiveGameData, EditorPresets)} and converts it to an int.
+     * The default implementation simply gets the result of {@link #getValue(LiveGameData, boolean)} and converts it to an int.
      * 
      * @param gameData
      * @param isEditorMode

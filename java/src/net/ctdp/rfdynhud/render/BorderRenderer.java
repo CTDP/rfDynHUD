@@ -19,7 +19,21 @@ package net.ctdp.rfdynhud.render;
 
 import java.awt.Color;
 
-public abstract class BorderRenderer
+/**
+ * 
+ * @author Marvin Froehlich
+ */
+public interface BorderRenderer
 {
+    /**
+     * 
+     * @param backgroundColor
+     * @param measures
+     * @param texture
+     * @param offsetX
+     * @param offsetY
+     * @param width
+     * @param height
+     */
     public abstract void drawBorder( Color backgroundColor, BorderMeasures measures, TextureImage2D texture, int offsetX, int offsetY, int width, int height );
 }

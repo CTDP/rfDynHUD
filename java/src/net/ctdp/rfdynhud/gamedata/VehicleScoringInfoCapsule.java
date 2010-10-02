@@ -288,7 +288,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * vehicle name
+     * @return vehicle name
      */
     public final String getVehicleName()
     {
@@ -298,7 +298,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * laps completed
+     * @return laps completed
      */
     public final short getLapsCompleted()
     {
@@ -308,7 +308,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * sector
+     * @return sector
      */
     public final byte getSector()
     {
@@ -323,7 +323,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * finish status
+     * @return finish status
      */
     public final FinishStatus getFinishStatus()
     {
@@ -347,7 +347,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * current distance around track
+     * @return current distance around track
      */
     public final float getLapDistance()
     {
@@ -357,7 +357,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * lateral position with respect to *very approximate* "center" path
+     * @return lateral position with respect to *very approximate* "center" path
      */
     public final float getPathLateral()
     {
@@ -367,7 +367,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * track edge (w.r.t. "center" path) on same side of track as vehicle
+     * @return track edge (w.r.t. "center" path) on same side of track as vehicle
      */
     public final float getTrackEdge()
     {
@@ -377,7 +377,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * best sector 1
+     * @return best sector 1
      */
     public final float getBestSector1()
     {
@@ -387,7 +387,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * best sector 2
+     * @return best sector 2
      */
     public final float getBestSector2()
     {
@@ -397,7 +397,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * best lap time
+     * @return best lap time
      */
     public final float getBestLapTime()
     {
@@ -407,7 +407,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * last sector 1
+     * @return last sector 1
      */
     public final float getLastSector1()
     {
@@ -417,7 +417,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * last sector 2
+     * @return last sector 2
      */
     public final float getLastSector2()
     {
@@ -427,7 +427,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * last lap time
+     * @return last lap time
      */
     public final float getLastLapTime()
     {
@@ -437,7 +437,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * current sector 1 (if valid)
+     * @return current sector 1 (if valid)
      */
     public final float getCurrentSector1()
     {
@@ -449,9 +449,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * current sector 2
-     * 
-     * @param includingSector1 only affects result if sector1 is valid
+     * @return current sector 2
      */
     public final float getCurrentSector2()
     {
@@ -461,7 +459,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * number of pitstops made
+     * @return number of pitstops made
      */
     public final short getNumPitstopsMade()
     {
@@ -471,7 +469,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * number of outstanding penalties
+     * @return number of outstanding penalties
      */
     public final short getNumOutstandingPenalties()
     {
@@ -487,7 +485,7 @@ class VehicleScoringInfoCapsule
      */
     
     /**
-     * is this the player's vehicle?
+     * @return is this the player's vehicle?
      */
     public final boolean isPlayer()
     {
@@ -497,7 +495,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * who's in control?
+     * @return who's in control?
      */
     public final VehicleControl getVehicleControl()
     {
@@ -514,6 +512,8 @@ class VehicleScoringInfoCapsule
     
     /**
      * between pit entrance and pit exit (not always accurate for remote vehicles)
+     * 
+     * @return is this vehicle in the pit lane?
      */
     public final boolean isInPits()
     {
@@ -523,7 +523,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * 1-based position
+     * @return 1-based position
      */
     public final short getPlace()
     {
@@ -533,7 +533,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * vehicle class
+     * @return vehicle class
      */
     public final String getVehicleClass()
     {
@@ -543,7 +543,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * time behind vehicle in next higher place
+     * @return time behind vehicle in next higher place
      */
     public final float getTimeBehindNextInFront()
     {
@@ -553,7 +553,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * laps behind vehicle in next higher place
+     * @return laps behind vehicle in next higher place
      */
     public final int getLapsBehindNextInFront()
     {
@@ -563,7 +563,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * time behind leader
+     * @return time behind leader
      */
     public final float getTimeBehindLeader()
     {
@@ -573,7 +573,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * laps behind leader
+     * @return laps behind leader
      */
     public final int getLapsBehindLeader()
     {
@@ -583,7 +583,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * time this lap was started
+     * @return time this lap was started at
      */
     public final float getLapStartTime()
     {
@@ -597,7 +597,7 @@ class VehicleScoringInfoCapsule
     /**
      * world position in meters
      * 
-     * @param position
+     * @param position output buffer
      */
     public final void getWorldPosition( TelemVect3 position )
     {
@@ -607,7 +607,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * world position in meters
+     * @return world position in meters
      */
     public final float getWorldPositionX()
     {
@@ -617,7 +617,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * world position in meters
+     * @return world position in meters
      */
     public final float getWorldPositionY()
     {
@@ -627,7 +627,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * world position in meters
+     * @return world position in meters
      */
     public final float getWorldPositionZ()
     {
@@ -639,7 +639,7 @@ class VehicleScoringInfoCapsule
     /**
      * velocity (meters/sec) in local vehicle coordinates
      * 
-     * @param localVel
+     * @param localVel output buffer
      */
     public final void getLocalVelocity( TelemVect3 localVel )
     {
@@ -649,7 +649,7 @@ class VehicleScoringInfoCapsule
     }
     
     /**
-     * velocity (meters/sec) in local vehicle coordinates
+     * @return velocity (meters/sec) in local vehicle coordinates
      */
     public final float getScalarVelocity()
     {
@@ -663,7 +663,7 @@ class VehicleScoringInfoCapsule
     /**
      * acceleration (meters/sec^2) in local vehicle coordinates
      * 
-     * @param localAccel
+     * @param localAccel output buffer
      */
     public final void getLocalAcceleration( TelemVect3 localAccel )
     {
@@ -677,7 +677,7 @@ class VehicleScoringInfoCapsule
     /**
      * top row of orientation matrix (also converts local vehicle vectors into world X using dot product)
      * 
-     * @param oriX
+     * @param oriX output buffer
      */
     public final void getOrientationX( TelemVect3 oriX )
     {
@@ -689,7 +689,7 @@ class VehicleScoringInfoCapsule
     /**
      * mid row of orientation matrix (also converts local vehicle vectors into world Y using dot product)
      * 
-     * @param oriY
+     * @param oriY output buffer
      */
     public final void getOrientationY( TelemVect3 oriY )
     {
@@ -701,7 +701,7 @@ class VehicleScoringInfoCapsule
     /**
      * bot row of orientation matrix (also converts local vehicle vectors into world Z using dot product)
      * 
-     * @param oriZ
+     * @param oriZ output buffer
      */
     public final void getOrientationZ( TelemVect3 oriZ )
     {
@@ -713,7 +713,7 @@ class VehicleScoringInfoCapsule
     /**
      * rotation (radians/sec) in local vehicle coordinates
      * 
-     * @param localRot
+     * @param localRot output buffer
      */
     public final void getLocalRotation( TelemVect3 localRot )
     {
@@ -725,7 +725,7 @@ class VehicleScoringInfoCapsule
     /**
      * rotational acceleration (radians/sec^2) in local vehicle coordinates
      * 
-     * @param localRotAccel
+     * @param localRotAccel output buffer
      */
     public final void getLocalRotationalAcceleration( TelemVect3 localRotAccel )
     {

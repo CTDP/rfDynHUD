@@ -110,15 +110,15 @@ public class FactoredIntProperty extends IntProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param factor the factor (0 for divisor usage)
      * @param divisor the divisor (0 for factor usage)
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FactoredIntProperty( Widget widget, String name, String nameForDisplay, int factor, int divisor, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
@@ -135,14 +135,14 @@ public class FactoredIntProperty extends IntProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param factor the factor (0 for divisor usage)
      * @param divisor the divisor (0 for factor usage)
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FactoredIntProperty( Widget widget, String name, String nameForDisplay, int factor, int divisor, int defaultValue, int minValue, int maxValue )
     {
@@ -151,14 +151,14 @@ public class FactoredIntProperty extends IntProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param factor the factor (0 for divisor usage)
      * @param divisor the divisor (0 for factor usage)
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FactoredIntProperty( Widget widget, String name, int factor, int divisor, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
@@ -167,13 +167,13 @@ public class FactoredIntProperty extends IntProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param factor the factor (0 for divisor usage)
      * @param divisor the divisor (0 for factor usage)
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FactoredIntProperty( Widget widget, String name, int factor, int divisor, int defaultValue, int minValue, int maxValue )
     {
@@ -182,15 +182,15 @@ public class FactoredIntProperty extends IntProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param factor the factor (0 for divisor usage)
      * @param divisor the divisor (0 for factor usage)
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FactoredIntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int factor, int divisor, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
@@ -201,14 +201,14 @@ public class FactoredIntProperty extends IntProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param factor the factor (0 for divisor usage)
      * @param divisor the divisor (0 for factor usage)
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FactoredIntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int factor, int divisor, int defaultValue, int minValue, int maxValue )
     {
@@ -217,14 +217,14 @@ public class FactoredIntProperty extends IntProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param factor the factor (0 for divisor usage)
      * @param divisor the divisor (0 for factor usage)
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FactoredIntProperty( WidgetToPropertyForwarder w2pf, String name, int factor, int divisor, int defaultValue, int minValue, int maxValue, boolean readonly )
     {
@@ -233,13 +233,13 @@ public class FactoredIntProperty extends IntProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param factor the factor (0 for divisor usage)
      * @param divisor the divisor (0 for factor usage)
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FactoredIntProperty( WidgetToPropertyForwarder w2pf, String name, int factor, int divisor, int defaultValue, int minValue, int maxValue )
     {

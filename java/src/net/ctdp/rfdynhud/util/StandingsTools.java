@@ -26,12 +26,12 @@ public class StandingsTools
     /**
      * Fills the target array with {@link VehicleScoringInfo}s for all visible drivers.
      * 
-     * @param scoringInfo
-     * @param viewedVSI
-     * @param useClassScoring
-     * @param standingsView
-     * @param forceLeaderDisplayed
-     * @param target
+     * @param scoringInfo the scoring info
+     * @param viewedVSI the currently viewed vehicle
+     * @param useClassScoring use class relative scoring?
+     * @param standingsView the standings view
+     * @param forceLeaderDisplayed force leader displayed, even if far away?
+     * @param target the target array
      * 
      * @return the actual number of displayed drivers.
      */
@@ -103,8 +103,8 @@ public class StandingsTools
     /**
      * Computes gaps for all drivers to the player.
      * 
-     * @param scoringInfo
-     * @param viewedVSI
+     * @param scoringInfo the scoring info
+     * @param viewedVSI the currently viewed vehicle
      * @param relTimes target array
      */
     public static void computeRaceGapsRelativeToPosition( ScoringInfo scoringInfo, VehicleScoringInfo viewedVSI, float[] relTimes )

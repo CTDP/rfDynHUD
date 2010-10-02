@@ -111,6 +111,11 @@ public class CommentaryRequestInfo
         }
     }
     
+    /**
+     * This is incremented every time the info is updated.
+     *  
+     * @return the current update id.
+     */
     public final long getUpdateId()
     {
         return ( updateId );
@@ -126,7 +131,9 @@ public class CommentaryRequestInfo
     }
     
     /**
-     * one of the event names in the commentary INI file
+     * Gets one of the event names in the commentary INI file
+     * 
+     * @return one of the event names in the commentary INI file
      */
     public final String getName()
     {
@@ -134,7 +141,9 @@ public class CommentaryRequestInfo
     }
     
     /**
-     * first value to pass in (if any)
+     * Gets first value to pass in (if any)
+     * 
+     * @return first value to pass in (if any)
      */
     public final double getInput1()
     {
@@ -142,7 +151,9 @@ public class CommentaryRequestInfo
     }
     
     /**
-     * first value to pass in (if any)
+     * Gets second value to pass in (if any)
+     * 
+     * @return second value to pass in (if any)
      */
     public final double getInput2()
     {
@@ -150,7 +161,9 @@ public class CommentaryRequestInfo
     }
     
     /**
-     * first value to pass in (if any)
+     * Gets third value to pass in (if any)
+     * 
+     * @return third value to pass in (if any)
      */
     public final double getInput3()
     {
@@ -158,7 +171,7 @@ public class CommentaryRequestInfo
     }
     
     /**
-     * ignores commentary detail and random probability of event
+     * @return ignores commentary detail and random probability of event
      */
     public final boolean getSkipChecks()
     {

@@ -45,6 +45,7 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
     private Color gridColor = Color.BLACK;
     private int level = 0;
     private int row = 0;
+    private int column = 0;
     
     private Object oldValue = null;
     
@@ -75,30 +76,49 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
         return ( new Insets( ( row == 0 ) ? 0 : 1, 2, 0, 0 ) );
     }
     
-    @Override
-    public void paintBorder( Component c, Graphics g, int x, int y, int width, int height )
+    /**
+     * 
+     * @param c the render component
+     * @param g the graphics context
+     * @param x the left coordinate
+     * @param y the top coordinate
+     * @param width the width
+     * @param height the height
+     * @param row the row
+     * @param column the column
+     * @param borderColor the color for the border
+     */
+    protected void paintBorder( C c, Graphics g, int x, int y, int width, int height, int row, int column, Color borderColor )
     {
-        Color oldColor = g.getColor();
-        
-        g.setColor( gridColor );
-        
         if ( row > 0 )
+        {
+            Color oldColor = g.getColor();
+            
+            g.setColor( borderColor );
+            
             g.drawLine( x, y, x + width, y );
-        
-        g.setColor( oldColor );
+            
+            g.setColor( oldColor );
+        }
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    @Override
+    public final void paintBorder( Component c, Graphics g, int x, int y, int width, int height )
+    {
+        paintBorder( (C)c, g, x, y, width, height, row, column, gridColor );
     }
     
     /**
-     * 
-     * @param component
-     * @param table
-     * @param property
-     * @param value
-     * @param isSelected
-     * @param hasFocus
-     * @param row
-     * @param column
-     * @param forEditor
+     * @param component the render component
+     * @param table the table
+     * @param property the property
+     * @param value the current value
+     * @param isSelected is selected?
+     * @param hasFocus has focus?
+     * @param row the row
+     * @param column the column
+     * @param forEditor for the cell editor?
      */
     protected void prepareComponent( C component, HierarchicalTable<P> table, P property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
@@ -129,6 +149,7 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
         
         this.level = model.getLevel( row );
         this.row = row;
+        this.column = column;
         this.gridColor = table.getGridColor();
         
         if ( model.isDataRow( row ) )

@@ -84,6 +84,10 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is executed when a new track was loaded.<br>
      * <br>
      * Calls {@link Widget#onTrackChanged(String, LiveGameData, boolean)} on each Widget.
+     * 
+     * @param trackname the track's name
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
@@ -107,6 +111,10 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when a new session was started.<br>
      * <br>
      * Calls {@link Widget#onSessionStarted(SessionType, LiveGameData, boolean)} on each Widget.
+     * 
+     * @param sessionType the current session type
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
     {
@@ -137,6 +145,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when a the user entered realtime mode.<br>
      * <br>
      * Calls {@link Widget#onRealtimeEntered(LiveGameData, boolean)} on each Widget.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
     {
@@ -176,6 +187,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when a the user entered realtime mode.<br>
      * <br>
      * Calls {@link Widget#onRealtimeEntered(LiveGameData, boolean)} on each Widget.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void checkAndFireOnNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
     {
@@ -413,6 +427,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when a the user exited the garage.<br>
      * <br>
      * Calls {@link Widget#onPitsEntered(LiveGameData, boolean)} on each Widget.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnPitsEntered( LiveGameData gameData, boolean isEditorMode )
     {
@@ -434,6 +451,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when a the user entered the garage.<br>
      * <br>
      * Calls {@link Widget#onGarageEntered(LiveGameData, boolean)} on each Widget.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnGarageEntered( LiveGameData gameData, boolean isEditorMode )
     {
@@ -455,6 +475,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when a the user exited the garage.<br>
      * <br>
      * Calls {@link Widget#onGarageExited(LiveGameData, boolean)} on each Widget.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnGarageExited( LiveGameData gameData, boolean isEditorMode )
     {
@@ -476,6 +499,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when a the user exited the garage.<br>
      * <br>
      * Calls {@link Widget#onPitsExited(LiveGameData, boolean)} on each Widget.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnPitsExited( LiveGameData gameData, boolean isEditorMode )
     {
@@ -497,6 +523,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is called when a the user exited realtime mode.<br>
      * <br>
      * Calls {@link Widget#onRealtimeExited(LiveGameData, boolean)} on each Widget.
+     * 
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnRealtimeExited( LiveGameData gameData, boolean isEditorMode )
     {
@@ -519,7 +548,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when {@link ScoringInfo} have been updated (done at 2Hz).
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
@@ -541,7 +570,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when {@link VehicleSetup} has been updated.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
@@ -566,9 +595,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when either the player's vehicle control has changed or another vehicle is being viewed.
      * 
-     * @param viewedVSI
-     * @param gameData
-     * @param isEditorMode
+     * @param viewedVSI the viewed vehicle
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
@@ -589,9 +618,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * This method is called when a lap has been finished and a new one was started.
      * 
-     * @param vsi
-     * @param gameData
-     * @param isEditorMode
+     * @param vsi the vehicle
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
     {
@@ -613,12 +642,12 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * This method is fired by the {@link InputMappingsManager},
      * if the state of a bound input component has changed.
      * 
-     * @param mapping
-     * @param state
-     * @param modifierMask
-     * @param when
-     * @param gameData
-     * @param isEditorMode
+     * @param mapping the input mapping
+     * @param state the current state of the input device component
+     * @param modifierMask the current key modifier mask
+     * @param when the timestamp of the input action in nano seconds
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void fireOnInputStateChanged( InputMapping mapping, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
@@ -664,9 +693,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * Draws all visible {@link Widget}s in the list.
      * 
-     * @param gameData
-     * @param isEditorMode
-     * @param completeRedrawForced
+     * @param gameData the live game data
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * @param completeRedrawForced complete redraw forced?
      */
     public void drawWidgets( LiveGameData gameData, boolean isEditorMode, boolean completeRedrawForced )
     {
@@ -749,10 +778,10 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     /**
      * Creates a new {@link WidgetsDrawingManager}.
      * 
-     * @param isEditorMode
-     * @param gameResX
-     * @param gameResY
-     * @param createTexture
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * @param gameResX the game x-resolution (current viewport)
+     * @param gameResY the game y-resolution (current viewport)
+     * @param createTexture create a texture?
      */
     public WidgetsDrawingManager( boolean isEditorMode, int gameResX, int gameResY, boolean createTexture )
     {

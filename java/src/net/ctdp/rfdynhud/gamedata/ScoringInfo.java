@@ -867,7 +867,9 @@ public class ScoringInfo
     }
     
     /**
-     * current track name
+     * Gets the current track name.
+     * 
+     * @return the current track name.
      */
     public final String getTrackName()
     {
@@ -880,7 +882,9 @@ public class ScoringInfo
     }
     
     /**
-     * current session
+     * Gets current session type.
+     * 
+     * @return current session type.
      */
     public final SessionType getSessionType()
     {
@@ -888,7 +892,9 @@ public class ScoringInfo
     }
     
     /**
-     * current session time
+     * Gets current session time.
+     * 
+     * @return current session time.
      */
     public final float getSessionTime()
     {
@@ -899,7 +905,9 @@ public class ScoringInfo
     }
     
     /**
-     * session ending time
+     * Gets session ending time.
+     * 
+     * @return session ending time.
      */
     public final float getEndTime()
     {
@@ -907,7 +915,9 @@ public class ScoringInfo
     }
     
     /**
-     * maximum laps
+     * Gets maximum laps.
+     * 
+     * @return maximum laps.
      */
     public final int getMaxLaps()
     {
@@ -918,6 +928,8 @@ public class ScoringInfo
      * Gets the estimated max laps based on the session end time and average lap time.
      * If the {@link SessionLimit} is defined to be LAPS, then max laps is known and returned.
      * If the current session is a race, the estimated max laps of the leader are returned.
+     * 
+     * @param vsi the vehicle (should be the leader)
      * 
      * @return the estimated max laps.
      */
@@ -930,7 +942,9 @@ public class ScoringInfo
     }
     
     /**
-     * distance around track
+     * Gets the distance around track.
+     * 
+     * @return the distance around track.
      */
     public final float getTrackLength()
     {
@@ -938,7 +952,9 @@ public class ScoringInfo
     }
     
     /**
-     * current number of vehicles
+     * Gets the current number of vehicles.
+     * 
+     * @return the current number of vehicles.
      */
     public final int getNumVehicles()
     {
@@ -952,9 +968,9 @@ public class ScoringInfo
     }
     
     /**
-     * Gets the number of vehicles in the same vehicle class as the given one.
+     * Gets the number of vehicles in the same vehicle class as the given one. This method counts on every call.
      * 
-     * @param vsi
+     * @param vsi the vehicle
      * 
      * @return the number of vehicles in the same vehicle class as the given one.
      */
@@ -972,7 +988,9 @@ public class ScoringInfo
     }
     
     /**
-     * Game phases
+     * Gets the current game phase.
+     * 
+     * @return the current game phase.
      */
     public final GamePhase getGamePhase()
     {
@@ -980,7 +998,9 @@ public class ScoringInfo
     }
     
     /**
-     * Yellow flag states (applies to full-course only)
+     * Gets the current yellow flag state (applies to full-course only).
+     * 
+     * @return the current yellow flag state.
      */
     public final YellowFlagState getYellowFlagState()
     {
@@ -988,9 +1008,11 @@ public class ScoringInfo
     }
     
     /**
-     * whether there are any local yellows at the moment in each sector
+     * Gets whether there are any local yellows at the moment in the sector.
      * 
-     * @param sector
+     * @param sector the queried sector (1,2,3)
+     * 
+     * @return whether there are any local yellows at the moment in the sector
      */
     public final boolean getSectorYellowFlag( int sector )
     {
@@ -998,7 +1020,9 @@ public class ScoringInfo
     }
     
     /**
-     * start light frame (number depends on track)
+     * Gets the current start light frame (number depends on track).
+     * 
+     * @return the current start light frame.
      */
     public final int getStartLightFrame()
     {
@@ -1006,7 +1030,9 @@ public class ScoringInfo
     }
     
     /**
-     * number of red lights in start sequence
+     * Gets the number of red lights in start sequence.
+     * 
+     * @return the number of red lights in start sequence.
      */
     public final int getNumRedLights()
     {
@@ -1014,7 +1040,9 @@ public class ScoringInfo
     }
     
     /**
-     * in realtime as opposed to at the monitor
+     * Gets whether we're in realtime as opposed to at the monitor.
+     * 
+     * @return whether we're in realtime as opposed to at the monitor.
      */
     public final boolean isInRealtimeMode()
     {
@@ -1022,7 +1050,9 @@ public class ScoringInfo
     }
     
     /**
-     * player name (including possible multiplayer override)
+     * Gets the player name (including possible multiplayer override).
+     * 
+     * @return the player name.
      */
     public final String getPlayerName()
     {
@@ -1035,7 +1065,9 @@ public class ScoringInfo
     }
     
     /**
-     * may be encoded to be a legal filename
+     * Gets the player's filename (PLR) (may be encoded to be a legal filename).
+     * 
+     * @return the player's filename.
      */
     public final String getPlayerFilename()
     {
@@ -1048,7 +1080,9 @@ public class ScoringInfo
     }
     
     /**
-     * cloud darkness? 0.0-1.0
+     * Gets cloud darkness? 0.0-1.0
+     * 
+     * @return cloud darkness? 0.0-1.0
      */
     public final float getCloudDarkness()
     {
@@ -1056,7 +1090,9 @@ public class ScoringInfo
     }
     
     /**
-     * raining severity 0.0-1.0
+     * Gets raining severity 0.0-1.0
+     * 
+     * @return raining severity 0.0-1.0
      */
     public final float getRainingSeverity()
     {
@@ -1064,7 +1100,9 @@ public class ScoringInfo
     }
     
     /**
-     * temperature (Celsius)
+     * Gets ambient temperature (Celsius)
+     * 
+     * @return ambient temperature (Celsius)
      */
     public final float getAmbientTemperature()
     {
@@ -1072,7 +1110,9 @@ public class ScoringInfo
     }
     
     /**
-     * temperature (Celsius)
+     * Gets track temperature (Celsius)
+     * 
+     * @return track temperature (Celsius)
      */
     public final float getTrackTemperature()
     {
@@ -1080,7 +1120,9 @@ public class ScoringInfo
     }
     
     /**
-     * wind speed
+     * Gets wind speed
+     * 
+     * @param speed output buffer
      */
     public final void getWindSpeed( TelemVect3 speed )
     {
@@ -1088,7 +1130,9 @@ public class ScoringInfo
     }
     
     /**
-     * on main path 0.0-1.0
+     * Gets wetness on main path 0.0-1.0
+     * 
+     * @return wetness on main path 0.0-1.0
      */
     public final float getOnPathWetness()
     {
@@ -1096,7 +1140,9 @@ public class ScoringInfo
     }
     
     /**
-     * on main path 0.0-1.0
+     * Gets wetness off main path 0.0-1.0
+     * 
+     * @return wetness off main path 0.0-1.0
      */
     public final float getOffPathWetness()
     {
@@ -1104,11 +1150,13 @@ public class ScoringInfo
     }
     
     /**
-     * array of vehicle scoring info's
+     * Gets the i-th vehicle scoring info.
      * 
-     * @param i
+     * @param i the index
      * 
      * @see #getNumVehicles()
+     * 
+     * @return the i-th vehicle scoring info.
      */
     public final VehicleScoringInfo getVehicleScoringInfo( int i )
     {
@@ -1154,9 +1202,11 @@ public class ScoringInfo
     }
     
     /**
-     * the player's VehicleScroingInfo
+     * Gets the player's VehicleScroingInfo.
      * 
      * @see #getOwnPlace(boolean)
+     * 
+     * @return the player's VehicleScroingInfo.
      */
     public final VehicleScoringInfo getPlayersVehicleScoringInfo()
     {
@@ -1186,7 +1236,9 @@ public class ScoringInfo
     private final TelemVect3 carPos = new TelemVect3();
     
     /**
-     * the viewed's VehicleScroingInfo (this is just a guess, but should be correct).
+     * Gets the viewed's VehicleScroingInfo (this is just a guess, but should be correct).
+     * 
+     * @return the viewed's VehicleScroingInfo.
      */
     public final VehicleScoringInfo getViewedVehicleScoringInfo()
     {
@@ -1318,7 +1370,7 @@ public class ScoringInfo
     /**
      * Gets the VehicleScoringInfo for the fastest sector i.
      * 
-     * @param sector
+     * @param sector the queried sector
      * 
      * @return the VehicleScoringInfo for the fastest sector i.
      */
@@ -1433,6 +1485,11 @@ public class ScoringInfo
         return ( secondFastestLapVSI );
     }
     
+    /**
+     * Gets the absolute fastes lap time.
+     * 
+     * @return the absolute fastest lap time.
+     */
     public final Laptime getFastestLaptime()
     {
         return ( getFastestLapVSI().getFastestLaptime() );

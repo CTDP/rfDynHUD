@@ -43,27 +43,52 @@ public abstract class Property
     Object cellRenderer = null;
     Object cellEditor = null;
     
+    /**
+     * Gets the owner {@link Widget}.
+     * 
+     * @return the owner {@link Widget}.
+     */
     public final Widget getWidget()
     {
         return ( widget );
     }
     
+    /**
+     * Gets the property's technical name.
+     * 
+     * @return the property's technical name.
+     */
     public final String getName()
     {
         return ( name );
     }
     
+    /**
+     * Gets the property's name for editor display.
+     * 
+     * @return the property's name for editor display.
+     */
     public String getNameForDisplay()
     {
         //return ( nameForDisplay );
         return ( nameForDisplay2 );
     }
     
+    /**
+     * Is read only property?
+     * 
+     * @return whether this property is read only.
+     */
     public final boolean isReadOnly()
     {
         return ( readonly );
     }
     
+    /**
+     * Gets the proeprty editor type.
+     * 
+     * @return the proeprty editor type.
+     */
     public final PropertyEditorType getEditorType()
     {
         return ( editorType );
@@ -79,8 +104,18 @@ public abstract class Property
         return ( buttonTooltip );
     }
     
+    /**
+     * Sets the new value for this property.
+     * 
+     * @param value the new value
+     */
     public abstract void setValue( Object value );
     
+    /**
+     * Gets the current value fo this property.
+     * 
+     * @return the current value fo this property.
+     */
     public abstract Object getValue();
     
     protected void triggerCommonOnValueChanged( Object oldValue, Object newValue )
@@ -107,12 +142,17 @@ public abstract class Property
     
     /**
      * 
-     * @param button
+     * @param button the clicked button
      */
     public void onButtonClicked( Object button )
     {
     }
     
+    /**
+     * Gets whether to quote this property's value in the config file (default is null, type dependent, numbers won't, others will).
+     * 
+     * @return whether to quote this property's value in the config file.
+     */
     public Boolean quoteValueInConfigurationFile()
     {
         return ( null );
@@ -132,7 +172,7 @@ public abstract class Property
     /**
      * Checks whether the given key (from the configuration file) belongs to this {@link Property}.
      * 
-     * @param key
+     * @param key the probed property key
      * 
      * @return whether the given key (from the configuration file) belongs to this {@link Property}.
      */
@@ -144,7 +184,7 @@ public abstract class Property
     /**
      * Loads the value from the configuration file.
      * 
-     * @param value
+     * @param value the value to load
      */
     public abstract void loadValue( String value );
     
@@ -200,13 +240,13 @@ public abstract class Property
     
     /**
      * 
-     * @param widgetsConfig
-     * @param name
-     * @param nameForDisplay
-     * @param readonly
-     * @param editorType
-     * @param buttonText
-     * @param buttonTooltip
+     * @param widgetsConfig the ownding {@link WidgetsConfiguration}
+     * @param name the property name
+     * @param nameForDisplay the name for editor display (<code>null</code> to use name)
+     * @param readonly read only property?
+     * @param editorType the property editor type
+     * @param buttonText the text for the button (may be <code>null</code>)
+     * @param buttonTooltip the tooltip for the button (ignored when button text is <code>null</code>)
      */
     protected Property( WidgetsConfiguration widgetsConfig, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
@@ -223,13 +263,13 @@ public abstract class Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param readonly
-     * @param editorType
-     * @param buttonText
-     * @param buttonTooltip
+     * @param readonly read only property?
+     * @param editorType the property editor type
+     * @param buttonText the text for the button (may be <code>null</code>)
+     * @param buttonTooltip the tooltip for the button (ignored when button text is <code>null</code>)
      */
     public Property( Widget widget, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
@@ -246,11 +286,11 @@ public abstract class Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param readonly
-     * @param editorType
+     * @param readonly read only property?
+     * @param editorType the property editor type
      */
     public Property( Widget widget, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType )
     {
@@ -259,10 +299,10 @@ public abstract class Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param editorType
+     * @param editorType the property editor type
      */
     public Property( Widget widget, String name, String nameForDisplay, PropertyEditorType editorType )
     {
@@ -271,22 +311,36 @@ public abstract class Property
     
     /**
      * 
-     * @param name
-     * @param readonly
-     * @param editorType
-     * @param buttonText
-     * @param buttonTooltip
+     * @param widget the owner widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param readonly read only property?
+     * @param editorType the property editor type
+     * @param buttonText the text for the button (may be <code>null</code>)
+     * @param buttonTooltip the tooltip for the button (ignored when button text is <code>null</code>)
      */
     public Property( Widget widget, String name, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
         this( widget, name, null, readonly, editorType, buttonText, buttonTooltip );
     }
     
+    /**
+     * 
+     * @param widget the owner widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param readonly read only property?
+     * @param editorType the property editor type
+     */
     public Property( Widget widget, String name, boolean readonly, PropertyEditorType editorType )
     {
         this( widget, name, readonly, editorType, null, null );
     }
     
+    /**
+     * 
+     * @param widget the owner widget
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param editorType the property editor type
+     */
     public Property( Widget widget, String name, PropertyEditorType editorType )
     {
         this( widget, name, false, editorType, null, null );
@@ -294,13 +348,13 @@ public abstract class Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param readonly
-     * @param editorType
-     * @param buttonText
-     * @param buttonTooltip
+     * @param readonly read only property?
+     * @param editorType the property editor type
+     * @param buttonText the text for the button (may be <code>null</code>)
+     * @param buttonTooltip the tooltip for the button (ignored when button text is <code>null</code>)
      */
     public Property( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
@@ -319,11 +373,11 @@ public abstract class Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param readonly
-     * @param editorType
+     * @param readonly read only property?
+     * @param editorType the property editor type
      */
     public Property( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean readonly, PropertyEditorType editorType )
     {
@@ -332,10 +386,10 @@ public abstract class Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param editorType
+     * @param editorType the property editor type
      */
     public Property( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, PropertyEditorType editorType )
     {
@@ -343,23 +397,34 @@ public abstract class Property
     }
     
     /**
-     * @param w2pf
-     * @param name
-     * @param readonly
-     * @param editorType
-     * @param buttonText
-     * @param buttonTooltip
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param readonly read only property?
+     * @param editorType the property editor type
+     * @param buttonText the text for the button (may be <code>null</code>)
+     * @param buttonTooltip the tooltip for the button (ignored when button text is <code>null</code>)
      */
     public Property( WidgetToPropertyForwarder w2pf, String name, boolean readonly, PropertyEditorType editorType, String buttonText, String buttonTooltip )
     {
         this( w2pf, name, null, readonly, editorType, buttonText, buttonTooltip );
     }
     
+    /**
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param readonly read only property?
+     * @param editorType the property editor type
+     */
     public Property( WidgetToPropertyForwarder w2pf, String name, boolean readonly, PropertyEditorType editorType )
     {
         this( w2pf, name, readonly, editorType, null, null );
     }
     
+    /**
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param editorType the property editor type
+     */
     public Property( WidgetToPropertyForwarder w2pf, String name, PropertyEditorType editorType )
     {
         this( w2pf, name, false, editorType, null, null );

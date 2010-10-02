@@ -27,6 +27,10 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
+/**
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class KnownInputActions
 {
     private static URL getDocURL( String actionName )

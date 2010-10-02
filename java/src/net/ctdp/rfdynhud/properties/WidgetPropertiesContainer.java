@@ -19,6 +19,13 @@ package net.ctdp.rfdynhud.properties;
 
 import java.io.PrintStream;
 
+import net.ctdp.rfdynhud.widgets.widget.Widget;
+
+/**
+ * A container for {@link Widget} {@link Property}s.
+ * 
+ * @author Marvin Froehlich
+ */
 public abstract class WidgetPropertiesContainer
 {
     private int level = 0;
@@ -26,13 +33,24 @@ public abstract class WidgetPropertiesContainer
     private int numGroups = 0;
     private int numProperties = 0;
     
+    /**
+     * Gets the current group level.
+     * 
+     * @return the current group level.
+     */
     public final int getLevel()
     {
         return ( level );
     }
     
+    /**
+     * Clears the container.
+     */
     protected abstract void clearImpl();
     
+    /**
+     * Clears the container.
+     */
     public final void clear()
     {
         clearImpl();
@@ -41,13 +59,20 @@ public abstract class WidgetPropertiesContainer
         numProperties = 0;
     }
     
+    /**
+     * Adds a new group to the container.
+     * 
+     * @param groupName the new group's name
+     * @param initiallyExpanded initially expanded?
+     * @param pushed pushed one level down?
+     */
     protected abstract void addGroupImpl( String groupName, boolean initiallyExpanded, boolean pushed );
     
     /**
      * Creates a new property group inside the current group (pushed one level down).
      * 
-     * @param groupName
-     * @param initiallyExpanded
+     * @param groupName the new group's name
+     * @param initiallyExpanded initially expanded?
      */
     public final void pushGroup( String groupName, boolean initiallyExpanded )
     {
@@ -60,13 +85,16 @@ public abstract class WidgetPropertiesContainer
     /**
      * Creates a new property group inside the current group (pushed one level down).
      * 
-     * @param groupName
+     * @param groupName the new group's name
      */
     public final void pushGroup( String groupName )
     {
         pushGroup( groupName, true );
     }
     
+    /**
+     * Pop one level up.
+     */
     protected abstract void popGroupImpl();
     
     /**
@@ -85,8 +113,8 @@ public abstract class WidgetPropertiesContainer
     /**
      * Creates a new property group on the same level.
      * 
-     * @param groupName
-     * @param initiallyExpanded
+     * @param groupName the new group's name
+     * @param initiallyExpanded initially expanded?
      */
     public final void addGroup( String groupName, boolean initiallyExpanded )
     {
@@ -98,7 +126,7 @@ public abstract class WidgetPropertiesContainer
     /**
      * Creates a new property group on the same level (initially expanded).
      * 
-     * @param groupName
+     * @param groupName the new group's name
      */
     public final void addGroup( String groupName )
     {
@@ -110,7 +138,7 @@ public abstract class WidgetPropertiesContainer
     /**
      * Adds the property to the container under the last created group.
      * 
-     * @param property
+     * @param property the property
      */
     public final void addProperty( Property property )
     {
@@ -122,7 +150,7 @@ public abstract class WidgetPropertiesContainer
     /**
      * Dumps this container to the given {@link PrintStream}.
      * 
-     * @param ps
+     * @param ps the stream to print to
      */
     public abstract void dump( PrintStream ps );
     

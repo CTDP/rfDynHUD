@@ -17,6 +17,9 @@
  */
 package net.ctdp.rfdynhud.editor.hiergrid;
 
+import java.awt.Color;
+import java.awt.Graphics;
+
 /**
  * @param <P> the property type
  * 
@@ -25,6 +28,30 @@ package net.ctdp.rfdynhud.editor.hiergrid;
 public class KeyCellRenderer<P extends Object> extends KeyValueCellRenderer<P, KeyRenderLabel>
 {
     private static final long serialVersionUID = 663331747917701155L;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void paintBorder( KeyRenderLabel c, Graphics g, int x, int y, int width, int height, int row, int column, Color borderColor )
+    {
+        if ( row > 0 )
+        {
+            HierarchicalTable<?> table = (HierarchicalTable<?>)c.getParent().getParent();
+            
+            int offsetX = 0;
+            
+            boolean isDataRow = table.getModel().isDataRow( row - 1 );
+            if ( ( isDataRow && table.getStyle().getIndentKeyBorders() ) || ( !isDataRow && table.getStyle().getIndentHeaders() ) )
+            {
+                int level = table.getModel().getLevel( row - 1 );
+                int indent = table.getStyle().getLevelIndentation();
+                offsetX = level * indent;
+            }
+            
+            super.paintBorder( c, g, offsetX + x, y, width - offsetX, height, row, column, borderColor );
+        }
+    }
     
     /**
      * {@inheritDoc}

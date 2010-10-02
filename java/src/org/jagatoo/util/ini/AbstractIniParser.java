@@ -140,7 +140,10 @@ public abstract class AbstractIniParser
      * @param lineNr
      * @param group
      * @param line
+     * @param t
+     * 
      * @return true, to indicate, that parsing should be proceeded, false to stop parsing.
+     * 
      * @throws ParsingException
      */
     protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
@@ -200,6 +203,8 @@ public abstract class AbstractIniParser
     /**
      * Parses the given line (must be trimmed). If it is a group header, the group name is returned, null otherwise.
      * 
+     * @param line
+     * 
      * @return the group name, if the given line is a group name, null otherwise.
      * 
      * @throws ParsingException
@@ -219,6 +224,8 @@ public abstract class AbstractIniParser
      * @param operator
      * @param iniLine
      * @param handler
+     * 
+     * @return success?
      * 
      * @throws IOException
      * @throws ParsingException
@@ -532,6 +539,8 @@ public abstract class AbstractIniParser
      * @param lineNr
      * @param currentGroup
      * @param line
+     * 
+     * @return success?
      * 
      * @throws IOException
      * @throws ParsingException

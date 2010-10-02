@@ -19,6 +19,10 @@ package net.ctdp.rfdynhud.input;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 
+/**
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public interface InputActionConsumer
 {
     public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode );

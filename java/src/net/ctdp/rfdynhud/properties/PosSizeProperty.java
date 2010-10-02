@@ -40,11 +40,21 @@ public abstract class PosSizeProperty extends Property
     
     private final boolean isSizeProp;
     
+    /**
+     * Returns <code>true</code>, if this is a size property, <code>false</code>, if this is a position property.
+     * 
+     * @return <code>true</code>, if this is a size property, <code>false</code>, if this is a position property.
+     */
     public final boolean isSizeProp()
     {
         return ( isSizeProp );
     }
     
+    /**
+     * Is percentage value?
+     * 
+     * @return is percentage value?
+     */
     public abstract boolean isPercentage();
     
     public String getButton1Text( boolean isPerc )
@@ -87,7 +97,7 @@ public abstract class PosSizeProperty extends Property
     
     /**
      * 
-     * @param button
+     * @param button the clicked button
      */
     public void onButton2Clicked( Object button )
     {
@@ -95,11 +105,11 @@ public abstract class PosSizeProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param readonly
-     * @param isSizeProp
+     * @param readonly read only property?
+     * @param isSizeProp <code>true</code>, if this is a size property, <code>false</code>, if this is a position property
      */
     public PosSizeProperty( Widget widget, String name, String nameForDisplay, boolean readonly, boolean isSizeProp )
     {
@@ -110,10 +120,10 @@ public abstract class PosSizeProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param isSizeProp
+     * @param isSizeProp <code>true</code>, if this is a size property, <code>false</code>, if this is a position property
      */
     public PosSizeProperty( Widget widget, String name, String nameForDisplay, boolean isSizeProp )
     {

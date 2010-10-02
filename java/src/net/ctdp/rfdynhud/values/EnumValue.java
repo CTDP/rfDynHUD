@@ -22,6 +22,8 @@ package net.ctdp.rfdynhud.values;
  * You can update the value every time, a Widget is redrawn
  * and compare it with the old (previous) value.
  * 
+ * @param <E> the enum type
+ * 
  * @author Marvin Froehlich (CTDP)
  */
 public class EnumValue<E extends Enum<E>>

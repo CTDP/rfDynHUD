@@ -36,7 +36,7 @@ public interface GridItemsContainer<P extends Object>
     /**
      * Sets the expand flag for this container.
      * 
-     * @param flag
+     * @param flag the new expansion flag
      */
     public void setExpandFlag( boolean flag );
     

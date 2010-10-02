@@ -129,7 +129,7 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
     /**
      * Creates a new Widget.
      * 
-     * @param name
+     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
@@ -143,7 +143,7 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
     /**
      * Creates a new Widget.
      * 
-     * @param name
+     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      */

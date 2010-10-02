@@ -229,8 +229,12 @@ public class BorderWrapper
     /**
      * Creates a new BorderWrapper encapsulating the given border.
      * 
-     * @param renderer
-     * @param measures
+     * @param renderer the renderer
+     * @param measures the measures
+     * @param paddingTop top padding property
+     * @param paddingLeft left padding property
+     * @param paddingRight right padding property
+     * @param paddingBottom bottom padding property
      */
     public BorderWrapper( BorderRenderer renderer, BorderMeasures measures, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {

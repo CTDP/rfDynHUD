@@ -214,8 +214,8 @@ public class ThreeLetterCodeManager
      * Gets the three-letter-code assigned to the given driver-name.
      * If there is no entry in the three_letter_codes.ini, it wil be generated and a warning will be dumped to the log.
      * 
-     * @param driverName
-     * @param driverID
+     * @param driverName the driver's full name
+     * @param driverID the driver's id
      * 
      * @return the three-letter-code.
      */
@@ -255,8 +255,8 @@ public class ThreeLetterCodeManager
      * Gets the short form assigned to the given driver-name.
      * If there is no entry in the three_letter_codes.ini, it wil be generated and a warning will be dumped to the log.
      * 
-     * @param driverName
-     * @param driverID
+     * @param driverName the driver's full name
+     * @param driverID the driver's id
      * 
      * @return the short form.
      */

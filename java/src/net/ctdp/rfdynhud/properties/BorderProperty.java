@@ -50,19 +50,30 @@ public class BorderProperty extends Property
     }
     
     /**
+     * Invoked when the value has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldValue the old value
+     * @param newValue the new value
      */
     protected void onValueChanged( String oldValue, String newValue )
     {
     }
     
+    /**
+     * Must be called after border aliases have changed in the editor.
+     */
     public void refresh()
     {
         this.border = null;
     }
     
+    /**
+     * Sets the property's value.
+     * 
+     * @param borderName the new border
+     * 
+     * @return changed?
+     */
     public boolean setBorder( String borderName )
     {
         if ( ( ( borderName == null ) && ( this.borderName == null ) ) || ( ( borderName != null ) && borderName.equals( this.borderName ) ) )
@@ -82,11 +93,21 @@ public class BorderProperty extends Property
         return ( true );
     }
     
+    /**
+     * Gets the property's current value.
+     * 
+     * @return the property's current value.
+     */
     public final String getBorderName()
     {
         return ( borderName );
     }
     
+    /**
+     * Gets the selected border.
+     * 
+     * @return the selected border.
+     */
     public final BorderWrapper getBorder()
     {
         if ( border == null )
@@ -165,12 +186,12 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
-     * @param widget
+     * @param widgetsConf the owner widgets configuration
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      * @param paddingTop
      * @param paddingLeft
      * @param paddingRight
@@ -191,13 +212,13 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param paddingTop
-     * @param paddingLeft
-     * @param paddingRight
-     * @param paddingBottom
+     * @param defaultValue the default value
+     * @param paddingTop top padding property
+     * @param paddingLeft left padding property
+     * @param paddingRight right padding property
+     * @param paddingBottom bottom padding property
      */
     public BorderProperty( Widget widget, String name, String defaultValue, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {
@@ -206,11 +227,11 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BorderProperty( WidgetsConfiguration widgetsConf, String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
@@ -219,10 +240,10 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BorderProperty( WidgetsConfiguration widgetsConf, String name, String nameForDisplay, String defaultValue )
     {
@@ -231,10 +252,10 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BorderProperty( WidgetsConfiguration widgetsConf, String name, String defaultValue, boolean readonly )
     {
@@ -243,9 +264,9 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BorderProperty( WidgetsConfiguration widgetsConf, String name, String defaultValue )
     {
@@ -254,11 +275,11 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BorderProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
@@ -267,10 +288,10 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BorderProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
@@ -279,10 +300,10 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BorderProperty( Widget widget, String name, String defaultValue, boolean readonly )
     {
@@ -291,9 +312,9 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BorderProperty( Widget widget, String name, String defaultValue )
     {
@@ -302,15 +323,15 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
-     * @param paddingTop
-     * @param paddingLeft
-     * @param paddingRight
-     * @param paddingBottom
+     * @param defaultValue the default value
+     * @param readonly read only property?
+     * @param paddingTop top padding property
+     * @param paddingLeft left padding property
+     * @param paddingRight right padding property
+     * @param paddingBottom bottom padding property
      */
     public BorderProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {
@@ -321,11 +342,11 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BorderProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
@@ -334,10 +355,10 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BorderProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
     {
@@ -346,10 +367,10 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BorderProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
     {
@@ -358,9 +379,9 @@ public class BorderProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BorderProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
     {

@@ -142,7 +142,7 @@ public abstract class Widget implements Documented
     /**
      * Logs data to the plugin's log file.
      * 
-     * @param data
+     * @param data the data to log
      */
     protected final void log( Object... data )
     {
@@ -167,9 +167,9 @@ public abstract class Widget implements Documented
     
     /**
      * 
-     * @param property
-     * @param oldValue
-     * @param newValue
+     * @param property the changed property
+     * @param oldValue the old value
+     * @param newValue the new value
      */
     protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
@@ -178,12 +178,12 @@ public abstract class Widget implements Documented
     
     /**
      * 
-     * @param oldPositioning
-     * @param oldX
-     * @param oldY
-     * @param newPositioning
-     * @param newX
-     * @param newY
+     * @param oldPositioning the old value for the positioning
+     * @param oldX the old x
+     * @param oldY the old y
+     * @param newPositioning the new value for the positioning
+     * @param newX the new x
+     * @param newY the new y
      */
     protected void onPositionChanged( RelativePositioning oldPositioning, int oldX, int oldY, RelativePositioning newPositioning, int newX, int newY )
     {
@@ -197,10 +197,10 @@ public abstract class Widget implements Documented
     
     /**
      * 
-     * @param oldWidth
-     * @param oldHeight
-     * @param newWidth
-     * @param newHeight
+     * @param oldWidth the old width
+     * @param oldHeight the old height
+     * @param newWidth the new width
+     * @param newHeight the new height
      */
     protected void onSizeChanged( int oldWidth, int oldHeight, int newWidth, int newHeight )
     {
@@ -220,7 +220,7 @@ public abstract class Widget implements Documented
     /**
      * Gets the default value for the given border alias/name.
      * 
-     * @param name
+     * @param name the border name to query
      * 
      * @return the default value for the given border alias/name.
      */
@@ -232,7 +232,7 @@ public abstract class Widget implements Documented
     /**
      * Gets the default value for the given named color.
      * 
-     * @param name
+     * @param name the color name to query
      * 
      * @return the default value for the given named color.
      */
@@ -244,7 +244,7 @@ public abstract class Widget implements Documented
     /**
      * Gets the default value for the given named font.
      * 
-     * @param name
+     * @param name the font name to query
      * 
      * @return the default value for the given named font.
      */
@@ -305,10 +305,10 @@ public abstract class Widget implements Documented
     /**
      * Gets the {@link TransformableTexture}s, that this {@link Widget} keeps.
      * 
-     * @param gameData
-     * @param isEditorMode
-     * @param widgetInnerWidth
-     * @param widgetInnerHeight
+     * @param gameData the live game data
+     * @param isEditorMode rendering in the editor?
+     * @param widgetInnerWidth the total widget width excluding borders
+     * @param widgetInnerHeight the total widget height excluding borders
      * 
      * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
      */
@@ -320,10 +320,10 @@ public abstract class Widget implements Documented
     /**
      * Gets the {@link TransformableTexture}s, that this {@link Widget} keeps.
      * 
-     * @param gameData
-     * @param isEditorMode
-     * @param widgetInnerHeight
-     * @param widgetInnerWidth
+     * @param gameData the live game data
+     * @param isEditorMode rendering in the editor?
+     * @param widgetInnerWidth the total widget width excluding borders
+     * @param widgetInnerHeight the total widget height excluding borders
      * 
      * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
      */
@@ -415,7 +415,7 @@ public abstract class Widget implements Documented
     /**
      * Sets this {@link Widget}'s name.
      * 
-     * @param name
+     * @param name the new name for this {@link Widget}
      */
     public void setName( String name )
     {
@@ -522,8 +522,8 @@ public abstract class Widget implements Documented
     /**
      * Gets the minimum width for this {@link Widget} in pixels.
      * 
-     * @param gameData
-     * @param isEditorMode
+     * @param gameData the live game data
+     * @param isEditorMode rendering in the editor?
      * 
      * @return the minimum width for this {@link Widget} in pixels.
      */
@@ -535,8 +535,8 @@ public abstract class Widget implements Documented
     /**
      * Gets the minimum height for this {@link Widget} in pixels.
      * 
-     * @param gameData
-     * @param isEditorMode
+     * @param gameData the live game data
+     * @param isEditorMode rendering in the editor?
      * 
      * @return the minimum height for this {@link Widget} in pixels.
      */
@@ -550,8 +550,8 @@ public abstract class Widget implements Documented
      * By default this method returns the result of getEffectiveWidth(gameResX).
      * Override this method, if it will change its size during game play.
      * 
-     * @param gameData
-     * @param isEditorMode
+     * @param gameData the live game data
+     * @param isEditorMode rendering in the editor?
      * 
      * @return the maximum width covered by this {@link Widget}.
      */
@@ -565,8 +565,8 @@ public abstract class Widget implements Documented
      * By default this method returns the result of getEffectiveHeight(gameResX).
      * Override this method, if it will change its size during game play.
      * 
-     * @param gameData
-     * @param isEditorMode
+     * @param gameData the live game data
+     * @param isEditorMode rendering in the editor?
      * 
      * @return the maximum height covered by this {@link Widget}.
      */
@@ -676,10 +676,10 @@ public abstract class Widget implements Documented
     /**
      * Sets padding for this Widget.
      * 
-     * @param top
-     * @param left
-     * @param right
-     * @param bottom
+     * @param top top padding value
+     * @param left left padding value
+     * @param right right padding value
+     * @param bottom bottom padding value
      */
     protected final void setPadding( int top, int left, int right, int bottom )
     {
@@ -739,6 +739,8 @@ public abstract class Widget implements Documented
     /**
      * This simply calls {@link #forceCompleteRedraw(boolean)}, {@link #forceReinitialization()} and {@link #setDirtyFlag()}.
      * This method must be called after a value has been changed, that requires a reinitialization of all positioned strings, etc.
+     * 
+     * @param mergedBackgroundToo whether to set merged background dirty, too
      */
     public final void forceAndSetDirty( boolean mergedBackgroundToo )
     {
@@ -751,7 +753,7 @@ public abstract class Widget implements Documented
      * Sets this Widget's visibility usually controlled by the ToggleWidgetVisibility InputAction.<br />
      * This flag is also restored when a different configurations is loaded unlike the others.
      * 
-     * @param visible
+     * @param visible visible?
      */
     public void setInputVisible( boolean visible )
     {
@@ -777,7 +779,7 @@ public abstract class Widget implements Documented
     /**
      * Sets this Widget's user visibility flag 1. This is the one, you should toggle in your widget code.
      * 
-     * @param visible
+     * @param visible visible?
      */
     public void setUserVisible1( boolean visible )
     {
@@ -802,7 +804,7 @@ public abstract class Widget implements Documented
     /**
      * Sets this Widget's user visibility flag 2. This is the one, you should toggle in your widget code.
      * 
-     * @param visible
+     * @param visible visible?
      */
     public void setUserVisible2( boolean visible )
     {
@@ -842,7 +844,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called first by the rendering system each frame before {@link #isVisible()} is checked.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
@@ -900,8 +902,8 @@ public abstract class Widget implements Documented
     /**
      * This event is fired right after the {@link WidgetsConfiguration} has been (re-)loaded.
      * 
-     * @param widgetsConfig
-     * @param gameData
+     * @param widgetsConfig the widgets configuration
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
@@ -911,8 +913,8 @@ public abstract class Widget implements Documented
     /**
      * This event is fired right before the {@link WidgetsConfiguration} is cleared.
      * 
-     * @param widgetsConfig
-     * @param gameData
+     * @param widgetsConfig the widgets configuration
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void beforeConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
@@ -922,8 +924,8 @@ public abstract class Widget implements Documented
     /**
      * This method is executed when a new track was loaded.
      * 
-     * @param trackname
-     * @param gameData
+     * @param trackname the current track's name
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
@@ -933,8 +935,8 @@ public abstract class Widget implements Documented
     /**
      * This method is executed when a new session was started.
      * 
-     * @param sessionType
-     * @param gameData
+     * @param sessionType the current session type
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
@@ -945,7 +947,7 @@ public abstract class Widget implements Documented
      * This method is called when a the user entered realtime mode. If your {@link Widget} needs some data
      * to be drawn correctly, consider using {@link #onNeededDataComplete(LiveGameData, boolean)}.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
@@ -955,7 +957,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called when {@link ScoringInfo} have been updated (done at 2Hz).
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
@@ -965,7 +967,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called when {@link VehicleSetup} has been updated.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
@@ -975,7 +977,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called when the needed data is available in realtime mode.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
@@ -985,7 +987,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called when a the car entered the pits.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onPitsEntered( LiveGameData gameData, boolean isEditorMode )
@@ -995,7 +997,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called when a the car entered the garage.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onGarageEntered( LiveGameData gameData, boolean isEditorMode )
@@ -1005,7 +1007,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called when a the car exited the garage.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onGarageExited( LiveGameData gameData, boolean isEditorMode )
@@ -1015,7 +1017,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called when a the car exited the pits.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onPitsExited( LiveGameData gameData, boolean isEditorMode )
@@ -1025,7 +1027,7 @@ public abstract class Widget implements Documented
     /**
      * This method is called when a the user exited realtime mode.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
@@ -1035,8 +1037,8 @@ public abstract class Widget implements Documented
     /**
      * This method is called when either the player's vehicle control has changed or another vehicle is being viewed.
      * 
-     * @param viewedVSI
-     * @param gameData
+     * @param viewedVSI the currently viewed vehicle
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
@@ -1047,7 +1049,7 @@ public abstract class Widget implements Documented
      * This method is called when a lap has been finished and a new one was started.
      * 
      * @param vsi the driver, who started the lap. If this is the leader and the session type is RACE, the whole race has moved on to the next lap.
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
@@ -1057,11 +1059,11 @@ public abstract class Widget implements Documented
     /**
      * This event is fired, when a bound input component has changed its state.
      * 
-     * @param action
-     * @param state
+     * @param action the triggered action
+     * @param state the state of the input device component
      * @param modifierMask see {@link InputAction}
-     * @param when
-     * @param gameData
+     * @param when the timestamp in nano seconds
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      */
     public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
@@ -1175,7 +1177,7 @@ public abstract class Widget implements Documented
      * 
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     * @param drawnStringFactory
+     * @param drawnStringFactory a factory to get {@link DrawnString} instances from
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
      * @param width the width on the texture
      * @param height the height on the texture
@@ -1202,13 +1204,13 @@ public abstract class Widget implements Documented
     
     /**
      * 
-     * @param isEditorMode
-     * @param border
+     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * @param border the border
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     * @param offsetX
-     * @param offsetY
-     * @param width
-     * @param height
+     * @param offsetX the x-offset on the drawing texture
+     * @param offsetY the y offset on the drawing texture
+     * @param width the width of the area on the drawing texture
+     * @param height the height of the area on the drawing texture
      */
     protected void drawBorder( boolean isEditorMode, BorderWrapper border, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
@@ -1222,13 +1224,13 @@ public abstract class Widget implements Documented
      * You can use this method to directly draw static content onto your Widget's background.
      * Overriding this method makes the Widget use a background texture no matter, if the background is defined with a color only or an image.
      * 
-     * @param gameData
+     * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     * @param offsetX
-     * @param offsetY
-     * @param width
-     * @param height
+     * @param offsetX the x-offset on the drawing texture
+     * @param offsetY the y offset on the drawing texture
+     * @param width the width of the area on the drawing texture
+     * @param height the height of the area on the drawing texture
      * @param isRoot if this is true, you can possibly clear your stuff onto the texture instead of drawing it.
      */
     protected void drawBackground( LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height, boolean isRoot )
@@ -1269,10 +1271,10 @@ public abstract class Widget implements Documented
     /**
      * @param background never <code>null</code>!
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     * @param offsetX
-     * @param offsetY
-     * @param width
-     * @param height
+     * @param offsetX the x-offset on the drawing texture
+     * @param offsetY the y offset on the drawing texture
+     * @param width the width of the area on the drawing texture
+     * @param height the height of the area on the drawing texture
      */
     private final void clearBackground( WidgetBackground background, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
@@ -1319,7 +1321,7 @@ public abstract class Widget implements Documented
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param texture the texture image to draw on. Use {@link TextureImage2D#getTextureCanvas()} to retrieve the {@link Texture2DCanvas} for Graphics2D drawing.
-     * @param drawAtZero
+     * @param drawAtZero draw at position 0,0?
      */
     public final void drawWidget( Clock clock, boolean completeRedrawForced, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, boolean drawAtZero )
     {
@@ -1406,7 +1408,9 @@ public abstract class Widget implements Documented
     /**
      * Saves all settings to the config file.
      * 
-     * @param writer
+     * @param writer the widgets configuration writer to write properties to
+     * 
+     * @throws IOException if something went wrong
      */
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
@@ -1440,7 +1444,7 @@ public abstract class Widget implements Documented
     /**
      * Loads (and parses) a certain property from a config file.
      * 
-     * @param loader
+     * @param loader the property loader to load properties from
      */
     public void loadProperty( PropertyLoader loader )
     {
@@ -1713,7 +1717,7 @@ public abstract class Widget implements Documented
     /**
      * Creates a new {@link Widget}.
      * 
-     * @param name
+     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
@@ -1733,7 +1737,7 @@ public abstract class Widget implements Documented
     /**
      * Creates a new {@link Widget}.
      * 
-     * @param name
+     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      */

@@ -392,6 +392,8 @@ public class DrawnString
      * Gets the last drawn string's height.<br />
      * This value will be invalid, if this {@link DrawnString} has not yet been drawn.
      * 
+     * @param includingDescent include font descent?
+     * 
      * @return the last drawn string's height.
      */
     public final int getMaxHeight( boolean includingDescent )
@@ -404,6 +406,8 @@ public class DrawnString
     
     /**
      * Gets the last drawn string's height.<br />
+     * 
+     * @param includingDescent include font descent?
      * 
      * @return the last drawn string's height.
      */
@@ -523,8 +527,8 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
@@ -540,8 +544,8 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param texture the texture to draw on
      * @param clearColor the color to use for clearing (null to skip clearing)
@@ -554,8 +558,8 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
@@ -573,8 +577,8 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param texture the texture to draw on
      * @param clearBackground the image to use for clearing (null to skip clearing)
@@ -589,8 +593,8 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param texture the texture to draw on
      * @param clearBackground the image to use for clearing (null to skip clearing)
@@ -603,12 +607,12 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance. This method doesn't clear the area before!
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
-     * @param clearBefore
+     * @param clearBefore clear the area before drawing?
      */
     public void draw( int offsetX, int offsetY, String str, java.awt.Color fontColor, TextureImage2D texture, boolean clearBefore )
     {
@@ -618,11 +622,11 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance. This method doesn't clear the area before!
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param texture the texture to draw on
-     * @param clearBefore
+     * @param clearBefore clear the area before drawing?
      */
     public void draw( int offsetX, int offsetY, String str, TextureImage2D texture, boolean clearBefore )
     {
@@ -632,8 +636,8 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance. This method doesn't clear the area before!
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
@@ -646,8 +650,8 @@ public class DrawnString
     /**
      * Draws the specified String as configured in this class instance. This method doesn't clear the area before!
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param str the string to draw
      * @param texture the texture to draw on
      */
@@ -763,8 +767,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param fontColor (null for predefined)
@@ -781,8 +785,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param texture the texture to draw on
@@ -796,8 +800,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param fontColor (null for predefined)
@@ -816,8 +820,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param texture the texture to draw on
@@ -833,8 +837,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
@@ -853,8 +857,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
@@ -873,8 +877,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
@@ -890,8 +894,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
@@ -912,8 +916,8 @@ public class DrawnString
     /**
      * Draws the specified Strings as configured in this class instance.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
@@ -935,13 +939,13 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
-     * @param clearBefore
+     * @param clearBefore clear the area before drawing?
      * 
      * @return the drawn string's width in pixels.
      */
@@ -954,12 +958,12 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param texture the texture to draw on
-     * @param clearBefore
+     * @param clearBefore clear the area before drawing?
      */
     public void drawColumns( int offsetX, int offsetY, String[] strs, int[] colWidths, TextureImage2D texture, boolean clearBefore )
     {
@@ -970,15 +974,15 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
      * @param colWidths the column widths to use
      * @param fontColors (null for predefined)
      * @param texture the texture to draw on
-     * @param clearBefore
+     * @param clearBefore clear the area before drawing?
      * 
      * @return the drawn string's width in pixels.
      */
@@ -991,15 +995,15 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
      * @param colWidths the column widths to use
      * @param fontColor (null for predefined)
      * @param texture the texture to draw on
-     * @param clearBefore
+     * @param clearBefore clear the area before drawing?
      * 
      * @return the drawn string's width in pixels.
      */
@@ -1012,14 +1016,14 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
      * @param colWidths the column widths to use
      * @param texture the texture to draw on
-     * @param clearBefore
+     * @param clearBefore clear the area before drawing?
      */
     public void drawColumns( int offsetX, int offsetY, String[] strs, Alignment[] aligns, int padding, int[] colWidths, TextureImage2D texture, boolean clearBefore )
     {
@@ -1030,8 +1034,8 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param fontColor (null for predefined)
@@ -1048,8 +1052,8 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param colWidths the column widths to use
      * @param texture the texture to draw on
@@ -1063,8 +1067,8 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
@@ -1083,8 +1087,8 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right
@@ -1103,8 +1107,8 @@ public class DrawnString
      * Draws the specified Strings as configured in this class instance
      * and clears the previously used area with the {@link Widget}'s background, if necessary.
      * 
-     * @param offsetX
-     * @param offsetY
+     * @param offsetX the x-offset on the texture
+     * @param offsetY the y-offset on the texture
      * @param strs the strings to draw
      * @param aligns alignment per column (default is the {@link DrawnString}'s alignment)
      * @param padding the padding to honor when aligning right

@@ -22,11 +22,14 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.util.Logger;
-
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
+/**
+ * Model of a track with waypoints and utility methods
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class Track
 {
     @SuppressWarnings( "unused" )
@@ -65,26 +68,54 @@ public class Track
     private final float minXPos, maxXPos, minYPos, maxYPos, minZPos, maxZPos;
     private final float maxWidth;
     
+    /**
+     * Gets the length of sector 1 in meters.
+     * 
+     * @return the length of sector 1 in meters.
+     */
     public final float getSector1Length()
     {
         return ( sector1Length );
     }
     
+    /**
+     * Gets the length of sector 2 in meters.
+     * 
+     * @return the length of sector 2 in meters.
+     */
     public final float getSector2Length()
     {
         return ( sector2Length );
     }
     
+    /**
+     * Gets the length of sector 3 in meters.
+     * 
+     * @return the length of sector 3 in meters.
+     */
     public final float getSector3Length()
     {
         return ( trackLength - sector2Length );
     }
     
+    /**
+     * Gets the track length in meters.
+     * 
+     * @return the track length in meters.
+     */
     public final float getTrackLength()
     {
         return ( trackLength );
     }
     
+    /**
+     * Calculates a scale factor for all values, if the track should be drawn on the given size.
+     * 
+     * @param targetWidth the target width to draw on
+     * @param targetHeight the target height to draw on
+     * 
+     * @return a scale factor for all values.
+     */
     public float getScale( int targetWidth, int targetHeight )
     {
         float scaleX = targetWidth / Math.abs( maxXPos - minXPos );
@@ -93,28 +124,60 @@ public class Track
         return ( Math.min( scaleX, scaleZ ) );
     }
     
+    /**
+     * Gets the extend along the x axis.
+     * 
+     * @param scale the scale. See {@link #getScale(int, int)}
+     * 
+     * @return the extend along the x axis.
+     */
     public final int getXExtend( float scale )
     {
         return ( Math.round( Math.abs( maxXPos - minXPos ) * scale ) );
     }
     
+    /**
+     * Gets the extend along the y axis.
+     * 
+     * @param scale the scale. See {@link #getScale(int, int)}
+     * 
+     * @return the extend along the y axis.
+     */
     public final int getYExtend( float scale )
     {
         return ( Math.round( Math.abs( maxYPos - minYPos ) * scale ) );
     }
     
+    /**
+     * Gets the extend along the z axis.
+     * 
+     * @param scale the scale. See {@link #getScale(int, int)}
+     * 
+     * @return the extend along the z axis.
+     */
     public final int getZExtend( float scale )
     {
         return ( Math.round( Math.abs( maxZPos - minZPos ) * scale ) );
     }
     
+    /**
+     * Gets the maximum track width.
+     * 
+     * @param scale the scale. See {@link #getScale(int, int)}
+     * 
+     * @return the maximum track width.
+     */
     public final int getMaxTrackWidth( float scale )
     {
         return ( Math.round( maxWidth * scale ) );
     }
     
     /**
-     * @param pitlane
+     * Gets the number of waypoints of the main track or the pitlane.
+     * 
+     * @param pitlane waypoints of main track or pitlane?
+     * 
+     * @return the number of waypoints of the main track or the pitlane.
      */
     public final int getNumWaypoints( boolean pitlane )
     {
@@ -125,8 +188,12 @@ public class Track
     }
     
     /**
-     * @param pitlane
-     * @param waypointIndex
+     * Gets the sector, the requested waypoint is in.
+     * 
+     * @param pitlane waypoint of main track or pitlane?
+     * @param waypointIndex the index of the waypoint
+     * 
+     * @return the sector, the requested waypoint is in.
      */
     public final byte getWaypointSector( boolean pitlane, int waypointIndex )
     {
@@ -136,9 +203,11 @@ public class Track
     }
     
     /**
-     * @param pitlane
-     * @param waypointIndex
-     * @param position
+     * Gets the waypoint's position.
+     * 
+     * @param pitlane waypoint of main track or pitlane?
+     * @param waypointIndex the index of the waypoint
+     * @param position output buffer
      */
     public final void getWaypointPosition( boolean pitlane, int waypointIndex, TelemVect3 position )
     {
@@ -148,10 +217,10 @@ public class Track
     }
     
     /**
-     * @param pitlane
-     * @param waypointIndex
-     * @param scale
-     * @param point
+     * @param pitlane waypoint of main track or pitlane?
+     * @param waypointIndex the index of the waypoint
+     * @param scale the scale. See {@link #getScale(int, int)}
+     * @param point output buffer
      */
     public final void getWaypointPosition( boolean pitlane, int waypointIndex, float scale, Point point )
     {
@@ -161,10 +230,10 @@ public class Track
     }
     
     /**
-     * @param pitlane
-     * @param trackDistance
-     * @param scale
-     * @param point
+     * @param pitlane waypoint of main track or pitlane?
+     * @param trackDistance the distance along the track in meters
+     * @param scale the scale. See {@link #getScale(int, int)}
+     * @param point output buffer
      */
     public final void getInterpolatedPosition( boolean pitlane, float trackDistance, float scale, Point2D.Float point )
     {
@@ -216,9 +285,12 @@ public class Track
     }
     
     /**
-     * @param pitlane
-     * @param trackDistance
-     * @param vector
+     * Gets an interpolated vector along the track at the given waypoint.
+     * 
+     * @param pitlane waypoint of main track or pitlane?
+     * @param trackDistance the distance along the track in meters
+     * @param vector output buffer
+     * 
      * @return success?
      */
     public final boolean getInterpolatedVector( boolean pitlane, float trackDistance, TelemVect3 vector )
@@ -275,6 +347,13 @@ public class Track
     
     private final TelemVect3 vec1 = new TelemVect3();
     
+    /**
+     * Gets the interpolated angle of the viewed vehicle to the road.
+     * 
+     * @param scoringInfo
+     * 
+     * @return the interpolated angle of the viewed vehicle to the road.
+     */
     public final float getInterpolatedAngleToRoad( ScoringInfo scoringInfo )
     {
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -588,34 +667,35 @@ public class Track
         }
     }
     
-    public static Track parseTrackFromAIW( File aiw )
+    /**
+     * Parses an AIW file and returns a {@link Track} instance.
+     * 
+     * @param aiw the AIW file to parse
+     * 
+     * @return a {@link Track} instance for the parsed AIW file.
+     * 
+     * @throws IOException if there's something wrong with the file (missing, not readable, etc.).
+     */
+    public static Track parseTrackFromAIW( File aiw ) throws IOException
     {
-        try
-        {
-            ParseContainer pc = parseAIW( aiw );
-            
-            Waypoint[] waypointsTrack = new Waypoint[ pc.numWaypoints[0] ];
-            System.arraycopy( pc.waypoints[0], pc.firstOfFirstSector[0], waypointsTrack, 0, waypointsTrack.length - pc.firstOfFirstSector[0] );
-            System.arraycopy( pc.waypoints[0], 0, waypointsTrack, waypointsTrack.length - pc.firstOfFirstSector[0], pc.firstOfFirstSector[0] );
-            
-            Waypoint[] waypointsPitlane = new Waypoint[ pc.numWaypoints[1] ];
-            System.arraycopy( pc.waypoints[1], pc.firstOfFirstSector[1], waypointsPitlane, 0, waypointsPitlane.length - pc.firstOfFirstSector[1] );
-            System.arraycopy( pc.waypoints[1], 0, waypointsPitlane, waypointsPitlane.length - pc.firstOfFirstSector[1], pc.firstOfFirstSector[1] );
-            
-            pc.minXPos = Float.MAX_VALUE;
-            pc.maxXPos = -Float.MAX_VALUE;
-            pc.minZPos = Float.MAX_VALUE;
-            pc.maxZPos = -Float.MAX_VALUE;
-            
-            fixWaypoints( waypointsTrack, pc );
-            fixWaypoints( waypointsPitlane, pc );
-            
-            return ( new Track( waypointsTrack, waypointsPitlane, pc.sector1Length, pc.sector2Length, pc.trackLength, pc.minXPos, pc.maxXPos, pc.minYPos, pc.maxYPos, pc.minZPos, pc.maxZPos, pc.maxWidth ) );
-        }
-        catch ( IOException e )
-        {
-            Logger.log( e );
-            return ( null );
-        }
+        ParseContainer pc = parseAIW( aiw );
+        
+        Waypoint[] waypointsTrack = new Waypoint[ pc.numWaypoints[0] ];
+        System.arraycopy( pc.waypoints[0], pc.firstOfFirstSector[0], waypointsTrack, 0, waypointsTrack.length - pc.firstOfFirstSector[0] );
+        System.arraycopy( pc.waypoints[0], 0, waypointsTrack, waypointsTrack.length - pc.firstOfFirstSector[0], pc.firstOfFirstSector[0] );
+        
+        Waypoint[] waypointsPitlane = new Waypoint[ pc.numWaypoints[1] ];
+        System.arraycopy( pc.waypoints[1], pc.firstOfFirstSector[1], waypointsPitlane, 0, waypointsPitlane.length - pc.firstOfFirstSector[1] );
+        System.arraycopy( pc.waypoints[1], 0, waypointsPitlane, waypointsPitlane.length - pc.firstOfFirstSector[1], pc.firstOfFirstSector[1] );
+        
+        pc.minXPos = Float.MAX_VALUE;
+        pc.maxXPos = -Float.MAX_VALUE;
+        pc.minZPos = Float.MAX_VALUE;
+        pc.maxZPos = -Float.MAX_VALUE;
+        
+        fixWaypoints( waypointsTrack, pc );
+        fixWaypoints( waypointsPitlane, pc );
+        
+        return ( new Track( waypointsTrack, waypointsPitlane, pc.sector1Length, pc.sector2Length, pc.trackLength, pc.minXPos, pc.maxXPos, pc.minYPos, pc.maxYPos, pc.minZPos, pc.maxZPos, pc.maxWidth ) );
     }
 }

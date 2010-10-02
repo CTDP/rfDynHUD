@@ -32,21 +32,41 @@ public class ImageProperty extends StringProperty
     
     private final boolean noImageAllowed;
     
+    /**
+     * Gets whether "no image" is allowed for this property.
+     * 
+     * @return whether "no image" is allowed for this property.
+     */
     public final boolean getNoImageAllowed()
     {
         return ( noImageAllowed );
     }
     
+    /**
+     * Sets the image name.
+     * 
+     * @param imageName
+     */
     public final void setImageName( String imageName )
     {
         setStringValue( imageName );
     }
     
+    /**
+     * Gets the currently selected image name.
+     * 
+     * @return the currently selected image name.
+     */
     public final String getImageName()
     {
         return ( getStringValue() );
     }
     
+    /**
+     * Gets whether this property is set to "no image".
+     * 
+     * @return whether this property is set to "no image".
+     */
     public final boolean isNoImage()
     {
         return ( ( getStringValue() == null ) || getStringValue().equals( "" ) );
@@ -67,12 +87,12 @@ public class ImageProperty extends StringProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
-     * @param noImageAllowed
+     * @param defaultValue the default value
+     * @param readonly read only property?
+     * @param noImageAllowed allow "no image" for this property?
      */
     public ImageProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
@@ -83,10 +103,10 @@ public class ImageProperty extends StringProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public ImageProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
@@ -95,10 +115,10 @@ public class ImageProperty extends StringProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public ImageProperty( Widget widget, String name, String defaultValue, boolean readonly )
     {
@@ -107,9 +127,9 @@ public class ImageProperty extends StringProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public ImageProperty( Widget widget, String name, String defaultValue )
     {
@@ -118,12 +138,12 @@ public class ImageProperty extends StringProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
-     * @param noImageAllowed
+     * @param defaultValue the default value
+     * @param readonly read only property?
+     * @param noImageAllowed allow "no image" for this property?
      */
     public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
@@ -134,10 +154,10 @@ public class ImageProperty extends StringProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
     {
@@ -146,10 +166,10 @@ public class ImageProperty extends StringProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
     {
@@ -158,9 +178,9 @@ public class ImageProperty extends StringProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public ImageProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
     {

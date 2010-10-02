@@ -22,6 +22,11 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputActionConsumer;
 import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
 
+/**
+ * Records fuel usages per lap.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
 {
     private static final class MasterFuelUsageRecorder extends FuelUsageRecorder implements InputActionConsumer
@@ -106,11 +111,11 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     /**
      * This event is invoked when the key values have been updated.
      * 
-     * @param gameData
-     * @param fuelRelevantLaps
-     * @param relevantFuel
-     * @param lastLap
-     * @param average
+     * @param gameData the game data
+     * @param fuelRelevantLaps the fuel relevant laps
+     * @param relevantFuel the relevant fuel
+     * @param lastLap the last lap's fuel usage
+     * @param average the average fuel usage
      */
     protected void onValuesUpdated( LiveGameData gameData, int fuelRelevantLaps, float relevantFuel, float lastLap, float average )
     {
@@ -119,7 +124,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     /**
      * Call this to reset the whole thing.
      * 
-     * @param gameData
+     * @param gameData the game data
      */
     public void reset( LiveGameData gameData )
     {
@@ -141,7 +146,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
     /**
      * Call this to reset the recorder while in cockpit.
      * 
-     * @param gameData
+     * @param gameData the game data
      */
     public void liveReset( LiveGameData gameData )
     {

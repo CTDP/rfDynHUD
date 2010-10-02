@@ -30,10 +30,10 @@ public interface TableCellRendererProvider<P>
     /**
      * Gets the {@link TableCellRenderer} for a property value cell.
      * 
-     * @param table
-     * @param row
-     * @param index
-     * @param property
+     * @param table the table
+     * @param row the row
+     * @param index the column index (0 is key)
+     * @param property the proerty
      * 
      * @return the {@link TableCellRenderer} for a property value cell or <code>null</code> to use the table's default.
      */
@@ -42,10 +42,10 @@ public interface TableCellRendererProvider<P>
     /**
      * Gets the {@link TableCellEditor} for a property value cell.
      * 
-     * @param table
-     * @param row
-     * @param index
-     * @param property
+     * @param table the table
+     * @param row the row
+     * @param index the column index (0 is key)
+     * @param property the proerty
      * 
      * @return the {@link TableCellEditor} for a property value cell or <code>null</code> to use the table's default.
      */

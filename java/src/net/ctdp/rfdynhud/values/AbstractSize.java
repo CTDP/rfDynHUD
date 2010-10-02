@@ -23,7 +23,17 @@ package net.ctdp.rfdynhud.values;
  */
 public interface AbstractSize
 {
+    /**
+     * Gets the effective width in pixels.
+     * 
+     * @return the effective width in pixels.
+     */
     public abstract int getEffectiveWidth();
     
+    /**
+     * Gets the effective height in pixels.
+     * 
+     * @return the effective height in pixels.
+     */
     public abstract int getEffectiveHeight();
 }

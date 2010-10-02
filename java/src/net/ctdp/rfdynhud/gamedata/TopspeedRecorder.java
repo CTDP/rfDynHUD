@@ -42,6 +42,8 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     
     /**
      * Call this to reset the recorder while in cockpit.
+     * 
+     * @param scoringInfo the {@link ScoringInfo}
      */
     public void liveReset( ScoringInfo scoringInfo )
     {

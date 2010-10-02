@@ -249,8 +249,10 @@ public class Size implements AbstractSize
     /**
      * Sets this {@link Widget}'s size in absolute pixel coordinates. (only works for non-fixed-sized {@link Widget}s)
      * 
-     * @param width
-     * @param height
+     * @param width the new absolute pixel width
+     * @param height the new absolute pixel height
+     * 
+     * @return changed?
      */
     public final boolean setEffectiveSize( int width, int height )
     {
@@ -607,7 +609,7 @@ public class Size implements AbstractSize
     
     /**
      * 
-     * @param width
+     * @param width the new width
      */
     protected void onWidthPropertySet( float width )
     {
@@ -690,7 +692,7 @@ public class Size implements AbstractSize
     
     /**
      * 
-     * @param height
+     * @param height the new height
      */
     protected void onHeightPropertySet( float height )
     {
@@ -784,10 +786,10 @@ public class Size implements AbstractSize
      * Create a new size property for sizes local to a Widget's area.
      * 
      * @param widget the owning {@link Widget}.
-     * @param width
-     * @param widthPercent
-     * @param height
-     * @param heightPercent
+     * @param width the new width value
+     * @param widthPercent interpret 'width' as percents?
+     * @param height the new height value
+     * @param heightPercent interpret 'height' as percents?
      * 
      * @return the new Size.
      */
@@ -800,10 +802,10 @@ public class Size implements AbstractSize
      * Create a new size property for global positions on the whole screen area.
      * 
      * @param widget the owning {@link Widget}.
-     * @param width
-     * @param widthPercent
-     * @param height
-     * @param heightPercent
+     * @param width the new width value
+     * @param widthPercent interpret 'width' as percents?
+     * @param height the new height value
+     * @param heightPercent interpret 'height' as percents?
      * 
      * @return the new Size.
      */
@@ -826,11 +828,11 @@ public class Size implements AbstractSize
     /**
      * Create a new size property for sizes local to a Widget's area.
      * 
-     * @param w2pf
-     * @param width
-     * @param widthPercent
-     * @param height
-     * @param heightPercent
+     * @param w2pf the object to use as a placeholder for the Widget to come
+     * @param width the new width value
+     * @param widthPercent interpret 'width' as percents?
+     * @param height the new height value
+     * @param heightPercent interpret 'height' as percents?
      * 
      * @return the new Size.
      */
@@ -842,11 +844,11 @@ public class Size implements AbstractSize
     /**
      * Create a new size property for global positions on the whole screen area.
      * 
-     * @param w2pf
-     * @param width
-     * @param widthPercent
-     * @param height
-     * @param heightPercent
+     * @param w2pf the object to use as a placeholder for the Widget to come
+     * @param width the new width value
+     * @param widthPercent interpret 'width' as percents?
+     * @param height the new height value
+     * @param heightPercent interpret 'height' as percents?
      * 
      * @return the new Size.
      */

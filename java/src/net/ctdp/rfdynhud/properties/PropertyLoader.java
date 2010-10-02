@@ -24,9 +24,26 @@ package net.ctdp.rfdynhud.properties;
  */
 public interface PropertyLoader
 {
+    /**
+     * Gets the currently loaded property key.
+     * 
+     * @return the currently loaded property key.
+     */
     public String getCurrentKey();
     
+    /**
+     * Gets the currently loaded property value.
+     * 
+     * @return the currently loaded property value.
+     */
     public String getCurrentValue();
     
+    /**
+     * Attempts to load the value into the passed property.
+     * 
+     * @param property
+     * 
+     * @return <code>true</code>, if and only if the property accepted the key and value.
+     */
     public boolean loadProperty( Property property );
 }

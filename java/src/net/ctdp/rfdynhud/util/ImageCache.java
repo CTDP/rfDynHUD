@@ -29,9 +29,9 @@ public interface ImageCache
     /**
      * Adds an image to the cache.
      * 
-     * @param name
-     * @param lastModified
-     * @param image
+     * @param name the name to cache by
+     * @param lastModified the last modified timestamp
+     * @param image the image to cache
      * 
      * @return the previously cached image.
      */
@@ -40,7 +40,7 @@ public interface ImageCache
     /**
      * Removes an image from the cache.
      * 
-     * @param name
+     * @param name the name it is cached by
      * 
      * @return the cached image, if present.
      */
@@ -49,7 +49,7 @@ public interface ImageCache
     /**
      * Checks, whether an image exists in the cache by the given name.
      * 
-     * @param name
+     * @param name the name to search for
      * 
      * @return <code>true</code>, if the image is present, <code>false</code> otherwise.
      */
@@ -58,15 +58,15 @@ public interface ImageCache
     /**
      * Checks, whether an image is cached by the given name and matches the given 'lastModified' date.
      * 
-     * @param name
-     * @param lastModified
+     * @param name the name to search for
+     * @param lastModified the last modified timestamp
      */
     public void check( String name, long lastModified );
     
     /**
      * Gets the cached image by the given name.
      * 
-     * @param name
+     * @param name the name to search for
      * 
      * @return the cached image or <code>null</code>, if not present.
      */

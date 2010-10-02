@@ -32,7 +32,7 @@ public abstract class Clock implements ManagedValue
     /**
      * Implementation specific code for initialization.
      * 
-     * @param nanoTime
+     * @param nanoTime the starting time stamp
      */
     protected abstract void initImpl( long nanoTime );
     
@@ -99,9 +99,9 @@ public abstract class Clock implements ManagedValue
     }
     
     /**
-     * Gets the number of <code>true</code> situations since the last call to {@link #init()}.
+     * Gets the number of <code>true</code> situations since the last call to {@link #init(long)}.
      * 
-     * @return the number of true situations since the last call to {@link #init()}.
+     * @return the number of true situations since the last call to {@link #init(long)}.
      */
     public final long getTicks()
     {
@@ -111,9 +111,9 @@ public abstract class Clock implements ManagedValue
     /**
      * Implementation of the update method.
      * 
-     * @param nanoTime
-     * @param frameCounter
-     * @param force
+     * @param nanoTime the current timestamp in nano seconds
+     * @param frameCounter the current frame index
+     * @param force force clock to <code>true</code>.
      * 
      * @return <code>true</code> to set the {@link Clock} flag to <code>true</code>.
      */

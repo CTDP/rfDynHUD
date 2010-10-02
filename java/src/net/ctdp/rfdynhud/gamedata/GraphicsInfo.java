@@ -123,6 +123,11 @@ public class GraphicsInfo
         return ( updatedInRealtimeMode );
     }
     
+    /**
+     * This is incremented every time the info is updated.
+     *  
+     * @return the current update id.
+     */
     public final long getUpdateId()
     {
         return ( updateId );
@@ -140,7 +145,7 @@ public class GraphicsInfo
     /**
      * camera position in meters
      * 
-     * @param position
+     * @param position output buffer
      */
     public final void getCameraPosition( TelemVect3 position )
     {
@@ -148,7 +153,9 @@ public class GraphicsInfo
     }
     
     /**
-     * camera position in meters
+     * Gets camera position in meters.
+     * 
+     * @return camera position in meters.
      */
     public final float getCameraPositionX()
     {
@@ -156,7 +163,9 @@ public class GraphicsInfo
     }
     
     /**
-     * camera position in meters
+     * Gets camera position in meters.
+     * 
+     * @return camera position in meters.
      */
     public final float getCameraPositionY()
     {
@@ -164,7 +173,9 @@ public class GraphicsInfo
     }
     
     /**
-     * camera position in meters
+     * Gets camera position in meters.
+     * 
+     * @return camera position in meters.
      */
     public final float getCameraPositionZ()
     {
@@ -174,7 +185,7 @@ public class GraphicsInfo
     /**
      * camera orientation
      * 
-     * @param orientation
+     * @param orientation output buffer
      */
     public final void getCameraOrientation( TelemVect3 orientation )
     {
@@ -182,6 +193,9 @@ public class GraphicsInfo
     }
     
     /**
+     * Gets the current ambient color.
+     * 
+     * @return the current ambient color.
      */
     public final java.awt.Color getAmbientColor()
     {

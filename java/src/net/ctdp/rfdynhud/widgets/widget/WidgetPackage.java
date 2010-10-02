@@ -53,9 +53,9 @@ public class WidgetPackage implements Comparable<WidgetPackage>
     /**
      * Composes one 32 bit integer from major, minor and revision numbers.
      * 
-     * @param major
-     * @param minor
-     * @param revision
+     * @param major major field
+     * @param minor minor field
+     * @param revision revision field
      * 
      * @return a 32 bit integer for the version.
      */
@@ -170,7 +170,7 @@ public class WidgetPackage implements Comparable<WidgetPackage>
      * 
      * @param name the package name. This can be <code>null</code> or an empty string to denote the root of the menu or a slash separated path.
      * @param version see {@link #composeVersion(int, int, int)}
-     * @param iconURLs
+     * @param iconURLs URLs to icons for the editor
      */
     public WidgetPackage( String name, int version, URL... iconURLs )
     {
@@ -215,7 +215,7 @@ public class WidgetPackage implements Comparable<WidgetPackage>
      * 
      * @param name the package name. This can be <code>null</code> or an empty string to denote the root of the menu or a slash separated path.
      * @param version see {@link #composeVersion(int, int, int)}
-     * @param iconFiles
+     * @param iconFiles files for icons for the editor
      */
     public WidgetPackage( String name, int version, File... iconFiles )
     {

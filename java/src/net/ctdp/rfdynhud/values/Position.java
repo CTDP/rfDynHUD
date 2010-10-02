@@ -133,6 +133,8 @@ public class Position
      * @param positioning
      * @param x
      * @param y
+     * 
+     * @return changed?
      */
     private boolean set( RelativePositioning positioning, float x, float y )
     {
@@ -248,9 +250,11 @@ public class Position
     /**
      * Sets this Widget's position.
      * 
-     * @param positioning
-     * @param x
-     * @param y
+     * @param positioning the used {@link RelativePositioning}
+     * @param x the absolute pixel x
+     * @param y the absolute pixel y
+     * 
+     * @return changed?
      */
     public final boolean setEffectivePosition( RelativePositioning positioning, int x, int y )
     {
@@ -307,8 +311,10 @@ public class Position
     /**
      * Sets this Widget's position.
      * 
-     * @param x
-     * @param y
+     * @param x the absolute pixel x
+     * @param y the absolute pixel y
+     * 
+     * @return changed?
      */
     public final boolean setEffectivePosition( int x, int y )
     {
@@ -632,7 +638,7 @@ public class Position
     
     /**
      * 
-     * @param positioning
+     * @param positioning the new positioning
      */
     protected void onPositioningPropertySet( RelativePositioning positioning )
     {
@@ -684,7 +690,7 @@ public class Position
     
     /**
      * 
-     * @param x
+     * @param x the new x
      */
     protected void onXPropertySet( float x )
     {
@@ -759,7 +765,7 @@ public class Position
     
     /**
      * 
-     * @param y
+     * @param y the new y
      */
     protected void onYPropertySet( float y )
     {
@@ -848,10 +854,10 @@ public class Position
      * Create a new positional property for positions local to a Widget's area.
      * 
      * @param widget the owning {@link Widget}.
-     * @param positioning
-     * @param x
+     * @param positioning the used {@link RelativePositioning}
+     * @param x the x position
      * @param xPercent interpret 'x' as percents?
-     * @param y
+     * @param y the y position
      * @param yPercent interpret 'y' as percents?
      * @param size the size for the area
      * 
@@ -866,10 +872,10 @@ public class Position
      * Create a new positional property for global positions on the whole screen area.
      * 
      * @param widget the owning {@link Widget}.
-     * @param positioning
-     * @param x
+     * @param positioning the used {@link RelativePositioning}
+     * @param x the x position
      * @param xPercent interpret 'x' as percents?
-     * @param y
+     * @param y the y position
      * @param yPercent interpret 'y' as percents?
      * @param size the size for the area
      * 
@@ -897,11 +903,11 @@ public class Position
     /**
      * Create a new positional property for positions local to a Widget's area.
      * 
-     * @param w2pf
-     * @param positioning
-     * @param x
+     * @param w2pf the object to use as a placeholder for the Widget to come
+     * @param positioning the used {@link RelativePositioning}
+     * @param x the x position
      * @param xPercent interpret 'x' as percents?
-     * @param y
+     * @param y the y position
      * @param yPercent interpret 'y' as percents?
      * @param size the size for the area
      * 
@@ -915,11 +921,11 @@ public class Position
     /**
      * Create a new positional property for global positions on the whole screen area.
      * 
-     * @param w2pf
-     * @param positioning
-     * @param x
+     * @param w2pf the object to use as a placeholder for the Widget to come
+     * @param positioning the used {@link RelativePositioning}
+     * @param x the x position
      * @param xPercent interpret 'x' as percents?
-     * @param y
+     * @param y the y position
      * @param yPercent interpret 'y' as percents?
      * @param size the size for the area
      * 

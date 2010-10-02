@@ -26,7 +26,7 @@ import java.awt.Color;
  * 
  * @author Marvin Froehlich (CTDP) (aka Qudus)
  */
-public class ImageBorderRenderer extends BorderRenderer
+public class ImageBorderRenderer implements BorderRenderer
 {
     private final String imageFilename;
     private TextureImage2D borderTexture;

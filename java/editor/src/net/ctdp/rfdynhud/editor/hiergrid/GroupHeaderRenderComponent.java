@@ -18,22 +18,26 @@
 package net.ctdp.rfdynhud.editor.hiergrid;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.geom.Rectangle2D;
 
-import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  * @author Marvin Froehlich
  */
-public class KeyRenderLabel extends JLabel
+public class GroupHeaderRenderComponent extends JPanel
 {
     private static final long serialVersionUID = 1L;
     
     private int level = 0;
     private int indent = 14;
     private boolean[] lastInGroup = null;
+    private boolean expanded = false;
+    private String caption = "";
     
     public void setLevel( int level, int indent )
     {
@@ -46,18 +50,52 @@ public class KeyRenderLabel extends JLabel
         this.lastInGroup = lig;
     }
     
+    public void setExpanded( boolean expanded )
+    {
+        this.expanded = expanded;
+    }
+    
+    public void setCaption( String caption )
+    {
+        this.caption = caption;
+    }
+    
+    public final String getCaption()
+    {
+        return ( caption );
+    }
+    
     @Override
     protected void paintComponent( Graphics g )
     {
+        HierarchicalTable<?> table = (HierarchicalTable<?>)this.getParent().getParent();
+        
+        Color bgc = getBackground();
+        Color fgc = getForeground();
+        setBackground( table.getBackground() );
+        
         super.paintComponent( g );
         
-        HierarchicalTable<?> table = (HierarchicalTable<?>)this.getParent().getParent();
+        setBackground( bgc );
+        
+        Graphics2D g2 = (Graphics2D)g;
+        
+        g2.setColor( bgc );
+        int offsetX = table.getStyle().getIndentHeaders() ? level * indent : 0;
+        g2.fillRect( offsetX, 0, getWidth(), getHeight() );
+        
+        g2.setColor( fgc );
+        
+        FontMetrics fm = g2.getFontMetrics();
+        Rectangle2D bounds = fm.getStringBounds( caption, g2 );
+        
+        int x = offsetX + ( getWidth() - offsetX - (int)bounds.getWidth() ) / 2;
+        int y = ( getHeight() - (int)bounds.getHeight() ) / 2 - (int)bounds.getY();
+        
+        g2.drawString( caption, x, y );
         
         if ( level > 0 )
         {
-            Graphics2D g2 = (Graphics2D)g;
-            
-            Color oldColor = g2.getColor();
             g2.setColor( table.getStyle().getTreeLinesColor() );
             
             Stroke oldStroke = g2.getStroke();
@@ -65,13 +103,13 @@ public class KeyRenderLabel extends JLabel
             
             for ( int i = 1; i <= level; i++ )
             {
-                int x = i * indent - ( indent / 2 );
+                x = i * indent - ( indent / 2 );
                 
                 boolean lig = lastInGroup[i];
                 if ( i < level )
                     lig = lig && lastInGroup[level];
                 
-                if ( lig )
+                if ( lig && !expanded )
                 {
                     g2.drawLine( x, 0, x, getHeight() - 4 );
                     g2.drawLine( x, getHeight() - 4, x + 2, getHeight() - 4 );
@@ -83,11 +121,10 @@ public class KeyRenderLabel extends JLabel
             }
             
             g2.setStroke( oldStroke );
-            g2.setColor( oldColor );
         }
     }
     
-    public KeyRenderLabel()
+    public GroupHeaderRenderComponent()
     {
         super();
     }

@@ -53,6 +53,13 @@ public enum WheelPart
         return ( arrayIndexRR );
     }
     
+    /**
+     * Gets {@value WheelPart#OUTSIDE} for the left wheels and {@value WheelPart#INSIDE} for the right wheels.
+     * 
+     * @param wheel
+     * 
+     * @return {@value WheelPart#OUTSIDE} for the left wheels and {@value WheelPart#INSIDE} for the right wheels.
+     */
     public static final WheelPart getLeftPart( Wheel wheel )
     {
         switch ( wheel )
@@ -71,6 +78,13 @@ public enum WheelPart
         return ( null );
     }
     
+    /**
+     * Gets {@value WheelPart#INSIDE} for the left wheels and {@value WheelPart#OUTSIDE} for the right wheels.
+     * 
+     * @param wheel
+     * 
+     * @return {@value WheelPart#INSIDE} for the left wheels and {@value WheelPart#OUTSIDE} for the right wheels.
+     */
     public static final WheelPart getRightPart( Wheel wheel )
     {
         switch ( wheel )

@@ -30,13 +30,21 @@ public class BooleanProperty extends Property
     private boolean value;
     
     /**
+     * Invoked when the value has changed.
      * 
-     * @param newValue
+     * @param newValue the new value
      */
     protected void onValueChanged( boolean newValue )
     {
     }
     
+    /**
+     * Sets the property's value.
+     * 
+     * @param value the new value
+     * 
+     * @return changed?
+     */
     public boolean setBooleanValue( boolean value )
     {
         if ( value == this.value )
@@ -51,6 +59,11 @@ public class BooleanProperty extends Property
         return ( true );
     }
     
+    /**
+     * Gets the property's current value.
+     * 
+     * @return the property's current value.
+     */
     public final boolean getBooleanValue()
     {
         return ( value );
@@ -85,11 +98,11 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param widgetsConfig
+     * @param widgetsConfig the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue
-     * @param readonly
+     * @param readonly read only property?
      */
     BooleanProperty( WidgetsConfiguration widgetsConfig, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
@@ -100,11 +113,11 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BooleanProperty( Widget widget, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
@@ -115,10 +128,10 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BooleanProperty( Widget widget, String name, String nameForDisplay, boolean defaultValue )
     {
@@ -127,10 +140,10 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BooleanProperty( Widget widget, String name, boolean defaultValue, boolean readonly )
     {
@@ -139,9 +152,9 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BooleanProperty( Widget widget, String name, boolean defaultValue )
     {
@@ -150,11 +163,11 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
@@ -167,10 +180,10 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean defaultValue )
     {
@@ -179,10 +192,10 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, boolean defaultValue, boolean readonly )
     {
@@ -191,9 +204,9 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, boolean defaultValue )
     {

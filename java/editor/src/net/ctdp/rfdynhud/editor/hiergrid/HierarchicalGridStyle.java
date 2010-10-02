@@ -17,9 +17,11 @@
  */
 package net.ctdp.rfdynhud.editor.hiergrid;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Stroke;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -72,6 +74,12 @@ public class HierarchicalGridStyle
     
     private Color valueCellFontColor = Color.BLACK;
     private Font valueCellFont = null;
+    
+    private Color treeLinesColor = Color.BLACK;
+    private Stroke treeLinesStroke = new BasicStroke( 1f );
+    
+    private boolean indentHeaders = true;
+    private boolean indentKeyBorders = true;
     
     public void setTableBackgroundColor( Color color )
     {
@@ -191,6 +199,46 @@ public class HierarchicalGridStyle
     public final Font getValueCellFont()
     {
         return ( valueCellFont );
+    }
+    
+    public void setTreeLinesColor( Color color )
+    {
+        this.treeLinesColor = color;
+    }
+    
+    public final Color getTreeLinesColor()
+    {
+        return ( treeLinesColor );
+    }
+    
+    public void setTreeLinesStroke( Stroke stroke )
+    {
+        this.treeLinesStroke = stroke;
+    }
+    
+    public final Stroke getTreeLinesStroke()
+    {
+        return ( treeLinesStroke );
+    }
+    
+    public void setIndentHeaders( boolean indent )
+    {
+        this.indentHeaders = indent;
+    }
+    
+    public final boolean getIndentHeaders()
+    {
+        return ( indentHeaders );
+    }
+    
+    public void setIndentKeyBorders( boolean indent )
+    {
+        this.indentKeyBorders = indent;
+    }
+    
+    public final boolean getIndentKeyBorders()
+    {
+        return ( indentKeyBorders );
     }
     
     protected void applyDefaults( HierarchicalTable<?> table )

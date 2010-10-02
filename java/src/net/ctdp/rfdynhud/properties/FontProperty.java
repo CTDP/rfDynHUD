@@ -75,19 +75,30 @@ public class FontProperty extends Property
     }
     
     /**
+     * Invoked when the value has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldValue the old value
+     * @param newValue the new value
      */
     protected void onValueChanged( String oldValue, String newValue )
     {
     }
     
+    /**
+     * Must be called after font names have changed in the editor.
+     */
     public void refresh()
     {
         this.font = null;
     }
     
+    /**
+     * Sets the property's current value.
+     * 
+     * @param fontKey the new value
+     * 
+     * @return changed?
+     */
     public boolean setFont( String fontKey )
     {
         if ( ( fontKey == null ) && ( this.fontKey == null ) )
@@ -131,16 +142,35 @@ public class FontProperty extends Property
         return ( true );
     }
     
-    public final void setFont( Font font, boolean virtual, boolean antiAliased )
+    /**
+     * Sets the property's current value.
+     * 
+     * @param font
+     * @param virtual
+     * @param antiAliased
+     * 
+     * @return changed?
+     */
+    public final boolean setFont( Font font, boolean virtual, boolean antiAliased )
     {
-        setFont( FontUtils.getFontString( font, virtual, antiAliased ) );
+        return ( setFont( FontUtils.getFontString( font, virtual, antiAliased ) ) );
     }
     
+    /**
+     * Gets the property's current value.
+     * 
+     * @return the property's current value.
+     */
     public final String getFontKey()
     {
         return ( fontKey );
     }
     
+    /**
+     * Gets the property's current value.
+     * 
+     * @return the property's current value.
+     */
     public final Font getFont()
     {
         if ( fontKey == null )
@@ -167,6 +197,11 @@ public class FontProperty extends Property
         return ( font );
     }
     
+    /**
+     * Is the currently selected font anti aliased?
+     * 
+     * @return whether the currently selected font anti aliased?
+     */
     public final boolean isAntiAliased()
     {
         if ( antiAliased == null )
@@ -187,6 +222,11 @@ public class FontProperty extends Property
         return ( antiAliased );
     }
     
+    /**
+     * Gets font metrics for the selected font.
+     * 
+     * @return font metrics for the selected font.
+     */
     public final FontMetrics getMetrics()
     {
         if ( metrics == null )
@@ -226,7 +266,7 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
@@ -243,11 +283,11 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FontProperty( WidgetsConfiguration widgetsConf, String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
@@ -256,10 +296,10 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FontProperty( WidgetsConfiguration widgetsConf, String name, String nameForDisplay, String defaultValue )
     {
@@ -268,10 +308,10 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FontProperty( WidgetsConfiguration widgetsConf, String name, String defaultValue, boolean readonly )
     {
@@ -280,9 +320,9 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widgetsConf
+     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FontProperty( WidgetsConfiguration widgetsConf, String name, String defaultValue )
     {
@@ -291,11 +331,11 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FontProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
@@ -304,10 +344,10 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FontProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
@@ -316,10 +356,10 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FontProperty( Widget widget, String name, String defaultValue, boolean readonly )
     {
@@ -328,9 +368,9 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FontProperty( Widget widget, String name, String defaultValue )
     {
@@ -339,11 +379,11 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FontProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
@@ -354,10 +394,10 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FontProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
     {
@@ -366,10 +406,10 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FontProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
     {
@@ -378,9 +418,9 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FontProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
     {

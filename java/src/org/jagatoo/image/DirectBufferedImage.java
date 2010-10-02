@@ -169,6 +169,12 @@ public class DirectBufferedImage extends BufferedImage
     
     /**
      * Creates a buffered image which is backed by a NIO byte buffer
+     * 
+     * @param width
+     * @param height
+     * @param bandOffsets
+     * @param bb
+     * @return
      */
     public static DirectBufferedImage makeDirectImageRGBA( int width, int height, int[] bandOffsets, ByteBuffer bb )
     {
@@ -202,6 +208,11 @@ public class DirectBufferedImage extends BufferedImage
     
     /**
      * Creates a buffered image which is backed by a NIO byte buffer
+     * 
+     * @param width
+     * @param height
+     * @param pixelSize
+     * @return
      */
     public static DirectBufferedImage makeDirectImageRGBA( int width, int height, int pixelSize )
     {
@@ -246,6 +257,10 @@ public class DirectBufferedImage extends BufferedImage
     
     /**
      * Creates a buffered image which is backed by a NIO byte buffer
+     * 
+     * @param width
+     * @param height
+     * @return
      */
     public static DirectBufferedImage makeDirectImageRGBA( int width, int height )
     {
@@ -254,6 +269,12 @@ public class DirectBufferedImage extends BufferedImage
     
     /**
      * Creates a buffered image which is backed by a NIO byte buffer
+     * 
+     * @param width
+     * @param height
+     * @param bandOffsets
+     * @param bb
+     * @return
      */
     public static DirectBufferedImage makeDirectImageRGB( int width, int height, int[] bandOffsets, ByteBuffer bb )
     {
@@ -286,6 +307,11 @@ public class DirectBufferedImage extends BufferedImage
     
     /**
      * Creates a buffered image which is backed by a NIO byte buffer
+     * 
+     * @param width
+     * @param height
+     * @param pixelSize
+     * @return
      */
     public static DirectBufferedImage makeDirectImageRGB( int width, int height, int pixelSize )
     {
@@ -319,6 +345,10 @@ public class DirectBufferedImage extends BufferedImage
     
     /**
      * Creates a buffered image which is backed by a NIO byte buffer
+     * 
+     * @param width
+     * @param height
+     * @return
      */
     public static DirectBufferedImage makeDirectImageRGB( int width, int height )
     {
@@ -372,6 +402,10 @@ public class DirectBufferedImage extends BufferedImage
     
     /**
      * Creates a buffered image which is backed by a NIO byte buffer
+     * 
+     * @param width
+     * @param height
+     * @return
      */
     public static DirectBufferedImage makeDirectImageTwoBytes( int width, int height )
     {
@@ -413,6 +447,8 @@ public class DirectBufferedImage extends BufferedImage
      * is backed by a direct byte buffer
      * 
      * @param source
+     * 
+     * @return
      */
     public static DirectBufferedImage makeDirectImageRGBA( BufferedImage source )
     {
@@ -478,6 +514,8 @@ public class DirectBufferedImage extends BufferedImage
      * @param in
      * @param allowAlpha
      * 
+     * @return
+     * 
      * @throws java.io.IOException
      */
     public static DirectBufferedImage loadDirectImage( InputStream in, boolean allowAlpha ) throws IOException
@@ -498,6 +536,8 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param in
      * 
+     * @return
+     * 
      * @throws java.io.IOException
      */
     public static DirectBufferedImage loadDirectImage( InputStream in ) throws IOException
@@ -513,6 +553,8 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param url
      * @param allowAlpha
+     * 
+     * @return
      * 
      * @throws java.io.IOException
      */
@@ -535,6 +577,8 @@ public class DirectBufferedImage extends BufferedImage
      * @param file
      * @param allowAlpha
      * 
+     * @return
+     * 
      * @throws java.io.IOException
      */
     public static DirectBufferedImage loadDirectImage( File file, boolean allowAlpha ) throws IOException
@@ -550,6 +594,8 @@ public class DirectBufferedImage extends BufferedImage
      * 
      * @param file
      * 
+     * @return
+     * 
      * @throws java.io.IOException
      */
     public static DirectBufferedImage loadDirectImage( File file ) throws IOException
@@ -564,6 +610,9 @@ public class DirectBufferedImage extends BufferedImage
      * there is no help for that currently.
      * 
      * @param name
+     * @param allowAlpha
+     * 
+     * @return
      * 
      * @throws java.io.IOException
      */

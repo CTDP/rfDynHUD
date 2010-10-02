@@ -36,9 +36,9 @@ public class ImagePropertyWithTexture extends ImageProperty
     /**
      * Updates the stored {@link TextureImage2D} to the given size and returns the texture.
      * 
-     * @param width
-     * @param height
-     * @param isEditorMode
+     * @param width the new width
+     * @param height the new height
+     * @param isEditorMode is rendering in editor?
      * 
      * @return the scaled texture.
      */
@@ -99,12 +99,12 @@ public class ImagePropertyWithTexture extends ImageProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
-     * @param noImageAllowed
+     * @param defaultValue the default value
+     * @param readonly read only property?
+     * @param noImageAllowed allow "no image" for this property?
      */
     public ImagePropertyWithTexture( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
@@ -113,10 +113,10 @@ public class ImagePropertyWithTexture extends ImageProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public ImagePropertyWithTexture( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
@@ -125,10 +125,10 @@ public class ImagePropertyWithTexture extends ImageProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public ImagePropertyWithTexture( Widget widget, String name, String defaultValue, boolean readonly )
     {
@@ -137,9 +137,9 @@ public class ImagePropertyWithTexture extends ImageProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public ImagePropertyWithTexture( Widget widget, String name, String defaultValue )
     {
@@ -148,12 +148,12 @@ public class ImagePropertyWithTexture extends ImageProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
-     * @param noImageAllowed
+     * @param defaultValue the default value
+     * @param readonly read only property?
+     * @param noImageAllowed allow "no image" for this property?
      */
     public ImagePropertyWithTexture( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
@@ -164,10 +164,10 @@ public class ImagePropertyWithTexture extends ImageProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public ImagePropertyWithTexture( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
     {
@@ -176,10 +176,10 @@ public class ImagePropertyWithTexture extends ImageProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public ImagePropertyWithTexture( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
     {
@@ -188,9 +188,9 @@ public class ImagePropertyWithTexture extends ImageProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public ImagePropertyWithTexture( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
     {

@@ -46,10 +46,10 @@ public class TimingUtil
     /**
      * Gets a formatted String from the given seconds.
      * 
-     * @param seconds
-     * @param forceAllFields
+     * @param seconds the seconds to format to a time string
+     * @param forceAllFields show hours or minutes, even, if they are all zero?
      * @param padHighest if true, the highest displayed field (i.e. hours or minuts) will be padded with a zero
-     * @param showMillis
+     * @param showMillis show milli seconds?
      * 
      * @return a formatted String from the given seconds.
      */
@@ -108,9 +108,9 @@ public class TimingUtil
     /**
      * Gets a formatted String from the given seconds.
      * 
-     * @param seconds
-     * @param forceAllFields
-     * @param showMillis
+     * @param seconds the seconds to format to a time string
+     * @param forceAllFields show hours or minutes, even, if they are all zero?
+     * @param showMillis show milli seconds?
      * 
      * @return a formatted String from the given seconds.
      */
@@ -122,8 +122,8 @@ public class TimingUtil
     /**
      * Gets a formatted String from the given seconds.
      * 
-     * @param seconds
-     * @param showMillis
+     * @param seconds the seconds to format to a time string
+     * @param showMillis show milli seconds?
      * 
      * @return a formatted String from the given seconds.
      */
@@ -135,7 +135,7 @@ public class TimingUtil
     /**
      * Gets a formatted String from the given seconds.
      * 
-     * @param seconds
+     * @param seconds the seconds to format to a time string
      * 
      * @return a formatted String from the given seconds.
      */

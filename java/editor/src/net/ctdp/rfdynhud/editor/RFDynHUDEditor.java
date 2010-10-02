@@ -587,8 +587,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
     public static final String WIDGET_CHANGE_POS_SIZE = "POS_SIZE";
     
     /**
-     * @param widget
-     * @param propertyName
+     * @param widget the changed widget
+     * @param propertyName the name of the changed property or {@value #WIDGET_CHANGE_POS_SIZE}
      */
     public void onWidgetChanged( Widget widget, String propertyName )
     {
@@ -1748,6 +1748,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         editorScrollPane.setPreferredSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
         
         JSplitPane split = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
+        split.setOneTouchExpandable( true );
         split.setResizeWeight( 1 );
         split.add( editorScrollPane );
         

@@ -93,6 +93,7 @@ public final class ColorUtils
      * Checks the hex-string for validity.
      * 
      * @param hexStr
+     * @param throwException
      * 
      * @return 0 for RGB hex-string without leading #,
      *         1 for RGB hex-string with leading #,

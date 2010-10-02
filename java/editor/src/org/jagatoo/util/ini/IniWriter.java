@@ -249,6 +249,7 @@ public class IniWriter
      * 
      * @param key
      * @param value if this is not a number, it is quoted in double-quotes and then written using the toString() method.
+     * @param quoteValue
      * @param comment null for no comment
      * 
      * @throws IOException

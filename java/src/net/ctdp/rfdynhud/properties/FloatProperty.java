@@ -31,30 +31,55 @@ public class FloatProperty extends Property
     private final float minValue;
     private final float maxValue;
     
+    /**
+     * Gets the minimum value.
+     * 
+     * @return the minimum value.
+     */
     public final float getMinValue()
     {
         return ( minValue );
     }
     
+    /**
+     * Gets the maximum value.
+     * 
+     * @return the maximum value.
+     */
     public final float getMaxValue()
     {
         return ( maxValue );
     }
     
+    /**
+     * Fixes the value to stick to the limits.
+     * 
+     * @param value the unfixed value
+     * 
+     * @return the fixed value.
+     */
     protected float fixValue( float value )
     {
         return ( Math.max( minValue, Math.min( value, maxValue ) ) );
     }
     
     /**
+     * Invoked when the value has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldValue the old value
+     * @param newValue the new value
      */
     protected void onValueChanged( float oldValue, float newValue )
     {
     }
     
+    /**
+     * Sets the property's value.
+     * 
+     * @param value the new value
+     * 
+     * @return changed?
+     */
     public boolean setFloatValue( float value )
     {
         value = fixValue( value );
@@ -75,11 +100,23 @@ public class FloatProperty extends Property
         return ( true );
     }
     
+    /**
+     * Gets the property's current value.
+     * 
+     * @return the property's current value.
+     */
     public final float getFloatValue()
     {
         return ( value );
     }
     
+    /**
+     * Gets the property's current value as an int.
+     * 
+     * @param round if <code>true</code> the value is rounded, otherwise it is floored.
+     * 
+     * @return the property's current value as an int.
+     */
     public final int getIntValue( boolean round )
     {
         if ( round )
@@ -88,6 +125,11 @@ public class FloatProperty extends Property
         return ( (int)value );
     }
     
+    /**
+     * Gets the property's current value as a floored int.
+     * 
+     * @return the property's current value as a floored int.
+     */
     public final int getIntValue()
     {
         return ( getIntValue( false ) );
@@ -122,13 +164,13 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FloatProperty( Widget widget, String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly )
     {
@@ -141,11 +183,11 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FloatProperty( Widget widget, String name, String nameForDisplay, float defaultValue, boolean readonly )
     {
@@ -154,10 +196,10 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FloatProperty( Widget widget, String name, String nameForDisplay, float defaultValue )
     {
@@ -166,10 +208,10 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FloatProperty( Widget widget, String name, float defaultValue, boolean readonly )
     {
@@ -178,9 +220,9 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FloatProperty( Widget widget, String name, float defaultValue )
     {
@@ -189,11 +231,11 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FloatProperty( Widget widget, String name, float defaultValue, float minValue, float maxValue )
     {
@@ -202,13 +244,13 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FloatProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly )
     {
@@ -219,11 +261,11 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FloatProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, float defaultValue, boolean readonly )
     {
@@ -232,10 +274,10 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FloatProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, float defaultValue )
     {
@@ -244,10 +286,10 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param readonly read only property?
      */
     public FloatProperty( WidgetToPropertyForwarder w2pf, String name, float defaultValue, boolean readonly )
     {
@@ -256,9 +298,9 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
+     * @param defaultValue the default value
      */
     public FloatProperty( WidgetToPropertyForwarder w2pf, String name, float defaultValue )
     {
@@ -267,11 +309,11 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FloatProperty( WidgetToPropertyForwarder w2pf, String name, float defaultValue, float minValue, float maxValue )
     {

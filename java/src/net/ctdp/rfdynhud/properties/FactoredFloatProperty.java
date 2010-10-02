@@ -81,14 +81,14 @@ public class FactoredFloatProperty extends FloatProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param factor the factor
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FactoredFloatProperty( Widget widget, String name, String nameForDisplay, float factor, float defaultValue, float minValue, float maxValue, boolean readonly )
     {
@@ -101,13 +101,13 @@ public class FactoredFloatProperty extends FloatProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param factor the factor
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FactoredFloatProperty( Widget widget, String name, String nameForDisplay, float factor, float defaultValue, float minValue, float maxValue )
     {
@@ -116,13 +116,13 @@ public class FactoredFloatProperty extends FloatProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param factor the factor
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FactoredFloatProperty( Widget widget, String name, float factor, int defaultValue, float minValue, float maxValue, boolean readonly )
     {
@@ -131,12 +131,12 @@ public class FactoredFloatProperty extends FloatProperty
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param factor the factor
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FactoredFloatProperty( Widget widget, String name, float factor, float defaultValue, float minValue, float maxValue )
     {
@@ -145,14 +145,14 @@ public class FactoredFloatProperty extends FloatProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param factor the factor
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FactoredFloatProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, float factor, float defaultValue, float minValue, float maxValue, boolean readonly )
     {
@@ -163,13 +163,13 @@ public class FactoredFloatProperty extends FloatProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param factor the factor
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FactoredFloatProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, float factor, float defaultValue, float minValue, float maxValue )
     {
@@ -178,13 +178,13 @@ public class FactoredFloatProperty extends FloatProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param factor the factor
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
-     * @param readonly
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
      */
     public FactoredFloatProperty( WidgetToPropertyForwarder w2pf, String name, float factor, float defaultValue, float minValue, float maxValue, boolean readonly )
     {
@@ -193,12 +193,12 @@ public class FactoredFloatProperty extends FloatProperty
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param factor the factor
-     * @param defaultValue
-     * @param minValue
-     * @param maxValue
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
      */
     public FactoredFloatProperty( WidgetToPropertyForwarder w2pf, String name, float factor, float defaultValue, float minValue, float maxValue )
     {

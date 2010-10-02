@@ -269,7 +269,12 @@ public class HierarchicalTable<P extends Object> extends JTable
         return ( rect );
     }
     
-    private final GroupHeaderCellRenderer groupHeaderRenderer = new GroupHeaderCellRenderer();
+    protected TableCellRenderer createGroupHeaderRenderer()
+    {
+        return ( new GroupHeaderCellRenderer() );
+    }
+    
+    private final TableCellRenderer groupHeaderRenderer = createGroupHeaderRenderer();
     
     @SuppressWarnings( "unchecked" )
     @Override

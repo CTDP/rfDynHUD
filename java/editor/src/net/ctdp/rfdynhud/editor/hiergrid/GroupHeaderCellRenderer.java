@@ -17,15 +17,15 @@
  */
 package net.ctdp.rfdynhud.editor.hiergrid;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Insets;
-
-import javax.swing.SwingConstants;
 
 /**
  * @author Marvin Froehlich
  */
-public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupHeaderRenderLabel>
+public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupHeaderRenderComponent>
 {
     private static final long serialVersionUID = -1986974044855186348L;
     
@@ -46,7 +46,36 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
      * {@inheritDoc}
      */
     @Override
-    protected void prepareComponent( GroupHeaderRenderLabel component, HierarchicalTable<Object> table, Object property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
+    protected void paintBorder( GroupHeaderRenderComponent c, Graphics g, int x, int y, int width, int height, int row, int column, Color borderColor )
+    {
+        if ( row > 0 )
+        {
+            HierarchicalTable<?> table = (HierarchicalTable<?>)c.getParent().getParent();
+            int level = table.getModel().getLevel( row );
+            
+            int indent = table.getStyle().getLevelIndentation();
+            int offsetX = table.getStyle().getIndentHeaders() ? level * indent : 0;
+            
+            super.paintBorder( c, g, x + offsetX, y, width - offsetX, height, row, column, borderColor );
+            
+            if ( ( level > 0  ) && table.getStyle().getIndentHeaders() )
+            {
+                Color oldColor = g.getColor();
+                
+                g.setColor( borderColor );
+                
+                g.drawLine( x + offsetX, y, x + offsetX, y + height );
+                
+                g.setColor( oldColor );
+            }
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void prepareComponent( GroupHeaderRenderComponent component, HierarchicalTable<Object> table, Object property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
@@ -65,12 +94,11 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
         
         //component.setText( String.valueOf( value ) );
         if ( value == null )
-            component.setText( null );
+            component.setCaption( null );
         else if ( value instanceof GridItemsContainer<?> )
-            component.setText( ( (GridItemsContainer<?>)value ).getNameForGrid() );
+            component.setCaption( ( (GridItemsContainer<?>)value ).getNameForGrid() );
         else
-            component.setText( String.valueOf( value ) );
-        component.setHorizontalAlignment( SwingConstants.CENTER );
+            component.setCaption( String.valueOf( value ) );
     }
     
     @Override
@@ -86,6 +114,6 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
     
     public GroupHeaderCellRenderer()
     {
-        super( true, new GroupHeaderRenderLabel() );
+        super( true, new GroupHeaderRenderComponent() );
     }
 }

@@ -24,6 +24,11 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.util.Logger;
 
+/**
+ * Model of mod information
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class ModInfo
 {
     private final ProfileInfo profileInfo;
@@ -186,16 +191,31 @@ public class ModInfo
         parseRFM( rfmFile );
     }
     
+    /**
+     * Gets the current mod's name.
+     * 
+     * @return the current mod's name.
+     */
     public final String getName()
     {
         return ( modName );
     }
     
+    /**
+     * Gets the mod's RFM file.
+     * 
+     * @return the mod's RFM file.
+     */
     public final File getRFMFile()
     {
         return ( rfmFile );
     }
     
+    /**
+     * Gets the 'max opponents' setting from the mod's RFM.
+     * 
+     * @return the 'max opponents' setting from the mod's RFM.
+     */
     public final int getMaxOpponents()
     {
         return ( maxOpponents );
@@ -211,6 +231,11 @@ public class ModInfo
         return ( raceDuration );
     }
     
+    /**
+     * Creates a new ModInfo instance.
+     * 
+     * @param profileInfo
+     */
     public ModInfo( ProfileInfo profileInfo )
     {
         this.profileInfo = profileInfo;

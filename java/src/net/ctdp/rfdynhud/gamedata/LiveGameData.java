@@ -21,7 +21,7 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.Logger;
 
 /**
- * 
+ * Complete model of live game data.
  * 
  * @author Marvin Froehlich (CTDP)
  */
@@ -107,6 +107,11 @@ public class LiveGameData
         updateListeners = tmp;
     }
     
+    /**
+     * Gets game resolution and viewport information.
+     * 
+     * @return game resolution and viewport information.
+     */
     public final GameResolution getGameResolution()
     {
         return ( gameResolution );
@@ -214,51 +219,101 @@ public class LiveGameData
         }
     }
     
+    /**
+     * Gets whether we're in realtime mode (cockpit).
+     * 
+     * @return whether we're in realtime mode (cockpit).
+     */
     public final boolean isInRealtimeMode()
     {
         return ( realtimeMode );
     }
     
+    /**
+     * Gets the vehicle physics model.
+     * 
+     * @return the vehicle physics model.
+     */
     public final VehiclePhysics getPhysics()
     {
         return ( physics );
     }
     
+    /**
+     * Gets the vehicle setup model.
+     * 
+     * @return the vehicle setup model.
+     */
     public final VehicleSetup getSetup()
     {
         return ( setup );
     }
     
+    /**
+     * Gets the telemetry data.
+     * 
+     * @return the telemetry data.
+     */
     public final TelemetryData getTelemetryData()
     {
         return ( telemetryData );
     }
     
+    /**
+     * Gets the scoring info.
+     * 
+     * @return the scoring info.
+     */
     public final ScoringInfo getScoringInfo()
     {
         return ( scoringInfo );
     }
     
+    /**
+     * Gets the graphics info.
+     * 
+     * @return the graphics info.
+     */
     public final GraphicsInfo getGraphicsInfo()
     {
         return ( graphicsInfo );
     }
     
+    /**
+     * Gets the commentary request info.
+     * 
+     * @return the commentary request info.
+     */
     public final CommentaryRequestInfo getCommentaryRequestInfo()
     {
         return ( commentaryInfo );
     }
     
+    /**
+     * Gets the mod info.
+     * 
+     * @return the mod info.
+     */
     public final ModInfo getModInfo()
     {
         return ( modInfo );
     }
     
+    /**
+     * Gets the profile info.
+     * 
+     * @return the profile info.
+     */
     public final ProfileInfo getProfileInfo()
     {
         return ( profileInfo );
     }
     
+    /**
+     * Gets the track info.
+     * 
+     * @return the track info.
+     */
     public final TrackInfo getTrackInfo()
     {
         return ( trackInfo );
@@ -271,6 +326,12 @@ public class LiveGameData
         setup.applyEditorPresets( editorPresets );
     }
     
+    /**
+     * Creates an instance of LiveGameData.
+     * 
+     * @param gameResolution
+     * @param eventsManager
+     */
     public LiveGameData( GameResolution gameResolution, GameEventsManager eventsManager )
     {
         registerListener( DataCache.INSTANCE );

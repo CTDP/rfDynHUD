@@ -229,6 +229,8 @@ public class Rect2i implements Positioned2i, Sized2i
      * @param top the upper-left corner's y-coordinate
      * @param width the rectangle's width
      * @param height the rectangle's height
+     * 
+     * @return this instance
      */
     public final Rect2i set( int left, int top, int width, int height )
     {
@@ -243,6 +245,8 @@ public class Rect2i implements Positioned2i, Sized2i
      * 
      * @param pos
      * @param size
+     * 
+     * @return this instance
      */
     public final Rect2i set( Positioned2iRO pos, Sized2iRO size )
     {
@@ -256,6 +260,8 @@ public class Rect2i implements Positioned2i, Sized2i
      * Sets this rectangle's coordinates to the given rectangle's ones.
      * 
      * @param rect
+     * 
+     * @return this instance
      */
     public final Rect2i set( Rect2i rect )
     {

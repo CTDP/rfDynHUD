@@ -71,7 +71,7 @@ public class ValueInterpolater implements ManagedValue
     }
     
     /**
-     * Gets the start value (set by the {@link #init()} method).
+     * Gets the start value (set by the {@link #init(long)} method).
      * 
      * @return the start value.
      */
@@ -102,9 +102,9 @@ public class ValueInterpolater implements ManagedValue
     }
     
     /**
-     * Sets the current value.
+     * Gets the current value.
      * 
-     * @param value
+     * @return the interpolated value
      */
     public final float getValue()
     {

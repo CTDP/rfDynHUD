@@ -64,7 +64,7 @@ class GraphicsInfoCapsule
     /**
      * camera position in meters
      * 
-     * @param position
+     * @param position output buffer
      */
     public final void getCameraPosition( TelemVect3 position )
     {
@@ -74,7 +74,7 @@ class GraphicsInfoCapsule
     }
     
     /**
-     * camera position in meters
+     * @return camera position in meters
      */
     public final float getCameraPositionX()
     {
@@ -84,7 +84,7 @@ class GraphicsInfoCapsule
     }
     
     /**
-     * camera position in meters
+     * @return camera position in meters
      */
     public final float getCameraPositionY()
     {
@@ -94,7 +94,7 @@ class GraphicsInfoCapsule
     }
     
     /**
-     * camera position in meters
+     * @return camera position in meters
      */
     public final float getCameraPositionZ()
     {
@@ -106,7 +106,7 @@ class GraphicsInfoCapsule
     /**
      * camera orientation
      * 
-     * @param orientation
+     * @param orientation output buffer
      */
     public final void getCameraOrientation( TelemVect3 orientation )
     {
@@ -120,6 +120,7 @@ class GraphicsInfoCapsule
     // GraphicsInfoV2
     
     /**
+     * @return the ambient color
      */
     public final java.awt.Color getAmbientColor()
     {

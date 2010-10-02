@@ -59,7 +59,7 @@ class CommentaryRequestInfoCapsule
     }
     
     /**
-     * one of the event names in the commentary INI file
+     * @return one of the event names in the commentary INI file
      */
     public final String getName()
     {
@@ -69,7 +69,7 @@ class CommentaryRequestInfoCapsule
     }
     
     /**
-     * first value to pass in (if any)
+     * @return first value to pass in (if any)
      */
     public final double getInput1()
     {
@@ -79,7 +79,7 @@ class CommentaryRequestInfoCapsule
     }
     
     /**
-     * first value to pass in (if any)
+     * @return second value to pass in (if any)
      */
     public final double getInput2()
     {
@@ -89,7 +89,7 @@ class CommentaryRequestInfoCapsule
     }
     
     /**
-     * first value to pass in (if any)
+     * @return third value to pass in (if any)
      */
     public final double getInput3()
     {
@@ -99,7 +99,7 @@ class CommentaryRequestInfoCapsule
     }
     
     /**
-     * ignores commentary detail and random probability of event
+     * @return ignores commentary detail and random probability of event
      */
     public final boolean getSkipChecks()
     {

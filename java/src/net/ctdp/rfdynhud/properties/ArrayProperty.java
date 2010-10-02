@@ -32,20 +32,33 @@ public class ArrayProperty<E extends Object> extends Property
     private E[] array;
     private E value;
     
+    /**
+     * Gets the data array.
+     * 
+     * @return the data array.
+     */
     public final E[] getArray()
     {
         return ( array );
     }
     
     /**
+     * Invoked when the value has changed.
      * 
-     * @param oldValue
-     * @param newValue
+     * @param oldValue the old value
+     * @param newValue the new value
      */
     protected void onValueChanged( E oldValue, E newValue )
     {
     }
     
+    /**
+     * Sets the currently selected value.
+     * 
+     * @param value
+     * 
+     * @return changed?
+     */
     public boolean setSelectedValue( E value )
     {
         if ( Tools.objectsEqual( value, this.value ) )
@@ -64,6 +77,11 @@ public class ArrayProperty<E extends Object> extends Property
         return ( true );
     }
     
+    /**
+     * Gets the currently selected value.
+     * 
+     * @return the currently selected value.
+     */
     public final E getSelectedValue()
     {
         return ( value );
@@ -107,13 +125,13 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param array
-     * @param readonly
-     * @param buttonText
+     * @param defaultValue the default value
+     * @param array the data array
+     * @param readonly read only property?
+     * @param buttonText the button text
      */
     public ArrayProperty( Widget widget, String name, String nameForDisplay, E defaultValue, E[] array, boolean readonly, String buttonText )
     {
@@ -125,12 +143,12 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param array
-     * @param readonly
+     * @param defaultValue the default value
+     * @param array the data array
+     * @param readonly read only property?
      */
     public ArrayProperty( Widget widget, String name, String nameForDisplay, E defaultValue, E[] array, boolean readonly )
     {
@@ -139,10 +157,11 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param array
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue the default value
+     * @param array the data array
      */
     public ArrayProperty( Widget widget, String name, String nameForDisplay, E defaultValue, E[] array )
     {
@@ -151,11 +170,11 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param array
-     * @param readonly
+     * @param defaultValue the default value
+     * @param array the data array
+     * @param readonly read only property?
      */
     public ArrayProperty( Widget widget, String name, E defaultValue, E[] array, boolean readonly )
     {
@@ -164,10 +183,10 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param widget
+     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param array
+     * @param defaultValue the default value
+     * @param array the data array
      */
     public ArrayProperty( Widget widget, String name, E defaultValue, E[] array )
     {
@@ -176,13 +195,13 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param array
-     * @param readonly
-     * @param buttonText
+     * @param defaultValue the default value
+     * @param array the data array
+     * @param readonly read only property?
+     * @param buttonText the button text
      */
     public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, E[] array, boolean readonly, String buttonText )
     {
@@ -196,12 +215,12 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param array
-     * @param readonly
+     * @param defaultValue the default value
+     * @param array the data array
+     * @param readonly read only property?
      */
     public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, E[] array, boolean readonly )
     {
@@ -210,10 +229,11 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param array
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue the default value
+     * @param array the data array
      */
     public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, E[] array )
     {
@@ -222,11 +242,11 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param array
-     * @param readonly
+     * @param defaultValue the default value
+     * @param array the data array
+     * @param readonly read only property?
      */
     public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, E defaultValue, E[] array, boolean readonly )
     {
@@ -235,10 +255,10 @@ public class ArrayProperty<E extends Object> extends Property
     
     /**
      * 
-     * @param w2pf
+     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue
-     * @param array
+     * @param defaultValue the default value
+     * @param array the data array
      */
     public ArrayProperty( WidgetToPropertyForwarder w2pf, String name, E defaultValue, E[] array )
     {

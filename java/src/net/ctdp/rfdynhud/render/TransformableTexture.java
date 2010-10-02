@@ -235,7 +235,7 @@ public class TransformableTexture
     /**
      * This flag must be set, if you intend to draw on this texture.
      * 
-     * @param dynamic
+     * @param dynamic dynamic?
      */
     public void setDynamic( boolean dynamic )
     {
@@ -256,7 +256,7 @@ public class TransformableTexture
      * Sets the {@link Widget}-local z-index. The only affects subtextures of a single {@link Widget} or {@link AssembledWidget}.
      * Higher values make the sub texture be drawn later then those with smaller values.
      * 
-     * @param zIndex
+     * @param zIndex the new local z-index
      */
     public void setLocalZIndex( int zIndex )
     {
@@ -725,10 +725,10 @@ public class TransformableTexture
      * Gets a {@link TransformableTexture} with this image drawn onto it.
      * If the possibleResult is non null and has the correct size, it is returned.
      * 
-     * @param width
-     * @param height
-     * @param pixelPerfectPositioning
-     * @param possibleResult
+     * @param width the desired width
+     * @param height the desired height
+     * @param pixelPerfectPositioning prepare for pixel perfect positioning
+     * @param possibleResult this instance is possibly retured, if it matches the parameters
      * @param tryToResize if true, the passed in texture is resized to the given size, if the max size is sufficient.
      *                    This is useful in editor mode avoid constant recreations.
      * 

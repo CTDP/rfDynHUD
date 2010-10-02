@@ -29,6 +29,11 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
+/**
+ * Presets for telemetry and scoring info in the editor.
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class EditorPresets
 {
     private static enum EngineBoostMapping
@@ -62,16 +67,33 @@ public class EditorPresets
     
     private final float[] topSpeeds = new float[ 22 ];
     
+    /**
+     * Gets the driver's name.
+     * 
+     * @return the driver's name.
+     */
     public final String getDriverName()
     {
         return ( driverName.getStringValue() );
     }
     
+    /**
+     * Gets the last sector 1 time.
+     * 
+     * @return the last sector 1 time.
+     */
     public final float getLastSector1Time()
     {
         return ( lastSector1Time.getFloatValue() );
     }
     
+    /**
+     * Gets the last sector 2 time.
+     * 
+     * @param includeSector1 sum up sector 1 and 2?
+     * 
+     * @return the last sector 2 time.
+     */
     public final float getLastSector2Time( boolean includeSector1 )
     {
         if ( includeSector1 )
@@ -85,11 +107,21 @@ public class EditorPresets
         return ( lastSector2Time.getFloatValue() );
     }
     
+    /**
+     * Gets the last sector 3 time.
+     * 
+     * @return the last sector 3 time.
+     */
     public final float getLastSector3Time()
     {
         return ( lastSector3Time.getFloatValue() );
     }
     
+    /**
+     * Gets the last lap time.
+     * 
+     * @return the last lap time.
+     */
     public final float getLastLapTime()
     {
         if ( ( lastSector1Time.getFloatValue() < 0f ) || ( lastSector2Time.getFloatValue() < 0f ) || ( lastSector3Time.getFloatValue() < 0f ) )
@@ -98,11 +130,23 @@ public class EditorPresets
         return ( lastSector1Time.getFloatValue() + lastSector2Time.getFloatValue() + lastSector3Time.getFloatValue() );
     }
     
+    /**
+     * Gets the current sector 1 time.
+     * 
+     * @return the current sector 1 time.
+     */
     public final float getCurrentSector1Time()
     {
         return ( currentSector1Time.getFloatValue() );
     }
     
+    /**
+     * Gets the current sector 2 time.
+     * 
+     * @param includeSector1 sum up sector 1 and 2?
+     * 
+     * @return the current sector 2 time.
+     */
     public final float getCurrentSector2Time( boolean includeSector1 )
     {
         if ( includeSector1 )
@@ -116,46 +160,93 @@ public class EditorPresets
         return ( currentSector2Time.getFloatValue() );
     }
     
+    /**
+     * Gets the engine boost.
+     * 
+     * @return the engine boost.
+     */
     public final int getEngineBoost()
     {
         return ( engineBoost.getEnumValue().ordinal() + 1 );
     }
     
+    /**
+     * Gets the engine RPM.
+     * 
+     * @return the engine RPM.
+     */
     public final int getEngineRPM()
     {
         return ( engineRPM.getIntValue() );
     }
     
+    /**
+     * Gets the engine lifetime in seconds.
+     * 
+     * @return the engine lifetime in seconds.
+     */
     public final int getEngineLifetime()
     {
         return ( engineLifetime.getIntValue() );
     }
     
+    /**
+     * Gets the front left brake disc thickness in meters.
+     * 
+     * @return the front left brake disc thickness in meters.
+     */
     public final float getBrakeDiscThicknessFL()
     {
         return ( brakeDiscThicknessFL.getFloatValue() );
     }
     
+    /**
+     * Gets the front right brake disc thickness in meters.
+     * 
+     * @return the front right brake disc thickness in meters.
+     */
     public final float getBrakeDiscThicknessFR()
     {
         return ( brakeDiscThicknessFR.getFloatValue() );
     }
     
+    /**
+     * Gets the rear left brake disc thickness in meters.
+     * 
+     * @return the rear left brake disc thickness in meters.
+     */
     public final float getBrakeDiscThicknessRL()
     {
         return ( brakeDiscThicknessRL.getFloatValue() );
     }
     
+    /**
+     * Gets the rear right brake disc thickness in meters.
+     * 
+     * @return the rear right brake disc thickness in meters.
+     */
     public final float getBrakeDiscThicknessRR()
     {
         return ( brakeDiscThicknessRR.getFloatValue() );
     }
     
+    /**
+     * Gets the fuel load.
+     * 
+     * @return the fuel load.
+     */
     public final float getFuelLoad()
     {
         return ( fuelLoad.getFloatValue() );
     }
     
+    /**
+     * Gets the top speed in km/h.
+     * 
+     * @param index vehicle index
+     * 
+     * @return the top speed in km/h.
+     */
     public final float getTopSpeed( int index )
     {
         return ( topSpeeds[index] );
@@ -229,6 +320,9 @@ public class EditorPresets
         else if ( loader.loadProperty( fuelLoad ) );
     }
     
+    /**
+     * Constructs {@link EditorPresets}.
+     */
     public EditorPresets()
     {
         Random rnd = new Random( System.nanoTime() );

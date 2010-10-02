@@ -19,6 +19,10 @@ package net.ctdp.rfdynhud.input;
 
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
+/**
+ * 
+ * @author Marvin Froehlich (CTDP)
+ */
 public class InputMappings
 {
     private final InputMapping[] mappings;
@@ -26,7 +30,7 @@ public class InputMappings
     /**
      * Gets the {@link InputAction}s possibly mapped to an action on the given {@link Widget}.
      * 
-     * @param widget
+     * @param widget the {@link Widget} to query mapped actions for
      * 
      * @return the possibly mapped actions
      */
@@ -60,7 +64,7 @@ public class InputMappings
     /**
      * Gets whether an input mapping exists, that maps an input device component to the given {@link InputAction}.
      *  
-     * @param action
+     * @param action the action in question
      * 
      * @return whether an input mapping exists, that maps an input device component to the given {@link InputAction}.
      */
@@ -78,8 +82,8 @@ public class InputMappings
     /**
      * Gets the input device components mapped to the given {@link InputAction} on a {@link Widget} with the name of the given {@link Widget}.
      * 
-     * @param action
-     * @param widget
+     * @param action the action
+     * @param widget the widget
      * 
      * @return the input device components mapped to the given {@link InputAction} on a {@link Widget} with the name of the given {@link Widget}.
      */
