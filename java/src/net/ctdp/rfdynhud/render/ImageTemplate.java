@@ -208,6 +208,8 @@ public class ImageTemplate
         
         TextureImage2D texture = TextureImage2D.createDrawTexture( maxWidth, maxHeight, width, height, bufferedImage.getColorModel().hasAlpha() );
         
+        texture.setName( getName() );
+        
         drawScaled( 0, 0, width, height, texture, true );
         
         return ( texture );
@@ -236,6 +238,9 @@ public class ImageTemplate
         }
         
         TextureImage2D texture = TextureImage2D.getOrCreateDrawTexture( width, height, true, possibleResult, tryToResize );
+        
+        if ( texture != possibleResult )
+            texture.setName( getName() );
         
         if ( ( ( oldW > 0 ) || ( oldH > 0 ) ) && ( texture == possibleResult ) )
         {
@@ -275,6 +280,8 @@ public class ImageTemplate
     public TransformableTexture getScaledTransformableTexture( int width, int height, boolean usePowerOfTwoSize )
     {
         TransformableTexture texture = new TransformableTexture( width, height, 0, 0, 0, 0, 0f, 1f, 1f, usePowerOfTwoSize );
+        
+        texture.getTexture().setName( getName() );
         
         drawScaled( 0, 0, width, height, texture.getTexture(), true );
         

@@ -101,6 +101,18 @@ public class TextureImage2D
     private Texture2DCanvas textureCanvas = null;
     private boolean hasTextureCanvas = false;
     
+    private String name = null;
+    
+    public void setName( String name )
+    {
+        this.name = name;
+    }
+    
+    public final String getName()
+    {
+        return ( name );
+    }
+    
     /**
      * Gets the physical width of the texture.
      * 

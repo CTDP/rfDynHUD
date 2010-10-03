@@ -149,6 +149,11 @@ public class TransformableTexture
     
     private final ByteBuffer dirtyRectsBuffer;
     
+    public final String getName()
+    {
+        return ( texture.getName() );
+    }
+    
     void setOwnerWidget( Widget ownerWidget )
     {
         this.ownerWidget = ownerWidget;

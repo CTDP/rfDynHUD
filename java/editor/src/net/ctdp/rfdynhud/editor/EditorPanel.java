@@ -503,11 +503,11 @@ public class EditorPanel extends JPanel
             
             AffineTransform at = null;
             if ( affineTransforms == null )
-                at = tt.getTransformForEditor( innerRect.getLeft(), innerRect.getTop() );
+                at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToMasterWidget(), innerRect.getTop() + tt.getOffsetYToMasterWidget() );
             else
                 at = affineTransforms[i];
             if ( at == null )
-                at = tt.getTransformForEditor( innerRect.getLeft(), innerRect.getTop() );
+                at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToMasterWidget(), innerRect.getTop() + tt.getOffsetYToMasterWidget() );
             
             Rect2i rect = null;
             if ( transformedSubRects == null )
@@ -713,7 +713,7 @@ public class EditorPanel extends JPanel
                     {
                         TransformableTexture tt = subTextures[j];
                         
-                        AffineTransform at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOwnerWidget().getOffsetXToMasterWidget(), innerRect.getTop() +tt.getOwnerWidget().getOffsetYToMasterWidget() );
+                        AffineTransform at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToMasterWidget(), innerRect.getTop() + tt.getOffsetYToMasterWidget() );
                         affineTransforms[i][j] = at;
                         
                         transformedSubRects[i][j] = tt.getTransformedRectForEditor( at );
@@ -745,7 +745,7 @@ public class EditorPanel extends JPanel
                         {
                             TransformableTexture tt = subTextures[j];
                             
-                            AffineTransform at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOwnerWidget().getOffsetXToMasterWidget(), innerRect.getTop() +tt.getOwnerWidget().getOffsetYToMasterWidget() );
+                            AffineTransform at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToMasterWidget(), innerRect.getTop() + tt.getOffsetYToMasterWidget() );
                             affineTransforms[i][j] = at;
                             
                             transformedSubRects[i][j] = tt.getTransformedRectForEditor( at );
