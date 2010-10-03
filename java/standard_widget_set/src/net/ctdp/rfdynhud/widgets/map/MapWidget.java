@@ -600,6 +600,11 @@ public class MapWidget extends Widget
         }
         else
         {
+            if ( isEditorMode && needsBGClear && isRoot )
+            {
+                texture.clear( offsetX, offsetY, width, height, false, null );
+            }
+            
             offsetX = getBorder().getInnerLeftWidthWOPadding();
             offsetY = getBorder().getInnerTopHeightWOPadding();
             
