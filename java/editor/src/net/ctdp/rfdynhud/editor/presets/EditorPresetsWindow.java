@@ -41,7 +41,7 @@ import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
-import net.ctdp.rfdynhud.editor.properties.EditorTable;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
@@ -56,7 +56,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     private final RFDynHUDEditor editor;
     
     private final PropertiesEditor propertiesEditor = new PropertiesEditor();
-    private EditorTable editorTable = null;
+    private PropertiesEditorTable editorTable = null;
     
     private final HashMap<String, ChangedProperty> changed = new HashMap<String, ChangedProperty>();
     private int maxChangeId = 0;
@@ -129,7 +129,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
         
         propertiesEditor.addChangeListener( this );
         
-        editorTable = new EditorTable( null, propertiesEditor );
+        editorTable = new PropertiesEditorTable( null, propertiesEditor );
         
         JScrollPane sp = editorTable.createScrollPane();
         sp.setPreferredSize( new Dimension( 300, 500 ) );

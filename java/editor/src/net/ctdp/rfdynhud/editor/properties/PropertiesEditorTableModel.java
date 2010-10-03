@@ -31,7 +31,7 @@ import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class EditorTableModel extends HierarchicalTableModel<Property>
+public class PropertiesEditorTableModel extends HierarchicalTableModel<Property>
 {
     private static final long serialVersionUID = -5111097521627270775L;
     
@@ -40,7 +40,7 @@ public class EditorTableModel extends HierarchicalTableModel<Property>
     @Override
     protected void setValueImpl( HierarchicalTable<Property> table, Property property, int index, Object newValue )
     {
-        final RFDynHUDEditor editor = ( (EditorTable)table ).editor;
+        final RFDynHUDEditor editor = ( (PropertiesEditorTable)table ).editor;
         
         if ( editor != null )
         {
@@ -50,7 +50,7 @@ public class EditorTableModel extends HierarchicalTableModel<Property>
         
         Object oldValue = getValueImpl( table, property, index );
         property.setValue( newValue );
-        ( (EditorTable)table ).propsEditor.invokeChangeListeners( property, oldValue, newValue, table.getSelectedRow(), table.getSelectedColumn() );
+        ( (PropertiesEditorTable)table ).propsEditor.invokeChangeListeners( property, oldValue, newValue, table.getSelectedRow(), table.getSelectedColumn() );
         
         if ( ( editor != null ) && ( ( property.getWidget() != null ) || __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) ) )
         {
@@ -68,7 +68,7 @@ public class EditorTableModel extends HierarchicalTableModel<Property>
         return ( property.getValue() );
     }
     
-    public EditorTableModel( GridItemsContainer<Property> data, int columnCount )
+    public PropertiesEditorTableModel( GridItemsContainer<Property> data, int columnCount )
     {
         super( ITEMS_HANDLER, data, columnCount );
     }

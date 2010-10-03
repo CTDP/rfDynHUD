@@ -143,7 +143,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         
                         label.setText( (String)prop.getValue() );
                         table.setValueAt( getCellEditorValue(), row, column );
-                        ( (EditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
+                        ( (PropertiesEditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
                     }
                     
                     frame.repaint();

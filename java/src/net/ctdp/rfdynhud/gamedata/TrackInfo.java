@@ -31,11 +31,6 @@ import net.ctdp.rfdynhud.util.Logger;
  */
 public class TrackInfo
 {
-    /**
-     * The game's locations foler
-     */
-    public static final File LOCATIONS_FOLDER = GameFileSystem.INSTANCE.getPathFromGameConfigINI( "TracksDir", "GameData\\Locations\\" );
-    
     private final ProfileInfo profileInfo;
     
     private File trackFolder = null;

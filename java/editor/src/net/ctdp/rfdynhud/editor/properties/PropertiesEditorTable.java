@@ -25,7 +25,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class EditorTable extends HierarchicalTable<Property>
+public class PropertiesEditorTable extends HierarchicalTable<Property>
 {
     private static final long serialVersionUID = 3238244155847132182L;
     
@@ -37,9 +37,9 @@ public class EditorTable extends HierarchicalTable<Property>
         return ( editor );
     }
     
-    public EditorTable( RFDynHUDEditor editor, PropertiesEditor propsEditor )
+    public PropertiesEditorTable( RFDynHUDEditor editor, PropertiesEditor propsEditor )
     {
-        super( new EditorTableModel( propsEditor.getPropertiesList(), 2 ), new TableCellRendererProviderImpl() );
+        super( new PropertiesEditorTableModel( propsEditor.getPropertiesList(), 2 ), new TableCellRendererProviderImpl() );
         
         this.editor = editor;
         this.propsEditor = propsEditor;

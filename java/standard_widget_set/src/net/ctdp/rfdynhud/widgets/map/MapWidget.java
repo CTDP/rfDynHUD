@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.Track;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
@@ -41,6 +42,7 @@ import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -62,8 +64,6 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class MapWidget extends Widget
 {
-    private TextureImage2D cacheTexture = null;
-    private boolean isBgClean = false;
     private Track track = null;
     private float scale = 1f;
     private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9, 1, 100, false )
@@ -86,7 +86,25 @@ public class MapWidget extends Widget
     }
     private int itemBlackBorderWidth = 2;
     
-    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
+    private boolean needsBGClear = false;
+    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false )
+    {
+        @Override
+        protected void onValueChanged( boolean newValue )
+        {
+            super.onValueChanged( newValue );
+            
+            forceAndSetDirty( true );
+            
+            needsBGClear = newValue;
+            
+            if ( itemStates != null )
+            {
+                for ( int i = 0; i < itemStates.length; i++ )
+                    itemStates[i] = 0;
+            }
+        }
+    };
     
     private final ColorProperty roadColorSec1 = new ColorProperty( this, "roadColorSec1", "colorSec1", "#000000" );
     private final ColorProperty roadBoundaryColorSec1 = new ColorProperty( this, "roadBoundaryColorSec1", "boundaryColorSec1", "#FFFFFF" );
@@ -204,13 +222,32 @@ public class MapWidget extends Widget
         return ( getConfiguration().getUseClassScoring() );
     }
     
+    private void initTrack( LiveGameData gameData )
+    {
+        File sceneFolder = gameData.getTrackInfo().getTrackFolder();
+        if ( sceneFolder == null )
+        {
+            if ( gameData.getTrackInfo().getSceneFile() == null )
+                Logger.log( "Warning: Unable to read last used track file from PLR file." );
+            else
+                Logger.log( "Warning: Couldn't read track data from file \"" + gameData.getTrackInfo().getSceneFile() + "\"." );
+            
+            track = null;
+        }
+        else
+        {
+            track = gameData.getTrackInfo().getTrack();
+        }
+        //track = Track.parseTrackFromAIW( new File( GameFileSystem.INSTANCE.getLocationsFolder(), "4r2009FSone\\Northamptonshire\\NAS_BritishGP\\NAS_BritishGP.AIW" ) );
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public void onTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
     {
-        track = null;
+        initTrack( gameData );
     }
     
     private void initMaxDisplayedVehicles( boolean isEditorMode, ModInfo modInfo )
@@ -280,7 +317,7 @@ public class MapWidget extends Widget
         
         if ( !hasMasterCanvas( isEditorMode ) && ( ( subTextures[0] == null ) || ( subTextures[0].getWidth() != widgetInnerWidth ) || ( subTextures[0].getHeight() != widgetInnerHeight ) ) )
         {
-            subTextures[0] = TransformableTexture.getOrCreate( widgetInnerWidth, widgetInnerHeight, isEditorMode, subTextures[0], isEditorMode );
+            subTextures[0] = TransformableTexture.getOrCreate( getBorder().getWidgetWidth( widgetInnerWidth ), getBorder().getWidgetHeight( widgetInnerHeight ), isEditorMode, subTextures[0], isEditorMode );
         }
         
         if ( subTextures[subTexOff] == null )
@@ -313,46 +350,28 @@ public class MapWidget extends Widget
         if ( isEditorMode )
             updateVSIs( gameData, isEditorMode );
         
-        cacheTexture = TextureImage2D.getOrCreateDrawTexture( width, height, true, cacheTexture, isEditorMode );
-        cacheTexture.clear( true, null );
+        initTrack( gameData );
+    }
+    
+    private void drawTrack( Track track, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        Texture2DCanvas tc = texture.getTextureCanvas();
+        tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
         
         if ( track == null )
         {
-            File sceneFolder = gameData.getTrackInfo().getTrackFolder();
-            if ( sceneFolder == null )
-            {
-                if ( gameData.getTrackInfo().getSceneFile() == null )
-                    Logger.log( "Warning: Unable to read last used track file from PLR file." );
-                else
-                    Logger.log( "Warning: Couldn't read track data from file \"" + gameData.getTrackInfo().getSceneFile() + "\"." );
-            }
-            else
-            {
-                track = gameData.getTrackInfo().getTrack();
-            }
-            //track = Track.parseTrackFromAIW( new File( "D:\\Spiele\\rFactor\\GameData\\Locations\\4r2009FSone\\Northamptonshire\\NAS_BritishGP\\NAS_BritishGP.AIW" ) );
-        }
-        
-        if ( track == null )
-        {
-            Texture2DCanvas tc = cacheTexture.getTextureCanvas();
-            tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-            
             tc.setColor( roadColorSec1.getColor() );
             
-            tc.drawArc( 3, 3, cacheTexture.getWidth() - 6, cacheTexture.getHeight() - 6, 0, 360 );
+            tc.drawArc( offsetX + 3, offsetY + 3, width - 6, height - 6, 0, 360 );
             
             tc.setColor( Color.RED );
             tc.setFont( new Font( "Monospaced", Font.PLAIN, 12 ) );
             Rectangle2D bounds = tc.getFontMetrics().getStringBounds( "Ag", tc );
-            tc.drawString( "Couldn't read track data.", 3, (int)bounds.getHeight() );
-            tc.drawString( "Please see the log for more info.", 3, (int)bounds.getHeight() * 2  );
+            tc.drawString( "Couldn't read track data.", offsetX + 3, offsetY + (int)bounds.getHeight() );
+            tc.drawString( "Please see the log for more info.", offsetX + 3, offsetY + (int)bounds.getHeight() * 2  );
         }
         else if ( track.getNumWaypoints( false ) > 0 )
         {
-            Texture2DCanvas tc = cacheTexture.getTextureCanvas();
-            tc.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-            
             int off2 = ( isFontAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
             int dia = itemRadius + itemRadius + off2 + off2;
             
@@ -376,11 +395,13 @@ public class MapWidget extends Widget
             Point p0 = new Point();
             Point p1 = new Point();
             
-            int x0 = off2 + itemRadius + ( ( width - dia - track.getXExtend( scale ) ) / 2 );
-            int y0 = off2 + itemRadius + ( ( height - dia - track.getZExtend( scale ) ) / 2 );
+            int x0 = offsetX + off2 + itemRadius + ( ( width - dia - track.getXExtend( scale ) ) / 2 );
+            int y0 = offsetY + off2 + itemRadius + ( ( height - dia - track.getZExtend( scale ) ) / 2 );
             
             if ( rotationEnabled.getBooleanValue() )
             {
+                subTextures[0].setTranslation( -getBorder().getInnerLeftWidthWOPadding(), -getBorder().getInnerTopHeightWOPadding() );
+                
                 //subTextures[0].setRotationCenter( x0 + track.getXExtend( scale ) / 2, y0 + track.getZExtend( scale ) / 2 );
                 subTextures[0].setRotationCenter( subTextures[0].getWidth() / 2, subTextures[0].getHeight() / 2 );
             }
@@ -556,13 +577,16 @@ public class MapWidget extends Widget
         else
         {
             scale = 1f;
-            cacheTexture = null;
         }
-        
-        if ( isEditorMode )
-        {
-            isBgClean = false;
-        }
+    }
+    
+    @Override
+    protected void drawBorder( boolean isEditorMode, BorderWrapper border, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        if ( hasMasterCanvas( isEditorMode ) )
+            super.drawBorder( isEditorMode, border, texture, offsetX, offsetY, width, height );
+        else
+            super.drawBorder( isEditorMode, border, subTextures[0].getTexture(), 0, 0, width, height );
     }
     
     @Override
@@ -570,25 +594,18 @@ public class MapWidget extends Widget
     {
         if ( hasMasterCanvas( isEditorMode ) )
         {
-            if ( cacheTexture == null )
-                texture.clear( offsetX, offsetY, width, height, true, null );
-            else
-                texture.clear( cacheTexture, offsetX, offsetY, width, height, true, null );
+            super.drawBackground( gameData, isEditorMode, texture, offsetX, offsetY, width, height, isRoot );
             
-            isBgClean = false;
+            drawTrack( track, texture, offsetX, offsetY, width, height );
         }
         else
         {
-            if ( ( isEditorMode ) && !isBgClean )
-            {
-                texture.clear( offsetX, offsetY, width, height, true, null );
-                isBgClean = true;
-            }
+            offsetX = getBorder().getInnerLeftWidthWOPadding();
+            offsetY = getBorder().getInnerTopHeightWOPadding();
             
-            if ( cacheTexture == null )
-                subTextures[0].getTexture().clear( 0, 0, width, height, true, null );
-            else
-                subTextures[0].getTexture().clear( cacheTexture, 0, 0, width, height, true, null );
+            super.drawBackground( gameData, isEditorMode, subTextures[0].getTexture(), offsetX, offsetY, width, height, isRoot );
+            
+            drawTrack( track, subTextures[0].getTexture(), offsetX, offsetY, width, height );
         }
     }
     
@@ -597,12 +614,33 @@ public class MapWidget extends Widget
     @Override
     public void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
-        final ScoringInfo scoringInfo = gameData.getScoringInfo();
-        final VehicleScoringInfo viewedVSI = scoringInfo.getViewedVehicleScoringInfo();
-        final boolean useClassScoring = getUseClassScoring();
-        
-        if ( ( track != null ) && ( cacheTexture != null ) )
+        if ( isEditorMode && needsBGClear )
         {
+            int offX_ = offsetX - getBorder().getInnerLeftWidthWOPadding();
+            int offY_ = offsetY - getBorder().getInnerTopHeightWOPadding();
+            int w_ = getBorder().getWidgetWidth( width );
+            int h_ = getBorder().getWidgetWidth( height );
+            
+            texture.getTextureCanvas().pushClip( offX_, offY_, w_, h_ );
+            
+            try
+            {
+                clearRegion( texture, offX_, offY_, w_, h_ );
+            }
+            finally
+            {
+                texture.getTextureCanvas().popClip();
+            }
+            
+            needsBGClear = false;
+        }
+        
+        if ( track != null )
+        {
+            final ScoringInfo scoringInfo = gameData.getScoringInfo();
+            final VehicleScoringInfo viewedVSI = scoringInfo.getViewedVehicleScoringInfo();
+            final boolean useClassScoring = getUseClassScoring();
+            
             int off2 = ( isFontAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
             int x0 = off2 - itemRadius + ( ( width - track.getXExtend( scale ) ) / 2 );
             int y0 = off2 - itemRadius + ( ( height - track.getZExtend( scale ) ) / 2 );
@@ -614,13 +652,15 @@ public class MapWidget extends Widget
             
             int subTexOff = hasMasterCanvas( isEditorMode ) ? 0 : 1;
             
-            float rotation = 0f;
-            
             if ( rotationEnabled.getBooleanValue() )
             {
-                rotation = track.getInterpolatedAngleToRoad( scoringInfo );
+                float rotation = track.getInterpolatedAngleToRoad( scoringInfo );
                 subTextures[0].setRotation( rotation );
                 at.setToRotation( rotation, x0 + track.getXExtend( scale ) / 2, y0 + track.getZExtend( scale ) / 2 );
+            }
+            else
+            {
+                at.setToIdentity();
             }
             
             for ( int i = 0; i < numVehicles; i++ )
@@ -802,18 +842,6 @@ public class MapWidget extends Widget
     }
     
     @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    
-    @Override
-    protected boolean canHaveBackground()
-    {
-        return ( false );
-    }
-    
-    @Override
     public void prepareForMenuItem()
     {
         super.prepareForMenuItem();
@@ -825,10 +853,17 @@ public class MapWidget extends Widget
         itemBlackBorderWidth = 0;
     }
     
+    @Override
+    protected String getInitialBackground()
+    {
+        return ( BackgroundProperty.COLOR_INDICATOR + "#00000000" );
+    }
+    
     public MapWidget( String name )
     {
         super( name, 16f, 24f );
         
+        getBorderProperty().setBorder( "" );
         getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
         getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );
     }

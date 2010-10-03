@@ -50,6 +50,15 @@ class GameFileSystemRFactor extends GameFileSystem
         return ( pluginFolder.getParentFile().getAbsoluteFile() );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected File findLocationsFolder( File gameFolder )
+    {
+        return ( getPathFromGameConfigINI( "TracksDir", "GameData\\Locations\\" ) );
+    }
+    
     private static File getFallbackGameConfigINIPath( File gameFolder, String fallback )
     {
         File fallback0 = new File( gameFolder, fallback ).getAbsoluteFile();

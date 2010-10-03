@@ -66,8 +66,8 @@ import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
-import net.ctdp.rfdynhud.editor.properties.EditorTable;
-import net.ctdp.rfdynhud.editor.properties.EditorTableModel;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
@@ -138,7 +138,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
     private final JScrollPane editorScrollPane;
     
     private final PropertiesEditor propsEditor;
-    private final EditorTable editorTable;
+    private final PropertiesEditorTable editorTable;
     private final JEditorPane docPanel;
     private boolean isSomethingDoced = false;
     
@@ -563,7 +563,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         GridItemsContainer<Property> propsList = propsEditor.getPropertiesList();
         
         expandedRows.clear();
-        EditorTableModel.readExpandFlags( EditorTableModel.ITEMS_HANDLER, propsList, expandedRows );
+        PropertiesEditorTableModel.readExpandFlags( PropertiesEditorTableModel.ITEMS_HANDLER, propsList, expandedRows );
         
         propsEditor.clear();
         
@@ -577,7 +577,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         }
         
         onPropertySelected( null, -1 );
-        EditorTableModel.restoreExpandFlags( EditorTableModel.ITEMS_HANDLER, propsList, expandedRows );
+        PropertiesEditorTableModel.restoreExpandFlags( PropertiesEditorTableModel.ITEMS_HANDLER, propsList, expandedRows );
         
         editorTable.applyToModel();
     }
@@ -605,14 +605,13 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             //editorTable.apply();
             //onWidgetSelected( widget, false );
             
-            EditorTableModel m = (EditorTableModel)editorTable.getModel();
+            PropertiesEditorTableModel m = (PropertiesEditorTableModel)editorTable.getModel();
             int rc = m.getRowCount();
             for ( int i = 0; i < rc; i++ )
             {
-                Object v = m.getValueAt( i, 1 );
-                if ( v instanceof String )
+                if ( m.isDataRow( i ) )
                 {
-                    String pn = (String)v;
+                    String pn = (String)m.getValueAt( i, 1 );
                     if ( pn.equals( "positioning" ) || pn.equals( "x" ) || pn.equals( "y" ) || pn.equals( "width" ) || pn.equals( "height" ) )
                         m.fireTableCellUpdated( i, 2 );
                 }
@@ -1760,7 +1759,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         split2.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
         split2.setMinimumSize( new Dimension( 300, 10 ) );
         
-        editorTable = new EditorTable( this, propsEditor );
+        editorTable = new PropertiesEditorTable( this, propsEditor );
         
         split2.add( editorTable.createScrollPane() );
         

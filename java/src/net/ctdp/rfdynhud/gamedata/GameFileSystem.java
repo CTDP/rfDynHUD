@@ -38,6 +38,8 @@ public abstract class GameFileSystem
     private final PluginINI pluginINI = new PluginINI( pluginFolder );
     private final File gameFolder;
     private final String gamePath;
+    private final File locationsFolder;
+    private final String locationsPath;
     private final File configFolder;
     private final String configPath;
     private final File cacheFolder;
@@ -76,6 +78,15 @@ public abstract class GameFileSystem
      * @return the game's root folder.
      */
     protected abstract File findGameFolder( File pluginFolder );
+    
+    /**
+     * Called once at instantiation time to initialize the game's &quot;Locations&quot; folder.
+     * 
+     * @param gameFolder the game's root folder
+     * 
+     * @return the game's &quot;Locations&quot; folder.
+     */
+    protected abstract File findLocationsFolder( File gameFolder );
     
     /**
      * Called once at instantiation time to initialize the plugin's config folder.
@@ -218,6 +229,26 @@ public abstract class GameFileSystem
     }
     
     /**
+     * Gets the game's &quot;Locations&quot; folder.
+     * 
+     * @return the game's &quot;Locations&quot; folder.
+     */
+    public final File getLocationsFolder()
+    {
+        return ( locationsFolder );
+    }
+    
+    /**
+     * Gets the game's &quot;Locations&quot; folder.
+     * 
+     * @return the game's &quot;Locations&quot; folder.
+     */
+    public final String getLocationsPath()
+    {
+        return ( locationsPath );
+    }
+    
+    /**
      * Locates the current vehicle setup file.
      * 
      * @param gameData the live game data
@@ -346,6 +377,9 @@ public abstract class GameFileSystem
             this.gameFolder = readDevGameFolder();
         
         this.gamePath = gameFolder.getAbsolutePath();
+        
+        this.locationsFolder = findLocationsFolder( gameFolder );
+        this.locationsPath = locationsFolder.getAbsolutePath();
         
         this.configFolder = findConfigFolder( pluginFolder, pluginINI );
         this.configPath = configFolder.getAbsolutePath();

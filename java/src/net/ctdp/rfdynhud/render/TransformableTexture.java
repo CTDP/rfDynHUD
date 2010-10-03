@@ -314,6 +314,14 @@ public class TransformableTexture
         return ( texture.getHeight() );
     }
     
+    /**
+     * Set the sub texture's translation. Sub texture's are generally
+     * (and additionally to this) translated to the upper left of the host Widget
+     * plus its border.
+     * 
+     * @param transX
+     * @param transY
+     */
     public void setTranslation( float transX, float transY )
     {
         this.transX = pixelPerfectPositioning ? Math.round( transX ) : transX;
@@ -337,6 +345,12 @@ public class TransformableTexture
         return ( transY );
     }
     
+    /**
+     * Sets the center location for rotation. This is relative to the sub texture's upper left.
+     * 
+     * @param rotCenterX
+     * @param rotCenterY
+     */
     public void setRotationCenter( int rotCenterX, int rotCenterY )
     {
         this.rotCenterX = rotCenterX;
@@ -345,11 +359,21 @@ public class TransformableTexture
         this.dirty = true;
     }
     
+    /**
+     * Gets the center location for rotation. This is relative to the sub texture's upper left.
+     * 
+     * @return the center location for rotation.
+     */
     public final int getRotCenterX()
     {
         return ( rotCenterX );
     }
     
+    /**
+     * Gets the center location for rotation. This is relative to the sub texture's upper left.
+     * 
+     * @return the center location for rotation.
+     */
     public final int getRotCenterY()
     {
         return ( rotCenterY );

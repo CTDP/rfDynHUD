@@ -185,7 +185,7 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         
                         table.setValueAt( getCellEditorValue(), row, column );
                         prop.setValue( getCellEditorValue() );
-                        ( (EditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
+                        ( (PropertiesEditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
                     }
                     
                     frame.repaint();

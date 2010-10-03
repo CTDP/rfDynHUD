@@ -1083,7 +1083,7 @@ public abstract class Widget implements Documented
         return ( true );
     }
     
-    private void clearRegion( TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    protected void clearRegion( TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         if ( texture == null )
             return;
@@ -1104,7 +1104,7 @@ public abstract class Widget implements Documented
      * @param offsetX the x offset of the {@link Widget} on the drawing texture
      * @param offsetY the y offset of the {@link Widget} on the drawing texture
      */
-    public void clearRegion( TextureImage2D texture, int offsetX, int offsetY )
+    public final void clearRegion( TextureImage2D texture, int offsetX, int offsetY )
     {
         int width = size.getEffectiveWidth();
         int height = size.getEffectiveHeight();

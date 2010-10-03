@@ -150,7 +150,7 @@ public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
                             table.setValueAt( result, row, column );
                         }
                         
-                        ( (EditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
+                        ( (PropertiesEditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
                         
                         frame.repaint();
                     }
