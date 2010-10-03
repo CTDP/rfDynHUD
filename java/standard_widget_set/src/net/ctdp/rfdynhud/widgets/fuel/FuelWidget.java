@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FactoredIntProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
+import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -42,6 +43,7 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
+import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
 import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LongValue;
@@ -173,9 +175,9 @@ public class FuelWidget extends Widget
         }
     };
     
-    private final FactoredIntProperty lowFuelBlinkTime = new FactoredIntProperty( this, "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 );
-    private long nextBlinkTime = -1L;
-    private boolean blinkState = false;
+    private final IntProperty lowFuelWarningLaps = new IntProperty( this, "lowFuelWarningLaps", "laps", 1, 1, 10, false );
+    
+    private final IntervalManager lowFuelBlinkManager = new IntervalManager( new FactoredIntProperty( this, "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 ) );
     
     private DrawnString fuelLoadString0 = null;
     private DrawnString fuelLoadString1 = null;
@@ -262,13 +264,12 @@ public class FuelWidget extends Widget
     
     private final boolean isLowFuelWaningUsed()
     {
-        return ( ( lowFuelBlinkTime.getIntValue() > 0 ) && !lowFuelWarningImageNameOn.isNoImage() );
+        return ( lowFuelBlinkManager.isUsed() && !lowFuelWarningImageNameOn.isNoImage() );
     }
     
     private void resetBlink( boolean isEditorMode )
     {
-        this.nextBlinkTime = -1L;
-        this.blinkState = false;
+        lowFuelBlinkManager.reset();
         
         if ( lowFuelWarningImageOff != null )
         {
@@ -793,7 +794,7 @@ public class FuelWidget extends Widget
                 lowFuelWarningImageOff.setVisible( false );
             }
         }
-        else if ( ( lowFuelBlinkTime.getFactoredValue() > 0L ) && ( lowFuelWarningImageOn != null ) )
+        else if ( lowFuelBlinkManager.isUsed() && ( lowFuelWarningImageOn != null ) )
         {
             boolean warn = false;
             
@@ -806,32 +807,22 @@ public class FuelWidget extends Widget
                     maxLaps = 999999;
                 int lapsRemaining = maxLaps - vsi.getLapsCompleted();
                 
-                warn = ( lapsForFuel < 2.05f ) && ( lapsForFuel < lapsRemaining );
+                warn = ( lapsForFuel < 1.05f + lowFuelWarningLaps.getIntValue() ) && ( lapsForFuel < lapsRemaining );
             }
             
             if ( warn )
             {
-                if ( nextBlinkTime < 0L )
-                {
-                    nextBlinkTime = scoringInfo.getSessionNanos() + lowFuelBlinkTime.getFactoredValue();
-                    blinkState = true;
-                }
-                else if ( scoringInfo.getSessionNanos() >= nextBlinkTime )
-                {
-                    nextBlinkTime = scoringInfo.getSessionNanos() + lowFuelBlinkTime.getFactoredValue();
-                    blinkState = !blinkState;
-                }
+                lowFuelBlinkManager.update( scoringInfo.getSessionNanos() );
             }
             else
             {
-                nextBlinkTime = -1L;
-                blinkState = false;
+                lowFuelBlinkManager.reset();
             }
             
             if ( lowFuelWarningImageOff != null )
-                lowFuelWarningImageOff.setVisible( !blinkState );
+                lowFuelWarningImageOff.setVisible( !lowFuelBlinkManager.getState() );
             
-            lowFuelWarningImageOn.setVisible( blinkState );
+            lowFuelWarningImageOn.setVisible( lowFuelBlinkManager.getState() );
         }
         
         int fuel_ = Math.round( fuel * 10f );
@@ -1039,7 +1030,8 @@ public class FuelWidget extends Widget
         writer.writeProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY" ), "Y-position for the low-fuel-warning image." );
         //writer.writeProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth" ), "Width for the low-fuel-warning image." );
         writer.writeProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight" ), "Height for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
+        writer.writeProperty( lowFuelWarningLaps, "Number of laps to start warning before out of fuel." );
+        writer.writeProperty( lowFuelBlinkManager.getProperty(), "Blink time in milli seconds for low fuel warning (0 to disable)." );
     }
     
     /**
@@ -1073,7 +1065,8 @@ public class FuelWidget extends Widget
         else if ( loader.loadProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) ) );
         //else if ( loader.loadProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) ) );
         else if ( loader.loadProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) ) );
-        else if ( loader.loadProperty( lowFuelBlinkTime ) );
+        else if ( loader.loadProperty( lowFuelWarningLaps ) );
+        else if ( loader.loadProperty( lowFuelBlinkManager.getProperty() ) );
     }
     
     /**
@@ -1125,7 +1118,8 @@ public class FuelWidget extends Widget
         propsCont.addProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) );
         //propsCont.addProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) );
         propsCont.addProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) );
-        propsCont.addProperty( lowFuelBlinkTime );
+        propsCont.addProperty( lowFuelWarningLaps );
+        propsCont.addProperty( lowFuelBlinkManager.getProperty() );
     }
     
     public FuelWidget( String name )
