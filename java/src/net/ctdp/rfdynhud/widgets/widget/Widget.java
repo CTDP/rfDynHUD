@@ -1448,6 +1448,14 @@ public abstract class Widget implements Documented
      */
     public void loadProperty( PropertyLoader loader )
     {
+        if ( loader.getSourceVersion().getBuild() < 70 )
+        {
+            if ( loader.getCurrentKey().equals( "backgroundColor" ) )
+                backgroundProperty.loadValue( "color:" + loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "backgroundImageName" ) )
+                backgroundProperty.loadValue( "image:" + loader.getCurrentValue() );
+        }
+        
         if ( loader.loadProperty( name ) );
         else if ( loader.loadProperty( position.getPositioningProperty( "positioning" ) ) );
         else if ( loader.loadProperty( position.getXProperty( "x" ) ) );

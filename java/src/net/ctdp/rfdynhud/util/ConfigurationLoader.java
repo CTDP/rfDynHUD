@@ -39,6 +39,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
+import org.jagatoo.util.versioning.Version;
 import org.openmali.vecmath2.util.ColorUtils;
 
 /**
@@ -54,6 +55,8 @@ public class ConfigurationLoader implements PropertyLoader
     private String currentValue = null;
     
     private String effectiveKey = null;
+    
+    private Version sourceVersion = null;
     
     public void setKeyPrefix( String prefix )
     {
@@ -80,6 +83,12 @@ public class ConfigurationLoader implements PropertyLoader
     public final String getCurrentValue()
     {
         return ( currentValue );
+    }
+    
+    @Override
+    public final Version getSourceVersion()
+    {
+        return ( sourceVersion );
     }
     
     @Override
@@ -122,6 +131,7 @@ public class ConfigurationLoader implements PropertyLoader
         currentValue = null;
         keyPrefix = null;
         effectiveKey = null;
+        sourceVersion = null;
         
         new AbstractIniParser()
         {
@@ -203,6 +213,21 @@ public class ConfigurationLoader implements PropertyLoader
                 
                 switch ( currentGroupType )
                 {
+                    case Meta:
+                        if ( key.equals( "rfDynHUD_Version" ) )
+                        {
+                            try
+                            {
+                                sourceVersion = Version.parseVersion( value );
+                            }
+                            catch ( Throwable t )
+                            {
+                                Logger.log( "WANRING: Unable to parse rfDynHUDVersion." );
+                                sourceVersion = new Version( 0, 0, 0, null, 0 );
+                            }
+                        }
+                        
+                        break;
                     case Global:
                         widgetsConfig.loadProperty( ConfigurationLoader.this );
                         break;

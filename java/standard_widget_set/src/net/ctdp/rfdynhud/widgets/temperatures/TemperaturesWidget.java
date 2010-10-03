@@ -858,6 +858,12 @@ public class TemperaturesWidget extends Widget
     {
         super.loadProperty( loader );
         
+        if ( loader.getSourceVersion().getBuild() < 70 )
+        {
+            if ( loader.getCurrentKey().equals( "brakeTempsPeekDelay" ) )
+                brakeTempsPeakDelay.loadValue( loader.getCurrentValue() );
+        }
+        
         if ( loader.loadProperty( font2 ) );
         else if ( loader.loadProperty( displayEngine ) );
         else if ( loader.loadProperty( displayWaterTemp ) );

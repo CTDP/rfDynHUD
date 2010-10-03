@@ -41,11 +41,11 @@ package org.jagatoo.util.versioning;
  */
 public class Version
 {
-    private int major;
-    private int minor;
-    private int revision;
-    private String attributes;
-    private int build;
+    private final int major;
+    private final int minor;
+    private final int revision;
+    private final String attributes;
+    private final int build;
     
     /**
      * @return the major version number
@@ -98,7 +98,7 @@ public class Version
     {
         final String base = getMajor() + "." + getMinor() + "." + getRevision();
         
-        if (getAttributes() != null)
+        if ( getAttributes() != null )
             return ( base + "-" + getAttributes() + " (build " + getBuild() + ")" );
         
         return ( base + " (build " + getBuild() + ")" );
@@ -113,12 +113,99 @@ public class Version
      * @param attributes the version attributes (like "beta1" or "RC2")
      * @param build the version-control-revision number.
      */
-    public Version(int major, int minor, int revision, String attributes, int build)
+    public Version( int major, int minor, int revision, String attributes, int build )
     {
         this.major = major;
         this.minor = minor;
         this.revision = revision;
         this.attributes = attributes;
         this.build = build;
+    }
+    
+    /**
+     * Parses a {@link Version} instance from the input string, which is expected to be formatted by the {@link #toString()} method.
+     * 
+     * @param str
+     * 
+     * @return the resulting {@link Version} instance.
+     */
+    public static Version parseVersion( String str )
+    {
+        int major = 0;
+        int minor = 0;
+        int revision = 0;
+        String attributes = null;
+        int build = 0;
+        
+        int p0 = 0;
+        
+        int p1 = str.indexOf( '.', p0 );
+        if ( p1 >= 0 )
+        {
+            major = Integer.parseInt( str.substring( p0, p1 ) );
+            p0 = p1 + 1;
+        }
+        
+        p1 = str.indexOf( '.', p0 );
+        if ( p1 >= 0 )
+        {
+            minor = Integer.parseInt( str.substring( p0, p1 ) );
+            p0 = p1 + 1;
+        }
+        
+        p1 = str.indexOf( '-', p0 );
+        if ( p1 >= 0 )
+        {
+            revision = Integer.parseInt( str.substring( p0, p1 ) );
+            p0 = p1 + 1;
+            
+            p1 = str.indexOf( " (build ", p0 );
+            if ( p1 >= 0 )
+            {
+                attributes = str.substring( p0, p1 );
+                p0 = p1 + 8;
+                
+                p1 = str.indexOf( ")", p0 );
+                if ( p1 >= 0 )
+                {
+                    build = Integer.parseInt( str.substring( p0, p1 ) );
+                    p0 = p1 + 1;
+                }
+                else
+                {
+                    build = Integer.parseInt( str.substring( p0 ) );
+                }
+            }
+            else
+            {
+                attributes = str.substring( p0 );
+            }
+        }
+        else
+        {
+            p1 = str.indexOf( " (build ", p0 );
+            if ( p1 >= 0 )
+            {
+                revision = Integer.parseInt( str.substring( p0, p1 ) );
+                p0 = p1 + 8;
+                
+                p1 = str.indexOf( ")", p0 );
+                if ( p1 >= 0 )
+                {
+                    build = Integer.parseInt( str.substring( p0, p1 ) );
+                    p0 = p1 + 1;
+                }
+                else
+                {
+                    build = Integer.parseInt( str.substring( p0 ) );
+                }
+            }
+            else
+            {
+                revision = Integer.parseInt( str.substring( p0 ) );
+            }
+        }
+        
+        return ( new Version( major, minor, revision, attributes, build ) );
     }
 }

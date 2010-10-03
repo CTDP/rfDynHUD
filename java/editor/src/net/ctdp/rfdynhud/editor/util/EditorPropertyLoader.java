@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.editor.util;
 
+import org.jagatoo.util.versioning.Version;
+
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 
@@ -33,6 +35,8 @@ public class EditorPropertyLoader implements PropertyLoader
     private String currentValue = null;
     
     private String effectiveKey = null;
+    
+    private Version sourceVersion = null;
     
     public void setKeyPrefix( String prefix )
     {
@@ -67,6 +71,12 @@ public class EditorPropertyLoader implements PropertyLoader
     public final String getCurrentValue()
     {
         return ( currentValue );
+    }
+    
+    @Override
+    public Version getSourceVersion()
+    {
+        return ( sourceVersion );
     }
     
     @Override

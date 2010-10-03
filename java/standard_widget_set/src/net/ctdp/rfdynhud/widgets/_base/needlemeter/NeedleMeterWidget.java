@@ -875,6 +875,40 @@ public abstract class NeedleMeterWidget extends Widget
     {
         super.loadProperty( loader );
         
+        if ( loader.getSourceVersion().getBuild() < 70 )
+        {
+            if ( loader.getCurrentKey().equals( "displayRevMarkers" ) )
+                displayMarkers.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "displayRevMarkerNumbers" ) )
+                displayMarkerNumbers.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "revMarkersInnerRadius" ) )
+                markersInnerRadius.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "revMarkersLength" ) )
+                markersLength.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "revMarkersBigStep" ) )
+                markersBigStep.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "revMarkersSmallStep" ) )
+                markersSmallStep.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "revMarkersColor" ) )
+                markersColor.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "revMarkersFont" ) )
+                markersFont.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "revMarkersFontColor" ) )
+                markersFontColor.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "displayVelocity" ) )
+                displayValue.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "velocityBackgroundImageName" ) )
+                valueBackgroundImageName.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "velocityPosX" ) )
+                valuePosX.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "velocityPosY" ) )
+                valuePosY.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "velocityFont" ) )
+                valueFont.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "velocityFontColor" ) )
+                valueFontColor.loadValue( loader.getCurrentValue() );
+        }
+        
         if ( loader.loadProperty( minValue ) );
         else if ( loader.loadProperty( maxValue ) );
         

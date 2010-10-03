@@ -266,6 +266,12 @@ public class StartingLightWidget extends Widget
     {
         super.loadProperty( loader );
         
+        if ( loader.getSourceVersion().getBuild() < 70 )
+        {
+            if ( loader.getCurrentKey().equals( "initialVisibility" ) )
+                setInputVisible( true );
+        }
+        
         if ( loader.loadProperty( offImageProp ) );
         else if ( loader.loadProperty( onImageProp ) );
         else if ( loader.loadProperty( numRows ) );

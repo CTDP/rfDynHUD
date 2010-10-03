@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.properties;
 
+import org.jagatoo.util.versioning.Version;
+
 /**
  * The {@link PropertyLoader} loads properties from a configuration file.
  * 
@@ -37,6 +39,13 @@ public interface PropertyLoader
      * @return the currently loaded property value.
      */
     public String getCurrentValue();
+    
+    /**
+     * Gets the rfDynHUD version, the source file was written by.
+     * 
+     * @return the rfDynHUD version, the source file was written by.
+     */
+    public Version getSourceVersion();
     
     /**
      * Attempts to load the value into the passed property.
