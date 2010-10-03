@@ -1448,7 +1448,7 @@ public abstract class Widget implements Documented
      */
     public void loadProperty( PropertyLoader loader )
     {
-        if ( loader.getSourceVersion().getBuild() < 70 )
+        if ( loader.getSourceVersion().getBuild() < 78 )
         {
             if ( loader.getCurrentKey().equals( "backgroundColor" ) )
                 backgroundProperty.loadValue( "color:" + loader.getCurrentValue() );

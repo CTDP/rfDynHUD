@@ -332,6 +332,15 @@ public class EditorPanel extends JPanel
         }
     }
     
+    private void clearEverything()
+    {
+        cacheGraphics.drawImage( backgroundImage, 0, 0, null );
+        
+        drawingManager.setAllDirtyFlags();
+        oldWidgetRects.clear();
+        oldWidgetSubTexRects.clear();
+    }
+    
     public void setBackgroundImage( BufferedImage image )
     {
         this.backgroundImage = image;
@@ -344,11 +353,7 @@ public class EditorPanel extends JPanel
         
         drawGrid();
         
-        cacheGraphics.drawImage( backgroundImage, 0, 0, null );
-        
-        drawingManager.setAllDirtyFlags();
-        oldWidgetRects.clear();
-        oldWidgetSubTexRects.clear();
+        clearEverything();
     }
     
     public final BufferedImage getBackgroundImage()
@@ -405,9 +410,13 @@ public class EditorPanel extends JPanel
         
         Logger.log( "Removing selected Widget of type \"" + selectedWidget.getClass().getName() + "\" and name \"" + selectedWidget.getName() + "\"..." );
         
-        selectedWidget.clearRegion( overlay, selectedWidget.getPosition().getEffectiveX(), selectedWidget.getPosition().getEffectiveY() );
+        //selectedWidget.clearRegion( overlay, selectedWidget.getPosition().getEffectiveX(), selectedWidget.getPosition().getEffectiveY() );
         __WCPrivilegedAccess.removeWidget( drawingManager, selectedWidget );
         setSelectedWidget( null, false );
+        
+        clearEverything();
+        repaint();
+        
         editor.setDirtyFlag();
     }
     
