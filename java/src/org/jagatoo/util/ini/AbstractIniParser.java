@@ -39,6 +39,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.jagatoo.util.errorhandling.ParsingException;
+import org.jagatoo.util.io.UnicodeBOM;
 
 /**
  * The {@link AbstractIniParser} parses ini files ;).

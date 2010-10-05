@@ -26,6 +26,9 @@ public class WidgetPropertyChangeListener implements PropertyChangeListener
     
     static final boolean needsAreaClear( Property p )
     {
+        if ( p.getName().equals( "positioning" ) )
+            return ( true );
+        
         if ( p.getName().equals( "x" ) )
             return ( true );
         

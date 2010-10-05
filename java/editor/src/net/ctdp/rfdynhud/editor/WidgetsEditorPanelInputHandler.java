@@ -29,6 +29,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 
+import javax.swing.JScrollPane;
+
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -102,11 +104,14 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         int x = Math.round( e.getX() * editorPanel.getRecipScaleFactor() );
         int y = Math.round( e.getY() * editorPanel.getRecipScaleFactor() );
         
-        draggedWidget = getWidgetUnderMouse( x, y );
-        //boolean widgetChanged = ( selectedWidget != editor.getEditorPanel().getSelectedWidget() );
-        
-        //if ( widgetChanged )
-            editorPanel.setSelectedWidget( draggedWidget, false );
+        if ( ( e.getButton() == MouseEvent.BUTTON1 ) || ( e.getButton() == MouseEvent.BUTTON3 ) )
+        {
+            draggedWidget = getWidgetUnderMouse( x, y );
+            //boolean widgetChanged = ( selectedWidget != editor.getEditorPanel().getSelectedWidget() );
+            
+            //if ( widgetChanged )
+                editorPanel.setSelectedWidget( draggedWidget, false );
+        }
         
         if ( e.getButton() == MouseEvent.BUTTON1 )
         {
@@ -165,6 +170,10 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         if ( ( e.getButton() == MouseEvent.BUTTON1 ) && ( editorPanel.getSelectedWidget() != null ) )
         {
             editorPanel.setSelectedWidget( editorPanel.getSelectedWidget(), e.getClickCount() == 2 );
+        }
+        else if ( ( e.getButton() == MouseEvent.BUTTON2 ) && isControlDown )
+        {
+            editorPanel.setScaleFactor( 1.0f );
         }
     }
     
@@ -689,11 +698,50 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         }
     }
     
+    private void zoom( int x, int y, int d )
+    {
+        int x1 = 0;
+        int y1 = 0;
+        
+        if ( ( editorPanel.getParent() != null ) && ( editorPanel.getParent().getParent() instanceof JScrollPane ) )
+        {
+            JScrollPane sp = (JScrollPane)editorPanel.getParent().getParent();
+            
+            x1 = Math.round( ( sp.getHorizontalScrollBar().getValue() + x ) * editorPanel.getRecipScaleFactor() );
+            y1 = Math.round( ( sp.getVerticalScrollBar().getValue() + y ) * editorPanel.getRecipScaleFactor() );
+        }
+        
+        //editorPanel.setScaleFactor( editorPanel.getScaleFactor() + 0.1f * d );
+        if ( d < 0 )
+            editorPanel.setScaleFactor( editorPanel.getScaleFactor() / 0.9f );
+        else
+            editorPanel.setScaleFactor( editorPanel.getScaleFactor() * 0.9f );
+        
+        if ( ( editorPanel.getParent() != null ) && ( editorPanel.getParent().getParent() instanceof JScrollPane ) )
+        {
+            JScrollPane sp = (JScrollPane)editorPanel.getParent().getParent();
+            
+            int x2 = Math.round( ( sp.getHorizontalScrollBar().getValue() + x ) * editorPanel.getRecipScaleFactor() );
+            int y2 = Math.round( ( sp.getVerticalScrollBar().getValue() + y ) * editorPanel.getRecipScaleFactor() );
+            
+            int dx = Math.round( ( x1 - x2 ) * editorPanel.getScaleFactor() );
+            int dy = Math.round( ( y1 - y2 ) * editorPanel.getScaleFactor() );
+            
+            int spX = sp.getHorizontalScrollBar().getValue() + dx;
+            int spY = sp.getVerticalScrollBar().getValue() + dy;
+            
+            //spX = Math.max( 0, Math.min( a, b ) );
+            
+            sp.getHorizontalScrollBar().setValue( spX );
+            sp.getVerticalScrollBar().setValue( spY );
+        }
+    }
+    
     /**
      * 
-     * @param mwev
+     * @param e
      */
-    private void handleGlobalMouseWheelEvent( MouseWheelEvent mwev )
+    private void handleGlobalMouseWheelEvent( MouseWheelEvent e )
     {
         if ( editorPanel.hasFocus() )
         {
@@ -702,6 +750,12 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
             
             needsRedraw = false;
             
+            if ( isControlDown )
+            {
+                e.consume();
+                
+                zoom( e.getX(), e.getY(), e.getWheelRotation() );
+            }
         }
     }
     

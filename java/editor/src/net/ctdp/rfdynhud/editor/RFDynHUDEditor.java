@@ -21,6 +21,8 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -113,6 +115,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     private boolean alwaysShowHelpOnStartup = true;
     
     private final JFrame window;
+    private int windowLeft, windowTop;
+    private int windowWidth, windowHeight;
     private final EditorMenuBar menuBar;
     private final WidgetsEditorPanel editorPanel;
     private final JScrollPane editorScrollPane;
@@ -137,6 +141,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     private boolean dirtyFlag = false;
     
     private File currentConfigFile = null;
+    private File lastImportFile = null;
     private File currentTemplateFile = null;
     
     private WidgetsConfiguration templateConfig = null;
@@ -553,6 +558,23 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
     }
     
+    private void writeLastImportFile( IniWriter writer ) throws Throwable
+    {
+        if ( lastImportFile != null )
+        {
+            String filename = lastImportFile.getAbsolutePath();
+            if ( filename.startsWith( GameFileSystem.INSTANCE.getConfigPath() ) )
+            {
+                if ( filename.charAt( GameFileSystem.INSTANCE.getConfigPath().length() ) == File.separatorChar )
+                    filename = filename.substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 );
+                else
+                    filename = filename.substring( GameFileSystem.INSTANCE.getConfigPath().length() );
+            }
+            
+            writer.writeSetting( "lastImportFile", filename );
+        }
+    }
+    
     private void saveUserSettings( int extendedState )
     {
         File userSettingsFile = getEditorSettingsFile();
@@ -569,18 +591,21 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             writer.writeSetting( "templatesConfig", getCurrentTemplateFileForProperty() );
             writer.writeSetting( "defaultScaleType", presetsWindow.getDefaultScaleType() );
             writeLastConfig( writer );
+            writeLastImportFile( writer );
             writer.writeSetting( "alwaysShowHelpOnStartup", alwaysShowHelpOnStartup );
+            
             writer.writeGroup( "MainWindow" );
-            writer.writeSetting( "windowLocation", getMainWindow().getX() + "x" + getMainWindow().getY() );
-            writer.writeSetting( "windowSize", getMainWindow().getWidth() + "x" + getMainWindow().getHeight() );
+            writer.writeSetting( "windowLocation", windowLeft + "x" + windowTop );
+            writer.writeSetting( "windowSize", windowWidth + "x" + windowHeight );
             writer.writeSetting( "windowState", extendedState );
+            
             writer.writeGroup( "PresetsWindow" );
             writer.writeSetting( "windowLocation", presetsWindow.getX() + "x" + presetsWindow.getY() );
             writer.writeSetting( "windowSize", presetsWindow.getWidth() + "x" + presetsWindow.getHeight() );
             writer.writeSetting( "windowVisible", presetsWindowVisible );
             writer.writeSetting( "autoApply", presetsWindow.getAutoApply() );
-            writer.writeGroup( "EditorPresets" );
             
+            writer.writeGroup( "EditorPresets" );
             __EDPrivilegedAccess.saveProperties( presets, confWriter );
         }
         catch ( Throwable t )
@@ -774,6 +799,14 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                                 //openConfig( configFile );
                                 result[1] = configFile;
                         }
+                        else if ( key.equals( "lastImportFile" ) )
+                        {
+                            File configFile = new File( value );
+                            if ( !configFile.isAbsolute() )
+                                configFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), value );
+                            
+                            lastImportFile = configFile;
+                        }
                         else if ( key.equals( "alwaysShowHelpOnStartup" ) )
                         {
                             alwaysShowHelpOnStartup = Boolean.parseBoolean( value );
@@ -787,6 +820,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                             {
                                 String[] ss = value.split( "x" );
                                 getMainWindow().setLocation( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                                windowLeft = getMainWindow().getX();
+                                windowTop = getMainWindow().getY();
                             }
                             catch ( Throwable t )
                             {
@@ -799,6 +834,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                             {
                                 String[] ss = value.split( "x" );
                                 getMainWindow().setSize( Integer.parseInt( ss[0] ), Integer.parseInt( ss[1] ) );
+                                windowWidth = getMainWindow().getWidth();
+                                windowHeight = getMainWindow().getHeight();
                             }
                             catch ( Throwable t )
                             {
@@ -960,15 +997,19 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     private File getOpenConfigFile( File initialFile )
     {
         JFileChooser fc = new JFileChooser();
-        if ( initialFile != null )
+        if ( initialFile == null )
+        {
+            fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
+            fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" ) );
+        }
+        else if ( initialFile.isFile() )
         {
             fc.setCurrentDirectory( initialFile.getParentFile() );
             fc.setSelectedFile( initialFile );
         }
         else
         {
-            fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
-            fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" ) );
+            fc.setCurrentDirectory( initialFile );
         }
         
         fc.setMultiSelectionEnabled( false );
@@ -1016,10 +1057,18 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     
     public void importWidget()
     {
-        File file = getOpenConfigFile( currentConfigFile );
+        File file = lastImportFile;
+        while ( ( file != null ) && !file.exists() )
+        {
+            file = file.getParentFile();
+        }
+        
+        file = getOpenConfigFile( file );
         
         if ( file == null )
             return;
+        
+        lastImportFile = file;
         
         try
         {
@@ -1199,11 +1248,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     }
     
     @Override
-    public boolean onWidgetPositionSizeChanged( Widget widget )
+    public void onWidgetPositionSizeChanged( Widget widget )
     {
         onWidgetChanged( widget, null, true );
-        
-        return ( true );
     }
     
     @Override
@@ -1536,6 +1583,29 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                 onCloseRequested();
             }
         } );
+        
+        window.addComponentListener( new ComponentAdapter()
+        {
+            @Override    
+            public void componentMoved( ComponentEvent e )
+            {
+                if ( getMainWindow().getExtendedState() == JFrame.NORMAL )
+                {
+                    windowLeft = getMainWindow().getX();
+                    windowTop = getMainWindow().getY();
+                }
+            }
+            
+            @Override
+            public void componentResized( ComponentEvent e )
+            {
+                if ( getMainWindow().getExtendedState() == JFrame.NORMAL )
+                {
+                    windowWidth = getMainWindow().getWidth();
+                    windowHeight = getMainWindow().getHeight();
+                }
+            }
+        } );
     }
     
     public static void main( String[] args )
@@ -1549,6 +1619,10 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             Rectangle screenBounds = GUITools.getCurrentScreenBounds();
             
             editor.getMainWindow().setBounds( screenBounds );
+            editor.windowLeft = editor.getMainWindow().getX();
+            editor.windowTop = editor.getMainWindow().getY();
+            editor.windowWidth = editor.getMainWindow().getWidth();
+            editor.windowHeight = editor.getMainWindow().getHeight();
             editor.getMainWindow().setExtendedState( JFrame.MAXIMIZED_BOTH );
             
             Object[] result = editor.loadUserSettings();

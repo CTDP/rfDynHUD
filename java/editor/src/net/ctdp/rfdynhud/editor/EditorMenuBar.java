@@ -261,9 +261,27 @@ public class EditorMenuBar extends JMenuBar
         return ( menu );
     }
     
+    private static JMenuItem createResetZoomMenu( final RFDynHUDEditor editor )
+    {
+        JMenuItem resetZoomItem = new JMenuItem( "Reset zool level (CTRL + Wheel click)" );
+        resetZoomItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getEditorPanel().setScaleFactor( 1.0f );
+            }
+        } );
+        
+        return ( resetZoomItem );
+    }
+    
     public static void initContextMenu( RFDynHUDEditor editor )
     {
         JPopupMenu menu = new JPopupMenu();
+        
+        JMenuItem resetZoomItem = createResetZoomMenu( editor );
+        menu.add( resetZoomItem );
         
         JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu( editor );
         menu.add( snapSelWidgetToGrid );

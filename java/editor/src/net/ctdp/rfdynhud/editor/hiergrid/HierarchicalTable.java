@@ -28,6 +28,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicTableUI;
@@ -334,6 +335,29 @@ public class HierarchicalTable<P extends Object> extends JTable
             editor = super.getCellEditor( row, column );
         
         return ( editor );
+    }
+    
+    boolean stopping = false;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void editingStopped( ChangeEvent e )
+    {
+        if ( !stopping )
+        {
+            stopping = true;
+            
+            try
+            {
+                super.editingStopped( e );
+            }
+            finally
+            {
+                stopping = false;
+            }
+        }
     }
     
     private void addSelectionListener()

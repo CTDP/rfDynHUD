@@ -29,10 +29,8 @@ public interface WidgetsEditorPanelListener extends WidgetSelectionListener
      * Invoked when a {@link Widget}'s position and/or size has changed.
      * 
      * @param widget the changed {@link Widget}
-     * 
-     * @return whether the listener triggered a repaint.
      */
-    public boolean onWidgetPositionSizeChanged( Widget widget );
+    public void onWidgetPositionSizeChanged( Widget widget );
     
     /**
      * Invoked when a {@link Widget} has been removed.

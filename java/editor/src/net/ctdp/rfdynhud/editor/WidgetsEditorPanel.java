@@ -78,6 +78,8 @@ public class WidgetsEditorPanel extends JPanel
     private float scaleFactor = 1.0f;
     private float recipScaleFactor = 1.0f;
     
+    private int repaintCounter = 0;
+    
     public final WidgetsDrawingManager getWidgetsDrawingManager()
     {
         return ( drawingManager );
@@ -88,10 +90,31 @@ public class WidgetsEditorPanel extends JPanel
         return ( settings );
     }
     
-    public void setScaleFactor( float scale )
+    public boolean setScaleFactor( float scale )
     {
+        scale = Math.max( 0.1f, scale );
+        
+        if ( scale == this.scaleFactor )
+            return ( false );
+        
         this.scaleFactor = scale;
         this.recipScaleFactor = 1.0f / scale;
+        
+        if ( backgroundImage != null )
+        {
+            Dimension size = new Dimension( Math.round( backgroundImage.getWidth() * scaleFactor ), Math.round( backgroundImage.getHeight() * scaleFactor ) );
+            setPreferredSize( size );
+            setMaximumSize( size );
+            setMinimumSize( size );
+            
+            if ( ( getParent() != null ) && ( getParent().getParent() instanceof JScrollPane ) )
+            {
+                getParent().doLayout();
+                getParent().getParent().repaint();
+            }
+        }
+        
+        return ( true );
     }
     
     public final float getScaleFactor()
@@ -312,15 +335,14 @@ public class WidgetsEditorPanel extends JPanel
     
     public void onSelectedWidgetPositionSizeChanged()
     {
-        boolean repainted = false;
+        int repaintCounter = this.repaintCounter;
         
         for ( int i = 0; i < listeners.size(); i++ )
         {
-            if ( listeners.get( i ).onWidgetPositionSizeChanged( selectedWidget ) )
-                repainted = true;
+            listeners.get( i ).onWidgetPositionSizeChanged( selectedWidget );
         }
         
-        if ( !repainted )
+        if ( repaintCounter >= this.repaintCounter )
             repaint();
     }
     
@@ -376,6 +398,8 @@ public class WidgetsEditorPanel extends JPanel
     public void repaint()
     {
         super.repaint();
+        
+        repaintCounter++;
     }
     
     public static Rect2i getWidgetInnerRect( Widget widget )
@@ -766,7 +790,16 @@ public class WidgetsEditorPanel extends JPanel
     @Override
     public void paintComponent( Graphics g )
     {
-        //super.paintComponent( g );
+        boolean paintSuper = false;
+        if ( ( getParent() != null ) && ( getParent().getParent() instanceof JScrollPane ) )
+        {
+            JScrollPane sp = (JScrollPane)getParent().getParent();
+            
+            paintSuper = !sp.getHorizontalScrollBar().isVisible() && !sp.getVerticalScrollBar().isVisible();
+        }
+        
+        if ( paintSuper )
+            super.paintComponent( g );
         
         //System.out.println( "paintComponent()" );
         
