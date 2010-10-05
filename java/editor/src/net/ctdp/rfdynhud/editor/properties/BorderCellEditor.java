@@ -159,7 +159,7 @@ public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         prop.onButtonClicked( button );
                 }
                 
-                finalizeEdit( table );
+                finalizeEdit( table, false );
             }
         } );
         

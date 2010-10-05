@@ -68,6 +68,12 @@ public class __WPrivilegedAccess
         widget.onSizeChanged( oldWidth, oldHeight, newWidth, newHeight );
     }
     
+    public static final void onSizeChanged( Widget widget )
+    {
+        if ( widget.getBackground() != null )
+            widget.getBackground().onWidgetSizeChanged();
+    }
+    
     public static final boolean needsCompleteClear( Widget widget )
     {
         return ( widget.needsCompleteClear() );

@@ -2277,7 +2277,15 @@ public class TextureImage2D
         
         this.isOffline = isOffline;
         
-        this.updateList = isOffline ? null : new ArrayList<Rect2i>();
+        if ( isOffline )
+        {
+            this.updateList = null;
+        }
+        else
+        {
+            this.updateList = new ArrayList<Rect2i>();
+            markDirty( 0, 0, width, height );
+        }
     }
     
     static TextureImage2D createOnlineTexture( int maxWidth, int maxHeight, int usedWidth, int usedHeight, boolean alpha )

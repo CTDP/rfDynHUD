@@ -191,15 +191,23 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
         }
     }
     
-    protected void finalizeEdit( JTable table )
+    protected void finalizeEdit( JTable table, boolean cancel )
     {
-        if ( table == null )
+        if ( ( table == null ) || !table.isEditing() )
             return;
         
         int selRow = row; //table.getEditingRow();
         int selCol = table.getEditingColumn();
-        table.editingStopped( null );
-        table.setValueAt( getCellEditorValue(), selRow, selCol );
+        //table.editingStopped( null );
+        if ( cancel )
+        {
+            cancelCellEditing();
+            table.setValueAt( getCellEditorValue(), selRow, selCol );
+        }
+        else
+        {
+            stopCellEditing();
+        }
         table.getSelectionModel().setSelectionInterval( selRow, selRow );
     }
     

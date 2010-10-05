@@ -127,7 +127,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
             {
                 if ( table != null )
                 {
-                    finalizeEdit( table );
+                    finalizeEdit( table, false );
                 }
             }
         } );
@@ -153,7 +153,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         textfield.setText( Position.unparseValue( newValue ) );
                 }
                 
-                finalizeEdit( table );
+                finalizeEdit( table, false );
             }
         } );
         
@@ -175,7 +175,7 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         textfield.setText( Position.unparseValue( newValue ) );
                 }
                 
-                finalizeEdit( table );
+                finalizeEdit( table, false );
             }
         } );
         

@@ -19,12 +19,12 @@ package net.ctdp.rfdynhud.editor;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,21 +32,16 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
-import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.properties.BooleanProperty;
-import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.openmali.types.twodee.Rect2i;
 
@@ -54,17 +49,16 @@ import org.openmali.types.twodee.Rect2i;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class EditorPanel extends JPanel
+public class WidgetsEditorPanel extends JPanel
 {
     private static final long serialVersionUID = -4217992603083635127L;
     
-    private final RFDynHUDEditor editor;
+    private final WidgetsEditorPanelSettings settings;
     
-    private LiveGameData gameData;
+    private final LiveGameData gameData;
     
     private TextureImage2D overlay;
     private final WidgetsDrawingManager drawingManager;
-    private final GameResolution gameResolution;
     private final ByteBuffer dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 1024 );
     private final ArrayList<Boolean> dirtyFlags = new ArrayList<Boolean>();
     private final Map<Widget, Rect2i> oldWidgetRects = new WeakHashMap<Widget, Rect2i>();
@@ -75,100 +69,58 @@ public class EditorPanel extends JPanel
     private static final java.awt.Color SELECTION_COLOR = new java.awt.Color( 255, 0, 0, 127 );
     
     private final ArrayList<WidgetSelectionListener> selectionListeners = new ArrayList<WidgetSelectionListener>();
+    private final ArrayList<WidgetsEditorPanelListener> listeners = new ArrayList<WidgetsEditorPanelListener>();
     
-    private BufferedImage backgroundImage;
-    private BufferedImage cacheImage;
-    private Graphics2D cacheGraphics;
+    private BufferedImage backgroundImage = null;
+    private BufferedImage cacheImage = null;
+    private Graphics2D cacheGraphics = null;
     
-    private boolean bgImageReloadSuppressed = false;
+    private float scaleFactor = 1.0f;
+    private float recipScaleFactor = 1.0f;
     
-    public void setBGImageReloadSuppressed( boolean suppressed )
+    public final WidgetsDrawingManager getWidgetsDrawingManager()
     {
-        this.bgImageReloadSuppressed = suppressed;
+        return ( drawingManager );
     }
     
-    private final IntProperty railDistanceX = new IntProperty( (Widget)null, "railDistanceX", 10, 0, 100 );
-    private final IntProperty railDistanceY = new IntProperty( (Widget)null, "railDistanceY", 10, 0, 100 );
-    
-    private final BooleanProperty drawGrid = new BooleanProperty( (Widget)null, "drawGrid", false )
+    public final WidgetsEditorPanelSettings getSettings()
     {
-        @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
+        return ( settings );
+    }
+    
+    public void setScaleFactor( float scale )
+    {
+        this.scaleFactor = scale;
+        this.recipScaleFactor = 1.0f / scale;
+    }
+    
+    public final float getScaleFactor()
+    {
+        return ( scaleFactor );
+    }
+    
+    public final float getRecipScaleFactor()
+    {
+        return ( recipScaleFactor );
+    }
+    
+    public void switchToGameResolution( int resX, int resY )
+    {
+        drawingManager.resizeMainTexture( resX, resY );
+        
+        for ( int i = 0; i < drawingManager.getNumWidgets(); i++ )
         {
-            return ( true );
+            drawingManager.getWidget( i ).forceAndSetDirty( true );
+            __WPrivilegedAccess.onSizeChanged( drawingManager.getWidget( i ) );
         }
         
-        @Override
-        protected void onValueChanged( boolean newValue )
-        {
-            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-        }
-    };
-    
-    private final IntProperty gridOffsetX = new IntProperty( (Widget)null, "gridOffsetX", 0 )
-    {
-        @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
+        setBackgroundImage( settings.loadBackgroundImage() );
         
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-        }
-    };
-    
-    private final IntProperty gridOffsetY = new IntProperty( (Widget)null, "gridOffsetY", 0 )
-    {
-        @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
+        setSelectedWidget( selectedWidget, false );
         
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-        }
-    };
-    
-    private final IntProperty gridSizeX = new IntProperty((Widget) null, "gridSizeX", 10, 0, 5000 )
-    {
-        @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
-        
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-        }
-    };
-    
-    private final IntProperty gridSizeY = new IntProperty( (Widget)null, "gridSizeY", 10, 0, 5000 )
-    {
-        @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
-        
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            if ( !bgImageReloadSuppressed && ( drawingManager != null ) )
-                setBackgroundImage( editor.loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-        }
-    };
+        getRootPane().getParent().validate(); // window
+        repaint();
+    }
     
     public void addWidgetSelectionListener( WidgetSelectionListener l )
     {
@@ -180,146 +132,28 @@ public class EditorPanel extends JPanel
         selectionListeners.remove( l );
     }
     
-    public void setDrawGrid( boolean drawGrid )
+    public void addWidgetsEditorPanelListener( WidgetsEditorPanelListener l )
     {
-        this.drawGrid.setBooleanValue( drawGrid );
+        listeners.add( l );
     }
     
-    public final int getRailDistanceX()
+    public void removeWidgetsEditorPanelListener( WidgetsEditorPanelListener l )
     {
-        return ( railDistanceX.getIntValue() );
-    }
-    
-    public final int getRailDistanceY()
-    {
-        return ( railDistanceY.getIntValue() );
-    }
-    
-    public final boolean getDrawGrid()
-    {
-        return ( drawGrid.getBooleanValue() );
-    }
-    
-    public final int getGridOffsetX()
-    {
-        return ( gridOffsetX.getIntValue() );
-    }
-    
-    public final int getGridOffsetY()
-    {
-        return ( gridOffsetY.getIntValue() );
-    }
-    
-    public final int getGridSizeX()
-    {
-        return ( gridSizeX.getIntValue() );
-    }
-    
-    public final int getGridSizeY()
-    {
-        return ( gridSizeY.getIntValue() );
-    }
-    
-    public void getProperties( WidgetPropertiesContainer propsCont )
-    {
-        propsCont.addProperty( railDistanceX );
-        propsCont.addProperty( railDistanceY );
-        propsCont.addProperty( drawGrid );
-        propsCont.addProperty( gridOffsetX );
-        propsCont.addProperty( gridOffsetY );
-        propsCont.addProperty( gridSizeX );
-        propsCont.addProperty( gridSizeY );
-    }
-    
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
-    {
-        writer.writeProperty( railDistanceX, null );
-        writer.writeProperty( railDistanceY, null );
-        writer.writeProperty( drawGrid, null );
-        writer.writeProperty( gridOffsetX, null );
-        writer.writeProperty( gridOffsetY, null );
-        writer.writeProperty( gridSizeX, null );
-        writer.writeProperty( gridSizeY, null );
-    }
-    
-    public void loadProperty( PropertyLoader loader )
-    {
-        bgImageReloadSuppressed = true;
-        
-        if ( loader.loadProperty( railDistanceX ) );
-        else if ( loader.loadProperty( railDistanceY ) );
-        else if ( loader.loadProperty( drawGrid ) );
-        else if ( loader.loadProperty( gridOffsetX ) );
-        else if ( loader.loadProperty( gridOffsetY ) );
-        else if ( loader.loadProperty( gridSizeX ) );
-        else if ( loader.loadProperty( gridSizeY ) );
-        
-        bgImageReloadSuppressed = false;
-    }
-    
-    public final boolean isGridUsed()
-    {
-        return ( drawGrid.getBooleanValue() && ( this.gridSizeX.getIntValue() > 1 ) && ( this.gridSizeY.getIntValue() > 1 ) );
-    }
-    
-    public final int snapXToGrid( int x )
-    {
-        if ( !isGridUsed() )
-            return ( x );
-        
-        return ( gridOffsetX.getIntValue() + Math.min( Math.round( ( x - gridOffsetX.getIntValue() ) / (float)gridSizeX.getIntValue() ) * gridSizeX.getIntValue(), drawingManager.getGameResolution().getViewportWidth() - 1 ) );
-    }
-    
-    public final int snapYToGrid( int y )
-    {
-        if ( !isGridUsed() )
-            return ( y );
-        
-        return ( gridOffsetY.getIntValue() + Math.min( Math.round( ( y - gridOffsetY.getIntValue() ) / (float)gridSizeY.getIntValue() ) * gridSizeY.getIntValue(), drawingManager.getGameResolution().getViewportHeight() - 1 ) );
-    }
-    
-    public void snapWidgetToGrid( Widget widget )
-    {
-        if ( !isGridUsed() )
-            return;
-        
-        int x = widget.getPosition().getEffectiveX();
-        int y = widget.getPosition().getEffectiveY();
-        int w = widget.getSize().getEffectiveWidth();
-        int h = widget.getSize().getEffectiveHeight();
-        
-        x = snapXToGrid( x );
-        y = snapYToGrid( y );
-        w = snapXToGrid( x + w - 1 ) + 1 - x;
-        h = snapYToGrid( y + h - 1 ) + 1 - y;
-        
-        widget.getSize().setEffectiveSize( w, h );
-        widget.getPosition().setEffectivePosition( x, y );
-    }
-    
-    public void snapAllWidgetsToGrid()
-    {
-        final int n = drawingManager.getNumWidgets();
-        Widget[] widgets = new Widget[ n ];
-        for ( int i = 0; i < n; i++ )
-            widgets[i] = drawingManager.getWidget( i );
-        
-        for ( int i = 0; i < n; i++ )
-            snapWidgetToGrid( widgets[i] );
+        listeners.remove( l );
     }
     
     private void drawGrid()
     {
-        if ( !isGridUsed() )
+        if ( ( settings == null ) || !settings.isGridUsed() )
             return;
         
         Graphics2D g2 = backgroundImage.createGraphics();
         g2.setColor( Color.BLACK );
         
-        final int gridOffsetX = this.gridOffsetX.getIntValue();
-        final int gridOffsetY = this.gridOffsetY.getIntValue();
-        final int gridSizeX = this.gridSizeX.getIntValue();
-        final int gridSizeY = this.gridSizeY.getIntValue();
+        final int gridOffsetX = settings.getGridOffsetX();
+        final int gridOffsetY = settings.getGridOffsetY();
+        final int gridSizeX = settings.getGridSizeX();
+        final int gridSizeY = settings.getGridSizeY();
         final int gameResX = drawingManager.getGameResolution().getViewportWidth();
         final int gameResY = drawingManager.getGameResolution().getViewportHeight();
         
@@ -330,6 +164,32 @@ public class EditorPanel extends JPanel
                 g2.drawLine( x, y, x, y );
             }
         }
+    }
+    
+    public boolean snapSelectedWidgetToGrid()
+    {
+        if ( selectedWidget != null )
+        {
+            clearWidgetRegion( selectedWidget );
+            getSettings().snapWidgetToGrid( selectedWidget );
+            setSelectedWidget( selectedWidget, false );
+            repaint();
+            
+            return ( true );
+        }
+        
+        return ( false );
+    }
+    
+    public boolean snapAllWidgetsToGrid()
+    {
+        for ( int i = 0; i < drawingManager.getNumWidgets(); i++ )
+            clearWidgetRegion( drawingManager.getWidget( i ) );
+        settings.snapAllWidgetsToGrid();
+        setSelectedWidget( selectedWidget, false );
+        repaint();
+        
+        return ( true );
     }
     
     private void clearEverything()
@@ -343,6 +203,8 @@ public class EditorPanel extends JPanel
     
     public void setBackgroundImage( BufferedImage image )
     {
+        boolean needsClear = ( this.backgroundImage != null );
+        
         this.backgroundImage = image;
         
         if ( ( cacheImage == null ) || ( cacheImage.getWidth() != backgroundImage.getWidth() ) || ( cacheImage.getHeight() != backgroundImage.getHeight() ) )
@@ -353,17 +215,30 @@ public class EditorPanel extends JPanel
         
         drawGrid();
         
-        clearEverything();
+        if ( needsClear )
+            clearEverything();
+        
+        this.overlay = drawingManager.getMainTexture( 0 );
+        
+        Dimension size = new Dimension( Math.round( backgroundImage.getWidth() * scaleFactor ), Math.round( backgroundImage.getHeight() * scaleFactor ) );
+        setPreferredSize( size );
+        setMaximumSize( size );
+        setMinimumSize( size );
+        
+        if ( ( this.getParent() != null )  && ( this.getParent().getParent() instanceof JScrollPane ) )
+            ( (JScrollPane)this.getParent().getParent() ).doLayout();
+    }
+    
+    public BufferedImage initBackgroundImage()
+    {
+        setBackgroundImage( getSettings().loadBackgroundImage() );
+        
+        return ( getBackgroundImage() );
     }
     
     public final BufferedImage getBackgroundImage()
     {
         return ( backgroundImage );
-    }
-    
-    public void setOverlayTexture( TextureImage2D texture )
-    {
-        this.overlay = texture;
     }
     
     public final TextureImage2D getOverlayTexture()
@@ -387,6 +262,11 @@ public class EditorPanel extends JPanel
             this.repaint();
         }
         
+        for ( int i = 0; i < listeners.size(); i++ )
+        {
+            listeners.get( i ).onWidgetSelected( selectedWidget, selectionChanged, doubleClick );
+        }
+        
         for ( int i = 0; i < selectionListeners.size(); i++ )
         {
             selectionListeners.get( i ).onWidgetSelected( selectedWidget, selectionChanged, doubleClick );
@@ -405,19 +285,43 @@ public class EditorPanel extends JPanel
     
     public void removeSelectedWidget()
     {
-        if ( selectedWidget == null )
-            return;
+        boolean accepted = true;
         
-        Logger.log( "Removing selected Widget of type \"" + selectedWidget.getClass().getName() + "\" and name \"" + selectedWidget.getName() + "\"..." );
+        for ( int i = 0; i < listeners.size(); i++ )
+        {
+            if ( !listeners.get( i ).onWidgetRemoved( selectedWidget ) )
+                accepted = false;
+        }
         
-        //selectedWidget.clearRegion( overlay, selectedWidget.getPosition().getEffectiveX(), selectedWidget.getPosition().getEffectiveY() );
-        __WCPrivilegedAccess.removeWidget( drawingManager, selectedWidget );
-        setSelectedWidget( null, false );
+        if ( accepted )
+        {
+            setSelectedWidget( null, false );
+            
+            clearEverything();
+            repaint();
+        }
+    }
+    
+    public void requestContextMenu()
+    {
+        for ( int i = 0; i < listeners.size(); i++ )
+        {
+            listeners.get( i ).onContextMenuRequested( selectedWidget );
+        }
+    }
+    
+    public void onSelectedWidgetPositionSizeChanged()
+    {
+        boolean repainted = false;
         
-        clearEverything();
-        repaint();
+        for ( int i = 0; i < listeners.size(); i++ )
+        {
+            if ( listeners.get( i ).onWidgetPositionSizeChanged( selectedWidget ) )
+                repainted = true;
+        }
         
-        editor.setDirtyFlag();
+        if ( !repainted )
+            repaint();
     }
     
     private void drawSelection( Widget widget, Rect2i[] subTextureRects, Graphics2D g )
@@ -436,7 +340,7 @@ public class EditorPanel extends JPanel
         
         //if ( widget.hasMasterCanvas( true ) )
         {
-            g.drawRect( offsetX, offsetY, width, height );
+            g.drawRect( Math.round( offsetX * scaleFactor ), Math.round( offsetY * scaleFactor ), Math.round( width * scaleFactor ), Math.round( height * scaleFactor ) );
         }
         
         if ( subTextureRects != null )
@@ -446,7 +350,7 @@ public class EditorPanel extends JPanel
                 Rect2i r = subTextureRects[i];
                 
                 if ( ( r != null ) && !r.isCoveredBy( offsetX, offsetY, width, height ) )
-                    g.drawRect( r.getLeft(), r.getTop(), r.getWidth(), r.getHeight() );
+                    g.drawRect( Math.round( r.getLeft() * scaleFactor ), Math.round( r.getTop() * scaleFactor ), Math.round( r.getWidth() * scaleFactor ), Math.round( r.getHeight() * scaleFactor ) );
             }
         }
         
@@ -467,8 +371,6 @@ public class EditorPanel extends JPanel
     {
         clearWidgetRegion( selectedWidget );
     }
-    
-    private long frameIndex = 0;
     
     @Override
     public void repaint()
@@ -528,7 +430,7 @@ public class EditorPanel extends JPanel
             
             tt.drawInEditor( g2, at, rect );
             
-            TextureDirtyRectsManager.getDirtyRects( -1, tt.getTexture(), null, false );
+            TextureDirtyRectsManager.getDirtyRects( tt.getTexture(), null, false );
         }
     }
     
@@ -691,8 +593,6 @@ public class EditorPanel extends JPanel
             drawingManager.setAllDirtyFlags();
         }
         
-        frameIndex++;
-        
         try
         {
             int n = drawingManager.getNumWidgets();
@@ -769,7 +669,7 @@ public class EditorPanel extends JPanel
             }
             
             // clear dirty rects...
-            TextureDirtyRectsManager.getDirtyRects( frameIndex, overlay, dirtyRectsBuffer, true );
+            TextureDirtyRectsManager.getDirtyRects( overlay, dirtyRectsBuffer, true );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             short numDirtyRects = dirtyRectsBuffer.getShort();
             for ( short i = 0; i < numDirtyRects; i++ )
@@ -849,7 +749,7 @@ public class EditorPanel extends JPanel
             }
             
             // Draw the whole thing to the panel.
-            g2.drawImage( cacheImage, 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), null );
+            g2.drawImage( cacheImage, 0, 0, Math.round( cacheImage.getWidth() * scaleFactor ), Math.round( cacheImage.getHeight() * scaleFactor ), 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), null );
             
             // Draw selection.
             if ( drawSelection && ( selectedWidget != null ) )
@@ -873,22 +773,22 @@ public class EditorPanel extends JPanel
         drawWidgets( (Graphics2D)g, false, true );
     }
     
-    public EditorPanel( RFDynHUDEditor editor, LiveGameData gameData, WidgetsDrawingManager drawingManager )
+    public WidgetsEditorPanel( WidgetsEditorPanelSettings settings, RFDynHUDEditor editor, LiveGameData gameData, WidgetsDrawingManager drawingManager )
     {
         super();
         
-        this.editor = editor;
+        this.settings = ( settings == null ) ? new WidgetsEditorPanelSettings( drawingManager, editor, this ) : settings;
         
         this.gameData = gameData;
         
         this.overlay = drawingManager.getMainTexture( 0 );
         this.drawingManager = drawingManager;
-        this.gameResolution = drawingManager.getGameResolution();
         
-        EditorPanelInputHandler inputHandler = new EditorPanelInputHandler( editor, drawingManager );
-        this.addMouseListener( inputHandler );
-        this.addMouseMotionListener( inputHandler );
-        this.addKeyListener( inputHandler );
         this.setFocusable( true );
+    }
+    
+    public WidgetsEditorPanel( RFDynHUDEditor editor, LiveGameData gameData, WidgetsDrawingManager drawingManager )
+    {
+        this( null, editor, gameData, drawingManager );
     }
 }

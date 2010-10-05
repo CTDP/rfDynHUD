@@ -65,7 +65,9 @@ Minor:
 * Added peak needle to the RevMeterWidget.
 * Tweaked rendering code to allow for overlapping Widgets.
 * Sub textures are now properly drawn in the editor.
+* Editor takes less memory now and doesn't consume any more than necessary.
 * Added a FuelNeedleWidget.
+* Added Widget import tool.
 
 TODO:
 
@@ -76,12 +78,10 @@ TODO:
 * Manage logs to keep 5
 * Meta config (merge configurations)
 * Add master d3d9.dll
-* Import Widget from other config. Compare named colors/fonts. Change name or use local name or direct value.
 
 * Improve viewed vehicle detection (use me if close, read from application)
 * Render plugin in replay mode (theoretically not possible, needs application memory access)
 * Fix/Improve clock frequencies
-* Editor: Mem profiling
 * General profiling to tweak performance
 
 * MapWidget/TrackPositionWidget: Display pace car (impossible, not in VehicleScoringInfo)

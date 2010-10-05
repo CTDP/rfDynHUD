@@ -213,7 +213,7 @@ public abstract class Widget implements Documented
         
         if ( getBackground() != null )
         {
-            getBackground().onWidgetSizeChanged( this );
+            getBackground().onWidgetSizeChanged();
         }
     }
     

@@ -67,6 +67,15 @@ public class EditorMenuBar extends JMenuBar
     
     private final RFDynHUDEditor editor;
     
+    private final HashMap<String, DM> menuItemDMMap = new HashMap<String, EditorMenuBar.DM>();
+    
+    private boolean needsDMCheck = true;
+    
+    public void setNeedsDMCheck()
+    {
+        this.needsDMCheck = true;
+    }
+    
     private JMenu createFileMenu()
     {
         JMenu menu = new JMenu( "File" );
@@ -82,6 +91,17 @@ public class EditorMenuBar extends JMenuBar
             }
         } );
         menu.add( open );
+        
+        JMenuItem importWidget = new JMenuItem( "Import Widget...", 0 );
+        importWidget.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.importWidget();
+            }
+        } );
+        menu.add( importWidget );
         
         menu.add( new JSeparator() );
         
@@ -124,7 +144,7 @@ public class EditorMenuBar extends JMenuBar
         return ( menu );
     }
     
-    private JMenuItem createSnapSelWidgetToGridMenu()
+    private static JMenuItem createSnapSelWidgetToGridMenu( final RFDynHUDEditor editor )
     {
         JMenuItem snapSelWidgetToGrid = new JMenuItem( "Snap selected Widget to grid" );
         snapSelWidgetToGrid.addActionListener( new ActionListener()
@@ -132,14 +152,15 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                editor.snapSelectedWidgetToGrid();
+                if ( editor.getEditorPanel().snapSelectedWidgetToGrid() )
+                    editor.setDirtyFlag();
             }
         } );
         
         return ( snapSelWidgetToGrid );
     }
     
-    private JMenuItem createSnapAllWidgetsToGridMenu()
+    private static JMenuItem createSnapAllWidgetsToGridMenu( final RFDynHUDEditor editor )
     {
         JMenuItem snapAllWidgetsToGrid = new JMenuItem( "Snap all Widgets to grid" );
         snapAllWidgetsToGrid.addActionListener( new ActionListener()
@@ -147,14 +168,15 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                editor.snapAllWidgetsToGrid();
+                if ( editor.getEditorPanel().snapAllWidgetsToGrid() )
+                    editor.setDirtyFlag();
             }
         } );
         
         return ( snapAllWidgetsToGrid );
     }
     
-    private JMenuItem createRemoveWidgetMenu()
+    private static JMenuItem createRemoveWidgetMenu( final RFDynHUDEditor editor )
     {
         JMenuItem removeItem = new JMenuItem( "Remove selected Widget (DEL)" );
         //removeItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
@@ -163,7 +185,7 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                editor.removeSelectedWidget();
+                editor.getEditorPanel().removeSelectedWidget();
             }
         } );
         
@@ -175,10 +197,10 @@ public class EditorMenuBar extends JMenuBar
         JMenu menu = new JMenu( "Edit" );
         menu.setDisplayedMnemonicIndex( 0 );
         
-        final JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu();
+        final JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu( editor );
         menu.add( snapSelWidgetToGrid );
         
-        final JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu();
+        final JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu( editor );
         menu.add( snapAllWidgetsToGrid );
         
         menu.addSeparator();
@@ -207,7 +229,7 @@ public class EditorMenuBar extends JMenuBar
         
         menu.addSeparator();
         
-        final JMenuItem removeItem = createRemoveWidgetMenu();
+        final JMenuItem removeItem = createRemoveWidgetMenu( editor );
         menu.add( removeItem );
         
         menu.addMenuListener( new MenuListener()
@@ -218,8 +240,8 @@ public class EditorMenuBar extends JMenuBar
                 boolean hasSelected = ( editor.getEditorPanel().getSelectedWidget() != null );
                 boolean hasWidgets = ( editor.getWidgetsConfiguration().getNumWidgets() > 0 );
                 
-                snapSelWidgetToGrid.setEnabled( hasSelected && editor.getEditorPanel().isGridUsed() );
-                snapAllWidgetsToGrid.setEnabled( hasWidgets && editor.getEditorPanel().isGridUsed() );
+                snapSelWidgetToGrid.setEnabled( hasSelected && editor.getEditorPanel().getSettings().isGridUsed() );
+                snapAllWidgetsToGrid.setEnabled( hasWidgets && editor.getEditorPanel().getSettings().isGridUsed() );
                 removeItem.setEnabled( hasSelected );
                 makeAllPixels.setEnabled( hasWidgets );
                 makeAllPercents.setEnabled( hasWidgets );
@@ -239,24 +261,24 @@ public class EditorMenuBar extends JMenuBar
         return ( menu );
     }
     
-    public void initContextMenu()
+    public static void initContextMenu( RFDynHUDEditor editor )
     {
         JPopupMenu menu = new JPopupMenu();
         
-        JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu();
+        JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu( editor );
         menu.add( snapSelWidgetToGrid );
         
-        JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu();
+        JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu( editor );
         menu.add( snapAllWidgetsToGrid );
         
-        JMenuItem removeItem = createRemoveWidgetMenu();
+        JMenuItem removeItem = createRemoveWidgetMenu( editor );
         menu.add( removeItem );
         
         boolean hasSelected = ( editor.getEditorPanel().getSelectedWidget() != null );
         boolean hasWidgets = ( editor.getWidgetsConfiguration().getNumWidgets() > 0 );
         
-        snapSelWidgetToGrid.setEnabled( hasSelected && editor.getEditorPanel().isGridUsed() );
-        snapAllWidgetsToGrid.setEnabled( hasWidgets && editor.getEditorPanel().isGridUsed() );
+        snapSelWidgetToGrid.setEnabled( hasSelected && editor.getEditorPanel().getSettings().isGridUsed() );
+        snapAllWidgetsToGrid.setEnabled( hasWidgets && editor.getEditorPanel().getSettings().isGridUsed() );
         removeItem.setEnabled( hasSelected );
         
         editor.getEditorPanel().setComponentPopupMenu( menu );
@@ -606,6 +628,19 @@ public class EditorMenuBar extends JMenuBar
         }
         Arrays.sort( array );
         
+        ActionListener itemActionListener = new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                DM dm = menuItemDMMap.get( ( (JMenuItem)e.getSource() ).getName() );
+                
+                Logger.log( "Switching to resolution " + dm.w + "x" + dm.h + "..." );
+                
+                editor.getEditorPanel().switchToGameResolution( dm.w, dm.h );
+            }
+        };
+        
         float lastA = array[0].a;
         JMenuItem item;
         for ( DM dm : array )
@@ -616,34 +651,13 @@ public class EditorMenuBar extends JMenuBar
                 lastA = dm.a;
             }
             
-            final String resString = dm.w + "x" + dm.h;
+            item = new JCheckBoxMenuItem( dm.w + "x" + dm.h + " [" + dm.a + "]" );
+            item.setName( dm.w + "x" + dm.h );
             
-            if ( !editor.checkResolution( dm.w, dm.h ) )
-            {
-                item = new JMenuItem( resString + " [" + dm.a + "] (no screenshot available)" );
-                item.setName( dm.w + "x" + dm.h );
-                item.setEnabled( false );
-            }
-            else
-            {
-                item = new JCheckBoxMenuItem( resString + " [" + dm.a + "]" );
-                item.setName( dm.w + "x" + dm.h );
-                
-                item.setActionCommand( resString );
-                final DM dm2 = dm;
-                item.addActionListener( new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed( ActionEvent e )
-                    {
-                        Logger.log( "Switching to resolution " + dm2.w + "x" + dm2.h + "..." );
-                        
-                        editor.switchToGameResolution( dm2.w, dm2.h );
-                    }
-                } );
-            }
+            item.addActionListener( itemActionListener );
             
             resMenu.add( item );
+            menuItemDMMap.put( item.getName(), dm );
         }
         
         resMenu.addMenuListener( new MenuListener()
@@ -651,15 +665,35 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void menuSelected( MenuEvent e )
             {
-                String resString = editor.getWidgetsConfiguration().getGameResolution().getResolutionString();
-                
                 JMenu menu = (JMenu)e.getSource();
                 
-                for ( Component mi : menu.getMenuComponents() )
+                for ( Component c : menu.getMenuComponents() )
                 {
-                    if ( mi instanceof JMenuItem )
-                        ( (JMenuItem)mi ).setSelected( resString.equals( mi.getName() ) );
+                    if ( c instanceof JMenuItem )
+                    {
+                        JMenuItem mi = (JMenuItem)c;
+                        
+                        if ( needsDMCheck )
+                        {
+                            DM dm =  menuItemDMMap.get( mi.getName() );
+                            
+                            if ( editor.getEditorPanel().getSettings().checkResolution( dm.w, dm.h ) )
+                            {
+                                mi.setText( dm.w + "x" + dm.h + " [" + dm.a + "]" );
+                                mi.setEnabled( true );
+                            }
+                            else
+                            {
+                                mi.setText( dm.w + "x" + dm.h + " [" + dm.a + "] (no screenshot available)" );
+                                mi.setEnabled( false );
+                            }
+                        }
+                        
+                        mi.setSelected( editor.getWidgetsConfiguration().getGameResolution().getResolutionString().equals( mi.getName() ) );
+                    }
                 }
+                
+                needsDMCheck = false;
             }
             
             @Override
@@ -693,7 +727,7 @@ public class EditorMenuBar extends JMenuBar
                 if ( e.getWhen() < lastWhen + 1500L )
                     return;
                 
-                editor.showFullscreenPreview();
+                PreviewAndScreenshotManager.showFullscreenPreview( editor.getMainWindow(), editor.getEditorPanel(), editor.getGameResolution(), editor.getCurrentConfigFile() );
                 
                 lastWhen = e.getWhen();
             }
@@ -707,7 +741,7 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                editor.takeScreenshot();
+                PreviewAndScreenshotManager.takeScreenshot( editor.getEditorPanel(), editor.getGameResolution(), editor.getCurrentConfigFile() );
             }
         } );
         menu.add( screenshotItem );

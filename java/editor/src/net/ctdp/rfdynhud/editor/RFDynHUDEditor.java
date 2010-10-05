@@ -17,23 +17,12 @@
  */
 package net.ctdp.rfdynhud.editor;
 
-import java.awt.AWTEvent;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.DisplayMode;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.AWTEventListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,13 +34,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JViewport;
@@ -66,11 +53,10 @@ import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
-import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
-import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.editor.util.EditorPropertyLoader;
@@ -95,8 +81,6 @@ import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.StringUtil;
-import net.ctdp.rfdynhud.util.TextureManager;
-import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -108,12 +92,11 @@ import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 import org.jagatoo.util.ini.IniWriter;
 
-
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class RFDynHUDEditor implements Documented, PropertySelectionListener<Property>
+public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, PropertySelectionListener<Property>
 {
     static
     {
@@ -127,14 +110,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
     private GameEventsManager eventsManager;
     private final GameResolution gameResolution;
     
-    private static final String DEFAULT_SCREENSHOT_SET = "CTDPF106_Fer_T-Cam";
-    private String screenshotSet = DEFAULT_SCREENSHOT_SET;
-    
     private boolean alwaysShowHelpOnStartup = true;
     
     private final JFrame window;
     private final EditorMenuBar menuBar;
-    private final EditorPanel editorPanel;
+    private final WidgetsEditorPanel editorPanel;
     private final JScrollPane editorScrollPane;
     
     private final PropertiesEditor propsEditor;
@@ -167,9 +147,19 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         return ( gameData );
     }
     
+    public final GameResolution getGameResolution()
+    {
+        return ( gameResolution );
+    }
+    
     public final WidgetsConfiguration getWidgetsConfiguration()
     {
         return ( widgetsConfig );
+    }
+    
+    public final File getCurrentConfigFile()
+    {
+        return ( currentConfigFile );
     }
     
     public final EditorPresets getEditorPresets()
@@ -209,60 +199,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         return ( dirtyFlag );
     }
     
-    private File getScreenshotSetFolder()
-    {
-        File backgroundsFolder = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
-        
-        return ( new File( backgroundsFolder, screenshotSet ) );
-    }
-    
-    private File getBackgroundImageFile( int width, int height )
-    {
-        return ( new File( getScreenshotSetFolder(), File.separator + "background_" + width + "x" + height + ".jpg" ) );
-    }
-    
-    private void setScreenshotSet( String screenshotSet )
-    {
-        File backgroundsFolder = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
-        
-        if ( !backgroundsFolder.exists() )
-        {
-            this.screenshotSet = DEFAULT_SCREENSHOT_SET;
-            return;
-        }
-        
-        File folder = new File( backgroundsFolder, screenshotSet );
-        if ( folder.exists() && folder.isDirectory() )
-        {
-            this.screenshotSet = screenshotSet;
-        }
-        else
-        {
-            if ( new File( backgroundsFolder, DEFAULT_SCREENSHOT_SET ).exists() )
-            {
-                this.screenshotSet = DEFAULT_SCREENSHOT_SET;
-            }
-            else
-            {
-                for ( File f : backgroundsFolder.listFiles() )
-                {
-                    if ( f.isDirectory() )
-                    {
-                        this.screenshotSet = f.getName();
-                        return;
-                    }
-                }
-            }
-            
-            this.screenshotSet = DEFAULT_SCREENSHOT_SET;
-        }
-    }
-    
-    public final String getScreenshotSet()
-    {
-        return ( screenshotSet );
-    }
-    
     public final JFrame getMainWindow()
     {
         return ( window );
@@ -273,7 +209,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         return ( menuBar );
     }
     
-    public final EditorPanel getEditorPanel()
+    public final WidgetsEditorPanel getEditorPanel()
     {
         return ( editorPanel );
     }
@@ -433,47 +369,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         return ( currentTemplateFile.getAbsolutePath().substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 ) );
     }
     
-    private ArrayList<String> getScreenshotSets()
-    {
-        ArrayList<String> list = new ArrayList<String>();
-        
-        File root = new File( GameFileSystem.INSTANCE.getEditorFolder(), "backgrounds" );
-        for ( File f : root.listFiles() )
-        {
-            if ( f.isDirectory() && !f.getName().toLowerCase().equals( ".svn" ) )
-            {
-                list.add( f.getAbsolutePath().substring( root.getAbsolutePath().length() + 1 ) );
-            }
-        }
-        
-        return ( list );
-    }
-    
     private void getProperties( WidgetPropertiesContainer propsCont )
     {
         propsCont.addGroup( "Editor - General" );
-        
-        propsCont.addProperty( new ListProperty<String, ArrayList<String>>( (Widget)null, "screenshotSet", screenshotSet, getScreenshotSets() )
-        {
-            @Override
-            protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-            {
-                return ( true );
-            }
-            
-            @Override
-            public void setValue( Object value )
-            {
-                if ( !Tools.objectsEqual( value, screenshotSet ) )
-                    switchScreenshotSet( (String)value );
-            }
-            
-            @Override
-            public String getValue()
-            {
-                return ( screenshotSet );
-            }
-        } );
         
         propsCont.addProperty( new Property( (Widget)null, "resolution", true, PropertyEditorType.STRING )
         {
@@ -494,7 +392,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             }
         } );
         
-        getEditorPanel().getProperties( propsCont );
+        getEditorPanel().getSettings().getProperties( propsCont );
         
         propsCont.addProperty( new ListProperty<String, ArrayList<String>>( (Widget)null, "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
         {
@@ -556,10 +454,9 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
     
     private final HashMap<String, Boolean> expandedRows = new HashMap<String, Boolean>();
     
-    public void onWidgetSelected( Widget widget, boolean doubleClick )
+    @Override
+    public void onWidgetSelected( Widget widget, boolean selectionChanged, boolean doubleClick )
     {
-        editorPanel.setSelectedWidget( widget, doubleClick );
-        
         GridItemsContainer<Property> propsList = propsEditor.getPropertiesList();
         
         expandedRows.clear();
@@ -584,19 +481,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
     
     //private long nextRedrawTime = -1L;
     
-    public static final String WIDGET_CHANGE_POS_SIZE = "POS_SIZE";
-    
     /**
      * @param widget the changed widget
-     * @param propertyName the name of the changed property or {@value #WIDGET_CHANGE_POS_SIZE}
+     * @param propertyName the name of the changed property
+     * @param isPosSize is position or size?
      */
-    public void onWidgetChanged( Widget widget, String propertyName )
+    public void onWidgetChanged( Widget widget, String propertyName, boolean isPosSize )
     {
-        //if ( System.currentTimeMillis() >= nextRedrawTime )
-        {
-            getEditorPanel().repaint();
-            //nextRedrawTime = System.currentTimeMillis() + 1000L;
-        }
+        getEditorPanel().repaint();
         
         setDirtyFlag();
         
@@ -672,9 +564,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             WidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( writer );
             
             writer.writeGroup( "General" );
-            writer.writeSetting( "screenshotSet", screenshotSet );
             writer.writeSetting( "resolution", gameResolution.getResolutionString() );
-            getEditorPanel().saveProperties( confWriter );
+            getEditorPanel().getSettings().saveProperties( confWriter, writer );
             writer.writeSetting( "templatesConfig", getCurrentTemplateFileForProperty() );
             writer.writeSetting( "defaultScaleType", presetsWindow.getDefaultScaleType() );
             writeLastConfig( writer );
@@ -733,7 +624,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
                                     String[] ss = value.split( "x" );
                                     int resX = Integer.parseInt( ss[0] );
                                     int resY = Integer.parseInt( ss[1] );
-                                    if ( checkResolution( resX, resY ) )
+                                    //if ( getEditorPanel().getSettings().checkResolution( resX, resY ) )
                                     {
                                         resolution[0] = resX;
                                         resolution[1] = resY;
@@ -831,11 +722,11 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
                     }
                     else if ( group.equals( "General" ) )
                     {
-                        getEditorPanel().loadProperty( loader );
+                        getEditorPanel().getSettings().loadProperty( loader );
                         
                         if ( key.equals( "screenshotSet" ) )
                         {
-                            setScreenshotSet( value );
+                            editorPanel.getSettings().setScreenshotSet( value );
                         }
                         else if ( key.equals( "resolution" ) )
                         {
@@ -844,8 +735,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
                                 String[] ss = value.split( "x" );
                                 int resX = Integer.parseInt( ss[0] );
                                 int resY = Integer.parseInt( ss[1] );
-                                if ( ( ( gameResolution.getViewportWidth() != resX ) || ( gameResolution.getViewportHeight() != resY ) ) && checkResolution( resX, resY ) )
-                                    switchToGameResolution( resX, resY );
+                                if ( ( ( gameResolution.getViewportWidth() != resX ) || ( gameResolution.getViewportHeight() != resY ) ) && getEditorPanel().getSettings().checkResolution( resX, resY ) )
+                                    getEditorPanel().switchToGameResolution( resX, resY );
                             }
                             catch ( Throwable t )
                             {
@@ -1039,7 +930,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         __UtilPrivilegedAccess.loadFactoryDefaults( new ConfigurationLoader(), widgetsConfig, gameData, true, null );
         
         getOverlayTexture().clear( true, null );
-        onWidgetSelected( null, false );
+        editorPanel.setSelectedWidget( null, false );
         getEditorPanel().repaint();
     }
     
@@ -1056,7 +947,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             updateWindowTitle();
             
             getOverlayTexture().clear( true, null );
-            onWidgetSelected( null, false );
+            editorPanel.setSelectedWidget( null, false );
             getEditorPanel().repaint();
         }
         catch ( Throwable t )
@@ -1064,6 +955,30 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             t.printStackTrace();
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
+    }
+    
+    private File getOpenConfigFile( File initialFile )
+    {
+        JFileChooser fc = new JFileChooser();
+        if ( initialFile != null )
+        {
+            fc.setCurrentDirectory( initialFile.getParentFile() );
+            fc.setSelectedFile( initialFile );
+        }
+        else
+        {
+            fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
+            fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" ) );
+        }
+        
+        fc.setMultiSelectionEnabled( false );
+        fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
+        fc.setFileFilter( new FileNameExtensionFilter( "ini files", "ini" ) );
+        
+        if ( fc.showOpenDialog( window ) != JFileChooser.APPROVE_OPTION )
+            return ( null );
+        
+        return ( fc.getSelectedFile() );
     }
     
     public void openConfig()
@@ -1082,28 +997,14 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             }
         }
         
+        File file = getOpenConfigFile( currentConfigFile );
+        
+        if ( file == null )
+            return;
+        
         try
         {
-            JFileChooser fc = new JFileChooser();
-            if ( currentConfigFile != null )
-            {
-                fc.setCurrentDirectory( currentConfigFile.getParentFile() );
-                fc.setSelectedFile( currentConfigFile );
-            }
-            else
-            {
-                fc.setCurrentDirectory( GameFileSystem.INSTANCE.getConfigFolder() );
-                fc.setSelectedFile( new File( GameFileSystem.INSTANCE.getConfigFolder(), "overlay.ini" ) );
-            }
-            
-            fc.setMultiSelectionEnabled( false );
-            fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
-            fc.setFileFilter( new FileNameExtensionFilter( "ini files", "ini" ) );
-            
-            if ( fc.showOpenDialog( window ) != JFileChooser.APPROVE_OPTION )
-                return;
-            
-            openConfig( fc.getSelectedFile() );
+            openConfig( file );
         }
         catch ( Throwable t )
         {
@@ -1111,6 +1012,109 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
+    }
+    
+    public void importWidget()
+    {
+        File file = getOpenConfigFile( currentConfigFile );
+        
+        if ( file == null )
+            return;
+        
+        try
+        {
+            int[] designResolution = ConfigurationLoader.readDesignResolutionFromConfiguration( file );
+            
+            if ( designResolution == null )
+            {
+                designResolution = new int[] { gameResolution.getViewportWidth(), gameResolution.getViewportHeight() };
+            }
+            
+            JDialog f = new JDialog( window, "Import Widget", true );
+            f.setResizable( false );
+            f.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+            
+            WidgetsDrawingManager wdm = new WidgetsDrawingManager( true, designResolution[0], designResolution[1], true );
+            WidgetsEditorPanel ep = new WidgetsEditorPanel( null, this, gameData, wdm );
+            ImportWidgetsEditorPanelInputHandler inputHandler = new ImportWidgetsEditorPanelInputHandler( this, ep, wdm );
+            ep.addMouseListener( inputHandler );
+            ep.addKeyListener( inputHandler );
+            
+            Rectangle screenBounds = GUITools.getCurrentScreenBounds();
+            
+            int maxWidth = (int)( screenBounds.width * 0.9f );
+            int maxHeight = (int)( screenBounds.height * 0.9f );
+            
+            int width = Math.min( designResolution[0], maxWidth );
+            int height = Math.min( designResolution[1], maxHeight );
+            
+            float scaleX = (float)width / (float)designResolution[0];
+            float scaleY = (float)height / (float)designResolution[1];
+            
+            ep.setScaleFactor( Math.min( scaleX, scaleY ) );
+            ep.initBackgroundImage();
+            
+            f.setContentPane( ep );
+            f.pack();
+            
+            f.setLocationRelativeTo( window );
+            
+            //System.out.println( f.getWidth() + ", " + f.getHeight() );
+            
+            //clearWidetRegions();
+            
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), file, wdm, gameData, true, null );
+            
+            //updateWindowTitle();
+            
+            //wdm.getMainTexture( 0 ).clear( true, null );
+            //onWidgetSelected( null, false );
+            //ep.repaint();
+            
+            f.setVisible( true );
+        }
+        catch ( Throwable t )
+        {
+            t.printStackTrace();
+            JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
+        }
+    }
+    
+    public boolean importWidget( Widget widget )
+    {
+        try
+        {
+            String widgetType = widget.getClass().getSimpleName();
+            
+            Logger.log( "Importing Widget of type \"" + widgetType + "\"..." );
+            
+            String name = widget.getName();
+            if ( widgetsConfig.getWidget( name ) != null )
+            {
+                name = widgetsConfig.findFreeName( widgetType );
+            }
+            
+            widget.setAllPosAndSizeToPercents();
+            __WCPrivilegedAccess.removeWidget( widget.getConfiguration(), widget );
+            
+            widget.setName( name );
+            
+            __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
+            if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
+                widget.setAllPosAndSizeToPercents();
+            else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
+                widget.setAllPosAndSizeToPixels();
+            
+            editorPanel.setSelectedWidget( widget, false );
+            
+            setDirtyFlag();
+        }
+        catch ( Throwable t )
+        {
+            Logger.log( t );
+        }
+        
+        return ( true );
     }
     
     public boolean saveConfig()
@@ -1125,8 +1129,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         
         try
         {
-            EditorPanel ep = getEditorPanel();
-            ConfigurationSaver.saveConfiguration( widgetsConfig, gameResolution.getResolutionString(), ep.getGridOffsetX(), ep.getGridOffsetY(), ep.getGridSizeX(), ep.getGridSizeY(), currentConfigFile );
+            WidgetsEditorPanel ep = getEditorPanel();
+            ConfigurationSaver.saveConfiguration( widgetsConfig, gameResolution.getResolutionString(), ep.getSettings().getGridOffsetX(), ep.getSettings().getGridOffsetY(), ep.getSettings().getGridSizeX(), ep.getSettings().getGridSizeY(), currentConfigFile );
             
             resetDirtyFlag();
             
@@ -1194,33 +1198,33 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         System.exit( 0 );
     }
     
-    public void snapSelectedWidgetToGrid()
+    @Override
+    public boolean onWidgetPositionSizeChanged( Widget widget )
     {
-        Widget widget = getEditorPanel().getSelectedWidget();
-        if ( widget != null )
-        {
-            getEditorPanel().clearWidgetRegion( widget );
-            getEditorPanel().snapWidgetToGrid( widget );
-            onWidgetSelected( widget, false );
-            getEditorPanel().repaint();
-            setDirtyFlag();
-        }
+        onWidgetChanged( widget, null, true );
+        
+        return ( true );
     }
     
-    public void snapAllWidgetsToGrid()
+    @Override
+    public boolean onWidgetRemoved( Widget widget )
     {
-        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
-            getEditorPanel().clearWidgetRegion( widgetsConfig.getWidget( i ) );
-        getEditorPanel().snapAllWidgetsToGrid();
-        onWidgetSelected( getEditorPanel().getSelectedWidget(), false );
-        getEditorPanel().repaint();
+        if ( widget == null )
+            return ( false );
+        
+        Logger.log( "Removing Widget of type \"" + widget.getClass().getName() + "\" and name \"" + widget.getName() + "\"..." );
+        
+        __WCPrivilegedAccess.removeWidget( widgetsConfig, widget );
+        
         setDirtyFlag();
+        
+        return ( true );
     }
     
-    public void removeSelectedWidget()
+    @Override
+    public void onContextMenuRequested( Widget selectedWidget )
     {
-        getEditorPanel().removeSelectedWidget();
-        onWidgetSelected( null, false );
+        EditorMenuBar.initContextMenu( this );
     }
     
     public void makeAllWidgetsUsePixels()
@@ -1230,6 +1234,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         {
             for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
                 widgetsConfig.getWidget( i ).setAllPosAndSizeToPixels();
+            
+            setDirtyFlag();
         }
     }
     
@@ -1240,6 +1246,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         {
             for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
                 widgetsConfig.getWidget( i ).setAllPosAndSizeToPercents();
+            
+            setDirtyFlag();
         }
     }
     
@@ -1341,8 +1349,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
                 int y = editorScrollPane.getVerticalScrollBar().getValue() + ( vph - widget.getSize().getEffectiveHeight() ) / 2;
                 
                 widget.getPosition().setEffectivePosition( x, y );
-                onWidgetSelected( widget, false );
-                getEditorPanel().repaint();
+                editorPanel.setSelectedWidget( widget, false );
                 
                 setDirtyFlag();
             }
@@ -1353,282 +1360,6 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         }
         
         return ( widget );
-    }
-    
-    private static BufferedImage createFallbackImage( int width, int height, String message )
-    {
-        BufferedImage bi = TextureManager.createMissingImage( width, height );
-        
-        Graphics2D g = bi.createGraphics();
-        
-        g.setColor( Color.RED );
-        g.setFont( new java.awt.Font( "Verdana", java.awt.Font.BOLD, 14 ) );
-        g.drawString( message, 50, 50 );
-        
-        return ( bi );
-    }
-    
-    public BufferedImage loadBackgroundImage( int width, int height )
-    {
-        BufferedImage result = null;
-        
-        File file = getBackgroundImageFile( width, height );
-        
-        if ( file.exists() && file.isFile() )
-        {
-            try
-            {
-                result = ImageIO.read( file );
-            }
-            catch ( IOException e )
-            {
-                Logger.log( "Unable to read background image file \"" + file.getAbsolutePath() + "\"" );
-                Logger.log( e );
-                
-                //result = null;
-            }
-        }
-        
-        if ( result == null )
-        {
-            String message = "Background image not found: \"" + file.getAbsolutePath() + "\"!";
-            
-            Logger.log( message );
-            
-            result = createFallbackImage( width, height, message );
-        }
-        
-        return ( result );
-    }
-    
-    public boolean checkResolution( int resX, int resY )
-    {
-        return ( getBackgroundImageFile( resX, resY ).exists() );
-    }
-    
-    public void switchToGameResolution( int resX, int resY )
-    {
-        BufferedImage backgroundImage = loadBackgroundImage( resX, resY );
-        ( (WidgetsDrawingManager)widgetsConfig ).resizeMainTexture( resX, resY );
-        //__GDPrivilegedAccess.setGameResolution( resX, resY, widgetsConfig );
-        //__WCPrivilegedAccess.setViewport( 0, 0, resX, resY, widgetsConfig );
-        
-        editorPanel.setBackgroundImage( backgroundImage );
-        editorPanel.setOverlayTexture( ( (WidgetsDrawingManager)widgetsConfig ).getMainTexture( 0 ) );
-        editorPanel.setPreferredSize( new Dimension( resX, resY ) );
-        editorPanel.setMaximumSize( new Dimension( resX, resY ) );
-        editorPanel.setMinimumSize( new Dimension( resX, resY ) );
-        ( (JScrollPane)editorPanel.getParent().getParent() ).doLayout();
-        
-        onWidgetSelected( editorPanel.getSelectedWidget(), false );
-        
-        getMainWindow().validate();
-        getEditorPanel().repaint();
-    }
-    
-    public void switchScreenshotSet( String screenshotSet )
-    {
-        Logger.log( "Switching to Screenshot Set \"" + screenshotSet + "\"..." );
-        
-        setScreenshotSet( screenshotSet );
-        switchToGameResolution( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() );
-    }
-    
-    public void showFullscreenPreview()
-    {
-        Logger.log( "Showing fullscreen preview" );
-        
-        final GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        final DisplayMode desktopDM = graphDev.getDisplayMode();
-        
-        JPanel p = new JPanel()
-        {
-            private static final long serialVersionUID = 1L;
-            
-            @Override
-            protected void paintComponent( Graphics g )
-            {
-                getEditorPanel().drawWidgets( (Graphics2D)g, true, false );
-            }
-        };
-        p.setBackground( Color.BLACK );
-        
-        DisplayMode dm = AvailableDisplayModes.getDisplayMode( gameResolution.getResolutionString() );
-        
-        //boolean isSameMode = dm.equals( desktopDM );
-        boolean isSameMode = ( ( dm.getWidth() == desktopDM.getWidth() ) && ( dm.getHeight() == desktopDM.getHeight() ) );
-        java.awt.Window w;
-        //if ( isSameMode )
-        {
-            javax.swing.JDialog d = new javax.swing.JDialog( getMainWindow(), isSameMode );
-            
-            d.setUndecorated( true );
-            d.setSize( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() );
-            d.setResizable( false );
-            d.setContentPane( p );
-            
-            w = d;
-        }
-        /*
-        else
-        {
-            java.awt.Dialog d = new java.awt.Dialog( getMainWindow() );
-            //java.awt.Frame d = new java.awt.Frame();
-            
-            d.setLayout( new java.awt.GridLayout( 1, 1 ) );
-            d.add( p );
-            d.setUndecorated( true );
-            d.setSize( gameResX, gameResY );
-            d.setResizable( false );
-            
-            w = d;
-        }
-        */
-        
-        w.setName( "preview frame" );
-        w.setBackground( Color.BLACK );
-        w.setLocation( 0, 0 );
-        
-        Toolkit.getDefaultToolkit().addAWTEventListener( new AWTEventListener()
-        {
-            @Override
-            public void eventDispatched( AWTEvent event )
-            {
-                KeyEvent kev = (KeyEvent)event;
-                
-                if ( kev.getID() == KeyEvent.KEY_PRESSED )
-                {
-                    if ( ( kev.getKeyCode() == KeyEvent.VK_ESCAPE ) || ( kev.getKeyCode() == KeyEvent.VK_F11 ) )
-                    {
-                        Toolkit.getDefaultToolkit().removeAWTEventListener( this );
-                        java.awt.Window w = null;
-                        if ( event.getSource() instanceof java.awt.Window )
-                            w = (java.awt.Window)event.getSource();
-                        else if ( "preview frame".equals( ( (JComponent)event.getSource() ).getRootPane().getParent().getName() ) )
-                            w = (java.awt.Window)( (JComponent)event.getSource() ).getRootPane().getParent();
-                        
-                        //graphDev.setDisplayMode( desktopDM );
-                        
-                        if ( graphDev.getFullScreenWindow() == w )
-                            graphDev.setFullScreenWindow( null );
-                        
-                        //w.setVisible( false );
-                        w.dispose();
-                    }
-                    else if ( kev.getKeyCode() == KeyEvent.VK_F12 )
-                    {
-                        takeScreenshot();
-                    }
-                }
-            }
-        }, AWTEvent.KEY_EVENT_MASK );
-        
-        w.addWindowListener( new WindowAdapter()
-        {
-            private boolean gridSuppressed = false;
-            
-            @Override
-            public void windowOpened( WindowEvent e )
-            {
-                EditorPanel editorPanel = getEditorPanel();
-                
-                if ( editorPanel.getDrawGrid() && ( editorPanel.getGridSizeX() > 1 ) && ( editorPanel.getGridSizeY() > 1 ) )
-                {
-                    editorPanel.setBGImageReloadSuppressed( true );
-                    editorPanel.setDrawGrid( false );
-                    editorPanel.setBGImageReloadSuppressed( false );
-                    editorPanel.setBackgroundImage( loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-                    
-                    gridSuppressed = true;
-                }
-                
-                //graphDev.setDisplayMode( displayModes.get( gameResX + "x" + gameResY ) );
-            }
-            
-            @Override
-            public void windowClosed( WindowEvent e )
-            {
-                Logger.log( "Closing fullscreen preview" );
-                
-                EditorPanel editorPanel = getEditorPanel();
-                
-                if ( gridSuppressed )
-                {
-                    editorPanel.setBGImageReloadSuppressed( true );
-                    editorPanel.setDrawGrid( true );
-                    editorPanel.setBGImageReloadSuppressed( false );
-                    editorPanel.setBackgroundImage( loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-                }
-                
-                editorPanel.repaint();
-                onWidgetSelected( editorPanel.getSelectedWidget(), false );
-            }
-        } );
-        
-        if ( isSameMode )
-        {
-            w.setVisible( true );
-        }
-        else
-        {
-            graphDev.setFullScreenWindow( w );
-            graphDev.setDisplayMode( dm );
-        }
-    }
-    
-    public void takeScreenshot()
-    {
-        EditorPanel editorPanel = getEditorPanel();
-        
-        BufferedImage img = new BufferedImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight(), BufferedImage.TYPE_3BYTE_BGR );
-        
-        boolean gridSuppressed = false;
-        
-        if ( editorPanel.getDrawGrid() && ( editorPanel.getGridSizeX() > 1 ) && ( editorPanel.getGridSizeY() > 1 ) )
-        {
-            editorPanel.setBGImageReloadSuppressed( true );
-            editorPanel.setDrawGrid( false );
-            editorPanel.setBGImageReloadSuppressed( false );
-            editorPanel.setBackgroundImage( loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-            
-            gridSuppressed = true;
-        }
-        
-        editorPanel.drawWidgets( img.createGraphics(), true, false );
-        
-        if ( gridSuppressed )
-        {
-            editorPanel.setBGImageReloadSuppressed( true );
-            editorPanel.setDrawGrid( true );
-            editorPanel.setBGImageReloadSuppressed( false );
-            editorPanel.setBackgroundImage( loadBackgroundImage( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() ) );
-        }
-        
-        editorPanel.repaint();
-        onWidgetSelected( editorPanel.getSelectedWidget(), false );
-        
-        try
-        {
-            File folder = GameFileSystem.INSTANCE.getGameScreenshotsFolder();
-            folder.mkdirs();
-            
-            String filenameBase = ( currentConfigFile == null ) ? "rfDynHUD_screenshot_" : "rfDynHUD_" + currentConfigFile.getName().replace( ".", "_" ) + "_";
-            int i = 0;
-            File f = new File( folder, filenameBase + Tools.padLeft( i, 3, "0" ) + ".png" );
-            while ( f.exists() )
-            {
-                i++;
-                f = new File( folder, filenameBase + Tools.padLeft( i, 3, "0" ) + ".png" );
-            }
-            
-            Logger.log( "Saving screenshot to file " + f.getPath() );
-            
-            ImageIO.write( img, "PNG", f );
-        }
-        catch ( IOException e )
-        {
-            Logger.log( e );
-        }
     }
     
     public void showPresetsWindow()
@@ -1698,12 +1429,18 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
         initTestGameData( gameData, presets );
     }
     
-    private EditorPanel createEditorPanel()
+    private WidgetsEditorPanel createEditorPanel()
     {
         WidgetsDrawingManager drawingManager = (WidgetsDrawingManager)widgetsConfig;
         
-        EditorPanel editorPanel = new EditorPanel( this, gameData, drawingManager );
+        WidgetsEditorPanel editorPanel = new WidgetsEditorPanel( this, gameData, drawingManager );
         editorPanel.setPreferredSize( new Dimension( drawingManager.getGameResolution().getViewportWidth(), drawingManager.getGameResolution().getViewportHeight() ) );
+        WidgetsEditorPanelInputHandler inputHandler = new WidgetsEditorPanelInputHandler( editorPanel, drawingManager );
+        editorPanel.addMouseListener( inputHandler );
+        editorPanel.addMouseMotionListener( inputHandler );
+        editorPanel.addKeyListener( inputHandler );
+        
+        editorPanel.addWidgetsEditorPanelListener( this );
         
         return ( editorPanel );
     }
@@ -1818,8 +1555,8 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             
             if ( !(Boolean)result[0] )
             {
-                if ( editor.checkResolution( screenBounds.width, screenBounds.height ) )
-                    editor.switchToGameResolution( screenBounds.width, screenBounds.height );
+                if ( editor.getEditorPanel().getSettings().checkResolution( screenBounds.width, screenBounds.height ) )
+                    editor.getEditorPanel().switchToGameResolution( screenBounds.width, screenBounds.height );
             }
             
             if ( editor.currentConfigFile == null )
@@ -1838,7 +1575,7 @@ public class RFDynHUDEditor implements Documented, PropertySelectionListener<Pro
             //editor.getEditorPanel().getWidgetsDrawingManager().collectTextures( true, editor.gameData );
             
             if ( (Boolean)result[0] )
-                editor.getEditorPanel().setBackgroundImage( editor.loadBackgroundImage( editor.gameResolution.getViewportWidth(), editor.gameResolution.getViewportHeight() ) );
+                editor.getEditorPanel().initBackgroundImage();
             
             editor.getMainWindow().addWindowListener( new WindowAdapter()
             {

@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.File;
 
 import net.ctdp.rfdynhud.RFDynHUD;
-import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Logger;
@@ -28,8 +27,8 @@ import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
+import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
 /**
  * The events manager receives events from rFactor and modifies state-flags appropriately.
@@ -204,8 +203,6 @@ public class GameEventsManager implements ConfigurationLoadListener
             }
             else if ( result2.booleanValue() )
             {
-                //if ( usePlayer )
-                    TextureDirtyRectsManager.forceCompleteRedraw();
                 widgetsManager.collectTextures( gameData, isEditorMode );
                 //if ( usePlayer )
                     widgetsManager.clearCompleteTexture();

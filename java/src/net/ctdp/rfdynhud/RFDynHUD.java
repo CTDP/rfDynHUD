@@ -173,7 +173,6 @@ public class RFDynHUD
         return ( 0 );
     }
     
-    private long frameIndex = 0;
     private int lastConfigId = -1;
     
     /**
@@ -187,8 +186,6 @@ public class RFDynHUD
         
         try
         {
-            frameIndex++;
-            
             boolean newConfig = ( drawingManager.getId() != lastConfigId );
             lastConfigId = drawingManager.getId();
             
@@ -196,13 +193,13 @@ public class RFDynHUD
             
             drawingManager.refreshTextureInfoBuffer( false, gameData, newConfig );
             
-            drawingManager.drawWidgets( gameData, false, TextureDirtyRectsManager.isCompleteRedrawForced() );
+            drawingManager.drawWidgets( gameData, false, newConfig );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             
             int n = drawingManager.getNumTextures();
             for ( int i = 0; i < n; i++ )
             {
-                TextureDirtyRectsManager.getDirtyRects( frameIndex, drawingManager.getTexture( i ).getTexture(), drawingManager.getTexture( i ).getDirtyRectsBuffer(), true );
+                TextureDirtyRectsManager.getDirtyRects( drawingManager.getTexture( i ).getTexture(), drawingManager.getTexture( i ).getDirtyRectsBuffer(), true );
             }
         }
         catch ( Throwable t )

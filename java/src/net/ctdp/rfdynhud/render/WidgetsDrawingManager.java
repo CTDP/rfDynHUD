@@ -339,6 +339,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         {
             getWidget( i ).forceCompleteRedraw( true );
             getWidget( i ).forceReinitialization();
+            // TODO: We possibly need to set this texture dirty!
         }
     }
     

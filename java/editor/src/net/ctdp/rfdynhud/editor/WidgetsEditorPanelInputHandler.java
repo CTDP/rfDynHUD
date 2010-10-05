@@ -38,7 +38,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class EditorPanelInputHandler implements MouseListener, MouseMotionListener, KeyListener
+public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotionListener, KeyListener
 {
     private static enum BorderPart
     {
@@ -56,7 +56,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     
     private static final int RESIZE_BORDER = 10;
     
-    private final RFDynHUDEditor editor;
+    private final WidgetsEditorPanel editorPanel;
     
     private WidgetsDrawingManager widgetsManager;
     
@@ -68,7 +68,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     private int widgetDragStartY = -1;
     private int widgetDragStartWidth = -1;
     private int widgetDragStartHeight = -1;
-    private Widget selectedWidget = null;
+    private Widget draggedWidget = null;
     
     private boolean isShiftDown = false;
     private boolean isControlDown = false;
@@ -97,41 +97,41 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     public void mousePressed( MouseEvent e )
     {
         // I have no idea, why this is necessary.
-        editor.getEditorPanel().requestFocus();
+        editorPanel.requestFocus();
         
-        int x = e.getX();
-        int y = e.getY();
+        int x = Math.round( e.getX() * editorPanel.getRecipScaleFactor() );
+        int y = Math.round( e.getY() * editorPanel.getRecipScaleFactor() );
         
-        selectedWidget = getWidgetUnderMouse( x, y );
+        draggedWidget = getWidgetUnderMouse( x, y );
         //boolean widgetChanged = ( selectedWidget != editor.getEditorPanel().getSelectedWidget() );
         
         //if ( widgetChanged )
-            editor.onWidgetSelected( selectedWidget, false );
+            editorPanel.setSelectedWidget( draggedWidget, false );
         
         if ( e.getButton() == MouseEvent.BUTTON1 )
         {
-            if ( selectedWidget != null )
+            if ( draggedWidget != null )
             {
                 mousePressedX = x;
                 mousePressedY = y;
                 
-                widgetDragStartX = selectedWidget.getPosition().getEffectiveX();
-                widgetDragStartY = selectedWidget.getPosition().getEffectiveY();
+                widgetDragStartX = draggedWidget.getPosition().getEffectiveX();
+                widgetDragStartY = draggedWidget.getPosition().getEffectiveY();
                 
-                if ( editor.getEditorPanel().getCursor().getType() == Cursor.DEFAULT_CURSOR )
+                if ( editorPanel.getCursor().getType() == Cursor.DEFAULT_CURSOR )
                 {
-                    editor.getEditorPanel().setCursor( Cursor.getPredefinedCursor( Cursor.MOVE_CURSOR ) );
+                    editorPanel.setCursor( Cursor.getPredefinedCursor( Cursor.MOVE_CURSOR ) );
                 }
                 else
                 {
-                    widgetDragStartWidth = selectedWidget.getSize().getEffectiveWidth();
-                    widgetDragStartHeight = selectedWidget.getSize().getEffectiveHeight();
+                    widgetDragStartWidth = draggedWidget.getSize().getEffectiveWidth();
+                    widgetDragStartHeight = draggedWidget.getSize().getEffectiveHeight();
                 }
             }
         }
         else if ( e.getButton() == MouseEvent.BUTTON3 )
         {
-            editor.getMenuBar().initContextMenu();
+            editorPanel.requestContextMenu();
         }
     }
     
@@ -140,9 +140,9 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     {
         if ( e.getButton() == MouseEvent.BUTTON1 )
         {
-            if ( selectedWidget != null )
+            if ( draggedWidget != null )
             {
-                selectedWidget = null;
+                draggedWidget = null;
                 mousePressedX = -1;
                 mousePressedY = -1;
                 widgetDragStartX = -1;
@@ -154,7 +154,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 
                 widgetsManager.setAllDirtyFlags();
                 
-                editor.getEditorPanel().repaint();
+                editorPanel.repaint();
             }
         }
     }
@@ -162,9 +162,9 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     @Override
     public void mouseClicked( MouseEvent e )
     {
-        if ( ( e.getButton() == MouseEvent.BUTTON1 ) && ( editor.getEditorPanel().getSelectedWidget() != null ) )
+        if ( ( e.getButton() == MouseEvent.BUTTON1 ) && ( editorPanel.getSelectedWidget() != null ) )
         {
-            editor.onWidgetSelected( editor.getEditorPanel().getSelectedWidget(), e.getClickCount() == 2 );
+            editorPanel.setSelectedWidget( editorPanel.getSelectedWidget(), e.getClickCount() == 2 );
         }
     }
     
@@ -181,8 +181,8 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     @Override
     public void mouseMoved( MouseEvent e )
     {
-        int x = e.getX();
-        int y = e.getY();
+        int x = Math.round( e.getX() * editorPanel.getRecipScaleFactor() );
+        int y = Math.round( e.getY() * editorPanel.getRecipScaleFactor() );
         
         Widget widget = getWidgetUnderMouse( x, y );
         
@@ -193,7 +193,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             int effW = widget.getSize().getEffectiveWidth();
             int effH = widget.getSize().getEffectiveHeight();
             
-            Cursor cursor = editor.getEditorPanel().getCursor();
+            Cursor cursor = editorPanel.getCursor();
             
             if ( x < effX + RESIZE_BORDER )
             {
@@ -247,15 +247,15 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 cursor = Cursor.getDefaultCursor();
             }
             
-            if ( cursor != editor.getEditorPanel().getCursor() )
+            if ( cursor != editorPanel.getCursor() )
             {
-                editor.getEditorPanel().setCursor( cursor );
+                editorPanel.setCursor( cursor );
             }
         }
         else
         {
             overBorderPart = null;
-            editor.getEditorPanel().setCursor( Cursor.getDefaultCursor() );
+            editorPanel.setCursor( Cursor.getDefaultCursor() );
         }
     }
     
@@ -268,11 +268,9 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         
         if ( !isControlDown )
         {
-            EditorPanel panel = editor.getEditorPanel();
-            
-            if ( ( panel.getRailDistanceX() > 0 ) || ( panel.getRailDistanceY() > 0 ) )
+            if ( ( editorPanel.getSettings().getRailDistanceX() > 0 ) || ( editorPanel.getSettings().getRailDistanceY() > 0 ) )
             {
-                WidgetsConfiguration wc = editor.getWidgetsConfiguration();
+                WidgetsConfiguration wc = widgetsManager;
                 int closestRailX = Integer.MAX_VALUE;
                 int closestRailY = Integer.MAX_VALUE;
                 int rdx, rdy;
@@ -299,23 +297,23 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                     }
                 }
                 
-                if ( Math.abs( closestRailX ) < panel.getRailDistanceX() )
+                if ( Math.abs( closestRailX ) < editorPanel.getSettings().getRailDistanceX() )
                 {
                     point.x += closestRailX;
                     result |= FLAG_SNAP_X;
                 }
                 
-                if ( Math.abs( closestRailY ) < panel.getRailDistanceY() )
+                if ( Math.abs( closestRailY ) < editorPanel.getSettings().getRailDistanceY() )
                 {
                     point.y += closestRailY;
                     result |= FLAG_SNAP_Y;
                 }
             }
             
-            if ( panel.isGridUsed() )
+            if ( editorPanel.getSettings().isGridUsed() )
             {
-                point.x = panel.snapXToGrid( point.x );
-                point.y = panel.snapYToGrid( point.y );
+                point.x = editorPanel.getSettings().snapXToGrid( point.x );
+                point.y = editorPanel.getSettings().snapYToGrid( point.y );
                 
                 result = FLAG_SNAP_X | FLAG_SNAP_Y;
             }
@@ -429,15 +427,15 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
     @Override
     public void mouseDragged( MouseEvent e )
     {
-        if ( selectedWidget != null )
+        if ( draggedWidget != null )
         {
-            selectedWidget.clearRegion( editor.getOverlayTexture(), selectedWidget.getPosition().getEffectiveX(), selectedWidget.getPosition().getEffectiveY() );
+            draggedWidget.clearRegion( editorPanel.getOverlayTexture(), draggedWidget.getPosition().getEffectiveX(), draggedWidget.getPosition().getEffectiveY() );
             
-            final int gameResX = selectedWidget.getConfiguration().getGameResolution().getViewportWidth();
-            final int gameResY = selectedWidget.getConfiguration().getGameResolution().getViewportHeight();
+            final int gameResX = draggedWidget.getConfiguration().getGameResolution().getViewportWidth();
+            final int gameResY = draggedWidget.getConfiguration().getGameResolution().getViewportHeight();
             
-            int dx = ( e.getX() - mousePressedX );
-            int dy = ( e.getY() - mousePressedY );
+            int dx = Math.round( e.getX() * editorPanel.getRecipScaleFactor() ) - mousePressedX;
+            int dy = Math.round( e.getY() * editorPanel.getRecipScaleFactor() ) - mousePressedY;
             
             boolean changed = false;
             
@@ -446,7 +444,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 int x = widgetDragStartX;
                 int y = widgetDragStartY;
                 
-                switch ( editor.getEditorPanel().getCursor().getType() )
+                switch ( editorPanel.getCursor().getType() )
                 {
                     case Cursor.NW_RESIZE_CURSOR:
                         x += dx;
@@ -473,7 +471,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 }
                 
                 Point p = new Point( x, y );
-                snapPositionToRail( selectedWidget, p );
+                snapPositionToRail( draggedWidget, p );
                 if ( ( overBorderPart == BorderPart.TOP_LEFT ) || ( overBorderPart == BorderPart.LEFT ) || ( overBorderPart == BorderPart.BOTTOM_LEFT ) )
                 {
                     dx += p.x - x;
@@ -488,7 +486,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 int w = widgetDragStartWidth;
                 int h = widgetDragStartHeight;
                 
-                switch ( editor.getEditorPanel().getCursor().getType() )
+                switch ( editorPanel.getCursor().getType() )
                 {
                     case Cursor.NW_RESIZE_CURSOR:
                         w -= dx;
@@ -522,15 +520,15 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 
                 int hundretPercentWidth = gameResY * 4 / 3;
                 
-                if ( !selectedWidget.getSize().isNegativeWidth() && ( w > (int)( hundretPercentWidth * 0.95f ) ) )
-                    selectedWidget.getSize().flipWidthSign();
-                else if ( selectedWidget.getSize().isNegativeWidth() && ( w < gameResX * 5 / 10 ) )
-                    selectedWidget.getSize().flipWidthSign();
+                if ( !draggedWidget.getSize().isNegativeWidth() && ( w > (int)( hundretPercentWidth * 0.95f ) ) )
+                    draggedWidget.getSize().flipWidthSign();
+                else if ( draggedWidget.getSize().isNegativeWidth() && ( w < gameResX * 5 / 10 ) )
+                    draggedWidget.getSize().flipWidthSign();
                 
-                if ( !selectedWidget.getSize().isNegativeHeight() && ( h > gameResY * 9 / 10 ) )
-                    selectedWidget.getSize().flipHeightSign();
-                else if ( selectedWidget.getSize().isNegativeHeight() && ( h < gameResY * 5 / 10 ) )
-                    selectedWidget.getSize().flipHeightSign();
+                if ( !draggedWidget.getSize().isNegativeHeight() && ( h > gameResY * 9 / 10 ) )
+                    draggedWidget.getSize().flipHeightSign();
+                else if ( draggedWidget.getSize().isNegativeHeight() && ( h < gameResY * 5 / 10 ) )
+                    draggedWidget.getSize().flipHeightSign();
                 
                 w = Math.min( w, gameResX - x );
                 h = Math.min( h, gameResY - y );
@@ -562,22 +560,22 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 }
                 
                 Point s = new Point( x + w - 1, y + h - 1 );
-                snapPositionToRail( selectedWidget, s );
+                snapPositionToRail( draggedWidget, s );
                 if ( ( w != widgetDragStartWidth ) && ( ( overBorderPart == BorderPart.TOP_RIGHT ) || ( overBorderPart == BorderPart.RIGHT ) || ( overBorderPart == BorderPart.BOTTOM_RIGHT ) ) )
                     w = s.x + 1 - x;
                 if ( ( h != widgetDragStartHeight ) && ( ( overBorderPart == BorderPart.BOTTOM_LEFT ) || ( overBorderPart == BorderPart.BOTTOM ) || ( overBorderPart == BorderPart.BOTTOM_RIGHT ) ) )
                     h = s.y + 1 - y;
                 
-                RelativePositioning positioning = fixPositioning( selectedWidget, x, y, w, h );
+                RelativePositioning positioning = fixPositioning( draggedWidget, x, y, w, h );
                 
-                boolean b1 = selectedWidget.getSize().setEffectiveSize( w, h );
-                int eh = selectedWidget.getSize().getEffectiveHeight();
+                boolean b1 = draggedWidget.getSize().setEffectiveSize( w, h );
+                int eh = draggedWidget.getSize().getEffectiveHeight();
                 if ( ( h < eh ) && ( ( overBorderPart == BorderPart.TOP_LEFT ) || ( overBorderPart == BorderPart.TOP ) || ( overBorderPart == BorderPart.TOP_RIGHT ) ) )
                     y -= eh - h;
-                int ew = selectedWidget.getSize().getEffectiveWidth();
+                int ew = draggedWidget.getSize().getEffectiveWidth();
                 if ( ( w < ew ) && ( ( overBorderPart == BorderPart.BOTTOM_LEFT ) || ( overBorderPart == BorderPart.LEFT ) || ( overBorderPart == BorderPart.TOP_LEFT ) ) )
                     x -= ew - w;
-                boolean b2 = selectedWidget.getPosition().setEffectivePosition( positioning, x, y );
+                boolean b2 = draggedWidget.getPosition().setEffectivePosition( positioning, x, y );
                 
                 changed = b1 || b2;
             }
@@ -586,17 +584,17 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
                 int x = widgetDragStartX + dx;
                 int y = widgetDragStartY + dy;
                 
-                int effWidth = selectedWidget.getSize().getEffectiveWidth();
-                int effHeight = selectedWidget.getSize().getEffectiveHeight();
+                int effWidth = draggedWidget.getSize().getEffectiveWidth();
+                int effHeight = draggedWidget.getSize().getEffectiveHeight();
                 
                 x = Math.min( Math.max( 0, x ) + effWidth, gameResX ) - effWidth;
                 y = Math.min( Math.max( 0, y ) + effHeight, gameResY ) - effHeight;
                 
-                changed = setWidgetPosition( selectedWidget, x, y );
+                changed = setWidgetPosition( draggedWidget, x, y );
             }
             
             if ( changed )
-                editor.onWidgetChanged( selectedWidget, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
+                editorPanel.onSelectedWidgetPositionSizeChanged();
         }
     }
     
@@ -606,8 +604,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         switch ( e.getKeyCode() )
         {
             case KeyEvent.VK_DELETE:
-                editor.getEditorPanel().removeSelectedWidget();
-                editor.onWidgetSelected( null, false );
+                editorPanel.removeSelectedWidget();
                 break;
         }
     }
@@ -629,18 +626,18 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         isShiftDown = kev.isShiftDown();
         isControlDown = kev.isControlDown();
         
-        Widget w = editor.getEditorPanel().getSelectedWidget();
+        Widget w = editorPanel.getSelectedWidget();
         
-        if ( ( w != null ) && editor.getEditorPanel().hasFocus() )
+        if ( ( w != null ) && editorPanel.hasFocus() )
         {
             if ( kev.getKeyCode() == KeyEvent.VK_UP )
             {
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    w.clearRegion( editor.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
+                    w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
                     {
-                        editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
+                        editorPanel.onSelectedWidgetPositionSizeChanged();
                         needsRedraw = true;
                     }
                 }
@@ -651,10 +648,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             {
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    w.clearRegion( editor.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
+                    w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
                     {
-                        editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
+                        editorPanel.onSelectedWidgetPositionSizeChanged();
                         needsRedraw = true;
                     }
                 }
@@ -665,10 +662,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             {
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    w.clearRegion( editor.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
+                    w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
                     {
-                        editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
+                        editorPanel.onSelectedWidgetPositionSizeChanged();
                         needsRedraw = true;
                     }
                 }
@@ -679,10 +676,10 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
             {
                 if ( kev.getID() == KeyEvent.KEY_PRESSED )
                 {
-                    w.clearRegion( editor.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
+                    w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
                     if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
                     {
-                        editor.onWidgetChanged( w, RFDynHUDEditor.WIDGET_CHANGE_POS_SIZE );
+                        editorPanel.onSelectedWidgetPositionSizeChanged();
                         needsRedraw = true;
                     }
                 }
@@ -698,7 +695,7 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
      */
     private void handleGlobalMouseWheelEvent( MouseWheelEvent mwev )
     {
-        if ( editor.getEditorPanel().hasFocus() )
+        if ( editorPanel.hasFocus() )
         {
             if ( needsRedraw )
                 widgetsManager.setAllDirtyFlags();
@@ -708,9 +705,9 @@ public class EditorPanelInputHandler implements MouseListener, MouseMotionListen
         }
     }
     
-    public EditorPanelInputHandler( RFDynHUDEditor editor, WidgetsDrawingManager widgetsManager )
+    public WidgetsEditorPanelInputHandler( WidgetsEditorPanel editorPanel, WidgetsDrawingManager widgetsManager )
     {
-        this.editor = editor;
+        this.editorPanel = editorPanel;
         this.widgetsManager = widgetsManager;
         
         Toolkit.getDefaultToolkit().addAWTEventListener( new AWTEventListener()

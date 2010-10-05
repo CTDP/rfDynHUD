@@ -181,11 +181,7 @@ public class WidgetBackground
         widget.forceAndSetDirty( true );
     }
     
-    /**
-     * 
-     * @param widget
-     */
-    void onWidgetSizeChanged( Widget widget )
+    void onWidgetSizeChanged()
     {
         bgTexDirty = true;
         mergedBgTexDirty = true;

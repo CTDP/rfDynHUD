@@ -19,17 +19,16 @@ package net.ctdp.rfdynhud.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.jagatoo.util.errorhandling.ParsingException;
-import org.jagatoo.util.ini.AbstractIniParser;
-
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+
+import org.jagatoo.util.errorhandling.ParsingException;
+import org.jagatoo.util.ini.AbstractIniParser;
 
 public class LocalizationsManager
 {
@@ -134,7 +133,7 @@ public class LocalizationsManager
             }
             else
             {
-                iniParser.parse( new InputStreamReader( new FileInputStream( f ), Charset.forName( codepage ) ) );
+                iniParser.parse( new FileInputStream( f ), Charset.forName( codepage ) );
             }
         }
         catch ( Throwable t )

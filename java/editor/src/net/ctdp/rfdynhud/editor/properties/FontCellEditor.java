@@ -140,7 +140,7 @@ public class FontCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         prop.onButtonClicked( button );
                 }
                 
-                finalizeEdit( table );
+                finalizeEdit( table, false );
             }
         } );
         

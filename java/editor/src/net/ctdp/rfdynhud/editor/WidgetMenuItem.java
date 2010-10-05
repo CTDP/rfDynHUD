@@ -100,7 +100,7 @@ public class WidgetMenuItem extends JMenuItem
         {
             widget.prepareForMenuItem();
             
-            Rect2i innerRect = EditorPanel.getWidgetInnerRect( widget );
+            Rect2i innerRect = WidgetsEditorPanel.getWidgetInnerRect( widget );
             TransformableTexture[] subTextures = widget.getSubTextures( editor.getGameData(), true, innerRect.getWidth(), innerRect.getHeight() );
             
             widget.updateVisibility( editor.getGameData(), true );
@@ -108,7 +108,7 @@ public class WidgetMenuItem extends JMenuItem
             texture.clear( true, null );
             widget.drawWidget( fakeClock, true, editor.getGameData(), true, texture, false );
             
-            EditorPanel.drawSubTextures( widget, subTextures, texture.getTextureCanvas() );
+            WidgetsEditorPanel.drawSubTextures( widget, subTextures, texture.getTextureCanvas() );
             
             if ( checkState )
             {

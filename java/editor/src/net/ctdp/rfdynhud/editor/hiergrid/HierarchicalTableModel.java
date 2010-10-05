@@ -187,8 +187,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
      */
     public void apply( String changedPropertyName, int selectedRow )
     {
-        @SuppressWarnings( "unchecked" )
-        HierarchicalTable<P>.HierarchicalTableColumnModel columnModel = (HierarchicalTable<P>.HierarchicalTableColumnModel)table.getColumnModel();
+        HierarchicalTableColumnModel<P> columnModel = table.getColumnModel();
         
         boolean oldHEI = hasExpandableItems();
         

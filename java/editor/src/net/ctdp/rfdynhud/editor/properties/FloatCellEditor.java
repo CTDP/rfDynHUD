@@ -107,7 +107,7 @@ public class FloatCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                finalizeEdit( table );
+                finalizeEdit( table, false );
             }
         } );
         

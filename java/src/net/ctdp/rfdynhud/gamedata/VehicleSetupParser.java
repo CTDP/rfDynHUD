@@ -17,14 +17,11 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 
 import net.ctdp.rfdynhud.util.Logger;
 
@@ -38,7 +35,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 class VehicleSetupParser
 {
-    private static final void parseSetup( final String filename, final Reader reader, final VehiclePhysics physics, final VehicleSetup setup ) throws IOException, ParsingException
+    private static final void parseSetup( final String filename, final InputStream in, final VehiclePhysics physics, final VehicleSetup setup ) throws IOException, ParsingException
     {
         new AbstractIniParser()
         {
@@ -877,18 +874,18 @@ class VehicleSetupParser
                 
                 return ( true );
             }
-        }.parse( reader );
+        }.parse( in );
     }
     
     private static long lastProfileUpdateId = -1L;
     private static File file = null;
     private static long lastLastModified = -1L;
     
-    private static final void loadSetup( String filename, Reader reader, VehiclePhysics physics, VehicleSetup setup )
+    private static final void loadSetup( String filename, InputStream in, VehiclePhysics physics, VehicleSetup setup )
     {
         try
         {
-            parseSetup( filename, reader, physics, setup );
+            parseSetup( filename, in, physics, setup );
         }
         catch ( IOException e )
         {
@@ -906,7 +903,7 @@ class VehicleSetupParser
         
         InputStream in = VehicleSetupParser.class.getClassLoader().getResourceAsStream( VehicleSetup.class.getPackage().getName().replace( '.', '/' ) + "/tempGarage.svm" );
         
-        loadSetup( "Default setup", new InputStreamReader( in ), physics, setup );
+        loadSetup( "Default setup", in, physics, setup );
     }
     
     static final boolean loadSetup( LiveGameData gameData )
@@ -931,7 +928,7 @@ class VehicleSetupParser
         
         try
         {
-            loadSetup( file.getAbsolutePath(), new BufferedReader( new FileReader( file ) ), gameData.getPhysics(), gameData.getSetup() );
+            loadSetup( file.getAbsolutePath(), new FileInputStream( file ), gameData.getPhysics(), gameData.getSetup() );
             
             lastLastModified = file.lastModified();
             

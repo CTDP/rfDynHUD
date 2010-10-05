@@ -97,7 +97,10 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
             label.setForeground( Color.BLACK );
         
         label.setBackground( color );
-        panel.setBackground( label.getBackground() );
+        if ( isSelected || forEditor )
+            panel.setBackground( table.getSelectionBackground() );
+        else
+            panel.setBackground( table.getBackground() );
         label.setFont( table.getStyle().getValueCellFont() );
         
         label.setText( (String)value );
@@ -152,7 +155,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         prop.onButtonClicked( button );
                 }
                 
-                finalizeEdit( table );
+                finalizeEdit( table, false );
             }
         } );
         

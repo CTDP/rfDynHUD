@@ -32,19 +32,6 @@ import org.openmali.types.twodee.Rect2i;
  */
 public class TextureDirtyRectsManager
 {
-    private static boolean needsCompleteDirtyRect = true;
-    private static long completeRedrawFrameIndex = -1L;
-    
-    public static void forceCompleteRedraw()
-    {
-        needsCompleteDirtyRect = true;
-    }
-    
-    public static boolean isCompleteRedrawForced()
-    {
-        return ( needsCompleteDirtyRect );
-    }
-    
     public static ByteBuffer createByteBuffer( int maxNumDirtyRects )
     {
         return ( ByteBuffer.allocateDirect( 2 + 2 * maxNumDirtyRects ).order( ByteOrder.nativeOrder() ) );
@@ -65,86 +52,47 @@ public class TextureDirtyRectsManager
      * @param texture the texture to handle dirty rectangles of
      * @param buffer the buffer to write the information to
      * @param resetBufferToStart if true, the buffer is set to position zero before anything is written to it
-     * @param frameIndex the current render frame index
      * 
      * @return the number of dirty rectangles. If the buffer iss too small the number is returned as a negative number.
      */
-    public static short getDirtyRects( long frameIndex, TextureImage2D texture, ByteBuffer buffer, boolean resetBufferToStart )
+    public static short getDirtyRects( TextureImage2D texture, ByteBuffer buffer, boolean resetBufferToStart )
     {
         ArrayList<Rect2i> dirtyList = texture.getUpdateList();
         int numDirtyRects = dirtyList.size();
         
         if ( buffer != null )
         {
-            boolean completeDirtyRect = needsCompleteDirtyRect;
-            needsCompleteDirtyRect = false;
-            
-            if ( completeDirtyRect )
-                completeRedrawFrameIndex = frameIndex;
-            else if ( completeRedrawFrameIndex == frameIndex )
-                completeDirtyRect = true;
-            else
-                completeRedrawFrameIndex = -1L;
-            
             if ( resetBufferToStart )
                 buffer.position( 0 );
             
             buffer.limit( buffer.capacity() );
             
-            if ( completeDirtyRect )
+            if ( buffer.limit() - buffer.position() < 2 + 2 * 4 * numDirtyRects )
             {
-                if ( buffer.limit() - buffer.position() < 2 + 2 * 4 )
+                Logger.log( "WARNING: Cannot write dirty rects to the buffer." );
+                
+                if ( buffer.limit() - buffer.position() < 2 )
                 {
-                    Logger.log( "WARNING: Cannot write dirty rects to the buffer." );
-                    
-                    if ( buffer.limit() - buffer.position() < 2 )
-                    {
-                    }
-                    else
-                    {
-                        writeShort( (short)0, buffer );
-                        buffer.flip();
-                    }
-                    
-                    return ( (short)-numDirtyRects );
+                }
+                else
+                {
+                    writeShort( (short)0, buffer );
+                    buffer.flip();
                 }
                 
-                writeShort( (short)1, buffer );
-                
-                writeShort( (short)0, buffer );
-                writeShort( (short)0, buffer );
-                writeShort( (short)texture.getWidth(), buffer );
-                writeShort( (short)texture.getHeight(), buffer );
+                return ( (short)-numDirtyRects );
             }
-            else
+            
+            writeShort( (short)numDirtyRects, buffer );
+            
+            for ( int i = 0; i < numDirtyRects; i++ )
             {
-                if ( buffer.limit() - buffer.position() < 2 + 2 * 4 * numDirtyRects )
-                {
-                    Logger.log( "WARNING: Cannot write dirty rects to the buffer." );
-                    
-                    if ( buffer.limit() - buffer.position() < 2 )
-                    {
-                    }
-                    else
-                    {
-                        writeShort( (short)0, buffer );
-                        buffer.flip();
-                    }
-                    
-                    return ( (short)-numDirtyRects );
-                }
+                Rect2i r = dirtyList.get( i );
                 
-                writeShort( (short)numDirtyRects, buffer );
-                
-                for ( int i = 0; i < numDirtyRects; i++ )
-                {
-                    Rect2i r = dirtyList.get( i );
-                    
-                    writeShort( (short)r.getLeft(), buffer );
-                    writeShort( (short)r.getTop(), buffer );
-                    writeShort( (short)r.getWidth(), buffer );
-                    writeShort( (short)r.getHeight(), buffer );
-                }
+                writeShort( (short)r.getLeft(), buffer );
+                writeShort( (short)r.getTop(), buffer );
+                writeShort( (short)r.getWidth(), buffer );
+                writeShort( (short)r.getHeight(), buffer );
             }
             
             buffer.flip();

@@ -18,9 +18,9 @@
 package net.ctdp.rfdynhud.util;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.util.Stack;
 
 import javax.swing.JOptionPane;
@@ -29,7 +29,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
@@ -113,17 +112,140 @@ public class ConfigurationLoader implements PropertyLoader
         BorderAliases,
         Widget,
         ;
+        
+        public static GroupType parseGroupType( String groupName )
+        {
+            GroupType groupType = null;
+            
+            if ( groupName.equals( "Meta" ) )
+                groupType = GroupType.Meta;
+            else if ( groupName.equals( "Global" ) )
+                groupType = GroupType.Global;
+            else if ( groupName.equals( "NamedColors" ) )
+                groupType = GroupType.NamedColors;
+            else if ( groupName.equals( "NamedFonts" ) )
+                groupType = GroupType.NamedFonts;
+            else if ( groupName.equals( "BorderAliases" ) )
+                groupType = GroupType.BorderAliases;
+            else if ( groupName.startsWith( "Widget::" ) )
+                groupType = GroupType.Widget;
+            
+            return ( groupType );
+        }
     }
     
     /**
      * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
      * 
-     * @param reader
+     * @param file
+     * 
+     * @return the design resolution as an int array or <code>null</code>.
+     * 
+     * @throws IOException if anything went wrong.
+     */
+    public static int[] readDesignResolutionFromConfiguration( File file ) throws IOException
+    {
+        final int[] result = { -1, -1 };
+        
+        new AbstractIniParser()
+        {
+            private GroupType currentGroupType = null;
+            
+            private boolean headerFound = false;
+            
+            private boolean settingBeforeGroupWarningThrown = false;
+            
+            @Override
+            protected boolean onGroupParsed( int lineNr, String group )
+            {
+                currentGroupType = GroupType.parseGroupType( group );
+                
+                if ( currentGroupType == GroupType.Meta )
+                {
+                    headerFound = true;
+                }
+                else// if ( currentGroupType != null )
+                {
+                    if ( headerFound )
+                        return ( false );
+                }
+                
+                return ( true );
+            }
+            
+            @Override
+            protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
+            {
+                if ( currentGroupType == null )
+                {
+                    if ( !settingBeforeGroupWarningThrown )
+                    {
+                        //throw new ParsingException( "Found setting before the first (known) group started (line " + lineNr + ")." );
+                        Logger.log( "WARNING: Found setting before the first (known) group started (line " + lineNr + ")." );
+                        
+                        settingBeforeGroupWarningThrown = true;
+                    }
+                    
+                    return ( true );
+                }
+                
+                switch ( currentGroupType )
+                {
+                    case Meta:
+                        /*
+                        if ( key.equals( "rfDynHUD_Version" ) )
+                        {
+                            try
+                            {
+                                sourceVersion = Version.parseVersion( value );
+                            }
+                            catch ( Throwable t )
+                            {
+                                Logger.log( "WANRING: Unable to parse rfDynHUDVersion." );
+                                sourceVersion = new Version( 0, 0, 0, null, 0 );
+                            }
+                        }
+                        */
+                        if ( key.equals( "Design_Resolution" ) )
+                        {
+                            String[] parts = value.split( "x" );
+                            
+                            if ( parts.length == 2 )
+                            {
+                                try
+                                {
+                                    result[0] = Integer.parseInt( parts[0] );
+                                    result[1] = Integer.parseInt( parts[1] );
+                                }
+                                catch ( NumberFormatException e )
+                                {
+                                    Logger.log( e );
+                                }
+                            }
+                        }
+                        
+                        break;
+                }
+                
+                return ( true );
+            }
+        }.parse( file );
+        
+        if ( ( result[0] < 0 ) || ( result[1] < 0 ) )
+            return ( null );
+        
+        return ( result );
+    }
+    
+    /**
+     * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
+     * 
+     * @param in
      * @param widgetsConfig
      * 
-     * @throws IOException
+     * @throws IOException if anything went wrong.
      */
-    private void __loadConfiguration( Reader reader, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    private void __loadConfiguration( InputStream in, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
     {
         __WCPrivilegedAccess.clear( widgetsConfig, gameData, isEditorMode, loadListener );
         
@@ -163,20 +285,7 @@ public class ConfigurationLoader implements PropertyLoader
                     partName = null;
                 }
                 
-                currentGroupType = null;
-                
-                if ( group.equals( "Meta" ) )
-                    currentGroupType = GroupType.Meta;
-                else if ( group.equals( "Global" ) )
-                    currentGroupType = GroupType.Global;
-                else if ( group.equals( "NamedColors" ) )
-                    currentGroupType = GroupType.NamedColors;
-                else if ( group.equals( "NamedFonts" ) )
-                    currentGroupType = GroupType.NamedFonts;
-                else if ( group.equals( "BorderAliases" ) )
-                    currentGroupType = GroupType.BorderAliases;
-                else if ( group.startsWith( "Widget::" ) )
-                    currentGroupType = GroupType.Widget;
+                currentGroupType = GroupType.parseGroupType( group );
                 
                 if ( currentGroupType == GroupType.Widget )
                 {
@@ -405,7 +514,7 @@ public class ConfigurationLoader implements PropertyLoader
                     JOptionPane.showMessageDialog( null, errorMessages, "Error loading config ini", JOptionPane.ERROR_MESSAGE );
                 }
             }
-        }.parse( reader );
+        }.parse( in );
         
         currentKey = null;
         currentValue = null;
@@ -416,15 +525,15 @@ public class ConfigurationLoader implements PropertyLoader
         __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode, loadListener );
     }
     
-    private static File currentlyLoadedConfigFile = null;
-    private static long lastModified = -1L;
-    private static boolean isFirstLoadAttempt = true;
+    private File currentlyLoadedConfigFile = null;
+    private long lastModified = -1L;
+    private boolean isFirstLoadAttempt = true;
     
     private File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
     {
         Logger.log( "Loading configuration file from \"" + file.getAbsolutePath() + "\"" );
         
-        __loadConfiguration( new FileReader( file ), widgetsConfig, gameData, isEditorMode, loadListener );
+        __loadConfiguration( new FileInputStream( file ), widgetsConfig, gameData, isEditorMode, loadListener );
         
         __WCPrivilegedAccess.setValid( widgetsConfig, true );
         
@@ -543,8 +652,6 @@ public class ConfigurationLoader implements PropertyLoader
             lastModified = -1L;
         }
         
-        File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
-        
         File f = null;
         
         try
@@ -568,15 +675,16 @@ public class ConfigurationLoader implements PropertyLoader
                 return ( null );
             }
             
-            if ( ( currentlyLoadedConfigFile != null ) || isFirstLoadAttempt )
+            boolean result = ( ( currentlyLoadedConfigFile != null ) || isFirstLoadAttempt );
+            
+            if ( result )
             {
                 loadFactoryDefaults( widgetsConfig, gameData, isEditorMode, loadListener );
-                TextureDirtyRectsManager.forceCompleteRedraw();
             }
             
             isFirstLoadAttempt = false;
             
-            return ( old_currentlyLoadedConfigFile != null );
+            return ( result );
         }
         catch ( Throwable t )
         {
@@ -585,10 +693,12 @@ public class ConfigurationLoader implements PropertyLoader
             
             __WCPrivilegedAccess.setValid( widgetsConfig, false );
             
+            boolean result = ( currentlyLoadedConfigFile != null );
+            
             currentlyLoadedConfigFile = null;
             lastModified = -1L;
             
-            return ( old_currentlyLoadedConfigFile != null );
+            return ( result );
         }
     }
 }
