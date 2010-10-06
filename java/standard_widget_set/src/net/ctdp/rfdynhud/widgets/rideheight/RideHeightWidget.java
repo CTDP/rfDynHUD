@@ -22,6 +22,10 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.Wheel;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
+import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -42,6 +46,11 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class RideHeightWidget extends Widget
 {
+    private final BooleanProperty displayHeader = new BooleanProperty( this, "displayHeader", true );
+    
+    private final FontProperty headerFont = new FontProperty( this, "headerFont", "font", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty headerFontColor = new ColorProperty( this, "headerFontColor", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    
     private float minFL = Float.MAX_VALUE;
     private float minFR = Float.MAX_VALUE;
     private float minRL = Float.MAX_VALUE;
@@ -49,6 +58,7 @@ public class RideHeightWidget extends Widget
     
     private long t0 = -1;
     
+    private DrawnString headerString = null;
     private DrawnString flString = null;
     private DrawnString frString = null;
     private DrawnString rlString = null;
@@ -74,15 +84,29 @@ public class RideHeightWidget extends Widget
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
-        flString = dsf.newDrawnString( "flString", 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        frString = dsf.newDrawnString( "frString", 100, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        rlString = dsf.newDrawnString( "rlString", 0, 25, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
-        rrString = dsf.newDrawnString( "rrString", 100, 25, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
+        headerString = dsf.newDrawnStringIf( displayHeader.getBooleanValue(), "headerString", 0, 0, Alignment.LEFT, false, headerFont.getFont(), headerFont.isAntiAliased(), headerFontColor.getColor() );
+        
+        int y0 = displayHeader.getBooleanValue() ? headerString.calcMaxHeight( true ) : 0;
+        int h = (int)TextureImage2D.getStringBounds( "0.0", getFontProperty() ).getHeight();
+        
+        String units = Loc.units_METRIC;
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            units = Loc.units_IMPERIAL;
+        
+        flString = dsf.newDrawnString( "flString", 0, y0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), null, units );
+        frString = dsf.newDrawnString( "frString", width, y0, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor(), null, units );
+        rlString = dsf.newDrawnString( "rlString", 0, height - h, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), null, units );
+        rrString = dsf.newDrawnString( "rrString", width, height - h, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor(), null, units );
     }
     
     @Override
     protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
+        if ( needsCompleteRedraw && displayHeader.getBooleanValue() )
+        {
+            headerString.draw( offsetX, offsetY, Loc.header, texture );
+        }
+        
         final TelemetryData telemData = gameData.getTelemetryData();
         
         minFL = Math.min( minFL, telemData.getRideHeight( Wheel.FRONT_LEFT ) );
@@ -94,15 +118,23 @@ public class RideHeightWidget extends Widget
         
         if ( needsCompleteRedraw || c2 )
         {
-            minFL = Math.max( 0f, minFL );
-            minFR = Math.max( 0f, minFR );
-            minRL = Math.max( 0f, minRL );
-            minRR = Math.max( 0f, minRR );
+            minFL = Math.max( 0f, minFL * 100f );
+            minFR = Math.max( 0f, minFR * 100f );
+            minRL = Math.max( 0f, minRL * 100f );
+            minRR = Math.max( 0f, minRR * 100f );
             
-            flString.draw( offsetX, offsetY, NumberUtil.formatFloat( minFL * 100f, 1, true ), ( minFL <= 0f ? java.awt.Color.RED : null ), texture );
-            frString.draw( offsetX, offsetY, NumberUtil.formatFloat( minFR * 100f, 1, true ), ( minFR <= 0f ? java.awt.Color.RED : null ), texture );
-            rlString.draw( offsetX, offsetY, NumberUtil.formatFloat( minRL * 100f, 1, true ), ( minRL <= 0f ? java.awt.Color.RED : null ), texture );
-            rrString.draw( offsetX, offsetY, NumberUtil.formatFloat( minRR * 100f, 1, true ), ( minRR <= 0f ? java.awt.Color.RED : null ), texture );
+            if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            {
+                minFL /= 2.54f;
+                minFR /= 2.54f;
+                minRL /= 2.54f;
+                minRR /= 2.54f;
+            }
+            
+            flString.draw( offsetX, offsetY, NumberUtil.formatFloat( minFL, 1, true ), ( minFL <= 0f ? java.awt.Color.RED : null ), texture );
+            frString.draw( offsetX, offsetY, NumberUtil.formatFloat( minFR, 1, true ), ( minFR <= 0f ? java.awt.Color.RED : null ), texture );
+            rlString.draw( offsetX, offsetY, NumberUtil.formatFloat( minRL, 1, true ), ( minRL <= 0f ? java.awt.Color.RED : null ), texture );
+            rrString.draw( offsetX, offsetY, NumberUtil.formatFloat( minRR, 1, true ), ( minRR <= 0f ? java.awt.Color.RED : null ), texture );
             
             minFL = Float.MAX_VALUE;
             minFR = Float.MAX_VALUE;
@@ -121,6 +153,10 @@ public class RideHeightWidget extends Widget
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
         super.saveProperties( writer );
+        
+        writer.writeProperty( displayHeader, "Whether to display the header or not." );
+        writer.writeProperty( headerFont, "Font for the header." );
+        writer.writeProperty( headerFontColor, "Font color for the header" );
     }
     
     /**
@@ -130,6 +166,10 @@ public class RideHeightWidget extends Widget
     public void loadProperty( PropertyLoader loader )
     {
         super.loadProperty( loader );
+        
+        if ( loader.loadProperty( displayHeader ) );
+        else if ( loader.loadProperty( headerFont ) );
+        else if ( loader.loadProperty( headerFontColor ) );
     }
     
     /**
@@ -140,11 +180,14 @@ public class RideHeightWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Header" );
+        propsCont.addProperty( displayHeader );
+        propsCont.addProperty( headerFont );
+        propsCont.addProperty( headerFontColor );
     }
     
     public RideHeightWidget( String name )
     {
-        super( name, 12.5f, 5.5f );
+        super( name, 9.3f, 7.25f );
     }
 }

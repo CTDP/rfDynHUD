@@ -61,7 +61,8 @@ Minor:
 * Moved border configurations from config/images/borders to config/borders
 * When saving a new configuration in the editor (Save As), a filename construction utility helps you to construct the correct filename.
 * Widgets menu in the editor looks nicer with small Widget icons.
-* Added support for key combinations for input bindings.
+* Added a basic RideHeightWidget.
+* Added support for key combinations and hit counts for input bindings.
 * Added peak needle to the RevMeterWidget.
 * Tweaked rendering code to allow for overlapping Widgets.
 * Sub textures are now properly drawn in the editor.
@@ -73,16 +74,13 @@ Minor:
 
 TODO:
 
-* Add RideHeightWidget
 * Add DashboardWidget
-* Bar meter for temp, etc.
 * Manage logs to keep 5
 * Meta config (merge configurations)
 * Add master d3d9.dll
+* General profiling to tweak performance
+* Fix/Improve clock frequencies
 
 * Improve viewed vehicle detection (use me if close, read from application)
 * Render plugin in replay mode (theoretically not possible, needs application memory access)
-* Fix/Improve clock frequencies
-* General profiling to tweak performance
-
 * MapWidget/TrackPositionWidget: Display pace car (impossible, not in VehicleScoringInfo)
