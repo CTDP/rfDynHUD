@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.editor;
 
 import java.awt.Component;
 import java.awt.DisplayMode;
+import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -261,6 +262,25 @@ public class EditorMenuBar extends JMenuBar
         return ( menu );
     }
     
+    private static JMenuItem createSelectWidgetMenu( final RFDynHUDEditor editor, Widget widget, boolean bold )
+    {
+        final String widgetName = widget.getName();
+        
+        JMenuItem selectWidgetItem = new JMenuItem( "Select " + widgetName );
+        if ( bold )
+            selectWidgetItem.setFont( selectWidgetItem.getFont().deriveFont( Font.BOLD ) );
+        selectWidgetItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getEditorPanel().setSelectedWidget( widgetName );
+            }
+        } );
+        
+        return ( selectWidgetItem );
+    }
+    
     private static JMenuItem createResetZoomMenu( final RFDynHUDEditor editor )
     {
         JMenuItem resetZoomItem = new JMenuItem( "Reset zool level (CTRL + Wheel click)" );
@@ -276,18 +296,33 @@ public class EditorMenuBar extends JMenuBar
         return ( resetZoomItem );
     }
     
-    public static void initContextMenu( RFDynHUDEditor editor )
+    public static void initContextMenu( RFDynHUDEditor editor, Widget[] hoveredWidgets )
     {
         JPopupMenu menu = new JPopupMenu();
         
+        if ( ( hoveredWidgets != null ) && ( hoveredWidgets.length > 1 ) )
+        {
+            for ( int i = 0; i < hoveredWidgets.length; i++ )
+            {
+                JMenuItem selectWidgetItem = createSelectWidgetMenu( editor, hoveredWidgets[i], i == 0 );
+                menu.add( selectWidgetItem );
+            }
+            
+            menu.addSeparator();
+        }
+        
         JMenuItem resetZoomItem = createResetZoomMenu( editor );
         menu.add( resetZoomItem );
+        
+        menu.addSeparator();
         
         JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu( editor );
         menu.add( snapSelWidgetToGrid );
         
         JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu( editor );
         menu.add( snapAllWidgetsToGrid );
+        
+        menu.addSeparator();
         
         JMenuItem removeItem = createRemoveWidgetMenu( editor );
         menu.add( removeItem );

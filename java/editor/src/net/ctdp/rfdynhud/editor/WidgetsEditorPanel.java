@@ -301,6 +301,13 @@ public class WidgetsEditorPanel extends JPanel
         }
     }
     
+    public final void setSelectedWidget( String widgetName )
+    {
+        Widget widget = drawingManager.getWidget( widgetName );
+        
+        setSelectedWidget( widget, false );
+    }
+    
     public final Widget getSelectedWidget()
     {
         return ( selectedWidget );
@@ -325,11 +332,11 @@ public class WidgetsEditorPanel extends JPanel
         }
     }
     
-    public void requestContextMenu()
+    public void requestContextMenu( Widget[] hoveredWidgets )
     {
         for ( int i = 0; i < listeners.size(); i++ )
         {
-            listeners.get( i ).onContextMenuRequested( selectedWidget );
+            listeners.get( i ).onContextMenuRequested( hoveredWidgets );
         }
     }
     

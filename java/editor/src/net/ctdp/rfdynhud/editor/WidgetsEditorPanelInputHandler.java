@@ -44,16 +44,28 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
 {
     private static enum BorderPart
     {
-        NONE,
-        TOP_LEFT,
-        TOP,
-        TOP_RIGHT,
-        LEFT,
-        RIGHT,
-        BOTTOM_LEFT,
-        BOTTOM,
-        BOTTOM_RIGHT,
+        NONE( Cursor.getDefaultCursor() ),
+        TOP_LEFT( Cursor.NW_RESIZE_CURSOR ),
+        TOP( Cursor.N_RESIZE_CURSOR ),
+        TOP_RIGHT( Cursor.NE_RESIZE_CURSOR ),
+        LEFT( Cursor.W_RESIZE_CURSOR ),
+        RIGHT( Cursor.E_RESIZE_CURSOR ),
+        BOTTOM_LEFT( Cursor.SW_RESIZE_CURSOR ),
+        BOTTOM( Cursor.S_RESIZE_CURSOR ),
+        BOTTOM_RIGHT( Cursor.SE_RESIZE_CURSOR ),
         ;
+        
+        public final Cursor cursor;
+        
+        private BorderPart( Cursor cursor )
+        {
+            this.cursor = cursor;
+        }
+        
+        private BorderPart( int cursor )
+        {
+            this( Cursor.getPredefinedCursor( cursor ) );
+        }
     }
     
     private static final int RESIZE_BORDER = 10;
@@ -75,8 +87,18 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
     private boolean isShiftDown = false;
     private boolean isControlDown = false;
     
-    private Widget getWidgetUnderMouse( int x, int y )
+    private Widget[] hoveredWidgets = new Widget[ 0 ];
+    private int numHoveredWidgets = 0;
+    private Widget[] hoveredWidgets2 = new Widget[ 0 ];
+    private int numHoveredWidgets2 = 0;
+    
+    private int getWidgetsUnderMouse( int x, int y, Widget[] buffer, boolean onlyTopmost )
     {
+        for ( int i = 0; i < buffer.length; i++ )
+            buffer[i] = null;
+        
+        int n = 0;
+        
         for ( int i = widgetsManager.getNumWidgets() - 1; i >= 0; i-- )
         {
             Widget widget = widgetsManager.getWidget( i );
@@ -88,11 +110,14 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
             
             if ( ( wx <= x ) && ( wx + ww > x ) && ( wy <= y ) && ( wy + wh > y ) )
             {
-                return ( widget );
+                buffer[n++] = widget;
+                
+                if ( onlyTopmost )
+                    return ( n );
             }
         }
         
-        return ( null );
+        return ( n );
     }
     
     @Override
@@ -106,11 +131,36 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         
         if ( ( e.getButton() == MouseEvent.BUTTON1 ) || ( e.getButton() == MouseEvent.BUTTON3 ) )
         {
-            draggedWidget = getWidgetUnderMouse( x, y );
-            //boolean widgetChanged = ( selectedWidget != editor.getEditorPanel().getSelectedWidget() );
+            if ( hoveredWidgets.length < widgetsManager.getNumWidgets() )
+                hoveredWidgets = new Widget[ widgetsManager.getNumWidgets() ];
             
-            //if ( widgetChanged )
-                editorPanel.setSelectedWidget( draggedWidget, false );
+            numHoveredWidgets = getWidgetsUnderMouse( x, y, hoveredWidgets, false );
+            
+            if ( numHoveredWidgets == 0 )
+            {
+                draggedWidget = null;
+            }
+            else if ( editorPanel.getSelectedWidget() != null )
+            {
+                boolean found = false;
+                for ( int i = 0; i < numHoveredWidgets && !found; i++ )
+                {
+                    if ( hoveredWidgets[i] == editorPanel.getSelectedWidget() )
+                    {
+                        draggedWidget = hoveredWidgets[i];
+                        found = true;
+                    }
+                }
+                
+                if ( !found )
+                    draggedWidget = hoveredWidgets[0];
+            }
+            else
+            {
+                draggedWidget = hoveredWidgets[0];
+            }
+            
+            editorPanel.setSelectedWidget( draggedWidget, false );
         }
         
         if ( e.getButton() == MouseEvent.BUTTON1 )
@@ -136,7 +186,17 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         }
         else if ( e.getButton() == MouseEvent.BUTTON3 )
         {
-            editorPanel.requestContextMenu();
+            if ( numHoveredWidgets <= 1 )
+            {
+                editorPanel.requestContextMenu( null );
+            }
+            else
+            {
+                Widget[] hw = new Widget[ numHoveredWidgets ];
+                System.arraycopy( hoveredWidgets, 0, hw, 0, numHoveredWidgets );
+                
+                editorPanel.requestContextMenu( hw );
+            }
         }
     }
     
@@ -187,13 +247,9 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
     {
     }
     
-    @Override
-    public void mouseMoved( MouseEvent e )
+    private BorderPart getBorderPartForLocation( int x, int y, Widget widget )
     {
-        int x = Math.round( e.getX() * editorPanel.getRecipScaleFactor() );
-        int y = Math.round( e.getY() * editorPanel.getRecipScaleFactor() );
-        
-        Widget widget = getWidgetUnderMouse( x, y );
+        BorderPart overBorderPart = null;
         
         if ( ( widget != null ) && !widget.hasFixedSize() )
         {
@@ -202,69 +258,90 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
             int effW = widget.getSize().getEffectiveWidth();
             int effH = widget.getSize().getEffectiveHeight();
             
-            Cursor cursor = editorPanel.getCursor();
+            if ( ( x >= effX ) && ( x < effX + effW ) && ( y >= effY ) && ( y < effY + effH ) )
+            {
+                if ( x < effX + RESIZE_BORDER )
+                {
+                    if ( y < effY + RESIZE_BORDER )
+                        overBorderPart = BorderPart.TOP_LEFT;
+                    else if ( y <= effY + effH - RESIZE_BORDER )
+                        overBorderPart = BorderPart.LEFT;
+                    else
+                        overBorderPart = BorderPart.BOTTOM_LEFT;
+                }
+                else if ( x <= effX + effW - RESIZE_BORDER )
+                {
+                    if ( y < effY + RESIZE_BORDER )
+                        overBorderPart = BorderPart.TOP;
+                    else if ( y <= effY + effH - RESIZE_BORDER )
+                        overBorderPart = BorderPart.NONE;
+                    else
+                        overBorderPart = BorderPart.BOTTOM;
+                }
+                else
+                {
+                    if ( y < effY + RESIZE_BORDER )
+                        overBorderPart = BorderPart.TOP_RIGHT;
+                    else if ( y <= effY + effH - RESIZE_BORDER )
+                        overBorderPart = BorderPart.RIGHT;
+                    else
+                        overBorderPart = BorderPart.BOTTOM_RIGHT;
+                }
+            }
+        }
+        
+        return ( overBorderPart );
+    }
+    
+    @Override
+    public void mouseMoved( MouseEvent e )
+    {
+        int x = Math.round( e.getX() * editorPanel.getRecipScaleFactor() );
+        int y = Math.round( e.getY() * editorPanel.getRecipScaleFactor() );
+        
+        if ( hoveredWidgets2.length < widgetsManager.getNumWidgets() )
+            hoveredWidgets2 = new Widget[ widgetsManager.getNumWidgets() ];
+        
+        numHoveredWidgets2 = getWidgetsUnderMouse( x, y, hoveredWidgets2, false );
+        
+        if ( numHoveredWidgets2 > 0 )
+        {
+            Widget widget = editorPanel.getSelectedWidget();
             
-            if ( x < effX + RESIZE_BORDER )
+            if ( widget == null )
             {
-                if ( y < effY + RESIZE_BORDER )
-                {
-                    overBorderPart = BorderPart.TOP_LEFT;
-                    cursor = Cursor.getPredefinedCursor( Cursor.NW_RESIZE_CURSOR );
-                }
-                else if ( y < effY + effH - RESIZE_BORDER )
-                {
-                    overBorderPart = BorderPart.LEFT;
-                    cursor = Cursor.getPredefinedCursor( Cursor.W_RESIZE_CURSOR );
-                }
-                else
-                {
-                    overBorderPart = BorderPart.BOTTOM_LEFT;
-                    cursor = Cursor.getPredefinedCursor( Cursor.SW_RESIZE_CURSOR );
-                }
-            }
-            else if ( x > effX + effW - RESIZE_BORDER )
-            {
-                if ( y < effY + RESIZE_BORDER )
-                {
-                    overBorderPart = BorderPart.TOP_RIGHT;
-                    cursor = Cursor.getPredefinedCursor( Cursor.NE_RESIZE_CURSOR );
-                }
-                else if ( y < effY + effH - RESIZE_BORDER )
-                {
-                    overBorderPart = BorderPart.RIGHT;
-                    cursor = Cursor.getPredefinedCursor( Cursor.E_RESIZE_CURSOR );
-                }
-                else
-                {
-                    overBorderPart = BorderPart.BOTTOM_RIGHT;
-                    cursor = Cursor.getPredefinedCursor( Cursor.SE_RESIZE_CURSOR );
-                }
-            }
-            else if ( y < effY + RESIZE_BORDER )
-            {
-                overBorderPart = BorderPart.TOP;
-                cursor = Cursor.getPredefinedCursor( Cursor.N_RESIZE_CURSOR );
-            }
-            else if ( y > effY + effH - RESIZE_BORDER )
-            {
-                overBorderPart = BorderPart.BOTTOM;
-                cursor = Cursor.getPredefinedCursor( Cursor.S_RESIZE_CURSOR );
+                widget = hoveredWidgets2[0];
             }
             else
             {
-                overBorderPart = BorderPart.NONE;
-                cursor = Cursor.getDefaultCursor();
+                boolean foundSelected = false;
+                for ( int i = 0; i < numHoveredWidgets2 && !foundSelected; i++ )
+                {
+                    if ( hoveredWidgets2[i] == widget )
+                        foundSelected = true;
+                }
+                
+                if ( !foundSelected )
+                    widget = hoveredWidgets2[0];
             }
             
-            if ( cursor != editorPanel.getCursor() )
-            {
-                editorPanel.setCursor( cursor );
-            }
+            overBorderPart = getBorderPartForLocation( x, y, widget );
         }
         else
         {
             overBorderPart = null;
-            editorPanel.setCursor( Cursor.getDefaultCursor() );
+        }
+        
+        Cursor cursor = null;
+        
+        if ( overBorderPart == null )
+            cursor = Cursor.getDefaultCursor();
+        else
+            cursor = overBorderPart.cursor;
+        
+        if ( cursor != editorPanel.getCursor() )
+        {
+            editorPanel.setCursor( cursor );
         }
     }
     
@@ -453,30 +530,33 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                 int x = widgetDragStartX;
                 int y = widgetDragStartY;
                 
-                switch ( editorPanel.getCursor().getType() )
+                if ( overBorderPart != null )
                 {
-                    case Cursor.NW_RESIZE_CURSOR:
-                        x += dx;
-                        y += dy;
-                        break;
-                    case Cursor.N_RESIZE_CURSOR:
-                        y += dy;
-                        break;
-                    case Cursor.NE_RESIZE_CURSOR:
-                        y += dy;
-                        break;
-                    case Cursor.W_RESIZE_CURSOR:
-                        x += dx;
-                        break;
-                    case Cursor.E_RESIZE_CURSOR:
-                        break;
-                    case Cursor.SW_RESIZE_CURSOR:
-                        x += dx;
-                        break;
-                    case Cursor.S_RESIZE_CURSOR:
-                        break;
-                    case Cursor.SE_RESIZE_CURSOR:
-                        break;
+                    switch ( overBorderPart )
+                    {
+                        case TOP_LEFT:
+                            x += dx;
+                            y += dy;
+                            break;
+                        case TOP:
+                            y += dy;
+                            break;
+                        case TOP_RIGHT:
+                            y += dy;
+                            break;
+                        case LEFT:
+                            x += dx;
+                            break;
+                        case RIGHT:
+                            break;
+                        case BOTTOM_LEFT:
+                            x += dx;
+                            break;
+                        case BOTTOM:
+                            break;
+                        case BOTTOM_RIGHT:
+                            break;
+                    }
                 }
                 
                 Point p = new Point( x, y );
@@ -495,36 +575,39 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                 int w = widgetDragStartWidth;
                 int h = widgetDragStartHeight;
                 
-                switch ( editorPanel.getCursor().getType() )
+                if ( overBorderPart != null )
                 {
-                    case Cursor.NW_RESIZE_CURSOR:
-                        w -= dx;
-                        h -= dy;
-                        break;
-                    case Cursor.N_RESIZE_CURSOR:
-                        h -= dy;
-                        break;
-                    case Cursor.NE_RESIZE_CURSOR:
-                        w += dx;
-                        h -= dy;
-                        break;
-                    case Cursor.W_RESIZE_CURSOR:
-                        w -= dx;
-                        break;
-                    case Cursor.E_RESIZE_CURSOR:
-                        w += dx;
-                        break;
-                    case Cursor.SW_RESIZE_CURSOR:
-                        w -= dx;
-                        h += dy;
-                        break;
-                    case Cursor.S_RESIZE_CURSOR:
-                        h += dy;
-                        break;
-                    case Cursor.SE_RESIZE_CURSOR:
-                        w += dx;
-                        h += dy;
-                        break;
+                    switch ( overBorderPart )
+                    {
+                        case TOP_LEFT:
+                            w -= dx;
+                            h -= dy;
+                            break;
+                        case TOP:
+                            h -= dy;
+                            break;
+                        case TOP_RIGHT:
+                            w += dx;
+                            h -= dy;
+                            break;
+                        case LEFT:
+                            w -= dx;
+                            break;
+                        case RIGHT:
+                            w += dx;
+                            break;
+                        case BOTTOM_LEFT:
+                            w -= dx;
+                            h += dy;
+                            break;
+                        case BOTTOM:
+                            h += dy;
+                            break;
+                        case BOTTOM_RIGHT:
+                            w += dx;
+                            h += dy;
+                            break;
+                    }
                 }
                 
                 int hundretPercentWidth = gameResY * 4 / 3;

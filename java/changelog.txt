@@ -69,10 +69,10 @@ Minor:
 * Added a FuelNeedleWidget.
 * Added Widget import tool.
 * Added Editor Panel zooming (CTRL + Mouse Wheel).
+* Added a way to select Widgets in background in the editor (context menu). Selection are also better preserved.
 
 TODO:
 
-* Select Widget in background
 * Add RideHeightWidget
 * Add DashboardWidget
 * Bar meter for temp, etc.

@@ -1269,9 +1269,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     }
     
     @Override
-    public void onContextMenuRequested( Widget selectedWidget )
+    public void onContextMenuRequested( Widget[] hoveredWidgets )
     {
-        EditorMenuBar.initContextMenu( this );
+        EditorMenuBar.initContextMenu( this, hoveredWidgets );
     }
     
     public void makeAllWidgetsUsePixels()

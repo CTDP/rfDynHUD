@@ -44,7 +44,7 @@ public interface WidgetsEditorPanelListener extends WidgetSelectionListener
     /**
      * Requests a context menu.
      * 
-     * @param selectedWidget the currently selected {@link Widget}.
+     * @param hoveredWidgets all currently hoveredWidgets
      */
-    public void onContextMenuRequested( Widget selectedWidget );
+    public void onContextMenuRequested( Widget[] hoveredWidgets );
 }
