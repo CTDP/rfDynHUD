@@ -39,7 +39,6 @@ import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
-import org.jagatoo.gui.awt_swing.util.ColorChooser;
 
 /**
  * The {@link BackgroundSelector} selects the value of a {@link BackgroundProperty}.

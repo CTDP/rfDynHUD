@@ -89,8 +89,8 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
-import org.jagatoo.gui.awt_swing.util.GUITools;
 import org.jagatoo.util.errorhandling.ParsingException;
+import org.jagatoo.util.gui.awt_swing.GUITools;
 import org.jagatoo.util.ini.AbstractIniParser;
 import org.jagatoo.util.ini.IniWriter;
 

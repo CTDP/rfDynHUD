@@ -32,6 +32,7 @@ package org.jagatoo.util.ini;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -557,17 +558,23 @@ public abstract class AbstractIniParser
      * This method implements the actual parsing code.
      * 
      * @param in
+     * @param codepage
      * @param charset
      * 
      * @throws IOException
      * @throws ParsingException
      */
-    protected void parseImpl( InputStream in, Charset charset ) throws IOException, ParsingException
+    protected void parseImpl( InputStream in, String codepage, Charset charset ) throws IOException, ParsingException
     {
         if ( !in.markSupported() )
             in = new BufferedInputStream( in );
         
-        UnicodeBOM.skipBOM( in );
+        UnicodeBOM bom = UnicodeBOM.skipBOM( in );
+        
+        if ( ( bom != null ) && ( bom.getCharset() != null ) )
+            charset = bom.getCharset();
+        else if ( codepage != null )
+            charset = Charset.forName( codepage );
         
         BufferedReader reader = ( charset == null ) ? new BufferedReader( new InputStreamReader( in ) ) : new BufferedReader( new InputStreamReader( in, charset ) );
         
@@ -612,9 +619,23 @@ public abstract class AbstractIniParser
      * @throws IOException
      * @throws ParsingException
      */
+    public final void parse( InputStream in, String charset ) throws IOException, ParsingException
+    {
+        parseImpl( in, charset, null );
+    }
+    
+    /**
+     * Parses the given file.
+     * 
+     * @param in
+     * @param charset
+     * 
+     * @throws IOException
+     * @throws ParsingException
+     */
     public final void parse( InputStream in, Charset charset ) throws IOException, ParsingException
     {
-        parseImpl( in, charset );
+        parseImpl( in, null, charset );
     }
     
     /**
@@ -627,7 +648,21 @@ public abstract class AbstractIniParser
      */
     public final void parse( InputStream in ) throws IOException, ParsingException
     {
-        parseImpl( in, null );
+        parseImpl( in, null, null );
+    }
+    
+    /**
+     * Parses the given file.
+     * 
+     * @param url
+     * @param charset
+     * 
+     * @throws IOException
+     * @throws ParsingException
+     */
+    public final void parse( URL url, String charset ) throws IOException, ParsingException
+    {
+        parseImpl( url.openStream(), charset, null );
     }
     
     /**
@@ -641,7 +676,7 @@ public abstract class AbstractIniParser
      */
     public final void parse( URL url, Charset charset ) throws IOException, ParsingException
     {
-        parse( url.openStream(), charset );
+        parseImpl( url.openStream(), null, charset );
     }
     
     /**
@@ -654,7 +689,21 @@ public abstract class AbstractIniParser
      */
     public final void parse( URL url ) throws IOException, ParsingException
     {
-        parse( url.openStream() );
+        parseImpl( url.openStream(), null, null );
+    }
+    
+    /**
+     * Parses the given file.
+     * 
+     * @param file
+     * @param charset
+     * 
+     * @throws IOException
+     * @throws ParsingException
+     */
+    public final void parse( File file, String charset ) throws IOException, ParsingException
+    {
+        parseImpl( new FileInputStream( file ), charset, null );
     }
     
     /**
@@ -668,7 +717,7 @@ public abstract class AbstractIniParser
      */
     public final void parse( File file, Charset charset ) throws IOException, ParsingException
     {
-        parse( file.toURI().toURL(), charset );
+        parseImpl( new FileInputStream( file ), null, charset );
     }
     
     /**
@@ -681,7 +730,21 @@ public abstract class AbstractIniParser
      */
     public final void parse( File file ) throws IOException, ParsingException
     {
-        parse( file.toURI().toURL() );
+        parseImpl( new FileInputStream( file ), null, null );
+    }
+    
+    /**
+     * Parses the given file.
+     * 
+     * @param filename
+     * @param charset
+     * 
+     * @throws IOException
+     * @throws ParsingException
+     */
+    public final void parse( String filename, String charset ) throws IOException, ParsingException
+    {
+        parseImpl( new FileInputStream( filename ), charset, null );
     }
     
     /**
@@ -695,7 +758,7 @@ public abstract class AbstractIniParser
      */
     public final void parse( String filename, Charset charset ) throws IOException, ParsingException
     {
-        parse( new File( filename ), charset );
+        parseImpl( new FileInputStream( filename ), null, charset );
     }
     
     /**
@@ -708,7 +771,7 @@ public abstract class AbstractIniParser
      */
     public final void parse( String filename ) throws IOException, ParsingException
     {
-        parse( new File( filename ) );
+        parseImpl( new FileInputStream( filename ), null, null );
     }
     
     /**

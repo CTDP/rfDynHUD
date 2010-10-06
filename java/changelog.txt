@@ -68,6 +68,7 @@ Minor:
 * Editor takes less memory now and doesn't consume any more than necessary.
 * Added a FuelNeedleWidget.
 * Added Widget import tool.
+* Added Editor Panel zooming (CTRL + Mouse Wheel).
 
 TODO:
 

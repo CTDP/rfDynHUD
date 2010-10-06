@@ -18,8 +18,6 @@
 package net.ctdp.rfdynhud.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -127,14 +125,7 @@ public class LocalizationsManager
         
         try
         {
-            if ( codepage == null )
-            {
-                iniParser.parse( f );
-            }
-            else
-            {
-                iniParser.parse( new FileInputStream( f ), Charset.forName( codepage ) );
-            }
+            iniParser.parse( f, codepage );
         }
         catch ( Throwable t )
         {

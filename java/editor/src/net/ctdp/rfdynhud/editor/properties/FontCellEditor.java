@@ -27,10 +27,10 @@ import javax.swing.JPanel;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.util.FontChooser;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
 
-import org.jagatoo.gui.awt_swing.util.FontChooser;
 
 /**
  * 

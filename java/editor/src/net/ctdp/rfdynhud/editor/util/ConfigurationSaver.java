@@ -30,12 +30,14 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.ini.IniWriter;
+import org.openmali.vecmath2.util.ColorUtils;
 
 public class ConfigurationSaver
 {
@@ -153,7 +155,20 @@ public class ConfigurationSaver
     
     public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, File out ) throws IOException
     {
-        final IniWriter iniWriter = new IniWriter( out );
+        final IniWriter iniWriter = new IniWriter( out )
+        {
+            @Override
+            protected String getObjectValue( Object value, Boolean quoteValue )
+            {
+                if ( value instanceof java.awt.Font )
+                    return ( FontUtils.getFontString( (java.awt.Font)value, false, false ) );
+                
+                if ( value instanceof java.awt.Color )
+                    return ( ColorUtils.colorToHex( (java.awt.Color)value ) );
+                
+                return ( super.getObjectValue( value, quoteValue ) );
+            }
+        };
         iniWriter.setMinEqualSignPosition( 27 );
         iniWriter.setMinCommentPosition( 55 );
         

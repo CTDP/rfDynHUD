@@ -27,7 +27,7 @@
  * RISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE
  */
-package org.jagatoo.gui.awt_swing.util;
+package org.jagatoo.util.gui.awt_swing;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -37,12 +37,17 @@ import java.awt.Rectangle;
 import java.awt.Window;
 
 /**
- * Insert class comment here.
+ * Utility methods for GUIs.
  * 
  * @author Marvin Froehlich (aka Qudus)
  */
 public class GUITools
 {
+    /**
+     * Gets the bounds of the screen device, that currently displays the mouse cursor.
+     * 
+     * @return the bounds of the screen device, that currently displays the mouse cursor.
+     */
     public static Rectangle getCurrentScreenBounds()
     {
         Point cursorLoc = MouseInfo.getPointerInfo().getLocation();
@@ -67,6 +72,11 @@ public class GUITools
         return ( screenBounds );
     }
     
+    /**
+     * Centers the passed {@link Window} on the screen device, that currently displays the mouse cursor.
+     * 
+     * @param window the {@link Window} to reposition
+     */
     public static void centerWindowOnCurrentScreen( Window window )
     {
         Rectangle screenBounds = getCurrentScreenBounds();

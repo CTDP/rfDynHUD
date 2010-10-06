@@ -141,14 +141,7 @@ public enum UnicodeBOM
         this.charset = cs;
     }
     
-    /**
-     * Attempts to recognize the passed unicode BOM. If it can't be recognized, <code>null</code> is returned.
-     * 
-     * @param bom the 4 byte bom (first 4 bytes of the file)
-     * 
-     * @return the recognized {@link UnicodeBOM} or <code>null</code>.
-     */
-    public static UnicodeBOM recognize( int bom )
+    private static UnicodeBOM recognize4( int bom )
     {
         if ( bom == UTF_32_BE.getBOM() )
             return ( UTF_32_BE );
@@ -177,76 +170,248 @@ public enum UnicodeBOM
         if ( bom == GB_18030.getBOM() )
             return ( GB_18030 );
         
-        int bom3 = ( bom & 0xFFFFFF00 ) >>> 8;
-        
-        if ( bom3 == BOCU_1.getBOM() )
+        return ( null );
+    }
+    
+    private static UnicodeBOM recognize3( int bom )
+    {
+        if ( bom == BOCU_1.getBOM() )
         {
             //if ( ( bom & 0xFF ) == 0xFF )
             
             return ( BOCU_1 );
         }
         
-        if ( bom3 == SUSU.getBOM() )
+        if ( bom == SUSU.getBOM() )
             return ( SUSU );
         
-        if ( bom3 == UTF_1.getBOM() )
+        if ( bom == UTF_1.getBOM() )
             return ( UTF_1 );
         
-        if ( bom3 == UTF_8.getBOM() )
+        if ( bom == UTF_8.getBOM() )
             return ( UTF_8 );
         
-        int bom2 = ( bom & 0xFFFF00 ) >>> 16;
-        
-        if ( bom2 == UTF_16_BE.getBOM() )
+        return ( null );
+    }
+    
+    private static UnicodeBOM recognize2( int bom )
+    {
+        if ( bom == UTF_16_BE.getBOM() )
             return ( UTF_16_BE );
         
-        if ( bom2 == UTF_16_LE.getBOM() )
+        if ( bom == UTF_16_LE.getBOM() )
             return ( UTF_16_LE );
         
         return ( null );
     }
     
-    private static UnicodeBOM skipBOM( InputStream in, boolean reset ) throws IOException
+    /**
+     * <p>
+     * Attempts to recognize the passed unicode BOM. If it can't be recognized, <code>null</code> is returned.
+     * </p>
+     * 
+     * <p>
+     * The difference to the {@link #valueOf(int)} method is, that {@link #recognize(int)} expects
+     * the first four bytes of the file, where a BOM of length 3 appears in the first three byte
+     * and hence the value is shifted to the left by one byte
+     * while {@link #valueOf(int)} takes the concrete BOM code.
+     * </p>
+     * 
+     * @param bom the 4 byte bom (first 4 bytes of the file)
+     * 
+     * @return the recognized {@link UnicodeBOM} or <code>null</code>.
+     * 
+     * @see #valueOf(int)
+     */
+    public static UnicodeBOM recognize( int bom )
     {
-        //if ( reset && !in.markSupported() )
-        //    return ( null );
+        UnicodeBOM result = recognize4( bom );
+        
+        if ( result != null )
+            return ( result );
+        
+        int bom3 = ( bom & 0xFFFFFF00 ) >>> 8;
+        
+        result = recognize3( bom3 );
+        
+        if ( result != null )
+            return ( result );
+        
+        int bom2 = ( bom & 0xFFFF00 ) >>> 16;
+        
+        result = recognize2( bom2 );
+        
+        //if ( result != null )
+        //    return ( result );
+        
+        return ( null );
+    }
+    
+    /**
+     * <p>
+     * Attempts to recognize the passed unicode BOM. If it can't be recognized, <code>null</code> is returned.
+     * </p>
+     * 
+     * <p>
+     * The difference to the {@link #recognize(int)} method is, that {@link #valueOf(int)} takes the concrete BOM code
+     * while {@link #recognize(int)} expects the first four bytes of the file, where a BOM of length 3 appears in the first three byte
+     * and hence the value is shifted to the left by one byte.
+     * </p>
+     * 
+     * @param bom the BOM code
+     * 
+     * @return the recognized {@link UnicodeBOM} or <code>null</code>.
+     * 
+     * @see #recognize(int)
+     */
+    public static UnicodeBOM valueOf( int bom )
+    {
+        UnicodeBOM result = recognize4( bom );
+        
+        if ( result != null )
+            return ( result );
+        
+        result = recognize3( bom );
+        
+        if ( result != null )
+            return ( result );
+        
+        result = recognize2( bom );
+        
+        //if ( result != null )
+        //    return ( result );
+        
+        return ( null );
+    }
+    
+    private static UnicodeBOM skipBOM( InputStream in, int[] info, boolean reset ) throws IOException
+    {
+        if ( reset && !in.markSupported() )
+            throw new IllegalArgumentException( "The passed InputStream doesn't support mark/reset." );
         
         if ( reset )
             in.mark( 16 );
         
-        int off = 0;
-        int n = 4;
-        byte[] buffer = new byte[ n ];
-        while ( n > 0 )
+        try
         {
-            n = in.read( buffer, off, n );
+            // probe length 2
             
-            if ( n > 0 )
+            int off = 0;
+            int n = 2;
+            byte[] buffer = new byte[ 4 ];
+            while ( n > 0 )
             {
-                off += n;
-                n = 4 - off;
+                n = in.read( buffer, off, n );
+                
+                if ( n > 0 )
+                {
+                    off += n;
+                    n = 2 - off;
+                }
             }
+            
+            n = off;
+            
+            int bom = 0;
+            for ( int i = 0; i < n; i++ )
+            {
+                bom = ( ( ( bom << 8 ) & 0xFFFFFF00 ) | ( buffer[i] & 0xFF ) );
+            }
+            
+            UnicodeBOM uniBOM = UnicodeBOM.recognize2( bom );
+            
+            if ( uniBOM != null )
+            {
+                if ( info != null )
+                {
+                    info[0] = uniBOM.getLength( bom );
+                    info[1] = bom;
+                }
+                
+                reset = false;
+                
+                return ( uniBOM );
+            }
+            
+            // probe length 3
+            
+            n = 1;
+            while ( n > 0 )
+            {
+                n = in.read( buffer, off, n );
+                
+                if ( n > 0 )
+                {
+                    off += n;
+                    n = 2 - off;
+                }
+            }
+            
+            n = off;
+            
+            for ( int i = 2; i < n; i++ )
+            {
+                bom = ( ( ( bom << 8 ) & 0xFFFFFF00 ) | ( buffer[i] & 0xFF ) );
+            }
+            
+            uniBOM = UnicodeBOM.recognize3( bom );
+            
+            if ( uniBOM != null )
+            {
+                if ( info != null )
+                {
+                    info[0] = uniBOM.getLength( bom );
+                    info[1] = bom;
+                }
+                
+                reset = false;
+                
+                return ( uniBOM );
+            }
+            
+            // probe length 4
+            
+            n = 1;
+            while ( n > 0 )
+            {
+                n = in.read( buffer, off, n );
+                
+                if ( n > 0 )
+                {
+                    off += n;
+                    n = 2 - off;
+                }
+            }
+            
+            n = off;
+            
+            for ( int i = 3; i < n; i++ )
+            {
+                bom = ( ( ( bom << 8 ) & 0xFFFFFF00 ) | ( buffer[i] & 0xFF ) );
+            }
+            
+            uniBOM = UnicodeBOM.recognize4( bom );
+            
+            if ( uniBOM != null )
+            {
+                if ( info != null )
+                {
+                    info[0] = uniBOM.getLength( bom );
+                    info[1] = bom;
+                }
+                
+                reset = false;
+                
+                return ( uniBOM );
+            }
+            
+            return ( null );
         }
-        
-        n = off;
-        
-        int bom = 0;
-        for ( int i = 0; i < n; i++ )
+        finally
         {
-            bom = ( ( ( bom << 8 ) & 0xFFFFFF00 ) | ( buffer[i] & 0xFF ) );
+            if ( reset )
+                in.reset();
         }
-        
-        if ( reset )
-            in.reset();
-        
-        UnicodeBOM uniBOM = UnicodeBOM.recognize( bom );
-        
-        if ( uniBOM != null )
-        {
-            in.skip( uniBOM.getLength( bom ) );
-        }
-        
-        return ( uniBOM );
     }
     
     /**
@@ -261,7 +426,7 @@ public enum UnicodeBOM
      */
     public static UnicodeBOM skipBOM( InputStream in ) throws IOException
     {
-        return ( skipBOM( in, true ) );
+        return ( skipBOM( in, null, true ) );
     }
     
     /**
@@ -281,7 +446,7 @@ public enum UnicodeBOM
         {
             in = new FileInputStream( file );
             
-            return ( skipBOM( in, false ) );
+            return ( skipBOM( in, null, false ) );
         }
         finally
         {
@@ -316,7 +481,8 @@ public enum UnicodeBOM
         {
             in = new FileInputStream( file );
             
-            bom = skipBOM( in, false );
+            int[] info = { -1, 0 };
+            bom = skipBOM( in, info, false );
             
             if ( bom == null )
                 return ( null );
@@ -327,13 +493,16 @@ public enum UnicodeBOM
                 in2 = new InputStreamReader( in, bom.getCharset() );
             
             if ( targetCharset == null )
+                targetCharset = bom.getCharset();
+            
+            if ( targetCharset == null )
                 out = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( temp ) ) );
             else
                 out = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( temp ), targetCharset ) );
             
             char[] buffer = new char[ 1024 ];
             int n = 0;
-            while ( ( n = in2.read( buffer, 0, Math.min( buffer.length, in.available() ) ) ) >= 0 )
+            while ( ( n = in2.read( buffer, 0, Math.min( buffer.length, in.available() + 1 ) ) ) >= 0 )
             {
                 if ( n > 0 )
                     out.write( buffer, 0, n );

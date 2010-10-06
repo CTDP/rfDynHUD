@@ -37,10 +37,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import net.ctdp.rfdynhud.util.FontUtils;
-
-import org.openmali.vecmath2.util.ColorUtils;
-
 /**
  * The {@link IniWriter} writes ini files ;).
  * 
@@ -220,6 +216,25 @@ public class IniWriter
     }
     
     /**
+     * Gets the String to write to the ini file from the passed value.
+     * 
+     * @param value the value to write to the ini file
+     * @param quoteValue if <code>true</code>, the value will be enclosed by double quotes, if <code>false</code>, no quotes will be used, if <code>null</code> some default behavior will be used.
+     * 
+     * @return the String to write to the ini file from the passed value.
+     */
+    protected String getObjectValue( Object value, Boolean quoteValue )
+    {
+        if ( quoteValue == Boolean.TRUE )
+            return ( "\"" + String.valueOf( value ) + "\"" );
+        
+        if ( quoteValue == Boolean.FALSE )
+            return ( String.valueOf( value ) );
+        
+        return ( "\"" + String.valueOf( value ) + "\"" );
+    }
+    
+    /**
      * Writes a new Group to the file.
      * 
      * @param group
@@ -308,25 +323,9 @@ public class IniWriter
         {
             value = ( (Enum<?>)value ).name();
         }
-        else if ( value instanceof java.awt.Font )
-        {
-            value = FontUtils.getFontString( (java.awt.Font)value, false, false );
-        }
-        else if ( value instanceof java.awt.Color )
-        {
-            value = ColorUtils.colorToHex( (java.awt.Color)value );
-        }
-        else if ( quoteValue == Boolean.TRUE )
-        {
-            value = "\"" + String.valueOf( value ) + "\"";
-        }
-        else if ( quoteValue == Boolean.FALSE )
-        {
-            value = String.valueOf( value );
-        }
         else
         {
-            value = "\"" + String.valueOf( value ) + "\"";
+            value = getObjectValue( value, quoteValue );
         }
         
         if ( getMinValuePosition() > pos )
