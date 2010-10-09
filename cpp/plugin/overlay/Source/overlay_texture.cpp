@@ -3,6 +3,7 @@
 #include "d3d9.h"
 #include "image_util.h"
 #include "logging.h"
+//#include "timing.h"
 
 const float ZERO_Z_INDEX = 0.0f;
 const float ONE_Z_INDEX = -1.0f;
@@ -1024,6 +1025,8 @@ IDirect3DVertexBuffer9* createVertexBuffer( LPDIRECT3DDEVICE9 device, TextureAtl
 
 void OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, const unsigned short height, const bool forceCompleteUpdate )
 {
+    //__int64 t0 = getSystemMicroTime();
+
     if ( ( width != m_texWidth ) || ( height != m_texHeight ) )
     {
         releaseInternal( true, false );
@@ -1088,14 +1091,20 @@ void OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, con
         m_proxyTexture->Release();
         m_proxyTexture = NULL;
     }
+    
+    //__int64 t1 = getSystemMicroTime();
+    //loggDTs( "setupTextures took ", t0, t1 );
 }
 
 void OverlayTextureManagerImpl::setupTextures( const unsigned char numTextures, const unsigned short* textureSizes, const unsigned char* numRectangles, const unsigned short* rectangles )
 {
     logg( "Building texture atlas... ", false );
+    //__int64 t0 = getSystemMicroTime();
     m_atlas->buildAtlas( numTextures, numRectangles, rectangles );
+    //__int64 t1 = getSystemMicroTime();
     loggui2( "done. (", m_atlas->getWidth(), m_atlas->getHeight(), false );
     logg( ")", true );
+    //loggDTs( ", took ", t0, t1 );
     
     if ( m_vertexBuffer != NULL )
     {

@@ -26,7 +26,7 @@ char* readJavaHomeFromRegistry()
     
     free( buffer );
     
-    logg( "WARNING: Registry key for Java 6 Runtime Environment not found." );
+    logg( "WARNING: Registry key for 32 bit Java 6 Runtime Environment not found." );
     
     return ( NULL );
 }
@@ -49,7 +49,7 @@ char* guessJavaHome()
     {
         free( result );
         
-        logg( "WARNING: Couldn't find Java 6 Runtime Environment in the default folder." );
+        logg( "WARNING: Couldn't find 32 bit Java 6 Runtime Environment in the default folder." );
         
         return ( NULL );
     }

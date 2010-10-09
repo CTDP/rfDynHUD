@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h>
+#include "timing.h"
+#include "util.h"
+#include <vector>
 
 char* LOG_FILENAME = NULL;
 
@@ -81,12 +84,115 @@ void writeProcessIdAndWinVersion( DWORD procId )
     fclose( f );
 }
 
-void checkLogfile()
+int findLastSeparator( const char* filename )
+{
+    for ( int i = strlen( filename ) - 1; i >= 0; i-- )
+    {
+        if ( filename[i] == '\\' )
+            return ( i );
+    }
+    
+    return ( -1 );
+}
+
+void renameOldLogFile()
+{
+    //_unlink( LOG_FILENAME );
+    
+    char* buffer = (char*)malloc( MAX_PATH );
+    int folderLength = findLastSeparator( LOG_FILENAME );
+    memcpy( buffer, LOG_FILENAME, folderLength + 1 );
+    memcpy( buffer + folderLength + 1, "rfdynhud-", 9 );
+    unsigned int timeLength = getFileTimeString( LOG_FILENAME, buffer + folderLength + 1 + 9 );
+    memcpy( buffer + folderLength + 1 + 9 + timeLength, ".log", 4 + 1 );
+    
+    MoveFile( LOG_FILENAME, buffer );
+    
+    free( buffer );
+}
+
+void handleArchivedLogFiles( const char* PLUGIN_PATH )
+{
+    char* filename = (char*)malloc( MAX_PATH );
+    const unsigned int pluginPathLength = strlen( PLUGIN_PATH );
+    memcpy( filename, PLUGIN_PATH, pluginPathLength );
+    memcpy( filename + pluginPathLength, "\\rfdynhud.ini", 14 );
+    
+    char* buffer = (char*)malloc( 16 );
+    readIniString( filename, "GENERAL", "numArchivedLogFiles", "5", buffer, 16 );
+    unsigned int numArchivedLogFiles = (unsigned int)max( 0, atoi( buffer ) );
+    free( buffer );
+    buffer = NULL;
+    
+    const unsigned int folderLength = findLastSeparator( LOG_FILENAME );
+    memcpy( filename, LOG_FILENAME, folderLength + 1 );
+    memcpy( filename + folderLength + 1, "rfdynhud-*.log", 15 );
+    
+    char** files = (char**)malloc( 64 * sizeof( char* ) );
+    unsigned int numFiles = 0;
+    WIN32_FIND_DATA data;
+    HANDLE hFile = FindFirstFile( filename, &data );
+    if ( hFile != INVALID_HANDLE_VALUE )
+    {
+        do
+        {
+            if ( ( ( data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 ) && ( data.cFileName[0] != '.' ) )
+            {
+                unsigned int len = strlen( data.cFileName );
+                char* filename2 = (char*)malloc( len + 1 );
+                memcpy( filename2, data.cFileName, len + 1 );
+                files[numFiles++] = filename2;
+            }
+        }
+        while ( FindNextFile( hFile, &data ) && ( numFiles < 64 ) );
+    }
+    
+    unsigned int numFiles2 = numFiles;
+    while ( numFiles2 > numArchivedLogFiles )
+    {
+        unsigned int smallestIndex = -1;
+        for ( unsigned int i = 0; i < numFiles; i++ )
+        {
+            if ( files[i] != NULL )
+            {
+                smallestIndex = i;
+                break;
+            }
+        }
+        
+        for ( unsigned int i = smallestIndex + 1; i < numFiles; i++ )
+        {
+            if ( ( files[i] != NULL ) && ( strcmp( files[i], files[smallestIndex] ) < 0 ) )
+                smallestIndex = i;
+        }
+        
+        memcpy( filename + folderLength + 1, files[smallestIndex], strlen( files[smallestIndex] ) + 1 );
+        _unlink( filename );
+        free( files[smallestIndex] );
+        files[smallestIndex] = NULL;
+        numFiles2--;
+    }
+    
+    for ( unsigned int i = 0; i < numFiles; i++ )
+    {
+        if ( files[i] != NULL )
+        {
+            free( files[i] );
+            files[i] = NULL;
+        }
+    }
+    
+    free( files );
+    free( filename );
+}
+
+void checkLogfile( const char* PLUGIN_PATH )
 {
     DWORD procId = GetCurrentProcessId();
     
     WIN32_FIND_DATA data;
     HANDLE hFile = FindFirstFile( LOG_FILENAME, &data );
+    CloseHandle( hFile );
     if ( hFile == INVALID_HANDLE_VALUE )
     {
         // File does not exist.
@@ -99,7 +205,8 @@ void checkLogfile()
     if ( size < 32 )
     {
         // File too small. Last run seems to have crashed.
-        _unlink( LOG_FILENAME );
+        renameOldLogFile();
+        handleArchivedLogFiles( PLUGIN_PATH );
         
         writeProcessIdAndWinVersion( procId );
         
@@ -127,7 +234,8 @@ void checkLogfile()
     if ( loggedProcId != procId )
     {
         // File seems to be from the last run. Hence we delete and recreate it.
-        _unlink( LOG_FILENAME );
+        renameOldLogFile();
+        handleArchivedLogFiles( PLUGIN_PATH );
         
         writeProcessIdAndWinVersion( procId );
         
@@ -175,7 +283,7 @@ void initLogFilename( const char* RFACTOR_PATH, const char* PLUGIN_PATH )
             
             createFallbackLogfilename( RFACTOR_PATH );
             
-            checkLogfile();
+            checkLogfile( PLUGIN_PATH );
             
             logg( "WARNING: log folder cound not be created. Logging to rFactor root folder." );
             
@@ -195,7 +303,7 @@ void initLogFilename( const char* RFACTOR_PATH, const char* PLUGIN_PATH )
             
             createFallbackLogfilename( RFACTOR_PATH );
             
-            checkLogfile();
+            checkLogfile( PLUGIN_PATH );
             
             logg( "WARNING: log folder cound not be created. Logging to rFactor root folder." );
             
@@ -204,8 +312,6 @@ void initLogFilename( const char* RFACTOR_PATH, const char* PLUGIN_PATH )
         
         CreateDirectory( log_folder, NULL );
         directoryCreated = true;
-        
-        logg( "INFO: Log directory not found. It has been created." );
     }
     
     if ( log_folder != NULL )
@@ -222,13 +328,13 @@ void initLogFilename( const char* RFACTOR_PATH, const char* PLUGIN_PATH )
     memcpy( LOG_FILENAME, PLUGIN_PATH, l1 );
     memcpy( LOG_FILENAME + l1, filename, l2 + 1 );
     
-    checkLogfile();
+    checkLogfile( PLUGIN_PATH );
     
     if ( directoryCreated )
         logg( "INFO: Log directory not found. It has been created." );
 }
 
-void logg( const char* message, bool newLine )
+void logg( const char* message, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -250,7 +356,7 @@ void logg( const char* message )
     logg( message, true );
 }
 
-void logg2( const char* message1, const char* message2, bool newLine )
+void logg2( const char* message1, const char* message2, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -272,7 +378,7 @@ void logg2( const char* message1, const char* message2 )
     logg2( message1, message2, true );
 }
 
-void logg3( const char* message1, const char* message2, const char* message3, bool newLine )
+void logg3( const char* message1, const char* message2, const char* message3, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -294,7 +400,7 @@ void logg3( const char* message1, const char* message2, const char* message3 )
     logg3( message1, message2, message3, true );
 }
 
-void loggf( const char* message, float value, bool newLine )
+void loggf( const char* message, const float value, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -311,7 +417,7 @@ void loggf( const char* message, float value, bool newLine )
     }
 }
 
-void loggf( const char* message, float value )
+void loggf( const char* message, const float value )
 {
     loggf( message, value, true );
 }
@@ -334,7 +440,35 @@ void loggv( const char* message, ... )
 }
 */
 
-void loggui( const char* message, unsigned int value, bool newLine )
+void loggDTmys( const char* message, const __int64 t0, const __int64 t1 )
+{
+    if ( LOG_FILENAME != NULL )
+    {
+        FILE* f;
+        fopen_s( &f, LOG_FILENAME, "a" );
+        if ( f )
+        {
+            fprintf( f, "%s%d microseconds^10\n", message, (int)( t1 - t0 ) );
+            fclose( f );
+        }
+    }
+}
+
+void loggDTs( const char* message, const __int64 t0, const __int64 t1 )
+{
+    if ( LOG_FILENAME != NULL )
+    {
+        FILE* f;
+        fopen_s( &f, LOG_FILENAME, "a" );
+        if ( f )
+        {
+            fprintf( f, "%s%f seconds\n", message, (float)( (double)( t1 - t0 ) / 10000000.0 ) );
+            fclose( f );
+        }
+    }
+}
+
+void loggui( const char* message, const unsigned int value, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -351,12 +485,12 @@ void loggui( const char* message, unsigned int value, bool newLine )
     }
 }
 
-void loggui( const char* message, unsigned int value )
+void loggui( const char* message, const unsigned int value )
 {
     loggui( message, value, true );
 }
 
-void loggui2( const char* message, unsigned int value1, unsigned int value2, bool newLine )
+void loggui2( const char* message, const unsigned int value1, const unsigned int value2, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -373,12 +507,12 @@ void loggui2( const char* message, unsigned int value1, unsigned int value2, boo
     }
 }
 
-void loggui2( const char* message, unsigned int value1, unsigned int value2 )
+void loggui2( const char* message, const unsigned int value1, const unsigned int value2 )
 {
     loggui2( message, value1, value2, true );
 }
 
-void loggui3( const char* message, unsigned int value1, unsigned int value2, unsigned int value3, bool newLine )
+void loggui3( const char* message, const unsigned int value1, const unsigned int value2, const unsigned int value3, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -395,12 +529,12 @@ void loggui3( const char* message, unsigned int value1, unsigned int value2, uns
     }
 }
 
-void loggui3( const char* message, unsigned int value1, unsigned int value2, unsigned int value3 )
+void loggui3( const char* message, const unsigned int value1, const unsigned int value2, const unsigned int value3 )
 {
     loggui3( message, value1, value2, value3, true );
 }
 
-void loggui4( const char* message, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4, bool newLine )
+void loggui4( const char* message, const unsigned int value1, const unsigned int value2, const unsigned int value3, const unsigned int value4, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -417,12 +551,12 @@ void loggui4( const char* message, unsigned int value1, unsigned int value2, uns
     }
 }
 
-void loggui4( const char* message, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4 )
+void loggui4( const char* message, const unsigned int value1, const unsigned int value2, const unsigned int value3, const unsigned int value4 )
 {
     loggui4( message, value1, value2, value3, value4, true );
 }
 
-void loggi( const char* message, int value, bool newLine )
+void loggi( const char* message, const int value, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -439,12 +573,12 @@ void loggi( const char* message, int value, bool newLine )
     }
 }
 
-void loggi( const char* message, int value )
+void loggi( const char* message, const int value )
 {
     loggi( message, value, true );
 }
 
-void loggb( const char* message, bool value, bool newLine )
+void loggb( const char* message, const bool value, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )
     {
@@ -471,7 +605,7 @@ void loggb( const char* message, bool value, bool newLine )
     }
 }
 
-void loggb( const char* message, bool value )
+void loggb( const char* message, const bool value )
 {
     loggb( message, value, true );
 }

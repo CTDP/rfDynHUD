@@ -227,6 +227,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\common\Source\timing.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\common\Source\util.cpp"
 				>
 			</File>
@@ -290,6 +294,10 @@
 			</File>
 			<File
 				RelativePath=".\Include\overlay_texture.h"
+				>
+			</File>
+			<File
+				RelativePath="..\common\Include\timing.h"
 				>
 			</File>
 			<File
