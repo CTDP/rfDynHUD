@@ -11,7 +11,7 @@ static const char* PLUGIN_PATH = getPluginPath();
 //int _tmain( int argc, _TCHAR* argv[] )
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
 {
-    deleteLogFile();
+    deleteLogFile( PLUGIN_PATH );
     
     if ( !launchEditor( PLUGIN_PATH ) )
         return ( 1 );

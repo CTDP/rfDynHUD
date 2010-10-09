@@ -1,10 +1,9 @@
 #ifndef _JVM_CONNECTION_H
 #define _JVM_CONNECTION_H
 
-#include <jni.h>
 #include <Windows.h>
 
-void deleteLogFile();
+void deleteLogFile( const char* PLUGIN_FOLDER );
 
 void logg( const char* message );
 

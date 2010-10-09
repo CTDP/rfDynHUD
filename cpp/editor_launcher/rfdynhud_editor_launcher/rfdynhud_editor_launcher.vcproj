@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)\Include&quot;;&quot;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0\Include&quot;;&quot;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0A\Include&quot;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\Include&quot;;&quot;$(WINSDK_DIR)\Include&quot;;;&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -137,7 +137,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib $(NoInherit) &quot;$(WINSDK_DIR)\Lib\user32.lib&quot; &quot;$(WINSDK_DIR)\Lib\Advapi32.lib&quot;"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="&quot;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0\Lib&quot;;&quot;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0\Lib\x86&quot;;&quot;$(ProgramFiles)\Microsoft SDKs\Windows\v6.0A\Lib&quot;;&quot;$(DXSDK_DIR)\Lib&quot;;&quot;$(DXSDK_DIR)\Lib\x86&quot;"
+				AdditionalLibraryDirectories="&quot;$(WINSDK_DIR)\Lib&quot;;&quot;$(WINSDK_DIR)\Lib\x86&quot;;&quot;$(DXSDK_DIR)\Lib&quot;;&quot;$(DXSDK_DIR)\Lib\x86&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\timing.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\util.cpp"
 				>
 			</File>
@@ -206,6 +210,10 @@
 			</File>
 			<File
 				RelativePath=".\Include\jvm_connection.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\timing.h"
 				>
 			</File>
 			<File

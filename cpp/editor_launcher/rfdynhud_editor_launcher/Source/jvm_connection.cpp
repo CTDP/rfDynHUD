@@ -3,15 +3,126 @@
 #include <winreg.h>
 #include <jni.h>
 #include "filesystem.h"
+#include "timing.h"
+#include "util.h"
 
 static const char* LOG_FOLDER = getLogFolder();
 static const char* LOG_FILENAME = getLogFilename();
 
-void deleteLogFile()
+int findLastSeparator( const char* filename )
+{
+    for ( int i = strlen( filename ) - 1; i >= 0; i-- )
+    {
+        if ( filename[i] == '\\' )
+            return ( i );
+    }
+    
+    return ( -1 );
+}
+
+void renameOldLogFile()
+{
+    //_unlink( LOG_FILENAME );
+    
+    char* buffer = (char*)malloc( MAX_PATH );
+    int folderLength = findLastSeparator( LOG_FILENAME );
+    memcpy( buffer, LOG_FILENAME, folderLength + 1 );
+    memcpy( buffer + folderLength + 1, "rfdynhud_editor-", 16 );
+    unsigned int timeLength = getFileTimeString( LOG_FILENAME, buffer + folderLength + 1 + 16 );
+    memcpy( buffer + folderLength + 1 + 16 + timeLength, ".log", 4 + 1 );
+    
+    MoveFile( LOG_FILENAME, buffer );
+    
+    free( buffer );
+}
+
+void handleArchivedLogFiles( const char* PLUGIN_PATH )
+{
+    char* filename = (char*)malloc( MAX_PATH );
+    const unsigned int pluginPathLength = strlen( PLUGIN_PATH );
+    memcpy( filename, PLUGIN_PATH, pluginPathLength );
+    memcpy( filename + pluginPathLength, "\\rfdynhud.ini", 14 );
+    
+    char* buffer = (char*)malloc( 16 );
+    readIniString( filename, "GENERAL", "numArchivedLogFiles", "5", buffer, 16 );
+    unsigned int numArchivedLogFiles = (unsigned int)max( 0, atoi( buffer ) );
+    free( buffer );
+    buffer = NULL;
+    
+    const unsigned int folderLength = findLastSeparator( LOG_FILENAME );
+    memcpy( filename, LOG_FILENAME, folderLength + 1 );
+    memcpy( filename + folderLength + 1, "rfdynhud_editor-*.log", 22 );
+    
+    char** files = (char**)malloc( 64 * sizeof( char* ) );
+    unsigned int numFiles = 0;
+    WIN32_FIND_DATA data;
+    HANDLE hFile = FindFirstFile( filename, &data );
+    if ( hFile != INVALID_HANDLE_VALUE )
+    {
+        do
+        {
+            if ( ( ( data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) == 0 ) && ( data.cFileName[0] != '.' ) )
+            {
+                unsigned int len = strlen( data.cFileName );
+                char* filename2 = (char*)malloc( len + 1 );
+                memcpy( filename2, data.cFileName, len + 1 );
+                files[numFiles++] = filename2;
+            }
+        }
+        while ( FindNextFile( hFile, &data ) && ( numFiles < 64 ) );
+    }
+    
+    unsigned int numFiles2 = numFiles;
+    while ( numFiles2 > numArchivedLogFiles )
+    {
+        unsigned int smallestIndex = -1;
+        for ( unsigned int i = 0; i < numFiles; i++ )
+        {
+            if ( files[i] != NULL )
+            {
+                smallestIndex = i;
+                break;
+            }
+        }
+        
+        for ( unsigned int i = smallestIndex + 1; i < numFiles; i++ )
+        {
+            if ( ( files[i] != NULL ) && ( strcmp( files[i], files[smallestIndex] ) < 0 ) )
+                smallestIndex = i;
+        }
+        
+        memcpy( filename + folderLength + 1, files[smallestIndex], strlen( files[smallestIndex] ) + 1 );
+        _unlink( filename );
+        free( files[smallestIndex] );
+        files[smallestIndex] = NULL;
+        numFiles2--;
+    }
+    
+    for ( unsigned int i = 0; i < numFiles; i++ )
+    {
+        if ( files[i] != NULL )
+        {
+            free( files[i] );
+            files[i] = NULL;
+        }
+    }
+    
+    free( files );
+    free( filename );
+}
+
+void deleteLogFile( const char* PLUGIN_FOLDER )
 {
     CreateDirectoryA( LOG_FOLDER, NULL );
     
-    _unlink( LOG_FILENAME );
+    WIN32_FIND_DATA data;
+    HANDLE hFile = FindFirstFile( LOG_FILENAME, &data );
+    CloseHandle( hFile );
+    if ( hFile != INVALID_HANDLE_VALUE )
+    {
+        renameOldLogFile();
+        handleArchivedLogFiles( PLUGIN_FOLDER );
+    }
 }
 
 void logg( const char* message )
@@ -48,7 +159,7 @@ char* readJavaHomeFromRegistry()
     
     free( buffer );
     
-    logg( "WARNING: Registry key for Java 6 Runtime Environment not found." );
+    logg( "WARNING: Registry key for 32 bit Java 6 Runtime Environment not found." );
     
     return ( NULL );
 }
@@ -71,7 +182,7 @@ char* guessJavaHome()
     {
         free( result );
         
-        logg( "WARNING: Couldn't find Java 6 Runtime Environment in the default folder." );
+        logg( "WARNING: Couldn't find 32 bit Java 6 Runtime Environment in the default folder." );
         
         return ( NULL );
     }
@@ -190,9 +301,8 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     
     options[0].optionString = cropBuffer2( fileBuffer );
     options[1].optionString = cropBuffer2( addPreFix( "-Dworkdir=", setBuffer( PLUGIN_PATH, fileBuffer ) ) );
-    options[2].optionString = "-Xms256m";
-    //options[3].optionString = "-Xmx512m";
-    options[3].optionString = "-Xmx256m";
+    options[2].optionString = "-Xms512m";
+    options[3].optionString = "-Xmx512m";
     options[4].optionString = "-XX:MaxGCPauseMillis=5";
     options[5].optionString = "-XX:+UseAdaptiveSizePolicy";
     options[6].optionString = "-Xincgc";
