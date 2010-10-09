@@ -49,6 +49,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.html.HTMLDocument;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.editor.WidgetImportManager.ImportDecision;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
@@ -136,7 +137,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     private static final String doc_footer = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
     
     private boolean presetsWindowVisible = false;
-    private final EditorPresetsWindow presetsWindow;
+    final EditorPresetsWindow presetsWindow;
     
     private boolean dirtyFlag = false;
     
@@ -146,6 +147,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     
     private WidgetsConfiguration templateConfig = null;
     private long lastTemplateConfigModified = -1L;
+    
+    ImportDecision lastImportDecision = ImportDecision.USE_DESTINATION_ALIASES;
     
     public final LiveGameData getGameData()
     {
@@ -493,7 +496,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
      */
     public void onWidgetChanged( Widget widget, String propertyName, boolean isPosSize )
     {
-        getEditorPanel().repaint();
+        editorPanel.repaint();
         
         setDirtyFlag();
         
@@ -593,6 +596,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             writeLastConfig( writer );
             writeLastImportFile( writer );
             writer.writeSetting( "alwaysShowHelpOnStartup", alwaysShowHelpOnStartup );
+            writer.writeSetting( "lastImportDecision", lastImportDecision );
             
             writer.writeGroup( "MainWindow" );
             writer.writeSetting( "windowLocation", windowLeft + "x" + windowTop );
@@ -810,6 +814,16 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                         else if ( key.equals( "alwaysShowHelpOnStartup" ) )
                         {
                             alwaysShowHelpOnStartup = Boolean.parseBoolean( value );
+                        }
+                        else if ( key.equals( "lastImportDecision" ) )
+                        {
+                            try
+                            {
+                                lastImportDecision = ImportDecision.valueOf( value );
+                            }
+                            catch ( Throwable t )
+                            {
+                            }
                         }
                     }
                     else if ( group.equals( "MainWindow" ) )
@@ -1108,6 +1122,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             f.pack();
             
             f.setLocationRelativeTo( window );
+            f.setLocation( f.getX(), Math.max( 0, f.getY() ) );
             
             //System.out.println( f.getWidth() + ", " + f.getHeight() );
             
@@ -1122,49 +1137,19 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             //ep.repaint();
             
             f.setVisible( true );
+            
+            widgetsConfig.setAllDirtyFlags();
+            for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+            {
+                widgetsConfig.getWidget( i ).forceReinitialization();
+            }
+            editorPanel.repaint();
         }
         catch ( Throwable t )
         {
             t.printStackTrace();
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
-    }
-    
-    public boolean importWidget( Widget widget )
-    {
-        try
-        {
-            String widgetType = widget.getClass().getSimpleName();
-            
-            Logger.log( "Importing Widget of type \"" + widgetType + "\"..." );
-            
-            String name = widget.getName();
-            if ( widgetsConfig.getWidget( name ) != null )
-            {
-                name = widgetsConfig.findFreeName( widgetType );
-            }
-            
-            widget.setAllPosAndSizeToPercents();
-            __WCPrivilegedAccess.removeWidget( widget.getConfiguration(), widget );
-            
-            widget.setName( name );
-            
-            __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
-            if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
-                widget.setAllPosAndSizeToPercents();
-            else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
-                widget.setAllPosAndSizeToPixels();
-            
-            editorPanel.setSelectedWidget( widget, false );
-            
-            setDirtyFlag();
-        }
-        catch ( Throwable t )
-        {
-            Logger.log( t );
-        }
-        
-        return ( true );
     }
     
     public boolean saveConfig()
@@ -1275,6 +1260,12 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         EditorMenuBar.initContextMenu( this, hoveredWidgets );
     }
     
+    @Override
+    public void onZoomLevelChanged( float oldZoomLevel, float newZoomLevel )
+    {
+        statusBar.setZoomLevel( newZoomLevel );
+    }
+    
     public void makeAllWidgetsUsePixels()
     {
         int result = JOptionPane.showConfirmDialog( getMainWindow(), "Do you really want to convert all Widgets' positions and sizes to be absolute pixels?", "Convert all Widgets' coordinates", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE );
@@ -1299,24 +1290,33 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
     }
     
-    private void copyPropertiesFromTemplate( List<Property> lstTemplate, List<Property> lstTarget )
+    public void copyPropertiesFromTemplate( Widget template, Widget target, boolean includePosition )
     {
+        FlatWidgetPropertiesContainer pcTemplate = new FlatWidgetPropertiesContainer();
+        FlatWidgetPropertiesContainer pcTarget = new FlatWidgetPropertiesContainer();
+        
+        template.getProperties( pcTemplate, true );
+        target.getProperties( pcTarget, true );
+        
+        List<Property> lstTemplate = pcTemplate.getList();
+        List<Property> lstTarget = pcTarget.getList();
+        
         // We assume, that the order will be the same in both lists.
         
         for ( int i = 0; i < lstTemplate.size(); i++ )
         {
             if ( lstTemplate.get( i ) instanceof Property )
             {
-                Property p0 = (Property)lstTemplate.get( i );
-                Property p1 = (Property)lstTarget.get( i );
+                Property p0 = lstTemplate.get( i );
+                Property p1 = lstTarget.get( i );
                 
-                if ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) )
+                if ( includePosition || ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) ) )
                     p1.setValue( p0.getValue() );
             }
         }
     }
     
-    private void copyPropertiesFromTemplate( Widget widget )
+    public void copyPropertiesFromTemplate( Widget widget )
     {
         if ( templateConfig == null )
             return;
@@ -1334,13 +1334,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         if ( template == null )
             return;
         
-        FlatWidgetPropertiesContainer pcTemplate = new FlatWidgetPropertiesContainer();
-        FlatWidgetPropertiesContainer pcTarget = new FlatWidgetPropertiesContainer();
-        
-        template.getProperties( pcTemplate, true );
-        widget.getProperties( pcTarget, true );
-        
-        copyPropertiesFromTemplate( pcTemplate.getList(), pcTarget.getList() );
+        copyPropertiesFromTemplate( template, widget, false );
     }
     
     private static final Throwable getRootCause( Throwable t )

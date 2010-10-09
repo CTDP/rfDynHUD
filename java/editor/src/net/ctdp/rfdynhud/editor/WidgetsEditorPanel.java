@@ -92,6 +92,8 @@ public class WidgetsEditorPanel extends JPanel
     
     public boolean setScaleFactor( float scale )
     {
+        float oldZoomLevel = this.scaleFactor;
+        
         scale = Math.max( 0.1f, scale );
         
         if ( scale == this.scaleFactor )
@@ -112,6 +114,11 @@ public class WidgetsEditorPanel extends JPanel
                 getParent().doLayout();
                 getParent().getParent().repaint();
             }
+        }
+        
+        for ( int i = 0; i < listeners.size(); i++ )
+        {
+            listeners.get( i ).onZoomLevelChanged( oldZoomLevel, this.scaleFactor );
         }
         
         return ( true );

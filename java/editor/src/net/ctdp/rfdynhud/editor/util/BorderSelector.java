@@ -130,7 +130,7 @@ public class BorderSelector extends DefaultTableModel
                 {
                     BorderProperty borderProp = (BorderProperty)prop;
                     
-                    if ( borderKey.equals( borderProp.getBorderName() ) )
+                    if ( borderKey.equals( borderProp.getBorderAlias() ) )
                     {
                         borderProp.refresh();
                         __WPrivilegedAccess.onPropertyChanged( borderProp, borderKey, borderKey, widget );

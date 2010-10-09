@@ -33,7 +33,7 @@ public class BorderProperty extends Property
     
     private final WidgetsConfiguration widgetsConf;
     
-    private String borderName;
+    private String borderAlias;
     private BorderWrapper border = null;
     
     private final IntProperty paddingTop;
@@ -70,25 +70,25 @@ public class BorderProperty extends Property
     /**
      * Sets the property's value.
      * 
-     * @param borderName the new border
+     * @param borderAliasOrName the new border
      * 
      * @return changed?
      */
-    public boolean setBorder( String borderName )
+    public boolean setBorder( String borderAliasOrName )
     {
-        if ( ( ( borderName == null ) && ( this.borderName == null ) ) || ( ( borderName != null ) && borderName.equals( this.borderName ) ) )
+        if ( ( ( borderAliasOrName == null ) && ( this.borderAlias == null ) ) || ( ( borderAliasOrName != null ) && borderAliasOrName.equals( this.borderAlias ) ) )
             return ( false );
         
-        String oldValue = this.borderName;
-        this.borderName = borderName;
+        String oldValue = this.borderAlias;
+        this.borderAlias = borderAliasOrName;
         this.border = null;
         
         if ( widget != null )
             widget.forceAndSetDirty( true );
         
-        triggerCommonOnValueChanged( oldValue, borderName );
+        triggerCommonOnValueChanged( oldValue, borderAliasOrName );
         if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-            onValueChanged( oldValue, borderName );
+            onValueChanged( oldValue, borderAliasOrName );
         
         return ( true );
     }
@@ -98,9 +98,9 @@ public class BorderProperty extends Property
      * 
      * @return the property's current value.
      */
-    public final String getBorderName()
+    public final String getBorderAlias()
     {
-        return ( borderName );
+        return ( borderAlias );
     }
     
     /**
@@ -112,7 +112,7 @@ public class BorderProperty extends Property
     {
         if ( border == null )
         {
-            if ( ( borderName == null ) || borderName.equals( "" ) )
+            if ( ( borderAlias == null ) || borderAlias.equals( "" ) )
             {
                 border = new BorderWrapper( null, null, paddingTop, paddingLeft, paddingRight, paddingBottom );
             }
@@ -120,20 +120,20 @@ public class BorderProperty extends Property
             {
                 final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
                 
-                String borderValue = widgetsConf.getBorderName( borderName );
+                String borderValue = widgetsConf.getBorderName( borderAlias );
                 
                 if ( ( borderValue == null ) && ( widget != null ) )
                 {
-                    String borderValue2 = widget.getDefaultBorderValue( borderName );
+                    String borderValue2 = widget.getDefaultBorderValue( borderAlias );
                     if ( borderValue2 != null )
                     {
                         borderValue = borderValue2;
-                        widgetsConf.addBorderAlias( borderName, borderValue );
+                        widgetsConf.addBorderAlias( borderAlias, borderValue );
                     }
                 }
                 
                 if ( borderValue == null )
-                    borderValue = borderName;
+                    borderValue = borderAlias;
                 
                 border = BorderCache.getBorder( borderValue, paddingTop, paddingLeft, paddingRight, paddingBottom );
             }
@@ -157,7 +157,7 @@ public class BorderProperty extends Property
     @Override
     public String getValue()
     {
-        return ( borderName );
+        return ( borderAlias );
     }
     
     /**
@@ -166,7 +166,7 @@ public class BorderProperty extends Property
     @Override
     public Object getValueForConfigurationFile()
     {
-        if ( borderName == null )
+        if ( borderAlias == null )
             return ( "N/A" );
         
         return ( super.getValueForConfigurationFile() );
@@ -202,7 +202,7 @@ public class BorderProperty extends Property
         super( widget, name, nameForDisplay, readonly, PropertyEditorType.BORDER, null, null );
         
         this.widgetsConf = widgetsConf;
-        this.borderName = defaultValue;
+        this.borderAlias = defaultValue;
         
         this.paddingTop = paddingTop;
         this.paddingLeft = paddingLeft;

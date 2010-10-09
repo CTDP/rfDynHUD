@@ -47,4 +47,12 @@ public interface WidgetsEditorPanelListener extends WidgetSelectionListener
      * @param hoveredWidgets all currently hoveredWidgets
      */
     public void onContextMenuRequested( Widget[] hoveredWidgets );
+    
+    /**
+     * Invoked when the zoom level has changed.
+     * 
+     * @param oldZoomLevel the old zoom level
+     * @param newZoomLevel the new zoom level
+     */
+    public void onZoomLevelChanged( float oldZoomLevel, float newZoomLevel );
 }

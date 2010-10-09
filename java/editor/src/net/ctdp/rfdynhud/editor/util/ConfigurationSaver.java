@@ -116,7 +116,7 @@ public class ConfigurationSaver
             {
                 if ( prop instanceof BorderProperty )
                 {
-                    String borderAlias = ( (BorderProperty)prop ).getBorderName();
+                    String borderAlias = ( (BorderProperty)prop ).getBorderAlias();
                     
                     if ( widgetsConfig.getBorderName( borderAlias ) != null )
                         result.add( borderAlias );

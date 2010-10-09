@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.editor;
 
+import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -42,16 +43,20 @@ public class ImportWidgetsEditorPanelInputHandler implements MouseListener, KeyL
     {
         if ( editorPanel.getSelectedWidget() != null )
         {
-            if ( editor.importWidget( editorPanel.getSelectedWidget() ) )
+            Boolean result = new WidgetImportManager( editor, editorPanel ).importWidget( editorPanel.getSelectedWidget() );
+            if ( result != null )
             {
-                JOptionPane.showMessageDialog( editorPanel, "Import sucessful.", "Import", JOptionPane.INFORMATION_MESSAGE );
-                
-                //JDialog dialog = (JDialog)editorPanel.getRootPane().getParent();
-                //dialog.dispose();
-            }
-            else
-            {
-                JOptionPane.showMessageDialog( editorPanel, "Import failed.", "Import", JOptionPane.ERROR_MESSAGE );
+                if ( result )
+                {
+                    JOptionPane.showMessageDialog( editorPanel, "Import successful.", "Import", JOptionPane.INFORMATION_MESSAGE );
+                    
+                    //JDialog dialog = (JDialog)editorPanel.getRootPane().getParent();
+                    //dialog.dispose();
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog( editorPanel, "Import failed.", "Import", JOptionPane.ERROR_MESSAGE );
+                }
             }
         }
     }
@@ -124,6 +129,9 @@ public class ImportWidgetsEditorPanelInputHandler implements MouseListener, KeyL
         {
             case KeyEvent.VK_ENTER:
                 importWidget();
+                break;
+            case KeyEvent.VK_ESCAPE:
+                ( (Window)editorPanel.getRootPane().getParent() ).dispose();
                 break;
         }
     }

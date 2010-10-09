@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.editor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
@@ -32,23 +33,49 @@ public class EditorStatusBar extends JPanel
 {
     private static final long serialVersionUID = -325500570902054489L;
     
-    private final JPanel main = new JPanel();
+    private final JLabel statusLabel;
+    private final JLabel zoomLabel;
+    private final MemoryPanel memoryPanel;
     
-    public final JPanel getMainPanel()
+    public final MemoryPanel getMemoryPanel()
     {
-        return ( main );
+        return ( memoryPanel );
+    }
+    
+    public void setZoomLevel( float zoomLevel )
+    {
+        zoomLabel.setText( "Zoom: " + Math.round( zoomLevel * 100 ) + "%" );
+    }
+    
+    public void setStatusText( String text )
+    {
+        statusLabel.setText( text );
     }
     
     public EditorStatusBar( EditorRunningIndicator runningIndicator )
     {
         super( new BorderLayout() );
         
-        main.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
-        this.add( main, BorderLayout.CENTER );
+        final int height = 20;
         
-        JPanel mem = new MemoryPanel( runningIndicator );
-        mem.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
-        mem.setPreferredSize( new Dimension( 150, 20 ) );
-        this.add( mem, BorderLayout.EAST );
+        this.memoryPanel = new MemoryPanel( runningIndicator );
+        memoryPanel.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
+        memoryPanel.setPreferredSize( new Dimension( 150, height ) );
+        this.add( memoryPanel, BorderLayout.EAST );
+        
+        JPanel main2 = new JPanel( new BorderLayout() );
+        
+        this.zoomLabel = new JLabel();
+        zoomLabel.setToolTipText( "The current zoom level. CTRL+Mouse Wheel to change, CTRL+Wheel Click to reset." );
+        setZoomLevel( 1.0f );
+        zoomLabel.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
+        zoomLabel.setPreferredSize( new Dimension( 80, height ) );
+        main2.add( zoomLabel, BorderLayout.EAST );
+        
+        this.add( main2, BorderLayout.CENTER );
+        
+        this.statusLabel = new JLabel();
+        statusLabel.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
+        main2.add( statusLabel, BorderLayout.CENTER );
     }
 }

@@ -40,6 +40,7 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
@@ -87,24 +88,8 @@ public class MapWidget extends Widget
     private int itemBlackBorderWidth = 2;
     
     private boolean needsBGClear = false;
-    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false )
-    {
-        @Override
-        protected void onValueChanged( boolean newValue )
-        {
-            super.onValueChanged( newValue );
-            
-            forceAndSetDirty( true );
-            
-            needsBGClear = newValue;
-            
-            if ( itemStates != null )
-            {
-                for ( int i = 0; i < itemStates.length; i++ )
-                    itemStates[i] = 0;
-            }
-        }
-    };
+    
+    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
     
     private final ColorProperty roadColorSec1 = new ColorProperty( this, "roadColorSec1", "colorSec1", "#000000" );
     private final ColorProperty roadBoundaryColorSec1 = new ColorProperty( this, "roadBoundaryColorSec1", "boundaryColorSec1", "#FFFFFF" );
@@ -154,6 +139,23 @@ public class MapWidget extends Widget
     public WidgetPackage getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    {
+        super.onPropertyChanged( property, oldValue, newValue );
+        
+        needsBGClear = rotationEnabled.getBooleanValue();
+        
+        if ( itemStates != null )
+        {
+            for ( int i = 0; i < itemStates.length; i++ )
+                itemStates[i] = 0;
+        }
     }
     
     /**
@@ -373,7 +375,7 @@ public class MapWidget extends Widget
         else if ( track.getNumWaypoints( false ) > 0 )
         {
             int off2 = ( isFontAntiAliased() ? ANTI_ALIAS_RADIUS_OFFSET : 0 );
-            int dia = itemRadius + itemRadius + off2 + off2;
+            int dia = off2 + itemRadius + itemRadius + off2;
             
             if ( rotationEnabled.getBooleanValue() )
             {
@@ -387,7 +389,7 @@ public class MapWidget extends Widget
             }
             else
             {
-                int w = width - dia - itemRadius - itemRadius + subTextures[0].getWidth();
+                int w = width - dia - itemRadius - itemRadius - subTextures[0].getWidth();
                 int h = height - dia;
                 scale = track.getScale( w, h );
             }
