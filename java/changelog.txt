@@ -71,11 +71,11 @@ Minor:
 * Added Widget import tool.
 * Added Editor Panel zooming (CTRL + Mouse Wheel).
 * Added a way to select Widgets in background in the editor (context menu). Selection are also better preserved.
+* Added a management system for log files to archive a given number of log files for reference. See rfdynhud.ini 'numArchivedLogFiles'.
 
 TODO:
 
 * Add DashboardWidget
-* Manage logs to keep 5
 * Meta config (merge configurations)
 * Add master d3d9.dll
 * General profiling to tweak performance

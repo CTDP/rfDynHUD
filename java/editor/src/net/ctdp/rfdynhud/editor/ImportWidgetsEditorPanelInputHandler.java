@@ -22,7 +22,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -44,9 +44,14 @@ public class ImportWidgetsEditorPanelInputHandler implements MouseListener, KeyL
         {
             if ( editor.importWidget( editorPanel.getSelectedWidget() ) )
             {
-                JDialog dialog = (JDialog)editorPanel.getRootPane().getParent();
+                JOptionPane.showMessageDialog( editorPanel, "Import sucessful.", "Import", JOptionPane.INFORMATION_MESSAGE );
                 
-                dialog.dispose();
+                //JDialog dialog = (JDialog)editorPanel.getRootPane().getParent();
+                //dialog.dispose();
+            }
+            else
+            {
+                JOptionPane.showMessageDialog( editorPanel, "Import failed.", "Import", JOptionPane.ERROR_MESSAGE );
             }
         }
     }

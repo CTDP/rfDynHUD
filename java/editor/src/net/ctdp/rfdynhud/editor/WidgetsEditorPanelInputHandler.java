@@ -718,65 +718,73 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         isShiftDown = kev.isShiftDown();
         isControlDown = kev.isControlDown();
         
-        Widget w = editorPanel.getSelectedWidget();
-        
-        if ( ( w != null ) && editorPanel.hasFocus() )
+        if ( editorPanel.hasFocus() )
         {
-            if ( kev.getKeyCode() == KeyEvent.VK_UP )
+            Widget w = editorPanel.getSelectedWidget();
+            
+            if ( w != null )
             {
-                if ( kev.getID() == KeyEvent.KEY_PRESSED )
+                if ( kev.getKeyCode() == KeyEvent.VK_UP )
                 {
-                    w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
-                    if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
+                    if ( kev.getID() == KeyEvent.KEY_PRESSED )
                     {
-                        editorPanel.onSelectedWidgetPositionSizeChanged();
-                        needsRedraw = true;
+                        w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
+                        if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
+                        {
+                            editorPanel.onSelectedWidgetPositionSizeChanged();
+                            needsRedraw = true;
+                        }
                     }
+                    
+                    kev.consume();
                 }
-                
-                kev.consume();
+                else if ( kev.getKeyCode() == KeyEvent.VK_LEFT )
+                {
+                    if ( kev.getID() == KeyEvent.KEY_PRESSED )
+                    {
+                        w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
+                        if ( setWidgetPosition( w, w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
+                        {
+                            editorPanel.onSelectedWidgetPositionSizeChanged();
+                            needsRedraw = true;
+                        }
+                    }
+                    
+                    kev.consume();
+                }
+                else if ( kev.getKeyCode() == KeyEvent.VK_RIGHT )
+                {
+                    if ( kev.getID() == KeyEvent.KEY_PRESSED )
+                    {
+                        w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
+                        if ( setWidgetPosition( w, w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
+                        {
+                            editorPanel.onSelectedWidgetPositionSizeChanged();
+                            needsRedraw = true;
+                        }
+                    }
+                    
+                    kev.consume();
+                }
+                else if ( kev.getKeyCode() == KeyEvent.VK_DOWN )
+                {
+                    if ( kev.getID() == KeyEvent.KEY_PRESSED )
+                    {
+                        w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
+                        if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
+                        {
+                            editorPanel.onSelectedWidgetPositionSizeChanged();
+                            needsRedraw = true;
+                        }
+                    }
+                    
+                    kev.consume();
+                }
             }
-            else if ( kev.getKeyCode() == KeyEvent.VK_LEFT )
+            
+            if ( ( kev.getKeyCode() == KeyEvent.VK_NUMPAD0 ) && isControlDown )
             {
-                if ( kev.getID() == KeyEvent.KEY_PRESSED )
-                {
-                    w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
-                    if ( setWidgetPosition( w, w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
-                    {
-                        editorPanel.onSelectedWidgetPositionSizeChanged();
-                        needsRedraw = true;
-                    }
-                }
-                
-                kev.consume();
-            }
-            else if ( kev.getKeyCode() == KeyEvent.VK_RIGHT )
-            {
-                if ( kev.getID() == KeyEvent.KEY_PRESSED )
-                {
-                    w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
-                    if ( setWidgetPosition( w, w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
-                    {
-                        editorPanel.onSelectedWidgetPositionSizeChanged();
-                        needsRedraw = true;
-                    }
-                }
-                
-                kev.consume();
-            }
-            else if ( kev.getKeyCode() == KeyEvent.VK_DOWN )
-            {
-                if ( kev.getID() == KeyEvent.KEY_PRESSED )
-                {
-                    w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
-                    if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
-                    {
-                        editorPanel.onSelectedWidgetPositionSizeChanged();
-                        needsRedraw = true;
-                    }
-                }
-                
-                kev.consume();
+                editorPanel.setScaleFactor( 1.0f );
             }
         }
     }

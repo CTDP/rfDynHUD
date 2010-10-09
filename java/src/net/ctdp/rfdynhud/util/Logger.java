@@ -30,7 +30,9 @@ import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 public class Logger
 {
     public static final File FOLDER = __UtilHelper.LOG_FOLDER;
-    private static File FILE = new File( FOLDER, __EDPrivilegedAccess.isEditorMode ? "rfdynhud_editor.log" : "rfdynhud.log" ).getAbsoluteFile();
+    private static final String CORE_BASE_NAME = "rfdynhud";
+    private static final String EDITOR_BASE_NAME = "rfdynhud_editor";
+    private static File FILE = new File( FOLDER, __EDPrivilegedAccess.isEditorMode ? EDITOR_BASE_NAME + ".log" : CORE_BASE_NAME + ".log" ).getAbsoluteFile();
     
     private static void logException( Throwable t )
     {

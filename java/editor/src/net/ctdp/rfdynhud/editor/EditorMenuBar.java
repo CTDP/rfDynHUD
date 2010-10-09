@@ -283,7 +283,7 @@ public class EditorMenuBar extends JMenuBar
     
     private static JMenuItem createResetZoomMenu( final RFDynHUDEditor editor )
     {
-        JMenuItem resetZoomItem = new JMenuItem( "Reset zool level (CTRL + Wheel click)" );
+        JMenuItem resetZoomItem = new JMenuItem( "Reset zoom level (CTRL + Wheel click)" );
         resetZoomItem.addActionListener( new ActionListener()
         {
             @Override

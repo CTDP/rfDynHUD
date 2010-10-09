@@ -1099,8 +1099,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             
             float scaleX = (float)width / (float)designResolution[0];
             float scaleY = (float)height / (float)designResolution[1];
+            float scale = Math.min( Math.min( scaleX, scaleY ), 1.0f );
             
-            ep.setScaleFactor( Math.min( scaleX, scaleY ) );
+            ep.setScaleFactor( scale );
             ep.initBackgroundImage();
             
             f.setContentPane( ep );
