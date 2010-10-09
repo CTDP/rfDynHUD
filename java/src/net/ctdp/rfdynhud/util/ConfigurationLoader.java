@@ -137,13 +137,14 @@ public class ConfigurationLoader implements PropertyLoader
     /**
      * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
      * 
-     * @param file
+     * @param file the file to parse
+     * @param quietMode suppress warnings to the log?
      * 
      * @return the design resolution as an int array or <code>null</code>.
      * 
      * @throws IOException if anything went wrong.
      */
-    public static int[] readDesignResolutionFromConfiguration( File file ) throws IOException
+    public static int[] readDesignResolutionFromConfiguration( File file, final boolean quietMode ) throws IOException
     {
         final int[] result = { -1, -1 };
         
@@ -180,8 +181,11 @@ public class ConfigurationLoader implements PropertyLoader
                 {
                     if ( !settingBeforeGroupWarningThrown )
                     {
-                        //throw new ParsingException( "Found setting before the first (known) group started (line " + lineNr + ")." );
-                        Logger.log( "WARNING: Found setting before the first (known) group started (line " + lineNr + ")." );
+                        if ( !quietMode )
+                        {
+                            //throw new ParsingException( "Found setting before the first (known) group started (line " + lineNr + ")." );
+                            Logger.log( "WARNING: Found setting before the first (known) group started (line " + lineNr + ")." );
+                        }
                         
                         settingBeforeGroupWarningThrown = true;
                     }
@@ -219,7 +223,8 @@ public class ConfigurationLoader implements PropertyLoader
                                 }
                                 catch ( NumberFormatException e )
                                 {
-                                    Logger.log( e );
+                                    if ( !quietMode )
+                                        Logger.log( e );
                                 }
                             }
                         }

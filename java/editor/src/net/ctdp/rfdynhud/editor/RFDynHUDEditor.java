@@ -25,12 +25,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -304,37 +301,14 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     
     private static boolean checkConfigFile( File f )
     {
-        BufferedReader br = null;
-        
         try
         {
-            br = new BufferedReader( new InputStreamReader( new FileInputStream( f ) ) );
-            if ( !"[Meta]".equals( br.readLine() ) )
-                return ( false );
-            
-            String line = br.readLine();
-            
-            if ( line == null )
-                return ( false );
-            
-            if ( !line.startsWith( "rfDynHUD_Version" ) )
-                return ( false );
-            
-            return ( true );
+            // Check for header existence.
+            return ( ConfigurationLoader.readDesignResolutionFromConfiguration( f, true ) != null );
         }
         catch ( IOException e )
         {
             return ( false );
-        }
-        finally
-        {
-            try
-            {
-                br.close();
-            }
-            catch ( IOException e )
-            {
-            }
         }
     }
     
@@ -1086,7 +1060,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         
         try
         {
-            int[] designResolution = ConfigurationLoader.readDesignResolutionFromConfiguration( file );
+            int[] designResolution = ConfigurationLoader.readDesignResolutionFromConfiguration( file, false );
             
             if ( designResolution == null )
             {
@@ -1290,7 +1264,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
     }
     
-    public void copyPropertiesFromTemplate( Widget template, Widget target, boolean includePosition )
+    public void copyPropertiesFromTemplate( Widget template, Widget target, boolean includeName, boolean includePosition )
     {
         FlatWidgetPropertiesContainer pcTemplate = new FlatWidgetPropertiesContainer();
         FlatWidgetPropertiesContainer pcTarget = new FlatWidgetPropertiesContainer();
@@ -1310,7 +1284,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                 Property p0 = lstTemplate.get( i );
                 Property p1 = lstTarget.get( i );
                 
-                if ( includePosition || ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) ) )
+                if ( ( includeName || !p0.getName().equals( "name" ) ) && ( includePosition || ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) ) ) )
                     p1.setValue( p0.getValue() );
             }
         }
@@ -1334,7 +1308,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         if ( template == null )
             return;
         
-        copyPropertiesFromTemplate( template, widget, false );
+        copyPropertiesFromTemplate( template, widget, false, false );
     }
     
     private static final Throwable getRootCause( Throwable t )

@@ -583,10 +583,12 @@ public class WidgetImportManager
             if ( newWidget == null )
                 return ( false );
             
+            newWidget.setName( name );
+            
             __WCPrivilegedAccess.addWidget( widgetsConfig, newWidget, false );
             
             widget.setAllPosAndSizeToPercents();
-            editor.copyPropertiesFromTemplate( widget, newWidget, true );
+            editor.copyPropertiesFromTemplate( widget, newWidget, false, true );
             
             ImportDecision decision = null;
             
@@ -620,8 +622,6 @@ public class WidgetImportManager
                 
                 editor.lastImportDecision = decision;
             }
-            
-            widget.setName( name );
             
             if ( editor.presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
                 newWidget.setAllPosAndSizeToPercents();
