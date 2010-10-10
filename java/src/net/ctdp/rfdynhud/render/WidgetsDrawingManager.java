@@ -36,6 +36,7 @@ import net.ctdp.rfdynhud.valuemanagers.TimeBasedClock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link WidgetsDrawingManager} handles the drawing of all visible widgets.
@@ -607,7 +608,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         {
             try
             {
-                getWidget( i ).onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+                __WPrivilegedAccess.onVehicleControlChanged( getWidget( i ), viewedVSI, gameData, isEditorMode );
             }
             catch ( Throwable t )
             {
@@ -662,9 +663,9 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         try
         {
             if ( action == KnownInputActions.ToggleWidgetVisibility )
-                widget.setInputVisible( !widget.isInputVisible() );
+                __WPrivilegedAccess.toggleInputVisible( widget );
             else
-                widget.onBoundInputStateChanged( mapping.getAction(), state, modifierMask, when, gameData, isEditorMode );
+                __WPrivilegedAccess.onBoundInputStateChanged( widget, action, state, modifierMask, when, gameData, isEditorMode );
         }
         catch ( Throwable t )
         {
@@ -724,7 +725,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             {
                 if ( isWidgetReady( widget, gameData ) )
                 {
-                    widget.updateVisibility( gameData, isEditorMode );
+                    __WPrivilegedAccess.updateVisibility( widget, gameData, isEditorMode );
                     
                     if ( isEditorMode )
                     {

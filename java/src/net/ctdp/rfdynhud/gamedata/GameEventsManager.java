@@ -58,6 +58,8 @@ public class GameEventsManager implements ConfigurationLoadListener
     private long setupReloadTryTime = -1L;
     private boolean waitingForData = false;
     
+    private boolean needsOnVehicleControlChangedEvent = false;
+    
     private boolean isInGarage = true;
     private boolean isInPits = true;
     private final TelemVect3 garageStartLocation = new TelemVect3();
@@ -104,6 +106,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     @Override
     public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig )
     {
+        needsOnVehicleControlChangedEvent = true;
     }
     
     /**
@@ -390,6 +393,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.setupReloadTryTime = System.nanoTime() + 5000000000L;
         this.waitingForData = !isEditorMode;
+        this.needsOnVehicleControlChangedEvent = true;
         
         if ( !isEditorMode )
         {
@@ -461,6 +465,8 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         this.waitingForGraphics = true;
         this.waitingForData = true;
+        
+        this.needsOnVehicleControlChangedEvent = true;
         
         try
         {
@@ -625,6 +631,7 @@ public class GameEventsManager implements ConfigurationLoadListener
                     }
                     
                     widgetsManager.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, isEditorMode );
+                    needsOnVehicleControlChangedEvent = true;
                 }
                 
                 this.sessionJustStarted = false;
@@ -819,12 +826,18 @@ public class GameEventsManager implements ConfigurationLoadListener
                         if ( result2 == 2 )
                         {
                             widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+                            needsOnVehicleControlChangedEvent = false;
                         }
                         
                         if ( result2 != 1 )
                         {
                             result = result2;
                         }
+                    }
+                    else if ( needsOnVehicleControlChangedEvent )
+                    {
+                        widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+                        needsOnVehicleControlChangedEvent = false;
                     }
                 }
             }

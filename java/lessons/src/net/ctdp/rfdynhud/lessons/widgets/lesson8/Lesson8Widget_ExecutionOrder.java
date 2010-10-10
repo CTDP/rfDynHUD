@@ -70,13 +70,13 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
+    protected Boolean updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
         //log( "updateVisibility()" );
         
         // This method is executed 1st and each frame.
         
-        super.updateVisibility( gameData, isEditorMode );
+        return ( super.updateVisibility( gameData, isEditorMode ) );
     }
     
     @Override

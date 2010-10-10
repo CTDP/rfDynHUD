@@ -457,14 +457,16 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
+    public Boolean updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( gameData, isEditorMode );
+        Boolean result = super.updateVisibility( gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
             parts[i].updateVisibility( gameData, isEditorMode );
         }
+        
+        return ( result );
     }
     
     private int neededData = -1;
@@ -676,14 +678,18 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+        Boolean result = super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+            Boolean result2 = parts[i].onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+            if ( result2 != null )
+                result = result2;
         }
+        
+        return ( result );
     }
     
     /**
@@ -704,14 +710,19 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
+    public Boolean onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
+        Boolean result = super.onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
         
         for ( int i = 0; i < parts.length; i++ )
         {
-            parts[i].onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
+            Boolean result2 = parts[i].onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
+            
+            if ( result2 != null )
+                result = result2;
         }
+        
+        return ( result );
     }
     
     /**

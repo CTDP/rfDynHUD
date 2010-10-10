@@ -45,7 +45,6 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.Size;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
@@ -238,26 +237,6 @@ public class WearWidget extends Widget
         return ( true );
     }
     
-    private void setControlVisibility( VehicleScoringInfo viewedVSI )
-    {
-        setUserVisible1( viewedVSI.isPlayer() );
-        
-        displayBrakes2 = displayBrakes.getBooleanValue() && viewedVSI.getVehicleControl().isLocalPlayer();
-        forceReinitialization();
-        forceCompleteRedraw( false );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
-    {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
-        
-        setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -294,11 +273,19 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
         super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
-        setControlVisibility( viewedVSI );
+        Boolean oldDisplayBrakes = displayBrakes2;
+        displayBrakes2 = displayBrakes.getBooleanValue() && viewedVSI.getVehicleControl().isLocalPlayer();
+        if ( displayBrakes2 != oldDisplayBrakes )
+        {
+            forceReinitialization();
+            forceCompleteRedraw( false );
+        }
+        
+        return ( viewedVSI.isPlayer() );
     }
     
     private final float getHundredPercentBaseLifetime( VehiclePhysics.Engine engine, double raceLengthPercentage )

@@ -186,13 +186,15 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+        Boolean result = super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         lastLapDisplayTime = -1f;
         scoringInfoUpdateID.reset( true );
         leaderID.reset();
+        
+        return ( result );
     }
     
     /**

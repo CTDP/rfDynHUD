@@ -138,12 +138,14 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+        Boolean result = super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         updateLaps( viewedVSI );
         forceCompleteRedraw( false );
+        
+        return ( result );
     }
     
     /**

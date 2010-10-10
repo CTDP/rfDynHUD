@@ -178,9 +178,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+        Boolean result = super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         oldRelTopspeed = -1f;
         relTopspeed = -1f;
@@ -190,6 +190,8 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         oldVelocity = -1;
         
         updateAbs = true;
+        
+        return ( result );
     }
     
     private static final String getSpeedUnits( SpeedUnits speedUnits )

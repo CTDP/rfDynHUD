@@ -803,7 +803,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         }
         
         //editorPanel.setScaleFactor( editorPanel.getScaleFactor() + 0.1f * d );
-        if ( d < 0 )
+        if ( d > 0 )
             editorPanel.setScaleFactor( editorPanel.getScaleFactor() / 0.9f );
         else
             editorPanel.setScaleFactor( editorPanel.getScaleFactor() * 0.9f );

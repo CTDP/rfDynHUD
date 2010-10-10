@@ -25,7 +25,7 @@ import java.util.HashMap;
 
 public class AvailableDisplayModes
 {
-    private static final HashMap<String, java.awt.DisplayMode> displayModes = new HashMap<String, java.awt.DisplayMode>();
+    private static final HashMap<String, DisplayMode> displayModes = new HashMap<String, DisplayMode>();
     static
     {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -71,15 +71,37 @@ public class AvailableDisplayModes
                 }
             }
         }
+        
+        // derive small monitor resolutions...
+        DisplayMode[] dms = new DisplayMode[ displayModes.size() ];
+        int i = 0;
+        for ( DisplayMode dm : displayModes.values() )
+        {
+            dms[i++] = dm;
+        }
+        
+        for ( DisplayMode dm : dms )
+        {
+            DisplayMode dm2 = new DisplayMode( Math.round( dm.getWidth() / 1.934f ), Math.round( dm.getHeight() / 2.623f ), dm.getWidth() * 100, dm.getHeight() * 100 );
+            
+            String key = dm2.getWidth() + "x" + dm2.getHeight();
+            
+            displayModes.put( key, dm2 );
+        }
     }
     
-    public static final java.awt.DisplayMode getDisplayMode( String resString )
+    public static final DisplayMode getDisplayMode( String resString )
     {
         return ( displayModes.get( resString ) );
     }
     
-    public static final Collection<java.awt.DisplayMode> getAll()
+    public static final Collection<DisplayMode> getAll()
     {
         return ( displayModes.values() );
+    }
+    
+    public static final int getNumberOf()
+    {
+        return ( displayModes.size() );
     }
 }

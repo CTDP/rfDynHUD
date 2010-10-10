@@ -17,6 +17,9 @@
  */
 package net.ctdp.rfdynhud.widgets.widget;
 
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -72,6 +75,31 @@ public class __WPrivilegedAccess
     {
         if ( widget.getBackground() != null )
             widget.getBackground().onWidgetSizeChanged();
+    }
+    
+    public static final void updateVisibility( Widget widget, LiveGameData gameData, boolean isEditorMode )
+    {
+        widget._updateVisibility( gameData, isEditorMode );
+    }
+    
+    public static final void onVehicleControlChanged( Widget widget, VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    {
+        widget._onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+    }
+    
+    public static final void onBoundInputStateChanged( Widget widget, InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
+    {
+        widget._onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
+    }
+    
+    public static final void toggleInputVisible( Widget widget )
+    {
+        widget.setInputVisible( !widget.getInputVisibility() );
+    }
+    
+    public static final void setInputVisible( Widget widget, boolean visible )
+    {
+        widget.setInputVisible( visible );
     }
     
     public static final boolean needsCompleteClear( Widget widget )

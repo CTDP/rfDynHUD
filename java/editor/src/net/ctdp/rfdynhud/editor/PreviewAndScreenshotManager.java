@@ -36,6 +36,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
@@ -100,6 +101,15 @@ public class PreviewAndScreenshotManager
     
     public static void showFullscreenPreview( final JFrame mainWindow, final WidgetsEditorPanel editorPanel, final GameResolution gameResolution, final File currentConfigFile )
     {
+        DisplayMode dm = AvailableDisplayModes.getDisplayMode( gameResolution.getResolutionString() );
+        
+        if ( dm.getBitDepth() > 1000 )
+        {
+            JOptionPane.showMessageDialog( mainWindow, "No fullscreen preview available for session monitor resolutions", "Fullscreen not available", JOptionPane.ERROR_MESSAGE );
+            
+            return;
+        }
+        
         Logger.log( "Showing fullscreen preview" );
         
         final GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -116,8 +126,6 @@ public class PreviewAndScreenshotManager
             }
         };
         p.setBackground( Color.BLACK );
-        
-        DisplayMode dm = AvailableDisplayModes.getDisplayMode( gameResolution.getResolutionString() );
         
         //boolean isSameMode = dm.equals( desktopDM );
         boolean isSameMode = ( ( dm.getWidth() == desktopDM.getWidth() ) && ( dm.getHeight() == desktopDM.getHeight() ) );

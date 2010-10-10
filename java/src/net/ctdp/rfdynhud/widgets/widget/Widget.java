@@ -125,8 +125,8 @@ public abstract class Widget implements Documented
     private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME, paddingTop, paddingLeft, paddingRight, paddingBottom );
     
     private final BooleanProperty inputVisible = new BooleanProperty( this, "initialVisibility", true );
-    private boolean userVisible1 = true;
-    private boolean userVisible2 = true;
+    private boolean autoVisible = true;
+    private boolean updatedVisible = true;
     private boolean visibilityChangedSinceLastDraw = true;
     private boolean needsCompleteRedraw = true;
     private boolean needsCompleteClear = false;
@@ -755,7 +755,7 @@ public abstract class Widget implements Documented
      * 
      * @param visible visible?
      */
-    public void setInputVisible( boolean visible )
+    void setInputVisible( boolean visible )
     {
         boolean wasVisible = isVisible();
         
@@ -771,46 +771,36 @@ public abstract class Widget implements Documented
      * 
      * @return this Widget's visibility flag.
      */
-    public final boolean isInputVisible()
+    public final boolean getInputVisibility()
     {
         return ( inputVisible.getBooleanValue() );
     }
     
-    /**
-     * Sets this Widget's user visibility flag 1. This is the one, you should toggle in your widget code.
-     * 
-     * @param visible visible?
-     */
-    public void setUserVisible1( boolean visible )
+    private void setAutoVisiblility( boolean visible )
     {
         boolean wasVisible = isVisible();
         
-        this.userVisible1 = visible;
+        this.autoVisible = visible;
         
         if ( isVisible() != wasVisible )
             onVisibilityChanged( visible );
     }
     
     /**
-     * Gets this Widget's user visibility flag 1. This is the one, you should toggle in your widget code.
+     * Gets the automatically toggled visibility flag.
      * 
      * @return this Widget's visibility flag.
      */
-    public final boolean isUserVisible1()
+    public final boolean getAutoVisibility()
     {
-        return ( userVisible1 );
+        return ( autoVisible );
     }
     
-    /**
-     * Sets this Widget's user visibility flag 2. This is the one, you should toggle in your widget code.
-     * 
-     * @param visible visible?
-     */
-    public void setUserVisible2( boolean visible )
+    private void setUpdatedVisibility( boolean visible )
     {
         boolean wasVisible = isVisible();
         
-        this.userVisible2 = visible;
+        this.updatedVisible = visible;
         
         if ( isVisible() != wasVisible )
             onVisibilityChanged( visible );
@@ -821,19 +811,19 @@ public abstract class Widget implements Documented
      * 
      * @return this Widget's visibility flag.
      */
-    public final boolean isUserVisible2()
+    public final boolean getUpdatedVisibility()
     {
-        return ( userVisible2 );
+        return ( updatedVisible );
     }
     
     /**
-     * Gets this Widget's total visibility flag ({@link #isInputVisible()} && {@link #isUserVisible1()} && {@link #isUserVisible2()}).
+     * Gets this Widget's total visibility flag ({@link #getInputVisibility()} && {@link #getAutoVisibility()} && {@link #getUpdatedVisibility()}).
      * 
      * @return this Widget's visibility flag.
      */
     public final boolean isVisible()
     {
-        return ( inputVisible.getBooleanValue() && userVisible1 && userVisible2 );
+        return ( inputVisible.getBooleanValue() && autoVisible && updatedVisible );
     }
     
     public final boolean visibilityChangedSinceLastDraw()
@@ -842,13 +832,28 @@ public abstract class Widget implements Documented
     }
     
     /**
-     * This method is called first by the rendering system each frame before {@link #isVisible()} is checked.
+     * This method is called first by the rendering system each to check for visibility changes.
+     * This doesn't affect the visiblity toggled by the {@link #onBoundInputStateChanged(InputAction, boolean, int, long, LiveGameData, boolean)} method.
+     * Automatic visiblity can also override the result.
      * 
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * 
+     * @return <code>true</code> to set visible, <code>false</code> to set invisible, <code>null</code> for no change in visibility.
+     * 
+     * @see #getUpdatedVisibility()
      */
-    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
+    protected Boolean updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
+        return ( null );
+    }
+    
+    final void _updateVisibility( LiveGameData gameData, boolean isEditorMode )
+    {
+        Boolean result = updateVisibility( gameData, isEditorMode );
+        
+        if ( result != null )
+            setUpdatedVisibility( result.booleanValue() );
     }
     
     private final boolean needsCompleteRedraw()
@@ -1040,9 +1045,24 @@ public abstract class Widget implements Documented
      * @param viewedVSI the currently viewed vehicle
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * 
+     * @return <code>true</code> to set visible, <code>false</code> to set invisible, <code>null</code> for no change in visibility.
+     * 
+     * This doesn't affect the visiblity toggled by the {@link #updateVisibility(LiveGameData, boolean)} method or {@link #onBoundInputStateChanged(InputAction, boolean, int, long, LiveGameData, boolean)} method.
+     * 
+     * @see #getAutoVisibility()
      */
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
+        return ( null );
+    }
+    
+    final void _onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    {
+        Boolean result = onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+        
+        if ( result != null )
+            setAutoVisiblility( result.booleanValue() );
     }
     
     /**
@@ -1065,9 +1085,25 @@ public abstract class Widget implements Documented
      * @param when the timestamp in nano seconds
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * 
+     * @return <code>true</code> to set visible, <code>false</code> to set invisible, <code>null</code> for no change in visibility.
+     * 
+     * This doesn't affect the visiblity toggled by the {@link #updateVisibility(LiveGameData, boolean)} method.
+     * Automatic visiblity can also override the result.
+     * 
+     * @see #getInputVisibility()
      */
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
+        return ( null );
+    }
+    
+    final void _onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
+    {
+        Boolean result = onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
+        
+        if ( result != null )
+            setInputVisible( result.booleanValue() );
     }
     
     /**

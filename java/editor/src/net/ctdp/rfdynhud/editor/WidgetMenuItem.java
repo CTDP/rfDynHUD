@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.openmali.types.twodee.Rect2i;
 
@@ -103,7 +104,7 @@ public class WidgetMenuItem extends JMenuItem
             Rect2i innerRect = WidgetsEditorPanel.getWidgetInnerRect( widget );
             TransformableTexture[] subTextures = widget.getSubTextures( editor.getGameData(), true, innerRect.getWidth(), innerRect.getHeight() );
             
-            widget.updateVisibility( editor.getGameData(), true );
+            __WPrivilegedAccess.updateVisibility( widget, editor.getGameData(), true );
             
             texture.clear( true, null );
             widget.drawWidget( fakeClock, true, editor.getGameData(), true, texture, false );

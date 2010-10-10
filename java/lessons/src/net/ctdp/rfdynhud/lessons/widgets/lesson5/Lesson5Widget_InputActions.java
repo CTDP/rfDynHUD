@@ -76,8 +76,10 @@ public class Lesson5Widget_InputActions extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
+        Boolean result = super.onBoundInputStateChanged( action, state, modifierMask, when, gameData, isEditorMode );
+        
         if ( action == MY_DEC_ACTION )
         {
             /*
@@ -91,6 +93,8 @@ public class Lesson5Widget_InputActions extends Widget
         {
             value.update( value.getValue() + 1 );
         }
+        
+        return ( result );
     }
     
     @Override

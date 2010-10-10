@@ -38,6 +38,7 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 /**
  * The {@link StartingLightWidget} displays a starting light for the race.
@@ -96,21 +97,18 @@ public class StartingLightWidget extends Widget
         gamePhase.reset();
         numLights.reset();
         visibleTime = -1f;
-        
-        setUserVisible2( false );
     }
     
     @Override
-    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
+    protected Boolean updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( gameData, isEditorMode );
+        /*Boolean result = */super.updateVisibility( gameData, isEditorMode );
         
         final ScoringInfo scoringInfo = gameData.getScoringInfo();
         
         if ( !scoringInfo.getSessionType().isRace() )
         {
-            setUserVisible2( false );
-            return;
+            return ( false );
         }
         
         boolean visible = true;
@@ -141,7 +139,7 @@ public class StartingLightWidget extends Widget
         if ( sessionTime > visibleTime )
             visibleTime = -1f;
         
-        setUserVisible2( visible );
+        return ( visible );
     }
     
     private void loadImages( boolean isEditorMode, int innerHeight )
@@ -269,7 +267,7 @@ public class StartingLightWidget extends Widget
         if ( loader.getSourceVersion().getBuild() < 70 )
         {
             if ( loader.getCurrentKey().equals( "initialVisibility" ) )
-                setInputVisible( true );
+                __WPrivilegedAccess.setInputVisible( this, true );
         }
         
         if ( loader.loadProperty( offImageProp ) );

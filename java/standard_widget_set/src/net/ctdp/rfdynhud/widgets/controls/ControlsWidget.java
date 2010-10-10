@@ -34,7 +34,6 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
@@ -160,22 +159,11 @@ public class ControlsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
-    {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
-        
-        setUserVisible1( gameData.getScoringInfo().getViewedVehicleScoringInfo().isPlayer() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
         super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
-        setUserVisible1( viewedVSI.isPlayer() );
+        return ( viewedVSI.isPlayer() );
     }
     
     private int initClutchTexture( boolean isEditorMode, int offset, int w, int h, int gap )

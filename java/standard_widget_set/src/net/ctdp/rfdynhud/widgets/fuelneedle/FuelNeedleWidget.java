@@ -40,7 +40,6 @@ import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._base.needlemeter.NeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
@@ -286,22 +285,6 @@ public class FuelNeedleWidget extends NeedleMeterWidget
         }
     }
     
-    private void setControlVisibility( VehicleScoringInfo viewedVSI )
-    {
-        setUserVisible1( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
-    {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
-        
-        setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -318,11 +301,11 @@ public class FuelNeedleWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
         super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
-        setControlVisibility( viewedVSI );
+        return ( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
     }
     
     /**

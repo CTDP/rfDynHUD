@@ -47,7 +47,6 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.Size;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
@@ -182,22 +181,6 @@ public class TemperaturesWidget extends Widget
         return ( Widget.NEEDED_DATA_SCORING );
     }
     
-    private void setControlVisibility( VehicleScoringInfo viewedVSI )
-    {
-        setUserVisible1( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
-    {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
-        
-        setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -224,11 +207,11 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
         super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
-        setControlVisibility( viewedVSI );
+        return ( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
     }
     
     private static final String getTempUnits( MeasurementUnits measurementUnits )

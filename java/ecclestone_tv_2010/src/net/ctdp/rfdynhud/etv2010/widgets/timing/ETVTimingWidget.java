@@ -149,9 +149,9 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
+    protected Boolean updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( gameData, isEditorMode );
+        /*Boolean result = */super.updateVisibility( gameData, isEditorMode );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -171,41 +171,35 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         if ( isEditorMode )
         {
-            setUserVisible2( true );
-            return;
+            return ( true );
         }
         
         if ( scoringInfo.getSessionType().isRace() )
         {
-            setUserVisible2( false );
-            return;
+            return ( false );
         }
         
         if ( displayType.getEnumValue() == DisplayType.ALWAYS )
         {
-            setUserVisible2( true );
-            return;
+            return ( true );
         }
         
         if ( displayType.getEnumValue() == DisplayType.IF_LAP_VALID )
         {
-            setUserVisible2( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
-            return;
+            return ( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
         }
         
         if ( relTime == null )
         {
-            setUserVisible2( ls == LapState.BEFORE_SECTOR3_END );
-            return;
+            return ( ls == LapState.BEFORE_SECTOR3_END );
         }
         
         if ( ( ls == LapState.SOMEWHERE ) || ( ls == LapState.OUTLAP ) )
         {
-            setUserVisible2( false );
-            return;
+            return ( false );
         }
         
-        setUserVisible2( true );
+        return ( true );
     }
     
     /**

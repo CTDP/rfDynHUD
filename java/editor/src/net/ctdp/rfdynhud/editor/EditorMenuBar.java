@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.editor;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -612,6 +612,7 @@ public class EditorMenuBar extends JMenuBar
         public final int w;
         public final int h;
         public final float a;
+        public final Dimension forResolution;
         
         @Override
         public int compareTo( DM o )
@@ -654,11 +655,66 @@ public class EditorMenuBar extends JMenuBar
             return ( ( ( w & 0xFFFF ) << 16 ) | ( ( h & 0xFFFF ) << 0 ) );
         }
         
-        public DM( int w, int h )
+        public DM( int w, int h, Dimension forResolution )
         {
             this.w = w;
             this.h = h;
             this.a = Math.round( (float)w * 100f / (float)h ) / 100f;
+            this.forResolution = forResolution;
+        }
+    }
+    
+    private Font miFont = null;
+    private Font selMiFont = null;
+    
+    private void checkResolutions( JMenu menu )
+    {
+        String currResString = editor.getWidgetsConfiguration().getGameResolution().getResolutionString();
+        
+        for ( Component c : menu.getMenuComponents() )
+        {
+            if ( c instanceof JMenu )
+            {
+                checkResolutions( (JMenu)c );
+            }
+            else if ( c instanceof JMenuItem )
+            {
+                JMenuItem mi = (JMenuItem)c;
+                
+                DM dm =  menuItemDMMap.get( mi.getName() );
+                
+                if ( needsDMCheck )
+                {
+                    if ( editor.getEditorPanel().getSettings().checkResolution( dm.w, dm.h ) )
+                    {
+                        if ( dm.forResolution == null )
+                            mi.setText( dm.w + "x" + dm.h + " [" + dm.a + "]" );
+                        else
+                            mi.setText( dm.w + "x" + dm.h + " [" + dm.a + "] (for " + dm.forResolution.width + "x" + dm.forResolution.height + ")" );
+                        mi.setEnabled( true );
+                    }
+                    else
+                    {
+                        if ( dm.forResolution == null )
+                            mi.setText( dm.w + "x" + dm.h + " [" + dm.a + "] (no screenshot available)" );
+                        else
+                            mi.setText( dm.w + "x" + dm.h + " [" + dm.a + "] (for " + dm.forResolution.width + "x" + dm.forResolution.height + ") (no screenshot available)" );
+                        mi.setEnabled( false );
+                    }
+                }
+                
+                
+                
+                if ( dm.forResolution != null )
+                {
+                    if ( currResString.equals( dm.forResolution.width + "x" + dm.forResolution.height ) )
+                        mi.setFont( selMiFont );
+                    else
+                        mi.setFont( miFont );
+                }
+                
+                mi.setSelected( currResString.equals( mi.getName() ) );
+            }
         }
     }
     
@@ -667,17 +723,11 @@ public class EditorMenuBar extends JMenuBar
         JMenu resMenu = new JMenu( "Resolutions" );
         resMenu.setDisplayedMnemonicIndex( 0 );
         
-        HashSet<DM> set = new HashSet<DM>();
+        DM[] array = new DM[ AvailableDisplayModes.getNumberOf() ];
+        int i = 0;
         for ( DisplayMode dm : AvailableDisplayModes.getAll() )
         {
-            set.add( new DM( dm.getWidth(), dm.getHeight() ) );
-        }
-        
-        DM[] array = new DM[ set.size() ];
-        int i = 0;
-        for ( DM dm : set )
-        {
-            array[i++] = dm;
+            array[i++] = new DM( dm.getWidth(), dm.getHeight(), ( dm.getBitDepth() < 1000 ) ? null : new Dimension( dm.getBitDepth() / 100, dm.getRefreshRate() / 100 ) );
         }
         Arrays.sort( array );
         
@@ -694,23 +744,65 @@ public class EditorMenuBar extends JMenuBar
             }
         };
         
-        float lastA = array[0].a;
-        JMenuItem item;
+        float lastA = -1;
+        
+        JMenu moniMenu = new JMenu( "Session Monitor" );
+        lastA = array[0].a;
         for ( DM dm : array )
         {
-            if ( dm.a != lastA )
+            if ( dm.forResolution != null )
             {
-                resMenu.add( new JSeparator() );
-                lastA = dm.a;
+                if ( lastA == -1 )
+                    lastA = dm.a;
+                
+                if ( dm.a != lastA )
+                {
+                    moniMenu.addSeparator();
+                    lastA = dm.a;
+                }
+                
+                JMenuItem item = new JCheckBoxMenuItem( dm.w + "x" + dm.h + " [" + dm.a + "]" );
+                item.setName( dm.w + "x" + dm.h );
+                
+                item.addActionListener( itemActionListener );
+                
+                moniMenu.add( item );
+                menuItemDMMap.put( item.getName(), dm );
             }
-            
-            item = new JCheckBoxMenuItem( dm.w + "x" + dm.h + " [" + dm.a + "]" );
-            item.setName( dm.w + "x" + dm.h );
-            
-            item.addActionListener( itemActionListener );
-            
-            resMenu.add( item );
-            menuItemDMMap.put( item.getName(), dm );
+        }
+        
+        resMenu.add( moniMenu );
+        
+        resMenu.addSeparator();
+        
+        lastA = -1;
+        for ( DM dm : array )
+        {
+            if ( dm.forResolution == null )
+            {
+                if ( lastA == -1 )
+                    lastA = dm.a;
+                
+                if ( dm.a != lastA )
+                {
+                    resMenu.addSeparator();
+                    lastA = dm.a;
+                }
+                
+                JMenuItem item = new JCheckBoxMenuItem( dm.w + "x" + dm.h + " [" + dm.a + "]" );
+                item.setName( dm.w + "x" + dm.h );
+                
+                if ( miFont == null )
+                {
+                    miFont = item.getFont();
+                    selMiFont = miFont.deriveFont( Font.BOLD );
+                }
+                
+                item.addActionListener( itemActionListener );
+                
+                resMenu.add( item );
+                menuItemDMMap.put( item.getName(), dm );
+            }
         }
         
         resMenu.addMenuListener( new MenuListener()
@@ -718,33 +810,7 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void menuSelected( MenuEvent e )
             {
-                JMenu menu = (JMenu)e.getSource();
-                
-                for ( Component c : menu.getMenuComponents() )
-                {
-                    if ( c instanceof JMenuItem )
-                    {
-                        JMenuItem mi = (JMenuItem)c;
-                        
-                        if ( needsDMCheck )
-                        {
-                            DM dm =  menuItemDMMap.get( mi.getName() );
-                            
-                            if ( editor.getEditorPanel().getSettings().checkResolution( dm.w, dm.h ) )
-                            {
-                                mi.setText( dm.w + "x" + dm.h + " [" + dm.a + "]" );
-                                mi.setEnabled( true );
-                            }
-                            else
-                            {
-                                mi.setText( dm.w + "x" + dm.h + " [" + dm.a + "] (no screenshot available)" );
-                                mi.setEnabled( false );
-                            }
-                        }
-                        
-                        mi.setSelected( editor.getWidgetsConfiguration().getGameResolution().getResolutionString().equals( mi.getName() ) );
-                    }
-                }
+                checkResolutions( (JMenu)e.getSource() );
                 
                 needsDMCheck = false;
             }

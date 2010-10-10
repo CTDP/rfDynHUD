@@ -137,9 +137,9 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void updateVisibility( LiveGameData gameData, boolean isEditorMode )
+    protected Boolean updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
-        super.updateVisibility( gameData, isEditorMode );
+        Boolean result = super.updateVisibility( gameData, isEditorMode );
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
@@ -148,15 +148,14 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         {
             relVSI = vsi.getNextInFront( getUseClassScoring() );
             waitingForNextBehind = false;
-            return;
+            return ( result );
         }
         
         relVSI = null;
         
         if ( !scoringInfo.getSessionType().isRace() || !vsi.getFinishStatus().isNone() )
         {
-            setUserVisible2( false );
-            return;
+            return ( false );
         }
         
         laps.update( vsi.getLapsCompleted() );
@@ -172,7 +171,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         {
             if ( laps.getValue() < NUM_DISPLAYED_LAPS )
             {
-                setUserVisible2( false );
+                result = false;
             }
             else if ( ( laps.getValue() % displayEveryXLaps.getIntValue() ) == 0 )
             {
@@ -187,18 +186,18 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                     if ( !vsi_nb.getFinishStatus().isNone() )
                     {
                         waitingForNextBehind = false;
-                        setUserVisible2( false );
+                        result = false;
                     }
                     else if ( vsi_nb.getLapsCompleted() + vsi_nb.getLapsBehindNextInFront( getUseClassScoring() ) < laps.getValue() )
                     {
                         laps.reset( true );
-                        setUserVisible2( false );
+                        result = false;
                     }
                     else
                     {
                         waitingForNextBehind = false;
                         relVSI = vsi_nb;
-                        setUserVisible2( true );
+                        result = true;
                         hideTime = scoringInfo.getSessionTime() + visibleTime.getFloatValue();
                         forceCompleteRedraw( false );
                     }
@@ -316,7 +315,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
                         }
                     }
                     
-                    setUserVisible2( b );
+                    result = b;
                     
                     if ( b )
                     {
@@ -327,19 +326,21 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             }
             else
             {
-                setUserVisible2( false );
+                result = false;
                 hideTime = -1f;
             }
         }
         else if ( scoringInfo.getSessionTime() < hideTime )
         {
-            setUserVisible2( true );
+            result = true;
         }
         else
         {
-            setUserVisible2( false );
+            result = false;
             hideTime = -1f;
         }
+        
+        return ( result );
     }
     
     private final Coords coords = new Coords();

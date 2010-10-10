@@ -235,7 +235,7 @@ public class WidgetsConfiguration implements Documented
                 
                 if ( ( widget instanceof StatefulWidget ) && __WPrivilegedAccess.hasLocalStore( (StatefulWidget)widget ) )
                     localStores.put( getLocalStoreKey( widget ), ( (StatefulWidget)widget ).getLocalStore() );
-                visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
+                visibilities.put( getLocalStoreKey( widget ), widget.getInputVisibility() );
                 
                 __WPrivilegedAccess.setConfiguration( null, widget, false );
             }
@@ -330,7 +330,7 @@ public class WidgetsConfiguration implements Documented
                 Boolean visibility = visibilities.get( getLocalStoreKey( widget ) );
                 if ( visibility != null )
                 {
-                    widget.setInputVisible( visibility );
+                    __WPrivilegedAccess.setInputVisible( widget, visibility );
                 }
             }
         }

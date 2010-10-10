@@ -51,7 +51,6 @@ import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.ValidityTest;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
@@ -370,22 +369,6 @@ public class FuelWidget extends Widget
         }
     }
     
-    private void setControlVisibility( VehicleScoringInfo viewedVSI )
-    {
-        setUserVisible1( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
-    {
-        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
-        
-        setControlVisibility( gameData.getScoringInfo().getViewedVehicleScoringInfo() );
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -431,18 +414,18 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
         super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
-        setControlVisibility( viewedVSI );
+        return ( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
         if ( action == INPUT_ACTION_INC_PITSTOP_LAP )
         {
@@ -477,6 +460,8 @@ public class FuelWidget extends Widget
             
             this.nextPitstopFuelLapsCorrection--;
         }
+        
+        return ( null );
     }
     
     /**

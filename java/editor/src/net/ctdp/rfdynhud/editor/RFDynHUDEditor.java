@@ -306,7 +306,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             // Check for header existence.
             return ( ConfigurationLoader.readDesignResolutionFromConfiguration( f, true ) != null );
         }
-        catch ( IOException e )
+        catch ( Throwable e )
         {
             return ( false );
         }
@@ -977,7 +977,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            t.printStackTrace();
+            Logger.log( t );
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
     }
@@ -1121,7 +1121,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            t.printStackTrace();
+            Logger.log( t );
+            
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
     }
@@ -1147,6 +1148,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
+            Logger.log( t );
+            
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
             
             return ( false );
@@ -1648,7 +1651,6 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            t.printStackTrace();
             Logger.log( t );
             
             String message = t.getMessage();

@@ -231,21 +231,19 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         if ( includeVisibility )
         {
             //StandingsView oldView = getView();
-            if ( !isInputVisible() )
+            if ( !getInputVisibility() )
             {
                 for ( int i = 0; i < views.length; i++ )
                 {
                     if ( checkView( isEditorMode, views[i], sessionType ) )
                     {
-                        setInputVisible( true );
                         setView( views[i] );
                         
                         return ( getView() );
                     }
                 }
                 
-                setInputVisible( true );
-                return ( null );
+                return ( getView() );
             }
             
             int v0 = getView().ordinal();
@@ -254,7 +252,6 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
                 int i_ = ( v0 + i ) % ( views.length + 1 );
                 if ( i_ == views.length )
                 {
-                    setInputVisible( false );
                     return ( null );
                 }
                 
@@ -267,11 +264,8 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
                 }
             }
             
-            setInputVisible( false );
             return ( null );
         }
-        
-        setInputVisible( true );
         
         int offset = getView().ordinal();
         for ( int i = 1; i < views.length; i++ )
@@ -321,24 +315,28 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
     {
-        super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+        Boolean result = super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         lastScoringUpdateId.reset();
         forceCompleteRedraw( false );
+        
+        return ( result );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
+    protected Boolean onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
         if ( action == INPUT_ACTION_CYCLE_VIEW )
         {
-            cycleView( isEditorMode, gameData.getScoringInfo().getSessionType(), true );
+            return ( cycleView( isEditorMode, gameData.getScoringInfo().getSessionType(), true ) != null );
         }
+        
+        return ( null );
     }
     
     private final String getDisplayedDriverName( VehicleScoringInfo vsi )
