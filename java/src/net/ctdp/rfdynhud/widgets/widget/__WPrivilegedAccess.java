@@ -21,6 +21,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
@@ -105,5 +106,10 @@ public class __WPrivilegedAccess
     public static final boolean needsCompleteClear( Widget widget )
     {
         return ( widget.needsCompleteClear() );
+    }
+    
+    public static final void clearRegion( Widget widget, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        widget.clearRegion( texture, offsetX, offsetY, width, height );
     }
 }

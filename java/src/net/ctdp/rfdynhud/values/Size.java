@@ -262,15 +262,15 @@ public class Size implements AbstractSize
         width = Math.max( width, (int)getMinWidth() );
         height = Math.max( height, (int)getMinHeight() );
         
-        if ( !isPixelValue( this.width ) )
+        if ( !isPixelValue( this.width ) && !isNegativeWidth() )
         {
             width = Math.min( width, (int)getHundretPercentWidth() );
         }
         
-        if ( this.width <= 0f )
+        if ( isNegativeWidth() )
             width -= (int)scaleW;
         
-        if ( this.height <= 0f )
+        if ( isNegativeHeight() )
             height -= (int)scaleH;
         
         float newW, newH;
@@ -290,7 +290,7 @@ public class Size implements AbstractSize
         }
         else
         {
-            float hundretPercentW = ( this.width <= 0f ) ? scaleW : getHundretPercentWidth();
+            float hundretPercentW = isNegativeWidth() ? scaleW : getHundretPercentWidth();
             
             if ( isPixelValue( this.height ) )
             {
@@ -577,6 +577,9 @@ public class Size implements AbstractSize
         
         if ( isNegPixelValue( value ) )
             return ( String.valueOf( (int)( value + PIXEL_OFFSET ) ) + "px" );
+        
+        if ( value == 0.0f )
+            return ( "-" + String.valueOf( value * 100f ) + "%" );
         
         return ( String.valueOf( value * 100f ) + "%" );
     }

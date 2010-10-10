@@ -142,6 +142,7 @@ public class Position
         {
             if ( positioning.isHCenter() )
             {
+                /*
                 if ( isNegPixelValue( x ) )
                     x = Math.max( -PIXEL_OFFSET - getScaleWidth() / 2f + ( isGlobalPosition ? size.getEffectiveWidth() / 2f : 0f ), x );
                 else if ( isPosPixelValue( x ) )
@@ -150,6 +151,7 @@ public class Position
                     x = Math.max( -0.5f + ( isGlobalPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
                 else if ( x > 0f )
                     x = Math.min( +0.5f - ( isGlobalPosition ? size.getEffectiveWidth() / 2f / getHundretPercentWidth() : 0f ), x );
+                */
             }
             else if ( isPixelValue( x ) )
             {
@@ -162,6 +164,7 @@ public class Position
             
             if ( positioning.isVCenter() )
             {
+                /*
                 if ( isNegPixelValue( y ) )
                     y = Math.max( -PIXEL_OFFSET - getScaleHeight() / 2f + ( isGlobalPosition ? size.getEffectiveHeight() / 2f : 0f ), y );
                 else if ( isPosPixelValue( y ) )
@@ -170,6 +173,7 @@ public class Position
                     y = Math.max( -0.5f + ( isGlobalPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
                 else if ( y > 0f )
                     y = Math.min( +0.5f - ( isGlobalPosition ? size.getEffectiveHeight() / 2f / getScaleHeight() : 0f ), y );
+                */
             }
             else if ( isPixelValue( y ) )
             {
