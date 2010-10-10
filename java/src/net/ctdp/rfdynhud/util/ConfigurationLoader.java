@@ -530,9 +530,9 @@ public class ConfigurationLoader implements PropertyLoader
         __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode, loadListener );
     }
     
-    private File currentlyLoadedConfigFile = null;
-    private long lastModified = -1L;
-    private boolean isFirstLoadAttempt = true;
+    private static File currentlyLoadedConfigFile = null;
+    private static long lastModified = -1L;
+    private static boolean isFirstLoadAttempt = true;
     
     private File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
     {

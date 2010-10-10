@@ -679,7 +679,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             {
                 if ( vpChanged )
                 {
-                    //Logger.log( "Viewport changed: " + viewportX + ", " + viewportY + ", " + viewportWidth + "x" + viewportHeight );
+                    //Logger.log( "INFO: (Viewport changed) " + viewportX + ", " + viewportY + ", " + viewportWidth + "x" + viewportHeight );
                     
                     if ( gameData.getProfileInfo().isValid() )
                     {
