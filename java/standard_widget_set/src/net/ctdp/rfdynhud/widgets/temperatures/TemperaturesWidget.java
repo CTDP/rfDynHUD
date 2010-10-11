@@ -911,8 +911,8 @@ public class TemperaturesWidget extends Widget
         gap = 1;
     }
     
-    public TemperaturesWidget( String name )
+    public TemperaturesWidget()
     {
-        super( name, 17.8125f, 30.416667f );
+        super( 17.8125f, 30.416667f );
     }
 }

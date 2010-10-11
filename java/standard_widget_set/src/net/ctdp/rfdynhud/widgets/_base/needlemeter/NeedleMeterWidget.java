@@ -1081,15 +1081,14 @@ public abstract class NeedleMeterWidget extends Widget
     /**
      * Creates a new {@link NeedleMeterWidget}.
      * 
-     * @param name
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
      * @param heightPercent height parameter treated as percents
      */
-    public NeedleMeterWidget( String name, float width, boolean widthPercent, float height, boolean heightPercent )
+    public NeedleMeterWidget( float width, boolean widthPercent, float height, boolean heightPercent )
     {
-        super( name, width, widthPercent, height, heightPercent );
+        super( width, widthPercent, height, heightPercent );
         
         initParentProperties();
     }
@@ -1097,12 +1096,11 @@ public abstract class NeedleMeterWidget extends Widget
     /**
      * Creates a new {@link NeedleMeterWidget}.
      * 
-     * @param name
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      */
-    public NeedleMeterWidget( String name, float width, float height )
+    public NeedleMeterWidget( float width, float height )
     {
-        this( name, width, true, height, true );
+        this( width, true, height, true );
     }
 }

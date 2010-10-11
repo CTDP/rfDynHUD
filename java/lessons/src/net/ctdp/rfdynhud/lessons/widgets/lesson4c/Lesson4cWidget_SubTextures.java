@@ -169,9 +169,9 @@ public class Lesson4cWidget_SubTextures extends Widget
         propsCont.addProperty( subImage );
     }
     
-    public Lesson4cWidget_SubTextures( String name )
+    public Lesson4cWidget_SubTextures()
     {
-        super( name, 10.0f, 10.0f );
+        super( 10.0f, 10.0f );
         
         getFontColorProperty().setColor( "#000000" );
     }

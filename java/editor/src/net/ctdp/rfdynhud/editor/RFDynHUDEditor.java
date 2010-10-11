@@ -1324,11 +1324,16 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     
     public static Widget createWidgetInstance( Class<Widget> widgetClass, WidgetsConfiguration widgetsConfig, boolean showMessage )// throws IllegalArgumentException, SecurityException
     {
-        String name = ( widgetsConfig != null ) ? widgetsConfig.findFreeName( widgetClass.getSimpleName() ) : "";
+        String name = ( widgetsConfig != null ) ? widgetsConfig.findFreeName( widgetClass.getSimpleName() ) : null;
         
         try
         {
-            return ( (Widget)widgetClass.getConstructor( String.class ).newInstance( name ) );
+            Widget widget = (Widget)widgetClass.getConstructor().newInstance();
+            
+            if ( name != null )
+                widget.setName( name );
+            
+            return ( widget );
         }
         catch ( Throwable t )
         {

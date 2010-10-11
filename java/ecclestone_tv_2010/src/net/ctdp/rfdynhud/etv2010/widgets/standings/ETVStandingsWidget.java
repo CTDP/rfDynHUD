@@ -558,8 +558,8 @@ public class ETVStandingsWidget extends ETVWidgetBase
         itemHeight.setEffectiveSize( itemHeight.getEffectiveWidth(), 5 );
     }
     
-    public ETVStandingsWidget( String name )
+    public ETVStandingsWidget()
     {
-        super( name, 14.0f, 10f * 2.5f );
+        super( 14.0f, 10f * 2.5f );
     }
 }

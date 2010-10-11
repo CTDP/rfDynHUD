@@ -93,8 +93,8 @@ public class Lesson6Widget_Localizations extends Widget
         }
     }
     
-    public Lesson6Widget_Localizations( String name )
+    public Lesson6Widget_Localizations()
     {
-        super( name, 14.0f, 5.0f );
+        super( 14.0f, 5.0f );
     }
 }

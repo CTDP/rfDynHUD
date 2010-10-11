@@ -1107,9 +1107,9 @@ public class FuelWidget extends Widget
         propsCont.addProperty( lowFuelBlinkManager.getProperty() );
     }
     
-    public FuelWidget( String name )
+    public FuelWidget()
     {
-        super( name, 17.8f, true, 13.5f, true );
+        super( 17.8f, true, 13.5f, true );
         
         this.fuelBarWidth = Size.newLocalSize( this, 26.f, true, 0f, true );
         

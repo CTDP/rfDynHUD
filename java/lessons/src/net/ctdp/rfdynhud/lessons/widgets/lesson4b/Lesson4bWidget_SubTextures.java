@@ -169,8 +169,8 @@ public class Lesson4bWidget_SubTextures extends Widget
         propsCont.addProperty( myFontColor );
     }
     
-    public Lesson4bWidget_SubTextures( String name )
+    public Lesson4bWidget_SubTextures()
     {
-        super( name, 27.0f, 6.0f );
+        super( 27.0f, 6.0f );
     }
 }

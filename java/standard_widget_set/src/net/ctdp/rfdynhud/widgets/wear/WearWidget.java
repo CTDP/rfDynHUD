@@ -1216,8 +1216,8 @@ public class WearWidget extends Widget
         gap = 1;
     }
     
-    public WearWidget( String name )
+    public WearWidget()
     {
-        super( name, 17.8125f, 30.416667f );
+        super( 17.8125f, 30.416667f );
     }
 }

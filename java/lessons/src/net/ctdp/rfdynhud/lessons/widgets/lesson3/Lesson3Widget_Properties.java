@@ -226,8 +226,8 @@ public class Lesson3Widget_Properties extends Widget
          */
     }
     
-    public Lesson3Widget_Properties( String name )
+    public Lesson3Widget_Properties()
     {
-        super( name, 11.0f, 5.0f );
+        super( 11.0f, 5.0f );
     }
 }

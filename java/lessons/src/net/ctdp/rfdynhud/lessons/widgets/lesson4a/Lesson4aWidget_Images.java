@@ -158,9 +158,9 @@ public class Lesson4aWidget_Images extends Widget
         return ( false );
     }
     
-    public Lesson4aWidget_Images( String name )
+    public Lesson4aWidget_Images()
     {
-        super( name, 20.0f, 10.0f );
+        super( 20.0f, 10.0f );
         
         /*
          * If we don't want a background color for this Widget,

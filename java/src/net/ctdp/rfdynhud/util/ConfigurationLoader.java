@@ -280,6 +280,15 @@ public class ConfigurationLoader implements PropertyLoader
             {
                 if ( currentWidget != null )
                 {
+                    currentKey = "/";
+                    currentValue = "propertiesLoadingFinished";
+                    setKeyPrefix( keyPrefix );
+                    
+                    if ( currentPart == null )
+                        currentWidget.loadProperty( ConfigurationLoader.this );
+                    else
+                        currentPart.loadProperty( ConfigurationLoader.this );
+                    
                     __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
                     currentWidget = null;
                     widgetName = null;
@@ -405,8 +414,16 @@ public class ConfigurationLoader implements PropertyLoader
                                     Class<?> clazz = Class.forName( value, false, getClass().getClassLoader() );
                                     
                                     //currentWidget = (Widget)clazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
-                                    currentWidget = (Widget)clazz.getConstructor( String.class ).newInstance( widgetName );
+                                    currentWidget = (Widget)clazz.getConstructor().newInstance();
+                                    currentKey = "name";
+                                    currentValue = widgetName;
+                                    setKeyPrefix( keyPrefix );
                                     widgetName = null;
+                                    
+                                    if ( currentPart == null )
+                                        currentWidget.loadProperty( ConfigurationLoader.this );
+                                    else
+                                        currentPart.loadProperty( ConfigurationLoader.this );
                                 }
                                 catch ( ClassNotFoundException e )
                                 {
@@ -426,7 +443,15 @@ public class ConfigurationLoader implements PropertyLoader
                                 
                                 currentPart = ( (AssembledWidget)currentWidget ).getPart( partIndexStack.get( partIndexStack.size() - 2 ) );
                                 partStack.set( partStack.size() - 1, currentPart );
+                                currentKey = "name";
+                                currentValue = partName;
+                                setKeyPrefix( keyPrefix );
                                 partName = null;
+                                
+                                if ( currentPart == null )
+                                    currentWidget.loadProperty( ConfigurationLoader.this );
+                                else
+                                    currentPart.loadProperty( ConfigurationLoader.this );
                             }
                             else
                             {
@@ -474,6 +499,15 @@ public class ConfigurationLoader implements PropertyLoader
                             }
                             else
                             {
+                                currentKey = "/";
+                                currentValue = "propertiesLoadingFinished";
+                                setKeyPrefix( keyPrefix );
+                                
+                                if ( currentPart == null )
+                                    currentWidget.loadProperty( ConfigurationLoader.this );
+                                else
+                                    currentPart.loadProperty( ConfigurationLoader.this );
+                                
                                 partStack.pop();
                                 partIndexStack.pop();
                                 

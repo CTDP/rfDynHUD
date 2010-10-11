@@ -125,8 +125,8 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
         super.getProperties( propsCont, forceAll );
     }
     
-    public ETVTimingWidgetBase( String name, float width, float height )
+    public ETVTimingWidgetBase( float width, float height )
     {
-        super( name, width, height );
+        super( width, height );
     }
 }

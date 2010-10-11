@@ -1078,9 +1078,9 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         propsCont.addProperty( showTopspeeds );
     }
     
-    public StandingsWidget( String name )
+    public StandingsWidget()
     {
-        super( name, 36.328125f, 14.916667f );
+        super( 36.328125f, 14.916667f );
         
         getFontProperty().setFont( "BiggerFont" );
     }

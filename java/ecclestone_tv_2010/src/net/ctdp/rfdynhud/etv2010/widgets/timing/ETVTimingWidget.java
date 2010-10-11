@@ -584,8 +584,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         positionItemGap.setIntValue( 0 );
     }
     
-    public ETVTimingWidget( String name )
+    public ETVTimingWidget()
     {
-        super( name, 20.0f, 8.496094f );
+        super( 20.0f, 8.496094f );
     }
 }

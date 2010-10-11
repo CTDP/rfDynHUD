@@ -507,9 +507,9 @@ public class ControlsWidget extends Widget
         return ( false );
     }
     
-    public ControlsWidget( String name )
+    public ControlsWidget()
     {
-        super( name, 9.9f, 16.5f );
+        super( 9.9f, 16.5f );
         
         setPadding( 3, 3, 3, 3 );
     }

@@ -110,7 +110,7 @@ public class Lesson1Widget_HelloWorld extends Widget
         }
     }
     
-    public Lesson1Widget_HelloWorld( String name )
+    public Lesson1Widget_HelloWorld()
     {
         /*
          * In the constructor we pass in the default size of the Widget.
@@ -118,6 +118,6 @@ public class Lesson1Widget_HelloWorld extends Widget
          * In the below notation, we use percents, which is important
          * to create proper sizes for all screen resolutions.
          */
-        super( name, 10.0f, 5.0f );
+        super( 10.0f, 5.0f );
     }
 }

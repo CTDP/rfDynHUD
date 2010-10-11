@@ -649,8 +649,8 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         propsCont.addProperty( preferNextInFront );
     }
     
-    public ETVTimeCompareWidget( String name )
+    public ETVTimeCompareWidget()
     {
-        super( name, 40.7f, 8.496094f );
+        super( 40.7f, 8.496094f );
     }
 }

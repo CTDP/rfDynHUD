@@ -894,15 +894,14 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     /**
      * Creates a new Widget.
      * 
-     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
      * @param heightPercent height parameter treated as percents
      */
-    protected AssembledWidget( String name, float width, boolean widthPercent, float height, boolean heightPercent )
+    protected AssembledWidget( float width, boolean widthPercent, float height, boolean heightPercent )
     {
-        super( name, width, widthPercent, height, heightPercent );
+        super( width, widthPercent, height, heightPercent );
         
         this.parts = initParts( width, widthPercent, height, heightPercent );
         
@@ -921,12 +920,11 @@ public abstract class AssembledWidget extends StatefulWidget<Object, Object>
     /**
      * Creates a new Widget.
      * 
-     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      */
-    protected AssembledWidget( String name, float width, float height )
+    protected AssembledWidget( float width, float height )
     {
-        this( name, width, true, height, true );
+        this( width, true, height, true );
     }
 }

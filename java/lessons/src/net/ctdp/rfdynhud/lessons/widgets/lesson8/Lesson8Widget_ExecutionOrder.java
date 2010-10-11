@@ -153,8 +153,8 @@ public class Lesson8Widget_ExecutionOrder extends Widget
         super.getProperties( propsCont, forceAll );
     }
     
-    public Lesson8Widget_ExecutionOrder( String name )
+    public Lesson8Widget_ExecutionOrder()
     {
-        super( name, 5.0f, 5.0f );
+        super( 5.0f, 5.0f );
     }
 }

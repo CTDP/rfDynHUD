@@ -72,6 +72,6 @@ public class InternalWidget extends Widget
     
     public InternalWidget()
     {
-        super( "InternalWidget", 30.0f, 10.0f );
+        super( 30.0f, 10.0f );
     }
 }

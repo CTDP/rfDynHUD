@@ -127,9 +127,9 @@ public class ImageWidget extends Widget
         return ( false );
     }
     
-    public ImageWidget( String name )
+    public ImageWidget()
     {
-        super( name, 17.0f, 8.6f );
+        super( 17.0f, 8.6f );
         
         //getBackgroundProperty().setColorValue( "#00000000" );
     }

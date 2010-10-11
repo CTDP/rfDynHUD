@@ -72,10 +72,9 @@ public class __WPrivilegedAccess
         widget.onSizeChanged( oldWidth, oldHeight, newWidth, newHeight );
     }
     
-    public static final void onSizeChanged( Widget widget )
+    public static final void onCanvasSizeChanged( Widget widget )
     {
-        if ( widget.getBackground() != null )
-            widget.getBackground().onWidgetSizeChanged();
+        widget.onCanvasSizeChanged();
     }
     
     public static final void updateVisibility( Widget widget, LiveGameData gameData, boolean isEditorMode )

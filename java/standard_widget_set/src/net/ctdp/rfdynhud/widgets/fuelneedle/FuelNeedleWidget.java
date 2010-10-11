@@ -557,9 +557,9 @@ public class FuelNeedleWidget extends NeedleMeterWidget
         return ( false );
     }
     
-    public FuelNeedleWidget( String name )
+    public FuelNeedleWidget()
     {
-        super( name, 16.3125f, 21.75f );
+        super( 16.3125f, 21.75f );
         
         getBorderProperty().setBorder( "" );
         lastMarkerBig.setBooleanValue( true );

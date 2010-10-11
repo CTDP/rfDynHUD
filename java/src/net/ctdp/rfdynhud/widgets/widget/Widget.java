@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
@@ -76,9 +77,9 @@ public abstract class Widget implements Documented
     
     private boolean dirtyFlag = true;
     
-    private final StringProperty type = new StringProperty( this, "type", Widget.this.getClass().getSimpleName(), true );
+    private final StringProperty type = new StringProperty( this, "type", this.getClass().getSimpleName(), true );
     
-    private final StringProperty name = new StringProperty( this, "name", "" );
+    private final StringProperty name = new StringProperty( this, "name", this.getClass().getSimpleName() + "1" );
     
     private final Position position;
     private final Size size;
@@ -214,6 +215,25 @@ public abstract class Widget implements Documented
         if ( getBackground() != null )
         {
             getBackground().onWidgetSizeChanged();
+        }
+    }
+    
+    protected void onCanvasSizeChanged()
+    {
+        forceAndSetDirty( true );
+        
+        if ( getBackground() != null )
+        {
+            getBackground().onWidgetSizeChanged();
+        }
+        
+        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        getProperties( propsCont, true );
+        
+        for ( int i = 0; i < propsCont.getList().size(); i++ )
+        {
+            if ( propsCont.getList().get( i ) instanceof FontProperty )
+                ( (FontProperty)propsCont.getList().get( i ) ).refresh();
         }
     }
     
@@ -1761,15 +1781,13 @@ public abstract class Widget implements Documented
     /**
      * Creates a new {@link Widget}.
      * 
-     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
      * @param heightPercent height parameter treated as percents
      */
-    protected Widget( String name, float width, boolean widthPercent, float height, boolean heightPercent )
+    protected Widget( float width, boolean widthPercent, float height, boolean heightPercent )
     {
-        this.name.setStringValue( name );
         this.size = Size.newGlobalSize( this, width, widthPercent, height, heightPercent );
         this.innerSize = new InnerSize( size, border );
         this.position = Position.newGlobalPosition( this, RelativePositioning.TOP_LEFT, 0f, true, 0f, true, size );
@@ -1781,12 +1799,11 @@ public abstract class Widget implements Documented
     /**
      * Creates a new {@link Widget}.
      * 
-     * @param name the new name for this Widget
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      */
-    protected Widget( String name, float width, float height )
+    protected Widget( float width, float height )
     {
-        this( name, width, true, height, true );
+        this( width, true, height, true );
     }
 }

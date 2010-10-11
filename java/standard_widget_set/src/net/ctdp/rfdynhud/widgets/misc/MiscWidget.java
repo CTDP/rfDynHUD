@@ -632,8 +632,8 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         propsCont.addProperty( relTopspeedResetDelay );
     }
     
-    public MiscWidget( String name )
+    public MiscWidget()
     {
-        super( name, 66.25f, 5.83f );
+        super( 66.25f, 5.83f );
     }
 }

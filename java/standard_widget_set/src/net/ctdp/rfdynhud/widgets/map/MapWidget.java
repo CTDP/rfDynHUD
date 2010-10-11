@@ -866,9 +866,9 @@ public class MapWidget extends Widget
         return ( BackgroundProperty.COLOR_INDICATOR + "#00000000" );
     }
     
-    public MapWidget( String name )
+    public MapWidget()
     {
-        super( name, 16f, 24f );
+        super( 16f, 24f );
         
         getBorderProperty().setBorder( "" );
         getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );

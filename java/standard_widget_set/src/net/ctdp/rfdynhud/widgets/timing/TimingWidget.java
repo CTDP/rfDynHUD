@@ -979,8 +979,8 @@ public class TimingWidget extends Widget
         colPadding = 1;
     }
     
-    public TimingWidget( String name )
+    public TimingWidget()
     {
-        super( name, 24.0625f, 30.083334f );
+        super( 24.0625f, 30.083334f );
     }
 }

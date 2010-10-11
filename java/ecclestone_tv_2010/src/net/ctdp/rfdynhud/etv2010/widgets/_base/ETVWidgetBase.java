@@ -254,9 +254,9 @@ public abstract class ETVWidgetBase extends Widget
         return ( BackgroundProperty.COLOR_INDICATOR + "#00000000" );
     }
     
-    public ETVWidgetBase( String name, float width, float height )
+    public ETVWidgetBase( float width, float height )
     {
-        super( name, width, true, height, true );
+        super( width, true, height, true );
         
         getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );
         getFontProperty().setValue( ETVUtils.ETV_STYLE_FONT );

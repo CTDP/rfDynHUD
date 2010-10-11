@@ -112,8 +112,8 @@ public class Lesson2bWidget_FirstDynamics extends Widget
         }
     }
     
-    public Lesson2bWidget_FirstDynamics( String name )
+    public Lesson2bWidget_FirstDynamics()
     {
-        super( name, 5.0f, 5.0f );
+        super( 5.0f, 5.0f );
     }
 }

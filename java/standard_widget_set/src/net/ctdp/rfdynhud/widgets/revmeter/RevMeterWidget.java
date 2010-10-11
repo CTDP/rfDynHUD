@@ -1074,6 +1074,13 @@ public class RevMeterWidget extends NeedleMeterWidget
         else if ( loader.loadProperty( peakNeedleWaitTime ) );
         else if ( loader.loadProperty( peakNeedleCooldown ) );
         else if ( loader.loadProperty( peakNeedleDownshiftIgnoreTime ) );
+        
+        if ( ( loader.getSourceVersion().getBuild() < 70 ) && loader.getCurrentKey().equals( "/" ) )
+        {
+            // Properties loading has finished for this Widget and the sourceversion is outdated.
+            if ( this.getNeedleImage() == null )
+                peakNeedleImageName.setImageName( "" );
+        }
     }
     
     /**
@@ -1218,9 +1225,9 @@ public class RevMeterWidget extends NeedleMeterWidget
         propsCont.addProperty( rpmJoinString2 );
     }
     
-    public RevMeterWidget( String name )
+    public RevMeterWidget()
     {
-        super( name, 16.3125f, 21.75f );
+        super( 16.3125f, 21.75f );
         
         getBorderProperty().setBorder( "" );
         numShiftLights.setIntValue( 2 );

@@ -298,8 +298,8 @@ public class StartingLightWidget extends Widget
         return ( false );
     }
     
-    public StartingLightWidget( String name )
+    public StartingLightWidget()
     {
-        super( name, 11.328125f, true, 8.3984375f, true );
+        super( 11.328125f, true, 8.3984375f, true );
     }
 }

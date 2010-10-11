@@ -136,8 +136,8 @@ public class Lesson5Widget_InputActions extends Widget
         super.getProperties( propsCont, forceAll );
     }
     
-    public Lesson5Widget_InputActions( String name )
+    public Lesson5Widget_InputActions()
     {
-        super( name, 5.0f, 5.0f );
+        super( 5.0f, 5.0f );
     }
 }

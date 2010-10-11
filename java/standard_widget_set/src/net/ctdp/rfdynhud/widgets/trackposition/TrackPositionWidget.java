@@ -437,9 +437,9 @@ public class TrackPositionWidget extends Widget
         itemBlackBorderWidth = 0;
     }
     
-    public TrackPositionWidget( String name )
+    public TrackPositionWidget()
     {
-        super( name, 35.0f, 5.859375f );
+        super( 35.0f, 5.859375f );
         
         getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
         getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );

@@ -81,8 +81,8 @@ public class Lesson7Widget_Stateful extends StatefulWidget<MyGeneralStore, MyLoc
         }
     }
     
-    public Lesson7Widget_Stateful( String name )
+    public Lesson7Widget_Stateful()
     {
-        super( name, 14.0f, 5.0f );
+        super( 14.0f, 5.0f );
     }
 }

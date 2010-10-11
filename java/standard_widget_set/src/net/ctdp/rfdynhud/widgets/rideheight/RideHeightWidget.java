@@ -186,8 +186,8 @@ public class RideHeightWidget extends Widget
         propsCont.addProperty( headerFontColor );
     }
     
-    public RideHeightWidget( String name )
+    public RideHeightWidget()
     {
-        super( name, 9.3f, 7.25f );
+        super( 9.3f, 7.25f );
     }
 }

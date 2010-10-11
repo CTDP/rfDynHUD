@@ -141,7 +141,7 @@ public class WidgetsEditorPanel extends JPanel
         for ( int i = 0; i < drawingManager.getNumWidgets(); i++ )
         {
             drawingManager.getWidget( i ).forceAndSetDirty( true );
-            __WPrivilegedAccess.onSizeChanged( drawingManager.getWidget( i ) );
+            __WPrivilegedAccess.onCanvasSizeChanged( drawingManager.getWidget( i ) );
         }
         
         setBackgroundImage( settings.loadBackgroundImage() );

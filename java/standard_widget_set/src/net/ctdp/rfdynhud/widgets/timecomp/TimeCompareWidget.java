@@ -330,8 +330,8 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
         colPadding = 4;
     }
     
-    public TimeCompareWidget( String name )
+    public TimeCompareWidget()
     {
-        super( name, 24.0625f, 13.916667f );
+        super( 24.0625f, 13.916667f );
     }
 }

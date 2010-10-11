@@ -185,6 +185,17 @@ public class WidgetBackground
     {
         bgTexDirty = true;
         mergedBgTexDirty = true;
+        
+        if ( widget instanceof AssembledWidget )
+        {
+            for ( int i = 0; i < ( (AssembledWidget)widget ).getNumParts(); i++ )
+            {
+                if ( ( (AssembledWidget)widget ).getPart( i ).getBackground() != null )
+                {
+                    ( (AssembledWidget)widget ).getPart( i ).getBackground().onWidgetSizeChanged();
+                }
+            }
+        }
     }
     
     /**

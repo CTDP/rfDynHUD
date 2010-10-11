@@ -355,8 +355,8 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         propsCont.addProperty( sessionLimitPreference );
     }
     
-    public ETVSessionStateWidget( String name )
+    public ETVSessionStateWidget()
     {
-        super( name, 12.0f, 2.54f );
+        super( 12.0f, 2.54f );
     }
 }
