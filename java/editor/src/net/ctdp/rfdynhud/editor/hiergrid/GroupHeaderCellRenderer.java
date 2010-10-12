@@ -51,12 +51,16 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
         if ( row > 0 )
         {
             HierarchicalTable<?> table = (HierarchicalTable<?>)c.getParent().getParent();
-            int level = table.getModel().getLevel( row );
+            int level = Math.min( table.getModel().getLevel( row - 1 ), table.getModel().getLevel( row ) );
             
             int indent = table.getStyle().getLevelIndentation();
             int offsetX = table.getStyle().getIndentHeaders() ? level * indent : 0;
             
             super.paintBorder( c, g, x + offsetX, y, width - offsetX, height, row, column, borderColor );
+            
+            level = table.getModel().getLevel( row );
+            
+            offsetX = table.getStyle().getIndentHeaders() ? level * indent : 0;
             
             if ( ( level > 0  ) && table.getStyle().getIndentHeaders() )
             {

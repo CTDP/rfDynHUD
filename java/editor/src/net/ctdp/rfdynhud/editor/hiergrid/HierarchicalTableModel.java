@@ -124,8 +124,10 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
             
             flatData.add( item );
             
-            //ligTrace[level] = ( i == items.getNumberOfItems() - 1 );
-            ligTrace[level] = ( i == lastVisible );
+            if ( isGroup( item ) )
+                ligTrace[level] = ( ( i == lastVisible ) && !toGroup( item ).getExpandFlag() && ( toGroup( item ).getNumberOfItems() > 0 ) );
+            else
+                ligTrace[level] = ( i == lastVisible );
             
             if ( lastInGroup.size() < flatData.size() )
             {
@@ -156,6 +158,9 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
                 }
             }
         }
+        
+        if ( flatData.size() > 0 )
+            lastInGroup.get( flatData.size() - 1 )[level] = true;
         
         return ( hasExpandableItems );
     }
@@ -191,7 +196,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         
         boolean oldHEI = hasExpandableItems();
         
-        setData( this.data );
+        computeFlatData( null );
         if ( ( selectedRow >= 0 ) && ( selectedRow >= getRowCount() ) )
         {
             fireTableStructureChanged();

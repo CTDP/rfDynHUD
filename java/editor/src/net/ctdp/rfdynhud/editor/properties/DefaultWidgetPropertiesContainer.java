@@ -30,6 +30,8 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
     private final Stack<GridItemsContainer<Property>> groupStack = new Stack<GridItemsContainer<Property>>();
     private GridItemsContainer<Property> currList = null;
     
+    private boolean lastGroupPushed = false;
+    
     @Override
     protected void clearImpl()
     {
@@ -39,7 +41,7 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
     @Override
     protected void addGroupImpl( String groupName, boolean initiallyExpanded, boolean pushed )
     {
-        if ( !pushed && ( groupStack.size() > 1 ) )
+        if ( !lastGroupPushed && !pushed && ( groupStack.size() > 1 ) )
         {
             groupStack.pop();
         }
@@ -50,13 +52,18 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
         ( (GridItemsContainerImpl)parentGroup ).addGroup( group );
         groupStack.push( group );
         currList = group;
+        
+        lastGroupPushed = pushed;
     }
     
     @Override
     protected void popGroupImpl()
     {
         groupStack.pop();
+        if ( !lastGroupPushed )
+            groupStack.pop();
         currList = groupStack.peek();
+        lastGroupPushed = false;
     }
     
     @Override
