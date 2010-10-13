@@ -88,7 +88,7 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
         component.setBackground( style.getGroupHeaderBackgroundColor() );
         component.setForeground( style.getGroupHeaderFontColor() );
         
-        HierarchicalTableModel<?> tm = (HierarchicalTableModel<?>)table.getModel();
+        HierarchicalTableModel<?> tm = table.getModel();
         
         component.setLevel( tm.getLevel( row ), style.getLevelIndentation() );
         component.setLastInGroup( tm.getLastInGroup( row ) );
