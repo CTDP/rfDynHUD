@@ -57,6 +57,7 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetFactory;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 /**
@@ -541,7 +542,7 @@ public class EditorMenuBar extends JMenuBar
             
             try
             {
-                Widget widget = RFDynHUDEditor.createWidgetInstance( clazz, "dummy", null, false );
+                Widget widget = WidgetFactory.createWidget( clazz, "dummy" );
                 if ( widget != null )
                 {
                     instances.put( clazz, widget );

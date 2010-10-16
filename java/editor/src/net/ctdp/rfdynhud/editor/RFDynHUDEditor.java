@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -68,7 +67,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.__GameIDHelper;
-import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
@@ -1278,56 +1276,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
     }
     
-    public void copyPropertiesFromTemplate( Widget template, Widget target, boolean includeName, boolean includePosition )
+    public static Widget createWidgetInstance( Class<Widget> widgetClass, String name, boolean showMessage )
     {
-        FlatWidgetPropertiesContainer pcTemplate = new FlatWidgetPropertiesContainer();
-        FlatWidgetPropertiesContainer pcTarget = new FlatWidgetPropertiesContainer();
-        
-        template.getProperties( pcTemplate, true );
-        target.getProperties( pcTarget, true );
-        
-        List<Property> lstTemplate = pcTemplate.getList();
-        List<Property> lstTarget = pcTarget.getList();
-        
-        // We assume, that the order will be the same in both lists.
-        
-        for ( int i = 0; i < lstTemplate.size(); i++ )
-        {
-            if ( lstTemplate.get( i ) instanceof Property )
-            {
-                Property p0 = lstTemplate.get( i );
-                Property p1 = lstTarget.get( i );
-                
-                if ( ( includeName || !p0.getName().equals( "name" ) ) && ( includePosition || ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) ) ) )
-                    p1.setValue( p0.getValue() );
-            }
-        }
-    }
-    
-    public void copyPropertiesFromTemplate( Widget widget )
-    {
-        if ( templateConfig == null )
-            return;
-        
-        Widget template = null;
-        for ( int i = 0; i < templateConfig.getNumWidgets(); i++ )
-        {
-            if ( templateConfig.getWidget( i ).getClass() == widget.getClass() )
-            {
-                template = templateConfig.getWidget( i );
-                break;
-            }
-        }
-        
-        if ( template == null )
-            return;
-        
-        copyPropertiesFromTemplate( template, widget, false, false );
-    }
-    
-    public static Widget createWidgetInstance( Class<Widget> widgetClass, String name, WidgetsConfiguration widgetsConfig, boolean showMessage )
-    {
-        Widget widget = ( name != null ) ? WidgetFactory.createWidget( widgetClass, name ) : WidgetFactory.createWidget( widgetClass, widgetsConfig );
+        Widget widget = WidgetFactory.createWidget( widgetClass, name );
         
         if ( widget == null )
         {
@@ -1338,6 +1289,33 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         
         return ( widget );
+    }
+    
+    private Widget getNewWidgetInstance( Class<Widget> widgetClazz )
+    {
+        Widget template = null;
+        
+        if ( templateConfig != null )
+        {
+            for ( int i = 0; i < templateConfig.getNumWidgets(); i++ )
+            {
+                if ( templateConfig.getWidget( i ).getClass() == widgetClazz )
+                {
+                    template = templateConfig.getWidget( i );
+                    break;
+                }
+            }
+        }
+        
+        String name = widgetsConfig.findFreeName( widgetClazz.getSimpleName() );
+        
+        if ( template == null )
+            return ( createWidgetInstance( widgetClazz, name, false ) );
+        
+        Widget clone = template.clone();
+        clone.setName( name );
+        
+        return ( clone );
     }
     
     public Widget addNewWidget( Class<Widget> widgetClazz )
@@ -1355,7 +1333,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         {
             Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
             
-            widget = createWidgetInstance( widgetClazz, null, widgetsConfig, false );
+            widget = getNewWidgetInstance( widgetClazz );
             if ( widget != null )
             {
                 int w = 0;
@@ -1372,7 +1350,6 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                     widget.setName( name );
                 }
                 
-                copyPropertiesFromTemplate( widget );
                 if ( editorPanel.getScopeWidget() == null )
                     __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
                 else

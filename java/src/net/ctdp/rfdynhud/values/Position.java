@@ -677,12 +677,19 @@ public class Position
                     if ( positioning == value )
                         return;
                     
-                    int currX = getEffectiveX();
-                    int currY = getEffectiveY();
-                    
-                    setEffectivePosition( (RelativePositioning)value, currX, currY );
-                    
-                    onPositioningPropertySet( (RelativePositioning)value );
+                    if ( ( Position.this.getWidget() != null ) && ( Position.this.getWidget().getConfiguration() != null ) )
+                    {
+                        int currX = getEffectiveX();
+                        int currY = getEffectiveY();
+                        
+                        setEffectivePosition( (RelativePositioning)value, currX, currY );
+                        
+                        onPositioningPropertySet( (RelativePositioning)value );
+                    }
+                    else
+                    {
+                        Position.this.positioning = (RelativePositioning)value;
+                    }
                 }
                 
                 @Override

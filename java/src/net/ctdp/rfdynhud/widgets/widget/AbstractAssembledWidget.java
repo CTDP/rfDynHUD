@@ -1019,6 +1019,20 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
     }
     
     
+    @Override
+    protected Widget getNewInstanceForClone()
+    {
+        AbstractAssembledWidget newWidget = WidgetFactory.createAssembledWidget( getClass().getName(), "CloneOf" + getName() );
+        
+        for ( int i = 0; i < getNumParts(); i++ )
+        {
+            newWidget.addPart( getPart( i ).getNewInstanceForClone() );
+        }
+        
+        return ( newWidget );
+    }
+    
+    
     /**
      * {@inheritDoc}
      */

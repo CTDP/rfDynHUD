@@ -577,16 +577,16 @@ public class WidgetImportManager
                 name = widgetsConfig.findFreeName( widgetType );
             }
             
-            @SuppressWarnings( "unchecked" )
-            Widget newWidget = RFDynHUDEditor.createWidgetInstance( (Class<Widget>)widget.getClass(), name, null, true );
+            Widget newWidget = widget.clone();
             
             if ( newWidget == null )
                 return ( false );
             
+            newWidget.setName( name );
+            
             __WCPrivilegedAccess.addWidget( widgetsConfig, newWidget, false );
             
             widget.setAllPosAndSizeToPercents();
-            editor.copyPropertiesFromTemplate( widget, newWidget, false, true );
             
             ImportDecision decision = null;
             

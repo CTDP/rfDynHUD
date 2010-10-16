@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetFactory;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.openmali.types.twodee.Rect2i;
@@ -132,7 +133,7 @@ public class WidgetMenuItem extends JMenuItem
         
         this.editor = editor;
         
-        this.widget = RFDynHUDEditor.createWidgetInstance( widgetClass, null, widgetsConfig, true );
+        this.widget = WidgetFactory.createWidget( widgetClass, "dummy" );
         
         if ( widget != null )
         {

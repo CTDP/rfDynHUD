@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.widgets.widget;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -66,7 +67,7 @@ import org.openmali.types.twodee.Rect2i;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public abstract class Widget implements Documented
+public abstract class Widget implements Cloneable, Documented
 {
     public static final int NEEDED_DATA_TELEMETRY = 1;
     public static final int NEEDED_DATA_SCORING = 2;
@@ -1739,6 +1740,48 @@ public abstract class Widget implements Documented
         getPropertiesForParentGroup( propsCont, forceAll );
         
         //propsCont.dump();
+    }
+    
+    protected Widget getNewInstanceForClone()
+    {
+        @SuppressWarnings( "unchecked" )
+        Class<Widget> clazz = (Class<Widget>)getClass();
+        
+        return ( WidgetFactory.createWidget( clazz, "CloneOf" + getName() ) );
+    }
+    
+    @Override
+    public Widget clone()
+    {
+        Widget newWidget = getNewInstanceForClone();
+        
+        if ( newWidget == null )
+            return ( null );
+        
+        FlatWidgetPropertiesContainer pcTemplate = new FlatWidgetPropertiesContainer();
+        FlatWidgetPropertiesContainer pcTarget = new FlatWidgetPropertiesContainer();
+        
+        this.getProperties( pcTemplate, true );
+        newWidget.getProperties( pcTarget, true );
+        
+        List<Property> lstTemplate = pcTemplate.getList();
+        List<Property> lstTarget = pcTarget.getList();
+        
+        // We assume, that the order will be the same in both lists.
+        
+        for ( int i = 0; i < lstTemplate.size(); i++ )
+        {
+            if ( lstTemplate.get( i ) instanceof Property )
+            {
+                Property p0 = lstTemplate.get( i );
+                Property p1 = lstTarget.get( i );
+                
+                //if ( ( includePosition || ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) ) ) )
+                    p1.setValue( p0.getValue() );
+            }
+        }
+        
+        return ( newWidget );
     }
     
     private String getDocumentationSource( Class<?> clazz, Property property )
