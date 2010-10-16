@@ -76,9 +76,10 @@ public abstract class WidgetPropertiesContainer
      */
     public final void pushGroup( String groupName, boolean initiallyExpanded )
     {
+        level++;
+        
         addGroupImpl( groupName, initiallyExpanded, true );
         
-        level++;
         numGroups++;
     }
     

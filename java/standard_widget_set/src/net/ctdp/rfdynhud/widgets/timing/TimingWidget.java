@@ -53,7 +53,7 @@ public class TimingWidget extends Widget
 {
     private final BooleanProperty displayAbsFastest = new BooleanProperty( this, "displayAbsFastest", true );
     private final BooleanProperty cumulativeSectors = new BooleanProperty( this, "cumulativeSectors", false );
-    private final BooleanProperty forceCurrentCumulSectors = new BooleanProperty( this, "forceCurrentCumulSectors", true );
+    private final BooleanProperty forceCurrentCumulSectors = new BooleanProperty( this, "forceCurrentCumulSectors", "forceCurrCumulSects", true );
     private final IntProperty lastLapDisplayDelay = new IntProperty( this, "lastLapDisplayDelay", 10000, -100, Integer.MAX_VALUE ); // ten seconds
     
     private final ColorProperty slowerColor = new ColorProperty( this, "slowerColor", "#FF7248" );

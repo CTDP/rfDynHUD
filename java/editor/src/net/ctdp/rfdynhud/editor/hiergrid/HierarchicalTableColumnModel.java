@@ -62,10 +62,23 @@ public class HierarchicalTableColumnModel<P extends Object> extends DefaultTable
             addColumn( column );
         }
         
-        column = new TableColumn( c++, 20000, new KeyCellRenderer<P>(), null );
-        //column = new TableColumn( c++, 20000, null, null );
-        column.setHeaderValue( tableModel.getColumnName( 1 ) );
-        addColumn( column );
+        if ( tableModel.getKeyColumnWidth() >= 0 )
+        {
+            int kcw = tableModel.getKeyColumnWidth();
+            column = new TableColumn( c++, kcw, new KeyCellRenderer<P>(), null );
+            column.setMinWidth( kcw );
+            column.setMaxWidth( kcw );
+            column.setResizable( false );
+            column.setHeaderValue( tableModel.getColumnName( 1 ) );
+            addColumn( column );
+        }
+        else
+        {
+            column = new TableColumn( c++, 20000, new KeyCellRenderer<P>(), null );
+            //column = new TableColumn( c++, 20000, null, null );
+            column.setHeaderValue( tableModel.getColumnName( 1 ) );
+            addColumn( column );
+        }
         
         //column = new TableColumn( c++, 20000, new StringKeyValueCellRenderer(), null );
         column = new TableColumn( c++, 20000, null, null );

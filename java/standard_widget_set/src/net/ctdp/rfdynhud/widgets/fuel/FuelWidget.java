@@ -83,15 +83,15 @@ public class FuelWidget extends Widget
     
     private final ImageProperty fuelBarImage = new ImageProperty( this, "fuelBarImage", null, "", false, true );
     private TextureImage2D fuelBarTexture = null;
-    private final ColorProperty fuelBarBackgroundColor = new ColorProperty( this, "fuelBarBackgroundColor", "fuelBarBackground", "#000000" );
+    private final ColorProperty fuelBarBackgroundColor = new ColorProperty( this, "fuelBarBackgroundColor", "fuelBarBG", "#000000" );
     private final ColorProperty fuelBarColor = new ColorProperty( this, "fuelBarColor", "#54760B" );
-    private final BooleanProperty horizontalFuelBar = new BooleanProperty( this, "horizontalFuelBar", false );
+    private final BooleanProperty horizontalFuelBar = new BooleanProperty( this, "horizontalFuelBar", "horizFuelBar", false );
     
     private final Size fuelBarWidth;
     
     private final ColorProperty fuelFontColor = new ColorProperty( this, "fuelFontColor", "#FFFFFFCD" );
     
-    private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( this, "roundUpRemainingLaps", false );
+    private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( this, "roundUpRemainingLaps", "roundUpRemLaps", false );
     
     private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( this, "lowFuelWarningImageOff", "imageOff", "shiftlight_off.png", false, true )
     {

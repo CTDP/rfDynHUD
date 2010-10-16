@@ -77,7 +77,7 @@ public class StartingLightWidget extends Widget
     
     private final IntProperty numRows = new IntProperty( this, "numRows", 2, 1, 4 );
     
-    private final FloatProperty visibleTimeAfterLightsOff = new FloatProperty( this, "visibleTimeAfterLightsOff", 4.0f, 0f, 60f );
+    private final FloatProperty visibleTimeAfterLightsOff = new FloatProperty( this, "visibleTimeAfterLightsOff", "visTimeAfterOff", 4.0f, 0f, 60f, false );
     
     private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
     private final IntValue numLights = new IntValue();

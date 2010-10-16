@@ -85,7 +85,10 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetFactory;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.gui.awt_swing.GUITools;
@@ -461,7 +464,10 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         editorTable.applyToModel();
     }
     
-    //private long nextRedrawTime = -1L;
+    @Override
+    public void onScopeWidgetChanged( AbstractAssembledWidget scopeWidget )
+    {
+    }
     
     /**
      * @param widget the changed widget
@@ -963,6 +969,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     {
         try
         {
+            editorPanel.goInto( null );
+            
             clearWidetRegions();
             
             __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), configFile, widgetsConfig, gameData, true, null );
@@ -1224,7 +1232,10 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         
         Logger.log( "Removing Widget of type \"" + widget.getClass().getName() + "\" and name \"" + widget.getName() + "\"..." );
         
-        __WCPrivilegedAccess.removeWidget( widgetsConfig, widget );
+        if ( widget.getMasterWidget() == null )
+            __WCPrivilegedAccess.removeWidget( widgetsConfig, widget );
+        else
+            __WPrivilegedAccess.removePart( widget, widget.getMasterWidget() );
         
         setDirtyFlag();
         
@@ -1232,9 +1243,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     }
     
     @Override
-    public void onContextMenuRequested( Widget[] hoveredWidgets )
+    public void onContextMenuRequested( Widget[] hoveredWidgets, AbstractAssembledWidget scopeWidget )
     {
-        EditorMenuBar.initContextMenu( this, hoveredWidgets );
+        EditorMenuBar.initContextMenu( this, hoveredWidgets, scopeWidget );
     }
     
     @Override
@@ -1314,65 +1325,86 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         copyPropertiesFromTemplate( template, widget, false, false );
     }
     
-    private static final Throwable getRootCause( Throwable t )
+    public static Widget createWidgetInstance( Class<Widget> widgetClass, String name, WidgetsConfiguration widgetsConfig, boolean showMessage )
     {
-        if ( t.getCause() == null )
-            return ( t );
+        Widget widget = ( name != null ) ? WidgetFactory.createWidget( widgetClass, name ) : WidgetFactory.createWidget( widgetClass, widgetsConfig );
         
-        return ( getRootCause( t.getCause() ) );
-    }
-    
-    public static Widget createWidgetInstance( Class<Widget> widgetClass, WidgetsConfiguration widgetsConfig, boolean showMessage )// throws IllegalArgumentException, SecurityException
-    {
-        String name = ( widgetsConfig != null ) ? widgetsConfig.findFreeName( widgetClass.getSimpleName() ) : null;
-        
-        try
-        {
-            Widget widget = (Widget)widgetClass.getConstructor().newInstance();
-            
-            if ( name != null )
-                widget.setName( name );
-            
-            return ( widget );
-        }
-        catch ( Throwable t )
+        if ( widget == null )
         {
             if ( showMessage )
                 JOptionPane.showMessageDialog( null, "Cannot create Widget instance of type " + widgetClass.getName() + ". See log for more info." );
             else
                 Logger.log( "Cannot create Widget instance of type " + widgetClass.getName() );
-            
-            Logger.log( getRootCause( t ) );
-            
-            return ( null );
         }
+        
+        return ( widget );
     }
     
     public Widget addNewWidget( Class<Widget> widgetClazz )
     {
+        if ( AbstractAssembledWidget.class.isAssignableFrom( widgetClazz ) && ( editorPanel.getScopeWidget() != null ) )
+        {
+            JOptionPane.showMessageDialog( getMainWindow(), "You cannot add an AssembledWidget to an AssembledWidget", "Error adding new Widget", JOptionPane.ERROR_MESSAGE );
+            
+            return ( null );
+        }
+        
         Widget widget = null;
         
         try
         {
             Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
             
-            //widget = (Widget)widgetClazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
-            widget = createWidgetInstance( widgetClazz, widgetsConfig, false );
+            widget = createWidgetInstance( widgetClazz, null, widgetsConfig, false );
             if ( widget != null )
             {
+                int w = 0;
+                int h = 0;
+                
+                if ( editorPanel.getScopeWidget() != null )
+                {
+                    String name = editorPanel.getScopeWidget().findFreePartName( widget.getClass().getSimpleName() );
+                    widget.setName( "dummy" + System.currentTimeMillis() );
+                    __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
+                    w = widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth();
+                    h = widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight();
+                    __WCPrivilegedAccess.removeWidget( widgetsConfig, widget );
+                    widget.setName( name );
+                }
+                
                 copyPropertiesFromTemplate( widget );
-                __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
+                if ( editorPanel.getScopeWidget() == null )
+                    __WCPrivilegedAccess.addWidget( widgetsConfig, widget, false );
+                else
+                    __WPrivilegedAccess.addPart( widget, editorPanel.getScopeWidget() );
                 if ( presetsWindow.getDefaultScaleType() == ScaleType.PERCENTS )
                     widget.setAllPosAndSizeToPercents();
                 else if ( presetsWindow.getDefaultScaleType() == ScaleType.ABSOLUTE_PIXELS )
                     widget.setAllPosAndSizeToPixels();
                 
-                int vpw = Math.min( editorScrollPane.getViewport().getExtentSize().width, gameResolution.getViewportWidth() );
-                int vph = Math.min( editorScrollPane.getViewport().getExtentSize().height, gameResolution.getViewportHeight() );
-                int x = editorScrollPane.getHorizontalScrollBar().getValue() + ( vpw - widget.getSize().getEffectiveWidth() ) / 2;
-                int y = editorScrollPane.getVerticalScrollBar().getValue() + ( vph - widget.getSize().getEffectiveHeight() ) / 2;
+                if ( editorPanel.getScopeWidget() == null )
+                {
+                    int vpw = Math.min( editorScrollPane.getViewport().getExtentSize().width, gameResolution.getViewportWidth() );
+                    int vph = Math.min( editorScrollPane.getViewport().getExtentSize().height, gameResolution.getViewportHeight() );
+                    int x = editorScrollPane.getHorizontalScrollBar().getValue() + ( vpw - widget.getSize().getEffectiveWidth() ) / 2;
+                    int y = editorScrollPane.getVerticalScrollBar().getValue() + ( vph - widget.getSize().getEffectiveHeight() ) / 2;
+                    
+                    widget.getPosition().setEffectivePosition( x, y );
+                }
+                else
+                {
+                    int sw = editorPanel.getScopeWidget().getInnerSize().getEffectiveWidth();
+                    int sh = editorPanel.getScopeWidget().getInnerSize().getEffectiveHeight();
+                    
+                    widget.getSize().setEffectiveSize( w, h );
+                    
+                    sw = editorPanel.getScopeWidget().getInnerSize().getEffectiveWidth();
+                    sh = editorPanel.getScopeWidget().getInnerSize().getEffectiveHeight();
+                    int x = ( sw - widget.getSize().getEffectiveWidth() ) / 2;
+                    int y = ( sh - widget.getSize().getEffectiveHeight() ) / 2;
+                    widget.getPosition().setEffectivePosition( x, y );
+                }
                 
-                widget.getPosition().setEffectivePosition( x, y );
                 editorPanel.setSelectedWidget( widget, false );
                 
                 setDirtyFlag();

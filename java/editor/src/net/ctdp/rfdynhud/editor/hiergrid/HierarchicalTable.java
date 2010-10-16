@@ -422,6 +422,7 @@ public class HierarchicalTable<P extends Object> extends JTable
         setRowMargin( 0 );
         setRowHeight( style.getRowHeight() );
         setIntercellSpacing( new Dimension( 0, 0 ) );
+        setAutoResizeMode( JTable.AUTO_RESIZE_LAST_COLUMN );
         
         setUI( new TableUI() );
         

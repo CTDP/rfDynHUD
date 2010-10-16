@@ -164,11 +164,49 @@ public class ColorChooser extends JPanel
         }
     }
     
+    private final JPanel sampleColorPanel = new JPanel()
+    {
+        private static final long serialVersionUID = 660233693425390754L;
+        
+        @Override
+        protected void paintComponent( Graphics g )
+        {
+            if ( getBackground().getAlpha() < 255 )
+            {
+                int w = getWidth() - 2;
+                int h = getHeight() - 2;
+                boolean eo1 = false;
+                boolean eo2 = false;
+                for ( int y = 0; y < h; y += 5 )
+                {
+                    eo1 = !eo1;
+                    eo2 = eo1;
+                    for ( int x = 0; x < w; x += 5 )
+                    {
+                        eo2 = !eo2;
+                        
+                        if ( eo2 )
+                            g.setColor( Color.WHITE );
+                        else
+                            g.setColor( Color.BLACK );
+                        
+                        g.fillRect( x + 1, y + 1, 5, 5 );
+                    }
+                }
+                
+                g.setColor( Color.BLACK );
+                g.drawRect( 0, 0, getWidth() - 1, getHeight() - 1 );
+            }
+            
+            g.setColor( getBackground() );
+            g.fillRect( 0, 0, getWidth(), getHeight() );
+        }
+    };
+    
     private JComboBox combo;
     private int lastNameComboSelectedIndex = -1;
     private String[] namesCache;
     private JPanel colorTriangle;
-    private JPanel sampleColor;
     private ComponentSelector redSelector;
     private ComponentSelector greenSelector;
     private ComponentSelector blueSelector;
@@ -194,7 +232,7 @@ public class ColorChooser extends JPanel
             blueSelector.setValue( color.getBlue() );
             alphaSelector.setValue( color.getAlpha() );
             
-            sampleColor.setBackground( new Color( color.getRed(), color.getGreen(), color.getBlue() ) );
+            sampleColorPanel.setBackground( color );
             
             String hex = ColorUtils.colorToHex( color );
             
@@ -842,9 +880,8 @@ public class ColorChooser extends JPanel
         
         JPanel sampleWrapper = new JPanel( new BorderLayout() );
         sampleWrapper.setBorder( new EmptyBorder( 10, 0, 0, 0 ) );
-        sampleColor = new JPanel();
-        sampleColor.setPreferredSize( new Dimension( Integer.MAX_VALUE, 20 ) );
-        sampleWrapper.add( sampleColor, BorderLayout.CENTER );
+        sampleColorPanel.setPreferredSize( new Dimension( Integer.MAX_VALUE, 20 ) );
+        sampleWrapper.add( sampleColorPanel, BorderLayout.CENTER );
         panel.add( sampleWrapper, BorderLayout.SOUTH );
         
         panel.setMinimumSize( new Dimension( 150, 150 ) );

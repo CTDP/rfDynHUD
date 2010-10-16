@@ -56,7 +56,7 @@ public class ControlsWidget extends Widget
         }
     };
     
-    private final BooleanProperty swapThrottleAndBrake = new BooleanProperty( this, "swapThrottleAndBrake", false );
+    private final BooleanProperty swapThrottleAndBrake = new BooleanProperty( this, "swapThrottleAndBrake", "swapThrottle/Brake", false );
     private boolean oldSwapTB = swapThrottleAndBrake.getBooleanValue();
     
     private final BooleanProperty displayClutch = new BooleanProperty( this, "displayClutch", true )

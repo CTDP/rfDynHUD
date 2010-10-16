@@ -22,11 +22,13 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
+import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
@@ -38,7 +40,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class ImageWidget extends Widget
 {
-    private final ImagePropertyWithTexture imageProp = new ImagePropertyWithTexture( this, "imageName", "ctdp.png" )
+    private final ImagePropertyWithTexture imageName = new ImagePropertyWithTexture( this, "imageName", "ctdp.png" )
     {
         @Override
         public void onValueChanged( String oldValue, String newValue )
@@ -48,6 +50,10 @@ public class ImageWidget extends Widget
             forceCompleteRedraw( true );
         }
     };
+    
+    private final StringProperty visibleIf = new StringProperty( this, "visibleIf", "" );
+    
+    private Widget visibleIfWidget = null;
     
     @Override
     public WidgetPackage getWidgetPackage()
@@ -59,9 +65,44 @@ public class ImageWidget extends Widget
      * {@inheritDoc}
      */
     @Override
+    public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
+    {
+        super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
+        
+        if ( !isEditorMode )
+        {
+            String visibleIfWidgetName = visibleIf.getStringValue().trim();
+            
+            if ( visibleIfWidgetName.equals( "" ) )
+                visibleIfWidget = null;
+            else
+                visibleIfWidget = widgetsConfig.getWidget( visibleIfWidgetName );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Boolean updateVisibility( LiveGameData gameData, boolean isEditorMode )
+    {
+        Boolean result = super.updateVisibility( gameData, isEditorMode );
+        
+        if ( visibleIfWidget != null )
+        {
+            result = visibleIfWidget.isVisible();
+        }
+        
+        return ( result );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
-        imageProp.updateSize( width, height, isEditorMode );
+        imageName.updateSize( width, height, isEditorMode );
     }
     
     @Override
@@ -69,7 +110,10 @@ public class ImageWidget extends Widget
     {
         if ( needsCompleteRedraw )
         {
-            texture.clear( imageProp.getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
+            if ( getMasterWidget() == null )
+                texture.clear( imageName.getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
+            else
+                texture.drawImage( imageName.getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
         }
     }
     
@@ -82,7 +126,8 @@ public class ImageWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( imageProp, "The displayed image's name." );
+        writer.writeProperty( imageName, "The displayed image's name." );
+        writer.writeProperty( visibleIf, "Name of the Widget, that needs to be visible for this Widget to be visible, too." );
     }
     
     /**
@@ -93,7 +138,8 @@ public class ImageWidget extends Widget
     {
         super.loadProperty( loader );
         
-        if ( loader.loadProperty( imageProp ) );
+        if ( loader.loadProperty( imageName ) );
+        else if ( loader.loadProperty( visibleIf ) );
     }
     
     /**
@@ -106,7 +152,12 @@ public class ImageWidget extends Widget
         
         propsCont.addGroup( "Specific" );
         
-        propsCont.addProperty( imageProp );
+        propsCont.addProperty( imageName );
+        
+        if ( getMasterWidget() == null )
+        {
+            propsCont.addProperty( visibleIf );
+        }
     }
     
     @Override

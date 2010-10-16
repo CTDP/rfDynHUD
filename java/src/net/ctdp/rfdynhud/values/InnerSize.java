@@ -26,7 +26,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class InnerSize implements AbstractSize
+public class InnerSize extends AbstractSize
 {
     private final Size totalSize;
     private final BorderProperty border;

@@ -33,7 +33,7 @@ import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
+import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -167,11 +167,11 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
             }
         }
         
-        if ( widget instanceof AssembledWidget )
+        if ( widget instanceof AbstractAssembledWidget )
         {
-            for ( int i = 0; i < ( (AssembledWidget)widget ).getNumParts(); i++ )
+            for ( int i = 0; i < ( (AbstractAssembledWidget)widget ).getNumParts(); i++ )
             {
-                if ( widgetHostsAction( ( (AssembledWidget)widget ).getPart( i ), action ) )
+                if ( widgetHostsAction( ( (AbstractAssembledWidget)widget ).getPart( i ), action ) )
                     return ( true );
             }
         }

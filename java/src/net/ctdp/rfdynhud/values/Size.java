@@ -24,7 +24,7 @@ import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
-public class Size implements AbstractSize
+public class Size extends AbstractSize
 {
     private static final float PIXEL_OFFSET = 10f;
     private static final float PIXEL_OFFSET_CHECK_POSITIVE = +PIXEL_OFFSET - 0.001f;
@@ -115,7 +115,12 @@ public class Size implements AbstractSize
     private final float getScaleWidth()
     {
         if ( isGlobalSize )
-            return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
+        {
+            if ( widget.getMasterWidget() == null )
+                return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
+            
+            return ( widget.getMasterWidget().getInnerSize().getEffectiveWidth() );
+        }
         
         return ( widget.getInnerSize().getEffectiveWidth() );
     }
@@ -123,7 +128,12 @@ public class Size implements AbstractSize
     private final float getScaleHeight()
     {
         if ( isGlobalSize )
-            return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
+        {
+            if ( widget.getMasterWidget() == null )
+                return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
+            
+            return ( widget.getMasterWidget().getInnerSize().getEffectiveHeight() );
+        }
         
         return ( widget.getInnerSize().getEffectiveHeight() );
     }
@@ -131,7 +141,12 @@ public class Size implements AbstractSize
     private final float getHundretPercentWidth()
     {
         if ( isGlobalSize )
-            return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
+        {
+            if ( widget.getMasterWidget() == null )
+                return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
+            
+            return ( widget.getMasterWidget().getInnerSize().getEffectiveWidth() );
+        }
         
         return ( widget.getInnerSize().getEffectiveWidth() );
     }
@@ -402,7 +417,7 @@ public class Size implements AbstractSize
     
     public Size setWidthToPixels()
     {
-        if ( !isPixelValue( height ) )
+        if ( !isPixelValue( width ) )
         {
             int effW = getEffectiveWidth();
             int effH = getEffectiveHeight();

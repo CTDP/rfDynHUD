@@ -24,6 +24,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
@@ -117,6 +118,8 @@ public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
         super( false, null );
         
         setComponent( panel );
+        
+        label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
         
         button.setMargin( new Insets( 0, 3, 0, 3 ) );
         

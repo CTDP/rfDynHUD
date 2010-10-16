@@ -21,6 +21,7 @@ import java.awt.Font;
 import java.util.EventObject;
 
 import javax.swing.JLabel;
+import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
@@ -78,6 +79,8 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel>
     public ReadonlyCellEditor()
     {
         super( false, null );
+        
+        label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
         
         setComponent( label );
     }

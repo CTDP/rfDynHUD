@@ -138,7 +138,7 @@ public abstract class Widget implements Documented
     
     private final DrawnStringFactory drawnStringFactory = new DrawnStringFactory( this );
     
-    private AssembledWidget masterWidget = null;
+    private AbstractAssembledWidget masterWidget = null;
     
     /**
      * Logs data to the plugin's log file.
@@ -188,11 +188,21 @@ public abstract class Widget implements Documented
      */
     protected void onPositionChanged( RelativePositioning oldPositioning, int oldX, int oldY, RelativePositioning newPositioning, int newX, int newY )
     {
-        WidgetsConfiguration wc = getConfiguration();
-        
-        if ( wc != null )
+        if ( getMasterWidget() == null )
         {
-            __WCPrivilegedAccess.sortWidgets( wc );
+            WidgetsConfiguration wc = getConfiguration();
+            
+            if ( wc != null )
+            {
+                __WCPrivilegedAccess.sortWidgets( wc );
+            }
+        }
+        else
+        {
+            getMasterWidget().sortParts();
+            
+            if ( getMasterWidget().getBackground() != null )
+                getMasterWidget().getBackground().setMergedBGDirty();
         }
     }
     
@@ -205,11 +215,21 @@ public abstract class Widget implements Documented
      */
     protected void onSizeChanged( int oldWidth, int oldHeight, int newWidth, int newHeight )
     {
-        WidgetsConfiguration wc = getConfiguration();
-        
-        if ( wc != null )
+        if ( getMasterWidget() == null )
         {
-            __WCPrivilegedAccess.sortWidgets( wc );
+            WidgetsConfiguration wc = getConfiguration();
+            
+            if ( wc != null )
+            {
+                __WCPrivilegedAccess.sortWidgets( wc );
+            }
+        }
+        else
+        {
+            getMasterWidget().sortParts();
+            
+            if ( getMasterWidget().getBackground() != null )
+                getMasterWidget().getBackground().setMergedBGDirty();
         }
         
         if ( getBackground() != null )
@@ -296,17 +316,17 @@ public abstract class Widget implements Documented
         return ( config );
     }
     
-    void setMasterWidget( AssembledWidget masterWidget )
+    void setMasterWidget( AbstractAssembledWidget masterWidget )
     {
         this.masterWidget = masterWidget;
     }
     
     /**
-     * If this {@link Widget} is part of an {@link AssembledWidget}, this master {@link Widget} is returned.
+     * If this {@link Widget} is part of an {@link AbstractAssembledWidget}, this master {@link Widget} is returned.
      * 
-     * @return the master {@link AssembledWidget} or <code>null</code>.
+     * @return the master {@link AbstractAssembledWidget} or <code>null</code>.
      */
-    public final AssembledWidget getMasterWidget()
+    public final AbstractAssembledWidget getMasterWidget()
     {
         return ( masterWidget );
     }
@@ -439,8 +459,15 @@ public abstract class Widget implements Documented
      */
     public void setName( String name )
     {
+        String oldName = this.name.getStringValue();
+        
         this.name.setStringValue( name );
         setDirtyFlag();
+        
+        if ( getConfiguration() != null )
+        {
+            __WCPrivilegedAccess.updateNameMapping( this, oldName, getConfiguration() );
+        }
     }
     
     /**
@@ -468,12 +495,12 @@ public abstract class Widget implements Documented
      * 
      * @return the x-offset relative to the master Widget.
      */
-    public final int getOffsetXToMasterWidget()
+    public final int getOffsetXToRootMasterWidget()
     {
         if ( getMasterWidget() == null )
             return ( 0 );
         
-        return ( position.getEffectiveX() + getMasterWidget().getOffsetXToMasterWidget() );
+        return ( getBorder().getInnerLeftWidth() + position.getEffectiveX() + getMasterWidget().getOffsetXToRootMasterWidget() );
     }
     
     /**
@@ -481,12 +508,42 @@ public abstract class Widget implements Documented
      * 
      * @return the y-offset relative to the master Widget.
      */
-    public final int getOffsetYToMasterWidget()
+    public final int getOffsetYToRootMasterWidget()
     {
         if ( getMasterWidget() == null )
             return ( 0 );
         
-        return ( position.getEffectiveY() + getMasterWidget().getOffsetYToMasterWidget() );
+        return ( getBorder().getInnerTopHeight() + position.getEffectiveY() + getMasterWidget().getOffsetYToRootMasterWidget() );
+    }
+    
+    /**
+     * Gets the absolute x-position relative to the configuration origin.
+     * 
+     * @return the absolute x-position relative to the configuration origin.
+     */
+    public final int getAbsoluteOffsetX()
+    {
+        int x = position.getEffectiveX();
+        
+        if ( getMasterWidget() != null )
+            x += getMasterWidget().getBorder().getInnerLeftWidth() + getMasterWidget().getAbsoluteOffsetX();
+        
+        return ( x );
+    }
+    
+    /**
+     * Gets the absolute y-position relative to the configuration origin.
+     * 
+     * @return the absolute y-position relative to the configuration origin.
+     */
+    public final int getAbsoluteOffsetY()
+    {
+        int y = position.getEffectiveY();
+        
+        if ( getMasterWidget() != null )
+            y += getMasterWidget().getBorder().getInnerTopHeight() + getMasterWidget().getAbsoluteOffsetY();
+        
+        return ( y );
     }
     
     /**

@@ -21,7 +21,7 @@ package net.ctdp.rfdynhud.values;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public interface AbstractSize
+public abstract class AbstractSize
 {
     /**
      * Gets the effective width in pixels.
@@ -36,4 +36,14 @@ public interface AbstractSize
      * @return the effective height in pixels.
      */
     public abstract int getEffectiveHeight();
+    
+    /**
+     * Gets the aspect ratio ({@link #getEffectiveWidth()} / {@link #getEffectiveHeight()}).
+     * 
+     * @return the aspect ratio.
+     */
+    public final float getAspect()
+    {
+        return ( getEffectiveWidth() / (float)getEffectiveHeight() );
+    }
 }

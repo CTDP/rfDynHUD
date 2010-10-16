@@ -33,8 +33,10 @@ import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
-import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
+import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetFactory;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -409,49 +411,60 @@ public class ConfigurationLoader implements PropertyLoader
                         {
                             if ( widgetName != null )
                             {
-                                try
+                                Class<Widget> clazz = WidgetFactory.getWidgetClass( value );
+                                if ( clazz == null )
                                 {
-                                    Class<?> clazz = Class.forName( value, false, getClass().getClassLoader() );
-                                    
-                                    //currentWidget = (Widget)clazz.getConstructor( RelativePositioning.class, int.class, int.class, int.class, int.class ).newInstance( RelativePositioning.TOP_LEFT, 0, 0, 100, 100 );
-                                    currentWidget = (Widget)clazz.getConstructor().newInstance();
+                                    Logger.log( "Error: Unknown Widget class " + value + "." );
+                                    badWidget = true;
+                                }
+                                else
+                                {
+                                    if ( AbstractAssembledWidget.class.isAssignableFrom( clazz ) )
+                                        currentWidget = WidgetFactory.createAssembledWidget( value, widgetName );
+                                    else
+                                        currentWidget = WidgetFactory.createWidget( value, widgetName );
+                                    if ( currentWidget == null )
+                                    {
+                                        Logger.log( "Error creating Widget instance of class " + value + "." );
+                                        badWidget = true;
+                                    }
+                                    else
+                                    {
+                                        currentKey = "name";
+                                        currentValue = widgetName;
+                                        setKeyPrefix( keyPrefix );
+                                        widgetName = null;
+                                        
+                                        if ( currentPart == null )
+                                            currentWidget.loadProperty( ConfigurationLoader.this );
+                                        else
+                                            currentPart.loadProperty( ConfigurationLoader.this );
+                                    }
+                                }
+                            }
+                            else if ( partName != null )
+                            {
+                                currentPart = WidgetFactory.createWidget( value, partName );
+                                if ( currentPart == null )
+                                {
+                                    Logger.log( "Error creating Widget part instance of class " + value + "." );
+                                    badWidget = true;
+                                }
+                                else
+                                {
+                                    //currentPart = ( (AbstractAssembledWidget)currentWidget ).getPart( partIndexStack.get( partIndexStack.size() - 2 ) );
+                                    __WPrivilegedAccess.addPart( currentPart, (AbstractAssembledWidget)currentWidget );
+                                    partStack.set( partStack.size() - 1, currentPart );
                                     currentKey = "name";
-                                    currentValue = widgetName;
+                                    currentValue = partName;
                                     setKeyPrefix( keyPrefix );
-                                    widgetName = null;
+                                    partName = null;
                                     
                                     if ( currentPart == null )
                                         currentWidget.loadProperty( ConfigurationLoader.this );
                                     else
                                         currentPart.loadProperty( ConfigurationLoader.this );
                                 }
-                                catch ( ClassNotFoundException e )
-                                {
-                                    Logger.log( "WARNING: Widget class not found (" + value + ")" );
-                                    badWidget = true;
-                                }
-                                catch ( Throwable t )
-                                {
-                                    Logger.log( "Error creating Widget instance of class " + value + ":" );
-                                    Logger.log( t );
-                                    badWidget = true;
-                                }
-                            }
-                            else if ( partName != null )
-                            {
-                                // TODO: Actually create the part object!
-                                
-                                currentPart = ( (AssembledWidget)currentWidget ).getPart( partIndexStack.get( partIndexStack.size() - 2 ) );
-                                partStack.set( partStack.size() - 1, currentPart );
-                                currentKey = "name";
-                                currentValue = partName;
-                                setKeyPrefix( keyPrefix );
-                                partName = null;
-                                
-                                if ( currentPart == null )
-                                    currentWidget.loadProperty( ConfigurationLoader.this );
-                                else
-                                    currentPart.loadProperty( ConfigurationLoader.this );
                             }
                             else
                             {
@@ -559,6 +572,16 @@ public class ConfigurationLoader implements PropertyLoader
         currentValue = null;
         keyPrefix = null;
         effectiveKey = null;
+        
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+        {
+            Widget widget = widgetsConfig.getWidget( i );
+            
+            if ( widget instanceof AbstractAssembledWidget )
+            {
+                __WPrivilegedAccess.sortWidgetParts( (AbstractAssembledWidget)widget );
+            }
+        }
         
         __WCPrivilegedAccess.sortWidgets( widgetsConfig );
         __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode, loadListener );

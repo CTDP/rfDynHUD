@@ -30,7 +30,7 @@ Major:
 * Added support for timed races (estimate max laps, calculate lifetime).
 * Improved early rendering of Widgets to reduce the gap when entering the cockpit.
 * Added padding properties.
-* Added rfdynhud.ini as central plugin configuration file to support localizations and custom config folders.
+* Added rfdynhud.ini as central plugin configuration file to support localizations and custom config folders, etc.
 * RevMeterWidget: Rev limit from setup is now used. This enables you to actually use rev markes fixed in the background image.
 * RevMeterWidget: Digital max revs can now be boost level dependent.
 * Added pause detection.
@@ -38,7 +38,7 @@ Major:
 * Added support for multiple displays.
 * Added SpeedoWidget.
 * Added AssembledWidget to combine existing Widgets to create a new and more complex one in an efficient way.
-* Added support for images to style the ETV Widgets.
+* Added support for images to style the ETV Widgets. Images are made by Daniel Zemla.
 
 Minor:
 
@@ -53,8 +53,7 @@ Minor:
 * The Widget name is now applied to the InputBindingsManager when a Widget is doubleclicked (instead of selection change).
 * An image can now be selected in the ImageSelector through a double click.
 * When adding a new Widget, it is now added to the center of the current viewport instead of absolute top left.
-* TogglePlugin InputAction now only reacts, if stroked three times within a second.
-* Editor: New magnet effect / rail effect (theoretically replaces the grid, but I left it in).
+* Editor: New magnet/rail effect (theoretically replaces the grid, but I left it in).
 * StartingLightWidget's visibility handling changed. Make sure, initialVisibility is on, if you don't plan to toggle it with an InputAction.
 * StartingLightWidget is now auto-sized based on the number of lights (track dependent).
 * RevMeterWidget: When the background image is changed, positions and sizes of elements are adjusted.
@@ -70,13 +69,14 @@ Minor:
 * Added a FuelNeedleWidget.
 * Added Widget import tool.
 * Added Editor Panel zooming (CTRL + Mouse Wheel).
-* Added a way to select Widgets in background in the editor (context menu). Selection are also better preserved.
+* Added a way to select Widgets in background in the editor (context menu). Selections are also better preserved.
 * Added a management system for log files to archive a given number of log files for reference. See rfdynhud.ini 'numArchivedLogFiles'.
+* Added DashboardWidget.
 
 TODO:
 
-* Add DashboardWidget
 * Meta config (merge configurations)
+* ETVTelemetryWidget (Revs, Velocity, Trottle/Brake)
 * Add master d3d9.dll
 * General profiling to tweak performance
 * Fix/Improve clock frequencies

@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.WidgetFactory;
 
 /**
  * 
@@ -82,22 +83,25 @@ public class KnownInputActions
                 
                 for ( int i = 0; i < classes.size(); i++ )
                 {
-                    Class<?> c = classes.get( i );
+                    Class<Widget> c = classes.get( i );
                     
-                    Widget widget = (Widget)c.getConstructor( String.class ).newInstance( "" );
+                    Widget widget = WidgetFactory.createWidget( c, "dummy" );
                     
-                    InputAction[] ias = widget.getInputActions();
-                    
-                    if ( ias != null )
+                    if ( widget != null )
                     {
-                        for ( int j = 0; j < ias.length; j++ )
+                        InputAction[] ias = widget.getInputActions();
+                        
+                        if ( ias != null )
                         {
-                            InputAction ia = ias[j];
-                            if ( ia != null )
+                            for ( int j = 0; j < ias.length; j++ )
                             {
-                                ia.setDoc( getDocURL( ia, widget ) );
-                                
-                                addAction( ia );
+                                InputAction ia = ias[j];
+                                if ( ia != null )
+                                {
+                                    ia.setDoc( getDocURL( ia, widget ) );
+                                    
+                                    addAction( ia );
+                                }
                             }
                         }
                     }

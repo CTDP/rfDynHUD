@@ -32,12 +32,27 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  */
 public class __WPrivilegedAccess
 {
+    public static void addPart( Widget widget, AbstractAssembledWidget assWidget )
+    {
+        assWidget.addPart( widget );
+    }
+    
+    public static void removePart( Widget widget, AbstractAssembledWidget assWidget )
+    {
+        assWidget.removePart( widget );
+    }
+    
+    public static final void sortWidgetParts( AbstractAssembledWidget assWidget )
+    {
+        assWidget.sortParts();
+    }
+    
     public static final void setConfiguration( WidgetsConfiguration config, Widget widget, boolean loading )
     {
         widget.setConfiguration( config );
         
-        if ( !loading && ( config != null ) && ( widget instanceof AssembledWidget ) )
-            ( (AssembledWidget)widget ).arrangeParts();
+        if ( !loading && ( config != null ) && ( widget instanceof AbstractAssembledWidget ) )
+            ( (AbstractAssembledWidget)widget ).arrangeParts();
     }
     
     @SuppressWarnings( { "rawtypes", "unchecked" } )

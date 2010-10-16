@@ -56,7 +56,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class ETVSessionStateWidget extends ETVWidgetBase
 {
-    private final EnumProperty<SessionLimit> sessionLimitPreference = new EnumProperty<SessionLimit>( this, "sessionLimitPreference", SessionLimit.LAPS );
+    private final EnumProperty<SessionLimit> sessionLimitPreference = new EnumProperty<SessionLimit>( this, "sessionLimitPreference", "sessionLimitPref", SessionLimit.LAPS );
     
     private SessionLimit sessionLimit = SessionLimit.LAPS;
     

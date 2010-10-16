@@ -74,4 +74,31 @@ public class WidgetTools
         //return ( classes.toArray( new Class[ classes.size() ] ) );
         return ( classes );
     }
+    
+    public static final Comparator<Widget> WIDGET_Y_X_COMPARATOR = new Comparator<Widget>()
+    {
+        @Override
+        public int compare( Widget w1, Widget w2 )
+        {
+            int y1 = w1.getPosition().getEffectiveY();
+            int y2 = w2.getPosition().getEffectiveY();
+            
+            if ( y1 < y2 )
+                return ( -1 );
+            
+            if ( y1 > y2 )
+                return ( +1 );
+            
+            int x1 = w1.getPosition().getEffectiveX();
+            int x2 = w2.getPosition().getEffectiveX();
+            
+            if ( x1 < x2 )
+                return ( -1 );
+            
+            if ( x1 > x2 )
+                return ( +1 );
+            
+            return ( 0 );
+        }
+    };
 }

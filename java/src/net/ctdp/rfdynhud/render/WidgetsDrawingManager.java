@@ -315,7 +315,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         int rectOffset = 0;
         for ( int i = 0; i < textures.length; i++ )
         {
-            rectOffset = textures[i].fillBuffer( true, 0 + textures[i].getOffsetXToMasterWidget(), 0 + textures[i].getOffsetYToMasterWidget(), i, rectOffset, textureInfoBuffer );
+            rectOffset = textures[i].fillBuffer( true, 0, 0, i, rectOffset, textureInfoBuffer ); // offsets are irrelevant here
         }
         
         textureInfoBuffer.position( textures.length * TransformableTexture.STRUCT_SIZE );
@@ -395,7 +395,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             {
                 for ( int j = 0; j < subTextures.length; j++ )
                 {
-                    rectOffset = subTextures[j].fillBuffer( widget.isVisible(), widget.getPosition().getEffectiveX() + widget.getBorder().getInnerLeftWidth() + subTextures[j].getOffsetXToMasterWidget(), widget.getPosition().getEffectiveY() + widget.getBorder().getInnerTopHeight() + subTextures[j].getOffsetYToMasterWidget(), k++, rectOffset, textureInfoBuffer );
+                    rectOffset = subTextures[j].fillBuffer( widget.isVisible(), widget.getPosition().getEffectiveX() + widget.getBorder().getInnerLeftWidth() + subTextures[j].getOffsetXToRootMasterWidget(), widget.getPosition().getEffectiveY() + widget.getBorder().getInnerTopHeight() + subTextures[j].getOffsetYToRootMasterWidget(), k++, rectOffset, textureInfoBuffer );
                     testRectOffset += subTextures[j].getNumUsedRectangles();
                 }
             }

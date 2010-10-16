@@ -77,7 +77,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
     private final BooleanProperty allowRelToMeView = new BooleanProperty( this, "allowRelToMeView", true );
     private final BooleanProperty allowAbsTimesView = new BooleanProperty( this, "allowAbsTimesView", true );
     
-    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
+    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", "forceLeaderDispl", true );
     private final EnumProperty<NameDisplayType> nameDisplayType = new EnumProperty<NameDisplayType>( this, "nameDisplayType", NameDisplayType.FULL_NAME );
     private final BooleanProperty showLapsOrStops = new BooleanProperty( this, "showLapsOrStops", true );
     private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
@@ -281,6 +281,21 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         return ( getView() );
     }
     
+    private void resetArrays( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( oldPosStrings != null )
+            Arrays.fill( oldPosStrings, null );
+        
+        Arrays.fill( oldColWidths, -1 );
+        
+        this.oldNumVehicles = -1;
+        
+        if ( isEditorMode )
+            this.maxNumVehicles = 23;
+        else
+            this.maxNumVehicles = gameData.getModInfo().getMaxOpponents() + 1;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -296,19 +311,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         if ( !isEditorMode && sessionType.isRace() && ( getView() == StandingsView.ABSOLUTE_TIMES ) )
             cycleView( false, sessionType, false );
         
-        if ( oldPosStrings != null )
-            Arrays.fill( oldPosStrings, null );
-        
-        Arrays.fill( oldColWidths, -1 );
-        
-        this.oldNumVehicles = -1;
-        
-        if ( isEditorMode )
-            this.maxNumVehicles = 23;
-        else
-            this.maxNumVehicles = gameData.getModInfo().getMaxOpponents() + 1;
-        
-        //forceReinitialization();
+        resetArrays( gameData, isEditorMode );
     }
     
     /**
@@ -839,15 +842,15 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         return ( total );
     }
     
-    private void initPositionStrings( int numVehicles )
+    private void initPositionStrings()
     {
         DrawnStringFactory dsf = getDrawnStringFactory();
         
         if ( ( positionStrings == null ) || ( positionStrings.length < maxNumVehicles ) )
         {
-            positionStrings = new DrawnString[ numVehicles ];
+            positionStrings = new DrawnString[ maxNumVehicles ];
             
-            for ( int i = 0; i < numVehicles; i++ )
+            for ( int i = 0; i < maxNumVehicles; i++ )
             {
                 if ( i == 0 )
                     positionStrings[i] = dsf.newDrawnString( "positionStrings" + i, 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor() );
@@ -890,9 +893,11 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
+        resetArrays( gameData, isEditorMode );
+        
         lastScoringUpdateId.reset( true );
         
-        initPositionStrings( gameData.getScoringInfo().getNumVehicles() );
+        initPositionStrings();
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
         int rowHeight = positionStrings[0].calcMaxHeight( false );

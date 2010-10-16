@@ -51,18 +51,22 @@ public class ETVImages
     private ImageTemplate big_position_neutral_image = null;
     private ImageTemplate big_position_first_image = null;
     
+    private int big_position_virtual_projection_border_left = 0;
     private int big_position_border_left = 0;
     private int big_position_border_right = 0;
+    private int big_position_virtual_projection_border_right = 0;
     
     private ImageTemplate compare_fastest_image = null;
     private ImageTemplate compare_faster_image = null;
     private ImageTemplate compare_neutral_image = null;
     private ImageTemplate compare_slower_image = null;
     
+    private int compare_virtual_projection_border_left = 0;
     private int compare_position_border_left = 0;
     private int compare_position_width = 0;
     private int compare_separator_width = 0;
     private int compare_data_border_right = 0;
+    private int compare_virtual_projection_border_right = 0;
     
     private ImageTemplate data_caption_image = null;
     private ImageTemplate data_fastest_image = null;
@@ -70,18 +74,22 @@ public class ETVImages
     private ImageTemplate data_neutral_image = null;
     private ImageTemplate data_slower_image = null;
     
+    private int data_virtual_projection_border_left = 0;
     private int data_border_left = 0;
     private int data_border_right = 0;
+    private int data_virtual_projection_border_right = 0;
     
     private ImageTemplate labeled_data_first_image = null;
     private ImageTemplate labeled_data_neutral_image = null;
     private ImageTemplate labeled_data_red_image = null;
     private ImageTemplate labeled_data_yellow_image = null;
     
+    private int labeled_virtual_projection_border_left = 0;
     private int labeled_data_label_border_left = 0;
     private int labeled_data_label_width = 0;
     private int labeled_data_separator_width = 0;
     private int labeled_data_data_border_right = 0;
+    private int labeled_virtual_projection_border_right = 0;
     
     public final ImageTemplate getBigPositionImage( boolean first )
     {
@@ -89,6 +97,11 @@ public class ETVImages
             return ( big_position_first_image );
         
         return ( big_position_neutral_image );
+    }
+    
+    public final int getBigPositionVirtualProjectionBorderLeft()
+    {
+        return ( big_position_virtual_projection_border_left );
     }
     
     public final int getBigPositionBorderLeft()
@@ -99,6 +112,11 @@ public class ETVImages
     public final int getBigPositionBorderRight()
     {
         return ( big_position_border_right );
+    }
+    
+    public final int getBigPositionVirtualProjectionBorderRight()
+    {
+        return ( big_position_virtual_projection_border_right );
     }
     
     public final ImageTemplate getCompareImage( BGType type )
@@ -116,6 +134,11 @@ public class ETVImages
             default:
                 return ( compare_neutral_image );
         }
+    }
+    
+    public final int getCompareVirtualProjectionBorderLeft()
+    {
+        return ( compare_virtual_projection_border_left );
     }
     
     public final int getComparePositionBorderLeft()
@@ -138,6 +161,11 @@ public class ETVImages
         return ( compare_data_border_right );
     }
     
+    public final int getCompareVirtualProjectionBorderRight()
+    {
+        return ( compare_virtual_projection_border_right );
+    }
+    
     public final ImageTemplate getDataImage( BGType type )
     {
         switch ( type )
@@ -156,6 +184,11 @@ public class ETVImages
         }
     }
     
+    public final int getDataVirtualProjectionBorderLeft()
+    {
+        return ( data_virtual_projection_border_left );
+    }
+    
     public final int getDataBorderLeft()
     {
         return ( data_border_left );
@@ -164,6 +197,11 @@ public class ETVImages
     public final int getDataBorderRight()
     {
         return ( data_border_right );
+    }
+    
+    public final int getDataVirtualProjectionBorderRight()
+    {
+        return ( data_virtual_projection_border_right );
     }
     
     public final ImageTemplate getLabeledDataImage( BGType type )
@@ -188,6 +226,11 @@ public class ETVImages
         }
     }
     
+    public final int getLabeledDataVirtualProjectionBorderLeft()
+    {
+        return ( labeled_virtual_projection_border_left );
+    }
+    
     public final int getLabeledDataLabelBorderLeft()
     {
         return ( labeled_data_label_border_left );
@@ -206,6 +249,11 @@ public class ETVImages
     public final int getLabeledDataDataBorderRight()
     {
         return ( labeled_data_data_border_right );
+    }
+    
+    public final int getLabeledDataVirtualProjectionBorderRight()
+    {
+        return ( labeled_virtual_projection_border_right );
     }
     
     public final float getBigPositionImageScale( int height )
@@ -582,10 +630,14 @@ public class ETVImages
                                     big_position_neutral_image = TextureManager.getImage( folder + value );
                                 else if ( key.equals( "first_image" ) )
                                     big_position_first_image = TextureManager.getImage( folder + value );
+                                else if ( key.equals( "virtual_projection_border_left" ) )
+                                    big_position_virtual_projection_border_left = Integer.parseInt( value );
                                 else if ( key.equals( "border_left" ) )
                                     big_position_border_left = Integer.parseInt( value );
                                 else if ( key.equals( "border_right" ) )
                                     big_position_border_right = Integer.parseInt( value );
+                                else if ( key.equals( "virtual_projection_border_right" ) )
+                                    big_position_virtual_projection_border_right = Integer.parseInt( value );
                             }
                             else if ( group.equals( "compare" ) )
                             {
@@ -597,6 +649,8 @@ public class ETVImages
                                     compare_neutral_image = TextureManager.getImage( folder + value );
                                 else if ( key.equals( "slower_image" ) )
                                     compare_slower_image = TextureManager.getImage( folder + value );
+                                else if ( key.equals( "virtual_projection_border_left" ) )
+                                    compare_virtual_projection_border_left = Integer.parseInt( value );
                                 else if ( key.equals( "position_border_left" ) )
                                     compare_position_border_left = Integer.parseInt( value );
                                 else if ( key.equals( "position_width" ) )
@@ -605,6 +659,8 @@ public class ETVImages
                                     compare_separator_width = Integer.parseInt( value );
                                 else if ( key.equals( "data_border_right" ) )
                                     compare_data_border_right = Integer.parseInt( value );
+                                else if ( key.equals( "virtual_projection_border_right" ) )
+                                    compare_virtual_projection_border_right = Integer.parseInt( value );
                             }
                             else if ( group.equals( "data" ) )
                             {
@@ -618,10 +674,14 @@ public class ETVImages
                                     data_neutral_image = TextureManager.getImage( folder + value );
                                 else if ( key.equals( "slower_image" ) )
                                     data_slower_image = TextureManager.getImage( folder + value );
+                                else if ( key.equals( "virtual_projection_border_left" ) )
+                                    data_virtual_projection_border_left = Integer.parseInt( value );
                                 else if ( key.equals( "border_left" ) )
                                     data_border_left = Integer.parseInt( value );
                                 else if ( key.equals( "border_right" ) )
                                     data_border_right = Integer.parseInt( value );
+                                else if ( key.equals( "virtual_projection_border_right" ) )
+                                    data_virtual_projection_border_right = Integer.parseInt( value );
                             }
                             else if ( group.equals( "labeled_data" ) )
                             {
@@ -633,6 +693,8 @@ public class ETVImages
                                     labeled_data_yellow_image = TextureManager.getImage( folder + value );
                                 else if ( key.equals( "red_image" ) )
                                     labeled_data_red_image = TextureManager.getImage( folder + value );
+                                else if ( key.equals( "virtual_projection_border_left" ) )
+                                    labeled_virtual_projection_border_left = Integer.parseInt( value );
                                 else if ( key.equals( "label_border_left" ) )
                                     labeled_data_label_border_left = Integer.parseInt( value );
                                 else if ( key.equals( "label_width" ) )
@@ -641,6 +703,8 @@ public class ETVImages
                                     labeled_data_separator_width = Integer.parseInt( value );
                                 else if ( key.equals( "data_border_right" ) )
                                     labeled_data_data_border_right = Integer.parseInt( value );
+                                else if ( key.equals( "virtual_projection_border_right" ) )
+                                    labeled_virtual_projection_border_right = Integer.parseInt( value );
                             }
                         }
                         catch ( Throwable t )

@@ -186,13 +186,13 @@ public class WidgetBackground
         bgTexDirty = true;
         mergedBgTexDirty = true;
         
-        if ( widget instanceof AssembledWidget )
+        if ( widget instanceof AbstractAssembledWidget )
         {
-            for ( int i = 0; i < ( (AssembledWidget)widget ).getNumParts(); i++ )
+            for ( int i = 0; i < ( (AbstractAssembledWidget)widget ).getNumParts(); i++ )
             {
-                if ( ( (AssembledWidget)widget ).getPart( i ).getBackground() != null )
+                if ( ( (AbstractAssembledWidget)widget ).getPart( i ).getBackground() != null )
                 {
-                    ( (AssembledWidget)widget ).getPart( i ).getBackground().onWidgetSizeChanged();
+                    ( (AbstractAssembledWidget)widget ).getPart( i ).getBackground().onWidgetSizeChanged();
                 }
             }
         }
@@ -222,7 +222,7 @@ public class WidgetBackground
         this.mergedBgTexDirty = true;
     }
     
-    private static boolean needsTexture( AssembledWidget widget, Color backgroundColor )
+    private static boolean needsTexture( AbstractAssembledWidget widget, Color backgroundColor )
     {
         for ( int i = 0; i < widget.getNumParts(); i++ )
         {
@@ -235,9 +235,9 @@ public class WidgetBackground
             if ( ( bg != null ) && bg.getType().isColor() && ( bg.getColor().getAlpha() > 0 ) && !bg.getColor().equals( backgroundColor ) )
                 return ( true );
             
-            if ( part instanceof AssembledWidget )
+            if ( part instanceof AbstractAssembledWidget )
             {
-                if ( needsTexture( (AssembledWidget)part, backgroundColor ) )
+                if ( needsTexture( (AbstractAssembledWidget)part, backgroundColor ) )
                     return ( true );
             }
         }
@@ -271,7 +271,7 @@ public class WidgetBackground
                 {
                     createAndUpdateMergedBackgroundTexture( gameData, isEditorMode );
                 }
-                else if ( ( widget instanceof AssembledWidget ) && needsTexture( (AssembledWidget)widget, getColor() ) )
+                else if ( ( widget instanceof AbstractAssembledWidget ) && needsTexture( (AbstractAssembledWidget)widget, getColor() ) )
                 {
                     createAndUpdateMergedBackgroundTexture( gameData, isEditorMode );
                 }
@@ -287,7 +287,7 @@ public class WidgetBackground
                 {
                     createAndUpdateMergedBackgroundTexture( gameData, isEditorMode );
                 }
-                else if ( ( widget instanceof AssembledWidget ) && needsTexture( (AssembledWidget)widget, null ) )
+                else if ( ( widget instanceof AbstractAssembledWidget ) && needsTexture( (AbstractAssembledWidget)widget, null ) )
                 {
                     createAndUpdateMergedBackgroundTexture( gameData, isEditorMode );
                 }
@@ -302,7 +302,7 @@ public class WidgetBackground
     
     /**
      * Gets the merged background, composed of the backgrounds of this (possibly assembled) {@link Widget} and the parts of this Widget.
-     * If this {@link Widget} is not an {@link AssembledWidget} and has a background color (no image)
+     * If this {@link Widget} is not an {@link AbstractAssembledWidget} and has a background color (no image)
      * and doesn't override the {@link Widget#drawBackground(net.ctdp.rfdynhud.gamedata.LiveGameData, boolean, TextureImage2D, int, int, int, int, boolean)} method,
      * this method returns <code>null</code>.
      * 

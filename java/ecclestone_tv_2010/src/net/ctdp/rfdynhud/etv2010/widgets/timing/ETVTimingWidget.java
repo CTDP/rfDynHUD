@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.EnumProperty;
+import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
@@ -69,8 +70,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     
     private final EnumProperty<DisplayType> displayType = new EnumProperty<DisplayType>( this, "displayType", DisplayType.AT_SECTORS );
     
-    private final IntProperty visibleTimeBeforeSector = new IntProperty( this, "visibleTimeBeforeSector", 7 );
-    private final IntProperty visibleTimeAfterSector = new IntProperty( this, "visibleTimeAfterSector", 7 );
+    private final FloatProperty visibleTimeBeforeSector = new FloatProperty( this, "visibleTimeBeforeSector", "visTimeBeforeSec", 7, 0, 100, false );
+    private final FloatProperty visibleTimeAfterSector = new FloatProperty( this, "visibleTimeAfterSector", "visTimeAfterSec", 7, 0, 100, false );
     
     private Font positionFont = null;
     
@@ -365,7 +366,6 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         else
             ETVUtils.drawDataBackground( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + gap + coords.rowHeight, capBgColor, texture, false );
         
-        drivernameString.resetClearRect();
         drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture, false );
     }
     

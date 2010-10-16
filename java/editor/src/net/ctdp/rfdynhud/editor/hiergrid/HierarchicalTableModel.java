@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.editor.hiergrid;
 
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.Map;
 import javax.swing.JTable;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 
 /**
  * @param <P> the property type
@@ -165,6 +168,64 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
         return ( hasExpandableItems );
     }
     
+    private int keyColumnWidth = -1;
+    
+    public final int getKeyColumnWidth()
+    {
+        return ( keyColumnWidth );
+    }
+    
+    protected boolean includeIgnoredItemsInKeyColumnWidthCalculation()
+    {
+        return ( true );
+    }
+    
+    protected int calcKeyColumnWidth()
+    {
+        if ( table == null )
+            return ( 0 );
+        
+        FontMetrics metrics = table.getFontMetrics( table.getStyle().getKeyCellFont() );
+        Graphics g = table.getGraphics();
+        
+        int keyColumnIndex = hasExpandableItems() ? 1 : 0;
+        int indent = table.getStyle().getLevelIndentation();
+        
+        final boolean includeIgnored = includeIgnoredItemsInKeyColumnWidthCalculation();
+        
+        int keyColumnWidth = 0;
+        for ( int i = 0; i < flatData.size(); i++ )
+        {
+            if ( isDataRow( i ) && ( includeIgnored || !isItemIgnored( getRowAt( i ) ) ) )
+            {
+                int keyWidth = (int)Math.ceil( metrics.getStringBounds( String.valueOf( getValueAt( i, keyColumnIndex ) ), g ).getWidth() );
+                
+                keyColumnWidth = Math.max( keyColumnWidth, keyWidth + getLevel( i ) * indent );
+            }
+        }
+        
+        keyColumnWidth += 4;
+        
+        return ( keyColumnWidth );
+    }
+    
+    public int updateKeyColumnWidth()
+    {
+        this.keyColumnWidth = calcKeyColumnWidth();
+        
+        int keyColumnIndex = hasExpandableItems() ? 1 : 0;
+        
+        if ( ( table != null ) && ( table.getColumnModel().getColumnCount() > keyColumnIndex ) )
+        {
+            TableColumn keyColumn = table.getColumnModel().getColumn( keyColumnIndex );
+            keyColumn.setMinWidth( keyColumnWidth );
+            keyColumn.setMaxWidth( keyColumnWidth );
+            keyColumn.setResizable( false );
+        }
+        
+        return ( keyColumnWidth );
+    }
+    
     private void computeFlatData( Boolean expandFlags )
     {
         flatData.clear();
@@ -175,6 +236,8 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
             this.hasExpandableItems = false;
         else
             this.hasExpandableItems = computeFlatData( data, expandFlags, 0, flatData, ligTrace, lastInGroup, levels );
+        
+        updateKeyColumnWidth();
     }
     
     public void setData( GridItemsContainer<P> data )

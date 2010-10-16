@@ -44,6 +44,11 @@ public class __WCPrivilegedAccess
         config.clear( gameData, isEditorMode, loadListener );
     }
     
+    public static final boolean updateNameMapping( Widget widget, String oldName, WidgetsConfiguration widgetsConfig )
+    {
+        return ( widgetsConfig.updateNameMapping( widget, oldName ) );
+    }
+    
     public static final void setInputMappings( WidgetsConfiguration config, InputMappings inputMappings )
     {
         config.setInputMappings( inputMappings );

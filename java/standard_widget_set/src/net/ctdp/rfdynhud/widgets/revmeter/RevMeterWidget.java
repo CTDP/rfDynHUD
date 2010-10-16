@@ -52,10 +52,10 @@ import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.widgets._base.needlemeter.NeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.widget.base.needlemeter.NeedleMeterWidget;
 
 /**
  * The {@link RevMeterWidget} displays rev/RPM information.
@@ -67,7 +67,7 @@ public class RevMeterWidget extends NeedleMeterWidget
     public static final int PEAK_NEEDLE_LOCAL_Z_INDEX = NEEDLE_LOCAL_Z_INDEX - 1;
     public static final String DEFAULT_GEAR_FONT_NAME = "GearFont";
     
-    private final BooleanProperty hideWhenViewingOtherCar = new BooleanProperty( this, "hideWhenViewingOtherCar", false );
+    private final BooleanProperty hideWhenViewingOtherCar = new BooleanProperty( this, "hideWhenViewingOtherCar", "hideWhenOtherCar", false );
     
     @Override
     protected String getInitialBackground()
@@ -128,8 +128,8 @@ public class RevMeterWidget extends NeedleMeterWidget
     private long nextPeakRecordTime = -1L;
     private long lastPeakRecordTime = -1L;
     
-    private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "backgroundImageName", "", false, true );
-    private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numberBGImageName", "", false, true );
+    private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "bgImageName", "", false, true );
+    private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numBGImageName", "", false, true );
     
     private TransformableTexture gearBackgroundTexture = null;
     private TextureImage2D gearBackgroundTexture_bak = null;
@@ -304,6 +304,16 @@ public class RevMeterWidget extends NeedleMeterWidget
     protected String getMarkerLabelForValue( LiveGameData gameData, boolean isEditorMode, float value )
     {
         return ( String.valueOf( Math.round( value / 1000 ) ) );
+    }
+    
+    public void setPeakNeedleImageName( String image )
+    {
+        this.peakNeedleImageName.setImageName( image );
+    }
+    
+    public final String getPeakNeedleImageName()
+    {
+        return ( peakNeedleImageName.getImageName() );
     }
     
     private int loadPeakNeedleTexture( boolean isEditorMode )
@@ -605,8 +615,9 @@ public class RevMeterWidget extends NeedleMeterWidget
         if ( !fillHighBackground.getBooleanValue() )
             return;
         
-        float centerX = offsetX + width / 2;
-        float centerY = offsetY + height / 2;
+        final float centerX = offsetX + width / 2;
+        final float centerY = offsetY + height / 2;
+        final float innerAspect = getInnerSize().getAspect();
         
         int nPoints = 360;
         int[] xPoints = new int[ nPoints ];
@@ -618,7 +629,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         {
             float angle = i * ( TWO_PI / ( nPoints + 1 ) );
             xPoints[i] = Math.round( centerX + (float)Math.cos( angle ) * innerRadius );
-            yPoints[i] = Math.round( centerY + -(float)Math.sin( angle ) * innerRadius );
+            yPoints[i] = Math.round( centerY + -(float)Math.sin( angle ) * innerRadius / innerAspect );
         }
         
         Shape oldClip = texCanvas.getClip();
@@ -638,6 +649,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         for ( float angle = lowAngle; angle < maxAngle - oneDegree; angle += oneDegree )
         {
+            angle = (float)Math.floor( angle );
             int rpm = Math.round( ( angle - needleRotationForMinValue.getFloatValue() ) * maxValue / ( needleRotationForMaxValue.getFloatValue() - needleRotationForMinValue.getFloatValue() ) );
             
             if ( rpm <= mediumRPM )
@@ -645,7 +657,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             else
                 texCanvas.setColor( interpolateMarkerColors.getBooleanValue() ? interpolateColor( revMarkersMediumColor.getColor(), revMarkersHighColor.getColor(), ( rpm - mediumRPM ) / ( maxValue - mediumRPM ) ) : revMarkersHighColor.getColor() );
             
-            texCanvas.fillArc( Math.round( centerX - smallOuterRadius ), Math.round( centerY - smallOuterRadius ), Math.round( smallOuterRadius + smallOuterRadius ), Math.round( smallOuterRadius + smallOuterRadius ), Math.round( 90f - angle ), ( angle < maxAngle - oneDegree - oneDegree ) ? -2 : -1 );
+            texCanvas.fillArc( Math.round( centerX - smallOuterRadius ), Math.round( centerY - smallOuterRadius / innerAspect ), Math.round( smallOuterRadius + smallOuterRadius ), Math.round( ( smallOuterRadius + smallOuterRadius ) / innerAspect ), Math.round( 90f - angle ), ( angle < maxAngle - oneDegree - oneDegree ) ? -2 : -1 );
         }
         
         texCanvas.setClip( oldClip );

@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.editor;
 
+import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -45,8 +46,9 @@ public interface WidgetsEditorPanelListener extends WidgetSelectionListener
      * Requests a context menu.
      * 
      * @param hoveredWidgets all currently hoveredWidgets
+     * @param scopeWidget the current scope Widget
      */
-    public void onContextMenuRequested( Widget[] hoveredWidgets );
+    public void onContextMenuRequested( Widget[] hoveredWidgets, AbstractAssembledWidget scopeWidget );
     
     /**
      * Invoked when the zoom level has changed.
@@ -55,4 +57,11 @@ public interface WidgetsEditorPanelListener extends WidgetSelectionListener
      * @param newZoomLevel the new zoom level
      */
     public void onZoomLevelChanged( float oldZoomLevel, float newZoomLevel );
+    
+    /**
+     * Invoked when the scope {@link Widget} has changed.
+     * 
+     * @param scopeWidget
+     */
+    public void onScopeWidgetChanged( AbstractAssembledWidget scopeWidget );
 }

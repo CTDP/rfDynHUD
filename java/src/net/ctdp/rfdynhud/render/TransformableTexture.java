@@ -28,7 +28,7 @@ import java.util.Comparator;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
+import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 import org.openmali.types.twodee.Rect2i;
@@ -169,12 +169,12 @@ public class TransformableTexture
      * 
      * @return the x-offset relative to the master Widget.
      */
-    public final int getOffsetXToMasterWidget()
+    public final int getOffsetXToRootMasterWidget()
     {
         if ( ( ownerWidget == null ) || ( ownerWidget.getMasterWidget() == null ) )
             return ( 0 );
         
-        return ( ownerWidget.getPosition().getEffectiveX() + ownerWidget.getMasterWidget().getOffsetXToMasterWidget() );
+        return ( ownerWidget.getBorder().getInnerLeftWidth() + ownerWidget.getPosition().getEffectiveX() + ownerWidget.getMasterWidget().getOffsetXToRootMasterWidget() );
     }
     
     /**
@@ -182,12 +182,12 @@ public class TransformableTexture
      * 
      * @return the y-offset relative to the master Widget.
      */
-    public final int getOffsetYToMasterWidget()
+    public final int getOffsetYToRootMasterWidget()
     {
         if ( ( ownerWidget == null ) || ( ownerWidget.getMasterWidget() == null ) )
             return ( 0 );
         
-        return ( ownerWidget.getPosition().getEffectiveY() + ownerWidget.getMasterWidget().getOffsetYToMasterWidget() );
+        return ( ownerWidget.getBorder().getInnerTopHeight() + ownerWidget.getPosition().getEffectiveY() + ownerWidget.getMasterWidget().getOffsetYToRootMasterWidget() );
     }
     
     public static ByteBuffer createByteBuffer()
@@ -260,7 +260,7 @@ public class TransformableTexture
     }
     
     /**
-     * Sets the {@link Widget}-local z-index. The only affects subtextures of a single {@link Widget} or {@link AssembledWidget}.
+     * Sets the {@link Widget}-local z-index. The only affects subtextures of a single {@link Widget} or {@link AbstractAssembledWidget}.
      * Higher values make the sub texture be drawn later then those with smaller values.
      * 
      * @param zIndex the new local z-index
@@ -271,7 +271,7 @@ public class TransformableTexture
     }
     
     /**
-     * Gets the {@link Widget}-local z-index. The only affects subtextures of a single {@link Widget} or {@link AssembledWidget}.
+     * Gets the {@link Widget}-local z-index. The only affects subtextures of a single {@link Widget} or {@link AbstractAssembledWidget}.
      * Higher values make the sub texture be drawn later then those with smaller values.
      * 
      * @return the local z-index.

@@ -33,8 +33,9 @@ import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
-import net.ctdp.rfdynhud.widgets.widget.AssembledWidget;
+import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
 import org.jagatoo.util.ini.IniWriter;
 import org.openmali.vecmath2.util.ColorUtils;
@@ -138,11 +139,11 @@ public class ConfigurationSaver
         
         widget.saveProperties( confWriter );
         
-        if ( widget instanceof AssembledWidget )
+        if ( widget instanceof AbstractAssembledWidget )
         {
-            for ( int i = 0; i < ( (AssembledWidget)widget ).getNumParts(); i++ )
+            for ( int i = 0; i < ( (AbstractAssembledWidget)widget ).getNumParts(); i++ )
             {
-                Widget part = ( (AssembledWidget)widget ).getPart( i );
+                Widget part = ( (AbstractAssembledWidget)widget ).getPart( i );
                 
                 //saveWidget( part.getWidget(), iniWriter, ( keyPrefix == null ) ? part.getKeyPrefix() : keyPrefix + part.getKeyPrefix(), confWriter );
                 saveWidget( part, iniWriter, confWriter );
@@ -220,6 +221,11 @@ public class ConfigurationSaver
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
+            
+            if ( widget instanceof AbstractAssembledWidget )
+            {
+                __WPrivilegedAccess.sortWidgetParts( (AbstractAssembledWidget)widget );
+            }
             
             iniWriter.writeGroup( "Widget::" + ( widget.getName() == null ? "" : widget.getName() ) );
             

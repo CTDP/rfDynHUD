@@ -25,7 +25,6 @@ import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
  * Insert class comment here.
@@ -55,10 +54,8 @@ public class PropertiesEditorTableModel extends HierarchicalTableModel<Property>
         
         if ( ( editor != null ) && ( ( property.getWidget() != null ) || __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) ) )
         {
-            Widget widget = property.getWidget().getMasterWidget();
-            
-            editor.onWidgetChanged( widget, property.getName(), property instanceof PosSizeProperty );
-            editor.getEditorPanel().setSelectedWidget( widget, false ); // refresh properties editor in case the propertis toggles the display of other properties
+            editor.onWidgetChanged( property.getWidget(), property.getName(), property instanceof PosSizeProperty );
+            editor.getEditorPanel().setSelectedWidget( editor.getEditorPanel().getSelectedWidget(), false ); // refresh properties editor in case the propertis toggles the display of other properties
         }
     }
     

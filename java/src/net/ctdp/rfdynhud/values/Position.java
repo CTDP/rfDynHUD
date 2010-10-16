@@ -106,7 +106,12 @@ public class Position
     private final float getScaleWidth()
     {
         if ( isGlobalPosition )
-            return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
+        {
+            if ( widget.getMasterWidget() == null )
+                return ( widget.getConfiguration().getGameResolution().getViewportWidth() );
+            
+            return ( widget.getMasterWidget().getInnerSize().getEffectiveWidth() );
+        }
         
         return ( widget.getInnerSize().getEffectiveWidth() );
     }
@@ -114,7 +119,12 @@ public class Position
     private final float getScaleHeight()
     {
         if ( isGlobalPosition )
-            return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
+        {
+            if ( widget.getMasterWidget() == null )
+                return ( widget.getConfiguration().getGameResolution().getViewportHeight() );
+            
+            return ( widget.getMasterWidget().getInnerSize().getEffectiveHeight() );
+        }
         
         return ( widget.getInnerSize().getEffectiveHeight() );
     }
@@ -122,7 +132,12 @@ public class Position
     private final float getHundretPercentWidth()
     {
         if ( isGlobalPosition )
-            return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
+        {
+            if ( widget.getMasterWidget() == null )
+                return ( widget.getConfiguration().getGameResolution().getViewportHeight() * 4 / 3 );
+            
+            return ( widget.getMasterWidget().getInnerSize().getEffectiveWidth() );
+        }
         
         return ( widget.getInnerSize().getEffectiveWidth() );
     }

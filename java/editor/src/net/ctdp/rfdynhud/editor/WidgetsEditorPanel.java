@@ -40,6 +40,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -64,9 +65,11 @@ public class WidgetsEditorPanel extends JPanel
     private final Map<Widget, Rect2i> oldWidgetRects = new WeakHashMap<Widget, Rect2i>();
     private final Map<Widget, Rect2i[]> oldWidgetSubTexRects = new WeakHashMap<Widget, Rect2i[]>();
     
+    private AbstractAssembledWidget scopeWidget = null;
     private Widget selectedWidget = null;
     private static final Stroke SELECTION_STROKE = new BasicStroke( 2 );
     private static final java.awt.Color SELECTION_COLOR = new java.awt.Color( 255, 0, 0, 127 );
+    private static final java.awt.Color MASTER_SELECTION_COLOR = new java.awt.Color( 0, 255, 0, 127 );
     
     private final ArrayList<WidgetSelectionListener> selectionListeners = new ArrayList<WidgetSelectionListener>();
     private final ArrayList<WidgetsEditorPanelListener> listeners = new ArrayList<WidgetsEditorPanelListener>();
@@ -308,13 +311,6 @@ public class WidgetsEditorPanel extends JPanel
         }
     }
     
-    public final void setSelectedWidget( String widgetName )
-    {
-        Widget widget = drawingManager.getWidget( widgetName );
-        
-        setSelectedWidget( widget, false );
-    }
-    
     public final Widget getSelectedWidget()
     {
         return ( selectedWidget );
@@ -339,11 +335,41 @@ public class WidgetsEditorPanel extends JPanel
         }
     }
     
+    public final AbstractAssembledWidget getScopeWidget()
+    {
+        return ( scopeWidget );
+    }
+    
+    public void goInto( AbstractAssembledWidget widget )
+    {
+        if ( widget == null )
+        {
+            Widget selWidget = scopeWidget;
+            this.scopeWidget = widget;
+            if ( selWidget != null )
+                while ( selWidget.getMasterWidget() != null )
+                    selWidget = selWidget.getMasterWidget();
+            setSelectedWidget( selWidget, false );
+        }
+        else
+        {
+            this.scopeWidget = widget;
+            setSelectedWidget( null, false );
+        }
+        
+        for ( int i = 0; i < listeners.size(); i++ )
+        {
+            listeners.get( i ).onScopeWidgetChanged( widget );
+        }
+        
+        repaint();
+    }
+    
     public void requestContextMenu( Widget[] hoveredWidgets )
     {
         for ( int i = 0; i < listeners.size(); i++ )
         {
-            listeners.get( i ).onContextMenuRequested( hoveredWidgets );
+            listeners.get( i ).onContextMenuRequested( hoveredWidgets, scopeWidget );
         }
     }
     
@@ -360,33 +386,49 @@ public class WidgetsEditorPanel extends JPanel
             repaint();
     }
     
-    private void drawSelection( Widget widget, Rect2i[] subTextureRects, Graphics2D g )
+    private void drawSelection( AbstractAssembledWidget master, Widget widget, Rect2i[] subTextureRects, Graphics2D g )
     {
-        int offsetX = widget.getPosition().getEffectiveX();
-        int offsetY = widget.getPosition().getEffectiveY();
-        int width = widget.getSize().getEffectiveWidth();
-        int height = widget.getSize().getEffectiveHeight();
-        
         //texture.getTextureCanvas().setClip( offsetX, offsetY, width, height );
         
         Stroke oldStroke = g.getStroke();
         Color oldColor = g.getColor();
         g.setStroke( SELECTION_STROKE );
-        g.setColor( SELECTION_COLOR );
         
-        //if ( widget.hasMasterCanvas( true ) )
+        if ( master != null )
         {
-            g.drawRect( Math.round( offsetX * scaleFactor ), Math.round( offsetY * scaleFactor ), Math.round( width * scaleFactor ), Math.round( height * scaleFactor ) );
+            g.setColor( MASTER_SELECTION_COLOR );
+            
+            while ( master != null )
+            {
+                g.drawRect( Math.round( master.getAbsoluteOffsetX() * scaleFactor ), Math.round( master.getAbsoluteOffsetY() * scaleFactor ), Math.round( master.getSize().getEffectiveWidth() * scaleFactor ), Math.round( master.getSize().getEffectiveHeight() * scaleFactor ) );
+                
+                master = master.getMasterWidget();
+            }
         }
         
-        if ( subTextureRects != null )
+        g.setColor( SELECTION_COLOR );
+        
+        if ( widget != null )
         {
-            for ( int i = 0; i < subTextureRects.length; i++ )
+            int offsetX = widget.getAbsoluteOffsetX();
+            int offsetY = widget.getAbsoluteOffsetY();
+            int width = widget.getSize().getEffectiveWidth();
+            int height = widget.getSize().getEffectiveHeight();
+            
+            //if ( widget.hasMasterCanvas( true ) )
             {
-                Rect2i r = subTextureRects[i];
-                
-                if ( ( r != null ) && !r.isCoveredBy( offsetX, offsetY, width, height ) )
-                    g.drawRect( Math.round( r.getLeft() * scaleFactor ), Math.round( r.getTop() * scaleFactor ), Math.round( r.getWidth() * scaleFactor ), Math.round( r.getHeight() * scaleFactor ) );
+                g.drawRect( Math.round( offsetX * scaleFactor ), Math.round( offsetY * scaleFactor ), Math.round( width * scaleFactor ), Math.round( height * scaleFactor ) );
+            }
+            
+            if ( subTextureRects != null )
+            {
+                for ( int i = 0; i < subTextureRects.length; i++ )
+                {
+                    Rect2i r = subTextureRects[i];
+                    
+                    if ( ( r != null ) && !r.isCoveredBy( offsetX, offsetY, width, height ) )
+                        g.drawRect( Math.round( r.getLeft() * scaleFactor ), Math.round( r.getTop() * scaleFactor ), Math.round( r.getWidth() * scaleFactor ), Math.round( r.getHeight() * scaleFactor ) );
+                }
             }
         }
         
@@ -400,7 +442,7 @@ public class WidgetsEditorPanel extends JPanel
         if ( widget == null )
             return;
         
-        widget.clearRegion( overlay, widget.getPosition().getEffectiveX(), widget.getPosition().getEffectiveY() );
+        widget.clearRegion( overlay, widget.getAbsoluteOffsetX(), widget.getAbsoluteOffsetY() );
     }
     
     public void clearSelectedWidgetRegion()
@@ -452,11 +494,11 @@ public class WidgetsEditorPanel extends JPanel
             
             AffineTransform at = null;
             if ( affineTransforms == null )
-                at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToMasterWidget(), innerRect.getTop() + tt.getOffsetYToMasterWidget() );
+                at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToRootMasterWidget(), innerRect.getTop() + tt.getOffsetYToRootMasterWidget() );
             else
                 at = affineTransforms[i];
             if ( at == null )
-                at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToMasterWidget(), innerRect.getTop() + tt.getOffsetYToMasterWidget() );
+                at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToRootMasterWidget(), innerRect.getTop() + tt.getOffsetYToRootMasterWidget() );
             
             Rect2i rect = null;
             if ( transformedSubRects == null )
@@ -660,7 +702,7 @@ public class WidgetsEditorPanel extends JPanel
                     {
                         TransformableTexture tt = subTextures[j];
                         
-                        AffineTransform at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToMasterWidget(), innerRect.getTop() + tt.getOffsetYToMasterWidget() );
+                        AffineTransform at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToRootMasterWidget(), innerRect.getTop() + tt.getOffsetYToRootMasterWidget() );
                         affineTransforms[i][j] = at;
                         
                         transformedSubRects[i][j] = tt.getTransformedRectForEditor( at );
@@ -692,7 +734,7 @@ public class WidgetsEditorPanel extends JPanel
                         {
                             TransformableTexture tt = subTextures[j];
                             
-                            AffineTransform at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToMasterWidget(), innerRect.getTop() + tt.getOffsetYToMasterWidget() );
+                            AffineTransform at = tt.getTransformForEditor( innerRect.getLeft() + tt.getOffsetXToRootMasterWidget(), innerRect.getTop() + tt.getOffsetYToRootMasterWidget() );
                             affineTransforms[i][j] = at;
                             
                             transformedSubRects[i][j] = tt.getTransformedRectForEditor( at );
@@ -790,9 +832,20 @@ public class WidgetsEditorPanel extends JPanel
             g2.drawImage( cacheImage, 0, 0, Math.round( cacheImage.getWidth() * scaleFactor ), Math.round( cacheImage.getHeight() * scaleFactor ), 0, 0, cacheImage.getWidth(), cacheImage.getHeight(), null );
             
             // Draw selection.
-            if ( drawSelection && ( selectedWidget != null ) )
+            if ( drawSelection )
             {
-                drawSelection( selectedWidget, selSubRects, g2 );
+                if ( selectedWidget == null )
+                {
+                    if ( scopeWidget != null )
+                        drawSelection( scopeWidget, null, selSubRects, g2 );
+                }
+                else
+                {
+                    if ( selectedWidget.getMasterWidget() == null )
+                        drawSelection( null, selectedWidget, selSubRects, g2 );
+                    else
+                        drawSelection( selectedWidget.getMasterWidget(), selectedWidget, selSubRects, g2 );
+                }
             }
         }
         catch ( Throwable t )

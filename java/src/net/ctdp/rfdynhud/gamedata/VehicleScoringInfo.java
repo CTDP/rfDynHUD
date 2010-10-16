@@ -977,7 +977,7 @@ public class VehicleScoringInfo
         
         short place = getPlace( false );
         
-        if ( place == 1 )
+        if ( place <= 1 )
             return ( null );
         
         return ( scoringInfo.getVehicleScoringInfo( place - 2 ) );
@@ -1001,7 +1001,7 @@ public class VehicleScoringInfo
         
         short place = getPlace( false );
         
-        if ( place == scoringInfo.getNumVehicles() )
+        if ( place >= scoringInfo.getNumVehicles() )
             return ( null );
         
         return ( scoringInfo.getVehicleScoringInfo( place + 0 ) );

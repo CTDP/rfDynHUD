@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.widgets._base.needlemeter;
+package net.ctdp.rfdynhud.widgets.widget.base.needlemeter;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -23,6 +23,7 @@ import java.awt.FontMetrics;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
@@ -173,7 +174,12 @@ public abstract class NeedleMeterWidget extends Widget
         this.markersSmallStep.setIntValue( markersBigStep.getIntValue() / Math.round( (float)markersBigStep.getIntValue() / (float)markersSmallStep.getIntValue() ) );
     }
     
-    protected boolean getDisplayValue()
+    public void setDisplayValue( boolean display )
+    {
+        this.displayValue.setBooleanValue( display );
+    }
+    
+    public boolean getDisplayValue()
     {
         return ( displayValue.getBooleanValue() );
     }
@@ -665,13 +671,14 @@ public abstract class NeedleMeterWidget extends Widget
         int maxValue = (int)getMaxValue( gameData, isEditorMode );
         float range = ( maxValue - minValue );
         
-        float centerX = offsetX + getNeedleMountX( width );
-        float centerY = offsetY + getNeedleMountY( height );
+        final float centerX = offsetX + getNeedleMountX( width );
+        final float centerY = offsetY + getNeedleMountY( height );
+        final float innerAspect = getInnerSize().getAspect();
         
         texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
         
         float innerRadius = markersInnerRadius.getIntValue() * backgroundScaleX;
-        float markersLength2 = markersLength.getIntValue() * backgroundScaleX;
+        //float markersLength2 = markersLength.getIntValue() * backgroundScaleX;
         float bigOuterRadius0 = ( markersInnerRadius.getIntValue() + markersLength.getIntValue() - 1 ) * backgroundScaleX;
         float bigOuterRadius = ( markersInnerRadius.getIntValue() + ( dm ? markersLength.getIntValue() - 1 : 0 ) ) * backgroundScaleX;
         float smallOuterRadius0 = innerRadius + ( bigOuterRadius0 - innerRadius ) * 0.75f;
@@ -689,18 +696,42 @@ public abstract class NeedleMeterWidget extends Widget
         FontMetrics metrics = numberFont.getMetrics();
         
         AffineTransform at0 = new AffineTransform( texCanvas.getTransform() );
-        AffineTransform at1 = new AffineTransform( at0 );
+        AffineTransform at1 = new AffineTransform();
         AffineTransform at2 = new AffineTransform();
+        AffineTransform atCenterTranslate = AffineTransform.getTranslateInstance( centerX, centerY );
+        AffineTransform atEllipticScale = AffineTransform.getScaleInstance( 1.0, 1.0 / innerAspect );
+        Point2D.Double p0 = new Point2D.Double();
         
+        /*
         String biggestString = String.valueOf( getMarkerLabelForValue( gameData, isEditorMode, Math.max( minValue, maxValue ) ) );
+        Rectangle2D biggestBounds = metrics.getStringBounds( biggestString, texCanvas );
+        double maxFW = biggestBounds.getWidth();
+        double maxFH = biggestBounds.getHeight();
+        //double maxFH = metrics.getAscent() - metrics.getDescent();
+        double maxOff = Math.sqrt( maxFW * maxFW + maxFH * maxFH ) / 2.0;
+        */
         
         final int smallStep = markersSmallStep.getIntValue();
         for ( int value = minValue; value <= maxValue; value += smallStep )
         {
             float angle = +( needleRotationForMinValue.getFactoredValue() + ( needleRotationForMaxValue.getFactoredValue() - needleRotationForMinValue.getFactoredValue() ) * ( ( value - minValue ) / range ) );
             
-            at2.setToRotation( angle, centerX, centerY );
-            texCanvas.setTransform( at2 );
+            at1.setTransform( atCenterTranslate );
+            at2.setTransform( atEllipticScale );
+            at1.concatenate( at2 );
+            at2.setToRotation( angle );
+            at1.concatenate( at2 );
+            at2.setToTranslation( 0, -innerRadius );
+            at1.concatenate( at2 );
+            
+            p0.setLocation( 0, 0 );
+            at1.transform( p0, p0 );
+            
+            double vecX = p0.x - centerX;
+            double vecY = p0.y - centerY;
+            double len = Math.sqrt( vecX * vecX + vecY * vecY );
+            vecX /= len;
+            vecY /= len;
             
             texCanvas.setColor( getMarkerColorForValue( gameData, isEditorMode, value, minValue, maxValue ) );
             
@@ -709,8 +740,8 @@ public abstract class NeedleMeterWidget extends Widget
                 if ( dm )
                 {
                     texCanvas.setStroke( bigStroke );
-                    texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - bigOuterRadius ) );
-                    //texCanvas.drawLine( Math.round( centerX ), Math.round( ( centerY - innerRadius ) * backgroundScaleY / backgroundScaleX ), Math.round( centerX ), Math.round( ( centerY - outerRadius ) * backgroundScaleY / backgroundScaleX ) );
+                    float l = bigOuterRadius - innerRadius;
+                    texCanvas.drawLine( (int)Math.round( p0.x ), (int)Math.round( p0.y ), (int)Math.round( p0.x + vecX * l ), (int)Math.round( p0.y + vecY * l ) );
                 }
                 
                 if ( dmn )
@@ -719,27 +750,41 @@ public abstract class NeedleMeterWidget extends Widget
                     
                     if ( s != null )
                     {
-                        Rectangle2D bounds = metrics.getStringBounds( mni ? biggestString : s, texCanvas );
-                        float fw = (float)bounds.getWidth();
-                        float fh = (float)( metrics.getAscent() - metrics.getDescent() );
-                        float off = (float)Math.sqrt( fw * fw + fh * fh ) / 2f;
-                        
-                        at1.setToTranslation( 0f, mni ? +off * 2 + markersLength2 : -off );
-                        at2.concatenate( at1 );
-                        at1.setToRotation( -angle, Math.round( centerX ), Math.round( centerY - bigOuterRadius ) - fh / 2f );
-                        at2.concatenate( at1 );
-                        texCanvas.setTransform( at2 );
-                        
                         texCanvas.setColor( getMarkerNumberColorForValue( gameData, isEditorMode, value, minValue, maxValue ) );
                         
-                        texCanvas.drawString( s, Math.round( centerX ) - fw / 2f, Math.round( centerY - bigOuterRadius ) );
+                        Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
+                        double fw = bounds.getWidth();
+                        //double fh = metrics.getAscent() - metrics.getDescent();
+                        double fh = bounds.getHeight();
+                        double off = Math.sqrt( fw * fw + fh * fh ) / 2.0;
+                        
+                        int x, y;
+                        if ( mni )
+                        {
+                            x = (int)Math.round( p0.x + vecX * ( -off - 1 ) );
+                            y = (int)Math.round( p0.y + vecY * ( -off - 1 ) );
+                        }
+                        else
+                        {
+                            x = (int)Math.round( p0.x + vecX * ( bigOuterRadius - innerRadius + off + 1 ) );
+                            y = (int)Math.round( p0.y + vecY * ( bigOuterRadius - innerRadius + off + 1 ) );
+                        }
+                        
+                        texCanvas.drawString( s, x - (int)( fw / 2 ), y + (int)( -fh / 2 - bounds.getY() ) );
+                        /*
+                        texCanvas.setColor( Color.GREEN );
+                        texCanvas.setStroke( smallStroke );
+                        texCanvas.drawLine( x - 2, y - 2, x + 2, y + 2 );
+                        texCanvas.drawLine( x - 2, y + 2, x + 2, y - 2 );
+                        */
                     }
                 }
             }
             else if ( dm )
             {
                 texCanvas.setStroke( smallStroke );
-                texCanvas.drawLine( Math.round( centerX ), Math.round( centerY - innerRadius ), Math.round( centerX ), Math.round( centerY - smallOuterRadius ) );
+                float l = smallOuterRadius - innerRadius;
+                texCanvas.drawLine( (int)Math.round( p0.x ), (int)Math.round( p0.y ), (int)Math.round( p0.x + vecX * l ), (int)Math.round( p0.y + vecY * l ) );
             }
         }
         
@@ -907,6 +952,12 @@ public abstract class NeedleMeterWidget extends Widget
                 valueFont.loadValue( loader.getCurrentValue() );
             else if ( loader.getCurrentKey().equals( "velocityFontColor" ) )
                 valueFontColor.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "needleAxisBottomOffset" ) )
+                needlePivotBottomOffset.loadValue( loader.getCurrentValue() );
+            else if ( loader.getCurrentKey().equals( "rotationForZeroRPM" ) )
+                { needleRotationForMinValue.loadValue( loader.getCurrentValue() ); needleRotationForMinValue.setFloatValue( -needleRotationForMinValue.getFloatValue() ); }
+            else if ( loader.getCurrentKey().equals( "rotationForMaxRPM" ) )
+                { needleRotationForMaxValue.loadValue( loader.getCurrentValue() ); needleRotationForMaxValue.setFloatValue( -needleRotationForMaxValue.getFloatValue() ); }
         }
         
         if ( loader.loadProperty( minValue ) );

@@ -53,21 +53,27 @@ class Coords
         
         rowHeight = ( height - 2 * gap ) / 3;
         
+        //float ldVBL;
         float ldBL;
         int ldBR;
-        int dBR;
+        int ldVBR;
+        int dVBL;
         int dBL;
+        int dBR;
+        int dVBR;
         
         if ( images != null )
         {
             float ldScale = images.getLabeledDataImageScale( rowHeight );
             float dScale = images.getLabeledDataImageScale( rowHeight );
+            //ldVBL = images.getLabeledDataVirtualProjectionBorderLeft() * ldScale;
             ldBL = images.getLabeledDataLabelBorderLeft() * ldScale;
             ldBR = (int)( images.getLabeledDataDataBorderRight() * ldScale );
-            dBR = (int)( images.getDataBorderRight() * dScale );
-            //int dBR2 = (int)( images.getDataBorderRight() * dScale / 2 );
+            ldVBR = (int)( images.getLabeledDataVirtualProjectionBorderRight() * ldScale );
+            dVBL = (int)( images.getDataVirtualProjectionBorderLeft() * dScale );
             dBL = (int)( images.getDataBorderLeft() * dScale );
-            //int dBL2 = (int)( images.getDataBorderLeft() * dScale / 2 );
+            dBR = (int)( images.getDataBorderRight() * dScale );
+            dVBR = (int)( images.getDataVirtualProjectionBorderRight() * dScale );
             
             this.posCenterA = images.getLabeledDataCaptionCenterS( ldScale, posBounds );
             this.dataLeftA = images.getLabeledDataDataLeftS( ldScale, posBounds );
@@ -75,10 +81,14 @@ class Coords
         else
         {
             final int triangWidth = ETVUtils.getTriangleWidth( rowHeight );
+            //ldVBL = 0;
             ldBL = triangWidth;
             ldBR = triangWidth;
+            ldVBR = 0;
+            dVBL = 0;
             dBR = triangWidth;
             dBL = triangWidth;
+            dVBR = 0;
             
             this.posCenterA = (int)Math.ceil( ldBL ) + (int)( Math.ceil( posBounds.getWidth() ) / 2 );
             this.dataLeftA = (int)Math.ceil( ldBL ) + (int)Math.ceil( posBounds.getWidth() ) + triangWidth;
@@ -91,22 +101,23 @@ class Coords
         this.rowOffset1 = Math.round( _rowOffset * 1f );
         this.rowOffset2 = Math.round( _rowOffset * 2f );
         
-        int width_ = (int)( width - _rowOffset * 2 );
-        this.widthA = (int)( ( width_ - 3 * gap ) * 0.34f );
-        int _widthBCD = (int)( ( width_ - 3 * gap ) * 0.22f );
+        float width_ = width - _rowOffset * 2f;
+        this.widthA = (int)Math.ceil( ( width_ - ( (int)ldVBR + gap + dVBL ) - 2 * ( dVBL + gap + dVBR ) - dVBR ) * 0.34f );
+        float _widthBCD = ( ( width_ - ( ldVBR + gap + dVBL ) - 2 * ( dVBL + gap + dVBR ) - dVBR ) * 0.22f );
         
-        this.offsetB = widthA - ( border12 / 2 ) + gap;
-        this.offsetC = widthA + gap + _widthBCD - ( border23 / 2 ) + gap;
-        this.offsetD = widthA + gap + _widthBCD + gap + _widthBCD - ( border12 / 2 ) + gap;
+        this.offsetB = widthA - ( border12 / 2 ) + (int)ldVBR + gap + dVBL;
+        this.offsetC = widthA + (int)ldVBR + gap + dVBL + (int)_widthBCD - ( border23 / 2 ) + dVBL + gap + dVBR;
+        this.offsetD = widthA + (int)ldVBR + gap + dVBL + (int)_widthBCD + dVBL + gap + dVBR + (int)_widthBCD - ( border23 / 2 ) + dVBL + gap + dVBR;
         
         this.widthA += ( border12 / 2 );
-        this.widthBC = _widthBCD + ( ( border12 + border23 ) / 2 );
-        this.widthD = _widthBCD + ( border23 / 2 );
+        this.widthBC = (int)Math.floor( _widthBCD ) + ( ( border12 + border23 ) / 2 );
+        //this.widthD = (int)Math.floor( _widthBCD ) + ( border23 / 2 ) + dVBR;
+        this.widthD = (int)Math.floor( width_ - this.offsetD );
         
         if ( images != null )
         {
-            this.dataCenterBC = images.getDataDataCenter( this.widthBC, rowHeight );
-            this.dataCenterD = images.getDataDataCenter( this.widthD, rowHeight );
+            this.dataCenterBC = dVBL + images.getDataDataCenter( this.widthBC, rowHeight );
+            this.dataCenterD = dVBL + images.getDataDataCenter( this.widthD, rowHeight );
         }
         else
         {

@@ -54,6 +54,8 @@ class Coords
         float ldBL;
         int dBL;
         int dBR;
+        int dVBR;
+        int bpVBL;
         
         if ( images != null )
         {
@@ -62,11 +64,13 @@ class Coords
             ldBL = images.getLabeledDataLabelBorderLeft() * ldScale;
             dBL = (int)( images.getDataBorderLeft() * dScale );
             dBR = (int)( images.getDataBorderRight() * dScale );
+            dVBR = 0;//(int)( images.getDataVirtualProjectionBorderRight() * dScale );
+            bpVBL = (int)( images.getBigPositionVirtualProjectionBorderLeft() * dScale );
             
             int bigPosBorderLeft = images.getBigPositionCaptionLeft( rowHeight + gap + rowHeight );
-            this.bigPosWidth = images.getBigPositionWidth( rowHeight + gap + rowHeight, bigPosBounds );
+            this.bigPosWidth = images.getBigPositionWidth( rowHeight + gap + rowHeight, bigPosBounds ) - bpVBL;
             this.bigPosCenter = images.getBigPositionCaptionCenter( rowHeight + gap + rowHeight, bigPosBounds );
-            this.mainWidth = width - bigPosWidth + bigPosBorderLeft - itemGap2;
+            this.mainWidth = width - bigPosWidth + bigPosBorderLeft - itemGap2 - dVBR - bpVBL;
             
             this.posCenterA = images.getLabeledDataCaptionCenterS( ldScale, posBounds );
         }
@@ -76,12 +80,14 @@ class Coords
             ldBL = triangWidth;
             dBL = triangWidth;
             dBR = triangWidth;
+            dVBR = 0;
+            bpVBL = 0;
             
             int bigPosBorder = triangWidth  + ( triangWidth * ( rowHeight + gap + rowHeight + gap ) ) / ( rowHeight + gap + rowHeight );
             int bigPosNumWidth = (int)Math.ceil( bigPosBounds.getWidth() );
-            this.bigPosWidth = bigPosBorder + bigPosNumWidth + bigPosBorder;
+            this.bigPosWidth = bigPosBorder + bigPosNumWidth + bigPosBorder - bpVBL;
             this.bigPosCenter = bigPosBorder + bigPosNumWidth / 2;
-            this.mainWidth = width - bigPosWidth + bigPosBorder - itemGap2;
+            this.mainWidth = width - bigPosWidth + bigPosBorder - itemGap2 - dVBR - bpVBL;
             
             this.posCenterA = (int)Math.ceil( ldBL ) + (int)( Math.ceil( posBounds.getWidth() ) / 2 );
         }

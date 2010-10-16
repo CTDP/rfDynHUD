@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +44,7 @@ import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -59,33 +59,6 @@ import org.openmali.vecmath2.util.ColorUtils;
  */
 public class WidgetsConfiguration implements Documented
 {
-    private static final Comparator<Widget> WIDGET_Y_X_COMPARATOR = new Comparator<Widget>()
-    {
-        @Override
-        public int compare( Widget w1, Widget w2 )
-        {
-            int y1 = w1.getPosition().getEffectiveY();
-            int y2 = w2.getPosition().getEffectiveY();
-            
-            if ( y1 < y2 )
-                return ( -1 );
-            
-            if ( y1 > y2 )
-                return ( +1 );
-            
-            int x1 = w1.getPosition().getEffectiveX();
-            int x2 = w2.getPosition().getEffectiveX();
-            
-            if ( x1 < x2 )
-                return ( -1 );
-            
-            if ( x1 > x2 )
-                return ( +1 );
-            
-            return ( 0 );
-        }
-    };
-    
     public static interface ConfigurationLoadListener
     {
         public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig );
@@ -170,7 +143,7 @@ public class WidgetsConfiguration implements Documented
     
     void sortWidgets()
     {
-        Collections.sort( widgets, WIDGET_Y_X_COMPARATOR );
+        Collections.sort( widgets, WidgetTools.WIDGET_Y_X_COMPARATOR );
     }
     
     /**
@@ -249,6 +222,19 @@ public class WidgetsConfiguration implements Documented
         fontStringMap.clear();
         fontVirtualMap.clear();
         borderMap.clear();
+    }
+    
+    boolean updateNameMapping( Widget widget, String oldName )
+    {
+        if ( widgetsMap.get( oldName ) == widget )
+        {
+            widgetsMap.remove( oldName );
+            widgetsMap.put( widget.getName(), widget );
+            
+            return ( true );
+        }
+        
+        return ( false );
     }
     
     /**
@@ -478,7 +464,7 @@ public class WidgetsConfiguration implements Documented
         {
             try
             {
-                StatefulWidget widget = widgetClass.getConstructor( String.class ).newInstance( "" );
+                StatefulWidget widget = (StatefulWidget)WidgetFactory.createWidget( widgetClass, "dummy" );
                 
                 generalStore = widget.getGeneralStore();
                 generalStores.put( widgetClass, generalStore );

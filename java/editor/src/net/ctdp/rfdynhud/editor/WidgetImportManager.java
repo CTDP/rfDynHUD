@@ -578,12 +578,10 @@ public class WidgetImportManager
             }
             
             @SuppressWarnings( "unchecked" )
-            Widget newWidget = RFDynHUDEditor.createWidgetInstance( (Class<Widget>)widget.getClass(), null, true );
+            Widget newWidget = RFDynHUDEditor.createWidgetInstance( (Class<Widget>)widget.getClass(), name, null, true );
             
             if ( newWidget == null )
                 return ( false );
-            
-            newWidget.setName( name );
             
             __WCPrivilegedAccess.addWidget( widgetsConfig, newWidget, false );
             

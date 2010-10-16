@@ -132,15 +132,7 @@ public class WidgetMenuItem extends JMenuItem
         
         this.editor = editor;
         
-        //this.widgetClass = widgetClass;
-        try
-        {
-            this.widget = RFDynHUDEditor.createWidgetInstance( widgetClass, null, true );
-        }
-        catch ( Throwable t )
-        {
-            throw new RuntimeException( t );
-        }
+        this.widget = RFDynHUDEditor.createWidgetInstance( widgetClass, null, widgetsConfig, true );
         
         if ( widget != null )
         {

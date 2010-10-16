@@ -55,6 +55,7 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
@@ -262,11 +263,39 @@ public class EditorMenuBar extends JMenuBar
         return ( menu );
     }
     
-    private static JMenuItem createSelectWidgetMenu( final RFDynHUDEditor editor, Widget widget, boolean bold )
+    private static JMenuItem createGoIntoMenu( final RFDynHUDEditor editor, final AbstractAssembledWidget widget )
     {
-        final String widgetName = widget.getName();
+        JMenuItem goIntoItem = new JMenuItem( "Go into " + widget.getName() );
+        goIntoItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getEditorPanel().goInto( widget );
+            }
+        } );
         
-        JMenuItem selectWidgetItem = new JMenuItem( "Select " + widgetName );
+        return ( goIntoItem );
+    }
+    
+    private static JMenuItem createGoOutOfMenu( final RFDynHUDEditor editor, final AbstractAssembledWidget widget )
+    {
+        JMenuItem goIntoItem = new JMenuItem( "Go out of " + widget.getName() );
+        goIntoItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getEditorPanel().goInto( widget.getMasterWidget() );
+            }
+        } );
+        
+        return ( goIntoItem );
+    }
+    
+    private static JMenuItem createSelectWidgetMenu( final RFDynHUDEditor editor, final Widget widget, boolean bold )
+    {
+        JMenuItem selectWidgetItem = new JMenuItem( "Select " + widget.getName() );
         if ( bold )
             selectWidgetItem.setFont( selectWidgetItem.getFont().deriveFont( Font.BOLD ) );
         selectWidgetItem.addActionListener( new ActionListener()
@@ -274,7 +303,7 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                editor.getEditorPanel().setSelectedWidget( widgetName );
+                editor.getEditorPanel().setSelectedWidget( widget, false );
             }
         } );
         
@@ -296,19 +325,43 @@ public class EditorMenuBar extends JMenuBar
         return ( resetZoomItem );
     }
     
-    public static void initContextMenu( RFDynHUDEditor editor, Widget[] hoveredWidgets )
+    public static void initContextMenu( RFDynHUDEditor editor, Widget[] hoveredWidgets, AbstractAssembledWidget scopeWidget )
     {
         JPopupMenu menu = new JPopupMenu();
         
-        if ( ( hoveredWidgets != null ) && ( hoveredWidgets.length > 1 ) )
+        if ( hoveredWidgets != null )
         {
-            for ( int i = 0; i < hoveredWidgets.length; i++ )
+            if ( hoveredWidgets.length > 1 )
             {
-                JMenuItem selectWidgetItem = createSelectWidgetMenu( editor, hoveredWidgets[i], i == 0 );
-                menu.add( selectWidgetItem );
+                for ( int i = 0; i < hoveredWidgets.length; i++ )
+                {
+                    JMenuItem selectWidgetItem = createSelectWidgetMenu( editor, hoveredWidgets[i], i == 0 );
+                    menu.add( selectWidgetItem );
+                }
+                
+                menu.addSeparator();
             }
             
-            menu.addSeparator();
+            boolean scopeSep = false;
+            
+            if ( ( hoveredWidgets.length > 0 ) && ( hoveredWidgets[0] instanceof AbstractAssembledWidget ) )
+            {
+                JMenuItem goIntoItem = createGoIntoMenu( editor, (AbstractAssembledWidget)hoveredWidgets[0] );
+                menu.add( goIntoItem );
+                
+                scopeSep = true;
+            }
+            
+            if ( scopeWidget != null )
+            {
+                JMenuItem goOutOfItem = createGoOutOfMenu( editor, scopeWidget );
+                menu.add( goOutOfItem );
+                
+                scopeSep = true;
+            }
+            
+            if ( scopeSep )
+                menu.addSeparator();
         }
         
         JMenuItem resetZoomItem = createResetZoomMenu( editor );
@@ -488,7 +541,7 @@ public class EditorMenuBar extends JMenuBar
             
             try
             {
-                Widget widget = RFDynHUDEditor.createWidgetInstance( clazz, null, false );
+                Widget widget = RFDynHUDEditor.createWidgetInstance( clazz, "dummy", null, false );
                 if ( widget != null )
                 {
                     instances.put( clazz, widget );

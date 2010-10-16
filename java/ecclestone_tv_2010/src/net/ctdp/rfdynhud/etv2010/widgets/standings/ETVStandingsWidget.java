@@ -59,8 +59,8 @@ public class ETVStandingsWidget extends ETVWidgetBase
     private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
     private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
     
-    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", true );
-    private final BooleanProperty showFastestLapsInRace = new BooleanProperty( this, "showFastestLapsInRace", true );
+    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", "forceLeaderDispl", true );
+    private final BooleanProperty showFastestLapsInRace = new BooleanProperty( this, "showFastestLapsInRace", "showFastLapsRace", true );
     
     private DrawnString[] captionStrings = null;
     private DrawnString[] nameStrings = null;
@@ -443,12 +443,26 @@ public class ETVStandingsWidget extends ETVWidgetBase
                         laptimeStrings[tti].draw( 0, 0, TimingUtil.getTimeAsLaptimeString( laptimes[tti].getValue() ), tt.getTexture(), dataBackgroundColor.getColor() );
                     }
                     
-                    int off = useImages.getBooleanValue() ? getImages().getDataDataLeft( itemHeight ) / 2 : ( ETVUtils.getTriangleWidth( itemHeight ) / 2 );
+                    int off;
+                    if ( useImages.getBooleanValue() )
+                    {
+                        float scale = getImages().getLabeledDataImageScale( itemHeight );
+                        off = (int)( ( getImages().getLabeledDataVirtualProjectionBorderRight() + getImages().getDataVirtualProjectionBorderRight() ) * scale );
+                        int b1 = getImages().getLabeledDataDataBorderRight() + 1;
+                        int b2 = getImages().getDataBorderLeft() + 1;
+                        int b = (int)Math.floor( ( Math.min( b1, b2 ) ) * scale );
+                        off -= b;
+                        off += itemGap.getIntValue();
+                    }
+                    else
+                    {
+                        off = -( ETVUtils.getTriangleWidth( itemHeight ) - itemGap.getIntValue() );
+                    }
                     
                     if ( isOnLeftSide )
-                        tt.setTranslation( width - off, offsetY2 );
+                        tt.setTranslation( width + off, offsetY2 );
                     else
-                        tt.setTranslation( -width + off, offsetY2 );
+                        tt.setTranslation( -width - off, offsetY2 );
                     tt.setVisible( true );
                 }
             }

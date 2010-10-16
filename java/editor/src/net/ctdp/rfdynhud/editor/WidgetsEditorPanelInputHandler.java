@@ -33,7 +33,6 @@ import javax.swing.JScrollPane;
 
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.values.RelativePositioning;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -100,12 +99,14 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         
         int n = 0;
         
-        for ( int i = widgetsManager.getNumWidgets() - 1; i >= 0; i-- )
+        int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
+        
+        for ( int i = numWidgets - 1; i >= 0; i-- )
         {
-            Widget widget = widgetsManager.getWidget( i );
+            Widget widget = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getWidget( i ) : editorPanel.getScopeWidget().getPart( i );
             
-            int wx = widget.getPosition().getEffectiveX();
-            int wy = widget.getPosition().getEffectiveY();
+            int wx = widget.getAbsoluteOffsetX();
+            int wy = widget.getAbsoluteOffsetY();
             int ww = widget.getSize().getEffectiveWidth();
             int wh = widget.getSize().getEffectiveHeight();
             
@@ -132,8 +133,10 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         
         if ( ( e.getButton() == MouseEvent.BUTTON1 ) || ( e.getButton() == MouseEvent.BUTTON3 ) )
         {
-            if ( hoveredWidgets.length < widgetsManager.getNumWidgets() )
-                hoveredWidgets = new Widget[ widgetsManager.getNumWidgets() ];
+            int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
+            
+            if ( hoveredWidgets.length < numWidgets )
+                hoveredWidgets = new Widget[ numWidgets ];
             
             numHoveredWidgets = getWidgetsUnderMouse( x, y, hoveredWidgets, false );
             
@@ -187,11 +190,13 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         }
         else if ( e.getButton() == MouseEvent.BUTTON3 )
         {
+            /*
             if ( numHoveredWidgets <= 1 )
             {
                 editorPanel.requestContextMenu( null );
             }
             else
+            */
             {
                 Widget[] hw = new Widget[ numHoveredWidgets ];
                 System.arraycopy( hoveredWidgets, 0, hw, 0, numHoveredWidgets );
@@ -254,8 +259,8 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         
         if ( ( widget != null ) && !widget.hasFixedSize() )
         {
-            int effX = widget.getPosition().getEffectiveX();
-            int effY = widget.getPosition().getEffectiveY();
+            int effX = widget.getAbsoluteOffsetX();
+            int effY = widget.getAbsoluteOffsetY();
             int effW = widget.getSize().getEffectiveWidth();
             int effH = widget.getSize().getEffectiveHeight();
             
@@ -300,8 +305,10 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         int x = Math.round( e.getX() * editorPanel.getRecipScaleFactor() );
         int y = Math.round( e.getY() * editorPanel.getRecipScaleFactor() );
         
-        if ( hoveredWidgets2.length < widgetsManager.getNumWidgets() )
-            hoveredWidgets2 = new Widget[ widgetsManager.getNumWidgets() ];
+        int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
+        
+        if ( hoveredWidgets2.length < numWidgets )
+            hoveredWidgets2 = new Widget[ numWidgets ];
         
         numHoveredWidgets2 = getWidgetsUnderMouse( x, y, hoveredWidgets2, false );
         
@@ -357,13 +364,14 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         {
             if ( ( editorPanel.getSettings().getRailDistanceX() > 0 ) || ( editorPanel.getSettings().getRailDistanceY() > 0 ) )
             {
-                WidgetsConfiguration wc = widgetsManager;
+                int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
                 int closestRailX = Integer.MAX_VALUE;
                 int closestRailY = Integer.MAX_VALUE;
                 int rdx, rdy;
-                for ( int i = 0; i < wc.getNumWidgets(); i++ )
+                for ( int i = 0; i < numWidgets; i++ )
                 {
-                    Widget w = wc.getWidget( i );
+                    Widget w = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getWidget( i ) : editorPanel.getScopeWidget().getPart( i );
+                    
                     if ( w != widget )
                     {
                         rdx = w.getPosition().getEffectiveX() - point.x;
@@ -411,8 +419,8 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
     
     private RelativePositioning fixPositioning( Widget widget, int x, int y, int w, int h )
     {
-        final int gameResX = widget.getConfiguration().getGameResolution().getViewportWidth();
-        final int gameResY = widget.getConfiguration().getGameResolution().getViewportHeight();
+        final int scopeW = ( editorPanel.getScopeWidget() == null ) ? widget.getConfiguration().getGameResolution().getViewportWidth() : editorPanel.getScopeWidget().getInnerSize().getEffectiveWidth();
+        final int scopeH = ( editorPanel.getScopeWidget() == null ) ? widget.getConfiguration().getGameResolution().getViewportHeight() : editorPanel.getScopeWidget().getInnerSize().getEffectiveHeight();
         
         RelativePositioning positioning = widget.getPosition().getPositioning();
         
@@ -441,7 +449,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         }
         */
         
-        int right = gameResX - x - w;
+        int right = scopeW - x - w;
         if ( Math.max( x, right ) <= Math.min( x, right ) * 1.75f )
             positioning = positioning.deriveHCenter();
         else if ( x < right )
@@ -473,7 +481,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         }
         */
         
-        int bottom = gameResY - y - h;
+        int bottom = scopeH - y - h;
         if ( Math.max( y, bottom ) <= Math.min( y, bottom ) * 1.75f )
             positioning = positioning.deriveVCenter();
         else if ( y < bottom )
@@ -541,8 +549,8 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
             final int oldW = draggedWidget.getSize().getEffectiveWidth();
             final int oldH = draggedWidget.getSize().getEffectiveHeight();
             
-            final int gameResX = draggedWidget.getConfiguration().getGameResolution().getViewportWidth();
-            final int gameResY = draggedWidget.getConfiguration().getGameResolution().getViewportHeight();
+            final int scopeW = ( editorPanel.getScopeWidget() == null ) ? draggedWidget.getConfiguration().getGameResolution().getViewportWidth() : editorPanel.getScopeWidget().getInnerSize().getEffectiveWidth();
+            final int scopeH = ( editorPanel.getScopeWidget() == null ) ? draggedWidget.getConfiguration().getGameResolution().getViewportHeight() : editorPanel.getScopeWidget().getInnerSize().getEffectiveHeight();
             
             int dx = Math.round( e.getX() * editorPanel.getRecipScaleFactor() ) - mousePressedX;
             int dy = Math.round( e.getY() * editorPanel.getRecipScaleFactor() ) - mousePressedY;
@@ -634,20 +642,20 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                     }
                 }
                 
-                int hundretPercentWidth = gameResY * 4 / 3;
+                int hundretPercentWidth = scopeH * 4 / 3;
                 
                 if ( !draggedWidget.getSize().isNegativeWidth() && ( w > hundretPercentWidth * 95 / 100 ) )
                     draggedWidget.getSize().flipWidthSign();
                 else if ( draggedWidget.getSize().isNegativeWidth() && ( w < hundretPercentWidth * 95 / 100 ) )
                     draggedWidget.getSize().flipWidthSign();
                 
-                if ( !draggedWidget.getSize().isNegativeHeight() && ( h > gameResY * 95 / 100 ) )
+                if ( !draggedWidget.getSize().isNegativeHeight() && ( h > scopeH * 95 / 100 ) )
                     draggedWidget.getSize().flipHeightSign();
-                else if ( draggedWidget.getSize().isNegativeHeight() && ( h < gameResY * 95 / 100 ) )
+                else if ( draggedWidget.getSize().isNegativeHeight() && ( h < scopeH * 95 / 100 ) )
                     draggedWidget.getSize().flipHeightSign();
                 
-                w = Math.min( w, gameResX - x );
-                h = Math.min( h, gameResY - y );
+                w = Math.min( w, scopeW - x );
+                h = Math.min( h, scopeH - y );
                 
                 if ( isShiftDown )
                 {
@@ -686,8 +694,8 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                 
                 x = Math.max( 0, x );
                 y = Math.max( 0, y );
-                w = Math.min( w, gameResX );
-                h = Math.min( h, gameResY );
+                w = Math.min( w, scopeW );
+                h = Math.min( h, scopeH );
                 
                 boolean b1 = draggedWidget.getSize().setEffectiveSize( w, h );
                 int eh = draggedWidget.getSize().getEffectiveHeight();
@@ -708,15 +716,16 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                 int effWidth = draggedWidget.getSize().getEffectiveWidth();
                 int effHeight = draggedWidget.getSize().getEffectiveHeight();
                 
-                x = Math.min( Math.max( 0, x ) + effWidth, gameResX ) - effWidth;
-                y = Math.min( Math.max( 0, y ) + effHeight, gameResY ) - effHeight;
+                x = Math.min( Math.max( 0, x ) + effWidth, scopeW ) - effWidth;
+                y = Math.min( Math.max( 0, y ) + effHeight, scopeH ) - effHeight;
                 
                 changed = setWidgetPosition( draggedWidget, x, y );
             }
             
             if ( changed )
             {
-                __WPrivilegedAccess.clearRegion( draggedWidget, editorPanel.getOverlayTexture(), oldX, oldY, oldW, oldH );
+                if ( editorPanel.getScopeWidget() == null )
+                    __WPrivilegedAccess.clearRegion( draggedWidget, editorPanel.getOverlayTexture(), oldX, oldY, oldW, oldH );
                 editorPanel.onSelectedWidgetPositionSizeChanged();
             }
         }
@@ -817,6 +826,11 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
             if ( ( kev.getKeyCode() == KeyEvent.VK_NUMPAD0 ) && isControlDown )
             {
                 editorPanel.setScaleFactor( 1.0f );
+            }
+            else if ( kev.getKeyCode() == KeyEvent.VK_ESCAPE )
+            {
+                if ( editorPanel.getScopeWidget() != null )
+                    editorPanel.goInto( editorPanel.getScopeWidget().getMasterWidget() );
             }
         }
     }

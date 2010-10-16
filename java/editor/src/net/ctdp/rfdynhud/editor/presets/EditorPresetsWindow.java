@@ -287,6 +287,8 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
             @Override
             public void windowOpened( WindowEvent e )
             {
+                editorTable.applyToModel();
+                
                 if ( !setWindowSize )
                     return;
                 
