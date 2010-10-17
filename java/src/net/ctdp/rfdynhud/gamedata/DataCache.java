@@ -17,25 +17,23 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputActionConsumer;
 import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
 
+import org.jagatoo.util.xml.SimpleXMLHandler;
+import org.jagatoo.util.xml.SimpleXMLParser;
+import org.jagatoo.util.xml.SimpleXMLWriter;
+import org.jagatoo.util.xml.XMLPath;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -53,9 +51,6 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     
     static final DataCache INSTANCE = new DataCache();
     static final InputAction INPUT_ACTION_RESET_LAPTIMES_CACHE = __InpPrivilegedAccess.createInputAction( "ResetLaptimesCache", true, false, (InputActionConsumer)INSTANCE, DataCache.class.getClassLoader().getResource( DataCache.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetLaptimesCache.html" ) );
-    
-    private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-    private static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
     
     private static class VersionException extends RuntimeException
     {
@@ -185,7 +180,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             }
             catch ( Throwable t )
             {
-                Logger.log( "Warning: Failed to create cache folder. Data-Cache deactivated." );
+                Logger.log( "WARNING: Failed to create cache folder. Data-Cache deactivated." );
             }
         }
         else if ( !cacheFolder.exists() )
@@ -203,26 +198,22 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     
     private void loadFromCache( File cacheFile )
     {
-        org.xml.sax.helpers.DefaultHandler handler = new org.xml.sax.helpers.DefaultHandler()
+        SimpleXMLHandler handler = new SimpleXMLHandler()
         {
-            private int level = 0;
-            
             private String currentTeam = null;
             
             @Override
-            public void startElement( String uri, String localName, String qName, Attributes attributes ) throws SAXException
+            protected void onElementStarted( XMLPath path, String name, Attributes attributes ) throws SAXException
             {
-                //System.out.println( "startElement( " + uri + ", " + localName + ", " + qName + ", " + attributes + " )" );
-                
-                if ( ( level == 0 ) && qName.equals( "CachedData" ) )
+                if ( ( path.getLevel() == 1 ) && name.equals( "CachedData" ) )
                 {
                     VersionException.checkVersion( attributes.getValue( "version" ), 1, 1, 0 );
                 }
-                else if ( ( level == 1 ) && qName.equals( "VehicleData" ) )
+                else if ( ( path.getLevel() == 2 ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = attributes.getValue( "vehicle" );
                 }
-                else if ( ( level == 2 ) && qName.equals( "FuelUsage" ) )
+                else if ( ( path.getLevel() == 3 ) && name.equals( "FuelUsage" ) )
                 {
                     try
                     {
@@ -231,10 +222,10 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                     }
                     catch ( NumberFormatException e )
                     {
-                        Logger.log( "Warning: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
+                        Logger.log( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
                     }
                 }
-                else if ( ( level == 2 ) && qName.equals( "FastestLap" ) )
+                else if ( ( path.getLevel() == 3 ) && name.equals( "FastestLap" ) )
                 {
                     try
                     {
@@ -269,65 +260,35 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                     }
                     catch ( NumberFormatException e )
                     {
-                        Logger.log( "Warning: DataCache: Unable to parse laptime." );
+                        Logger.log( "WARNING: DataCache: Unable to parse laptime." );
                     }
                 }
-                
-                level++;
             }
             
             @Override
-            public void characters( char[] data, int start, int length ) throws SAXException
+            protected void onElementData( XMLPath path, char[] data, int start, int length ) throws SAXException
             {
-                //System.out.println( "data: " + new String( data, start, length ) );
             }
             
             @Override
-            public void endElement( String uri, String localName, String qName ) throws SAXException
+            protected void onElementEnded( XMLPath path, String name ) throws SAXException
             {
-                //System.out.println( "endElement( " + uri + ", " + localName + ", " + qName + " )" );
-                
-                level--;
-                
-                if ( ( level == 1 ) && qName.equals( "VehicleData" ) )
+                if ( ( path.getLevel() == 2 ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = null;
                 }
             }
             
             @Override
-            public void warning( SAXParseException e ) throws SAXException
+            protected void onParsingException( ExceptionSeverity severity, SAXParseException ex ) throws SAXException
             {
-                //System.err.println( "Warning at: " + getCurrentPathAsString() );
-                
-                Logger.log( e );
-            }
-            
-            @Override
-            public void error( SAXParseException e ) throws SAXException
-            {
-                //System.err.println( "Error at: " + getCurrentPathAsString() );
-                
-                Logger.log( e );
-            }
-            
-            @Override
-            public void fatalError( SAXParseException e ) throws SAXException
-            {
-                //System.err.println( "Warning at: " + getCurrentPathAsString() );
-                
-                Logger.log( e );
+                Logger.log( ex );
             }
         };
         
-        BufferedInputStream in = null;
-        
         try
         {
-            in = new BufferedInputStream( new FileInputStream( cacheFile ) );
-            
-            SAXParser saxParser = SAX_PARSER_FACTORY.newSAXParser();
-            saxParser.parse( in, handler );
+            SimpleXMLParser.parseXML( cacheFile, handler );
         }
         catch ( ParserConfigurationException e )
         {
@@ -343,12 +304,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         }
         catch ( VersionException e )
         {
-            Logger.log( "Error: " + e.getMessage() );
-        }
-        finally
-        {
-            if ( in != null )
-                try { in.close(); } catch ( IOException e ) {}
+            Logger.log( "ERROR: " + e.getMessage() );
         }
     }
     
@@ -361,26 +317,22 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         
         final Float[] result = { null };
         
-        org.xml.sax.helpers.DefaultHandler handler = new org.xml.sax.helpers.DefaultHandler()
+        SimpleXMLHandler handler = new SimpleXMLHandler()
         {
-            private int level = 0;
-            
             private String currentTeam = null;
             
             @Override
-            public void startElement( String uri, String localName, String qName, Attributes attributes ) throws SAXException
+            protected void onElementStarted( XMLPath path, String name, Attributes attributes ) throws SAXException
             {
-                //System.out.println( "startElement( " + uri + ", " + localName + ", " + qName + ", " + attributes + " )" );
-                
-                if ( ( level == 0 ) && qName.equals( "CachedData" ) )
+                if ( ( path.getLevel() == 1 ) && name.equals( "CachedData" ) )
                 {
                     VersionException.checkVersion( attributes.getValue( "version" ), 1, 1, 0 );
                 }
-                else if ( ( level == 1 ) && qName.equals( "VehicleData" ) )
+                else if ( ( path.getLevel() == 2 ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = attributes.getValue( "vehicle" );
                 }
-                else if ( ( level == 2 ) && qName.equals( "FuelUsage" ) )
+                else if ( ( path.getLevel() == 3 ) && name.equals( "FuelUsage" ) )
                 {
                     try
                     {
@@ -390,65 +342,35 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                     }
                     catch ( NumberFormatException e )
                     {
-                        Logger.log( "Warning: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
+                        Logger.log( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
                     }
                 }
-                
-                level++;
             }
             
             @Override
-            public void characters( char[] data, int start, int length ) throws SAXException
+            protected void onElementData( XMLPath path, char[] data, int start, int length ) throws SAXException
             {
-                //System.out.println( "data: " + new String( data, start, length ) );
             }
             
             @Override
-            public void endElement( String uri, String localName, String qName ) throws SAXException
+            protected void onElementEnded( XMLPath path, String name ) throws SAXException
             {
-                //System.out.println( "endElement( " + uri + ", " + localName + ", " + qName + " )" );
-                
-                level--;
-                
-                if ( ( level == 1 ) && qName.equals( "VehicleData" ) )
+                if ( ( path.getLevel() == 2 ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = null;
                 }
             }
             
             @Override
-            public void warning( SAXParseException e ) throws SAXException
+            protected void onParsingException( ExceptionSeverity severity, SAXParseException ex ) throws SAXException
             {
-                //System.err.println( "Warning at: " + getCurrentPathAsString() );
-                
-                Logger.log( e );
-            }
-            
-            @Override
-            public void error( SAXParseException e ) throws SAXException
-            {
-                //System.err.println( "Error at: " + getCurrentPathAsString() );
-                
-                Logger.log( e );
-            }
-            
-            @Override
-            public void fatalError( SAXParseException e ) throws SAXException
-            {
-                //System.err.println( "Warning at: " + getCurrentPathAsString() );
-                
-                Logger.log( e );
+                Logger.log( ex );
             }
         };
         
-        BufferedInputStream in = null;
-        
         try
         {
-            in = new BufferedInputStream( new FileInputStream( cacheFile ) );
-            
-            SAXParser saxParser = SAX_PARSER_FACTORY.newSAXParser();
-            saxParser.parse( in, handler );
+            SimpleXMLParser.parseXML( cacheFile, handler );
         }
         catch ( ParserConfigurationException e )
         {
@@ -465,11 +387,6 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         catch ( VersionException e )
         {
             Logger.log( "Error: " + e.getMessage() );
-        }
-        finally
-        {
-            if ( in != null )
-                try { in.close(); } catch ( IOException e ) {}
         }
         
         return ( result[0] );
@@ -517,51 +434,34 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         ArrayList<String> vehicleNames = new ArrayList<String>( fuelUsages.keySet() );
         Collections.sort( vehicleNames );
         
-        BufferedWriter bw = null;
+        SimpleXMLWriter writer = null;
         
         try
         {
-            bw = new BufferedWriter( new FileWriter( cacheFile ) );
+            writer = new SimpleXMLWriter( cacheFile );
             
-            bw.write( XML_HEADER );
-            bw.newLine();
-            bw.newLine();
-            
-            bw.write( "<CachedData version=\"1.1.0\">" );
-            bw.newLine();
+            writer.writeElementAndPush( "CachedData", "version", "1.1.0" );
             
             for ( String vehicleName : vehicleNames )
             {
-                bw.write( "    <VehicleData vehicle=\"" + vehicleName + "\">" );
-                bw.newLine();
+                writer.writeElementAndPush( "VehicleData", "vehicle", vehicleName );
                 
                 Float fuelUsage = fuelUsages.get( vehicleName );
                 if ( fuelUsage != null )
-                {
-                    bw.write( "        <FuelUsage average=\"" + fuelUsage + "\" />" );
-                    bw.newLine();
-                }
+                    writer.writeElement( "FuelUsage", "average", fuelUsage );
                 
                 Laptime laptime = fastestNormalLaptimes.get( vehicleName );
                 if ( laptime != null )
-                {
-                    bw.write( "        <FastestLap type=\"" + laptime.getType().name() + "\" sector1=\"" + laptime.getSector1() + "\" sector2=\"" + laptime.getSector2() + "\" sector3=\"" + laptime.getSector3() + "\" lap=\"" + laptime.getLapTime() + "\" />" );
-                    bw.newLine();
-                }
+                    writer.writeElement( "FastestLap", "type", laptime.getType().name(), "sector1", laptime.getSector1(), "sector2", laptime.getSector2(), "sector3", laptime.getSector3(), "lap", laptime.getLapTime() );
                 
                 laptime = fastestHotLaptimes.get( vehicleName );
                 if ( laptime != null )
-                {
-                    bw.write( "        <FastestLap type=\"" + laptime.getType().name() + "\" sector1=\"" + laptime.getSector1() + "\" sector2=\"" + laptime.getSector2() + "\" sector3=\"" + laptime.getSector3() + "\" lap=\"" + laptime.getLapTime() + "\" />" );
-                    bw.newLine();
-                }
+                    writer.writeElement( "FastestLap", "type", laptime.getType().name(), "sector1", laptime.getSector1(), "sector2", laptime.getSector2(), "sector3", laptime.getSector3(), "lap", laptime.getLapTime() );
                 
-                bw.write( "    </VehicleData>" );
-                bw.newLine();
+                writer.popElement();
             }
             
-            bw.write( "</CachedData>" );
-            bw.newLine();
+            writer.popElement();
         }
         catch ( IOException e )
         {
@@ -569,8 +469,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         }
         finally
         {
-            if ( bw != null )
-                try { bw.close(); } catch ( IOException e ) {}
+            writer.close();
         }
     }
     
