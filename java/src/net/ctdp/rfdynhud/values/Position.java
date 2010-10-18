@@ -267,6 +267,16 @@ public class Position
     }
     
     /**
+     * Sets the {@link Position} to the values of the given {@link Position}.
+     * 
+     * @param position
+     */
+    public void setTo( Position position )
+    {
+        this.set( position.positioning, position.x, position.y );
+    }
+    
+    /**
      * Sets this Widget's position.
      * 
      * @param positioning the used {@link RelativePositioning}
@@ -679,11 +689,13 @@ public class Position
                     
                     if ( ( Position.this.getWidget() != null ) && ( Position.this.getWidget().getConfiguration() != null ) )
                     {
+                        RelativePositioning oldValue = positioning;
                         int currX = getEffectiveX();
                         int currY = getEffectiveY();
                         
                         setEffectivePosition( (RelativePositioning)value, currX, currY );
                         
+                        triggerCommonOnValueChanged( oldValue, value );
                         onPositioningPropertySet( (RelativePositioning)value );
                     }
                     else
@@ -739,11 +751,17 @@ public class Position
                 @Override
                 public void setValue( Object value )
                 {
+                    float oldValue = Position.this.x;
                     float x = ( (Number)value ).floatValue();
                     
-                    set( x, getY() );
-                    
-                    onXPropertySet( x );
+                    //if ( x != oldValue )
+                    {
+                        set( x, getY() );
+                        
+                        if ( x != oldValue )
+                            triggerCommonOnValueChanged( oldValue, value );
+                        onXPropertySet( x );
+                    }
                 }
                 
                 @Override
@@ -814,11 +832,17 @@ public class Position
                 @Override
                 public void setValue( Object value )
                 {
+                    float oldValue = Position.this.y;
                     float y = ( (Number)value ).floatValue();
                     
-                    set( getX(), y );
-                    
-                    onYPropertySet( y );
+                    //if ( y != oldValue )
+                    {
+                        set( getX(), y );
+                        
+                        if ( y != oldValue )
+                            triggerCommonOnValueChanged( oldValue, value );
+                        onYPropertySet( y );
+                    }
                 }
                 
                 @Override

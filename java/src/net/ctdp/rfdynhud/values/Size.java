@@ -262,6 +262,16 @@ public class Size extends AbstractSize
     }
     
     /**
+     * Sets the {@link Size} to the values of the given {@link Size}.
+     * 
+     * @param size
+     */
+    public void setTo( Size size)
+    {
+        this.set( size.width, size.height );
+    }
+    
+    /**
      * Sets this {@link Widget}'s size in absolute pixel coordinates. (only works for non-fixed-sized {@link Widget}s)
      * 
      * @param width the new absolute pixel width
@@ -652,11 +662,17 @@ public class Size extends AbstractSize
                 @Override
                 public void setValue( Object value )
                 {
+                    float oldValue = Size.this.width;
                     float width = ( (Number)value ).floatValue();
                     
-                    set( width, getHeight() );
-                    
-                    onWidthPropertySet( width );
+                    //if ( width != oldValue )
+                    {
+                        set( width, getHeight() );
+                        
+                        if ( width != oldValue )
+                            triggerCommonOnValueChanged( oldValue, width );
+                        onWidthPropertySet( width );
+                    }
                 }
                 
                 @Override
@@ -735,11 +751,17 @@ public class Size extends AbstractSize
                 @Override
                 public void setValue( Object value )
                 {
+                    float oldValue = Size.this.height;
                     float height = ( (Number)value ).floatValue();
                     
-                    set( getWidth(), height );
-                    
-                    onHeightPropertySet( height );
+                    //if ( height != oldValue )
+                    {
+                        set( getWidth(), height );
+                        
+                        if ( height != oldValue )
+                            triggerCommonOnValueChanged( oldValue, height );
+                        onHeightPropertySet( height );
+                    }
                 }
                 
                 @Override

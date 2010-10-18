@@ -81,7 +81,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     {
         SimpleXMLHandler handler = this.simpleHandler;
         
-        Object element = handler.getPathObject( path.getLevel(), qName );
+        Object element = handler.getPathObject( path.getLevel() + 1, qName );
         if ( element == null )
             throw new RuntimeException( "The getPathObject() method must never return null." );
         
@@ -107,19 +107,19 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     @Override
     public void warning( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( SimpleXMLHandler.ExceptionSeverity.WARNING, ex );
+        simpleHandler.onParsingException( path, SimpleXMLHandler.ExceptionSeverity.WARNING, ex );
     }
     
     @Override
     public void error( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( SimpleXMLHandler.ExceptionSeverity.ERROR, ex );
+        simpleHandler.onParsingException( path, SimpleXMLHandler.ExceptionSeverity.ERROR, ex );
     }
     
     @Override
     public void fatalError( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( SimpleXMLHandler.ExceptionSeverity.FATAL_ERROR, ex );
+        simpleHandler.onParsingException( path, SimpleXMLHandler.ExceptionSeverity.FATAL_ERROR, ex );
     }
     
     @Override

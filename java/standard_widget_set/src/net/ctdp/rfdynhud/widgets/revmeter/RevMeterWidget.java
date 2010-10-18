@@ -69,6 +69,131 @@ public class RevMeterWidget extends NeedleMeterWidget
     
     private final BooleanProperty hideWhenViewingOtherCar = new BooleanProperty( this, "hideWhenViewingOtherCar", "hideWhenOtherCar", false );
     
+    
+    @Override
+    protected int getMarkersBigStepLowerLimit()
+    {
+        return ( 300 );
+    }
+    
+    @Override
+    protected int getMarkersSmallStepLowerLimit()
+    {
+        return ( 20 );
+    }
+    
+    private final BooleanProperty useMaxRevLimit = new BooleanProperty( this, "useMaxRevLimit", true );
+    private final ColorProperty revMarkersMediumColor = new ColorProperty( this, "revMarkersMediumColor", "mediumColor", "#FFFF00" );
+    private final ColorProperty revMarkersHighColor = new ColorProperty( this, "revMarkersHighColor", "highColor", "#FF0000" );
+    private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
+    private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
+    
+    
+    private void initShiftLights( int oldNumber, int newNumber )
+    {
+        for ( int i = oldNumber; i < newNumber; i++ )
+        {
+            if ( shiftLights[i] == null )
+            {
+                shiftLights[i] = new ShiftLight( this, i + 1 );
+                
+                if ( ( i == 0 ) && ( oldNumber == 0 ) && ( newNumber == 1 ) )
+                {
+                    shiftLights[0].activationRPM.setValue( -500 );
+                }
+                else if ( ( i == 0 ) && ( oldNumber == 0 ) && ( newNumber == 2 ) )
+                {
+                    shiftLights[0].activationRPM.setValue( -200 );
+                }
+                else if ( ( i == 1 ) && ( oldNumber < 2 ) && ( newNumber == 2 ) )
+                {
+                    shiftLights[1].activationRPM.setValue( -600 );
+                }
+            }
+        }
+    }
+    
+    private final IntProperty numShiftLights = new IntProperty( this, "numShiftLights", 0, 0, 20 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            initShiftLights( oldValue, newValue );
+        }
+    };
+    
+    private final ShiftLight[] shiftLights = { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null };
+    
+    
+    private final BooleanProperty displayGear = new BooleanProperty( this, "displayGear", "displayGear", true );
+    private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "bgImageName", "", false, true );
+    private TransformableTexture gearBackgroundTexture = null;
+    private TextureImage2D gearBackgroundTexture_bak = null;
+    private final IntProperty gearPosX = new IntProperty( this, "gearPosX", "posX", 354 );
+    private final IntProperty gearPosY = new IntProperty( this, "gearPosY", "posY", 512 );
+    private int gearBackgroundTexPosX, gearBackgroundTexPosY;
+    private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
+    private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
+    
+    
+    private final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
+    private final IntProperty boostBarPosX = new IntProperty( this, "boostBarPosX", "barPosX", 135 );
+    private final IntProperty boostBarPosY = new IntProperty( this, "boostBarPosY", "barPosY", 671 );
+    private final IntProperty boostBarWidth = new IntProperty( this, "boostBarWidth", "barWidth", 438 );
+    private final IntProperty boostBarHeight = new IntProperty( this, "boostBarHeight", "barHeight", 27 );
+    private final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
+    private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numBGImageName", "", false, true );
+    private TransformableTexture boostNumberBackgroundTexture = null;
+    private TextureImage2D boostNumberBackgroundTexture_bak = null;
+    private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
+    private final IntProperty boostNumberPosX = new IntProperty( this, "boostNumberPosX", "numberPosX", 392 );
+    private final IntProperty boostNumberPosY = new IntProperty( this, "boostNumberPosY", "numberPosY", 544 );
+    private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
+    
+    
+    private final ImageProperty peakNeedleImageName = new ImageProperty( this, "peakNeedleImageName", "imageName", "default_rev_meter_needle.png", false, true );
+    private final IntProperty peakNeedlePivotBottomOffset = new IntProperty( this, "peakNeedlePivotBottomOffset", "pivotBottomOffset", 60 );
+    private TransformableTexture peakNeedleTexture = null;
+    
+    private final DelayProperty peakNeedleCooldown = new DelayProperty( this, "peakNeedleCooldown", "cooldown", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
+    private final DelayProperty peakNeedleWaitTime = new DelayProperty( this, "peakNeedleWaitTime", "wait", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
+    private final DelayProperty peakNeedleDownshiftIgnoreTime = new DelayProperty( this, "peakNeedleDownshiftIgnoreTime", "downshiftIgnoreTime", DelayProperty.DisplayUnits.MILLISECONDS, 1500, 0, 5000, false );
+    private long nextPeakRecordTime = -1L;
+    private long lastPeakRecordTime = -1L;
+    
+    private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
+    private final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
+    private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
+    private final BooleanProperty useBoostRevLimit1 = new BooleanProperty( this, "useBoostRevLimit1", "useBoostRevLimit", false );
+    private final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
+    private final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
+    private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    private final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
+    
+    private final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
+    private final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
+    private final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
+    private final BooleanProperty useBoostRevLimit2 = new BooleanProperty( this, "useBoostRevLimit2", "useBoostRevLimit", false );
+    private final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
+    private final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
+    private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    private final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
+    
+    private DrawnString rpmString1 = null;
+    private DrawnString rpmString2 = null;
+    private DrawnString gearString = null;
+    private DrawnString boostString = null;
+    
+    private final FloatValue maxRPMCheck = new FloatValue();
+    private final IntValue gear = new IntValue();
+    private final IntValue boost = new IntValue();
+    
+    private float peakRPM = 0f;
+    private short lastGear = 0;
+    
     @Override
     protected String getInitialBackground()
     {
@@ -105,129 +230,6 @@ public class RevMeterWidget extends NeedleMeterWidget
             rpmPosY2.setIntValue( Math.round( rpmPosY2.getIntValue() * deltaScaleY ) );
         }
     }
-    
-    @Override
-    protected int getMarkersBigStepLowerLimit()
-    {
-        return ( 300 );
-    }
-    
-    @Override
-    protected int getMarkersSmallStepLowerLimit()
-    {
-        return ( 20 );
-    }
-    
-    private final ImageProperty peakNeedleImageName = new ImageProperty( this, "peakNeedleImageName", "imageName", "default_rev_meter_needle.png", false, true );
-    private final IntProperty peakNeedlePivotBottomOffset = new IntProperty( this, "peakNeedlePivotBottomOffset", "pivotBottomOffset", 60 );
-    private TransformableTexture peakNeedleTexture = null;
-    
-    private final DelayProperty peakNeedleCooldown = new DelayProperty( this, "peakNeedleCooldown", "cooldown", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
-    private final DelayProperty peakNeedleWaitTime = new DelayProperty( this, "peakNeedleWaitTime", "wait", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
-    private final DelayProperty peakNeedleDownshiftIgnoreTime = new DelayProperty( this, "peakNeedleDownshiftIgnoreTime", "downshiftIgnoreTime", DelayProperty.DisplayUnits.MILLISECONDS, 1500, 0, 5000, false );
-    private long nextPeakRecordTime = -1L;
-    private long lastPeakRecordTime = -1L;
-    
-    private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "bgImageName", "", false, true );
-    private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numBGImageName", "", false, true );
-    
-    private TransformableTexture gearBackgroundTexture = null;
-    private TextureImage2D gearBackgroundTexture_bak = null;
-    private TransformableTexture boostNumberBackgroundTexture = null;
-    private TextureImage2D boostNumberBackgroundTexture_bak = null;
-    
-    private int gearBackgroundTexPosX, gearBackgroundTexPosY;
-    private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
-    
-    private final BooleanProperty useMaxRevLimit = new BooleanProperty( this, "useMaxRevLimit", true );
-    private final ColorProperty revMarkersMediumColor = new ColorProperty( this, "revMarkersMediumColor", "mediumColor", "#FFFF00" );
-    private final ColorProperty revMarkersHighColor = new ColorProperty( this, "revMarkersHighColor", "highColor", "#FF0000" );
-    private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
-    private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
-    
-    private final ShiftLight[] shiftLights = { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null };
-    
-    private void initShiftLights( int oldNumber, int newNumber )
-    {
-        for ( int i = oldNumber; i < newNumber; i++ )
-        {
-            if ( shiftLights[i] == null )
-            {
-                shiftLights[i] = new ShiftLight( this, i + 1 );
-                
-                if ( ( i == 0 ) && ( oldNumber == 0 ) && ( newNumber == 1 ) )
-                {
-                    shiftLights[0].activationRPM.setValue( -500 );
-                }
-                else if ( ( i == 0 ) && ( oldNumber == 0 ) && ( newNumber == 2 ) )
-                {
-                    shiftLights[0].activationRPM.setValue( -200 );
-                }
-                else if ( ( i == 1 ) && ( oldNumber < 2 ) && ( newNumber == 2 ) )
-                {
-                    shiftLights[1].activationRPM.setValue( -600 );
-                }
-            }
-        }
-    }
-    
-    private final IntProperty numShiftLights = new IntProperty( this, "numShiftLights", 0, 0, 20 )
-    {
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
-        {
-            initShiftLights( oldValue, newValue );
-        }
-    };
-    
-    private final BooleanProperty displayGear = new BooleanProperty( this, "displayGear", "displayGear", true );
-    private final IntProperty gearPosX = new IntProperty( this, "gearPosX", "posX", 354 );
-    private final IntProperty gearPosY = new IntProperty( this, "gearPosY", "posY", 512 );
-    private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
-    private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
-    
-    private final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
-    private final IntProperty boostBarPosX = new IntProperty( this, "boostBarPosX", "barPosX", 135 );
-    private final IntProperty boostBarPosY = new IntProperty( this, "boostBarPosY", "barPosY", 671 );
-    private final IntProperty boostBarWidth = new IntProperty( this, "boostBarWidth", "barWidth", 438 );
-    private final IntProperty boostBarHeight = new IntProperty( this, "boostBarHeight", "barHeight", 27 );
-    private final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
-    private final IntProperty boostNumberPosX = new IntProperty( this, "boostNumberPosX", "numberPosX", 392 );
-    private final IntProperty boostNumberPosY = new IntProperty( this, "boostNumberPosY", "numberPosY", 544 );
-    private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
-    
-    private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
-    private final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
-    private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
-    private final BooleanProperty useBoostRevLimit1 = new BooleanProperty( this, "useBoostRevLimit1", "useBoostRevLimit", false );
-    private final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
-    private final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
-    private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
-    private final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
-    
-    private final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
-    private final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
-    private final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
-    private final BooleanProperty useBoostRevLimit2 = new BooleanProperty( this, "useBoostRevLimit2", "useBoostRevLimit", false );
-    private final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
-    private final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
-    private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
-    private final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
-    
-    private DrawnString rpmString1 = null;
-    private DrawnString rpmString2 = null;
-    private DrawnString gearString = null;
-    private DrawnString boostString = null;
-    
-    private final FloatValue maxRPMCheck = new FloatValue();
-    private final IntValue gear = new IntValue();
-    private final IntValue boost = new IntValue();
-    
-    private float peakRPM = 0f;
-    private short lastGear = 0;
     
     @Override
     public WidgetPackage getWidgetPackage()
@@ -1035,23 +1037,33 @@ public class RevMeterWidget extends NeedleMeterWidget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( hideWhenViewingOtherCar ) );
+        
         else if ( loader.loadProperty( numShiftLights ) )
         {
             for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
                 shiftLights[i] = new ShiftLight( this, i + 1 );
         }
         else if ( loadShiftLightProperty( loader ) );
+        
         else if ( loader.loadProperty( useMaxRevLimit ) );
         else if ( loader.loadProperty( revMarkersMediumColor ) );
         else if ( loader.loadProperty( revMarkersHighColor ) );
         else if ( loader.loadProperty( fillHighBackground ) );
         else if ( loader.loadProperty( interpolateMarkerColors ) );
+        
+        else if ( loader.loadProperty( peakNeedleImageName ) );
+        else if ( loader.loadProperty( peakNeedlePivotBottomOffset ) );
+        else if ( loader.loadProperty( peakNeedleWaitTime ) );
+        else if ( loader.loadProperty( peakNeedleCooldown ) );
+        else if ( loader.loadProperty( peakNeedleDownshiftIgnoreTime ) );
+        
         else if ( loader.loadProperty( displayGear ) );
         else if ( loader.loadProperty( gearBackgroundImageName ) );
         else if ( loader.loadProperty( gearPosX ) );
         else if ( loader.loadProperty( gearPosY ) );
         else if ( loader.loadProperty( gearFont ) );
         else if ( loader.loadProperty( gearFontColor ) );
+        
         else if ( loader.loadProperty( displayBoostBar ) );
         else if ( loader.loadProperty( boostBarPosX ) );
         else if ( loader.loadProperty( boostBarPosY ) );
@@ -1063,6 +1075,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         else if ( loader.loadProperty( boostNumberPosY ) );
         else if ( loader.loadProperty( boostNumberFont ) );
         else if ( loader.loadProperty( boostNumberFontColor ) );
+        
         else if ( loader.loadProperty( displayRPMString1 ) );
         else if ( loader.loadProperty( displayCurrRPM1 ) );
         else if ( loader.loadProperty( displayMaxRPM1 ) );
@@ -1072,6 +1085,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         else if ( loader.loadProperty( rpmFont1 ) );
         else if ( loader.loadProperty( rpmFontColor1 ) );
         else if ( loader.loadProperty( rpmJoinString1 ) );
+        
         else if ( loader.loadProperty( displayRPMString2 ) );
         else if ( loader.loadProperty( displayCurrRPM2 ) );
         else if ( loader.loadProperty( displayMaxRPM2 ) );
@@ -1081,11 +1095,6 @@ public class RevMeterWidget extends NeedleMeterWidget
         else if ( loader.loadProperty( rpmFont2 ) );
         else if ( loader.loadProperty( rpmFontColor2 ) );
         else if ( loader.loadProperty( rpmJoinString2 ) );
-        else if ( loader.loadProperty( peakNeedleImageName ) );
-        else if ( loader.loadProperty( peakNeedlePivotBottomOffset ) );
-        else if ( loader.loadProperty( peakNeedleWaitTime ) );
-        else if ( loader.loadProperty( peakNeedleCooldown ) );
-        else if ( loader.loadProperty( peakNeedleDownshiftIgnoreTime ) );
         
         if ( ( loader.getSourceVersion().getBuild() < 70 ) && loader.getCurrentKey().equals( "/" ) )
         {
@@ -1201,7 +1210,6 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         propsCont.addProperty( displayBoostBar );
         propsCont.addProperty( boostBarPosX );
-        
         propsCont.addProperty( boostBarPosY );
         propsCont.addProperty( boostBarWidth );
         propsCont.addProperty( boostBarHeight );

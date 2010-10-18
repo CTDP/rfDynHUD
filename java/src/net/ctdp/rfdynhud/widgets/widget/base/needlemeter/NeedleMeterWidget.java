@@ -81,49 +81,11 @@ public abstract class NeedleMeterWidget extends Widget
         }
     }
     
-    protected void onNeedleImageNameChanged() {}
-    
-    private TransformableTexture needleTexture = null;
-    
-    protected String getInitialNeedleImage()
-    {
-        return ( "default_rev_meter_needle.png" );
-    }
-    
-    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", getInitialNeedleImage(), false, true )
-    {
-        @Override
-        protected void onValueChanged( String oldValue, String newValue )
-        {
-            onNeedleImageNameChanged();
-        }
-    };
-    
-    protected final IntProperty needleMountX = new IntProperty( this, "needleMountX", -1, -1, 5000 );
-    protected final IntProperty needleMountY = new IntProperty( this, "needleMountY", -1, -1, 5000 );
-    
-    protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
-    
-    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
-    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
-    
     protected static final float MIN_MAX_VALUE_NONE = 1000000000f;
     
     protected final FloatProperty minValue = new FloatProperty( this, "minValue", -MIN_MAX_VALUE_NONE );
     protected final FloatProperty maxValue = new FloatProperty( this, "maxValue", +MIN_MAX_VALUE_NONE );
     
-    protected final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
-    
-    private final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "cyan_circle.png", false, true );
-    private TransformableTexture valueBackgroundTexture = null;
-    private TextureImage2D valueBackgroundTexture_bak = null;
-    
-    private final IntProperty valuePosX = new IntProperty( this, "valuePosX", "posX", 100 );
-    private final IntProperty valuePosY = new IntProperty( this, "valuePosY", "posY", 100 );
-    private int valueBackgroundTexPosX, valueBackgroundTexPosY;
-    
-    private final FontProperty valueFont = new FontProperty( this, "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty valueFontColor = new ColorProperty( this, "valueFontColor", "fontColor", "#1A261C" );
     
     protected final BooleanProperty displayMarkers = new BooleanProperty( this, "displayMarkers", true );
     protected final BooleanProperty displayMarkerNumbers = new BooleanProperty( this, "displayMarkerNumbers", "displayNumbers", true );
@@ -164,6 +126,47 @@ public abstract class NeedleMeterWidget extends Widget
     protected final ColorProperty markersColor = new ColorProperty( this, "markersColor", "color", "#FFFFFF" );
     protected final FontProperty markersFont = new FontProperty( this, "markersFont", "font", "Monospaced-BOLD-9va" );
     protected final ColorProperty markersFontColor = new ColorProperty( this, "markersFontColor", "fontColor", "#FFFFFF" );
+    
+    
+    protected void onNeedleImageNameChanged() {}
+    
+    private TransformableTexture needleTexture = null;
+    
+    protected String getInitialNeedleImage()
+    {
+        return ( "default_rev_meter_needle.png" );
+    }
+    
+    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", getInitialNeedleImage(), false, true )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            onNeedleImageNameChanged();
+        }
+    };
+    
+    protected final IntProperty needleMountX = new IntProperty( this, "needleMountX", -1, -1, 5000 );
+    protected final IntProperty needleMountY = new IntProperty( this, "needleMountY", -1, -1, 5000 );
+    
+    protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
+    
+    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
+    
+    
+    protected final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
+    
+    private final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "cyan_circle.png", false, true );
+    private TransformableTexture valueBackgroundTexture = null;
+    private TextureImage2D valueBackgroundTexture_bak = null;
+    
+    private final IntProperty valuePosX = new IntProperty( this, "valuePosX", "posX", 100 );
+    private final IntProperty valuePosY = new IntProperty( this, "valuePosY", "posY", 100 );
+    private int valueBackgroundTexPosX, valueBackgroundTexPosY;
+    
+    private final FontProperty valueFont = new FontProperty( this, "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty valueFontColor = new ColorProperty( this, "valueFontColor", "fontColor", "#1A261C" );
     
     private DrawnString valueString = null;
     
@@ -912,6 +915,46 @@ public abstract class NeedleMeterWidget extends Widget
         writer.writeProperty( valueFontColor, "The font color used to draw the value." );
     }
     
+    private void handleBackwardsCompatiblity( PropertyLoader loader )
+    {
+        if ( loader.getCurrentKey().equals( "displayRevMarkers" ) )
+            displayMarkers.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "displayRevMarkerNumbers" ) )
+            displayMarkerNumbers.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersInnerRadius" ) )
+            markersInnerRadius.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersLength" ) )
+            markersLength.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersBigStep" ) )
+            markersBigStep.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersSmallStep" ) )
+            markersSmallStep.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersColor" ) )
+            markersColor.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersFont" ) )
+            markersFont.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersFontColor" ) )
+            markersFontColor.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "displayVelocity" ) )
+            displayValue.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityBackgroundImageName" ) )
+            valueBackgroundImageName.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityPosX" ) )
+            valuePosX.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityPosY" ) )
+            valuePosY.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityFont" ) )
+            valueFont.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityFontColor" ) )
+            valueFontColor.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "needleAxisBottomOffset" ) )
+            needlePivotBottomOffset.loadValue( loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "rotationForZeroRPM" ) )
+            { needleRotationForMinValue.loadValue( loader.getCurrentValue() ); needleRotationForMinValue.setFloatValue( -needleRotationForMinValue.getFloatValue() ); }
+        else if ( loader.getCurrentKey().equals( "rotationForMaxRPM" ) )
+            { needleRotationForMaxValue.loadValue( loader.getCurrentValue() ); needleRotationForMaxValue.setFloatValue( -needleRotationForMaxValue.getFloatValue() ); }
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -922,42 +965,7 @@ public abstract class NeedleMeterWidget extends Widget
         
         if ( loader.getSourceVersion().getBuild() < 70 )
         {
-            if ( loader.getCurrentKey().equals( "displayRevMarkers" ) )
-                displayMarkers.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "displayRevMarkerNumbers" ) )
-                displayMarkerNumbers.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "revMarkersInnerRadius" ) )
-                markersInnerRadius.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "revMarkersLength" ) )
-                markersLength.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "revMarkersBigStep" ) )
-                markersBigStep.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "revMarkersSmallStep" ) )
-                markersSmallStep.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "revMarkersColor" ) )
-                markersColor.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "revMarkersFont" ) )
-                markersFont.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "revMarkersFontColor" ) )
-                markersFontColor.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "displayVelocity" ) )
-                displayValue.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "velocityBackgroundImageName" ) )
-                valueBackgroundImageName.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "velocityPosX" ) )
-                valuePosX.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "velocityPosY" ) )
-                valuePosY.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "velocityFont" ) )
-                valueFont.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "velocityFontColor" ) )
-                valueFontColor.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "needleAxisBottomOffset" ) )
-                needlePivotBottomOffset.loadValue( loader.getCurrentValue() );
-            else if ( loader.getCurrentKey().equals( "rotationForZeroRPM" ) )
-                { needleRotationForMinValue.loadValue( loader.getCurrentValue() ); needleRotationForMinValue.setFloatValue( -needleRotationForMinValue.getFloatValue() ); }
-            else if ( loader.getCurrentKey().equals( "rotationForMaxRPM" ) )
-                { needleRotationForMaxValue.loadValue( loader.getCurrentValue() ); needleRotationForMaxValue.setFloatValue( -needleRotationForMaxValue.getFloatValue() ); }
+            handleBackwardsCompatiblity( loader );
         }
         
         if ( loader.loadProperty( minValue ) );

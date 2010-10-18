@@ -589,8 +589,7 @@ public class TimingWidget extends Widget
             }
             
             Laptime ownFastestLaptime = myVSI.getFastestLaptime();
-            //float lap = ( myVSI.getStintLength() > 1f ) ? scoringInfo.getCurrentTime() - myVSI.getLapStartTime() : -1f;
-            float lap = scoringInfo.getSessionTime() - myVSI.getLapStartTime();
+            float lap = myVSI.getCurrentLaptime();
             
             currLapValid.update( lap > 0f );
             if ( needsCompleteRedraw || clock.c() || ( clock.c() && ( currLapValid.hasChanged( false ) ) ) )

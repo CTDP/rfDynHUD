@@ -280,7 +280,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             }
             
             @Override
-            protected void onParsingException( ExceptionSeverity severity, SAXParseException ex ) throws SAXException
+            protected void onParsingException( XMLPath path, ExceptionSeverity severity, SAXParseException ex ) throws SAXException
             {
                 Logger.log( ex );
             }
@@ -362,7 +362,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             }
             
             @Override
-            protected void onParsingException( ExceptionSeverity severity, SAXParseException ex ) throws SAXException
+            protected void onParsingException( XMLPath path, ExceptionSeverity severity, SAXParseException ex ) throws SAXException
             {
                 Logger.log( ex );
             }

@@ -132,49 +132,6 @@ public class TemperaturesWidget extends Widget
         return ( StandardWidgetSet.WIDGET_PACKAGE );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void bake()
-    {
-        super.bake();
-        
-        engineHeight.bake();
-        tireSize.bake();
-        brakeSize.bake();
-    }
-    
-    @Override
-    public void setAllPosAndSizeToPercents()
-    {
-        super.setAllPosAndSizeToPercents();
-        
-        engineHeight.setWidthToPercents();
-        engineHeight.setHeightToPercents();
-        
-        tireSize.setWidthToPercents();
-        tireSize.setHeightToPercents();
-        
-        brakeSize.setWidthToPercents();
-        brakeSize.setHeightToPercents();
-    }
-    
-    @Override
-    public void setAllPosAndSizeToPixels()
-    {
-        super.setAllPosAndSizeToPixels();
-        
-        engineHeight.setWidthToPixels();
-        engineHeight.setHeightToPixels();
-        
-        tireSize.setWidthToPixels();
-        tireSize.setHeightToPixels();
-        
-        brakeSize.setWidthToPixels();
-        brakeSize.setHeightToPixels();
-    }
-    
     @Override
     public int getNeededData()
     {

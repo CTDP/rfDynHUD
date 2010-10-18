@@ -403,45 +403,53 @@ public class TelemetryData
         return ( data.getDeltaTime() );
     }
     
-    /**
+    /*
      * Gets the current lap number.
      * 
      * @return the current lap number.
      */
+    /*
     public final int getCurrentLapNumber()
     {
         return ( data.getCurrentLapNumber() );
     }
+    */
     
-    /**
+    /*
      * Gets the time this lap was started at.
      * 
      * @return the time this lap was started at.
      */
-    public final float getLapStartET()
+    /*
+    public final float getLapStartTime()
     {
         return ( data.getLapStartET() );
     }
+    */
     
-    /**
+    /*
      * Gets the current vehicle name.
      * 
      * @return the current vehicle name.
      */
+    /*
     public final String getVehicleName()
     {
         return ( data.getVehicleName() );
     }
+    */
     
-    /**
+    /*
      * Gets the current track name.
      * 
      * @return the current track name.
      */
+    /*
     public final String getTrackName()
     {
         return ( data.getTrackName() );
     }
+    */
     
     /**
      * Gets world position in meters.
@@ -862,15 +870,17 @@ public class TelemetryData
         return ( engineMaxRPM );
     }
     
-    /**
+    /*
      * Gets the number of scheduled pitstops.
      * 
      * @return the number of scheduled pitstops.
      */
+    /*
     public short getNumberOfScheduledPitstops()
     {
         return ( data.getNumberOfScheduledPitstops() );
     }
+    */
     
     /**
      * Gets whether overheating icon is shown.

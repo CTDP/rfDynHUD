@@ -65,6 +65,29 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class MapWidget extends Widget
 {
+    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
+    
+    
+    private final ColorProperty roadColorSec1 = new ColorProperty( this, "roadColorSec1", "colorSec1", "#000000" );
+    private final ColorProperty roadBoundaryColorSec1 = new ColorProperty( this, "roadBoundaryColorSec1", "boundaryColorSec1", "#FFFFFF" );
+    private final ColorProperty roadColorSec2 = new ColorProperty( this, "roadColorSec2", "colorSec2", "#000000" );
+    private final ColorProperty roadBoundaryColorSec2 = new ColorProperty( this, "roadBoundaryColorSec2", "boundaryColorSec2", "#FFFFFF" );
+    private final ColorProperty roadColorSec3 = new ColorProperty( this, "roadColorSec3", "colorSec3", "#000000" );
+    private final ColorProperty roadBoundaryColorSec3 = new ColorProperty( this, "roadBoundaryColorSec3", "boundaryColorSec3", "#FFFFFF" );
+    private final ColorProperty pitlaneColor = new ColorProperty( this, "pitlaneColor", "pitlaneColor", "#FFFF00" );
+    private final IntProperty roadWidth = new IntProperty( this, "roadWidth", "width", 4, 2, 20, false )
+    {
+        @Override
+        protected int fixValue( int value )
+        {
+            value = super.fixValue( value );
+            
+            return ( Math.round( value / 2f ) * 2 );
+        }
+    };
+    private float pitlaneRoadWidth = 2f;
+    
+    
     private Track track = null;
     private float scale = 1f;
     private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9, 1, 100, false )
@@ -88,27 +111,6 @@ public class MapWidget extends Widget
     private int itemBlackBorderWidth = 2;
     
     private boolean needsBGClear = false;
-    
-    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
-    
-    private final ColorProperty roadColorSec1 = new ColorProperty( this, "roadColorSec1", "colorSec1", "#000000" );
-    private final ColorProperty roadBoundaryColorSec1 = new ColorProperty( this, "roadBoundaryColorSec1", "boundaryColorSec1", "#FFFFFF" );
-    private final ColorProperty roadColorSec2 = new ColorProperty( this, "roadColorSec2", "colorSec2", "#000000" );
-    private final ColorProperty roadBoundaryColorSec2 = new ColorProperty( this, "roadBoundaryColorSec2", "boundaryColorSec2", "#FFFFFF" );
-    private final ColorProperty roadColorSec3 = new ColorProperty( this, "roadColorSec3", "colorSec3", "#000000" );
-    private final ColorProperty roadBoundaryColorSec3 = new ColorProperty( this, "roadBoundaryColorSec3", "boundaryColorSec3", "#FFFFFF" );
-    private final ColorProperty pitlaneColor = new ColorProperty( this, "pitlaneColor", "pitlaneColor", "#FFFF00" );
-    private final IntProperty roadWidth = new IntProperty( this, "roadWidth", "width", 4, 2, 20, false )
-    {
-        @Override
-        protected int fixValue( int value )
-        {
-            value = super.fixValue( value );
-            
-            return ( Math.round( value / 2f ) * 2 );
-        }
-    };
-    private float pitlaneRoadWidth = 2f;
     
     private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", "colorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
     private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", "colorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
@@ -750,6 +752,7 @@ public class MapWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( rotationEnabled, "Map rotation enabled?" );
+        
         writer.writeProperty( roadColorSec1, "The color used for the road and sector 1 in #RRGGBBAA (hex)." );
         writer.writeProperty( roadBoundaryColorSec1, "The color used for the road boundary and sector 1 in #RRGGBBAA (hex)." );
         writer.writeProperty( roadColorSec2, "The color used for the road and sector 2 in #RRGGBBAA (hex)." );
@@ -758,6 +761,7 @@ public class MapWidget extends Widget
         writer.writeProperty( roadBoundaryColorSec3, "The color used for the road boundary and sector 3 in #RRGGBBAA (hex)." );
         writer.writeProperty( pitlaneColor, "The color used for the pitlane in #RRGGBBAA (hex)." );
         writer.writeProperty( roadWidth, "The width of the roadin absolute pixels." );
+        
         writer.writeProperty( baseItemRadius, "The abstract radius for any displayed driver item." );
         writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
         writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
@@ -781,6 +785,7 @@ public class MapWidget extends Widget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( rotationEnabled ) );
+        
         else if ( loader.loadProperty( roadColorSec1 ) );
         else if ( loader.loadProperty( roadBoundaryColorSec1 ) );
         else if ( loader.loadProperty( roadColorSec2 ) );
@@ -789,6 +794,7 @@ public class MapWidget extends Widget
         else if ( loader.loadProperty( roadBoundaryColorSec3 ) );
         else if ( loader.loadProperty( pitlaneColor ) );
         else if ( loader.loadProperty( roadWidth ) );
+        
         else if ( loader.loadProperty( baseItemRadius ) );
         else if ( loader.loadProperty( markColorNormal ) );
         else if ( loader.loadProperty( markColorLeader ) );

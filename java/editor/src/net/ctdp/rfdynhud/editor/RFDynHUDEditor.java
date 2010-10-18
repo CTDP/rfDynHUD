@@ -484,14 +484,16 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             //onWidgetSelected( widget, false );
             
             PropertiesEditorTableModel m = (PropertiesEditorTableModel)editorTable.getModel();
+            int keyCol = m.getFirstNonExpanderColumn() + 0;
+            int valCol = m.getFirstNonExpanderColumn() + 1;
             int rc = m.getRowCount();
             for ( int i = 0; i < rc; i++ )
             {
                 if ( m.isDataRow( i ) )
                 {
-                    String pn = (String)m.getValueAt( i, 1 );
+                    String pn = (String)m.getValueAt( i, keyCol );
                     if ( pn.equals( "positioning" ) || pn.equals( "x" ) || pn.equals( "y" ) || pn.equals( "width" ) || pn.equals( "height" ) )
-                        m.fireTableCellUpdated( i, 2 );
+                        m.fireTableCellUpdated( i, valCol );
                 }
                 else
                 {

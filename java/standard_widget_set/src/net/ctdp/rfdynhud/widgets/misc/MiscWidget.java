@@ -54,11 +54,11 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  */
 public class MiscWidget extends StatefulWidget<Object, LocalStore>
 {
-    private final DelayProperty relTopspeedResetDelay = new DelayProperty( this, "relTopspeedResetDelay", DelayProperty.DisplayUnits.MILLISECONDS, 10000, 0, 60000 ); // ten seconds
-    
     private final BooleanProperty displayScoring = new BooleanProperty( this, "displayScoring", true );
     private final BooleanProperty displayTiming = new BooleanProperty( this, "displayTiming", true );
     private final BooleanProperty displayVelocity = new BooleanProperty( this, "displayVelocity", true );
+    
+    private final DelayProperty relTopspeedResetDelay = new DelayProperty( this, "relTopspeedResetDelay", DelayProperty.DisplayUnits.MILLISECONDS, 10000, 0, 60000 ); // ten seconds
     
     private DrawnString scoringString1 = null;
     private DrawnString scoringString2 = null;

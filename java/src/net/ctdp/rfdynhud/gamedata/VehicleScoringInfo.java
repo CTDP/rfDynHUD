@@ -876,6 +876,19 @@ public class VehicleScoringInfo
     }
     
     /**
+     * Gets the number of scheduled pitstops (only valid for the player).
+     * 
+     * @return the number of scheduled pitstops.
+     */
+    public short getNumberOfScheduledPitstops()
+    {
+        if ( !isPlayer() )
+            return ( -1 );
+        
+        return ( gameData.getTelemetryData().data.getNumberOfScheduledPitstops() );
+    }
+    
+    /**
      * Gets the number of outstanding penalties.
      * 
      * @return the number of outstanding penalties.

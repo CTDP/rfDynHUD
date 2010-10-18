@@ -59,28 +59,14 @@ public class ControlsWidget extends Widget
     private final BooleanProperty swapThrottleAndBrake = new BooleanProperty( this, "swapThrottleAndBrake", "swapThrottle/Brake", false );
     private boolean oldSwapTB = swapThrottleAndBrake.getBooleanValue();
     
+    private boolean clutchDirty = true;
+    
     private final BooleanProperty displayClutch = new BooleanProperty( this, "displayClutch", true )
     {
         @Override
         protected void onValueChanged( boolean newValue )
         {
             clutchDirty = true;
-        }
-    };
-    private final BooleanProperty displayBrake = new BooleanProperty( this, "displayBrake", true )
-    {
-        @Override
-        protected void onValueChanged( boolean newValue )
-        {
-            brakeDirty = true;
-        }
-    };
-    private final BooleanProperty displayThrottle = new BooleanProperty( this, "displayThrottle", true )
-    {
-        @Override
-        protected void onValueChanged( boolean newValue )
-        {
-            throttleDirty = true;
         }
     };
     
@@ -92,12 +78,27 @@ public class ControlsWidget extends Widget
             clutchDirty = true;
         }
     };
+    
     private final ColorProperty clutchColor = new ColorProperty( this, "clutchColor", "#0000FF" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
         {
             clutchDirty = true;
+        }
+    };
+    
+    private TextureImage2D scaledClutchTexture = null;
+    private TransformableTexture texClutch = null;
+    
+    private boolean brakeDirty = true;
+    
+    private final BooleanProperty displayBrake = new BooleanProperty( this, "displayBrake", true )
+    {
+        @Override
+        protected void onValueChanged( boolean newValue )
+        {
+            brakeDirty = true;
         }
     };
     
@@ -109,12 +110,27 @@ public class ControlsWidget extends Widget
             brakeDirty = true;
         }
     };
+    
     private final ColorProperty brakeColor = new ColorProperty( this, "brakeColor", "#FF0000" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
         {
             brakeDirty = true;
+        }
+    };
+    
+    private TextureImage2D scaledBrakeTexture = null;
+    private TransformableTexture texBrake = null;
+    
+    private boolean throttleDirty = true;
+    
+    private final BooleanProperty displayThrottle = new BooleanProperty( this, "displayThrottle", true )
+    {
+        @Override
+        protected void onValueChanged( boolean newValue )
+        {
+            throttleDirty = true;
         }
     };
     
@@ -126,6 +142,7 @@ public class ControlsWidget extends Widget
             throttleDirty = true;
         }
     };
+    
     private final ColorProperty throttleColor = new ColorProperty( this, "throttleColor", "#00FF00" )
     {
         @Override
@@ -135,17 +152,8 @@ public class ControlsWidget extends Widget
         }
     };
     
-    private TextureImage2D scaledClutchTexture = null;
-    private TextureImage2D scaledBrakeTexture = null;
     private TextureImage2D scaledThrottleTexture = null;
-    
-    private TransformableTexture texClutch = null;
-    private TransformableTexture texBrake = null;
     private TransformableTexture texThrottle = null;
-    
-    private boolean clutchDirty = true;
-    private boolean brakeDirty = true;
-    private boolean throttleDirty = true;
     
     private final IntProperty gap = new IntProperty( this, "gap", 5 );
     

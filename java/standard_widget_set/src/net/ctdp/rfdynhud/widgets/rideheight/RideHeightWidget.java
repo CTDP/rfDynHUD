@@ -181,6 +181,7 @@ public class RideHeightWidget extends Widget
         super.getProperties( propsCont, forceAll );
         
         propsCont.addGroup( "Header" );
+        
         propsCont.addProperty( displayHeader );
         propsCont.addProperty( headerFont );
         propsCont.addProperty( headerFontColor );

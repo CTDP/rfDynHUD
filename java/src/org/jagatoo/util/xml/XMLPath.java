@@ -141,6 +141,22 @@ public class XMLPath
         return ( level );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        String p = "";
+        
+        for ( int i = 0; i < level; i++ )
+        {
+            p += '/' + path[i];
+        }
+        
+        return ( p );
+    }
+    
     XMLPath( int initialSize )
     {
         this.path = new String[ initialSize ];

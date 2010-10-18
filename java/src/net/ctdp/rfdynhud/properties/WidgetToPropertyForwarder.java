@@ -29,7 +29,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  * This class can be used to push it into a Property constructor
  * to be able to instantiate a Property with the field declaration as follows.
  * </p>
- * <p>
+ * <pre>
  * {@link WidgetToPropertyForwarder} w2pf = new {@link WidgetToPropertyForwarder}();
  * 
  * BooleanProperty boolProp = new BooleanProperty( w2pf, "boolProp", true );
@@ -39,7 +39,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  *     w2pf.finish( widget );
  *     w2pf = null;
  * }
- * </p>
+ * </pre>
  * 
  * @author Marvin Froehlich (CTDP)
  */

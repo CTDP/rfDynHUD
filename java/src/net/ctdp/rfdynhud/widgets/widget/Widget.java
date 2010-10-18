@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.widgets.widget;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -34,7 +35,9 @@ import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.GenericPropertiesIterator;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
@@ -51,6 +54,8 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
+import net.ctdp.rfdynhud.values.GenericPositionsIterator;
+import net.ctdp.rfdynhud.values.GenericSizesIterator;
 import net.ctdp.rfdynhud.values.InnerSize;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
@@ -79,12 +84,32 @@ public abstract class Widget implements Cloneable, Documented
     private boolean dirtyFlag = true;
     
     private final StringProperty type = new StringProperty( this, "type", this.getClass().getSimpleName(), true );
-    
     private final StringProperty name = new StringProperty( this, "name", this.getClass().getSimpleName() + "1" );
     
+    private final BooleanProperty inputVisible = new BooleanProperty( this, "initialVisibility", true );
+    private boolean autoVisible = true;
+    private boolean updatedVisible = true;
+    private boolean visibilityChangedSinceLastDraw = true;
+    private boolean needsCompleteRedraw = true;
+    private boolean needsCompleteClear = false;
+    
+    private boolean initialized = false;
+    
     private final Position position;
+    private final Property positioningProperty;
+    private final PosSizeProperty xProperty;
+    private final PosSizeProperty yProperty;
     private final Size size;
+    private final PosSizeProperty widthProperty;
+    private final PosSizeProperty heightProperty;
     private final InnerSize innerSize;
+    
+    private final IntProperty paddingTop = new IntProperty( this, "paddingTop", "top", 0, 0, 1000, false );
+    private final IntProperty paddingLeft = new IntProperty( this, "paddingLeft", "left", 0, 0, 1000, false );
+    private final IntProperty paddingRight = new IntProperty( this, "paddingRight", "right", 0, 0, 1000, false );
+    private final IntProperty paddingBottom = new IntProperty( this, "paddingBottom", "bottom", 0, 0, 1000, false );
+    
+    private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME, paddingTop, paddingLeft, paddingRight, paddingBottom );
     
     /**
      * Gets the initial value for the background property.
@@ -118,22 +143,6 @@ public abstract class Widget implements Cloneable, Documented
     
     private final FontProperty font = new FontProperty( this, "font", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty fontColor = new ColorProperty( this, "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
-    
-    private final IntProperty paddingTop = new IntProperty( this, "paddingTop", "top", 0, 0, 1000, false );
-    private final IntProperty paddingLeft = new IntProperty( this, "paddingLeft", "left", 0, 0, 1000, false );
-    private final IntProperty paddingRight = new IntProperty( this, "paddingRight", "right", 0, 0, 1000, false );
-    private final IntProperty paddingBottom = new IntProperty( this, "paddingBottom", "bottom", 0, 0, 1000, false );
-    
-    private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME, paddingTop, paddingLeft, paddingRight, paddingBottom );
-    
-    private final BooleanProperty inputVisible = new BooleanProperty( this, "initialVisibility", true );
-    private boolean autoVisible = true;
-    private boolean updatedVisible = true;
-    private boolean visibilityChangedSinceLastDraw = true;
-    private boolean needsCompleteRedraw = true;
-    private boolean needsCompleteClear = false;
-    
-    private boolean initialized = false;
     
     private TransformableTexture[] subTextures = null;
     
@@ -659,26 +668,57 @@ public abstract class Widget implements Cloneable, Documented
      */
     public void bake()
     {
-        position.bake();
-        size.bake();
+        Iterator<Position> it1 = new GenericPositionsIterator( this );
+        
+        while ( it1.hasNext() )
+            it1.next().bake();
+        
+        Iterator<Size> it2 = new GenericSizesIterator( this );
+        
+        while ( it2.hasNext() )
+            it2.next().bake();
     }
     
     public void setAllPosAndSizeToPercents()
     {
-        position.setXToPercents();
-        position.setYToPercents();
+        Iterator<Position> it1 = new GenericPositionsIterator( this );
         
-        size.setWidthToPercents();
-        size.setHeightToPercents();
+        while ( it1.hasNext() )
+        {
+            Position pos = it1.next();
+            pos.setXToPercents();
+            pos.setYToPercents();
+        }
+        
+        Iterator<Size> it2 = new GenericSizesIterator( this );
+        
+        while ( it2.hasNext() )
+        {
+            Size siz = it2.next();
+            siz.setWidthToPercents();
+            siz.setHeightToPercents();
+        }
     }
     
     public void setAllPosAndSizeToPixels()
     {
-        position.setXToPixels();
-        position.setYToPixels();
+        Iterator<Position> it1 = new GenericPositionsIterator( this );
         
-        size.setWidthToPixels();
-        size.setHeightToPixels();
+        while ( it1.hasNext() )
+        {
+            Position pos = it1.next();
+            pos.setXToPixels();
+            pos.setYToPixels();
+        }
+        
+        Iterator<Size> it2 = new GenericSizesIterator( this );
+        
+        while ( it2.hasNext() )
+        {
+            Size siz = it2.next();
+            siz.setWidthToPixels();
+            siz.setHeightToPixels();
+        }
     }
     
     public final BackgroundProperty getBackgroundProperty()
@@ -1528,11 +1568,11 @@ public abstract class Widget implements Cloneable, Documented
      */
     public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
-        writer.writeProperty( position.getPositioningProperty( "positioning" ), "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT." );
-        writer.writeProperty( position.getXProperty( "x" ), "The x-coordinate for the position." );
-        writer.writeProperty( position.getYProperty( "y" ), "The y-coordinate for the position." );
-        writer.writeProperty( size.getWidthProperty( "width" ), "The width. Use negative values to make the Widget be sized relative to screen size." );
-        writer.writeProperty( size.getHeightProperty( "height" ), "The height. Use negative values to make the Widget be sized relative to screen size." );
+        writer.writeProperty( positioningProperty, "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT." );
+        writer.writeProperty( xProperty, "The x-coordinate for the position." );
+        writer.writeProperty( yProperty, "The y-coordinate for the position." );
+        writer.writeProperty( widthProperty, "The width. Use negative values to make the Widget be sized relative to screen size." );
+        writer.writeProperty( heightProperty, "The height. Use negative values to make the Widget be sized relative to screen size." );
         if ( masterWidget == null )
         {
             writer.writeProperty( border, "The widget's border." );
@@ -1571,11 +1611,11 @@ public abstract class Widget implements Cloneable, Documented
         }
         
         if ( loader.loadProperty( name ) );
-        else if ( loader.loadProperty( position.getPositioningProperty( "positioning" ) ) );
-        else if ( loader.loadProperty( position.getXProperty( "x" ) ) );
-        else if ( loader.loadProperty( position.getYProperty( "y" ) ) );
-        else if ( loader.loadProperty( size.getWidthProperty( "width" ) ) );
-        else if ( loader.loadProperty( size.getHeightProperty( "height" ) ) );
+        else if ( loader.loadProperty( positioningProperty ) );
+        else if ( loader.loadProperty( xProperty ) );
+        else if ( loader.loadProperty( yProperty ) );
+        else if ( loader.loadProperty( widthProperty ) );
+        else if ( loader.loadProperty( heightProperty ) );
         else if ( ( masterWidget == null ) && loader.loadProperty( border ) );
         else if ( loader.loadProperty( paddingTop ) );
         else if ( loader.loadProperty( paddingLeft ) );
@@ -1585,6 +1625,16 @@ public abstract class Widget implements Cloneable, Documented
         else if ( canHaveBackground() && loader.loadProperty( backgroundProperty ) );
         else if ( loader.loadProperty( font ) );
         else if ( loader.loadProperty( fontColor ) );
+    }
+    
+    /**
+     * Gets an {@link Iterator} to iterate all properties, defined in this class.
+     * 
+     * @return an {@link Iterator} to iterate all properties, defined in this class.
+     */
+    public Iterator<Property> getPropertiesIterator()
+    {
+        return ( new GenericPropertiesIterator( this ) );
     }
     
     /**
@@ -1624,11 +1674,11 @@ public abstract class Widget implements Cloneable, Documented
      */
     protected void addPositionAndSizePropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        propsCont.addProperty( position.getPositioningProperty( "positioning" ) );
-        propsCont.addProperty( position.getXProperty( "x" ) );
-        propsCont.addProperty( position.getYProperty( "y" ) );
-        propsCont.addProperty( size.getWidthProperty( "width" ) );
-        propsCont.addProperty( size.getHeightProperty( "height" ) );
+        propsCont.addProperty( positioningProperty );
+        propsCont.addProperty( xProperty );
+        propsCont.addProperty( yProperty );
+        propsCont.addProperty( widthProperty );
+        propsCont.addProperty( heightProperty );
     }
     
     /**
@@ -1891,6 +1941,12 @@ public abstract class Widget implements Cloneable, Documented
         this.size = Size.newGlobalSize( this, width, widthPercent, height, heightPercent );
         this.innerSize = new InnerSize( size, border );
         this.position = Position.newGlobalPosition( this, RelativePositioning.TOP_LEFT, 0f, true, 0f, true, size );
+        
+        this.positioningProperty = position.getPositioningProperty( "positioning" );
+        this.xProperty = position.getXProperty( "x" );
+        this.yProperty = position.getYProperty( "y" );
+        this.widthProperty = size.getWidthProperty( "width" );
+        this.heightProperty = size.getHeightProperty( "height" );
         
         if ( !canHaveBorder() )
             border.setBorder( null );

@@ -116,12 +116,13 @@ public abstract class SimpleXMLHandler
     /**
      * Invoked when a parsing exception occurred.
      * 
+     * @param path then current XML element path
      * @param severity the exception severity
      * @param ex the exception
      * 
      * @throws SAXException
      */
-    protected void onParsingException( ExceptionSeverity severity, SAXParseException ex ) throws SAXException
+    protected void onParsingException( XMLPath path, ExceptionSeverity severity, SAXParseException ex ) throws SAXException
     {
     }
     

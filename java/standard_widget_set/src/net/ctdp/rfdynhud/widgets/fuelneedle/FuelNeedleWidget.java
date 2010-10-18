@@ -27,6 +27,8 @@ import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.FactoredIntProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -96,45 +98,45 @@ public class FuelNeedleWidget extends NeedleMeterWidget
         }
     };
     
-    private final Position lowFuelWarningImagePosition = new Position( this, false, RelativePositioning.TOP_RIGHT, 4.0f, false, 4.0f, false, lowFuelWarnImgSize )
-    {
-        @Override
-        protected void onPositioningPropertySet( RelativePositioning positioning )
-        {
-            forceReinitialization();
-        }
-        
-        @Override
-        protected void onXPropertySet( float x )
-        {
-            forceReinitialization();
-        }
-        
-        @Override
-        protected void onYPropertySet( float y )
-        {
-            forceReinitialization();
-        }
-    };
+    private final Position lowFuelWarningImagePosition = Position.newLocalPosition( this, RelativePositioning.CENTER_CENTER, 29.0f, false, 4.0f, false, lowFuelWarnImgSize );
+    private final Property lowFuelWarningImagePositionPositioningProperty = lowFuelWarningImagePosition.getPositioningProperty( "lowFuelWarningImagePositioning", "imagePositioning" );
+    private final PosSizeProperty lowFuelWarningImagePositionXProperty = lowFuelWarningImagePosition.getXProperty( "lowFuelWarningImagePositionX", "imagePosX" );
+    private final PosSizeProperty lowFuelWarningImagePositionYProperty = lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY", "imagePosY" );
     
-    private final Size lowFuelWarningImageSize = new Size( this, false, 20.0f, true, 20.0f, true )
-    {
-        @Override
-        protected void onWidthPropertySet( float width )
-        {
-            forceReinitialization();
-        }
-        
-        @Override
-        protected void onHeightPropertySet( float height )
-        {
-            forceReinitialization();
-        }
-    };
+    private final Size lowFuelWarningImageSize = Size.newLocalSize( this, 10.0f, true, 10.0f, true );
+    //private final PosSizeProperty lowFuelWarningImageWidthProperty = lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" );
+    private final PosSizeProperty lowFuelWarningImageHeightProperty = lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" );
     
     private final IntProperty lowFuelWarningLaps = new IntProperty( this, "lowFuelWarningLaps", "laps", 1, 1, 10, false );
     
-    private final IntervalManager lowFuelBlinkManager = new IntervalManager( new FactoredIntProperty( this, "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 ) );
+    private final FactoredIntProperty lowFuelBlinkTime = new FactoredIntProperty( this, "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 );
+    private final IntervalManager lowFuelBlinkManager = new IntervalManager( lowFuelBlinkTime );
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public WidgetPackage getWidgetPackage()
+    {
+        return ( StandardWidgetSet.WIDGET_PACKAGE );
+    }
+    
+    @Override
+    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    {
+        super.onPropertyChanged( property, oldValue, newValue );
+        
+        if ( property == lowFuelWarningImagePositionPositioningProperty )
+            forceReinitialization();
+        else if ( property == lowFuelWarningImagePositionXProperty )
+            forceReinitialization();
+        else if ( property == lowFuelWarningImagePositionYProperty )
+            forceReinitialization();
+        //else if ( property == lowFuelWarningImageWidthProperty )
+        //    forceReinitialization();
+        else if ( property == lowFuelWarningImageHeightProperty )
+            forceReinitialization();
+    }
     
     @Override
     protected String getInitialBackground()
@@ -146,35 +148,6 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     protected String getInitialNeedleImage()
     {
         return ( "chrono_needle.png" );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void bake()
-    {
-        super.bake();
-        
-        lowFuelWarningImagePosition.bake();
-    }
-    
-    @Override
-    public void setAllPosAndSizeToPercents()
-    {
-        super.setAllPosAndSizeToPercents();
-        
-        lowFuelWarningImagePosition.setXToPercents();
-        lowFuelWarningImagePosition.setYToPercents();
-    }
-    
-    @Override
-    public void setAllPosAndSizeToPixels()
-    {
-        super.setAllPosAndSizeToPixels();
-        
-        lowFuelWarningImagePosition.setXToPixels();
-        lowFuelWarningImagePosition.setYToPixels();
     }
     
     private final boolean isLowFuelWaningUsed()
@@ -359,15 +332,6 @@ public class FuelNeedleWidget extends NeedleMeterWidget
         return ( 5 );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public WidgetPackage getWidgetPackage()
-    {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
-    }
-    
     /*
     @Override
     protected FontProperty getValueFont()
@@ -499,13 +463,13 @@ public class FuelNeedleWidget extends NeedleMeterWidget
         
         writer.writeProperty( lowFuelWarningImageNameOff, "Image name for the off-state of the low fuel warning." );
         writer.writeProperty( lowFuelWarningImageNameOn, "Image name for the on-state of the low fuel warning." );
-        writer.writeProperty( lowFuelWarningImagePosition.getPositioningProperty( "lowFuelWarningImagePositioning" ), "Positioning type for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImagePosition.getXProperty( "lowFuelWarningImagePositionX" ), "X-position for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY" ), "Y-position for the low-fuel-warning image." );
-        //writer.writeProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth" ), "Width for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight" ), "Height for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePositionPositioningProperty, "Positioning type for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePositionXProperty, "X-position for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePositionYProperty, "Y-position for the low-fuel-warning image." );
+        //writer.writeProperty( lowFuelWarningImageWidthProperty, "Width for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImageHeightProperty, "Height for the low-fuel-warning image." );
         writer.writeProperty( lowFuelWarningLaps, "Number of laps to start warning before out of fuel." );
-        writer.writeProperty( lowFuelBlinkManager.getProperty(), "Blink time in milli seconds for low fuel warning (0 to disable)." );
+        writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
     }
     
     @Override
@@ -515,13 +479,13 @@ public class FuelNeedleWidget extends NeedleMeterWidget
         
         if ( loader.loadProperty( lowFuelWarningImageNameOff ) );
         else if ( loader.loadProperty( lowFuelWarningImageNameOn ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePosition.getPositioningProperty( "lowFuelWarningImagePositioning", "imagePositioning" ) ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePosition.getXProperty( "lowFuelWarningImagePositionX", "imagePosX" ) ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) ) );
-        //else if ( loader.loadProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) ) );
-        else if ( loader.loadProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionPositioningProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionXProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionYProperty ) );
+        //else if ( loader.loadProperty( lowFuelWarningImageWidthProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImageHeightProperty ) );
         else if ( loader.loadProperty( lowFuelWarningLaps ) );
-        else if ( loader.loadProperty( lowFuelBlinkManager.getProperty() ) );
+        else if ( loader.loadProperty( lowFuelBlinkTime ) );
     }
     
     /**
@@ -542,13 +506,13 @@ public class FuelNeedleWidget extends NeedleMeterWidget
         
         propsCont.addProperty( lowFuelWarningImageNameOff );
         propsCont.addProperty( lowFuelWarningImageNameOn );
-        propsCont.addProperty( lowFuelWarningImagePosition.getPositioningProperty( "lowFuelWarningImagePositioning", "imagePositioning" ) );
-        propsCont.addProperty( lowFuelWarningImagePosition.getXProperty( "lowFuelWarningImagePositionX", "imagePosX" ) );
-        propsCont.addProperty( lowFuelWarningImagePosition.getYProperty( "lowFuelWarningImagePositionY", "imagePosY" ) );
-        //propsCont.addProperty( lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" ) );
-        propsCont.addProperty( lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" ) );
+        propsCont.addProperty( lowFuelWarningImagePositionPositioningProperty );
+        propsCont.addProperty( lowFuelWarningImagePositionXProperty );
+        propsCont.addProperty( lowFuelWarningImagePositionYProperty );
+        //propsCont.addProperty( lowFuelWarningImageWidthProperty );
+        propsCont.addProperty( lowFuelWarningImageHeightProperty );
         propsCont.addProperty( lowFuelWarningLaps );
-        propsCont.addProperty( lowFuelBlinkManager.getProperty() );
+        propsCont.addProperty( lowFuelBlinkTime );
     }
     
     @Override

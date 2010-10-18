@@ -96,33 +96,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
     private float displayTime;
     private int lastVisibleIndex = -1;
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void bake()
-    {
-        super.bake();
-        
-        itemHeight.bake();
-    }
-    
-    @Override
-    public void setAllPosAndSizeToPercents()
-    {
-        super.setAllPosAndSizeToPercents();
-        
-        itemHeight.setHeightToPercents();
-    }
-    
-    @Override
-    public void setAllPosAndSizeToPixels()
-    {
-        super.setAllPosAndSizeToPixels();
-        
-        itemHeight.setHeightToPixels();
-    }
-    
     private final boolean getUseClassScoring()
     {
         return ( getConfiguration().getUseClassScoring() );
