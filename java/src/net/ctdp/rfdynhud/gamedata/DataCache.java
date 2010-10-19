@@ -205,15 +205,15 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             @Override
             protected void onElementStarted( XMLPath path, String name, Attributes attributes ) throws SAXException
             {
-                if ( ( path.getLevel() == 1 ) && name.equals( "CachedData" ) )
+                if ( ( path.getLevel() == 0 ) && name.equals( "CachedData" ) )
                 {
                     VersionException.checkVersion( attributes.getValue( "version" ), 1, 1, 0 );
                 }
-                else if ( ( path.getLevel() == 2 ) && name.equals( "VehicleData" ) )
+                else if ( ( path.getLevel() == 1 ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = attributes.getValue( "vehicle" );
                 }
-                else if ( ( path.getLevel() == 3 ) && name.equals( "FuelUsage" ) )
+                else if ( ( path.getLevel() == 2 ) && name.equals( "FuelUsage" ) )
                 {
                     try
                     {
@@ -225,7 +225,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                         Logger.log( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
                     }
                 }
-                else if ( ( path.getLevel() == 3 ) && name.equals( "FastestLap" ) )
+                else if ( ( path.getLevel() == 2 ) && name.equals( "FastestLap" ) )
                 {
                     try
                     {
@@ -273,7 +273,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             @Override
             protected void onElementEnded( XMLPath path, String name ) throws SAXException
             {
-                if ( ( path.getLevel() == 2 ) && name.equals( "VehicleData" ) )
+                if ( ( path.getLevel() == 1 ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = null;
                 }
@@ -282,6 +282,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             @Override
             protected void onParsingException( XMLPath path, ExceptionSeverity severity, SAXParseException ex ) throws SAXException
             {
+                Logger.log( "XML parsing exception at " + path.toString() );
                 Logger.log( ex );
             }
         };
@@ -324,15 +325,15 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             @Override
             protected void onElementStarted( XMLPath path, String name, Attributes attributes ) throws SAXException
             {
-                if ( ( path.getLevel() == 1 ) && name.equals( "CachedData" ) )
+                if ( ( path.getLevel() == 0 ) && name.equals( "CachedData" ) )
                 {
                     VersionException.checkVersion( attributes.getValue( "version" ), 1, 1, 0 );
                 }
-                else if ( ( path.getLevel() == 2 ) && name.equals( "VehicleData" ) )
+                else if ( ( path.getLevel() == 1 ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = attributes.getValue( "vehicle" );
                 }
-                else if ( ( path.getLevel() == 3 ) && name.equals( "FuelUsage" ) )
+                else if ( ( path.getLevel() == 2 ) && name.equals( "FuelUsage" ) )
                 {
                     try
                     {
@@ -355,7 +356,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             @Override
             protected void onElementEnded( XMLPath path, String name ) throws SAXException
             {
-                if ( ( path.getLevel() == 2 ) && name.equals( "VehicleData" ) )
+                if ( ( path.getLevel() == 1 ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = null;
                 }
@@ -364,6 +365,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             @Override
             protected void onParsingException( XMLPath path, ExceptionSeverity severity, SAXParseException ex ) throws SAXException
             {
+                Logger.log( "XML parsing exception at " + path.toString() );
                 Logger.log( ex );
             }
         };

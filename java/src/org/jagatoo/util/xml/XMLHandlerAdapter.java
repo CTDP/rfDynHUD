@@ -29,6 +29,9 @@
  */
 package org.jagatoo.util.xml;
 
+import java.util.ArrayList;
+import java.util.Stack;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -40,12 +43,53 @@ import org.xml.sax.SAXParseException;
  */
 public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
 {
-    private final XMLPath path = new XMLPath();
-    
-    private SimpleXMLHandler simpleHandler = null;
+    private final ArrayList<XMLPath> pathStack = new ArrayList<XMLPath>();
+    private XMLPath path = null;
+    private final Stack<SimpleXMLHandlerFork> simpleHandlerStack = new Stack<SimpleXMLHandlerFork>();
+    private SimpleXMLHandlerFork simpleHandler = null;
     private Object userObject = null;
     
-    public void setSimpleHandler( SimpleXMLHandler simpleHandler )
+    private boolean forkAllowed = false;
+    private Attributes currAttribs = null;
+    
+    final void fork( SimpleXMLHandlerFork fork ) throws SAXException
+    {
+        if ( fork == null )
+            throw new IllegalArgumentException( "fork must not be null." );
+        
+        if ( !forkAllowed )
+            throw new IllegalStateException( "fork() can only be called from the onElementStarted() event." );
+        
+        fork.handleForkElement( path.getLastPathElement(), path.getLastPathObject(), currAttribs );
+        
+        simpleHandler.setAdapter( null );
+        simpleHandlerStack.push( fork );
+        simpleHandler = fork;
+        simpleHandler.setAdapter( this );
+        
+        if ( pathStack.size() < simpleHandlerStack.size() )
+        {
+            path = new XMLPath();
+            pathStack.add( path );
+        }
+        else
+        {
+            path = pathStack.get( simpleHandlerStack.size() - 1 );
+            path.reset();
+        }
+    }
+    
+    private void unfork()
+    {
+        simpleHandler.setAdapter( null );
+        simpleHandlerStack.pop();
+        simpleHandler = simpleHandlerStack.peek();
+        simpleHandler.setAdapter( this );
+        
+        path = pathStack.get( simpleHandlerStack.size() - 1 );
+    }
+    
+    public void setSimpleHandler( SimpleXMLHandlerFork simpleHandler )
     {
         if ( simpleHandler == null )
             throw new IllegalArgumentException( "simpleHandler must not be null." );
@@ -54,6 +98,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
             return;
         
         this.simpleHandler.setAdapter( null );
+        this.simpleHandlerStack.set( simpleHandlerStack.size() - 1, simpleHandler );
         this.simpleHandler = simpleHandler;
         this.simpleHandler.setAdapter( this );
     }
@@ -73,21 +118,27 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     {
         path.reset();
         
-        simpleHandler.onDocumentStarted();
+        ( (SimpleXMLHandler)simpleHandler ).onDocumentStarted();
     }
     
     @Override
     public void startElement( String uri, String localName, String qName, Attributes attributes ) throws SAXException
     {
-        SimpleXMLHandler handler = this.simpleHandler;
+        SimpleXMLHandlerFork handler = this.simpleHandler;
+        XMLPath path = this.path;
+        forkAllowed = true;
         
-        Object element = handler.getPathObject( path.getLevel() + 1, qName );
+        Object element = handler.getPathObject( path.getLevel(), qName );
         if ( element == null )
             throw new RuntimeException( "The getPathObject() method must never return null." );
         
+        currAttribs = attributes;
+        handler.onElementStarted( path, qName, attributes );
+        currAttribs = null;
+        
         path.pushPath( qName, element );
         
-        handler.onElementStarted( path, qName, attributes );
+        forkAllowed = false;
     }
     
     @Override
@@ -99,38 +150,70 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     @Override
     public void endElement( String uri, String localName, String qName ) throws SAXException
     {
-        simpleHandler.onElementEnded( path, qName );
+        if ( path.getLevel() == 0 )
+            unfork();
         
         path.popPath();
+        
+        simpleHandler.onElementEnded( path, qName );
     }
     
     @Override
     public void warning( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( path, SimpleXMLHandler.ExceptionSeverity.WARNING, ex );
+        simpleHandler.onParsingException( path, SimpleXMLHandlerFork.ExceptionSeverity.WARNING, ex );
     }
     
     @Override
     public void error( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( path, SimpleXMLHandler.ExceptionSeverity.ERROR, ex );
+        simpleHandler.onParsingException( path, SimpleXMLHandlerFork.ExceptionSeverity.ERROR, ex );
     }
     
     @Override
     public void fatalError( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( path, SimpleXMLHandler.ExceptionSeverity.FATAL_ERROR, ex );
+        simpleHandler.onParsingException( path, SimpleXMLHandlerFork.ExceptionSeverity.FATAL_ERROR, ex );
+    }
+    
+    private void release()
+    {
+        if ( this.simpleHandler != null )
+            this.simpleHandler.setAdapter( null );
+        
+        this.simpleHandler = null;
+        this.simpleHandlerStack.clear();
     }
     
     @Override
     public void endDocument() throws SAXException
     {
-        simpleHandler.onDocumentEnded();
+        ( (SimpleXMLHandler)simpleHandler ).onDocumentEnded();
+        
+        release();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void finalize() throws Throwable
+    {
+        super.finalize();
+        
+        release();
     }
     
     public XMLHandlerAdapter( SimpleXMLHandler simpleHandler )
     {
+        if ( simpleHandler == null )
+            throw new IllegalArgumentException( "simpleHandler must not be null" );
+        
         this.simpleHandler = simpleHandler;
+        this.simpleHandlerStack.push( this.simpleHandler );
         this.simpleHandler.setAdapter( this );
+        
+        this.path = new XMLPath();
+        this.pathStack.add( path );
     }
 }

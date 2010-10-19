@@ -31,48 +31,14 @@ package org.jagatoo.util.xml;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * This class easily handles XML parsing.
  * 
  * @author Marvin Froehlich (aka Qudus)
  */
-public abstract class SimpleXMLHandler
+public abstract class SimpleXMLHandler extends SimpleXMLHandlerFork
 {
-    public static enum ExceptionSeverity
-    {
-        WARNING,
-        ERROR,
-        FATAL_ERROR,
-        ;
-    }
-    
-    private XMLHandlerAdapter adapter = null;
-    
-    void setAdapter( XMLHandlerAdapter adapter )
-    {
-        this.adapter = adapter;
-    }
-    
-    public final XMLHandlerAdapter getAdapter()
-    {
-        return ( adapter );
-    }
-    
-    /**
-     * Converts the passed element to a path element. By default the passed element is returned.
-     * 
-     * @param level
-     * @param element
-     * 
-     * @return the converted path element.
-     */
-    protected Object getPathObject( int level, String element )
-    {
-        return ( element );
-    }
-    
     /**
      * Invoked when the XML document has been started.
      * 
@@ -81,51 +47,12 @@ public abstract class SimpleXMLHandler
     protected void onDocumentStarted() throws SAXException {}
     
     /**
-     * Invoked when an XML element has been detected.
-     * 
-     * @param path then current XML element path
-     * @param name the element's name
-     * @param attributes the attributes
-     * 
-     * @throws SAXException
+     * {@inheritDoc}
      */
-    protected abstract void onElementStarted( XMLPath path, String name, Attributes attributes ) throws SAXException;
-    
-    /**
-     * Invoked when an XML element's character data is available.
-     * 
-     * @param path then current XML element path
-     * @param data the characters
-     * @param start the start position in the character array
-     * @param length the number of characters to use from the character array
-     * 
-     * @throws SAXException
-     */
-    protected abstract void onElementData( XMLPath path, char[] data, int start, int length ) throws SAXException;
-    
-    /**
-     * Invoked when an XML element end has been detected.
-     * 
-     * @param path then current XML element path
-     * @param name the element's name
-     * 
-     * @throws SAXException
-     */
-    protected abstract void onElementEnded( XMLPath path, String name ) throws SAXException;
-    
-    /**
-     * Invoked when a parsing exception occurred.
-     * 
-     * @param path then current XML element path
-     * @param severity the exception severity
-     * @param ex the exception
-     * 
-     * @throws SAXException
-     */
-    protected void onParsingException( XMLPath path, ExceptionSeverity severity, SAXParseException ex ) throws SAXException
+    @Override
+    public final void handleForkElement( String name, Object object, Attributes attributes ) throws SAXException
     {
     }
-    
     
     /**
      * Invoked when the XML document end has been detected.
