@@ -469,9 +469,13 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         {
             Logger.log( e );
         }
+        catch ( SAXException e )
+        {
+            Logger.log( e );
+        }
         finally
         {
-            writer.close();
+            try { writer.close(); } catch ( Throwable t ) {}
         }
     }
     

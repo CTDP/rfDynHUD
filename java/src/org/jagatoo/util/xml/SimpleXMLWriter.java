@@ -37,6 +37,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
+
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+
 /**
  * Writes XML data.
  * 
@@ -44,12 +51,10 @@ import java.nio.charset.Charset;
  */
 public class SimpleXMLWriter
 {
-    private static final String XML_HEADER1 = "<?xml version=\"1.0\" encoding=\"";
-    private static final String XML_HEADER2 = "\"?>";
-    
     private final XMLPath path = new XMLPath();
     private boolean[] lastElemPushed = new boolean[ 16 ];
     
+    private final Charset charset;
     private BufferedWriter bw;
     
     private boolean useTabs = false;
@@ -57,10 +62,14 @@ public class SimpleXMLWriter
     private boolean addNewLines = true;
     
     private String closeElementName = null;
+    @SuppressWarnings( "unused" )
     private boolean indentCloseElem = false;
     private int lastElementIndent = 0;
     private String lastElementName = null;
     private Object[] lastAttributes = null;
+    
+    private final AttributesImpl attributes = new AttributesImpl();
+    private ContentHandler contentHandler = null;
     
     public void setIndentation( int indent, boolean useTabs )
     {
@@ -107,132 +116,57 @@ public class SimpleXMLWriter
         bw.newLine();
     }
     
-    /**
-     * 
-     * @param name
-     * 
-     * @return the name.
-     */
-    protected String validateElementName( String name )
+    private void initSAX() throws IOException, SAXException
     {
-        if ( name == null )
-            throw new IllegalArgumentException( "element name must not be null" );
+        OutputFormat of = new OutputFormat( "XML", charset.name(), indentString.length() > 0 );
+        of.setIndent( indentString.length() );
+        of.setLineSeparator( getAddNewLines() ? System.getProperty( "line.separator" ) : "" );
+        of.setLineWidth( 0 );
+        //of.setDoctype( null, "blah.dtd" );
+        XMLSerializer serializer = new XMLSerializer( bw, of );
         
-        name = name.trim();
+        contentHandler = serializer.asContentHandler();
+        contentHandler.startDocument();
+    }
+    
+    private void encapsulateAttributes( Object[] attributes )
+    {
+        this.attributes.clear();
         
-        if ( name.length() == 0 )
-            throw new IllegalArgumentException( "element name must not be empty" );
-        
-        for ( int i = 0; i < name.length(); i++ )
+        if ( attributes != null )
         {
-            if ( Character.isWhitespace( name.charAt( i ) ) )
-                throw new IllegalArgumentException( "The element name must not contain whitespaces." );
+            for ( int i = 0; i < attributes.length; i += 2 )
+            {
+                this.attributes.addAttribute( "", "", String.valueOf( attributes[i + 0] ), "CDATA", String.valueOf( attributes[i + 1] ) );
+            }
         }
-        
-        return ( name );
     }
     
     /**
      * 
-     * @param name
-     * 
-     * @return the name.
+     * @param newLine
+     * @param closeDirectly
+     * @throws SAXException
      */
-    protected String validateAttributeName( String name )
-    {
-        if ( name == null )
-            throw new IllegalArgumentException( "attribute names must not be null" );
-        
-        name = name.trim();
-        
-        if ( name.length() == 0 )
-            throw new IllegalArgumentException( "attribute names must not be empty" );
-        
-        for ( int i = 0; i < name.length(); i++ )
-        {
-            if ( Character.isWhitespace( name.charAt( i ) ) )
-                throw new IllegalArgumentException( "An attribute name must not contain whitespaces." );
-        }
-        
-        return ( name );
-    }
-    
-    /**
-     * Encodes the attribute value to valid XML data.
-     * 
-     * @param value
-     * 
-     * @return the encoded attribute value.
-     */
-    protected String encodeAttributeValue( Object value )
-    {
-        // TODO
-        return ( String.valueOf( value ) );
-    }
-    
-    /**
-     * Encodes the element data to valid XML data.
-     * 
-     * @param data
-     * 
-     * @return the encoded XML data.
-     */
-    protected String encodeElementData( Object data )
-    {
-        // TODO
-        return ( String.valueOf( data ) );
-    }
-    
-    private void applyLastElement( boolean newLine, boolean closeDirectly ) throws IOException
+    private void applyLastElement( boolean newLine, boolean closeDirectly ) throws SAXException
     {
         if ( closeElementName != null )
         {
-            if ( indentCloseElem )
-            {
-                for ( int i = 0; i < lastElementIndent; i++ )
-                    bw.write( indentString );
-            }
-            
-            bw.write( "</" );
-            bw.write( closeElementName );
-            bw.write( '>' );
-            
-            if ( getAddNewLines() )
-                newLine();
+            contentHandler.endElement( "", "", closeElementName );
             
             closeElementName = null;
         }
         
         if ( lastElementName != null )
         {
-            for ( int i = 0; i < lastElementIndent; i++ )
-                bw.write( indentString );
+            encapsulateAttributes( lastAttributes );
             
-            bw.write( '<' );
-            bw.write( lastElementName );
-            
-            if ( lastAttributes != null )
-            {
-                for ( int i = 0; i < lastAttributes.length; i += 2 )
-                {
-                    bw.write( ' ' );
-                    bw.write( String.valueOf( lastAttributes[i + 0] ).trim() );
-                    bw.write( "=\"" );
-                    bw.write( encodeAttributeValue( lastAttributes[i + 1] ) );
-                    bw.write( '\"' );
-                }
-            }
+            contentHandler.startElement( "", "", lastElementName, attributes );
             
             if ( closeDirectly )
-                bw.write( " />" );
-            else
-                bw.write( '>' );
-            
-            if ( newLine && getAddNewLines() )
-                newLine();
+                contentHandler.endElement( "", "", lastElementName );
             
             lastElementName = null;
-            lastAttributes = null;
         }
     }
     
@@ -257,21 +191,15 @@ public class SimpleXMLWriter
      * @param attributes the attributes (attribName1, attribValue1, attribName2, attribValue2, ...)
      * 
      * @throws IOException
+     * @throws SAXException
      */
-    protected void writeElement( boolean push, String name, Object[] attributes ) throws IOException
+    protected void writeElement( boolean push, String name, Object[] attributes ) throws IOException, SAXException
     {
         if ( ( attributes != null ) && ( ( attributes.length % 2 ) != 0 ) )
             throw new IllegalArgumentException( "attributes array not of even length" );
         
-        name = validateElementName( name );
-        
-        if ( attributes != null )
-        {
-            for ( int i = 0; i < attributes.length; i += 2 )
-            {
-                validateAttributeName( String.valueOf( attributes[i + 0] ) );
-            }
-        }
+        if ( contentHandler == null )
+            initSAX();
         
         if ( lastElemPushed.length <= path.getLevel() + 1 )
         {
@@ -302,8 +230,9 @@ public class SimpleXMLWriter
      * @param attributes the attributes (attribName1, attribValue1, attribName2, attribValue2, ...)
      * 
      * @throws IOException
+     * @throws SAXException
      */
-    public final void writeElement( String name, Object... attributes ) throws IOException
+    public final void writeElement( String name, Object... attributes ) throws IOException, SAXException
     {
         writeElement( false, name, attributes );
     }
@@ -315,13 +244,22 @@ public class SimpleXMLWriter
      * @param attributes the attributes (attribName1, attribValue1, attribName2, attribValue2, ...)
      * 
      * @throws IOException
+     * @throws SAXException
      */
-    public final void writeElementAndPush( String name, Object... attributes ) throws IOException
+    public final void writeElementAndPush( String name, Object... attributes ) throws IOException, SAXException
     {
         writeElement( true, name, attributes );
     }
     
-    public void writeElementData( String data ) throws IOException
+    /**
+     * Writes element data into the last started element.
+     * 
+     * @param data
+     * 
+     * @throws IOException
+     * @throws SAXException
+     */
+    public void writeElementData( String data ) throws IOException, SAXException
     {
         String closeElementName = lastElementName;
         applyLastElement( false, false );
@@ -330,15 +268,17 @@ public class SimpleXMLWriter
             this.closeElementName = closeElementName;
             indentCloseElem = false;
         }
-        bw.write( encodeElementData( data ) );
+        
+        contentHandler.characters( data.toCharArray(), 0, data.length() );
     }
     
     /**
      * Pops the level hierarchy one level up.
      * 
      * @throws IOException
+     * @throws SAXException
      */
-    public void popElement() throws IOException
+    public void popElement() throws IOException, SAXException
     {
         if ( path.getLevel() < 1 )
             throw new IllegalStateException( "Cannot pop hierarchy" );
@@ -357,7 +297,12 @@ public class SimpleXMLWriter
             lastElemPushed[getLevel() - 1] = false;
     }
     
-    public void close()
+    /**
+     * 
+     * @throws IOException
+     * @throws SAXException
+     */
+    public void close() throws IOException, SAXException
     {
         if ( bw == null )
             return;
@@ -368,21 +313,20 @@ public class SimpleXMLWriter
                 popElement();
             
             applyLastElement( true, true );
+            
+            contentHandler.endDocument();
         }
-        catch ( IOException e )
+        finally
         {
-            throw new RuntimeException( e );
+            try
+            {
+                bw.close();
+            }
+            finally
+            {
+                bw = null;
+            }
         }
-        
-        try
-        {
-            bw.close();
-        }
-        catch ( IOException e )
-        {
-        }
-        
-        bw = null;
     }
     
     /**
@@ -424,15 +368,8 @@ public class SimpleXMLWriter
         if ( charset == null )
             charset = Charset.forName( "UTF-8" );
         
+        this.charset = charset;
         this.bw = new BufferedWriter( new OutputStreamWriter( out, charset ) );
-        
-        bw.write( XML_HEADER1 );
-        bw.write( charset.name() );
-        bw.write( XML_HEADER2 );
-        if ( getAddNewLines() )
-            newLine();
-        if ( getAddNewLines() )
-            newLine();
     }
     
     /**

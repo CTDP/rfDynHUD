@@ -50,6 +50,8 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     private Object userObject = null;
     
     private boolean forkAllowed = false;
+    private String currElement = null;
+    private Object currObject = null;
     private Attributes currAttribs = null;
     
     final void fork( SimpleXMLHandlerFork fork ) throws SAXException
@@ -60,7 +62,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
         if ( !forkAllowed )
             throw new IllegalStateException( "fork() can only be called from the onElementStarted() event." );
         
-        fork.handleForkElement( path.getLastPathElement(), path.getLastPathObject(), currAttribs );
+        fork.handleForkElement( currElement, currObject, currAttribs );
         
         simpleHandler.setAdapter( null );
         simpleHandlerStack.push( fork );
@@ -97,7 +99,8 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
         if ( simpleHandler == this.simpleHandler )
             return;
         
-        this.simpleHandler.setAdapter( null );
+        if ( this.simpleHandler != null )
+            this.simpleHandler.setAdapter( null );
         this.simpleHandlerStack.set( simpleHandlerStack.size() - 1, simpleHandler );
         this.simpleHandler = simpleHandler;
         this.simpleHandler.setAdapter( this );
@@ -126,19 +129,28 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     {
         SimpleXMLHandlerFork handler = this.simpleHandler;
         XMLPath path = this.path;
-        forkAllowed = true;
         
-        Object element = handler.getPathObject( path.getLevel(), qName );
-        if ( element == null )
+        Object object = handler.getPathObject( path.getLevel(), qName );
+        if ( object == null )
             throw new RuntimeException( "The getPathObject() method must never return null." );
         
+        forkAllowed = true;
+        currElement = qName;
+        currObject = object;
         currAttribs = attributes;
-        handler.onElementStarted( path, qName, attributes );
-        currAttribs = null;
+        try
+        {
+            handler.onElementStarted( path, qName, attributes );
+        }
+        finally
+        {
+            currAttribs = null;
+            currObject = object;
+            currElement = qName;
+            forkAllowed = false;
+        }
         
-        path.pushPath( qName, element );
-        
-        forkAllowed = false;
+        path.pushPath( qName, object );
     }
     
     @Override
@@ -161,19 +173,28 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     @Override
     public void warning( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( path, SimpleXMLHandlerFork.ExceptionSeverity.WARNING, ex );
+        XMLPath fullPath = XMLPath.getFullPath( pathStack );
+        
+        for ( int i = 0; i < simpleHandlerStack.size(); i++ )
+            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerFork.ExceptionSeverity.WARNING, ex );
     }
     
     @Override
     public void error( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( path, SimpleXMLHandlerFork.ExceptionSeverity.ERROR, ex );
+        XMLPath fullPath = XMLPath.getFullPath( pathStack );
+        
+        for ( int i = 0; i < simpleHandlerStack.size(); i++ )
+            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerFork.ExceptionSeverity.ERROR, ex );
     }
     
     @Override
     public void fatalError( SAXParseException ex ) throws SAXException
     {
-        simpleHandler.onParsingException( path, SimpleXMLHandlerFork.ExceptionSeverity.FATAL_ERROR, ex );
+        XMLPath fullPath = XMLPath.getFullPath( pathStack );
+        
+        for ( int i = 0; i < simpleHandlerStack.size(); i++ )
+            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerFork.ExceptionSeverity.FATAL_ERROR, ex );
     }
     
     private void release()
