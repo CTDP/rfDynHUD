@@ -35,6 +35,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
@@ -285,39 +286,20 @@ public class FuelNeedleWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
-        TransformableTexture[] superResult = super.getSubTexturesImpl( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight );
+        super.initSubTextures( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight, collector );
         
         if ( !isLowFuelWaningUsed() )
-            return ( superResult );
+            return;
         
         loadLowFuelWarningImages( isEditorMode );
         
-        int i = 0;
-        if ( superResult != null )
-            i = superResult.length;
-        
-        TransformableTexture[] tts;
-        if ( lowFuelWarningImageNameOff.isNoImage() || lowFuelWarningImageNameOn.isNoImage() )
-            tts = new TransformableTexture[ i + 1 ];
-        else
-            tts = new TransformableTexture[ i + 2 ];
-        
-        if ( i > 0 )
-            System.arraycopy( superResult, 0, tts, 0, i );
-        
         if ( lowFuelWarningImageOff != null )
-        {
-            tts[i++] = lowFuelWarningImageOff;
-        }
+            collector.add( lowFuelWarningImageOff );
         
         if ( lowFuelWarningImageOn != null )
-        {
-            tts[i++] = lowFuelWarningImageOn;
-        }
-        
-        return ( tts );
+            collector.add( lowFuelWarningImageOn );
     }
     
     @Override

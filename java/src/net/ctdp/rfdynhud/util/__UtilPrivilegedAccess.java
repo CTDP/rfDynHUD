@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
 
@@ -45,5 +46,10 @@ public class __UtilPrivilegedAccess
     public static Boolean reloadConfiguration( ConfigurationLoader loader, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener, boolean force )
     {
         return ( loader.reloadConfiguration( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, sessionType, widgetsConfig, gameData, isEditorMode, loadListener, force ) );
+    }
+    
+    public static final TransformableTexture[] getSubTextureArray( SubTextureCollector collector, boolean sort )
+    {
+        return ( collector.getArray( sort ) );
     }
 }

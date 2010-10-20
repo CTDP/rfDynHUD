@@ -86,16 +86,18 @@ public class PluginINI
     
     private File getFolder( String name, String configPath, String fallback )
     {
-        if ( !ResourceManager.isJarMode() )
-            return ( new File( IDE_DATA_FOLDER, fallback ).getAbsoluteFile() );
-        
         if ( configPath == null )
             configPath = new File( pluginFolder, fallback ).getAbsolutePath();
         
         configPath = parsePath( configPath );
         File f = new File( configPath );
         if ( !f.isAbsolute() )
-            f = new File( pluginFolder, configPath );
+        {
+            if ( ResourceManager.isJarMode() )
+                f = new File( pluginFolder, configPath );
+            else
+                f = new File( IDE_DATA_FOLDER, fallback ).getAbsoluteFile();
+        }
         
         f = __UtilHelper.stripDotDots( f.getAbsolutePath() );
         

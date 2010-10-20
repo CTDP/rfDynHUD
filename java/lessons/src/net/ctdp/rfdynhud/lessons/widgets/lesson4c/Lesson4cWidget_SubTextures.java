@@ -29,6 +29,7 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
@@ -49,10 +50,9 @@ public class Lesson4cWidget_SubTextures extends Widget
     private final ImagePropertyWithTexture subImage = new ImagePropertyWithTexture( this, "subImage", "cyan_circle.png" );
     
     /*
-     * A sub texture is represented by a TransformableTexture. They are pulled by rfDynHUD in an array,
-     * So we create it here. As we know, that we have exactly one texture, we can create a fixed size here.
+     * A sub texture is represented by a TransformableTexture.
      */
-    private final TransformableTexture[] subTextures = new TransformableTexture[ 1 ];
+    private TransformableTexture subTexture = null;
     
     private final IntValue lapNumber = new IntValue();
     
@@ -72,34 +72,29 @@ public class Lesson4cWidget_SubTextures extends Widget
         lapNumber.reset();
     }
     
-    private void loadSubTextures( boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    @Override
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
         /*
          * We scale the sub texture, so that it definitely fits into the widget area.
-		 * Drawing over the edge would be no problem for sub textures, while regular widget contents would be clipped.
+         * Drawing over the edge would be no problem for sub textures, while regular widget contents would be clipped.
          */
         
         int w = Math.max( 10, widgetInnerWidth - 10 );
         int h = Math.max( 10, widgetInnerHeight - 10 );
         int s = Math.min( w, h );
         
-        subTextures[0] = subImage.getImage().getScaledTransformableTexture( s, s, subTextures[0], isEditorMode );
+        subTexture = subImage.getImage().getScaledTransformableTexture( s, s, subTexture, isEditorMode );
         subImage.updateSize( s, s, isEditorMode );
-    }
-    
-    @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
-    {
-        loadSubTextures( isEditorMode, widgetInnerWidth, widgetInnerHeight );
         
-        return ( subTextures );
+        collector.add( subTexture );
     }
     
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
         int h = TextureImage2D.getStringHeight( "0", getFont(), isFontAntiAliased() );
-        lapString = drawnStringFactory.newDrawnString( "lapString", subTextures[0].getWidth() / 2, ( subTextures[0].getHeight() - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
+        lapString = drawnStringFactory.newDrawnString( "lapString", subTexture.getWidth() / 2, ( subTexture.getHeight() - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
     }
     
     @Override
@@ -107,7 +102,7 @@ public class Lesson4cWidget_SubTextures extends Widget
     {
         lapNumber.update( gameData.getScoringInfo().getPlayersVehicleScoringInfo().getCurrentLap() );
         
-        subTextures[0].setVisible( true );
+        subTexture.setVisible( true );
         
         float t3 = ( ( gameData.getScoringInfo().getSessionNanos() % 3000000000L ) / 3000000000.0f );
         
@@ -116,7 +111,7 @@ public class Lesson4cWidget_SubTextures extends Widget
          * We need to update the rotation each frame.
          * This is NOT performance critical.
          */
-        subTextures[0].setRotation( TransformableTexture.TWO_PI * t3 );
+        subTexture.setRotation( TransformableTexture.TWO_PI * t3 );
         
         float t15 = ( ( gameData.getScoringInfo().getSessionNanos() % 1500000000L ) / 1500000000.0f );
         
@@ -125,21 +120,21 @@ public class Lesson4cWidget_SubTextures extends Widget
          */
         float scale = 1.0f + 0.2f * (float)Math.sin( t15 * TransformableTexture.PI );
         
-        subTextures[0].setScale( scale, scale );
+        subTexture.setScale( scale, scale );
         
         /*
          * Set the rotation center to the center of the texture.
          */
-        subTextures[0].setRotationCenter( (int)( subTextures[0].getWidth() * scale ) / 2, (int)( subTextures[0].getHeight() * scale ) / 2 );
+        subTexture.setRotationCenter( (int)( subTexture.getWidth() * scale ) / 2, (int)( subTexture.getHeight() * scale ) / 2 );
         
         /*
          * And finally move the texture to the center of the Widget.
          */
-        subTextures[0].setTranslation( ( width - (int)( subTextures[0].getWidth() * scale ) ) / 2, ( height - (int)( subTextures[0].getHeight() * scale ) ) / 2 );
+        subTexture.setTranslation( ( width - (int)( subTexture.getWidth() * scale ) ) / 2, ( height - (int)( subTexture.getHeight() * scale ) ) / 2 );
         
         if ( needsCompleteRedraw || ( clock.c() && lapNumber.hasChanged() ) )
         {
-            lapString.draw( 0, 0, lapNumber.getValueAsString(), subImage.getTexture(), subTextures[0].getTexture() );
+            lapString.draw( 0, 0, lapNumber.getValueAsString(), subImage.getTexture(), subTexture.getTexture() );
         }
     }
     

@@ -143,7 +143,7 @@ public class WidgetsConfiguration implements Documented
     
     void sortWidgets()
     {
-        Collections.sort( widgets, WidgetTools.WIDGET_Y_X_COMPARATOR );
+        Collections.sort( widgets, WidgetTools.WIDGET_Z_Y_X_COMPARATOR );
     }
     
     /**

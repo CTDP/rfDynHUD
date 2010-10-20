@@ -48,6 +48,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
@@ -318,12 +319,12 @@ public class RevMeterWidget extends NeedleMeterWidget
         return ( peakNeedleImageName.getImageName() );
     }
     
-    private int loadPeakNeedleTexture( boolean isEditorMode )
+    private boolean loadPeakNeedleTexture( boolean isEditorMode )
     {
         if ( peakNeedleImageName.isNoImage() )
         {
             peakNeedleTexture = null;
-            return ( 0 );
+            return ( false );
         }
         
         try
@@ -333,7 +334,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             if ( it == null )
             {
                 peakNeedleTexture = null;
-                return ( 0 );
+                return ( false );
             }
             
             float scale = getBackground().getScaleX();
@@ -347,19 +348,19 @@ public class RevMeterWidget extends NeedleMeterWidget
         {
             Logger.log( t );
             
-            return ( 0 );
+            return ( false );
         }
         
-        return ( 1 );
+        return ( true );
     }
     
-    private int loadGearBackgroundTexture( boolean isEditorMode )
+    private boolean loadGearBackgroundTexture( boolean isEditorMode )
     {
         if ( !displayGear.getBooleanValue() )
         {
             gearBackgroundTexture = null;
             gearBackgroundTexture_bak = null;
-            return ( 0 );
+            return ( false );
         }
         
         try
@@ -370,7 +371,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             {
                 gearBackgroundTexture = null;
                 gearBackgroundTexture_bak = null;
-                return ( 0 );
+                return ( false );
             }
             
             float scale = getBackground().getScaleX();
@@ -389,19 +390,19 @@ public class RevMeterWidget extends NeedleMeterWidget
         {
             Logger.log( t );
             
-            return ( 0 );
+            return ( false );
         }
         
-        return ( 1 );
+        return ( true );
     }
     
-    private int loadBoostNumberBackgroundTexture( boolean isEditorMode )
+    private boolean loadBoostNumberBackgroundTexture( boolean isEditorMode )
     {
         if ( !displayBoostNumber.getBooleanValue() )
         {
             boostNumberBackgroundTexture = null;
             boostNumberBackgroundTexture_bak = null;
-            return ( 0 );
+            return ( false );
         }
         
         try
@@ -412,7 +413,7 @@ public class RevMeterWidget extends NeedleMeterWidget
             {
                 boostNumberBackgroundTexture = null;
                 boostNumberBackgroundTexture_bak = null;
-                return ( 0 );
+                return ( false );
             }
             
             float scale = getBackground().getScaleX();
@@ -431,40 +432,26 @@ public class RevMeterWidget extends NeedleMeterWidget
         {
             Logger.log( t );
             
-            return ( 0 );
+            return ( false );
         }
         
-        return ( 1 );
+        return ( true );
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
-        TransformableTexture[] superResult = super.getSubTexturesImpl( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight );
-        
-        int n = 0;
+        super.initSubTextures( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight, collector );
         
         for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            n += shiftLights[s].loadTextures( isEditorMode );
+            shiftLights[s].loadTextures( isEditorMode, collector );
         
-        n += loadPeakNeedleTexture( isEditorMode );
-        n += loadGearBackgroundTexture( isEditorMode );
-        n += loadBoostNumberBackgroundTexture( isEditorMode );
-        
-        TransformableTexture[] result = new TransformableTexture[ superResult.length + n ];
-        System.arraycopy( superResult, 0, result, 0, superResult.length );
-        
-        int i = superResult.length;
-        if ( peakNeedleTexture != null )
-            result[i++] = peakNeedleTexture;
-        for ( int s = 0; s < numShiftLights.getIntValue(); s++ )
-            i = shiftLights[s].writeTexturesToArray( result, i );
-        if ( gearBackgroundTexture != null )
-            result[i++] = gearBackgroundTexture;
-        if ( boostNumberBackgroundTexture != null )
-            result[i++] = boostNumberBackgroundTexture;
-        
-        return ( result );
+        if ( loadPeakNeedleTexture( isEditorMode ) )
+            collector.add( peakNeedleTexture );
+        if ( loadGearBackgroundTexture( isEditorMode ) )
+            collector.add( gearBackgroundTexture );
+        if ( loadBoostNumberBackgroundTexture( isEditorMode ) )
+            collector.add( boostNumberBackgroundTexture );
     }
     
     /**

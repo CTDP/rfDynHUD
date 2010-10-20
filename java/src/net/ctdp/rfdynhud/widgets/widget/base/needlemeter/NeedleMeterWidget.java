@@ -46,6 +46,7 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
@@ -297,13 +298,13 @@ public abstract class NeedleMeterWidget extends Widget
         return ( valueFontColor );
     }
     
-    private int loadValueBackgroundTexture( boolean isEditorMode )
+    private boolean loadValueBackgroundTexture( boolean isEditorMode )
     {
         if ( !displayValue.getBooleanValue() )
         {
             valueBackgroundTexture = null;
             valueBackgroundTexture_bak = null;
-            return ( 0 );
+            return ( false );
         }
         
         try
@@ -314,7 +315,7 @@ public abstract class NeedleMeterWidget extends Widget
             {
                 valueBackgroundTexture = null;
                 valueBackgroundTexture_bak = null;
-                return ( 0 );
+                return ( false );
             }
             
             float scale = getBackground().getScaleX();
@@ -335,18 +336,18 @@ public abstract class NeedleMeterWidget extends Widget
         {
             Logger.log( t );
             
-            return ( 0 );
+            return ( false );
         }
         
-        return ( 1 );
+        return ( true );
     }
     
-    private int loadNeedleTexture( boolean isEditorMode )
+    private boolean loadNeedleTexture( boolean isEditorMode )
     {
         if ( needleImageName.isNoImage() )
         {
             needleTexture = null;
-            return ( 0 );
+            return ( false );
         }
         
         try
@@ -356,7 +357,7 @@ public abstract class NeedleMeterWidget extends Widget
             if ( it == null )
             {
                 needleTexture = null;
-                return ( 0 );
+                return ( false );
             }
             
             float scale = getBackground().getScaleX();
@@ -370,32 +371,22 @@ public abstract class NeedleMeterWidget extends Widget
         {
             Logger.log( t );
             
-            return ( 0 );
+            return ( false );
         }
         
-        return ( 1 );
+        return ( true );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
-        int n = 0;
-        
-        n += loadValueBackgroundTexture( isEditorMode );
-        n += loadNeedleTexture( isEditorMode );
-        
-        TransformableTexture[] result = new TransformableTexture[ n ];
-        
-        int i = 0;
-        if ( valueBackgroundTexture != null )
-            result[i++] = valueBackgroundTexture;
-        if ( needleTexture != null )
-            result[i++] = needleTexture;
-        
-        return ( result );
+        if ( loadValueBackgroundTexture( isEditorMode ) )
+            collector.add( valueBackgroundTexture );
+        if ( loadNeedleTexture( isEditorMode ) )
+            collector.add( needleTexture );
     }
     
     /**

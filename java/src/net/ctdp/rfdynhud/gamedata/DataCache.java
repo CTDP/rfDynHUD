@@ -209,58 +209,61 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                 {
                     VersionException.checkVersion( attributes.getValue( "version" ), 1, 1, 0 );
                 }
-                else if ( ( path.getLevel() == 1 ) && name.equals( "VehicleData" ) )
+                else if ( path.isAt( false, "CachedData" ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = attributes.getValue( "vehicle" );
                 }
-                else if ( ( path.getLevel() == 2 ) && name.equals( "FuelUsage" ) )
+                else if ( path.isAt( false, "CachedData", "VehicleData" ) )
                 {
-                    try
+                    if ( name.equals( "FuelUsage" ) )
                     {
-                        float avgFuelUsage = Float.parseFloat( attributes.getValue( "average" ) );
-                        fuelUsages.put( currentTeam, avgFuelUsage );
-                    }
-                    catch ( NumberFormatException e )
-                    {
-                        Logger.log( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
-                    }
-                }
-                else if ( ( path.getLevel() == 2 ) && name.equals( "FastestLap" ) )
-                {
-                    try
-                    {
-                        String type = attributes.getValue( "type" );
-                        float sector1 = Float.parseFloat( attributes.getValue( "sector1" ) );
-                        float sector2 = Float.parseFloat( attributes.getValue( "sector2" ) );
-                        float sector3 = Float.parseFloat( attributes.getValue( "sector3" ) );
-                        float lap = Float.parseFloat( attributes.getValue( "lap" ) );
-                        
-                        Laptime laptime = new Laptime( 0, sector1, sector2, sector3, false, false, true );
-                        laptime.laptime = lap;
-                        
                         try
                         {
-                            laptime.setType( Laptime.LapType.valueOf( type ) );
+                            float avgFuelUsage = Float.parseFloat( attributes.getValue( "average" ) );
+                            fuelUsages.put( currentTeam, avgFuelUsage );
                         }
-                        catch ( Throwable t )
+                        catch ( NumberFormatException e )
                         {
-                            laptime.setType( Laptime.LapType.UNKNOWN );
-                        }
-                        
-                        switch ( laptime.getType() )
-                        {
-                            case NORMAL:
-                                fastestNormalLaptimes.put( currentTeam, laptime );
-                                break;
-                            case HOTLAP:
-                                fastestHotLaptimes.put( currentTeam, laptime );
-                                break;
-                            // We're not interested in other times.
+                            Logger.log( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
                         }
                     }
-                    catch ( NumberFormatException e )
+                    else if ( name.equals( "FastestLap" ) )
                     {
-                        Logger.log( "WARNING: DataCache: Unable to parse laptime." );
+                        try
+                        {
+                            String type = attributes.getValue( "type" );
+                            float sector1 = Float.parseFloat( attributes.getValue( "sector1" ) );
+                            float sector2 = Float.parseFloat( attributes.getValue( "sector2" ) );
+                            float sector3 = Float.parseFloat( attributes.getValue( "sector3" ) );
+                            float lap = Float.parseFloat( attributes.getValue( "lap" ) );
+                            
+                            Laptime laptime = new Laptime( 0, sector1, sector2, sector3, false, false, true );
+                            laptime.laptime = lap;
+                            
+                            try
+                            {
+                                laptime.setType( Laptime.LapType.valueOf( type ) );
+                            }
+                            catch ( Throwable t )
+                            {
+                                laptime.setType( Laptime.LapType.UNKNOWN );
+                            }
+                            
+                            switch ( laptime.getType() )
+                            {
+                                case NORMAL:
+                                    fastestNormalLaptimes.put( currentTeam, laptime );
+                                    break;
+                                case HOTLAP:
+                                    fastestHotLaptimes.put( currentTeam, laptime );
+                                    break;
+                                // We're not interested in other times.
+                            }
+                        }
+                        catch ( NumberFormatException e )
+                        {
+                            Logger.log( "WARNING: DataCache: Unable to parse laptime." );
+                        }
                     }
                 }
             }
@@ -329,11 +332,11 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                 {
                     VersionException.checkVersion( attributes.getValue( "version" ), 1, 1, 0 );
                 }
-                else if ( ( path.getLevel() == 1 ) && name.equals( "VehicleData" ) )
+                else if ( path.isAt( false, "CachedData" ) && name.equals( "VehicleData" ) )
                 {
                     currentTeam = attributes.getValue( "vehicle" );
                 }
-                else if ( ( path.getLevel() == 2 ) && name.equals( "FuelUsage" ) )
+                else if ( path.isAt( false, "CachedData", "VehicleData" ) && name.equals( "FuelUsage" ) )
                 {
                     try
                     {

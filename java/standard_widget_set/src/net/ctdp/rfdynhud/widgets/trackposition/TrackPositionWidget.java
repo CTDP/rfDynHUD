@@ -37,6 +37,7 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.MapTools;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -204,7 +205,7 @@ public class TrackPositionWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
         updateItemRadius();
         initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
@@ -230,7 +231,8 @@ public class TrackPositionWidget extends Widget
             }
         }
         
-        return ( itemTextures );
+        for ( int i = 0; i < itemTextures.length; i++ )
+            collector.add( itemTextures[i] );
     }
     
     /**

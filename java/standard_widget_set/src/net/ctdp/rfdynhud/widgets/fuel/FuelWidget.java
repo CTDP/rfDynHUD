@@ -43,6 +43,7 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
@@ -421,32 +422,18 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
         if ( !isLowFuelWaningUsed() )
-            return ( null );
+            return;
         
         loadLowFuelWarningImages( isEditorMode );
         
-        TransformableTexture[] tts;
-        if ( lowFuelWarningImageNameOff.isNoImage() || lowFuelWarningImageNameOn.isNoImage() )
-            tts = new TransformableTexture[ 1 ];
-        else
-            tts = new TransformableTexture[ 2 ];
-        
-        int i = 0;
-        
         if ( lowFuelWarningImageOff != null )
-        {
-            tts[i++] = lowFuelWarningImageOff;
-        }
+            collector.add( lowFuelWarningImageOff );
         
         if ( lowFuelWarningImageOn != null )
-        {
-            tts[i++] = lowFuelWarningImageOn;
-        }
-        
-        return ( tts );
+            collector.add( lowFuelWarningImageOn );
     }
     
     private static final String getFuelUnits( MeasurementUnits measurementUnits )

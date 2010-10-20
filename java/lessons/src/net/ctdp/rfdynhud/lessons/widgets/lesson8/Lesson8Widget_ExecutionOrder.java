@@ -26,7 +26,7 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -60,13 +60,12 @@ public class Lesson8Widget_ExecutionOrder extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
         //log( "getSubTextures()" );
         
         // This method is executed after afterConfigurationLoaded() and only once.
-        
-        return ( null );
+        // In editor mode it is executed every time the forceReinitialization() method is invoked (or indirectly by forceAndSetDirty())
     }
     
     @Override

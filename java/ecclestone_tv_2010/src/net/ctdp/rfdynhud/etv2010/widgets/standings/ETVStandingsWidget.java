@@ -40,6 +40,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.StandingsTools;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
@@ -143,13 +144,13 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
         if ( !isEditorMode && gameData.getScoringInfo().getSessionType().isRace() && !showFastestLapsInRace.getBooleanValue() )
         {
             flagTextures = null;
             
-            return ( null );
+            return;
         }
         
         int itemHeight = this.itemHeight.getEffectiveHeight();
@@ -164,7 +165,8 @@ public class ETVStandingsWidget extends ETVWidgetBase
             }
         }
         
-        return ( flagTextures );
+        for ( int i = 0; i < flagTextures.length; i++ )
+            collector.add( flagTextures[i] );
     }
     
     /**
@@ -247,7 +249,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
             itemsVisible[i] = null;
         }
         
-        TransformableTexture[] flagTextures = getSubTexturesImpl( gameData, isEditorMode,  width, height );
+        TransformableTexture[] flagTextures = getSubTextures( gameData, isEditorMode,  width, height );
         
         if ( flagTextures != null )
         {

@@ -163,7 +163,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         lapState.update( ls );
         
-        if ( isEditorMode || ( ( ls != LapState.AFTER_SECTOR1_START ) && ( ( vsi.getStintLength() % 1.0f ) > 0.1f ) ) )
+        //if ( isEditorMode || ( ( ls != LapState.AFTER_SECTOR1_START ) && ( vsi.getNormalizedLapDistance() > 0.1f ) ) )
+        if ( isEditorMode || ( ls != LapState.AFTER_SECTOR1_START ) )
         {
             referenceTimeAbs = relTime;
             referenceTimePers = vsi.getFastestLaptime();
@@ -187,7 +188,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         if ( displayType.getEnumValue() == DisplayType.IF_LAP_VALID )
         {
-            return ( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
+            //return ( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
+            return ( ls != LapState.OUTLAP );
         }
         
         if ( relTime == null )
@@ -212,7 +214,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         if ( lapState.hasChanged() )
             return ( true );
         
-        if ( isEditorMode )
+        //if ( isEditorMode )
         {
             hasRefTime.update( referenceTimeAbs != null );
             
@@ -405,7 +407,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         }
         else
         {
-            ownLaptime.update( -1f );
+            ownLaptime.update( vsi.getCurrentLaptime() );
         }
         
         if ( needsCompleteRedraw || ( clock.c() && ownLaptime.hasChanged() ) )
@@ -431,7 +433,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             {
                 relLaptime.update( relLaptime.getResetValue() );
             }
-            else if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
+            else if ( ( ls == LapState.OUTLAP ) ||  ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
             {
                 switch ( vsi.getSector() )
                 {
@@ -493,7 +495,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
                 {
                     if ( ls.isAfterSectorStart() )
                         relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( relLaptime.getValue() ), dataColor, texture );
-                    else if ( ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
+                    else if ( ( ls == LapState.OUTLAP ) || ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
                         relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( relLaptime.getValue() ), texture );
                 }
                 else

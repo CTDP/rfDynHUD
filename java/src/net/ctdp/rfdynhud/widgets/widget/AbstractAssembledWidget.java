@@ -18,7 +18,6 @@
 package net.ctdp.rfdynhud.widgets.widget;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -36,6 +35,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
@@ -77,7 +77,7 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
     
     void sortParts()
     {
-        Arrays.sort( parts, WidgetTools.WIDGET_Y_X_COMPARATOR );
+        Arrays.sort( parts, WidgetTools.WIDGET_Z_Y_X_COMPARATOR );
     }
     
     /**
@@ -379,32 +379,19 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
      * {@inheritDoc}
      */
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
-        ArrayList<TransformableTexture> list = new ArrayList<TransformableTexture>();
-        
         for ( int i = 0; i < parts.length; i++ )
         {
-            //TransformableTexture[] tts = parts[i].getSubTexturesImpl( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight );
-            TransformableTexture[] tts = parts[i].getSubTexturesImpl( gameData, isEditorMode, parts[i].getInnerSize().getEffectiveWidth(), parts[i].getInnerSize().getEffectiveHeight() );
-            if ( ( tts != null ) && ( tts.length > 0 ) )
+            int baseIndex = collector.getNumberOf();
+            parts[i].initSubTextures( gameData, isEditorMode, parts[i].getInnerSize().getEffectiveWidth(), parts[i].getInnerSize().getEffectiveHeight(), collector );
+            for ( int j = baseIndex; j < collector.getNumberOf(); j++ )
             {
-                for ( int j = 0; j < tts.length; j++ )
-                {
-                    if ( tts[j].getOwnerWidget() == null )
-                        __RenderPrivilegedAccess.setOwnerWidget( parts[i], tts[j] );
-                    list.add( tts[j] );
-                }
+                TransformableTexture tt = collector.get( j );
+                if ( tt.getOwnerWidget() == null )
+                    __RenderPrivilegedAccess.setOwnerWidget( parts[i], tt );
             }
         }
-        
-        if ( list.size() == 0 )
-            return ( null );
-        
-        TransformableTexture[] result = new TransformableTexture[ list.size() ];
-        list.toArray( result );
-        
-        return ( result );
     }
     
     /**

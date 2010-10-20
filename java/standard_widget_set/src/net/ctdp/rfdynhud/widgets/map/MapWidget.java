@@ -50,6 +50,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.MapTools;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -301,7 +302,7 @@ public class MapWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
         updateItemRadius();
         initMaxDisplayedVehicles( isEditorMode, gameData.getModInfo() );
@@ -340,7 +341,8 @@ public class MapWidget extends Widget
             }
         }
         
-        return ( subTextures );
+        for ( int i = 0; i < subTextures.length; i++ )
+            collector.add( subTextures[i] );
     }
     
     /**

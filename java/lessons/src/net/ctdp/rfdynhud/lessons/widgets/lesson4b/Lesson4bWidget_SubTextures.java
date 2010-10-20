@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
@@ -56,10 +57,9 @@ public class Lesson4bWidget_SubTextures extends Widget
     private final ColorProperty myFontColor = new ColorProperty( this, "myFontColor", "#000000" );
     
     /*
-     * A sub texture is represented by a TransformableTexture. They are pulled by rfDynHUD in an array,
-     * So we create it here. As we know, that we have exactly one texture, we can create a fixed size here.
+     * A sub texture is represented by a TransformableTexture.
      */
-    private final TransformableTexture[] subTextures = new TransformableTexture[ 1 ];
+    private TransformableTexture subTexture = null;
     
     private final IntValue lapNumber = new IntValue();
     
@@ -80,35 +80,28 @@ public class Lesson4bWidget_SubTextures extends Widget
         lapNumber.reset();
     }
     
-    private void loadSubTextures( boolean isEditorMode )
+    @Override
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
         /*
          * This loads the image as defined in the property and gets a scaled instance as a TransformableTexture.
          */
-        subTextures[0] = subImage.getImage().getScaledTransformableTexture( 32, 32, subTextures[0], isEditorMode );
+        subTexture = subImage.getImage().getScaledTransformableTexture( 32, 32, subTexture, isEditorMode );
         subImage.updateSize( 32, 32, isEditorMode );
-    }
-    
-    @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
-    {
-        loadSubTextures( isEditorMode );
         
-        return ( subTextures );
+        collector.add( subTexture );
     }
     
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
-        loadSubTextures( isEditorMode );
-        
         /*
          * Just to play around with the parameters we define the text to be drawn at the center location this time.
          */
         int h = TextureImage2D.getStringHeight( "Ay", getFont(), isFontAntiAliased() );
         ds = drawnStringFactory.newDrawnString( "ds", width / 2, ( height - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
         
-        lapString = drawnStringFactory.newDrawnString( "lapString", subTextures[0].getWidth() / 2, ( subTextures[0].getHeight() - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), myFontColor.getColor() );
+        lapString = drawnStringFactory.newDrawnString( "lapString", subTexture.getWidth() / 2, ( subTexture.getHeight() - h ) / 2, Alignment.CENTER, false, getFont(), isFontAntiAliased(), myFontColor.getColor() );
     }
     
     @Override
@@ -123,7 +116,7 @@ public class Lesson4bWidget_SubTextures extends Widget
         
         if ( needsCompleteRedraw || ( clock.c() && lapNumber.hasChanged() ) )
         {
-            subTextures[0].setVisible( true ); // Yes, it is visible. ;)
+            subTexture.setVisible( true ); // Yes, it is visible. ;)
             
             /*
              * The position of the sub texture is always relative to the Widget's position.
@@ -131,12 +124,12 @@ public class Lesson4bWidget_SubTextures extends Widget
              * Note, that the editor is currently not able to render the outside parts of subtextures.
              * But it is display just fine ingame.
              */
-            subTextures[0].setTranslation( -16, -16 );
+            subTexture.setTranslation( -16, -16 );
             
             /*
              * We draw the lap number on the sub texture using our cached texture as clear image.
              */
-            lapString.draw( 0, 0, lapNumber.getValueAsString(), subImage.getTexture(), subTextures[0].getTexture() );
+            lapString.draw( 0, 0, lapNumber.getValueAsString(), subImage.getTexture(), subTexture.getTexture() );
         }
     }
     

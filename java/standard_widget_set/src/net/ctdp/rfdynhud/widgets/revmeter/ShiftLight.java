@@ -26,6 +26,7 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 
 public class ShiftLight
@@ -106,10 +107,8 @@ public class ShiftLight
         return ( imageNameOff.getValue().equals( "" ) );
     }
     
-    public int loadTextures( boolean isEditorMode )
+    public void loadTextures( boolean isEditorMode, SubTextureCollector collector )
     {
-        int n = 0;
-        
         if ( !isOffStatePartOfBackground() )
         {
             try
@@ -119,7 +118,7 @@ public class ShiftLight
                 if ( it == null )
                 {
                     textureOff = null;
-                    return ( n );
+                    return;
                 }
                 
                 float scale = widget.getBackground().getScaleX();
@@ -131,13 +130,13 @@ public class ShiftLight
                     it.drawScaled( 0, 0, w, h, textureOff.getTexture(), true );
                 }
                 
-                n++;
+                collector.add( textureOff );
             }
             catch ( Throwable t )
             {
                 Logger.log( t );
                 
-                return ( n );
+                return;
             }
         }
         else if ( isOffStatePartOfBackground() )
@@ -152,7 +151,7 @@ public class ShiftLight
             if ( it == null )
             {
                 textureOn = null;
-                return ( n );
+                return;
             }
             
             float scale = widget.getBackground().getScaleX();
@@ -187,16 +186,14 @@ public class ShiftLight
                 }
             }
             
-            n++;
+            collector.add( textureOn );
         }
         catch ( Throwable t )
         {
             Logger.log( t );
             
-            return ( n );
+            return;
         }
-        
-        return ( n );
     }
     
     public int writeTexturesToArray( TransformableTexture[] array, int offset )

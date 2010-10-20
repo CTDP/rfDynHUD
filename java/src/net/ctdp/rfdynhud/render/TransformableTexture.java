@@ -23,8 +23,6 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.NumberUtil;
@@ -832,23 +830,5 @@ public class TransformableTexture
         }
         
         return ( new TransformableTexture( width, height, pixelPerfectPositioning, usePowerOfTwoSizes ) );
-    }
-    
-    public static final void sortByLocalZIndex( TransformableTexture[] tts )
-    {
-        Arrays.sort( tts, new Comparator<TransformableTexture>()
-        {
-            @Override
-            public int compare( TransformableTexture tt1, TransformableTexture tt2 )
-            {
-                if ( tt1.getLocalZIndex() < tt2.getLocalZIndex() )
-                    return ( -1 );
-                
-                if ( tt1.getLocalZIndex() > tt2.getLocalZIndex() )
-                    return ( +1 );
-                
-                return ( 0 );
-            }
-        } );
     }
 }

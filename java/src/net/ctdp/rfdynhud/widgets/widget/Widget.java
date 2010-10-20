@@ -52,7 +52,9 @@ import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.GenericPositionsIterator;
 import net.ctdp.rfdynhud.values.GenericSizesIterator;
@@ -103,6 +105,7 @@ public abstract class Widget implements Cloneable, Documented
     private final PosSizeProperty widthProperty;
     private final PosSizeProperty heightProperty;
     private final InnerSize innerSize;
+    private final IntProperty zIndex = new IntProperty( this, "zIndex", 0 );
     
     private final IntProperty paddingTop = new IntProperty( this, "paddingTop", "top", 0, 0, 1000, false );
     private final IntProperty paddingLeft = new IntProperty( this, "paddingLeft", "left", 0, 0, 1000, false );
@@ -185,6 +188,16 @@ public abstract class Widget implements Cloneable, Documented
     protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
         forceCompleteRedraw( true );
+        
+        if ( property == zIndex )
+        {
+            WidgetsConfiguration wc = getConfiguration();
+            
+            if ( wc != null )
+            {
+                __WCPrivilegedAccess.sortWidgets( wc );
+            }
+        }
     }
     
     /**
@@ -359,12 +372,10 @@ public abstract class Widget implements Cloneable, Documented
      * @param isEditorMode rendering in the editor?
      * @param widgetInnerWidth the total widget width excluding borders
      * @param widgetInnerHeight the total widget height excluding borders
-     * 
-     * @return the {@link TransformableTexture}s, that this {@link Widget} keeps or null for no textures.
+     * @param collector the collector to collect all the sub textures
      */
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
-        return ( null );
     }
     
     /**
@@ -381,12 +392,13 @@ public abstract class Widget implements Cloneable, Documented
     {
         if ( !initialized )
         {
-            subTextures = getSubTexturesImpl( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight );
+            SubTextureCollector collector = new SubTextureCollector();
+            
+            initSubTextures( gameData, isEditorMode, widgetInnerWidth, widgetInnerHeight, collector );
+            subTextures = __UtilPrivilegedAccess.getSubTextureArray( collector, true );
             
             if ( subTextures != null )
             {
-                TransformableTexture.sortByLocalZIndex( subTextures );
-                
                 for ( int i = 0; i < subTextures.length; i++ )
                 {
                     if ( subTextures[i].getOwnerWidget() == null )
@@ -554,6 +566,16 @@ public abstract class Widget implements Cloneable, Documented
             y += getMasterWidget().getBorder().getInnerTopHeight() + getMasterWidget().getAbsoluteOffsetY();
         
         return ( y );
+    }
+    
+    /**
+     * Gets the {@link Widget}'s z-index relative to other {@link Widget}s in the same configuration.
+     *  
+     * @return the {@link Widget}'s z-index relative to other {@link Widget}s in the same configuration.
+     */
+    public final int getZIndex()
+    {
+        return ( zIndex.getIntValue() );
     }
     
     /**
@@ -1571,6 +1593,7 @@ public abstract class Widget implements Cloneable, Documented
         writer.writeProperty( positioningProperty, "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT." );
         writer.writeProperty( xProperty, "The x-coordinate for the position." );
         writer.writeProperty( yProperty, "The y-coordinate for the position." );
+        writer.writeProperty( zIndex, "A z-index, to sort Widgets by." );
         writer.writeProperty( widthProperty, "The width. Use negative values to make the Widget be sized relative to screen size." );
         writer.writeProperty( heightProperty, "The height. Use negative values to make the Widget be sized relative to screen size." );
         if ( masterWidget == null )
@@ -1614,6 +1637,7 @@ public abstract class Widget implements Cloneable, Documented
         else if ( loader.loadProperty( positioningProperty ) );
         else if ( loader.loadProperty( xProperty ) );
         else if ( loader.loadProperty( yProperty ) );
+        else if ( loader.loadProperty( zIndex ) );
         else if ( loader.loadProperty( widthProperty ) );
         else if ( loader.loadProperty( heightProperty ) );
         else if ( ( masterWidget == null ) && loader.loadProperty( border ) );
@@ -1677,6 +1701,7 @@ public abstract class Widget implements Cloneable, Documented
         propsCont.addProperty( positioningProperty );
         propsCont.addProperty( xProperty );
         propsCont.addProperty( yProperty );
+        propsCont.addProperty( zIndex );
         propsCont.addProperty( widthProperty );
         propsCont.addProperty( heightProperty );
     }

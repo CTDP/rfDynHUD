@@ -75,11 +75,20 @@ public class WidgetTools
         return ( classes );
     }
     
-    public static final Comparator<Widget> WIDGET_Y_X_COMPARATOR = new Comparator<Widget>()
+    public static final Comparator<Widget> WIDGET_Z_Y_X_COMPARATOR = new Comparator<Widget>()
     {
         @Override
         public int compare( Widget w1, Widget w2 )
         {
+            int z1 = w1.getZIndex();
+            int z2 = w2.getZIndex();
+            
+            if ( z1 < z2 )
+                return ( -1 );
+            
+            if ( z1 > z2 )
+                return ( +1 );
+            
             int y1 = w1.getPosition().getEffectiveY();
             int y2 = w2.getPosition().getEffectiveY();
             

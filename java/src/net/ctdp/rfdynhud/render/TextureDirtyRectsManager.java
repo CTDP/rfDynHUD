@@ -34,7 +34,7 @@ public class TextureDirtyRectsManager
 {
     public static ByteBuffer createByteBuffer( int maxNumDirtyRects )
     {
-        return ( ByteBuffer.allocateDirect( 2 + 2 * maxNumDirtyRects ).order( ByteOrder.nativeOrder() ) );
+        return ( ByteBuffer.allocateDirect( 2 + 2 * 4 * maxNumDirtyRects ).order( ByteOrder.nativeOrder() ) );
     }
     
     private static final void writeShort( short s, ByteBuffer bb )
@@ -69,33 +69,43 @@ public class TextureDirtyRectsManager
             
             if ( buffer.limit() - buffer.position() < 2 + 2 * 4 * numDirtyRects )
             {
-                Logger.log( "WARNING: Cannot write dirty rects to the buffer." );
-                
-                if ( buffer.limit() - buffer.position() < 2 )
+                if ( buffer.limit() - buffer.position() < 2 + 2 * 4 * 1 )
                 {
+                    Logger.log( "WARNING: Cannot write dirty rects to the buffer." );
                 }
                 else
                 {
+                    //writeShort( (short)0, buffer );
+                    //buffer.flip();
+                    
+                    writeShort( (short)1, buffer );
+                    
                     writeShort( (short)0, buffer );
+                    writeShort( (short)0, buffer );
+                    writeShort( (short)texture.getWidth(), buffer );
+                    writeShort( (short)texture.getHeight(), buffer );
+                    
                     buffer.flip();
+                    
+                    Logger.log( "WARNING: Cannot write all dirty rects to the buffer. Adding one full size rect. Performance may drop." );
+                }
+            }
+            else
+            {
+                writeShort( (short)numDirtyRects, buffer );
+                
+                for ( int i = 0; i < numDirtyRects; i++ )
+                {
+                    Rect2i r = dirtyList.get( i );
+                    
+                    writeShort( (short)r.getLeft(), buffer );
+                    writeShort( (short)r.getTop(), buffer );
+                    writeShort( (short)r.getWidth(), buffer );
+                    writeShort( (short)r.getHeight(), buffer );
                 }
                 
-                return ( (short)-numDirtyRects );
+                buffer.flip();
             }
-            
-            writeShort( (short)numDirtyRects, buffer );
-            
-            for ( int i = 0; i < numDirtyRects; i++ )
-            {
-                Rect2i r = dirtyList.get( i );
-                
-                writeShort( (short)r.getLeft(), buffer );
-                writeShort( (short)r.getTop(), buffer );
-                writeShort( (short)r.getWidth(), buffer );
-                writeShort( (short)r.getHeight(), buffer );
-            }
-            
-            buffer.flip();
         }
         
         texture.clearUpdateList();

@@ -32,6 +32,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
@@ -354,34 +355,29 @@ public class ControlsWidget extends Widget
     }
     
     @Override
-    protected TransformableTexture[] getSubTexturesImpl( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight )
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
         int numBars = initSubTextures( isEditorMode, widgetInnerWidth, widgetInnerHeight );
         
         if ( numBars == 0 )
-            return ( null );
+            return;
         
-        TransformableTexture[] texs = new TransformableTexture[ numBars ];
-        
-        int i = 0;
         if ( displayClutch.getBooleanValue() )
-            texs[i++] = texClutch;
+            collector.add( texClutch );
         if ( swapThrottleAndBrake.getBooleanValue() )
         {
             if ( displayThrottle.getBooleanValue() )
-                texs[i++] = texThrottle;
+                collector.add( texThrottle );
             if ( displayBrake.getBooleanValue() )
-                texs[i++] = texBrake;
+                collector.add( texBrake );
         }
         else
         {
             if ( displayBrake.getBooleanValue() )
-                texs[i++] = texBrake;
+                collector.add( texBrake );
             if ( displayThrottle.getBooleanValue() )
-                texs[i++] = texThrottle;
+                collector.add( texThrottle );
         }
-        
-        return ( texs );
     }
     
     /**
