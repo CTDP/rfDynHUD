@@ -31,6 +31,8 @@ package org.jagatoo.util.xml;
 
 import java.util.List;
 
+import org.jagatoo.util.Tools;
+
 /**
  * Keeps the current XML parsing path.
  * 
@@ -141,6 +143,78 @@ public class XMLPath
     public final int getLevel()
     {
         return ( level );
+    }
+    
+    /**
+     * Checks, whether the current path is composed of the given elements.
+     * 
+     * @param compareIgnoringCase
+     * @param elements
+     * 
+     * @return
+     */
+    public final boolean isAt( boolean compareIgnoringCase, String... elements )
+    {
+        if ( ( elements == null ) || ( elements.length == 0 ) )
+            return ( getLevel() == 0 );
+        
+        if ( getLevel() != elements.length )
+            return ( false );
+        
+        if ( compareIgnoringCase )
+        {
+            for ( int i = 0; i < elements.length; i++ )
+            {
+                if ( !getElement( i ).equalsIgnoreCase( elements[i] ) )
+                    return ( false );
+            }
+        }
+        else
+        {
+            for ( int i = 0; i < elements.length; i++ )
+            {
+                if ( !getElement( i ).equals( elements[i] ) )
+                    return ( false );
+            }
+        }
+        
+        return ( true );
+    }
+    
+    /**
+     * Checks, whether the current path is composed of the given element objects (see {@link SimpleXMLHandlerDelegate#getPathObject(XMLPath, String)}).
+     * 
+     * @param doEqualsTest
+     * @param objects
+     * 
+     * @return
+     */
+    public final boolean isAtByObjects( boolean doEqualsTest, String... objects )
+    {
+        if ( ( objects == null ) || ( objects.length == 0 ) )
+            return ( getLevel() == 0 );
+        
+        if ( getLevel() != objects.length )
+            return ( false );
+        
+        if ( doEqualsTest )
+        {
+            for ( int i = 0; i < objects.length; i++ )
+            {
+                if ( !Tools.objectsEqual( getObject( i ), objects[i] ) )
+                    return ( false );
+            }
+        }
+        else
+        {
+            for ( int i = 0; i < objects.length; i++ )
+            {
+                if ( getObject( i ) != objects[i] )
+                    return ( false );
+            }
+        }
+        
+        return ( true );
     }
     
     /**

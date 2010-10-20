@@ -38,7 +38,7 @@ import org.xml.sax.SAXParseException;
  * 
  * @author Marvin Froehlich (aka Qudus)
  */
-public abstract class SimpleXMLHandlerFork
+public abstract class SimpleXMLHandlerDelegate
 {
     public static enum ExceptionSeverity
     {
@@ -61,15 +61,15 @@ public abstract class SimpleXMLHandlerFork
     }
     
     /**
-     * Start a fork handler.
+     * Start a delegate handler.
      * 
-     * @param fork
+     * @param delegate
      * 
      * @throws SAXException
      */
-    protected final void fork( SimpleXMLHandlerFork fork ) throws SAXException
+    protected final void delegate( SimpleXMLHandlerDelegate delegate ) throws SAXException
     {
-        adapter.fork( fork );
+        adapter.delegate( delegate );
     }
     
     /**
@@ -86,12 +86,12 @@ public abstract class SimpleXMLHandlerFork
     /**
      * Converts the passed element to a path element. By default the passed element is returned.
      * 
-     * @param level
-     * @param element
+     * @param path then current XML element path
+     * @param element the element's name
      * 
      * @return the converted path element.
      */
-    protected Object getPathObject( int level, String element )
+    protected Object getPathObject( XMLPath path, String element )
     {
         return ( element );
     }
@@ -101,33 +101,36 @@ public abstract class SimpleXMLHandlerFork
      * 
      * @param path then current XML element path
      * @param name the element's name
+     * @param object the path object
      * @param attributes the attributes
      * 
      * @throws SAXException
      */
-    protected abstract void onElementStarted( XMLPath path, String name, Attributes attributes ) throws SAXException;
+    protected abstract void onElementStarted( XMLPath path, String name, Object object, Attributes attributes ) throws SAXException;
     
     /**
      * Invoked when an XML element's character data is available.
      * 
      * @param path then current XML element path
+     * @param attributes the attributes
      * @param data the characters
      * @param start the start position in the character array
      * @param length the number of characters to use from the character array
      * 
      * @throws SAXException
      */
-    protected abstract void onElementData( XMLPath path, char[] data, int start, int length ) throws SAXException;
+    protected abstract void onElementData( XMLPath path, Attributes attributes, char[] data, int start, int length ) throws SAXException;
     
     /**
      * Invoked when an XML element end has been detected.
      * 
      * @param path then current XML element path
      * @param name the element's name
+     * @param object the path object
      * 
      * @throws SAXException
      */
-    protected abstract void onElementEnded( XMLPath path, String name ) throws SAXException;
+    protected abstract void onElementEnded( XMLPath path, String name, Object object ) throws SAXException;
     
     /**
      * Invoked when a parsing exception occurred.

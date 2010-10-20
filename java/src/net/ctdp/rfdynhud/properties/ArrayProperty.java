@@ -17,8 +17,9 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+
+import org.jagatoo.util.Tools;
 
 /**
  * The {@link ArrayProperty} serves for customizing a value from an array.

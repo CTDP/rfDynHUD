@@ -27,7 +27,7 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
 
-import net.ctdp.rfdynhud.util.Tools;
+import org.jagatoo.util.Tools;
 
 /**
  * The memory panel displays information about free VM memory.

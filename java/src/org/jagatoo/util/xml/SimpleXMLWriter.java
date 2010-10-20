@@ -45,7 +45,13 @@ import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 /**
+ * <p>
  * Writes XML data.
+ * </p>
+ * 
+ * <p>
+ * This class simply wrapps an inverted SAX parser to generate valid XML.
+ * </p>
  * 
  * @author Marvin Froehlich (aka Qudus)
  */
@@ -238,6 +244,22 @@ public class SimpleXMLWriter
     }
     
     /**
+     * Writes an XML element to the file.
+     * 
+     * @param name the element's name
+     * @param data
+     * @param attributes the attributes (attribName1, attribValue1, attribName2, attribValue2, ...)
+     * 
+     * @throws IOException
+     * @throws SAXException
+     */
+    public final void writeElementWithData( String name, String data, Object... attributes ) throws IOException, SAXException
+    {
+        writeElement( false, name, attributes );
+        writeElementData( data );
+    }
+    
+    /**
      * Writes an XML element to the file and pushes one level down, so that succeeding elements become children of this.
      * 
      * @param name the element's name
@@ -259,7 +281,7 @@ public class SimpleXMLWriter
      * @throws IOException
      * @throws SAXException
      */
-    public void writeElementData( String data ) throws IOException, SAXException
+    protected void writeElementData( String data ) throws IOException, SAXException
     {
         String closeElementName = lastElementName;
         applyLastElement( false, false );

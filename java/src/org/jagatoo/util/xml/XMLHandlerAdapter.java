@@ -35,6 +35,7 @@ import java.util.Stack;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * Insert class comment here.
@@ -45,28 +46,29 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
 {
     private final ArrayList<XMLPath> pathStack = new ArrayList<XMLPath>();
     private XMLPath path = null;
-    private final Stack<SimpleXMLHandlerFork> simpleHandlerStack = new Stack<SimpleXMLHandlerFork>();
-    private SimpleXMLHandlerFork simpleHandler = null;
+    private final Stack<SimpleXMLHandlerDelegate> simpleHandlerStack = new Stack<SimpleXMLHandlerDelegate>();
+    private SimpleXMLHandlerDelegate simpleHandler = null;
     private Object userObject = null;
     
     private boolean forkAllowed = false;
     private String currElement = null;
     private Object currObject = null;
     private Attributes currAttribs = null;
+    private final AttributesImpl lastAttribs = new AttributesImpl();
     
-    final void fork( SimpleXMLHandlerFork fork ) throws SAXException
+    final void delegate( SimpleXMLHandlerDelegate delegate ) throws SAXException
     {
-        if ( fork == null )
-            throw new IllegalArgumentException( "fork must not be null." );
+        if ( delegate == null )
+            throw new IllegalArgumentException( "delegate must not be null." );
         
         if ( !forkAllowed )
-            throw new IllegalStateException( "fork() can only be called from the onElementStarted() event." );
+            throw new IllegalStateException( "delegate() can only be called from the onElementStarted() event." );
         
-        fork.handleForkElement( currElement, currObject, currAttribs );
+        delegate.handleForkElement( currElement, currObject, currAttribs );
         
         simpleHandler.setAdapter( null );
-        simpleHandlerStack.push( fork );
-        simpleHandler = fork;
+        simpleHandlerStack.push( delegate );
+        simpleHandler = delegate;
         simpleHandler.setAdapter( this );
         
         if ( pathStack.size() < simpleHandlerStack.size() )
@@ -81,7 +83,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
         }
     }
     
-    private void unfork()
+    private void undelegate()
     {
         simpleHandler.setAdapter( null );
         simpleHandlerStack.pop();
@@ -91,7 +93,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
         path = pathStack.get( simpleHandlerStack.size() - 1 );
     }
     
-    public void setSimpleHandler( SimpleXMLHandlerFork simpleHandler )
+    public void setSimpleHandler( SimpleXMLHandlerDelegate simpleHandler )
     {
         if ( simpleHandler == null )
             throw new IllegalArgumentException( "simpleHandler must not be null." );
@@ -127,10 +129,14 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     @Override
     public void startElement( String uri, String localName, String qName, Attributes attributes ) throws SAXException
     {
-        SimpleXMLHandlerFork handler = this.simpleHandler;
+        lastAttribs.clear();
+        for ( int i = 0; i < attributes.getLength(); i++ )
+            lastAttribs.addAttribute( attributes.getURI( i ), attributes.getLocalName( i ), attributes.getQName( i ), attributes.getType( i ), attributes.getType( i ) );
+        
+        SimpleXMLHandlerDelegate handler = this.simpleHandler;
         XMLPath path = this.path;
         
-        Object object = handler.getPathObject( path.getLevel(), qName );
+        Object object = handler.getPathObject( path, qName );
         if ( object == null )
             throw new RuntimeException( "The getPathObject() method must never return null." );
         
@@ -140,7 +146,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
         currAttribs = attributes;
         try
         {
-            handler.onElementStarted( path, qName, attributes );
+            handler.onElementStarted( path, qName, object, attributes );
         }
         finally
         {
@@ -156,18 +162,20 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
     @Override
     public void characters( char[] data, int start, int length ) throws SAXException
     {
-        simpleHandler.onElementData( path, data, start, length );
+        simpleHandler.onElementData( path, lastAttribs, data, start, length );
     }
     
     @Override
     public void endElement( String uri, String localName, String qName ) throws SAXException
     {
         if ( path.getLevel() == 0 )
-            unfork();
+            undelegate();
+        
+        Object object = path.getLastPathObject();
         
         path.popPath();
         
-        simpleHandler.onElementEnded( path, qName );
+        simpleHandler.onElementEnded( path, qName, object );
     }
     
     @Override
@@ -176,7 +184,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
         XMLPath fullPath = XMLPath.getFullPath( pathStack );
         
         for ( int i = 0; i < simpleHandlerStack.size(); i++ )
-            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerFork.ExceptionSeverity.WARNING, ex );
+            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerDelegate.ExceptionSeverity.WARNING, ex );
     }
     
     @Override
@@ -185,7 +193,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
         XMLPath fullPath = XMLPath.getFullPath( pathStack );
         
         for ( int i = 0; i < simpleHandlerStack.size(); i++ )
-            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerFork.ExceptionSeverity.ERROR, ex );
+            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerDelegate.ExceptionSeverity.ERROR, ex );
     }
     
     @Override
@@ -194,7 +202,7 @@ public class XMLHandlerAdapter extends org.xml.sax.helpers.DefaultHandler
         XMLPath fullPath = XMLPath.getFullPath( pathStack );
         
         for ( int i = 0; i < simpleHandlerStack.size(); i++ )
-            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerFork.ExceptionSeverity.FATAL_ERROR, ex );
+            simpleHandlerStack.get( i ).onParsingException( fullPath, SimpleXMLHandlerDelegate.ExceptionSeverity.FATAL_ERROR, ex );
     }
     
     private void release()

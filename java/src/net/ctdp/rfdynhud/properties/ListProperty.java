@@ -19,9 +19,10 @@ package net.ctdp.rfdynhud.properties;
 
 import java.util.Collection;
 
-import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
+
+import org.jagatoo.util.Tools;
 
 /**
  * The {@link ListProperty} serves for customizing a value from a list.

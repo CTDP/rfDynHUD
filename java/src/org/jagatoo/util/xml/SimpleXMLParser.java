@@ -30,10 +30,12 @@
 package org.jagatoo.util.xml;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -42,10 +44,29 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.jagatoo.util.io.UnicodeBOM;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
+ * <p>
  * This class invokes simple XML parsing.
+ * </p>
+ * 
+ * <p>
+ * This not only provides full XML path information at every state of the parsing process,
+ * but also gives you the opportunity to fork the entity handling and delegate it to another handler.
+ * The fork is automatically undone when the root of the fork is detected.
+ * </p>
+ * 
+ * <p>
+ * An example:<br />
+ * Implement SimpleXMLHandlerFork and call the instance f.<br />
+ * Implement SimpleXMLHandler and call the instance h.<br />
+ * Invoke the parser and pass it h.<br />
+ * In the h implementation you would then detect a certain element start and invoke the handler's fork() method and pass f.<br />
+ * All the elements inside of this element are now handled by f which doesn't need to know anything about the parent elements
+ * and even gets an XMLPath, that roots to the forking element.
+ * </p>
  * 
  * @author Marvin Froehlich (aka Qudus)
  */
@@ -71,26 +92,22 @@ public class SimpleXMLParser
         if ( !in.markSupported() )
             in = new BufferedInputStream( in );
         
-        /*UnicodeBOM bom = */UnicodeBOM.skipBOM( in );
+        UnicodeBOM bom = UnicodeBOM.skipBOM( in );
         
-        /*
         if ( ( bom != null ) && ( bom.getCharset() != null ) )
             charset = bom.getCharset();
         else if ( codepage != null )
             charset = Charset.forName( codepage );
         
         BufferedReader reader = ( charset == null ) ? new BufferedReader( new InputStreamReader( in ) ) : new BufferedReader( new InputStreamReader( in, charset ) );
-        */
         
         XMLHandlerAdapter adapter = new XMLHandlerAdapter( handler );
         
         SAXParser saxParser = SAX_PARSER_FACTORY.newSAXParser();
-        /*
-        saxParser.parse( reader, adapter );
+        
+        saxParser.parse( new InputSource( reader ), adapter );
         
         reader.close();
-        */
-        saxParser.parse( in, adapter );
     }
     
     /**

@@ -203,7 +203,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             private String currentTeam = null;
             
             @Override
-            protected void onElementStarted( XMLPath path, String name, Attributes attributes ) throws SAXException
+            protected void onElementStarted( XMLPath path, String name, Object object, Attributes attributes ) throws SAXException
             {
                 if ( ( path.getLevel() == 0 ) && name.equals( "CachedData" ) )
                 {
@@ -266,12 +266,12 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             }
             
             @Override
-            protected void onElementData( XMLPath path, char[] data, int start, int length ) throws SAXException
+            protected void onElementData( XMLPath path, Attributes attributes, char[] data, int start, int length ) throws SAXException
             {
             }
             
             @Override
-            protected void onElementEnded( XMLPath path, String name ) throws SAXException
+            protected void onElementEnded( XMLPath path, String name, Object object ) throws SAXException
             {
                 if ( ( path.getLevel() == 1 ) && name.equals( "VehicleData" ) )
                 {
@@ -323,7 +323,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             private String currentTeam = null;
             
             @Override
-            protected void onElementStarted( XMLPath path, String name, Attributes attributes ) throws SAXException
+            protected void onElementStarted( XMLPath path, String name, Object object, Attributes attributes ) throws SAXException
             {
                 if ( ( path.getLevel() == 0 ) && name.equals( "CachedData" ) )
                 {
@@ -349,12 +349,12 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             }
             
             @Override
-            protected void onElementData( XMLPath path, char[] data, int start, int length ) throws SAXException
+            protected void onElementData( XMLPath path, Attributes attributes, char[] data, int start, int length ) throws SAXException
             {
             }
             
             @Override
-            protected void onElementEnded( XMLPath path, String name ) throws SAXException
+            protected void onElementEnded( XMLPath path, String name, Object object ) throws SAXException
             {
                 if ( ( path.getLevel() == 1 ) && name.equals( "VehicleData" ) )
                 {

@@ -36,11 +36,11 @@ import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.TextureManager;
-import net.ctdp.rfdynhud.util.Tools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
+import org.jagatoo.util.Tools;
 import org.jagatoo.util.ini.IniWriter;
 
 /**

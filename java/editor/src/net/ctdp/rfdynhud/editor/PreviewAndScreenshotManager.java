@@ -43,7 +43,8 @@ import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.Tools;
+
+import org.jagatoo.util.Tools;
 
 /**
  * Insert class comment here.

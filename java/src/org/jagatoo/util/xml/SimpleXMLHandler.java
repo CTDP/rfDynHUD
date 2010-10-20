@@ -37,7 +37,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Marvin Froehlich (aka Qudus)
  */
-public abstract class SimpleXMLHandler extends SimpleXMLHandlerFork
+public abstract class SimpleXMLHandler extends SimpleXMLHandlerDelegate
 {
     /**
      * Invoked when the XML document has been started.
