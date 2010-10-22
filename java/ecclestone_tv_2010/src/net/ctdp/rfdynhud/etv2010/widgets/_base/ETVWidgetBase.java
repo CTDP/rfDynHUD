@@ -54,9 +54,9 @@ public abstract class ETVWidgetBase extends Widget
     
     private ETVImages images = null;
     
-    protected final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR );
-    protected final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_STYLE_CAPTION_FONT_COLOR );
-    protected final ColorProperty dataBackgroundColor = new ColorProperty( this, "dataBgColor", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR );
+    protected final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR );
+    protected final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_CAPTION_FONT_COLOR );
+    protected final ColorProperty dataBackgroundColor = new ColorProperty( this, "dataBgColor", ETVUtils.ETV_DATA_BACKGROUND_COLOR );
     
     protected final IntProperty itemGap = new IntProperty( this, "itemGap", 3, 0, 100 );
     
@@ -258,7 +258,7 @@ public abstract class ETVWidgetBase extends Widget
     {
         super( width, true, height, true );
         
-        getFontColorProperty().setValue( ETVUtils.ETV_STYLE_DATA_FONT_COLOR );
-        getFontProperty().setValue( ETVUtils.ETV_STYLE_FONT );
+        getFontColorProperty().setValue( ETVUtils.ETV_DATA_FONT_COLOR );
+        getFontProperty().setValue( ETVUtils.ETV_FONT );
     }
 }

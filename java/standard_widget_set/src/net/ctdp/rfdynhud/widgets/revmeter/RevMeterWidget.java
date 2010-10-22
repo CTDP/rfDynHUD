@@ -83,11 +83,11 @@ public class RevMeterWidget extends NeedleMeterWidget
         return ( 20 );
     }
     
-    private final BooleanProperty useMaxRevLimit = new BooleanProperty( this, "useMaxRevLimit", true );
-    private final ColorProperty revMarkersMediumColor = new ColorProperty( this, "revMarkersMediumColor", "mediumColor", "#FFFF00" );
-    private final ColorProperty revMarkersHighColor = new ColorProperty( this, "revMarkersHighColor", "highColor", "#FF0000" );
-    private final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
-    private final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
+    protected final BooleanProperty useMaxRevLimit = new BooleanProperty( this, "useMaxRevLimit", true );
+    protected final ColorProperty revMarkersMediumColor = new ColorProperty( this, "revMarkersMediumColor", "mediumColor", "#FFFF00" );
+    protected final ColorProperty revMarkersHighColor = new ColorProperty( this, "revMarkersHighColor", "highColor", "#FF0000" );
+    protected final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
+    protected final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
     
     
     private void initShiftLights( int oldNumber, int newNumber )
@@ -126,62 +126,66 @@ public class RevMeterWidget extends NeedleMeterWidget
     private final ShiftLight[] shiftLights = { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null };
     
     
-    private final BooleanProperty displayGear = new BooleanProperty( this, "displayGear", "displayGear", true );
-    private final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "bgImageName", "", false, true );
+    protected final BooleanProperty displayGear = new BooleanProperty( this, "displayGear", "displayGear", true );
+    protected final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "bgImageName", "", false, true );
     private TransformableTexture gearBackgroundTexture = null;
     private TextureImage2D gearBackgroundTexture_bak = null;
-    private final IntProperty gearPosX = new IntProperty( this, "gearPosX", "posX", 354 );
-    private final IntProperty gearPosY = new IntProperty( this, "gearPosY", "posY", 512 );
+    protected final IntProperty gearPosX = new IntProperty( this, "gearPosX", "posX", 354 );
+    protected final IntProperty gearPosY = new IntProperty( this, "gearPosY", "posY", 512 );
     private int gearBackgroundTexPosX, gearBackgroundTexPosY;
-    private final FontProperty gearFont = new FontProperty( this, "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
-    private final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
+    protected final FontProperty gearFont = new FontProperty( this, "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
+    protected final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
     
     
-    private final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
-    private final IntProperty boostBarPosX = new IntProperty( this, "boostBarPosX", "barPosX", 135 );
-    private final IntProperty boostBarPosY = new IntProperty( this, "boostBarPosY", "barPosY", 671 );
-    private final IntProperty boostBarWidth = new IntProperty( this, "boostBarWidth", "barWidth", 438 );
-    private final IntProperty boostBarHeight = new IntProperty( this, "boostBarHeight", "barHeight", 27 );
-    private final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
-    private final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numBGImageName", "", false, true );
+    protected final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
+    protected final IntProperty boostBarPosX = new IntProperty( this, "boostBarPosX", "barPosX", 135 );
+    protected final IntProperty boostBarPosY = new IntProperty( this, "boostBarPosY", "barPosY", 671 );
+    protected final IntProperty boostBarWidth = new IntProperty( this, "boostBarWidth", "barWidth", 438 );
+    protected final IntProperty boostBarHeight = new IntProperty( this, "boostBarHeight", "barHeight", 27 );
+    protected final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
+    protected final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numBGImageName", "", false, true );
     private TransformableTexture boostNumberBackgroundTexture = null;
     private TextureImage2D boostNumberBackgroundTexture_bak = null;
     private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
-    private final IntProperty boostNumberPosX = new IntProperty( this, "boostNumberPosX", "numberPosX", 392 );
-    private final IntProperty boostNumberPosY = new IntProperty( this, "boostNumberPosY", "numberPosY", 544 );
-    private final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
+    protected final IntProperty boostNumberPosX = new IntProperty( this, "boostNumberPosX", "numberPosX", 392 );
+    protected final IntProperty boostNumberPosY = new IntProperty( this, "boostNumberPosY", "numberPosY", 544 );
+    protected final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
+    protected final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
+    protected String getInitialPeakNeedleImage()
+    {
+        return ( "default_rev_meter_needle.png" );
+    }
     
-    private final ImageProperty peakNeedleImageName = new ImageProperty( this, "peakNeedleImageName", "imageName", "default_rev_meter_needle.png", false, true );
-    private final IntProperty peakNeedlePivotBottomOffset = new IntProperty( this, "peakNeedlePivotBottomOffset", "pivotBottomOffset", 60 );
+    private final ImageProperty peakNeedleImageName = new ImageProperty( this, "peakNeedleImageName", "imageName", getInitialPeakNeedleImage(), false, true );
+    protected final IntProperty peakNeedlePivotBottomOffset = new IntProperty( this, "peakNeedlePivotBottomOffset", "pivotBottomOffset", 60 );
     private TransformableTexture peakNeedleTexture = null;
     
-    private final DelayProperty peakNeedleCooldown = new DelayProperty( this, "peakNeedleCooldown", "cooldown", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
-    private final DelayProperty peakNeedleWaitTime = new DelayProperty( this, "peakNeedleWaitTime", "wait", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
-    private final DelayProperty peakNeedleDownshiftIgnoreTime = new DelayProperty( this, "peakNeedleDownshiftIgnoreTime", "downshiftIgnoreTime", DelayProperty.DisplayUnits.MILLISECONDS, 1500, 0, 5000, false );
+    protected final DelayProperty peakNeedleCooldown = new DelayProperty( this, "peakNeedleCooldown", "cooldown", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
+    protected final DelayProperty peakNeedleWaitTime = new DelayProperty( this, "peakNeedleWaitTime", "wait", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
+    protected final DelayProperty peakNeedleDownshiftIgnoreTime = new DelayProperty( this, "peakNeedleDownshiftIgnoreTime", "downshiftIgnoreTime", DelayProperty.DisplayUnits.MILLISECONDS, 1500, 0, 5000, false );
     private long nextPeakRecordTime = -1L;
     private long lastPeakRecordTime = -1L;
     
-    private final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
-    private final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
-    private final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
-    private final BooleanProperty useBoostRevLimit1 = new BooleanProperty( this, "useBoostRevLimit1", "useBoostRevLimit", false );
-    private final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
-    private final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
-    private final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
-    private final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
+    protected final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
+    protected final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
+    protected final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
+    protected final BooleanProperty useBoostRevLimit1 = new BooleanProperty( this, "useBoostRevLimit1", "useBoostRevLimit", false );
+    protected final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
+    protected final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
+    protected final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
+    protected final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    protected final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
     
-    private final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
-    private final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
-    private final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
-    private final BooleanProperty useBoostRevLimit2 = new BooleanProperty( this, "useBoostRevLimit2", "useBoostRevLimit", false );
-    private final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
-    private final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
-    private final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
-    private final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
+    protected final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
+    protected final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
+    protected final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
+    protected final BooleanProperty useBoostRevLimit2 = new BooleanProperty( this, "useBoostRevLimit2", "useBoostRevLimit", false );
+    protected final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
+    protected final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
+    protected final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
+    protected final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    protected final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
     
     private DrawnString rpmString1 = null;
     private DrawnString rpmString2 = null;
@@ -567,8 +571,8 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         if ( peakNeedleTexture != null )
         {
-            peakNeedleTexture.setTranslation( mountX - peakNeedleTexture.getWidth() / 2, mountY - peakNeedleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * getBackground().getScaleX() );
-            peakNeedleTexture.setRotationCenter( (int)( peakNeedleTexture.getWidth() / 2 ), (int)( peakNeedleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * getBackground().getScaleY() ) );
+            peakNeedleTexture.setTranslation( mountX - peakNeedleTexture.getWidth() / 2, mountY - peakNeedleTexture.getHeight() + peakNeedlePivotBottomOffset.getIntValue() * getBackground().getScaleX() );
+            peakNeedleTexture.setRotationCenter( (int)( peakNeedleTexture.getWidth() / 2 ), (int)( peakNeedleTexture.getHeight() - peakNeedlePivotBottomOffset.getIntValue() * getBackground().getScaleY() ) );
         }
     }
     
@@ -938,15 +942,10 @@ public class RevMeterWidget extends NeedleMeterWidget
         markersSmallStep.setIntValue( 200 );
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveMarkersProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( hideWhenViewingOtherCar, "Hide the Widget when another car is being observed?" );
+        super.saveMarkersProperties( writer );
         
         writer.writeProperty( useMaxRevLimit, "Whether to use maximum possible (by setup) rev limit" );
         
@@ -954,18 +953,39 @@ public class RevMeterWidget extends NeedleMeterWidget
         writer.writeProperty( revMarkersHighColor, "The color used to draw the rev markers for high revs." );
         writer.writeProperty( fillHighBackground, "Fill the rev markers' background with medium and high color instead of coloring the markers." );
         writer.writeProperty( interpolateMarkerColors, "Interpolate medium and high colors." );
+    }
+    
+    @Override
+    protected void saveNeedleProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
+        super.saveNeedleProperties( writer );
         
+        writer.writeProperty( peakNeedleImageName, "The name of the peak needle image." );
+        writer.writeProperty( peakNeedlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the peak needle's axis is." );
+        writer.writeProperty( peakNeedleWaitTime, "The time in milliseconds to let the peak needle stay at the peak value." );
+        writer.writeProperty( peakNeedleCooldown, "The time in milliseconds, that the peak needle takes to go down from max RPM to zero." );
+        writer.writeProperty( peakNeedleDownshiftIgnoreTime, "The time in milliseconds to ignore current revs after a downshift." );
+    }
+    
+    protected void saveShiftLightsProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
         writer.writeProperty( numShiftLights, "The number of shift lights to render." );
         for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
             shiftLights[i].saveProperties( writer );
-        
+    }
+    
+    protected void saveGearProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
         writer.writeProperty( displayGear, "Display the gear?" );
         writer.writeProperty( gearBackgroundImageName, "The name of the image to render behind the gear number." );
         writer.writeProperty( gearPosX, "The x-offset in pixels to the gear label." );
         writer.writeProperty( gearPosY, "The y-offset in pixels to the gear label." );
         writer.writeProperty( gearFont, "The font used to draw the gear." );
         writer.writeProperty( gearFontColor, "The font color used to draw the gear." );
-        
+    }
+    
+    protected void saveBoostProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
         writer.writeProperty( displayBoostBar, "Display a graphical bar for engine boost mapping?" );
         writer.writeProperty( boostBarPosX, "The x-position of the boost bar." );
         writer.writeProperty( boostBarPosY, "The y-position of the boost bar." );
@@ -978,7 +998,10 @@ public class RevMeterWidget extends NeedleMeterWidget
         writer.writeProperty( boostNumberPosY, "The y-position of the boost number." );
         writer.writeProperty( boostNumberFont, "The font used to draw the boost number." );
         writer.writeProperty( boostNumberFontColor, "The font color used to draw the boost bar." );
-        
+    }
+    
+    protected void saveDigiRevsProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
         writer.writeProperty( displayRPMString1, "whether to display the digital RPM/Revs string or not" );
         writer.writeProperty( displayCurrRPM1, "whether to display the current revs or to hide them" );
         writer.writeProperty( displayMaxRPM1, "whether to display the maximum revs or to hide them" );
@@ -998,12 +1021,25 @@ public class RevMeterWidget extends NeedleMeterWidget
         writer.writeProperty( rpmFont2, "The font used to draw the RPM." );
         writer.writeProperty( rpmFontColor2, "The font color used to draw the RPM." );
         writer.writeProperty( rpmJoinString2, "The String to use to join the current and max RPM." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
         
-        writer.writeProperty( peakNeedleImageName, "The name of the peak needle image." );
-        writer.writeProperty( peakNeedlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the peak needle's axis is." );
-        writer.writeProperty( peakNeedleWaitTime, "The time in milliseconds to let the peak needle stay at the peak value." );
-        writer.writeProperty( peakNeedleCooldown, "The time in milliseconds, that the peak needle takes to go down from max RPM to zero." );
-        writer.writeProperty( peakNeedleDownshiftIgnoreTime, "The time in milliseconds to ignore current revs after a downshift." );
+        writer.writeProperty( hideWhenViewingOtherCar, "Hide the Widget when another car is being observed?" );
+        
+        saveShiftLightsProperties( writer );
+        
+        saveGearProperties( writer );
+        
+        saveBoostProperties( writer );
+        
+        saveDigiRevsProperties( writer );
     }
     
     private boolean loadShiftLightProperty( PropertyLoader loader )
@@ -1147,22 +1183,14 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     /**
-     * {@inheritDoc}
+     * Collects the properties for the shift lights.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    @Override
-    protected String getDigiValuePropertiesGroupName()
+    protected void getShiftLightsProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
-        return ( "Velocity" );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
         propsCont.addGroup( "Shift Lights" );
         
         propsCont.addProperty( numShiftLights );
@@ -1183,7 +1211,17 @@ public class RevMeterWidget extends NeedleMeterWidget
             if ( numShiftLights.getIntValue() < 5 )
                 ShiftLight.DEFAULT_SHIFT_LIGHT5.getProperties( propsCont, forceAll );
         }
-        
+    }
+    
+    /**
+     * Collects the properties for the gear.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void getGearProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
         propsCont.addGroup( "Gear" );
         
         propsCont.addProperty( displayGear );
@@ -1192,7 +1230,17 @@ public class RevMeterWidget extends NeedleMeterWidget
         propsCont.addProperty( gearPosY );
         propsCont.addProperty( gearFont );
         propsCont.addProperty( gearFontColor );
-        
+    }
+    
+    /**
+     * Collects the properties for the engine boost.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void getBoostProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
         propsCont.addGroup( "Engine Boost" );
         
         propsCont.addProperty( displayBoostBar );
@@ -1206,7 +1254,17 @@ public class RevMeterWidget extends NeedleMeterWidget
         propsCont.addProperty( boostNumberPosY );
         propsCont.addProperty( boostNumberFont );
         propsCont.addProperty( boostNumberFontColor );
-        
+    }
+    
+    /**
+     * Collects the properties for the digital revs.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void getDigiRevsProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
         propsCont.addGroup( "DigitalRevs1" );
         
         propsCont.addProperty( displayRPMString1 );
@@ -1232,12 +1290,53 @@ public class RevMeterWidget extends NeedleMeterWidget
         propsCont.addProperty( rpmJoinString2 );
     }
     
-    public RevMeterWidget()
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDigiValuePropertiesGroupName()
     {
-        super( 16.3125f, 21.75f );
+        return ( "Velocity" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        getShiftLightsProperties( propsCont, forceAll );
+        
+        getGearProperties( propsCont, forceAll );
+        
+        getBoostProperties( propsCont, forceAll );
+        
+        getDigiRevsProperties( propsCont, forceAll );
+    }
+    
+    protected int getInitialNumberOfShiftLights()
+    {
+        return ( 2 );
+    }
+    
+    public RevMeterWidget( float width, float height )
+    {
+        super( width, height );
         
         getBorderProperty().setBorder( "" );
-        numShiftLights.setIntValue( 2 );
-        initShiftLights( 0, 2 );
+        
+        int initialShiftLights = getInitialNumberOfShiftLights();
+        if ( initialShiftLights != 0 )
+        {
+            numShiftLights.setIntValue( initialShiftLights );
+            initShiftLights( 0, numShiftLights.getIntValue() );
+        }
+    }
+    
+    public RevMeterWidget()
+    {
+        this( 16.3125f, 21.75f );
     }
 }

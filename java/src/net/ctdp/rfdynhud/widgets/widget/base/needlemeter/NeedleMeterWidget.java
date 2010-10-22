@@ -36,6 +36,7 @@ import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -93,6 +94,7 @@ public abstract class NeedleMeterWidget extends Widget
     protected final BooleanProperty markerNumbersInside = new BooleanProperty( this, "markerNumbersInside", "numbersInside", false );
     protected final IntProperty markersInnerRadius = new IntProperty( this, "markersInnerRadius", "innerRadius", 224, 1, Integer.MAX_VALUE, false );
     protected final IntProperty markersLength = new IntProperty( this, "markersLength", "length", 50, 4, Integer.MAX_VALUE, false );
+    protected final BooleanProperty markersOnCircle = new BooleanProperty( this, "markersOnCircle", true );
     
     protected int getMarkersBigStepLowerLimit()
     {
@@ -127,6 +129,8 @@ public abstract class NeedleMeterWidget extends Widget
     protected final ColorProperty markersColor = new ColorProperty( this, "markersColor", "color", "#FFFFFF" );
     protected final FontProperty markersFont = new FontProperty( this, "markersFont", "font", "Monospaced-BOLD-9va" );
     protected final ColorProperty markersFontColor = new ColorProperty( this, "markersFontColor", "fontColor", "#FFFFFF" );
+    protected final ColorProperty markersFontDropShadowColor = new ColorProperty( this, "markersFontDropShadowColor", "fontDropShadowColor", "#00000000" );
+    protected final BooleanProperty markerNumbersCentered = new BooleanProperty( this, "markerNumbersCentered", "numbersCentered", false );
     
     
     protected void onNeedleImageNameChanged() {}
@@ -155,6 +159,7 @@ public abstract class NeedleMeterWidget extends Widget
     protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
     protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
     
+    private Boolean drawNeeldeMount = null;
     
     protected final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
     
@@ -172,6 +177,17 @@ public abstract class NeedleMeterWidget extends Widget
     private DrawnString valueString = null;
     
     private final IntValue valueValue = new IntValue();
+    
+    @Override
+    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    {
+        super.onPropertyChanged( property, oldValue, newValue );
+        
+        if ( ( property == needleMountX ) || ( property == needleMountY ) )
+        {
+            drawNeeldeMount = true;
+        }
+    }
     
     private void fixSmallStep()
     {
@@ -211,6 +227,11 @@ public abstract class NeedleMeterWidget extends Widget
     protected int getMarkersLength()
     {
         return ( markersLength.getIntValue() );
+    }
+    
+    protected boolean getMarkersOnCircle()
+    {
+        return ( markersOnCircle.getBooleanValue() );
     }
     
     protected ImageTemplate getNeedleImage()
@@ -667,7 +688,7 @@ public abstract class NeedleMeterWidget extends Widget
         
         final float centerX = offsetX + getNeedleMountX( width );
         final float centerY = offsetY + getNeedleMountY( height );
-        final float innerAspect = getInnerSize().getAspect();
+        final float innerAspect = markersOnCircle.getBooleanValue() ? 1.0f : getInnerSize().getAspect();
         
         texCanvas.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
         
@@ -704,6 +725,21 @@ public abstract class NeedleMeterWidget extends Widget
         //double maxFH = metrics.getAscent() - metrics.getDescent();
         double maxOff = Math.sqrt( maxFW * maxFW + maxFH * maxFH ) / 2.0;
         */
+        
+        Color dropShadowColor = markersFontDropShadowColor.getColor();
+        float dropShadowOffset = 2.2f; //numberFont.getFont().getSize() * 0.2f;
+        boolean drawDropShadow = ( dropShadowColor.getAlpha() > 0 );
+        
+        double equalOff = 0.0;
+        if ( markerNumbersCentered.getBooleanValue() )
+        {
+            String biggestString = String.valueOf( getMarkerLabelForValue( gameData, isEditorMode, Math.max( minValue, maxValue ) ) );
+            Rectangle2D bounds = metrics.getStringBounds( biggestString, texCanvas );
+            double fw = bounds.getWidth();
+            //double fh = metrics.getAscent() - metrics.getDescent();
+            double fh = bounds.getHeight();
+            equalOff = Math.sqrt( fw * fw + fh * fh ) / 2.0;
+        }
         
         final int smallStep = markersSmallStep.getIntValue();
         for ( int value = minValue; value <= maxValue; value += smallStep )
@@ -744,13 +780,11 @@ public abstract class NeedleMeterWidget extends Widget
                     
                     if ( s != null )
                     {
-                        texCanvas.setColor( getMarkerNumberColorForValue( gameData, isEditorMode, value, minValue, maxValue ) );
-                        
                         Rectangle2D bounds = metrics.getStringBounds( s, texCanvas );
                         double fw = bounds.getWidth();
                         //double fh = metrics.getAscent() - metrics.getDescent();
                         double fh = bounds.getHeight();
-                        double off = Math.sqrt( fw * fw + fh * fh ) / 2.0;
+                        double off = markerNumbersCentered.getBooleanValue() ? equalOff : Math.sqrt( fw * fw + fh * fh ) / 2.0;
                         
                         int x, y;
                         if ( mni )
@@ -760,10 +794,17 @@ public abstract class NeedleMeterWidget extends Widget
                         }
                         else
                         {
-                            x = (int)Math.round( p0.x + vecX * ( bigOuterRadius - innerRadius + off + 1 ) );
-                            y = (int)Math.round( p0.y + vecY * ( bigOuterRadius - innerRadius + off + 1 ) );
+                            x = (int)Math.round( p0.x + vecX * ( bigOuterRadius0 - innerRadius + off + 1 ) );
+                            y = (int)Math.round( p0.y + vecY * ( bigOuterRadius0 - innerRadius + off + 1 ) );
                         }
                         
+                        if ( drawDropShadow )
+                        {
+                            texCanvas.setColor( dropShadowColor );
+                            texCanvas.drawString( s, x - (int)( fw / 2 ) + dropShadowOffset, y + (int)( -fh / 2 - bounds.getY() ) + dropShadowOffset );
+                        }
+                        
+                        texCanvas.setColor( getMarkerNumberColorForValue( gameData, isEditorMode, value, minValue, maxValue ) );
                         texCanvas.drawString( s, x - (int)( fw / 2 ), y + (int)( -fh / 2 - bounds.getY() ) );
                         /*
                         texCanvas.setColor( Color.GREEN );
@@ -866,6 +907,63 @@ public abstract class NeedleMeterWidget extends Widget
             if ( valueBackgroundTexture != null )
                 valueBackgroundTexture.setTranslation( valueBackgroundTexPosX, valueBackgroundTexPosY );
         }
+        
+        if ( isEditorMode && ( drawNeeldeMount != null ) )
+        {
+            final int centerX = offsetX + getNeedleMountX( width );
+            final int centerY = offsetY + getNeedleMountY( height );
+            
+            Texture2DCanvas texCanvas = texture.getTextureCanvas();
+            
+            Color oldColor = texCanvas.getColor();
+            texCanvas.setColor( Color.MAGENTA );
+            Stroke oldStroke = texCanvas.getStroke();
+            texCanvas.setStroke( new BasicStroke( 3 ) );
+            texCanvas.drawLine( centerX - 8, centerY - 8, centerX + 8, centerY + 8 );
+            texCanvas.drawLine( centerX - 8, centerY + 8, centerX + 8, centerY - 8 );
+            texCanvas.setStroke( oldStroke );
+            texCanvas.setColor( oldColor );
+            
+            drawNeeldeMount = null;
+        }
+    }
+    
+    protected void saveMarkersProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( displayMarkers, "Display markers?" );
+        writer.writeProperty( displayMarkerNumbers, "Display marker numbers?" );
+        writer.writeProperty( markerNumbersInside, "Render marker numbers inside of the markers?" );
+        writer.writeProperty( markersInnerRadius, "The inner radius of the markers (in background image space)" );
+        writer.writeProperty( markersLength, "The length of the markers (in background image space)" );
+        writer.writeProperty( markersOnCircle, "Draw markers on circle, even if the Widget has an aspect ratio unequal to 1.0" );
+        writer.writeProperty( markersBigStep, "Step size of bigger rev markers" );
+        writer.writeProperty( markersSmallStep, "Step size of smaller rev markers" );
+        writer.writeProperty( lastMarkerBig, "Whether to force the last marker to be treated as a big one." );
+        writer.writeProperty( markersColor, "The color used to draw the markers." );
+        writer.writeProperty( markersFont, "The font used to draw the marker numbers." );
+        writer.writeProperty( markersFontColor, "The font color used to draw the marker numbers." );
+        writer.writeProperty( markersFontDropShadowColor, "The font color for the marker numbers drop shadow." );
+        writer.writeProperty( markerNumbersCentered, "Draw marker numbers at their centers at an equal distance around needle mount?" );
+    }
+    
+    protected void saveNeedleProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( needleImageName, "The name of the needle image." );
+        writer.writeProperty( needleMountX, "The x-offset in background image pixels to the needle mount (-1 for center)." );
+        writer.writeProperty( needleMountY, "The y-offset in background image pixels to the needle mount (-1 for center)." );
+        writer.writeProperty( needlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
+        writer.writeProperty( needleRotationForMinValue, "The rotation for the needle image, that it has for min value (in degrees)." );
+        writer.writeProperty( needleRotationForMaxValue, "The rotation for the needle image, that it has for max value (in degrees)." );
+    }
+    
+    protected void saveDigiValueProperties( WidgetsConfigurationWriter writer ) throws IOException
+    {
+        writer.writeProperty( displayValue, "Display the digital value?" );
+        writer.writeProperty( valueBackgroundImageName, "The name of the image to render behind the value number." );
+        writer.writeProperty( valuePosX, "The x-offset in pixels to the value label." );
+        writer.writeProperty( valuePosY, "The y-offset in pixels to the value label." );
+        writer.writeProperty( valueFont, "The font used to draw the value." );
+        writer.writeProperty( valueFontColor, "The font color used to draw the value." );
     }
     
     /**
@@ -879,31 +977,11 @@ public abstract class NeedleMeterWidget extends Widget
         writer.writeProperty( minValue, "The minimum value accepted for the markers and needle" );
         writer.writeProperty( maxValue, "The maximum value accepted for the markers and needle" );
         
-        writer.writeProperty( displayMarkers, "Display markers?" );
-        writer.writeProperty( displayMarkerNumbers, "Display marker numbers?" );
-        writer.writeProperty( markerNumbersInside, "Render marker numbers inside of the markers?" );
-        writer.writeProperty( markersInnerRadius, "The inner radius of the markers (in background image space)" );
-        writer.writeProperty( markersLength, "The length of the markers (in background image space)" );
-        writer.writeProperty( markersBigStep, "Step size of bigger rev markers" );
-        writer.writeProperty( markersSmallStep, "Step size of smaller rev markers" );
-        writer.writeProperty( lastMarkerBig, "Whether to force the last marker to be treated as a big one." );
-        writer.writeProperty( markersColor, "The color used to draw the markers." );
-        writer.writeProperty( markersFont, "The font used to draw the marker numbers." );
-        writer.writeProperty( markersFontColor, "The font color used to draw the marker numbers." );
+        saveMarkersProperties( writer );
         
-        writer.writeProperty( needleImageName, "The name of the needle image." );
-        writer.writeProperty( needleMountX, "The x-offset in background image pixels to the needle mount (-1 for center)." );
-        writer.writeProperty( needleMountY, "The y-offset in background image pixels to the needle mount (-1 for center)." );
-        writer.writeProperty( needlePivotBottomOffset, "The offset in (unscaled) pixels from the bottom of the image, where the center of the needle's axis is." );
-        writer.writeProperty( needleRotationForMinValue, "The rotation for the needle image, that it has for min value (in degrees)." );
-        writer.writeProperty( needleRotationForMaxValue, "The rotation for the needle image, that it has for max value (in degrees)." );
+        saveNeedleProperties( writer );
         
-        writer.writeProperty( displayValue, "Display the digital value?" );
-        writer.writeProperty( valueBackgroundImageName, "The name of the image to render behind the value number." );
-        writer.writeProperty( valuePosX, "The x-offset in pixels to the value label." );
-        writer.writeProperty( valuePosY, "The y-offset in pixels to the value label." );
-        writer.writeProperty( valueFont, "The font used to draw the value." );
-        writer.writeProperty( valueFontColor, "The font color used to draw the value." );
+        saveDigiValueProperties( writer );
     }
     
     private void handleBackwardsCompatiblity( PropertyLoader loader )
@@ -967,12 +1045,15 @@ public abstract class NeedleMeterWidget extends Widget
         else if ( loader.loadProperty( markerNumbersInside ) );
         else if ( loader.loadProperty( markersInnerRadius ) );
         else if ( loader.loadProperty( markersLength ) );
+        else if ( loader.loadProperty( markersOnCircle ) );
         else if ( loader.loadProperty( markersBigStep ) );
         else if ( loader.loadProperty( markersSmallStep ) );
         else if ( loader.loadProperty( lastMarkerBig ) );
         else if ( loader.loadProperty( markersColor ) );
         else if ( loader.loadProperty( markersFont ) );
         else if ( loader.loadProperty( markersFontColor ) );
+        else if ( loader.loadProperty( markersFontDropShadowColor ) );
+        else if ( loader.loadProperty( markerNumbersCentered ) );
         
         else if ( loader.loadProperty( needleImageName ) );
         else if ( loader.loadProperty( needleMountX ) );
@@ -1041,17 +1122,22 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected void getMarkersProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
+        propsCont.addGroup( "Markers" );
+        
         propsCont.addProperty( displayMarkers );
         propsCont.addProperty( displayMarkerNumbers );
         propsCont.addProperty( markerNumbersInside );
         propsCont.addProperty( markersInnerRadius );
         propsCont.addProperty( markersLength );
+        propsCont.addProperty( markersOnCircle );
         propsCont.addProperty( markersBigStep );
         propsCont.addProperty( markersSmallStep );
         propsCont.addProperty( lastMarkerBig );
         propsCont.addProperty( markersColor );
         propsCont.addProperty( markersFont );
         propsCont.addProperty( markersFontColor );
+        propsCont.addProperty( markersFontDropShadowColor );
+        propsCont.addProperty( markerNumbersCentered );
     }
     
     /**
@@ -1063,6 +1149,8 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
+        propsCont.addGroup( "Needle" );
+        
         propsCont.addProperty( needleImageName );
         propsCont.addProperty( needleMountX );
         propsCont.addProperty( needleMountY );
@@ -1090,6 +1178,8 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected void getDigiValueProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
+        propsCont.addGroup( getDigiValuePropertiesGroupName() );
+        
         propsCont.addProperty( displayValue );
         propsCont.addProperty( valueBackgroundImageName );
         propsCont.addProperty( valuePosX );
@@ -1108,15 +1198,9 @@ public abstract class NeedleMeterWidget extends Widget
         
         getSpecificPropertiesFirst( propsCont, forceAll );
         
-        propsCont.addGroup( "Markers" );
-        
         getMarkersProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Needle" );
-        
         getNeedleProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( getDigiValuePropertiesGroupName() );
         
         getDigiValueProperties( propsCont, forceAll );
     }

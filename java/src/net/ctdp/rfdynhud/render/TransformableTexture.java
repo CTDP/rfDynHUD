@@ -152,6 +152,11 @@ public class TransformableTexture
         return ( texture.getName() );
     }
     
+    void setDirty()
+    {
+        this.dirty = true;
+    }
+    
     void setOwnerWidget( Widget ownerWidget )
     {
         this.ownerWidget = ownerWidget;

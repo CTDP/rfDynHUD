@@ -98,7 +98,8 @@ public class FontChooser extends JPanel
     private JCheckBox italicBox;
     private JCheckBox virtualBox;
     private JCheckBox antiAliasedBox;
-    private JLabel sampleLabel;
+    private JLabel sampleLabel1;
+    private JLabel sampleLabel2;
     private String selectedFont;
     private boolean fontNameSelected = false;
     private boolean valueChanged = false;
@@ -140,7 +141,9 @@ public class FontChooser extends JPanel
         virtualBox.setSelected( virtual );
         antiAliasedBox.setSelected( antiAliased );
         
-        sampleLabel.setFont( FontUtils.parseFont( fontString, gameResY, false, true ) );
+        Font f = FontUtils.parseFont( fontString, gameResY, false, true );
+        sampleLabel1.setFont( f );
+        sampleLabel2.setFont( f );
     }
     
     private String composeSelectedFont()
@@ -151,7 +154,11 @@ public class FontChooser extends JPanel
     protected void setSelectedFont( String fontString, int gameResY )
     {
         if ( fontString != null )
-            sampleLabel.setFont( FontUtils.parseFont( fontString, gameResY, false, true ) );
+        {
+            Font font = FontUtils.parseFont( fontString, gameResY, false, true );
+            sampleLabel1.setFont( font );
+            sampleLabel2.setFont( font );
+        }
         
         this.selectedFont = fontString;
     }
@@ -991,13 +998,16 @@ public class FontChooser extends JPanel
         JPanel main = new JPanel( new BorderLayout( 0, 5 ) );
         
         
-        sampleLabel = new JLabel( "The quick brown fox jumps over the lazy dog" );
-        sampleLabel.setFont( font );
+        sampleLabel1 = new JLabel( "Quick brown fox jumps over the lazy dog" );
+        sampleLabel1.setFont( font );
+        sampleLabel2 = new JLabel( "0 1 2 3 4 5 6 7 8 9" );
+        sampleLabel2.setFont( font );
         JPanel south0 = new JPanel( new GridLayout( 1, 1 ) );
         south0.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
-        JPanel south1 = new JPanel( new GridLayout( 1, 1 ) );
+        JPanel south1 = new JPanel( new GridLayout( 2, 1 ) );
         south1.setBorder( new EmptyBorder( 15, 15, 15, 15 ) );
-        south1.add( sampleLabel );
+        south1.add( sampleLabel1 );
+        south1.add( sampleLabel2 );
         south0.add( south1 );
         
         main.add( south0, BorderLayout.SOUTH );
@@ -1017,6 +1027,6 @@ public class FontChooser extends JPanel
         
         this.add( wrapper );
         
-        this.setPreferredSize( new Dimension( 600, 350 ) );
+        this.setPreferredSize( new Dimension( 600, 400 ) );
     }
 }

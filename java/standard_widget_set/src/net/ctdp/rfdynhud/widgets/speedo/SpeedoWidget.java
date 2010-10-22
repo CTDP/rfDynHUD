@@ -38,7 +38,7 @@ import net.ctdp.rfdynhud.widgets.widget.base.needlemeter.NeedleMeterWidget;
  */
 public class SpeedoWidget extends NeedleMeterWidget
 {
-    private final IntProperty maxVelocity = new IntProperty( this, "maxVelocity", 340, 0, 1000 );
+    private final IntProperty maxVelocity = new IntProperty( this, "maxVelocity", 340, 1, 1000 );
     
     @Override
     protected String getInitialBackground()

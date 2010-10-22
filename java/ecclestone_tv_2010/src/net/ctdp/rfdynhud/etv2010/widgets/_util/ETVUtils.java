@@ -34,56 +34,59 @@ public class ETVUtils
     
     private static final boolean AA_TRIANGLE = true;
     
-    public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
-    public static final String ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST = "ETVCaptionBackgroundColor1st";
-    public static final String ETV_STYLE_CAPTION_FONT_COLOR = "ETVCaptionFontColor";
-    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_1ST = "ETVDataBackgroundColor1st";
-    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR = "ETVDataBackgroundColor";
-    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_FASTEST = "ETVDataBackgroundColorFastest";
-    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_FASTER = "ETVDataBackgroundColorFaster";
-    public static final String ETV_STYLE_DATA_BACKGROUND_COLOR_SLOWER = "ETVDataBackgroundColorSlower";
-    public static final String ETV_STYLE_DATA_FONT_COLOR = "ETVDataFontColor";
-    public static final String ETV_STYLE_DATA_FONT_COLOR_FASTEST = "ETVDataFontColorFasterst";
-    public static final String ETV_STYLE_DATA_FONT_COLOR_FASTER = "ETVDataFontColorFaster";
-    public static final String ETV_STYLE_DATA_FONT_COLOR_SLOWER = "ETVDataFontColorSlower";
-    public static final String ETV_STYLE_FONT = "ETVFont";
+    public static final String ETV_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
+    public static final String ETV_CAPTION_BACKGROUND_COLOR_1ST = "ETVCaptionBackgroundColor1st";
+    public static final String ETV_CAPTION_FONT_COLOR = "ETVCaptionFontColor";
+    public static final String ETV_DATA_BACKGROUND_COLOR_1ST = "ETVDataBackgroundColor1st";
+    public static final String ETV_DATA_BACKGROUND_COLOR = "ETVDataBackgroundColor";
+    public static final String ETV_DATA_BACKGROUND_COLOR_FASTEST = "ETVDataBackgroundColorFastest";
+    public static final String ETV_DATA_BACKGROUND_COLOR_FASTER = "ETVDataBackgroundColorFaster";
+    public static final String ETV_DATA_BACKGROUND_COLOR_SLOWER = "ETVDataBackgroundColorSlower";
+    public static final String ETV_DATA_FONT_COLOR = "ETVDataFontColor";
+    public static final String ETV_DATA_FONT_COLOR_FASTEST = "ETVDataFontColorFasterst";
+    public static final String ETV_DATA_FONT_COLOR_FASTER = "ETVDataFontColorFaster";
+    public static final String ETV_DATA_FONT_COLOR_SLOWER = "ETVDataFontColorSlower";
+    public static final String ETV_FONT = "ETVFont";
+    public static final String ETV_VELOCITY_FONT = "ETVVelocityFont";
+    public static final String ETV_REV_MARKERS_FONT = "ETVRevMarkersFont";
+    public static final String ETV_GEAR_FONT = "ETVGearFont";
     
     public static String getDefaultNamedColorValue( String name )
     {
-        if ( name.equals( ETV_STYLE_CAPTION_BACKGROUND_COLOR ) )
+        if ( name.equals( ETV_CAPTION_BACKGROUND_COLOR ) )
             return ( "#787878" );
         
-        if ( name.equals( ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST ) )
+        if ( name.equals( ETV_CAPTION_BACKGROUND_COLOR_1ST ) )
             return ( "#B10000" );
         
-        if ( name.equals( ETV_STYLE_CAPTION_FONT_COLOR ) )
+        if ( name.equals( ETV_CAPTION_FONT_COLOR ) )
             return ( "#FFFFFF" );
         
-        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR_1ST ) )
+        if ( name.equals( ETV_DATA_BACKGROUND_COLOR_1ST ) )
             return ( "#230000" );
         
-        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR ) )
+        if ( name.equals( ETV_DATA_BACKGROUND_COLOR ) )
             return ( "#000000" );
         
-        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR_FASTEST ) )
+        if ( name.equals( ETV_DATA_BACKGROUND_COLOR_FASTEST ) )
             return ( "#C000D2" );
         
-        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR_FASTER ) )
+        if ( name.equals( ETV_DATA_BACKGROUND_COLOR_FASTER ) )
             return ( "#008800" );
         
-        if ( name.equals( ETV_STYLE_DATA_BACKGROUND_COLOR_SLOWER ) )
+        if ( name.equals( ETV_DATA_BACKGROUND_COLOR_SLOWER ) )
             return ( "#BAB802" );
         
-        if ( name.equals( ETV_STYLE_DATA_FONT_COLOR ) )
+        if ( name.equals( ETV_DATA_FONT_COLOR ) )
             return ( "#FFFFFF" );
         
-        if ( name.equals( ETV_STYLE_DATA_FONT_COLOR_FASTEST ) )
+        if ( name.equals( ETV_DATA_FONT_COLOR_FASTEST ) )
             return ( "#000000" );
         
-        if ( name.equals( ETV_STYLE_DATA_FONT_COLOR_FASTER ) )
+        if ( name.equals( ETV_DATA_FONT_COLOR_FASTER ) )
             return ( "#FFFFFF" );
         
-        if ( name.equals( ETV_STYLE_DATA_FONT_COLOR_SLOWER ) )
+        if ( name.equals( ETV_DATA_FONT_COLOR_SLOWER ) )
             return ( "#000000" );
         
         return ( null );
@@ -91,8 +94,17 @@ public class ETVUtils
     
     public static String getDefaultNamedFontValue( String name )
     {
-        if ( name.equals( ETV_STYLE_FONT ) )
-            return ( "Verdana-PLAIN-16va" );
+        if ( name.equals( ETV_FONT ) )
+            return ( "DokChampa-BOLD-16va" );
+        
+        if ( name.equals( ETV_VELOCITY_FONT ) )
+            return ( "DokChampa-BOLD-18va" );
+        
+        if ( name.equals( ETV_REV_MARKERS_FONT ) )
+            return ( "DokChampa-BOLD-18va" );
+        
+        if ( name.equals( ETV_GEAR_FONT ) )
+            return ( "DokChampa-BOLD-30va" );
         
         return ( null );
     }

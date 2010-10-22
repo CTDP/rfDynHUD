@@ -72,11 +72,11 @@ Minor:
 * Added a way to select Widgets in background in the editor (context menu). Selections are also better preserved.
 * Added a management system for log files to archive a given number of log files for reference. See rfdynhud.ini 'numArchivedLogFiles'.
 * Added DashboardWidget.
+* Added ETVTelemetryWidget (Revs, Velocity, Trottle/Brake).
 
 TODO:
 
 * Meta config (merge configurations)
-* ETVTelemetryWidget (Revs, Velocity, Trottle/Brake)
 * Add master d3d9.dll
 * General profiling to tweak performance
 * Fix/Improve clock frequencies

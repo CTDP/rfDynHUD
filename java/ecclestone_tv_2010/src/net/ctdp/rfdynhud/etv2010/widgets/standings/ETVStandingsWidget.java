@@ -57,8 +57,8 @@ import net.ctdp.rfdynhud.values.StringValue;
  */
 public class ETVStandingsWidget extends ETVWidgetBase
 {
-    private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_STYLE_CAPTION_BACKGROUND_COLOR_1ST );
-    private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_STYLE_DATA_BACKGROUND_COLOR_1ST );
+    private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR_1ST );
+    private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_DATA_BACKGROUND_COLOR_1ST );
     
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", "forceLeaderDispl", true );
     private final BooleanProperty showFastestLapsInRace = new BooleanProperty( this, "showFastestLapsInRace", "showFastLapsRace", true );
