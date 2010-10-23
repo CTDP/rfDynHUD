@@ -165,7 +165,7 @@ public class WearWidget extends Widget
     @Override
     public WidgetPackage getWidgetPackage()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        return ( StandardWidgetSet.WIDGET_PACKAGE_TELEMETRY );
     }
     
     @Override
@@ -619,7 +619,7 @@ public class WearWidget extends Widget
                 }
             }
             
-            texture.markDirty( x, y, width, h );
+            texture.markDirty( x, y, width, h, null );
         }
         finally
         {
@@ -693,7 +693,7 @@ public class WearWidget extends Widget
         
         texture.clearPixelLine( pixels, x, y + h - (int)( h * lineValue ), w, false, null );
         
-        texture.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h, null );
     }
     
     private void drawBrake( float discThickness, Wheel wheel, VehiclePhysics.Brakes.WheelBrake brake, VehicleSetup setup, TextureImage2D texture, int x, int y )
@@ -749,7 +749,7 @@ public class WearWidget extends Widget
                 texture.clear( Color.BLACK, x, y, w, h3, false, null );
         }
         
-        texture.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h, null );
     }
     
     @Override

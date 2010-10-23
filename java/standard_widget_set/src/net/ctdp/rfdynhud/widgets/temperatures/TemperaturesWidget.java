@@ -129,7 +129,7 @@ public class TemperaturesWidget extends Widget
     @Override
     public WidgetPackage getWidgetPackage()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        return ( StandardWidgetSet.WIDGET_PACKAGE_TELEMETRY );
     }
     
     @Override
@@ -363,7 +363,7 @@ public class TemperaturesWidget extends Widget
         texture.getTextureCanvas().setColor( new Color( 255, 102, 0 ) );
         texture.getTextureCanvas().drawLine( x + (int)( ( strongOverheating - min ) * w / range ), y, x + (int)( ( strongOverheating - min ) * w / range ), y + h - 1 );
         
-        texture.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h, null );
     }
     
     private byte[] getTireColor( float actualTemp, float optimumTemp, float coldTemp, float overheatingTemp )
@@ -420,7 +420,7 @@ public class TemperaturesWidget extends Widget
         int h = tireSize.getEffectiveHeight();
         int hh = h / 2;
         
-        texture.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h, null );
         
         byte[] pixels = new byte[ w * 4 ];
         
@@ -558,7 +558,7 @@ public class TemperaturesWidget extends Widget
         
         texture.clearPixelLine( pixels, x, y + (int)( ( range - brake.getColdTemperature() ) * h / range ), w, false, null );
         
-        texture.markDirty( x, y, w, h );
+        texture.markDirty( x, y, w, h, null );
     }
     
     @Override

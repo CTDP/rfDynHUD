@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.etv2010.widgets.telemetry;
+package net.ctdp.rfdynhud.widgets.controls;
 
 import net.ctdp.rfdynhud.util.LocalizationsManager;
 
@@ -23,11 +23,10 @@ public class Loc
 {
     private static final String l( String key )
     {
-        return ( LocalizationsManager.INSTANCE.getLocalization( ETVTelemetryWidget.class, key ) );
+        return ( LocalizationsManager.INSTANCE.getLocalization( ControlsWidget.class, key ) );
     }
     
-    public static final String velocity_units_IMPERIAL = l( "velocity.units.IMPERIAL" );
-    public static final String velocity_units_METRIC = l( "velocity.units.METRIC" );
+    public static final String clutch_label = l( "clutch.label" );
     public static final String brake_label = l( "brake.label" );
     public static final String throttle_label = l( "throttle.label" );
 }

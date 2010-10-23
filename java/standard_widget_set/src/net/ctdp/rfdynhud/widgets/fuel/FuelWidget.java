@@ -665,7 +665,7 @@ public class FuelWidget extends Widget
             }
         }
         
-        texture.markDirty( offsetX + x, offsetY + y, w, h );
+        texture.markDirty( offsetX + x, offsetY + y, w, h, null );
         
         return ( areaDrawn );
     }

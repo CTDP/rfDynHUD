@@ -87,9 +87,9 @@ public class Texture2DCanvas extends Graphics2D
     private final java.awt.geom.Point2D.Float pLL = new java.awt.geom.Point2D.Float();
     private final java.awt.geom.Point2D.Float pLR = new java.awt.geom.Point2D.Float();
     
-    private final void markDirty( int x, int y, int width, int height )
+    private final void markDirty( int x, int y, int width, int height, final boolean doIt, Rect2i dirtyRect )
     {
-        if ( texImg == null )
+        if ( ( texImg == null ) || ( !doIt && ( dirtyRect == null ) ) )
             return;
         
         if ( !isIdentityTransform )
@@ -125,12 +125,20 @@ public class Texture2DCanvas extends Graphics2D
             }
         }
         
-        texImg.markDirty( x, y, width, height, true, true );
+        if ( doIt )
+        {
+            texImg.markDirty( x, y, width, height, true, true, dirtyRect );
+        }
+        else if ( dirtyRect != null )
+        {
+            dirtyRect.set( x, y, width, height );
+            texImg.clampToClipRect( dirtyRect );
+        }
     }
     
     private final void markDirty()
     {
-        markDirty( 0, 0, texImg.getWidth(), texImg.getHeight() );
+        markDirty( 0, 0, texImg.getWidth(), texImg.getHeight(), true, null );
     }
     
     public final void beginUpdateRegion( int x, int y, int width, int height )
@@ -167,7 +175,7 @@ public class Texture2DCanvas extends Graphics2D
             int h = currentUpdateRect.getHeight();
             Rect2i.toPool( currentUpdateRect );
             currentUpdateRect = null;
-            markDirty( l, t, w, h );
+            markDirty( l, t, w, h, true, null );
         }
     }
     
@@ -189,7 +197,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.clearRect( x, y, width, height );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
     }
     
     public final void clearRect( Rect2i rect )
@@ -219,7 +227,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.copyArea( x, y, width, height, dx, dy );
         
-        markDirty( dx, dy, width, height );
+        markDirty( dx, dy, width, height, true, null );
     }
     
     public final void copyArea( Rect2i rect, int dx, int dy )
@@ -234,7 +242,7 @@ public class Texture2DCanvas extends Graphics2D
         
         java.awt.Rectangle rect = shape.getBounds();
         
-        markDirty( rect.x, rect.y, rect.width, rect.height );
+        markDirty( rect.x, rect.y, rect.width, rect.height, true, null );
     }
     
     @Override
@@ -242,7 +250,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawArc( x, y, width, height, startAngle, arcAngle );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
     }
     
     public final void drawCircle( int x, int y, int radius )
@@ -255,7 +263,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawBytes( data, offset, length, x, y );
         
-        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y );
+        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y, true, null );
     }
     
     @Override
@@ -263,7 +271,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawChars( data, offset, length, x, y );
         
-        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y );
+        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y, true, null );
     }
     
     @Override
@@ -271,7 +279,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawGlyphVector( g, x, y );
         
-        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y );
+        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y, true, null );
     }
     
     @Override
@@ -282,7 +290,7 @@ public class Texture2DCanvas extends Graphics2D
         
         final boolean result = graphics.drawImage( img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, imgOb );
         
-        markDirty( dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1 );
+        markDirty( dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1, true, null );
         
         return ( result );
     }
@@ -297,7 +305,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         final boolean result = graphics.drawImage( img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, bgColor, imgOb );
         
-        markDirty( dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1 );
+        markDirty( dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1, true, null );
         
         return ( result );
     }
@@ -322,7 +330,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawImage( img, op, x, y );
         
-        markDirty( x, y, img.getWidth(), img.getHeight() );
+        markDirty( x, y, img.getWidth(), img.getHeight(), true, null );
     }
     
     @Override
@@ -330,7 +338,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         final boolean result = graphics.drawImage( img, x, y, imgOb );
         
-        markDirty( x, y, img.getWidth( null ), img.getHeight( null ) );
+        markDirty( x, y, img.getWidth( null ), img.getHeight( null ), true, null );
         
         return ( result );
     }
@@ -345,7 +353,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         final boolean result = graphics.drawImage( img, x, y, bgColor, imgOb );
         
-        markDirty( x, y, img.getWidth( null ), img.getHeight( null ) );
+        markDirty( x, y, img.getWidth( null ), img.getHeight( null ), true, null );
         
         return ( result );
     }
@@ -360,7 +368,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         final boolean result = graphics.drawImage( img, x, y, width, height, null );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
         
         return ( result );
     }
@@ -375,7 +383,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         final boolean result = graphics.drawImage( img, x, y, width, height, bgColor, imgOb );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
         
         return ( result );
     }
@@ -407,7 +415,7 @@ public class Texture2DCanvas extends Graphics2D
         //graphics.drawLine( x1, yy( y1 ), x2, yy( y2 ) );
         graphics.drawLine( x1, y1, x2, y2 );
         
-        markDirty( x1, y1, x2 - x1, y2 - y1 );
+        markDirty( x1, y1, x2 - x1, y2 - y1, true, null );
     }
     
     public final void drawLineOffset( int x, int y, int dx, int dy )
@@ -420,7 +428,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawOval( x, y, width, height );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
     }
     
     @Override
@@ -430,7 +438,7 @@ public class Texture2DCanvas extends Graphics2D
         
         java.awt.Rectangle rect = polygon.getBounds();
         
-        markDirty( rect.x, rect.y, rect.width, rect.height );
+        markDirty( rect.x, rect.y, rect.width, rect.height, true, null );
     }
     
     @Override
@@ -466,7 +474,7 @@ public class Texture2DCanvas extends Graphics2D
         {
             graphics.drawPolygon( xPoints, yPoints, nPoints );
             
-            markDirty( minX, minY, width, height );
+            markDirty( minX, minY, width, height, true, null );
         }
     }
     
@@ -503,7 +511,7 @@ public class Texture2DCanvas extends Graphics2D
         {
             graphics.drawPolyline( xPoints, yPoints, nPoints );
             
-            markDirty( minX, minY, width, height );
+            markDirty( minX, minY, width, height, true, null );
         }
     }
     
@@ -512,7 +520,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawRect( x, y, width, height );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
     }
     
     public final void drawRect( Rect2i rect )
@@ -525,7 +533,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawRoundRect( x, y, width, height, arcWidth, arcHeight );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
     }
     
     public final void drawRoundRect( Rect2i rect, int arcWidth, int arcHeight )
@@ -538,7 +546,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawString( iterator, x, y );
         
-        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y );
+        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y, true, null );
     }
     
     @Override
@@ -546,7 +554,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawString( iterator, x, y );
         
-        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y );
+        markDirty( x, y, texImg.getWidth() - x, texImg.getHeight() - y, true, null );
     }
     
     @Override
@@ -554,21 +562,21 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.drawString( s, x, y );
         
-        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y );
+        markDirty( (int)x, (int)y, texImg.getWidth() - (int)x, texImg.getHeight() - (int)y, true, null );
     }
     
-    public final void drawString( String s, int x, int y, int baselineOffset, int boundsWidth, int boundsHeight )
+    public final void drawString( String s, int x, int y, int baselineOffset, int boundsWidth, int boundsHeight, boolean markDirty, Rect2i dirtyRect )
     {
         graphics.drawString( s, x, y );
         
-        markDirty( x, y - baselineOffset, boundsWidth, boundsHeight );
+        markDirty( x, y - baselineOffset, boundsWidth, boundsHeight, markDirty, dirtyRect );
     }
     
-    public final void drawString( String s, int x, int y, Rectangle2D bounds )
+    public final void drawString( String s, int x, int y, Rectangle2D bounds, boolean markDirty, Rect2i dirtyRect )
     {
         graphics.drawString( s, x, y );
         
-        markDirty( x, y + (int)bounds.getY(), (int)bounds.getWidth(), (int)bounds.getHeight() );
+        markDirty( x, y + (int)bounds.getY(), (int)bounds.getWidth(), (int)bounds.getHeight(), markDirty, dirtyRect );
     }
     
     public final void drawString( String s, int x, int y, Rectangle2D bounds, Font font, boolean antiAliased, Color color, boolean markDirty, Rect2i dirtyRect )
@@ -583,21 +591,12 @@ public class Texture2DCanvas extends Graphics2D
             setColor( color );
             setRenderingHint( RenderingHints.KEY_ANTIALIASING, antiAliased ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF );
             
-            if ( bounds == null )
-                bounds = getFontMetrics().getStringBounds( s, this );
-            
             graphics.drawString( s, x, y );
             
-            if ( markDirty )
-            {
-                markDirty( x, y + (int)bounds.getY(), (int)bounds.getWidth(), (int)bounds.getHeight() );
-            }
+            if ( markDirty || ( dirtyRect != null ) && ( bounds == null ) )
+                bounds = getFontMetrics().getStringBounds( s, this );
             
-            if ( dirtyRect != null )
-            {
-                dirtyRect.set( x, y + (int)bounds.getY(), (int)bounds.getWidth(), (int)bounds.getHeight() );
-                texImg.clampToClipRect( dirtyRect );
-            }
+            markDirty( x, y + (int)bounds.getY(), (int)bounds.getWidth(), (int)bounds.getHeight(), markDirty, dirtyRect );
         }
         finally
         {
@@ -610,7 +609,7 @@ public class Texture2DCanvas extends Graphics2D
     @Override
     public final void drawString( String s, int x, int y )
     {
-        drawString( s, x, y, graphics.getFontMetrics().getStringBounds( s, graphics ) );
+        drawString( s, x, y, graphics.getFontMetrics().getStringBounds( s, graphics ), true, null );
     }
     
     @Override
@@ -620,7 +619,7 @@ public class Texture2DCanvas extends Graphics2D
         
         java.awt.Rectangle rect = shape.getBounds();
         
-        markDirty( rect.x, rect.y, rect.width, rect.height );
+        markDirty( rect.x, rect.y, rect.width, rect.height, true, null );
     }
     
     @Override
@@ -628,7 +627,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.fillArc( x, y, width, height, startAngle, arcAngle );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
     }
     
     public final void fillCircle( int x, int y, int radius )
@@ -641,7 +640,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.fillOval( x, y, width, height );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
     }
     
     @Override
@@ -677,7 +676,7 @@ public class Texture2DCanvas extends Graphics2D
         {
             graphics.fillPolygon( xPoints, yPoints, nPoints );
             
-            markDirty( minX, minY, width, height );
+            markDirty( minX, minY, width, height, true, null );
         }
     }
     
@@ -686,7 +685,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.fillRect( x, y, width, height );
         
-        markDirty( x + 1, y + 1, width - 2, height - 2 );
+        markDirty( x + 1, y + 1, width - 2, height - 2, true, null );
     }
     
     public final void fillRect( Rect2i rect )
@@ -699,7 +698,7 @@ public class Texture2DCanvas extends Graphics2D
     {
         graphics.fillRoundRect( x, y, width, height, arcWidth, arcHeight );
         
-        markDirty( x, y, width, height );
+        markDirty( x, y, width, height, true, null );
     }
     
     public final void fillRoundRect( Rect2i rect, int arcWidth, int arcHeight )

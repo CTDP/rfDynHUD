@@ -793,9 +793,25 @@ public abstract class Widget implements Cloneable, Documented
         return ( paddingTop );
     }
     
+    protected final int getPaddingTop()
+    {
+        if ( masterWidget != null )
+            return ( 0 );
+        
+        return ( paddingTop.getIntValue() );
+    }
+    
     protected final IntProperty getPaddingPropertyLeft()
     {
         return ( paddingLeft );
+    }
+    
+    protected final int getPaddingLeft()
+    {
+        if ( masterWidget != null )
+            return ( 0 );
+        
+        return ( paddingLeft.getIntValue() );
     }
     
     protected final IntProperty getPaddingPropertyRight()
@@ -803,9 +819,25 @@ public abstract class Widget implements Cloneable, Documented
         return ( paddingRight );
     }
     
+    protected final int getPaddingRight()
+    {
+        if ( masterWidget != null )
+            return ( 0 );
+        
+        return ( paddingRight.getIntValue() );
+    }
+    
     protected final IntProperty getPaddingPropertyBottom()
     {
         return ( paddingBottom );
+    }
+    
+    protected final int getPaddingBottom()
+    {
+        if ( masterWidget != null )
+            return ( 0 );
+        
+        return ( paddingBottom.getIntValue() );
     }
     
     protected final BorderProperty getBorderProperty()
@@ -1562,7 +1594,7 @@ public abstract class Widget implements Cloneable, Documented
             drawBorder( isEditorMode, getBorder(), texture, offsetX, offsetY, width, height );
             
             if ( texture != null )
-                texture.markDirty( offsetX, offsetY, width, height );
+                texture.markDirty( offsetX, offsetY, width, height, null );
             
             if ( ( getMasterWidget() == null ) && ( background != null ) )
             {

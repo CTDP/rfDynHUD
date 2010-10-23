@@ -26,6 +26,8 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public class FactoredFloatProperty extends FloatProperty
 {
+    public static final float FACTOR_DEGREES_TO_RADIANS = (float)Math.PI / 180f;
+    
     private final float factor;
     
     private float factoredValue;

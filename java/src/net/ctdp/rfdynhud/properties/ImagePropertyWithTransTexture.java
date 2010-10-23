@@ -39,20 +39,35 @@ public class ImagePropertyWithTransTexture extends ImageProperty
      * @param width the new width
      * @param height the new height
      * @param isEditorMode is rendering in editor?
+     * @param changeInfo if non <code>null</code> the first element tells you, whether 'possibleResult' has been recycled and the second element, whether the texture has been (re)drawn 
      * 
      * @return the scaled texture.
      */
-    public TransformableTexture updateSize( int width, int height, boolean isEditorMode )
+    public TransformableTexture updateSize( int width, int height, boolean isEditorMode, boolean[] changeInfo )
     {
         if ( isNoImage() )
             texture = null;
         else
-            texture = getImage().getScaledTransformableTexture( width, height, texture, isEditorMode );
+            texture = getImage().getScaledTransformableTexture( width, height, texture, isEditorMode, changeInfo );
         
         knownEditorMode = isEditorMode;
         textureDirty = false;
         
         return ( texture );
+    }
+    
+    /**
+     * Updates the stored {@link TransformableTexture} to the given size and returns the texture.
+     * 
+     * @param width the new width
+     * @param height the new height
+     * @param isEditorMode is rendering in editor?
+     * 
+     * @return the scaled texture.
+     */
+    public final TransformableTexture updateSize( int width, int height, boolean isEditorMode )
+    {
+        return ( updateSize( width, height, isEditorMode, null ) );
     }
     
     /**

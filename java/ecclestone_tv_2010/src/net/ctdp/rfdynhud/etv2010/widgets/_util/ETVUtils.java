@@ -50,6 +50,7 @@ public class ETVUtils
     public static final String ETV_VELOCITY_FONT = "ETVVelocityFont";
     public static final String ETV_REV_MARKERS_FONT = "ETVRevMarkersFont";
     public static final String ETV_GEAR_FONT = "ETVGearFont";
+    public static final String ETV_CONTROLS_LABEL_FONT = "ETVControlsLabelFont";
     
     public static String getDefaultNamedColorValue( String name )
     {
@@ -105,6 +106,9 @@ public class ETVUtils
         
         if ( name.equals( ETV_GEAR_FONT ) )
             return ( "DokChampa-BOLD-30va" );
+        
+        if ( name.equals( ETV_CONTROLS_LABEL_FONT ) )
+            return ( "DokChampa-BOLD-18va" );
         
         return ( null );
     }

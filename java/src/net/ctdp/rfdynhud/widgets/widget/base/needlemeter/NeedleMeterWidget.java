@@ -95,6 +95,8 @@ public abstract class NeedleMeterWidget extends Widget
     protected final IntProperty markersInnerRadius = new IntProperty( this, "markersInnerRadius", "innerRadius", 224, 1, Integer.MAX_VALUE, false );
     protected final IntProperty markersLength = new IntProperty( this, "markersLength", "length", 50, 4, Integer.MAX_VALUE, false );
     protected final BooleanProperty markersOnCircle = new BooleanProperty( this, "markersOnCircle", true );
+    protected final FactoredFloatProperty firstMarkerNumberOffset = new FactoredFloatProperty( this, "firstMarkerNumberOffset", "firstNumberOffset", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, 0f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty lastMarkerNumberOffset = new FactoredFloatProperty( this, "lastMarkerNumberOffset", "lastNumberOffset", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, 0f, -360.0f, +360.0f );
     
     protected int getMarkersBigStepLowerLimit()
     {
@@ -156,8 +158,8 @@ public abstract class NeedleMeterWidget extends Widget
     
     protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
     
-    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", (float)Math.PI / 180f, -122.4f, -360.0f, +360.0f );
-    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", (float)Math.PI / 180f, +118.8f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, -122.4f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, +118.8f, -360.0f, +360.0f );
     
     private Boolean drawNeeldeMount = null;
     
@@ -746,6 +748,11 @@ public abstract class NeedleMeterWidget extends Widget
         {
             float angle = +( needleRotationForMinValue.getFactoredValue() + ( needleRotationForMaxValue.getFactoredValue() - needleRotationForMinValue.getFactoredValue() ) * ( ( value - minValue ) / range ) );
             
+            if ( value == minValue )
+                angle += firstMarkerNumberOffset.getFactoredValue();
+            else if ( value + markersBigStep.getIntValue() > maxValue )
+                angle += lastMarkerNumberOffset.getFactoredValue();
+            
             at1.setTransform( atCenterTranslate );
             at2.setTransform( atEllipticScale );
             at1.concatenate( at2 );
@@ -936,6 +943,8 @@ public abstract class NeedleMeterWidget extends Widget
         writer.writeProperty( markersInnerRadius, "The inner radius of the markers (in background image space)" );
         writer.writeProperty( markersLength, "The length of the markers (in background image space)" );
         writer.writeProperty( markersOnCircle, "Draw markers on circle, even if the Widget has an aspect ratio unequal to 1.0" );
+        writer.writeProperty( firstMarkerNumberOffset, "The rotational offset in clockwise degrees for the first marker number." );
+        writer.writeProperty( lastMarkerNumberOffset, "The rotational offset in clockwise degrees for the last marker number." );
         writer.writeProperty( markersBigStep, "Step size of bigger rev markers" );
         writer.writeProperty( markersSmallStep, "Step size of smaller rev markers" );
         writer.writeProperty( lastMarkerBig, "Whether to force the last marker to be treated as a big one." );
@@ -1046,6 +1055,8 @@ public abstract class NeedleMeterWidget extends Widget
         else if ( loader.loadProperty( markersInnerRadius ) );
         else if ( loader.loadProperty( markersLength ) );
         else if ( loader.loadProperty( markersOnCircle ) );
+        else if ( loader.loadProperty( firstMarkerNumberOffset ) );
+        else if ( loader.loadProperty( lastMarkerNumberOffset ) );
         else if ( loader.loadProperty( markersBigStep ) );
         else if ( loader.loadProperty( markersSmallStep ) );
         else if ( loader.loadProperty( lastMarkerBig ) );
@@ -1130,6 +1141,8 @@ public abstract class NeedleMeterWidget extends Widget
         propsCont.addProperty( markersInnerRadius );
         propsCont.addProperty( markersLength );
         propsCont.addProperty( markersOnCircle );
+        propsCont.addProperty( firstMarkerNumberOffset );
+        propsCont.addProperty( lastMarkerNumberOffset );
         propsCont.addProperty( markersBigStep );
         propsCont.addProperty( markersSmallStep );
         propsCont.addProperty( lastMarkerBig );

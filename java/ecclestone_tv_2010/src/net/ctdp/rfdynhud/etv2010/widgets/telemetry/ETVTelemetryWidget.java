@@ -24,10 +24,11 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.etv2010.widgets._util.ETVUtils;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
@@ -57,6 +58,8 @@ public class ETVTelemetryWidget extends RevMeterWidget
     public static final int MAX_VELOCITY_LOCAL_Z_INDEX = NEEDLE_LOCAL_Z_INDEX / 2;
     public static final int CONTROLS_LOCAL_Z_INDEX = MAX_VELOCITY_LOCAL_Z_INDEX + 1;
     
+    private final BooleanProperty displayVelocityNumbers = new BooleanProperty( this, "displayVelocityNumbers", "displayNumbers", true );
+    
     private final FontProperty velocityNumberFont = new FontProperty( this, "velocityNumberFont", "font", ETVUtils.ETV_VELOCITY_FONT, false );
     private final ColorProperty velocityNumberFontColor = new ColorProperty( this, "velocityNumberFontColor", "color", ETVUtils.ETV_CAPTION_FONT_COLOR, false );
     
@@ -75,8 +78,8 @@ public class ETVTelemetryWidget extends RevMeterWidget
     
     private final ImageProperty maxVelocityOverlay = new ImageProperty( this, "maxVelocityOverlay", "image", "etv2010/max_velocity.png" );
     private TransformableTexture maxVelocityTexture = null;
-    private final IntProperty maxVelocityLeftOffset = new IntProperty( this, "maxVelocityLeftOffset", "leftOffset", 25 );
-    private final IntProperty maxVelocityTopOffset = new IntProperty( this, "maxVelocityTopOffset", "topOffset", 86 );
+    private final IntProperty maxVelocityLeftOffset = new IntProperty( this, "maxVelocityLeftOffset", "leftOffset", 15 );
+    private final IntProperty maxVelocityTopOffset = new IntProperty( this, "maxVelocityTopOffset", "topOffset", 80 );
     
     private boolean throttleDirty = true;
     
@@ -152,6 +155,36 @@ public class ETVTelemetryWidget extends RevMeterWidget
         }
     };
     
+    private final FontProperty controlsLabelFont = new FontProperty( this, "controlsLabelFont", "labelFont", ETVUtils.ETV_CONTROLS_LABEL_FONT )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            throttleDirty = true;
+            brakeDirty = true;
+        }
+    };
+    
+    private final ColorProperty controlsLabelFontColor = new ColorProperty( this, "controlsLabelFontColor", "labelFontColor", "#FFFFFF" )
+    {
+        @Override
+        protected void onValueChanged( String oldValue, String newValue )
+        {
+            throttleDirty = true;
+            brakeDirty = true;
+        }
+    };
+    
+    private final IntProperty controlsLabelOffset = new IntProperty( this, "labelOffset", 15 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            brakeDirty = true;
+            throttleDirty = true;
+        }
+    };
+    
     /**
      * {@inheritDoc}
      */
@@ -190,13 +223,13 @@ public class ETVTelemetryWidget extends RevMeterWidget
     @Override
     protected String getInitialNeedleImage()
     {
-        return ( "etv2010/needle_-154.png" );
+        return ( "etv2010/needle.png" );
     }
     
     @Override
     protected String getInitialPeakNeedleImage()
     {
-        return ( "etv2010/peak_needle_-216.png" );
+        return ( "etv2010/peak_needle.png" );
     }
     
     /**
@@ -222,6 +255,14 @@ public class ETVTelemetryWidget extends RevMeterWidget
         return ( result );
     }
     
+    @SuppressWarnings( "unused" )
+    private void drawBarLabel( String label, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        Rectangle2D bounds = TextureImage2D.getStringBounds( label, controlsLabelFont );
+        
+        texture.drawString( label, offsetX + controlsLabelOffset.getIntValue(), offsetY + ( height - (int)bounds.getHeight() ) / 2 - (int)bounds.getY(), bounds, controlsLabelFont.getFont(), controlsLabelFont.isAntiAliased(), controlsLabelFontColor.getColor(), true, null );
+    }
+    
     private void loadThrottleTexture( boolean isEditorMode, int w, int h )
     {
         if ( ( texThrottle1 == null ) || ( texThrottle1.getWidth() != w ) || ( texThrottle1.getHeight() != h ) || throttleDirty )
@@ -232,6 +273,9 @@ public class ETVTelemetryWidget extends RevMeterWidget
             ImageTemplate it = throttleImage.getImage();
             it.drawScaled( 0, 0, it.getBaseWidth(), it.getBaseHeight() / 2, 0, 0, w, h, texThrottle1.getTexture(), true );
             it.drawScaled( 0, it.getBaseHeight() / 2, it.getBaseWidth(), it.getBaseHeight() / 2, 0, 0, w, h, texThrottle2.getTexture(), true );
+            
+            drawBarLabel( Loc.throttle_label, texThrottle1.getTexture(), 0, 0, texThrottle1.getWidth(), texThrottle1.getHeight() );
+            drawBarLabel( Loc.throttle_label, texThrottle2.getTexture(), 0, 0, texThrottle2.getWidth(), texThrottle2.getHeight() );
             
             float x = controlsPosX.getFloatValue() * getBackground().getScaleX();
             float y = controlsPosY.getFloatValue() * getBackground().getScaleY();
@@ -257,6 +301,9 @@ public class ETVTelemetryWidget extends RevMeterWidget
             it.drawScaled( 0, 0, it.getBaseWidth(), it.getBaseHeight() / 2, 0, 0, w, h, texBrake1.getTexture(), true );
             it.drawScaled( 0, it.getBaseHeight() / 2, it.getBaseWidth(), it.getBaseHeight() / 2, 0, 0, w, h, texBrake2.getTexture(), true );
             
+            drawBarLabel( Loc.brake_label, texBrake1.getTexture(), 0, 0, texBrake1.getWidth(), texBrake1.getHeight() );
+            drawBarLabel( Loc.brake_label, texBrake2.getTexture(), 0, 0, texBrake2.getWidth(), texBrake2.getHeight() );
+            
             float x = controlsPosX.getFloatValue() * getBackground().getScaleX();
             float y = controlsPosY.getFloatValue() * getBackground().getScaleY() + h + controlsGap.getIntValue();
             
@@ -272,7 +319,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
     
     private void drawVelocityNumbers( SpeedUnits units, TextureImage2D texture, int offsetX, int offsetY )
     {
-        if ( maxVelocityTexture == null )
+        if ( !displayVelocityNumbers.getBooleanValue() || ( maxVelocityTexture == null ) )
             return;
         
         float scaleX = getBackground().getScaleX();
@@ -299,7 +346,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
             texCanvas.drawString( s, x + dropShadowOffset, y + dropShadowOffset );
         }
         texCanvas.setColor( velocityNumberFontColor.getColor() );
-        texCanvas.drawString( s, x, y, bounds );
+        texCanvas.drawString( s, x, y, bounds, true, null );
         
         velo = velocity2.getIntValue();
         s = String.valueOf( velo );
@@ -312,7 +359,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
             texCanvas.drawString( s, x + dropShadowOffset, y + dropShadowOffset );
         }
         texCanvas.setColor( velocityNumberFontColor.getColor() );
-        texCanvas.drawString( s, x, y, bounds );
+        texCanvas.drawString( s, x, y, bounds, true, null );
         
         velo = velocity3.getIntValue();
         s = String.valueOf( velo );
@@ -325,7 +372,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
             texCanvas.drawString( s, x + dropShadowOffset, y + dropShadowOffset );
         }
         texCanvas.setColor( velocityNumberFontColor.getColor() );
-        texCanvas.drawString( s, x, y, bounds );
+        texCanvas.drawString( s, x, y, bounds, true, null );
         
         velo = maxVelocity.getIntValue();
         s = String.valueOf( velo );
@@ -338,7 +385,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
             texCanvas.drawString( s, x + dropShadowOffset, y + dropShadowOffset );
         }
         texCanvas.setColor( velocityNumberFontColor.getColor() );
-        texCanvas.drawString( s, x, y, bounds );
+        texCanvas.drawString( s, x, y, bounds, true, null );
         
         s = String.valueOf( units == SpeedUnits.MPH ? Loc.velocity_units_IMPERIAL : Loc.velocity_units_METRIC );
         bounds = metrics.getStringBounds( s, texCanvas );
@@ -350,7 +397,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
             texCanvas.drawString( s, x + dropShadowOffset, y + dropShadowOffset );
         }
         texCanvas.setColor( velocityNumberFontColor.getColor() );
-        texCanvas.drawString( s, x, y, bounds );
+        texCanvas.drawString( s, x, y, bounds, true, null );
     }
     
     private boolean loadMaxVelocityTexture( SpeedUnits speedUnits, boolean isEditorMode )
@@ -373,14 +420,12 @@ public class ETVTelemetryWidget extends RevMeterWidget
             
             int w = Math.round( it.getBaseWidth() * getBackground().getScaleX() );
             int h = Math.round( it.getBaseHeight() * getBackground().getScaleY() );
-            TransformableTexture old = maxVelocityTexture;
-            int oldW = ( maxVelocityTexture == null ) ? -1 : maxVelocityTexture.getWidth();
-            int oldH = ( maxVelocityTexture == null ) ? -1 : maxVelocityTexture.getHeight();
-            maxVelocityTexture = it.getScaledTransformableTexture( w, h, maxVelocityTexture, isEditorMode );
-            if ( ( maxVelocityTexture == old ) && ( oldW == maxVelocityTexture.getWidth() ) && ( oldH == maxVelocityTexture.getHeight() ) )
-                it.drawScaled( 0, 0, maxVelocityTexture.getWidth(), maxVelocityTexture.getHeight(), maxVelocityTexture.getTexture(), true );
+            boolean[] changeInfo = new boolean[ 2 ];
+            maxVelocityTexture = it.getScaledTransformableTexture( w, h, maxVelocityTexture, isEditorMode, changeInfo );
+            maxVelocityTexture.setDynamic( true );
             
-            drawVelocityNumbers( speedUnits, maxVelocityTexture.getTexture(), -Math.round( maxVelocityLeftOffset.getFloatValue() * getBackground().getScaleX() ), -Math.round( maxVelocityTopOffset.getFloatValue() * getBackground().getScaleY() ) );
+            if ( changeInfo[1] )
+                drawVelocityNumbers( speedUnits, maxVelocityTexture.getTexture(), -Math.round( maxVelocityLeftOffset.getFloatValue() * getBackground().getScaleX() ), -Math.round( maxVelocityTopOffset.getFloatValue() * getBackground().getScaleY() ) );
             
             maxVelocityTexture.setTranslation( maxVelocityLeftOffset.getFloatValue() * getBackground().getScaleX(), maxVelocityTopOffset.getFloatValue() * getBackground().getScaleY() );
             maxVelocityTexture.setLocalZIndex( MAX_VELOCITY_LOCAL_Z_INDEX );
@@ -435,7 +480,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
             float normVelo = Math.min( telemData.getScalarVelocityKPH(), maxVelocity.getFloatValue() ) / maxVelocity.getFloatValue();
             int h = Math.round( maxVelocityTexture.getHeight() * normVelo );
             
-            maxVelocityTexture.setClipRect( 0, maxVelocityTexture.getHeight() - h, maxVelocityTexture.getWidth(), h, false );
+            maxVelocityTexture.setClipRect( 0, maxVelocityTexture.getHeight() - h, maxVelocityTexture.getWidth(), h, true );
         }
         
         float uBrake = isEditorMode ? 0.2f : telemData.getUnfilteredBrake();
@@ -505,6 +550,8 @@ public class ETVTelemetryWidget extends RevMeterWidget
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( displayVelocityNumbers, "Display nicely positioned velocity numbers?" );
+        
         writer.writeProperty( velocityNumberFont, "The font for the velocity numbers." );
         writer.writeProperty( velocityNumberFontColor, "The font color for the velocity numbers." );
         
@@ -531,6 +578,9 @@ public class ETVTelemetryWidget extends RevMeterWidget
         writer.writeProperty( controlsWidth, "The width in background image space for the controls display." );
         writer.writeProperty( controlsHeight, "The height in background image space for the controls display." );
         writer.writeProperty( controlsGap, "The gap in pixels between the throttle and brake bars." );
+        writer.writeProperty( controlsLabelFont, "The font for the controls labels." );
+        writer.writeProperty( controlsLabelFontColor, "The font color for the controls labels." );
+        writer.writeProperty( controlsLabelOffset, "The offset for bar text from the left boundary of the bar." );
     }
     
     /**
@@ -541,7 +591,8 @@ public class ETVTelemetryWidget extends RevMeterWidget
     {
         super.loadProperty( loader );
         
-        if ( loader.loadProperty( velocityNumberFont ) );
+        if ( loader.loadProperty( displayVelocityNumbers ) );
+        else if ( loader.loadProperty( velocityNumberFont ) );
         else if ( loader.loadProperty( velocityNumberFont ) );
         else if ( loader.loadProperty( velocityNumber1PosX ) );
         else if ( loader.loadProperty( velocityNumber1PosY ) );
@@ -566,6 +617,9 @@ public class ETVTelemetryWidget extends RevMeterWidget
         else if ( loader.loadProperty( controlsWidth ) );
         else if ( loader.loadProperty( controlsHeight ) );
         else if ( loader.loadProperty( controlsGap ) );
+        else if ( loader.loadProperty( controlsLabelFont ) );
+        else if ( loader.loadProperty( controlsLabelFontColor ) );
+        else if ( loader.loadProperty( controlsLabelOffset ) );
     }
     
     /**
@@ -578,18 +632,23 @@ public class ETVTelemetryWidget extends RevMeterWidget
         
         propsCont.addGroup( "Velocity Numbers" );
         
-        propsCont.addProperty( velocityNumberFont );
-        propsCont.addProperty( velocityNumberFontColor );
-        propsCont.addProperty( velocityNumber1PosX );
-        propsCont.addProperty( velocityNumber1PosY );
-        propsCont.addProperty( velocity2 );
-        propsCont.addProperty( velocityNumber2PosX );
-        propsCont.addProperty( velocity3 );
-        propsCont.addProperty( velocityNumber3PosX );
-        propsCont.addProperty( velocityNumber4PosX );
-        propsCont.addProperty( velocityNumber4PosY );
-        propsCont.addProperty( velocityUnitsPosX );
-        propsCont.addProperty( velocityUnitsPosY );
+        propsCont.addProperty( displayVelocityNumbers );
+        
+        if ( displayVelocityNumbers.getBooleanValue() || forceAll )
+        {
+            propsCont.addProperty( velocityNumberFont );
+            propsCont.addProperty( velocityNumberFontColor );
+            propsCont.addProperty( velocityNumber1PosX );
+            propsCont.addProperty( velocityNumber1PosY );
+            propsCont.addProperty( velocity2 );
+            propsCont.addProperty( velocityNumber2PosX );
+            propsCont.addProperty( velocity3 );
+            propsCont.addProperty( velocityNumber3PosX );
+            propsCont.addProperty( velocityNumber4PosX );
+            propsCont.addProperty( velocityNumber4PosY );
+            propsCont.addProperty( velocityUnitsPosX );
+            propsCont.addProperty( velocityUnitsPosY );
+        }
         
         propsCont.addGroup( "Max Velocity Overlay" );
         
@@ -607,7 +666,9 @@ public class ETVTelemetryWidget extends RevMeterWidget
         propsCont.addProperty( controlsWidth );
         propsCont.addProperty( controlsHeight );
         propsCont.addProperty( controlsGap );
-        
+        propsCont.addProperty( controlsLabelFont );
+        propsCont.addProperty( controlsLabelFontColor );
+        propsCont.addProperty( controlsLabelOffset );
     }
     
     @Override
@@ -626,6 +687,8 @@ public class ETVTelemetryWidget extends RevMeterWidget
         markersInnerRadius.setIntValue( 170 );
         markersLength.setIntValue( 50 );
         markersOnCircle.setBooleanValue( true );
+        firstMarkerNumberOffset.setFloatValue( +5 );
+        lastMarkerNumberOffset.setFloatValue( -5 );
         markersBigStep.setIntValue( 2000 );
         markersSmallStep.setIntValue( 1000 );
         markersFont.setFont( ETVUtils.ETV_REV_MARKERS_FONT );
@@ -633,18 +696,18 @@ public class ETVTelemetryWidget extends RevMeterWidget
         markersFontDropShadowColor.setColor( "#000000" );
         markerNumbersCentered.setBooleanValue( true );
         
-        needlePivotBottomOffset.setIntValue( -154 );
-        peakNeedlePivotBottomOffset.setIntValue( -216 );
+        needlePivotBottomOffset.setIntValue( -171 );
+        peakNeedlePivotBottomOffset.setIntValue( -226 );
         
-        needleMountX.setIntValue( 495 );
-        needleMountY.setIntValue( 365 );
+        needleMountX.setIntValue( 506 );
+        needleMountY.setIntValue( 350 );
         
-        needleRotationForMinValue.setFloatValue( -180 );
-        needleRotationForMaxValue.setFloatValue( +73 );
+        needleRotationForMinValue.setFloatValue( -178 );
+        needleRotationForMaxValue.setFloatValue( +72.5f );
         
         displayValue.setBooleanValue( false );
         displayGear.setBooleanValue( true );
-        gearPosX.setIntValue( 497 );
+        gearPosX.setIntValue( 510 );
         gearPosY.setIntValue( 345 );
         gearFont.setFont( ETVUtils.ETV_GEAR_FONT );
         gearFontColor.setColor( "#D9E0EB" );

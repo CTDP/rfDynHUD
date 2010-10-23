@@ -297,10 +297,11 @@ public class ImageTemplate
      * @param possibleResult this instance is possibly returned, if parameters match
      * @param tryToResize if true, the passed in texture is resized to the given size, if the max size is sufficient.
      *                    This is useful in editor mode avoid constant recreations.
+     * @param changeInfo if non <code>null</code> the first element tells you, whether 'possibleResult' has been recycled and the second element, whether the texture has been (re)drawn 
      * 
      * @return a {@link TransformableTexture} with this image drawn onto it.
      */
-    public TransformableTexture getScaledTransformableTexture( int width, int height, TransformableTexture possibleResult, boolean tryToResize )
+    public TransformableTexture getScaledTransformableTexture( int width, int height, TransformableTexture possibleResult, boolean tryToResize, boolean[] changeInfo )
     {
         final boolean usePowerOfTwoSizes = tryToResize;
         int width2 = usePowerOfTwoSizes ? NumberUtil.roundUpPower2( width ) : width;
@@ -323,20 +324,91 @@ public class ImageTemplate
                         
                         possibleResult.getTexture().clear( 0, 0, Math.max( oldW, width ), Math.max( oldH, height ), false, null );
                         drawScaled( 0, 0, width, height, possibleResult.getTexture(), false );
+                        
+                        if ( changeInfo != null )
+                        {
+                            if ( changeInfo.length >= 1 )
+                                changeInfo[0] = true;
+                            if ( changeInfo.length >= 2 )
+                                changeInfo[1] = true;
+                        }
+                    }
+                    else if ( possibleResult.isDynamic() )
+                    {
+                        drawScaled( 0, 0, width, height, possibleResult.getTexture(), true );
+                        
+                        if ( changeInfo != null )
+                        {
+                            if ( changeInfo.length >= 1 )
+                                changeInfo[0] = true;
+                            if ( changeInfo.length >= 2 )
+                                changeInfo[1] = true;
+                        }
+                    }
+                    else if ( changeInfo != null )
+                    {
+                        if ( changeInfo.length >= 1 )
+                            changeInfo[0] = true;
+                        if ( changeInfo.length >= 2 )
+                            changeInfo[1] = false;
                     }
                     
                     return ( possibleResult );
                 }
             }
-            else if ( ( width == possibleResult.getTexture().getWidth() ) || ( height == possibleResult.getTexture().getHeight() ) )
+            else if ( ( width == possibleResult.getTexture().getWidth() ) && ( height == possibleResult.getTexture().getHeight() ) )
             {
                 //possibleResult.getTexture().clearUpdateList();
+                if ( possibleResult.isDynamic() )
+                {
+                    drawScaled( 0, 0, width, height, possibleResult.getTexture(), true );
+                    
+                    if ( changeInfo != null )
+                    {
+                        if ( changeInfo.length >= 1 )
+                            changeInfo[0] = true;
+                        if ( changeInfo.length >= 2 )
+                            changeInfo[1] = true;
+                    }
+                }
+                else if ( changeInfo != null )
+                {
+                    if ( changeInfo.length >= 1 )
+                        changeInfo[0] = true;
+                    if ( changeInfo.length >= 2 )
+                        changeInfo[1] = false;
+                }
                 
                 return ( possibleResult );
             }
         }
         
+        if ( changeInfo != null )
+        {
+            if ( changeInfo.length >= 1 )
+                changeInfo[0] = false;
+            if ( changeInfo.length >= 2 )
+                changeInfo[1] = true;
+        }
+        
         return ( getScaledTransformableTexture( width, height, usePowerOfTwoSizes ) );
+    }
+    
+    /**
+     * Gets a {@link TransformableTexture} with this image drawn onto it.
+     * If the possibleResult is non null and has the correct size, it is returned.
+     * 
+     * @param width destination width
+     * @param height destination height
+     * @param possibleResult this instance is possibly returned, if parameters match
+     * @param tryToResize if true, the passed in texture is resized to the given size, if the max size is sufficient.
+     *                    This is useful in editor mode avoid constant recreations.
+     * 
+     * @return a {@link TransformableTexture} with this image drawn onto it.
+     */
+    public TransformableTexture getScaledTransformableTexture( int width, int height, TransformableTexture possibleResult, boolean tryToResize )
+    {
+        return ( getScaledTransformableTexture( width, height, possibleResult, tryToResize, null ) );
     }
     
     /**

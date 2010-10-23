@@ -77,7 +77,7 @@ public class WidgetMenu extends JMenu
             {
                 Icon[] icons = widgetPackage.getIcons();
                 
-                if ( icons.length >= pathIndex )
+                if ( icons.length > pathIndex )
                 {
                     icon = icons[pathIndex];
                 }

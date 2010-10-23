@@ -38,6 +38,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBufferByte;
@@ -610,7 +611,7 @@ public class TextureImage2D
         addDirtyRect( rect, 0, updateList.size() );
     }
     
-    protected void markDirty( int x, int y, int width, int height, boolean clampClip, boolean validate )
+    protected void markDirty( int x, int y, int width, int height, final boolean clampClip, final boolean validate, Rect2i dirtyRect )
     {
         if ( clampClip )
         {
@@ -637,6 +638,9 @@ public class TextureImage2D
             }
         }
         
+        if ( dirtyRect != null )
+            dirtyRect.set( x, y, width, height );
+        
         if ( ( width > 0 ) && ( height > 0 ) )
         {
             Rect2i rect = Rect2i.fromPool();
@@ -648,6 +652,8 @@ public class TextureImage2D
             
             addDirtyRect( rect );
         }
+        else if ( dirtyRect != null )
+            dirtyRect.set( -1, -1, 0, 0 );
     }
     
     /**
@@ -658,10 +664,17 @@ public class TextureImage2D
      * @param y the top coordinate
      * @param width the width
      * @param height the height
+     * @param dirtyRect the dirtyRect to fill, if non <code>null</code>
+     * 
+     * @param <Rect2i_> parameter type restriction
+     * 
+     * @return the 'dirtyRect' back again.
      */
-    public final void markDirty( int x, int y, int width, int height )
+    public final <Rect2i_ extends Rect2i> Rect2i_ markDirty( int x, int y, int width, int height, Rect2i_ dirtyRect )
     {
-        markDirty( x, y, width, height, true, true );
+        markDirty( x, y, width, height, true, true, dirtyRect );
+        
+        return ( dirtyRect );
     }
     
     /**
@@ -669,10 +682,28 @@ public class TextureImage2D
      * The region will be pushed to the graphics card on the next frame.
      * 
      * @param r the rectangle
+     * @param dirtyRect the dirtyRect to fill, if non <code>null</code>
+     * 
+     * @param <Rect2i_> parameter type restriction
+     * 
+     * @return the 'dirtyRect' back again.
      */
-    public final void markDirty( Rect2i r )
+    public final <Rect2i_ extends Rect2i> Rect2i_ markDirty( Rect2i r, Rect2i_ dirtyRect )
     {
-        markDirty( r.getLeft(), r.getTop(), r.getWidth(), r.getHeight() );
+        return ( markDirty( r.getLeft(), r.getTop(), r.getWidth(), r.getHeight(), dirtyRect ) );
+    }
+    
+    private final void possiblyMarkDirty( final int x, final int y, final int width, final int height, final boolean doIt, final Rect2i dirtyRect )
+    {
+        if ( doIt )
+        {
+            markDirty( x, y, width, height, dirtyRect );
+        }
+        else if ( dirtyRect != null )
+        {
+            dirtyRect.set( x, y, width, height );
+            clampToClipRect( dirtyRect );
+        }
     }
     
     final ArrayList<Rect2i> getUpdateList()
@@ -1038,15 +1069,7 @@ public class TextureImage2D
         
         setPixel( getDataOffset( x, y ), data );
         
-        if ( markDirty )
-        {
-            markDirty( x, y, 1, 1 );
-        }
-        
-        if ( dirtyRect != null )
-        {
-            dirtyRect.set( x, y, 1, 1 );
-        }
+        possiblyMarkDirty( x, y, 1, 1, markDirty, dirtyRect );
     }
     
     private final byte[] getPixel( int offset, byte[] data )
@@ -1108,15 +1131,7 @@ public class TextureImage2D
     {
         setPixelLine( getDataOffset( x, y ), length, data, srcOffset );
         
-        if ( markDirty )
-        {
-            markDirty( x, y, length, 1 );
-        }
-        
-        if ( dirtyRect != null )
-        {
-            dirtyRect.set( x, y, length, 1 );
-        }
+        possiblyMarkDirty( x, y, length, 1, markDirty, dirtyRect );
     }
     
     private final byte[] getPixelLine( int offset, int length, byte[] data )
@@ -1420,15 +1435,7 @@ public class TextureImage2D
             }
         }
         
-        if ( markDirty )
-        {
-            markDirty( x0, y0, x1 - x0 + 1, y1 - y0 + 1 );
-        }
-        
-        if ( dirtyRect != null )
-        {
-            dirtyRect.set( x0, y0, x1 - x0 + 1, y1 - y0 + 1 );
-        }
+        possiblyMarkDirty( x0, y0, x1 - x0 + 1, y1 - y0 + 1, markDirty, dirtyRect );
     }
     
     /**
@@ -1538,15 +1545,7 @@ public class TextureImage2D
             }
         }
         
-        if ( markDirty )
-        {
-            markDirty( x0, y0, x1 - x0 + 1, y1 - y0 + 1 );
-        }
-        
-        if ( dirtyRect != null )
-        {
-            dirtyRect.set( x0, y0, x1 - x0 + 1, y1 - y0 + 1 );
-        }
+        possiblyMarkDirty( x0, y0, x1 - x0 + 1, y1 - y0 + 1, markDirty, dirtyRect );
     }
     
     /**
@@ -1664,15 +1663,7 @@ public class TextureImage2D
             }
         }
         
-        if ( markDirty )
-        {
-            markDirty( x0, y0, x1 - x0 + 1, y1 - y0 + 1 );
-        }
-        
-        if ( dirtyRect != null )
-        {
-            dirtyRect.set( x0, y0, x1 - x0 + 1, y1 - y0 + 1 );
-        }
+        possiblyMarkDirty( x0, y0, x1 - x0 + 1, y1 - y0 + 1, markDirty, dirtyRect );
     }
     
     /**
@@ -1728,15 +1719,7 @@ public class TextureImage2D
         byte[] newPixels = combinePixels( pixels, srcByteOffset, pixelSize, this, trgPixelSize, trgBuffer, trgByteOffset, length, false );
         this.setPixelLine( trgByteOffset, length, newPixels, srcByteOffset );
         
-        if ( markDirty )
-        {
-            markDirty( x0, startY, x1 - x0 + 1, 1 );
-        }
-        
-        if ( dirtyRect != null )
-        {
-            dirtyRect.set( x0, startY, x1 - x0 + 1, 1 );
-        }
+        possiblyMarkDirty( x0, startY, x1 - x0 + 1, 1, markDirty, dirtyRect );
     }
     
     /**
@@ -1907,10 +1890,10 @@ public class TextureImage2D
         
         if ( markDirty )
         {
-            dirtyRect.set( x0, y0, w, lineWidth );
-            dirtyRect.set( x0, y0 + lineWidth, lineWidth, h - lineWidth - lineWidth );
-            dirtyRect.set( x1 - lineWidth + 1, y0 + lineWidth, lineWidth, h - lineWidth - lineWidth );
-            dirtyRect.set( x0, y1 - lineWidth + 1, w, lineWidth );
+            markDirty( x0, y0, w, lineWidth, null );
+            markDirty( x0, y0 + lineWidth, lineWidth, h - lineWidth - lineWidth, null );
+            markDirty( x1 - lineWidth + 1, y0 + lineWidth, lineWidth, h - lineWidth - lineWidth, null );
+            markDirty( x0, y1 - lineWidth + 1, w, lineWidth, null );
         }
         
         if ( dirtyRect != null )
@@ -1983,15 +1966,7 @@ public class TextureImage2D
             dataOffset += stride;
         }
         
-        if ( markDirty )
-        {
-            markDirty( x0, y0, w, h );
-        }
-        
-        if ( dirtyRect != null )
-        {
-            dirtyRect.set( x0, y0, w, h );
-        }
+        possiblyMarkDirty( x0, y0, w, h, markDirty, dirtyRect );
     }
     
     /**
@@ -2068,15 +2043,7 @@ public class TextureImage2D
         int trgByteOffset = this.getDataOffset( x0, y_ + startY );
         this.setPixelLine( trgByteOffset, length, pixels, srcByteOffset );
         
-        if ( markDirty )
-        {
-            markDirty( x0, startY, x1 - x0 + 1, 1 );
-        }
-        
-        if ( dirtyRect != null )
-        {
-            dirtyRect.set( x0, startY, x1 - x0 + 1, 1 );
-        }
+        possiblyMarkDirty( x0, startY, x1 - x0 + 1, 1, markDirty, dirtyRect );
     }
     
     private static BufferedImage textImage = new BufferedImage( 256, 64, BufferedImage.TYPE_4BYTE_ABGR );
@@ -2238,6 +2205,68 @@ public class TextureImage2D
         getTextureCanvas().drawString( s, x, y, bounds, font, antiAliased, color, markDirty, dirtyRect );
     }
     
+    public static enum TextDirection
+    {
+        RIGHT,
+        DOWN,
+        UP,
+        ;
+    }
+    
+    /**
+     * Draws a String at the specified location.
+     * 
+     * @param s the String to draw
+     * @param x the x-position
+     * @param y the y-position of the String's baseline
+     * @param bounds the String's bounds. If null, bounds will be created temporarily
+     * @param font the Font to use
+     * @param antiAliased anti aliased font?
+     * @param color the Color to use
+     * @param direction the text direction
+     * @param markDirty if true, the pixel is marked dirty
+     * @param dirtyRect if non null, the dirty rect is written to this instance
+     */
+    public void drawString( String s, int x, int y, java.awt.geom.Rectangle2D bounds, java.awt.Font font, boolean antiAliased, java.awt.Color color, TextDirection direction, boolean markDirty, Rect2i dirtyRect )
+    {
+        if ( bounds == null )
+            bounds = getStringBounds( s, font, antiAliased );
+        
+        if ( direction == null )
+            direction = TextDirection.RIGHT;
+        
+        if ( direction != TextDirection.RIGHT )
+            bounds = new java.awt.geom.Rectangle2D.Double( bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight() );
+        
+        Texture2DCanvas texCanvas = getTextureCanvas();
+        
+        AffineTransform at0 = texCanvas.getTransform();
+        
+        if ( direction == TextDirection.UP )
+        {
+            AffineTransform at1 = new AffineTransform( at0 );
+            AffineTransform at2 = AffineTransform.getRotateInstance( -Math.PI / 2, x, y );
+            at1.concatenate( at2 );
+            texCanvas.setTransform( at1 );
+        }
+        else if ( direction == TextDirection.DOWN )
+        {
+            AffineTransform at1 = new AffineTransform( at0 );
+            AffineTransform at2 = AffineTransform.getRotateInstance( Math.PI / 2, x, y );
+            at1.concatenate( at2 );
+            texCanvas.setTransform( at1 );
+        }
+        
+        try
+        {
+            texCanvas.drawString( s, x, y, bounds, font, antiAliased, color, markDirty, dirtyRect );
+        }
+        finally
+        {
+            texCanvas.setTransform( at0 );
+        }
+    }
+    
     private TextureImage2D( int maxWidth, int maxHeight, int usedWidth, int usedHeight, boolean alpha, ByteBuffer dataBuffer, byte[] data, boolean isOffline )
     {
         this.width = Math.max( 1, maxWidth );
@@ -2284,7 +2313,7 @@ public class TextureImage2D
         else
         {
             this.updateList = new ArrayList<Rect2i>();
-            markDirty( 0, 0, width, height );
+            markDirty( 0, 0, width, height, null );
         }
     }
     

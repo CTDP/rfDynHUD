@@ -381,12 +381,13 @@ public class RevMeterWidget extends NeedleMeterWidget
             float scale = getBackground().getScaleX();
             int w = Math.round( it.getBaseWidth() * scale );
             int h = Math.round( it.getBaseHeight() * scale );
-            if ( ( gearBackgroundTexture == null ) || ( gearBackgroundTexture.getWidth() != w ) || ( gearBackgroundTexture.getHeight() != h ) )
+            boolean[] changeInfo = new boolean[ 2 ];
+            gearBackgroundTexture = it.getScaledTransformableTexture( w, h, gearBackgroundTexture, isEditorMode, changeInfo );
+            gearBackgroundTexture.setDynamic( true );
+            
+            if ( changeInfo[1] ) // redrawn
             {
-                gearBackgroundTexture = it.getScaledTransformableTexture( w, h, gearBackgroundTexture, isEditorMode );
-                gearBackgroundTexture.setDynamic( true );
-                
-                gearBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( gearBackgroundTexture.getWidth(), gearBackgroundTexture.getHeight(), gearBackgroundTexture.getTexture().hasAlphaChannel(), gearBackgroundTexture_bak, isEditorMode );
+                gearBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( w, h, it.hasAlpha(), gearBackgroundTexture_bak, isEditorMode );
                 gearBackgroundTexture_bak.clear( gearBackgroundTexture.getTexture(), true, null );
             }
         }
@@ -423,12 +424,13 @@ public class RevMeterWidget extends NeedleMeterWidget
             float scale = getBackground().getScaleX();
             int w = Math.round( it.getBaseWidth() * scale );
             int h = Math.round( it.getBaseHeight() * scale );
-            if ( ( boostNumberBackgroundTexture == null ) || ( boostNumberBackgroundTexture.getWidth() != w ) || ( boostNumberBackgroundTexture.getHeight() != h ) )
+            boolean[] changeInfo = new boolean[ 2 ];
+            boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h, boostNumberBackgroundTexture, isEditorMode, changeInfo );
+            boostNumberBackgroundTexture.setDynamic( true );
+            
+            if ( changeInfo[1] ) // redrawn
             {
-                boostNumberBackgroundTexture = it.getScaledTransformableTexture( w, h, boostNumberBackgroundTexture, isEditorMode );
-                boostNumberBackgroundTexture.setDynamic( true );
-                
-                boostNumberBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( boostNumberBackgroundTexture.getWidth(), boostNumberBackgroundTexture.getHeight(), boostNumberBackgroundTexture.getTexture().hasAlphaChannel(), boostNumberBackgroundTexture_bak, isEditorMode );
+                boostNumberBackgroundTexture_bak = TextureImage2D.getOrCreateDrawTexture( w, h, it.hasAlpha(), boostNumberBackgroundTexture_bak, isEditorMode );
                 boostNumberBackgroundTexture_bak.clear( boostNumberBackgroundTexture.getTexture(), true, null );
             }
         }

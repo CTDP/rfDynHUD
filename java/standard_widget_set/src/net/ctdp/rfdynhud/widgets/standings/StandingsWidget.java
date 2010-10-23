@@ -106,7 +106,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
     @Override
     public WidgetPackage getWidgetPackage()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        return ( StandardWidgetSet.WIDGET_PACKAGE_TIMING );
     }
     
     /**

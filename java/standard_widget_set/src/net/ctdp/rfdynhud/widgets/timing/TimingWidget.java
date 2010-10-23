@@ -116,7 +116,7 @@ public class TimingWidget extends Widget
     @Override
     public WidgetPackage getWidgetPackage()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        return ( StandardWidgetSet.WIDGET_PACKAGE_TIMING );
     }
     
     /**

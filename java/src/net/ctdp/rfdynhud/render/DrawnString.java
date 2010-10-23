@@ -514,7 +514,7 @@ public class DrawnString
         texture.drawString( totalString, offsetX + x, offsetY + y, bounds, font, fontAntiAliased, fontColor, false, clearRect );
         
         if ( ( clearRect.getWidth() > 0 ) && ( clearRect.getHeight() > 0 ) )
-            texture.markDirty( clearRect );
+            texture.markDirty( clearRect, null );
         
         return ( (int)Math.round( bounds.getWidth() ) );
     }
@@ -754,7 +754,7 @@ public class DrawnString
         }
         
         if ( ( clearRect.getWidth() > 0 ) && ( clearRect.getHeight() > 0 ) )
-            texture.markDirty( clearRect );
+            texture.markDirty( clearRect, null );
         
         Rect2i.toPool( dirtyRect );
         

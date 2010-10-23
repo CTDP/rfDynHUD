@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.widgets.controls;
 
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -31,6 +32,7 @@ import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.render.TextureImage2D.TextDirection;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
@@ -158,6 +160,17 @@ public class ControlsWidget extends Widget
     
     private final IntProperty gap = new IntProperty( this, "gap", 5 );
     
+    private final IntProperty labelOffset = new IntProperty( this, "labelOffset", 20 )
+    {
+        @Override
+        protected void onValueChanged( int oldValue, int newValue )
+        {
+            clutchDirty = true;
+            brakeDirty = true;
+            throttleDirty = true;
+        }
+    };
+    
     @Override
     public WidgetPackage getWidgetPackage()
     {
@@ -173,6 +186,21 @@ public class ControlsWidget extends Widget
         super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
         return ( viewedVSI.isPlayer() );
+    }
+    
+    private void drawBarLabel( String label, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        Rectangle2D bounds = TextureImage2D.getStringBounds( label, getFontProperty() );
+        
+        if ( horizontalBars.getBooleanValue() )
+        {
+            texture.drawString( label, offsetX + labelOffset.getIntValue(), offsetY + ( height - (int)bounds.getHeight() ) / 2 - (int)bounds.getY(), bounds, getFont(), isFontAntiAliased(), getFontColor(), true, null );
+        }
+        else
+        {
+            texture.drawString( label, offsetX + width / 2 - (int)bounds.getHeight() / 2 - (int)bounds.getY(), offsetY + height - labelOffset.getIntValue(), bounds, getFont(), isFontAntiAliased(), getFontColor(), TextDirection.UP, true, null );
+            //texture.drawString( label, offsetX + width / 2 + (int)bounds.getY() + (int)bounds.getHeight() / 2, offsetY + labelOffset.getIntValue(), bounds, getFont(), isFontAntiAliased(), getFontColor(), TextDirection.DOWN, true, null );
+        }
     }
     
     private int initClutchTexture( boolean isEditorMode, int offset, int w, int h, int gap )
@@ -202,6 +230,8 @@ public class ControlsWidget extends Widget
                         texClutch.getTexture().clear( scaledClutchTexture, w, 0, w, h, 0, 0, w, h, true, null );
                     }
                 }
+                
+                drawBarLabel( Loc.clutch_label, texClutch.getTexture(), 0, 0, texClutch.getWidth(), texClutch.getHeight() );
                 
                 if ( horizontalBars.getBooleanValue() )
                     texClutch.setTranslation( 0, offset );
@@ -248,6 +278,8 @@ public class ControlsWidget extends Widget
                     }
                 }
                 
+                drawBarLabel( Loc.brake_label, texBrake.getTexture(), 0, 0, texBrake.getWidth(), texBrake.getHeight() );
+                
                 if ( horizontalBars.getBooleanValue() )
                     texBrake.setTranslation( 0, offset );
                 else
@@ -292,6 +324,8 @@ public class ControlsWidget extends Widget
                         texThrottle.getTexture().clear( scaledThrottleTexture, w, 0, w, h, 0, 0, w, h, true, null );
                     }
                 }
+                
+                drawBarLabel( Loc.throttle_label, texThrottle.getTexture(), 0, 0, texThrottle.getWidth(), texThrottle.getHeight() );
                 
                 if ( horizontalBars.getBooleanValue() )
                     texThrottle.setTranslation( 0, offset );
@@ -400,10 +434,16 @@ public class ControlsWidget extends Widget
         {
             if ( displayClutch.getBooleanValue() && ( scaledClutchTexture != null ) )
                 texture.drawImage( scaledClutchTexture, 0, 0, texClutch.getWidth(), texClutch.getHeight(), offsetX + (int)texClutch.getTransX(), offsetY + (int)texClutch.getTransY(), texClutch.getWidth(), texClutch.getHeight(), true, null );
+            if ( displayClutch.getBooleanValue() )
+                drawBarLabel( Loc.clutch_label, texture, offsetX + (int)texClutch.getTransX(), offsetY + (int)texClutch.getTransY(), texClutch.getWidth(), texClutch.getHeight() );
             if ( displayBrake.getBooleanValue() && ( scaledBrakeTexture != null ) )
                 texture.drawImage( scaledBrakeTexture, 0, 0, texBrake.getWidth(), texBrake.getHeight(), offsetX + (int)texBrake.getTransX(), offsetY + (int)texBrake.getTransY(), texBrake.getWidth(), texBrake.getHeight(), true, null );
+            if ( displayBrake.getBooleanValue() )
+                drawBarLabel( Loc.brake_label, texture, offsetX + (int)texBrake.getTransX(), offsetY + (int)texBrake.getTransY(), texBrake.getWidth(), texBrake.getHeight() );
             if ( displayThrottle.getBooleanValue() && ( scaledThrottleTexture != null ) )
                 texture.drawImage( scaledThrottleTexture, 0, 0, texThrottle.getWidth(), texThrottle.getHeight(), offsetX + (int)texThrottle.getTransX(), offsetY + (int)texThrottle.getTransY(), texThrottle.getWidth(), texThrottle.getHeight(), true, null );
+            if ( displayThrottle.getBooleanValue() )
+                drawBarLabel( Loc.throttle_label, texture, offsetX + (int)texThrottle.getTransX(), offsetY + (int)texThrottle.getTransY(), texThrottle.getWidth(), texThrottle.getHeight() );
         }
         
         if ( horizontalBars.getBooleanValue() )
@@ -457,6 +497,7 @@ public class ControlsWidget extends Widget
         writer.writeProperty( throttleImage, "The image for the throttle bar. (overrules the color)" );
         writer.writeProperty( throttleColor, "The color used for the throttle bar in the format #RRGGBB (hex)." );
         writer.writeProperty( gap, "Gap between the bars" );
+        writer.writeProperty( labelOffset, "The offset for bar text from the left or bottom boundary of the bar." );
     }
     
     /**
@@ -479,6 +520,7 @@ public class ControlsWidget extends Widget
         else if ( loader.loadProperty( throttleImage ) );
         else if ( loader.loadProperty( throttleColor ) );
         else if ( loader.loadProperty( gap ) );
+        else if ( loader.loadProperty( labelOffset ) );
     }
     
     /**
@@ -503,12 +545,7 @@ public class ControlsWidget extends Widget
         propsCont.addProperty( throttleImage );
         propsCont.addProperty( throttleColor );
         propsCont.addProperty( gap );
-    }
-    
-    @Override
-    protected boolean hasText()
-    {
-        return ( false );
+        propsCont.addProperty( labelOffset );
     }
     
     public ControlsWidget()
@@ -516,5 +553,8 @@ public class ControlsWidget extends Widget
         super( 9.9f, 16.5f );
         
         setPadding( 3, 3, 3, 3 );
+        
+        getFontProperty().setFont( "DokChampa-BOLD-22va" );
+        getFontColorProperty().setColor( "#FFFFFF" );
     }
 }

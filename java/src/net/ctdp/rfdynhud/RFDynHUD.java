@@ -43,7 +43,7 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 88 );
+    public static final Version VERSION = new Version( 1, 1, 0, "Alpha", 89 );
     
     private final SupportedGames gameId;
     

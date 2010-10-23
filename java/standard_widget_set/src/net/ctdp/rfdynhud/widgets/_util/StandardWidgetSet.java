@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
+import java.net.URL;
 
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -29,7 +30,15 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 public class StandardWidgetSet
 {
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "", WidgetPackage.composeVersion( 1, 1, 0 ), StandardWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/ctdp.png" ) );
+    private static final URL getIcon( String name )
+    {
+        return ( StandardWidgetSet.class.getClassLoader().getResource( name ) );
+    }
+    
+    private static int VERSION = WidgetPackage.composeVersion( 1, 1, 0 );
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Standard", VERSION, getIcon( "net/ctdp/rfdynhud/widgets/ctdp.png" ), getIcon( "net/ctdp/rfdynhud/widgets/widgets.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE_TELEMETRY = new WidgetPackage( "CTDP/Telemetry", VERSION, getIcon( "net/ctdp/rfdynhud/widgets/ctdp.png" ), getIcon( "net/ctdp/rfdynhud/widgets/telemetry.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE_TIMING = new WidgetPackage( "CTDP/Timing", VERSION, getIcon( "net/ctdp/rfdynhud/widgets/ctdp.png" ), getIcon( "net/ctdp/rfdynhud/widgets/timing.png" ) );
     
     public static final String POSITION_ITEM_FONT_COLOR_NAME = "PositionItemFontColor";
     public static final String POSITION_ITEM_COLOR_NORMAL = "PositionItemColorNormal";
