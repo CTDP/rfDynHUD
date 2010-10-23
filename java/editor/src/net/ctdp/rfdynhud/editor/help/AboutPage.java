@@ -88,7 +88,7 @@ public class AboutPage extends JDialog
         
         cp.setLayout( new BorderLayout( 5, 5 ) );
         
-        ImageIcon icon = new ImageIcon( AboutPage.class.getResource( "/data/config/images/ctdp.png" ) );
+        ImageIcon icon = new ImageIcon( AboutPage.class.getResource( "/data/ctdp.png" ) );
         JLabel label = new JLabel( icon );
         cp.add( label, BorderLayout.WEST );
         
