@@ -199,6 +199,42 @@ public class WidgetsEditorPanel extends JPanel
         }
     }
     
+    public boolean fixSelectedWidgetWidthByBackgroundAspect()
+    {
+        Widget widget = getSelectedWidget();
+        
+        float aspect = widget.getBackgroundProperty().getImageProperty().getImage().getBaseAspect();
+        
+        clearWidgetRegion( widget );
+        
+        widget.getSize().setEffectiveSize( Math.round( widget.getSize().getEffectiveHeight() * aspect ), widget.getSize().getEffectiveHeight() );
+        
+        repaint();
+        
+        for ( int i = 0; i < listeners.size(); i++ )
+            listeners.get( i ).onWidgetPositionSizeChanged( widget );
+        
+        return ( true );
+    }
+    
+    public boolean fixSelectedWidgetHeightByBackgroundAspect()
+    {
+        Widget widget = getSelectedWidget();
+        
+        float aspect = widget.getBackgroundProperty().getImageProperty().getImage().getBaseAspect();
+        
+        clearWidgetRegion( widget );
+        
+        widget.getSize().setEffectiveSize( widget.getSize().getEffectiveWidth(), Math.round( widget.getSize().getEffectiveWidth() / aspect ) );
+        
+        repaint();
+        
+        for ( int i = 0; i < listeners.size(); i++ )
+            listeners.get( i ).onWidgetPositionSizeChanged( widget );
+        
+        return ( true );
+    }
+    
     public boolean snapSelectedWidgetToGrid()
     {
         if ( selectedWidget != null )

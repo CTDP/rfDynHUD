@@ -38,8 +38,11 @@ public class VehicleScoringInfo
     VehicleScoringInfoCapsule data = null;
     
     private String name = null;
+    private String nameUC = null;
     private String nameShort = null;
+    private String nameShortUC = null;
     private String nameTLC = null;
+    private String nameTLCLC = null;
     private int nameId = 0;
     private Integer nameID = null;
     
@@ -110,8 +113,11 @@ public class VehicleScoringInfo
         {
             name = editorPresets.getDriverName();
             data.setDriverName( name );
+            nameUC = null;
             nameShort = null;
+            nameShortUC = null;
             nameTLC = null;
+            nameTLCLC = null;
             nameID = data.refreshID();
             nameId = nameID.intValue();
         }
@@ -280,8 +286,11 @@ public class VehicleScoringInfo
     void setDriverName( String name, Integer id )
     {
         this.name = name;
+        this.nameUC = null;
         this.nameShort = null;
+        this.nameShortUC = null;
         this.nameTLC = null;
+        this.nameTLCLC = null;
         this.nameID = id;
         this.nameId = id.intValue();
     }
@@ -289,9 +298,11 @@ public class VehicleScoringInfo
     /**
      * Gets the full name of the driver driving this vehicle.
      * 
+     * @param upperCase whether the name should be in all upper case
+     * 
      * @return the full name of the driver driving this vehicle.
      */
-    public final String getDriverName()
+    public final String getDriverName( boolean upperCase )
     {
         /*
         if ( name == null )
@@ -300,20 +311,38 @@ public class VehicleScoringInfo
         }
         */
         
+        if ( upperCase )
+        {
+            if ( nameUC == null )
+                nameUC = name.toUpperCase();
+            
+            return ( nameUC );
+        }
+        
         return ( name );
     }
     
     /**
      * Gets driver name (short form)
      * 
+     * @param upperCase whether the name should be in all upper case
+     * 
      * @return driver name (short form)
      */
-    public final String getDriverNameShort()
+    public final String getDriverNameShort( boolean upperCase )
     {
         if ( ( nameShort == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
         {
-            nameShort = ThreeLetterCodeManager.getShortForm( getDriverName(), getDriverID() );
+            nameShort = ThreeLetterCodeManager.getShortForm( getDriverName( false ), getDriverID() );
             lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
+        }
+        
+        if ( upperCase )
+        {
+            if ( nameShortUC == null )
+                nameShortUC = nameShort.toUpperCase();
+            
+            return ( nameShortUC );
         }
         
         return ( nameShort );
@@ -322,14 +351,24 @@ public class VehicleScoringInfo
     /**
      * Gets driver name (three letter code)
      * 
+     * @param upperCase whether the name should be in all upper case
+     * 
      * @return driver name (three letter code)
      */
-    public final String getDriverNameTLC()
+    public final String getDriverNameTLC( boolean upperCase )
     {
         if ( ( nameTLC == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
         {
-            nameTLC = ThreeLetterCodeManager.getThreeLetterCode( getDriverName(), getDriverID() );
+            nameTLC = ThreeLetterCodeManager.getThreeLetterCode( getDriverName( false ), getDriverID() );
             lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
+        }
+        
+        if ( !upperCase )
+        {
+            if ( nameTLCLC == null )
+                nameTLCLC = nameTLC.toLowerCase();
+            
+            return ( nameTLCLC );
         }
         
         return ( nameTLC );

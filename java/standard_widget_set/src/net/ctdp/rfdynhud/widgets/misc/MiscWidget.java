@@ -292,7 +292,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             scoringString2.getMaxColWidths( new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, scoringColWidths );
         
         if ( fastestLap.isValid() )
-            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort() + ")" }, scoringAlignment, padding, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort( false ) + ")" }, scoringAlignment, padding, scoringColWidths );
         else
             scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, scoringColWidths );
     }
@@ -320,10 +320,10 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         {
             VehicleScoringInfo leaderVSI = scoringInfo.getLeadersVehicleScoringInfo();
             leaderID.update( leaderVSI.getDriverId() );
-            String leaderName = leaderVSI.getDriverNameShort();
+            String leaderName = leaderVSI.getDriverNameShort( false );
             place.update( scoringInfo.getOwnPlace( getConfiguration().getUseClassScoring() ) );
             VehicleScoringInfo fastestLapVSI = scoringInfo.getFastestLapVSI();
-            String fastestLapper = fastestLapVSI.getDriverNameShort();
+            String fastestLapper = fastestLapVSI.getDriverNameShort( false );
             Laptime fl = fastestLapVSI.getFastestLaptime();
             fastestLap.update( ( fl == null ) ? -1f : fl.getLapTime() );
             

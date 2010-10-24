@@ -368,7 +368,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         else
             ETVUtils.drawDataBackground( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + gap + coords.rowHeight, capBgColor, texture, false );
         
-        drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture, false );
+        drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort( getShowNamesInAllUppercase() ), texture, false );
     }
     
     @Override

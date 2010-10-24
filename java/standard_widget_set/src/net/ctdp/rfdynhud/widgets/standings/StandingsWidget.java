@@ -347,11 +347,11 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         switch ( nameDisplayType.getEnumValue() )
         {
             case FULL_NAME:
-                return ( vsi.getDriverName() );
+                return ( vsi.getDriverName( false ) );
             case SHORT_FORM:
-                return ( vsi.getDriverNameShort() );
+                return ( vsi.getDriverNameShort( false ) );
             case THREE_LETTER_CODE:
-                return ( vsi.getDriverNameTLC() );
+                return ( vsi.getDriverNameTLC( true ) );
         }
         
         // Unreachable code!
@@ -842,11 +842,9 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         return ( total );
     }
     
-    private void initPositionStrings()
+    private void initPositionStrings( boolean isEditorMode, DrawnStringFactory dsf )
     {
-        DrawnStringFactory dsf = getDrawnStringFactory();
-        
-        if ( ( positionStrings == null ) || ( positionStrings.length < maxNumVehicles ) )
+        if ( isEditorMode || ( positionStrings == null ) || ( positionStrings.length < maxNumVehicles ) )
         {
             positionStrings = new DrawnString[ maxNumVehicles ];
             
@@ -897,7 +895,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         
         lastScoringUpdateId.reset( true );
         
-        initPositionStrings();
+        initPositionStrings( isEditorMode, dsf );
         
         int h = height + getBorder().getInnerBottomHeight() - getBorder().getOpaqueBottomHeight();
         int rowHeight = positionStrings[0].calcMaxHeight( false );

@@ -50,6 +50,7 @@ import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.WidgetTools;
@@ -143,6 +144,40 @@ public class EditorMenuBar extends JMenuBar
             }
         } );
         menu.add( close );
+        
+        return ( menu );
+    }
+    
+    private static JMenuItem createFixWidthByBackgroundMenu( final RFDynHUDEditor editor )
+    {
+        JMenuItem menu = new JMenuItem( "Fix width by background aspect" );
+        menu.setEnabled( editor.getEditorPanel().getSelectedWidget().getBackground().getType() == BackgroundType.IMAGE );
+        menu.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                if ( editor.getEditorPanel().fixSelectedWidgetWidthByBackgroundAspect() )
+                    editor.setDirtyFlag();
+            }
+        } );
+        
+        return ( menu );
+    }
+    
+    private static JMenuItem createFixHeightByBackgroundMenu( final RFDynHUDEditor editor )
+    {
+        JMenuItem menu = new JMenuItem( "Fix height by background aspect" );
+        menu.setEnabled( editor.getEditorPanel().getSelectedWidget().getBackground().getType() == BackgroundType.IMAGE );
+        menu.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                if ( editor.getEditorPanel().fixSelectedWidgetHeightByBackgroundAspect() )
+                    editor.setDirtyFlag();
+            }
+        } );
         
         return ( menu );
     }
@@ -369,6 +404,12 @@ public class EditorMenuBar extends JMenuBar
         menu.add( resetZoomItem );
         
         menu.addSeparator();
+        
+        JMenuItem fixWidthByBackground = createFixWidthByBackgroundMenu( editor );
+        menu.add( fixWidthByBackground );
+        
+        JMenuItem fixHeightByBackground = createFixHeightByBackgroundMenu( editor );
+        menu.add( fixHeightByBackground );
         
         JMenuItem snapSelWidgetToGrid = createSnapSelWidgetToGridMenu( editor );
         menu.add( snapSelWidgetToGrid );

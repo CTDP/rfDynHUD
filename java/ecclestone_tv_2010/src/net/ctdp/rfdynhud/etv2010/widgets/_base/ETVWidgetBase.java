@@ -60,6 +60,8 @@ public abstract class ETVWidgetBase extends Widget
     
     protected final IntProperty itemGap = new IntProperty( this, "itemGap", 3, 0, 100 );
     
+    protected final BooleanProperty showNamesInAllUppercase = new BooleanProperty( this, "showNamesInAllUppercase", "namesUpperCase", true );
+    
     @Override
     public WidgetPackage getWidgetPackage()
     {
@@ -107,6 +109,11 @@ public abstract class ETVWidgetBase extends Widget
         return ( images );
     }
     
+    protected final boolean getShowNamesInAllUppercase()
+    {
+        return ( showNamesInAllUppercase.getBooleanValue() );
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -119,6 +126,7 @@ public abstract class ETVWidgetBase extends Widget
         writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
         writer.writeProperty( dataBackgroundColor, "The background color for the data fields." );
         writer.writeProperty( itemGap, "The gap between the elements in pixels." );
+        writer.writeProperty( showNamesInAllUppercase, "Whether to display names in all upper case." );
     }
     
     /**
@@ -133,6 +141,18 @@ public abstract class ETVWidgetBase extends Widget
         else if ( loader.loadProperty( captionColor ) );
         else if ( loader.loadProperty( dataBackgroundColor ) );
         else if ( loader.loadProperty( itemGap ) );
+        else if ( loader.loadProperty( showNamesInAllUppercase ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesForParentGroup( propsCont, forceAll );
+        
+        propsCont.addProperty( showNamesInAllUppercase );
     }
     
     /**

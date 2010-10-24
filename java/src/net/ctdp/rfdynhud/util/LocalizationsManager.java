@@ -31,6 +31,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
 public class LocalizationsManager
 {
     private final HashMap<String, String> map = new HashMap<String, String>();
+    private final HashMap<String, Boolean> missingLoggedMap = new HashMap<String, Boolean>();
     
     private String[] readCodepageAndLanguage( final File f )
     {
@@ -177,10 +178,20 @@ public class LocalizationsManager
     {
         //update();
         
-        String value = map.get( widgetClass.getName() + "." + key );
+        String globalKey = widgetClass.getName() + "." + key;
+        String value = map.get( globalKey );
         
         if ( value == null )
+        {
+            if ( missingLoggedMap.get( globalKey ) != Boolean.TRUE )
+            {
+                Logger.log( "WARNING: Localization key \"" + key + "\" missing for " + widgetClass.getName() + "." );
+                
+                missingLoggedMap.put( globalKey, Boolean.TRUE );
+            }
+            
             return ( key );
+        }
         
         return ( value );
     }

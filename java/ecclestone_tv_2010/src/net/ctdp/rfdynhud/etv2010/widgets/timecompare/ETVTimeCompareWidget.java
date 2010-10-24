@@ -405,14 +405,14 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         else
             ETVUtils.drawLabeledDataBackground( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + gap ), coords.widthA, coords.rowHeight, "00", getFontProperty(), captionBgColor, dataBgColor, texture, false );
         positionString1.draw( offsetX, offsetY, String.valueOf( vsi.getPlace( getUseClassScoring() ) ), texture, false );
-        drivernameString1.draw( offsetX, offsetY, vsi.getDriverNameShort(), texture, false );
+        drivernameString1.draw( offsetX, offsetY, vsi.getDriverNameShort( getShowNamesInAllUppercase() ), texture, false );
         
         if ( useImages )
             ETVUtils.drawLabeledDataBackgroundI( offsetX, offsetY + 2 * ( coords.rowHeight + gap ), coords.widthA, coords.rowHeight, "00", getFontProperty(), images, BGType.NEUTRAL, texture, false );
         else
             ETVUtils.drawLabeledDataBackground( offsetX, offsetY + 2 * ( coords.rowHeight + gap ), coords.widthA, coords.rowHeight, "00", getFontProperty(), captionBgColor, dataBgColor, texture, false );
         positionString2.draw( offsetX, offsetY, String.valueOf( relVSI.getPlace( getUseClassScoring() ) ), texture, false );
-        drivernameString2.draw( offsetX, offsetY, relVSI.getDriverNameShort(), texture, false );
+        drivernameString2.draw( offsetX, offsetY, relVSI.getDriverNameShort( getShowNamesInAllUppercase() ), texture, false );
         
         if ( useImages )
             ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset2 + coords.offsetB, offsetY, coords.widthBC, coords.rowHeight, images, BGType.CAPTION, texture, false );

@@ -324,7 +324,7 @@ public class TimingWidget extends Widget
             Laptime lt = afVSI.getFastestLaptime();
             float lap = ( lt == null ) ? -1f : lt.getLapTime();
             boolean lv = ( lap > 0f );
-            String leaderName = lv ? afVSI.getDriverName() : "";
+            String leaderName = lv ? afVSI.getDriverName( false ) : "";
             leaderID.update( lv ? scoringInfo.getFastestLapVSI().getDriverId() : -1 );
             
             if ( needsCompleteRedraw || leaderID.hasChanged() )
