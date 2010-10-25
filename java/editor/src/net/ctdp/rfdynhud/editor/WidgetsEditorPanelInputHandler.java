@@ -832,10 +832,18 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                     if ( kev.getID() == KeyEvent.KEY_PRESSED )
                     {
                         w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
-                        if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
+                        isControlDown = !isControlDown;
+                        try
                         {
-                            editorPanel.onSelectedWidgetPositionSizeChanged();
-                            needsRedraw = true;
+                            if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() - 1 ) )
+                            {
+                                editorPanel.onSelectedWidgetPositionSizeChanged();
+                                needsRedraw = true;
+                            }
+                        }
+                        finally
+                        {
+                            isControlDown = !isControlDown;
                         }
                     }
                     
@@ -846,10 +854,18 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                     if ( kev.getID() == KeyEvent.KEY_PRESSED )
                     {
                         w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
-                        if ( setWidgetPosition( w, w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
+                        isControlDown = !isControlDown;
+                        try
                         {
-                            editorPanel.onSelectedWidgetPositionSizeChanged();
-                            needsRedraw = true;
+                            if ( setWidgetPosition( w, w.getPosition().getEffectiveX() - 1, w.getPosition().getEffectiveY() ) )
+                            {
+                                editorPanel.onSelectedWidgetPositionSizeChanged();
+                                needsRedraw = true;
+                            }
+                        }
+                        finally
+                        {
+                            isControlDown = !isControlDown;
                         }
                     }
                     
@@ -860,10 +876,18 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                     if ( kev.getID() == KeyEvent.KEY_PRESSED )
                     {
                         w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
-                        if ( setWidgetPosition( w, w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
+                        isControlDown = !isControlDown;
+                        try
                         {
-                            editorPanel.onSelectedWidgetPositionSizeChanged();
-                            needsRedraw = true;
+                            if ( setWidgetPosition( w, w.getPosition().getEffectiveX() + 1, w.getPosition().getEffectiveY() ) )
+                            {
+                                editorPanel.onSelectedWidgetPositionSizeChanged();
+                                needsRedraw = true;
+                            }
+                        }
+                        finally
+                        {
+                            isControlDown = !isControlDown;
                         }
                     }
                     
@@ -874,10 +898,18 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                     if ( kev.getID() == KeyEvent.KEY_PRESSED )
                     {
                         w.clearRegion( editorPanel.getOverlayTexture(), w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() );
-                        if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
+                        isControlDown = !isControlDown;
+                        try
                         {
-                            editorPanel.onSelectedWidgetPositionSizeChanged();
-                            needsRedraw = true;
+                            if ( setWidgetPosition( w, w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY() + 1 ) )
+                            {
+                                editorPanel.onSelectedWidgetPositionSizeChanged();
+                                needsRedraw = true;
+                            }
+                        }
+                        finally
+                        {
+                            isControlDown = !isControlDown;
                         }
                     }
                     
