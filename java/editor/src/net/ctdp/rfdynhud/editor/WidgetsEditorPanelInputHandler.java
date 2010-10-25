@@ -356,62 +356,83 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
     private static final byte FLAG_SNAP_X = 1;
     private static final byte FLAG_SNAP_Y = 2;
     
-    private byte snapPositionToRail( Widget widget, Point point )
+    private byte snapPositionToRail( Widget widget, Point point, int x2, int y2 )
     {
         byte result = 0;
         
-        if ( !isControlDown )
+        if ( isControlDown )
+            return ( 0 );
+        
+        if ( ( editorPanel.getSettings().getRailDistanceX() > 0 ) || ( editorPanel.getSettings().getRailDistanceY() > 0 ) )
         {
-            if ( ( editorPanel.getSettings().getRailDistanceX() > 0 ) || ( editorPanel.getSettings().getRailDistanceY() > 0 ) )
+            int maxRailDistance = editorPanel.getSettings().getMaxRailDistance();
+            
+            int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
+            int closestRailX = Integer.MAX_VALUE;
+            int closestRailY = Integer.MAX_VALUE;
+            int rdx, rdy;
+            for ( int i = 0; i < numWidgets; i++ )
             {
-                int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
-                int closestRailX = Integer.MAX_VALUE;
-                int closestRailY = Integer.MAX_VALUE;
-                int rdx, rdy;
-                for ( int i = 0; i < numWidgets; i++ )
+                Widget w = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getWidget( i ) : editorPanel.getScopeWidget().getPart( i );
+                
+                if ( w != widget )
                 {
-                    Widget w = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getWidget( i ) : editorPanel.getScopeWidget().getPart( i );
+                    int x0 = Math.min( point.x, x2 );
+                    int y0 = Math.min( point.y, y2 );
+                    int x1 = Math.max( point.x, x2 );
+                    int y1 = Math.max( point.y, y2 );
                     
-                    if ( w != widget )
-                    {
+                    if ( ( y1 >= w.getPosition().getEffectiveY() - maxRailDistance ) && ( y0 <= w.getPosition().getEffectiveY() + w.getSize().getEffectiveHeight() + maxRailDistance ) )
                         rdx = w.getPosition().getEffectiveX() - point.x;
+                    else
+                        rdx = Integer.MAX_VALUE;
+                    
+                    if ( ( x1 >= w.getPosition().getEffectiveX() - maxRailDistance ) && ( x0 <= w.getPosition().getEffectiveX() + w.getSize().getEffectiveWidth() + maxRailDistance ) )
                         rdy = w.getPosition().getEffectiveY() - point.y;
-                        
-                        if ( Math.abs( rdx ) < Math.abs( closestRailX ) )
-                            closestRailX = rdx;
-                        if ( Math.abs( rdy ) < Math.abs( closestRailY ) )
-                            closestRailY = rdy;
-                        
+                    else
+                        rdy = Integer.MAX_VALUE;
+                    
+                    if ( Math.abs( rdx ) < Math.abs( closestRailX ) )
+                        closestRailX = rdx;
+                    if ( Math.abs( rdy ) < Math.abs( closestRailY ) )
+                        closestRailY = rdy;
+                    
+                    if ( ( y1 >= w.getPosition().getEffectiveY() - maxRailDistance ) && ( y0 <= w.getPosition().getEffectiveY() + w.getSize().getEffectiveHeight() + maxRailDistance ) )
                         rdx = w.getPosition().getEffectiveX() + w.getSize().getEffectiveWidth() - point.x;
+                    else
+                        rdx = Integer.MAX_VALUE;
+                    
+                    if ( ( x1 >= w.getPosition().getEffectiveX() - maxRailDistance ) && ( x0 <= w.getPosition().getEffectiveX() + w.getSize().getEffectiveWidth() + maxRailDistance ) )
                         rdy = w.getPosition().getEffectiveY() + w.getSize().getEffectiveHeight() - point.y;
-                        
-                        if ( Math.abs( rdx ) < Math.abs( closestRailX ) )
-                            closestRailX = rdx;
-                        if ( Math.abs( rdy ) < Math.abs( closestRailY ) )
-                            closestRailY = rdy;
-                    }
-                }
-                
-                if ( Math.abs( closestRailX ) < editorPanel.getSettings().getRailDistanceX() )
-                {
-                    point.x += closestRailX;
-                    result |= FLAG_SNAP_X;
-                }
-                
-                if ( Math.abs( closestRailY ) < editorPanel.getSettings().getRailDistanceY() )
-                {
-                    point.y += closestRailY;
-                    result |= FLAG_SNAP_Y;
+                    else
+                        rdy = Integer.MAX_VALUE;
+                    
+                    if ( Math.abs( rdx ) < Math.abs( closestRailX ) )
+                        closestRailX = rdx;
+                    if ( Math.abs( rdy ) < Math.abs( closestRailY ) )
+                        closestRailY = rdy;
                 }
             }
             
-            if ( editorPanel.getSettings().isGridUsed() )
+            if ( Math.abs( closestRailX ) < editorPanel.getSettings().getRailDistanceX() )
             {
-                point.x = editorPanel.getSettings().snapXToGrid( point.x );
-                point.y = editorPanel.getSettings().snapYToGrid( point.y );
-                
-                result = FLAG_SNAP_X | FLAG_SNAP_Y;
+                point.x += closestRailX;
+                result |= FLAG_SNAP_X;
             }
+            
+            if ( Math.abs( closestRailY ) < editorPanel.getSettings().getRailDistanceY() )
+            {
+                point.y += closestRailY;
+                result |= FLAG_SNAP_Y;
+            }
+        }
+        
+        if ( editorPanel.getSettings().isGridUsed() )
+        {
+            point.x = editorPanel.getSettings().snapXToGrid( point.x );
+            point.y = editorPanel.getSettings().snapYToGrid( point.y );
+            
+            result = FLAG_SNAP_X | FLAG_SNAP_Y;
         }
         
         return ( result );
@@ -494,20 +515,20 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
     
     private boolean setWidgetPosition( Widget widget, int x, int y )
     {
+        final int effWidth = widget.getSize().getEffectiveWidth();
+        final int effHeight = widget.getSize().getEffectiveHeight();
+        
         Point p = new Point( x, y );
-        byte snapped1 = snapPositionToRail( widget, p );
+        byte snapped1 = snapPositionToRail( widget, p, x + effWidth - 1, y + effHeight - 1 );
         
         int dx1 = ( ( snapped1 & FLAG_SNAP_X ) != 0 ) ? p.x - x : Integer.MAX_VALUE;
         int dy1 = ( ( snapped1 & FLAG_SNAP_Y ) != 0 ) ? p.y - y : Integer.MAX_VALUE;
-        
-        final int effWidth = widget.getSize().getEffectiveWidth();
-        final int effHeight = widget.getSize().getEffectiveHeight();
         
         int x2 = x + effWidth - 1;
         int y2 = y + effHeight - 1;
         
         p.setLocation( x2, y2 );
-        byte snapped2 = snapPositionToRail( widget, p );
+        byte snapped2 = snapPositionToRail( widget, p, x, y );
         
         int dx2 = ( ( snapped2 & FLAG_SNAP_X ) != 0 ) ? p.x - x2 : Integer.MAX_VALUE;
         int dy2 = ( ( snapped2 & FLAG_SNAP_Y ) != 0 ) ? p.y - y2 : Integer.MAX_VALUE;
@@ -591,8 +612,49 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                     }
                 }
                 
+                int x0 = x;
+                int y0 = y;
+                
+                int w0 = widgetDragStartWidth;
+                int h0 = widgetDragStartHeight;
+                
+                if ( overBorderPart != null )
+                {
+                    switch ( overBorderPart )
+                    {
+                        case TOP_LEFT:
+                            w0 -= dx;
+                            h0 -= dy;
+                            break;
+                        case TOP:
+                            h0 -= dy;
+                            break;
+                        case TOP_RIGHT:
+                            w0 += dx;
+                            h0 -= dy;
+                            break;
+                        case LEFT:
+                            w0 -= dx;
+                            break;
+                        case RIGHT:
+                            w0 += dx;
+                            break;
+                        case BOTTOM_LEFT:
+                            w0 -= dx;
+                            h0 += dy;
+                            break;
+                        case BOTTOM:
+                            h0 += dy;
+                            break;
+                        case BOTTOM_RIGHT:
+                            w0 += dx;
+                            h0 += dy;
+                            break;
+                    }
+                }
+                
                 Point p = new Point( x, y );
-                snapPositionToRail( draggedWidget, p );
+                snapPositionToRail( draggedWidget, p, x + w0 - 1, y + h0 - 1 );
                 if ( ( overBorderPart == BorderPart.TOP_LEFT ) || ( overBorderPart == BorderPart.LEFT ) || ( overBorderPart == BorderPart.BOTTOM_LEFT ) )
                 {
                     dx += p.x - x;
@@ -684,7 +746,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                 }
                 
                 Point s = new Point( x + w - 1, y + h - 1 );
-                snapPositionToRail( draggedWidget, s );
+                snapPositionToRail( draggedWidget, s, x0, y0 );
                 if ( ( w != widgetDragStartWidth ) && ( ( overBorderPart == BorderPart.TOP_RIGHT ) || ( overBorderPart == BorderPart.RIGHT ) || ( overBorderPart == BorderPart.BOTTOM_RIGHT ) ) )
                     w = s.x + 1 - x;
                 if ( ( h != widgetDragStartHeight ) && ( ( overBorderPart == BorderPart.BOTTOM_LEFT ) || ( overBorderPart == BorderPart.BOTTOM ) || ( overBorderPart == BorderPart.BOTTOM_RIGHT ) ) )

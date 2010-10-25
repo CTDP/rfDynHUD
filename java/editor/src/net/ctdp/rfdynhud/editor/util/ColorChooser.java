@@ -317,6 +317,12 @@ public class ColorChooser extends JPanel
         return ( selColorName );
     }
     
+    public void setToLocalTransparent()
+    {
+        rdoUnnamed.doClick();
+        setSelectedColor( new Color( 0, 0, 0, 0 ), true );
+    }
+    
     public final boolean getValueChanged()
     {
         return ( valueChanged );
@@ -1003,6 +1009,8 @@ public class ColorChooser extends JPanel
             
             contentPane.add( this, BorderLayout.CENTER );
             
+            JPanel footer0 = new JPanel( new BorderLayout() );
+            
             JPanel footer = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
             
             JButton okButton = new JButton( "OK" );
@@ -1011,7 +1019,15 @@ public class ColorChooser extends JPanel
             JButton cancelButton = new JButton( "Cancel" );
             footer.add( cancelButton );
             
-            contentPane.add( footer, BorderLayout.SOUTH );
+            footer0.add( footer, BorderLayout.CENTER );
+            
+            JButton noColorButton = new JButton( "Transparent" );
+            JPanel noColorBorder = new JPanel();
+            noColorBorder.setBorder( new EmptyBorder( 5, 5, 5, 0 ) );
+            noColorBorder.add( noColorButton, BorderLayout.CENTER );
+            footer0.add( noColorBorder, BorderLayout.WEST );
+            
+            contentPane.add( footer0, BorderLayout.SOUTH );
             
             dialog.pack();
             dialog.setResizable( false );
@@ -1023,6 +1039,15 @@ public class ColorChooser extends JPanel
                 {
                     setSelectedColor( null );
                     dialog.setVisible( false );
+                }
+            } );
+            
+            noColorButton.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    setToLocalTransparent();
                 }
             } );
             

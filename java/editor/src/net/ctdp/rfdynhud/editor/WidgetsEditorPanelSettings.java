@@ -204,6 +204,7 @@ public class WidgetsEditorPanelSettings
     
     private final IntProperty railDistanceX = new IntProperty( (Widget)null, "railDistanceX", 10, 0, 100 );
     private final IntProperty railDistanceY = new IntProperty( (Widget)null, "railDistanceY", 10, 0, 100 );
+    private final IntProperty maxRailDistance = new IntProperty( (Widget)null, "maxRailDistance", 250, 0, 99999 );
     
     private final BooleanProperty drawGrid = new BooleanProperty( (Widget)null, "drawGrid", false )
     {
@@ -300,6 +301,11 @@ public class WidgetsEditorPanelSettings
         return ( railDistanceY.getIntValue() );
     }
     
+    public final int getMaxRailDistance()
+    {
+        return ( maxRailDistance.getIntValue() );
+    }
+    
     public final boolean getDrawGrid()
     {
         return ( drawGrid.getBooleanValue() );
@@ -351,6 +357,7 @@ public class WidgetsEditorPanelSettings
                                
         propsCont.addProperty( railDistanceX );
         propsCont.addProperty( railDistanceY );
+        propsCont.addProperty( maxRailDistance );
         propsCont.addProperty( drawGrid );
         propsCont.addProperty( gridOffsetX );
         propsCont.addProperty( gridOffsetY );
@@ -364,6 +371,7 @@ public class WidgetsEditorPanelSettings
         
         writer.writeProperty( railDistanceX, null );
         writer.writeProperty( railDistanceY, null );
+        writer.writeProperty( maxRailDistance, null );
         writer.writeProperty( drawGrid, null );
         writer.writeProperty( gridOffsetX, null );
         writer.writeProperty( gridOffsetY, null );
@@ -377,6 +385,7 @@ public class WidgetsEditorPanelSettings
         
         if ( loader.loadProperty( railDistanceX ) );
         else if ( loader.loadProperty( railDistanceY ) );
+        else if ( loader.loadProperty( maxRailDistance ) );
         else if ( loader.loadProperty( drawGrid ) );
         else if ( loader.loadProperty( gridOffsetX ) );
         else if ( loader.loadProperty( gridOffsetY ) );

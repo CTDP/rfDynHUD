@@ -31,10 +31,11 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.editor.util.ImageSelector.DoubleClickSelectionListener;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -49,7 +50,7 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
 {
     private static final long serialVersionUID = -7356477183079086811L;
     
-    private static final Dimension COLOR_CHOOSER_SIZE = new Dimension( 416, 341 );
+    private static final Dimension COLOR_CHOOSER_SIZE = new Dimension( 416, 361 );
     
     private final ColorChooser colorChooser;
     private final ImageSelector imageSelector;
@@ -60,6 +61,7 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
     private boolean cancelled = false;
     
     private JDialog dialog = null;
+    private JButton noColorButton = null;
     
     @Override
     public void stateChanged( ChangeEvent e )
@@ -75,6 +77,12 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
             
             imageSelectorSize = frame.getSize();
             frame.setSize( COLOR_CHOOSER_SIZE );
+            imageSelector.setPreviewVisible( false );
+            
+            if ( ( dialog != null ) && dialog.isVisible() )
+            {
+                noColorButton.setVisible( true );
+            }
         }
         else
         {
@@ -82,6 +90,12 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
             
             if ( imageSelectorSize != null )
                 frame.setSize( imageSelectorSize );
+            imageSelector.setPreviewVisible( true );
+            
+            if ( ( dialog != null ) && dialog.isVisible() )
+            {
+                noColorButton.setVisible( false );
+            }
         }
     }
     
@@ -101,8 +115,6 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
     
     public Object[] showDialog( Window owner, BackgroundType startType, String startColor, String startImage, final WidgetsConfiguration widgetsConfig )
     {
-        imageSelector.update();
-        
         if ( ( dialog == null ) || ( dialog.getOwner() != owner ) )
         {
             dialog = initDialog( owner, "Select a background..." );
@@ -114,6 +126,22 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
             
             JPanel footer = new JPanel( new BorderLayout() );
             JPanel footer3 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 5 ) );
+            
+            noColorButton = new JButton( "Transparent" );
+            JPanel noColorBorder = new JPanel();
+            noColorBorder.setBorder( new EmptyBorder( 5, 5, 5, 0 ) );
+            noColorBorder.add( noColorButton, BorderLayout.CENTER );
+            footer.add( noColorBorder, BorderLayout.WEST );
+            
+            noColorButton.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    colorChooser.setToLocalTransparent();
+                }
+            } );
+            
             JButton ok = new JButton( "OK" );
             ok.addActionListener( new ActionListener()
             {
@@ -161,6 +189,8 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
             
             dialog.setModal( true );
             dialog.setLocationRelativeTo( owner );
+            
+            imageSelector.createPreview( dialog );
         }
         
         if ( startType == null )
@@ -169,9 +199,6 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         if ( startColor == null )
             startColor = "StandardBackground";
         
-        if ( startImage == null )
-            startImage = "default_rev_meter_bg.png";
-        
         this.startColor = startColor;
         
         imageSelectorSize = new Dimension( 416, 500 );
@@ -179,11 +206,13 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         if ( startType.isColor() )
         {
             setSelectedIndex( 0 );
+            noColorButton.setVisible( true );
             dialog.setSize( COLOR_CHOOSER_SIZE );
         }
         else if ( startType.isImage() )
         {
             setSelectedIndex( 1 );
+            noColorButton.setVisible( false );
             dialog.setSize( imageSelectorSize );
         }
         
@@ -192,6 +221,7 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         
         cancelled = false;
         
+        imageSelector.setPreviewVisible( startType.isImage() );
         dialog.setVisible( true );
         
         if ( cancelled )
@@ -210,7 +240,7 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         return ( result );
     }
     
-    public BackgroundSelector( BackgroundType startType, String startColor, String startImage, WidgetsConfiguration widgetsConfig )
+    public BackgroundSelector( BackgroundType startType, String startColor, WidgetsConfiguration widgetsConfig )
     {
         super();
         
@@ -220,11 +250,18 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         if ( startColor == null )
             startColor = "StandardBackground";
         
-        if ( startImage == null )
-            startImage = "default_rev_meter_bg.png";
-        
         addTab( "Color", colorChooser = new ColorChooser( startColor, widgetsConfig ) );
-        addTab( "Image", imageSelector = new ImageSelector( GameFileSystem.INSTANCE.getImagesFolder(), startImage ) );
+        addTab( "Image", imageSelector = new ImageSelector() );
+        
+        imageSelector.addDoubleClickSelectionListener( new DoubleClickSelectionListener()
+        {
+            @Override
+            public void onImageSelectedByDoubleClick( String imageName )
+            {
+                if ( dialog != null )
+                    dialog.setVisible( false );
+            }
+        } );
         
         if ( startType.isColor() )
             setSelectedIndex( 0 );

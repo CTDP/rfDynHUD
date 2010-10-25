@@ -29,7 +29,6 @@ import javax.swing.border.EmptyBorder;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
 import net.ctdp.rfdynhud.editor.util.ImageSelector;
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.Property;
 
@@ -40,6 +39,8 @@ import net.ctdp.rfdynhud.properties.Property;
 public class ImageNameCellEditor extends KeyValueCellRenderer<Property, JPanel>
 {
     private static final long serialVersionUID = -7299720233662747237L;
+    
+    private static final ImageSelector imageSelector = new ImageSelector();
     
     private final JPanel panel = new JPanel( new BorderLayout() );
     private final JLabel label = new JLabel();
@@ -118,11 +119,8 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<Property, JPanel>
             {
                 if ( prop != null )
                 {
-                    //model.setSelectedItem( prop.getValue() );
-                    ImageSelector is = new ImageSelector( GameFileSystem.INSTANCE.getImagesFolder() );
-                    //JFrame frame = (JFrame)button.getRootPane().getParent();
                     JFrame frame = (JFrame)table.getRootPane().getParent();
-                    String selFile = is.showDialog( frame, (String)prop.getValue(), prop.getNoImageAllowed() );
+                    String selFile = imageSelector.showDialog( frame, (String)prop.getValue(), prop.getNoImageAllowed() );
                     
                     if ( selFile != null )
                     {

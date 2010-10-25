@@ -18,38 +18,37 @@
 package net.ctdp.rfdynhud.editor.util;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.Dimension;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.Graphics;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import net.ctdp.rfdynhud.util.Logger;
+
+import org.jagatoo.util.gui.awt_swing.GUITools;
 
 /**
  * The {@link ImageSelector} provides a dialog to select images from a certain
@@ -61,36 +60,95 @@ public class ImageSelector extends JPanel
 {
     private static final long serialVersionUID = 2419977725722070480L;
     
-    private JList createList( File folder )
-    {
-        final JList list = new JList( new ImageListModel( folder ) );
-        list.setFixedCellHeight( 50 );
-        list.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
-        list.setCellRenderer( new ListItem() );
-        list.addListSelectionListener( new ListSelectionListener()
-        {
-            @Override
-            public void valueChanged( ListSelectionEvent e )
-            {
-                JList list = (JList)e.getSource();
-                Object value = list.getSelectedValue();
-                
-                selectedFile = (String)value;
-            }
-        } );
-        
-        return ( list );
-    }
-    
-    private final JList list;
-    
-    private final File folder;
+    private final ImageTable table;
+    private final ImageTableModel model;
     
     private String selectedFile = null;
     
+    private JDialog dialog = null;
+    private JDialog preview = null;
+    
+    public static interface DoubleClickSelectionListener
+    {
+        public void onImageSelectedByDoubleClick( String imageName );
+    }
+    
+    private final ArrayList<DoubleClickSelectionListener> doubleClickSelectionListeners = new ArrayList<ImageSelector.DoubleClickSelectionListener>();
+    
+    public void addDoubleClickSelectionListener( DoubleClickSelectionListener l )
+    {
+        this.doubleClickSelectionListeners.add( l );
+    }
+    
+    public void removeDoubleClickSelectionListener( DoubleClickSelectionListener l )
+    {
+        this.doubleClickSelectionListeners.remove( l );
+    }
+    
+    private void updateColumnWidths()
+    {
+        int rc = model.getRowCount();
+        
+        if ( rc == 0 )
+            return;
+        
+        int maxWidth = 0;
+        
+        for ( int i = 0; i < rc; i++ )
+        {
+            Image thumb = (Image)model.getValueAt( i, 0 );
+            if ( thumb != null )
+            {
+                maxWidth = Math.max( maxWidth, thumb.getWidth( null ) );
+            }
+        }
+        
+        table.getColumnModel().getColumn( 0 ).setMinWidth( maxWidth );
+        table.getColumnModel().getColumn( 0 ).setMaxWidth( maxWidth );
+        table.getColumnModel().getColumn( 0 ).setWidth( maxWidth );
+        table.getColumnModel().getColumn( 0 ).setResizable( false );
+        
+        maxWidth = 0;
+        FontMetrics metrics = table.getFontMetrics( table.getFont().deriveFont( Font.BOLD ) );
+        
+        for ( int i = 0; i < rc; i++ )
+        {
+            String size = (String)model.getValueAt( i, 2 );
+            if ( size != null )
+            {
+                maxWidth = Math.max( maxWidth, (int)Math.ceil( metrics.getStringBounds( size, null ).getWidth() ) );
+            }
+        }
+        
+        maxWidth += PaddingCellRenderer.PADDING + 2 + PaddingCellRenderer.PADDING;
+        
+        table.getColumnModel().getColumn( 2 ).setMinWidth( maxWidth );
+        table.getColumnModel().getColumn( 2 ).setMaxWidth( maxWidth );
+        table.getColumnModel().getColumn( 2 ).setWidth( maxWidth );
+        table.getColumnModel().getColumn( 2 ).setResizable( false );
+    }
+    
     public void update()
     {
-        ( (ImageListModel)list.getModel() ).update();
+        table.setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
+        
+        if ( ( selectedFile == null ) || ( selectedFile.length() == 0 ) )
+            model.setFolder( ImageTableModel.IMAGE_BASE_FOLDER );
+        else
+            model.setFolder( new File( ImageTableModel.IMAGE_BASE_FOLDER, selectedFile.replace( '/', File.separatorChar ) ).getParentFile() );
+        
+        updateColumnWidths();
+        
+        table.setCursor( Cursor.getDefaultCursor() );
+    }
+    
+    private void setPreview( File imageFile )
+    {
+        if ( preview != null )
+        {
+            ( (ImagePreviewPanel)preview.getContentPane() ).setImage( imageFile );
+            preview.getContentPane().repaint();
+        }
     }
     
     public void setSelectedFile( String name )
@@ -98,30 +156,41 @@ public class ImageSelector extends JPanel
         if ( name.equals( "" ) )
         {
             this.selectedFile = "";
+            setPreview( null );
             return;
         }
         
-        File file = new File( folder, name.replace( '/', File.separatorChar ) );
+        File file = new File( ImageTableModel.IMAGE_BASE_FOLDER, name.replace( '/', File.separatorChar ) );
         if ( !file.exists() )
         {
             this.selectedFile = null;
+            setPreview( null );
             return;
         }
         
         if ( file.isDirectory() )
         {
-            new IllegalArgumentException( "The given file is a directory" ).printStackTrace();
+            Logger.log( "WARNING: The given file is a directory." );
+            this.selectedFile = null;
+            setPreview( null );
+            return;
         }
         
         this.selectedFile = name;
+        update();
+        this.selectedFile = name;
         
-        ImageListModel model = (ImageListModel)list.getModel();
-        
-        int selIndex = ( selectedFile == null ) ? -1 : model.getIndexOf( selectedFile );
+        int selIndex = ( selectedFile == null ) ? -1 : model.getIndexOf( file.getName() );
         if ( selIndex >= 0 )
         {
-            list.setSelectedIndex( selIndex );
-            list.scrollRectToVisible( list.getCellBounds( selIndex, selIndex ) );
+            table.getSelectionModel().setSelectionInterval( selIndex, selIndex );
+            table.scrollRectToVisible( table.getCellRect( selIndex, 0, false ) );
+            
+            setPreview( model.getFileAtRow( selIndex ) );
+        }
+        else
+        {
+            setPreview( null );
         }
     }
     
@@ -130,251 +199,303 @@ public class ImageSelector extends JPanel
         return ( selectedFile );
     }
     
-    private final HashMap<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
-    private final HashMap<String, Long> cache2 = new HashMap<String, Long>();
-    
-    private BufferedImage getImageFromCache( String name )
+    private ImageTable createTable( File folder )
     {
-        File file = new File( folder, name );
-        BufferedImage bi = cache.get( name );
-        if ( bi != null )
+        ImageTable t = new ImageTable( new ImageTableModel( folder ) );
+        t.setRowHeight( ImageTableModel.ROW_HEIGHT );
+        t.setShowVerticalLines( false );
+        t.getTableHeader().setReorderingAllowed( false );
+        t.setIntercellSpacing( new java.awt.Dimension( 0, 1 ) );
+        
+        t.getColumnModel().getColumn( 1 ).setMinWidth( 10 );
+        
+        t.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        
+        t.getSelectionModel().addListSelectionListener( new ListSelectionListener()
         {
-            Long lastModified = cache2.get( name );
-            
-            if ( lastModified.longValue() != file.lastModified() )
-                bi = null;
-        }
-        
-        if ( bi == null )
-        {
-            try
+            @Override
+            public void valueChanged( ListSelectionEvent e )
             {
-                bi = ImageIO.read( file );
-                cache.put( name, bi );
-                cache2.put( name, file.lastModified() );
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();
-            }
-        }
-        
-        return ( bi );
-    }
-    
-    private class ItemCanvas extends JPanel
-    {
-        private static final long serialVersionUID = 1L;
-        
-        private final String value;
-        
-        @Override
-        public void paintComponent( Graphics g )
-        {
-            BufferedImage bi = getImageFromCache( value );
-            
-            if ( bi != null )
-            {
-                int height = getHeight();
-                int width = bi.getWidth() * height / bi.getHeight();
-                
-                g.drawImage( bi, getWidth() - width, 0, width, height, null );
-            }
-        }
-        
-        public ItemCanvas( String value )
-        {
-            this.value = value;
-        }
-    }
-    
-    private class ListItem implements ListCellRenderer
-    {
-        private JPanel panel = null;
-        private JLabel label = null;
-        private JLabel label2 = null;
-        private JPanel canvas = null;
-        
-        @Override
-        public Component getListCellRendererComponent( JList list, final Object value, int index, boolean isSelected, boolean cellHasFocus )
-        {
-            //if ( panel == null )
-            {
-                panel = new JPanel( new BorderLayout() );
-                label = new JLabel();
-                label.setHorizontalAlignment( JLabel.RIGHT );
-                label2 = new JLabel();
-                label2.setPreferredSize( new Dimension( 100, 24 ) );
-                label2.setMinimumSize( new Dimension( 100, 24 ) );
-                label2.setBorder( new EmptyBorder( 0, 10, 0, 10 ) );
-                canvas = new ItemCanvas( String.valueOf( value ) );
-                
-                panel.add( label, BorderLayout.WEST );
-                panel.add( canvas, BorderLayout.CENTER );
-                panel.add( label2, BorderLayout.EAST );
-            }
-            
-            if ( isSelected )
-            {
-                panel.setBackground( list.getSelectionBackground() );
-                panel.setForeground( list.getSelectionForeground() );
-            }
-            else
-            {
-                panel.setBackground( list.getBackground() );
-                panel.setForeground( list.getForeground() );
-            }
-            
-            String name = String.valueOf( value );
-            label.setText( name );
-            
-            BufferedImage bi = getImageFromCache( name );
-            if ( bi != null )
-            {
-                label2.setText( bi.getWidth() + "x" + bi.getHeight() + "x" + ( bi.getColorModel().hasAlpha() ? "32" : "24" ) );
-            }
-            
-            return ( panel );
-        }
-    }
-    
-    private String showDialog( Window owner, boolean noImageAllowed )
-    {
-        update();
-        
-        final JDialog dialog;
-        if ( owner instanceof Frame )
-            dialog = new JDialog( (Frame)owner );
-        else if ( owner instanceof Dialog )
-            dialog = new JDialog( (Dialog)owner );
-        else
-            dialog = new JDialog( owner );
-        
-        dialog.setTitle( "Select an image..." );
-        
-        Container contentPane = dialog.getContentPane();
-        contentPane.setLayout( new BorderLayout() );
-        
-        contentPane.add( this, BorderLayout.CENTER );
-        
-        JPanel footer = new JPanel( new BorderLayout() );
-        if ( noImageAllowed )
-        {
-            JPanel footer2 = new JPanel( new FlowLayout( FlowLayout.LEFT, 5, 5 ) );
-            JButton no = new JButton( "No Image" );
-            no.addActionListener( new ActionListener()
-            {
-                @Override
-                public void actionPerformed( ActionEvent e )
+                if ( !e.getValueIsAdjusting() )
                 {
-                    selectedFile = "";
-                    dialog.setVisible( false );
+                    int selIndex = table.getSelectedRow();
+                    if ( selIndex >= 0 )
+                    {
+                        File file = model.getFileAtRow( selIndex );
+                        
+                        if ( file.isFile() )
+                        {
+                            selectedFile = file.getAbsolutePath().substring( ImageTableModel.IMAGE_BASE_FOLDER.getAbsolutePath().length() + 1 ).replace( '\\', '/' );
+                            setPreview( file );
+                        }
+                        else
+                        {
+                            selectedFile = null;
+                            setPreview( null );
+                        }
+                    }
+                    else
+                    {
+                        selectedFile = null;
+                        setPreview( null );
+                    }
                 }
-            } );
-            footer2.add( no );
-            footer.add( footer2, BorderLayout.WEST );
-        }
-        JPanel footer3 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 5 ) );
-        JButton ok = new JButton( "OK" );
-        ok.addActionListener( new ActionListener()
-        {
-            @Override
-            public void actionPerformed( ActionEvent e )
-            {
-                dialog.setVisible( false );
-            }
-        } );
-        footer3.add( ok );
-        JButton cancel = new JButton( "Cancel" );
-        cancel.addActionListener( new ActionListener()
-        {
-            @Override
-            public void actionPerformed( ActionEvent e )
-            {
-                selectedFile = null;
-                dialog.setVisible( false );
-            }
-        } );
-        footer3.add( cancel );
-        footer.add( footer3, BorderLayout.EAST );
-        
-        contentPane.add( footer, BorderLayout.SOUTH );
-        
-        dialog.setSize( 380, 500 );
-        dialog.setLocationRelativeTo( owner );
-        dialog.setModal( true );
-        dialog.addWindowListener( new WindowAdapter()
-        {
-            @Override
-            public void windowOpened( WindowEvent e )
-            {
-                setSelectedFile( getSelectedFile() );
             }
         } );
         
-        list.addMouseListener( new MouseAdapter()
+        
+        t.addMouseListener( new MouseAdapter()
         {
             @Override
             public void mouseClicked( MouseEvent e )
             {
                 if ( ( e.getButton() == MouseEvent.BUTTON1 ) && ( e.getClickCount() == 2 ) )
                 {
-                    for ( int i = 0; i < list.getModel().getSize(); i++ )
+                    int selIndex = table.getSelectedRow();
+                    
+                    if ( selIndex >= 0 )
                     {
-                        Rectangle r = list.getCellBounds( i, i );
-                        if ( r.contains( e.getPoint() ) )
+                        File file = model.getFileAtRow( selIndex );
+                        
+                        if ( file.isDirectory() )
                         {
-                            selectedFile = (String)list.getSelectedValue();
-                            dialog.setVisible( false );
-                            break;
+                            selectedFile = null;
+                            try
+                            {
+                                model.setFolder( file.getCanonicalFile() );
+                            }
+                            catch ( IOException ex )
+                            {
+                                model.setFolder( file );
+                            }
+                            
+                            updateColumnWidths();
+                        }
+                        else
+                        {
+                            for ( int i = 0; i < doubleClickSelectionListeners.size(); i++ )
+                            {
+                                doubleClickSelectionListeners.get( i ).onImageSelectedByDoubleClick( selectedFile );
+                            }
                         }
                     }
                 }
             }
         } );
         
-        dialog.setVisible( true );
+        return ( t );
+    }
+    
+    private JDialog initDialog( Window owner, String title )
+    {
+        if ( owner instanceof java.awt.Dialog )
+            dialog = new JDialog( (java.awt.Dialog)owner, title );
+        else if ( owner instanceof java.awt.Frame )
+            dialog = new JDialog( (java.awt.Frame)owner, title );
+        else
+            dialog = new JDialog( owner, title );
         
-        cache.clear();
-        cache2.clear();
+        dialog.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
         
-        return ( selectedFile );
+        return ( dialog );
+    }
+    
+    private long nextPreviewLocFixTime = -1L;
+    private long nextDialogLocFixTime = -1L;
+    
+    private void updatePreviewLocationAndSize( JDialog dialog )
+    {
+        if ( System.nanoTime() < nextPreviewLocFixTime )
+            return;
+        
+        preview.setSize( dialog.getHeight(), dialog.getHeight() );
+        
+        Rectangle desktopRes = GUITools.getCurrentScreenBounds();
+        
+        if ( dialog.getX() < desktopRes.x + desktopRes.width - dialog.getX() - dialog.getWidth() )
+            preview.setLocation( dialog.getX() + dialog.getWidth() + 3, dialog.getY() );
+        else
+            preview.setLocation( dialog.getX() - preview.getWidth() - 3, dialog.getY() );
+        
+        nextDialogLocFixTime = System.nanoTime() + 500000000L;
+    }
+    
+    private void updateDialogLocation( JDialog dialog )
+    {
+        if ( System.nanoTime() < nextDialogLocFixTime )
+            return;
+        
+        Rectangle desktopRes = GUITools.getCurrentScreenBounds();
+        
+        if ( preview.getX() - 3 - dialog.getWidth() < desktopRes.width - desktopRes.x - preview.getX() - preview.getWidth() - 3 - dialog.getWidth() )
+            dialog.setLocation( preview.getX() + preview.getWidth() + 3, preview.getY() );
+        else
+            dialog.setLocation( preview.getX() - 3 - dialog.getWidth(), preview.getY() );
+        
+        
+        nextPreviewLocFixTime = System.nanoTime() + 500000000L;
+    }
+    
+    public void setPreviewVisible( boolean visible )
+    {
+        if ( preview != null )
+            preview.setVisible( visible );
+    }
+    
+    public void createPreview( final JDialog dialog )
+    {
+        preview = new JDialog( dialog, "Preview", false );
+        preview.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
+        preview.setSize( 500, 500 );
+        preview.setContentPane( new ImagePreviewPanel() );
+        
+        updatePreviewLocationAndSize( dialog );
+        
+        dialog.addComponentListener( new ComponentAdapter()
+        {
+            @Override
+            public void componentMoved( ComponentEvent e )
+            {
+                updatePreviewLocationAndSize( dialog );
+            }
+            
+            @Override
+            public void componentResized( ComponentEvent e )
+            {
+                updatePreviewLocationAndSize( dialog );
+            }
+        } );
+        
+        preview.addComponentListener( new ComponentAdapter()
+        {
+            @Override
+            public void componentMoved( ComponentEvent e )
+            {
+                updateDialogLocation( dialog );
+            }
+        } );
+        
+        preview.addWindowListener( new WindowAdapter()
+        {
+            @Override
+            public void windowClosing( WindowEvent e )
+            {
+                ImageSelector.this.selectedFile = null;
+                dialog.setVisible( false );
+            }
+        } );
     }
     
     public String showDialog( Window owner, String selectedFile, boolean noImageAllowed )
     {
+        if ( ( dialog == null ) || ( dialog.getOwner() != owner ) )
+        {
+            dialog = initDialog( owner, "Select an image..." );
+            
+            dialog.addWindowListener( new WindowAdapter()
+            {
+                @Override
+                public void windowClosing( WindowEvent e )
+                {
+                    ImageSelector.this.selectedFile = null;
+                    dialog.setVisible( false );
+                }
+            } );
+            
+            Container contentPane = dialog.getContentPane();
+            contentPane.setLayout( new BorderLayout() );
+            
+            contentPane.add( this, BorderLayout.CENTER );
+            
+            JPanel footer = new JPanel( new BorderLayout() );
+            if ( noImageAllowed )
+            {
+                JPanel footer2 = new JPanel( new FlowLayout( FlowLayout.LEFT, 5, 5 ) );
+                JButton no = new JButton( "No Image" );
+                no.addActionListener( new ActionListener()
+                {
+                    @Override
+                    public void actionPerformed( ActionEvent e )
+                    {
+                        ImageSelector.this.selectedFile = "";
+                        dialog.setVisible( false );
+                    }
+                } );
+                footer2.add( no );
+                footer.add( footer2, BorderLayout.WEST );
+            }
+            JPanel footer3 = new JPanel( new FlowLayout( FlowLayout.RIGHT, 5, 5 ) );
+            JButton ok = new JButton( "OK" );
+            ok.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    dialog.setVisible( false );
+                }
+            } );
+            footer3.add( ok );
+            JButton cancel = new JButton( "Cancel" );
+            cancel.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    ImageSelector.this.selectedFile = null;
+                    dialog.setVisible( false );
+                }
+            } );
+            footer3.add( cancel );
+            footer.add( footer3, BorderLayout.EAST );
+            
+            contentPane.add( footer, BorderLayout.SOUTH );
+            
+            dialog.setSize( 380, 500 );
+            dialog.setLocationRelativeTo( owner );
+            dialog.setLocation( dialog.getX() - 250, dialog.getY() );
+            dialog.setModal( true );
+            
+            createPreview( dialog );
+        }
+        
         setSelectedFile( selectedFile );
         
-        return ( showDialog( owner, noImageAllowed ) );
+        setPreviewVisible( true );
+        dialog.setVisible( true );
+        
+        return ( ImageSelector.this.selectedFile );
     }
     
-    public ImageSelector( File folder, String selectedFile )
+    public String showDialog( Window owner, boolean noImageAllowed )
+    {
+        return ( showDialog( owner, null, noImageAllowed ) );
+    }
+    
+    public ImageSelector()
     {
         super( new BorderLayout() );
         
+        /*
         if ( !folder.exists() )
             throw new IllegalArgumentException( "folder \"" + folder.getAbsolutePath() + "\" doesn't exist." );
         
         if ( !folder.isDirectory() )
             throw new IllegalArgumentException( "folder \"" + folder.getAbsolutePath() + "\" is not a folder." );
+        */
         
-        this.folder = folder;
+        this.table = createTable( ImageTableModel.IMAGE_BASE_FOLDER );
+        this.model = table.getModel();
         
-        this.list = createList( folder );
+        this.add( new JScrollPane( table ), BorderLayout.CENTER );
         
-        this.add( new JScrollPane( list ), BorderLayout.CENTER );
-        
-        if ( selectedFile != null )
-            setSelectedFile( selectedFile );
-    }
-    
-    public ImageSelector( File folder )
-    {
-        this( folder, null );
-    }
-    
-    public ImageSelector( String folder )
-    {
-        this( new File( folder ) );
+        addDoubleClickSelectionListener( new DoubleClickSelectionListener()
+        {
+            @Override
+            public void onImageSelectedByDoubleClick( String imageName )
+            {
+                if ( dialog != null )
+                    dialog.setVisible( false );
+            }
+        } );
     }
 }

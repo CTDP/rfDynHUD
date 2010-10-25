@@ -69,6 +69,7 @@ public class WidgetsEditorPanel extends JPanel
     private Widget selectedWidget = null;
     private static final Stroke SELECTION_STROKE = new BasicStroke( 2 );
     private static final java.awt.Color SELECTION_COLOR = new java.awt.Color( 255, 0, 0, 127 );
+    private static final java.awt.Color SUB_SELECTION_COLOR = new java.awt.Color( 255, 64, 0, 64 );
     private static final java.awt.Color MASTER_SELECTION_COLOR = new java.awt.Color( 0, 255, 0, 127 );
     
     private final ArrayList<WidgetSelectionListener> selectionListeners = new ArrayList<WidgetSelectionListener>();
@@ -458,6 +459,8 @@ public class WidgetsEditorPanel extends JPanel
             
             if ( subTextureRects != null )
             {
+                g.setColor( SUB_SELECTION_COLOR );
+                
                 for ( int i = 0; i < subTextureRects.length; i++ )
                 {
                     Rect2i r = subTextureRects[i];

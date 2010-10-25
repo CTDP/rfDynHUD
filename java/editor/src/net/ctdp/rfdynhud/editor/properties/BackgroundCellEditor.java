@@ -168,7 +168,7 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
                 {
                     if ( backgroundSelector == null )
                     {
-                        backgroundSelector = new BackgroundSelector( null, null, null, prop.getWidget().getConfiguration() );
+                        backgroundSelector = new BackgroundSelector( null, null, prop.getWidget().getConfiguration() );
                     }
                     
                     JFrame frame = (JFrame)table.getRootPane().getParent();

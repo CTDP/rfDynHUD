@@ -20,36 +20,20 @@ package net.ctdp.rfdynhud.editor.util;
 import java.io.File;
 import java.io.FileFilter;
 
-public class ImageFileFilter implements FileFilter
+public class FolderFileFilter implements FileFilter
 {
     @Override
     public boolean accept( File file )
     {
-        String name = file.getName();
-        
         if ( file.isDirectory() )
-            return ( false );
-        
-        int pos = name.lastIndexOf( '.' );
-        if ( pos < 0 )
-            return ( false );
-        String ext = name.substring( pos ).toLowerCase();
-        
-        if ( ext.endsWith( ".png" ) )
-            return ( true );
-        
-        if ( ext.endsWith( ".jpg" ) )
-            return ( true );
-        
-        if ( ext.endsWith( ".gif" ) )
-            return ( true );
+            return ( !file.getName().equalsIgnoreCase( ".svn" ) );
         
         return ( false );
     }
     
-    protected ImageFileFilter()
+    protected FolderFileFilter()
     {
     }
     
-    public static final ImageFileFilter INSTANCE = new ImageFileFilter(); 
+    public static final FolderFileFilter INSTANCE = new FolderFileFilter(); 
 }
