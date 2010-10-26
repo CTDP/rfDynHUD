@@ -83,6 +83,7 @@ public class ShiftLight
     private final ImageProperty imageNameOn;
     private final IntProperty posX;
     private final IntProperty posY;
+    private final IntProperty height;
     final IntProperty activationRPM;
     
     private TransformableTexture textureOff = null;
@@ -100,6 +101,7 @@ public class ShiftLight
         
         posX.setIntValue( Math.round( posX.getIntValue() * deltaScaleX ) );
         posY.setIntValue( Math.round( posY.getIntValue() * deltaScaleY ) );
+        height.setIntValue( Math.round( height.getIntValue() * deltaScaleY ) );
     }
     
     private final boolean isOffStatePartOfBackground()
@@ -121,9 +123,18 @@ public class ShiftLight
                     return;
                 }
                 
-                float scale = widget.getBackground().getScaleX();
-                int w = Math.round( it.getBaseWidth() * scale );
-                int h = Math.round( it.getBaseHeight() * scale );
+                float scale = widget.getBackground().getScaleY();
+                int w, h;
+                if ( height.getIntValue() == 0 )
+                {
+                    w = Math.round( it.getBaseWidth() * scale );
+                    h = Math.round( it.getBaseHeight() * scale );
+                }
+                else
+                {
+                    h = Math.round( height.getFloatValue() * scale );
+                    w = Math.round( h * it.getBaseAspect() );
+                }
                 if ( ( textureOff == null ) || ( textureOff.getWidth() != w ) || ( textureOff.getHeight() != h ) )
                 {
                     textureOff = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOff, isEditorMode );
@@ -154,9 +165,18 @@ public class ShiftLight
                 return;
             }
             
-            float scale = widget.getBackground().getScaleX();
-            int w = Math.round( it.getBaseWidth() * scale );
-            int h = Math.round( it.getBaseHeight() * scale );
+            float scale = widget.getBackground().getScaleY();
+            int w, h;
+            if ( height.getIntValue() == 0 )
+            {
+                w = Math.round( it.getBaseWidth() * scale );
+                h = Math.round( it.getBaseHeight() * scale );
+            }
+            else
+            {
+                h = Math.round( height.getFloatValue() * scale );
+                w = Math.round( h * it.getBaseAspect() );
+            }
             if ( isOffStatePartOfBackground() )
             {
                 if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h * 2 ) )
@@ -166,7 +186,6 @@ public class ShiftLight
                     if ( widget.getBackgroundProperty().getBackgroundType().isImage() )
                     {
                         ImageTemplate it0 = widget.getBackgroundProperty().getImageValue();
-                        textureOn.getTexture().clear( false, null );
                         it0.drawScaled( posX.getIntValue(), posY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, 0, w, h, textureOn.getTexture(), false );
                         it0.drawScaled( posX.getIntValue(), posY.getIntValue(), it.getBaseWidth(), it.getBaseHeight(), 0, h, w, h, textureOn.getTexture(), false );
                     }
@@ -258,8 +277,9 @@ public class ShiftLight
     {
         writer.writeProperty( imageNameOff, "The name of the shift light image for \"off\" state." );
         writer.writeProperty( imageNameOn, "The name of the shift light image for \"on\" state." );
-        writer.writeProperty( posX, "The x-offset in pixels to the gear label." );
-        writer.writeProperty( posY, "The y-offset in pixels to the gear label." );
+        writer.writeProperty( posX, "The x-offset in background image pixels for the shift light image." );
+        writer.writeProperty( posY, "The y-offset in background image pixels for the shift light image." );
+        writer.writeProperty( height, "The height in background image pixels for the shift light image" );
         writer.writeProperty( activationRPM, "The RPM (rounds per minute) to subtract from the maximum for the level to display shoft light on" );
     }
     
@@ -272,6 +292,8 @@ public class ShiftLight
         if ( loader.loadProperty( posX ) )
             return ( true );
         if ( loader.loadProperty( posY ) )
+            return ( true );
+        if ( loader.loadProperty( height ) )
             return ( true );
         if ( loader.loadProperty( activationRPM ) )
             return ( true );
@@ -292,6 +314,7 @@ public class ShiftLight
         propsCont.addProperty( imageNameOn );
         propsCont.addProperty( posX );
         propsCont.addProperty( posY );
+        propsCont.addProperty( height );
         propsCont.addProperty( activationRPM );
     }
     
@@ -325,6 +348,14 @@ public class ShiftLight
             }
         };
         this.posY = new IntProperty( widget, "shiftLightPosY" + indexOneBased, "posY", 42 )
+        {
+            @Override
+            protected void onValueChanged( int oldValue, int newValue )
+            {
+                resetTextures();
+            }
+        };
+        this.height = new IntProperty( widget, "shiftLightHeight" + indexOneBased, "height", 0, 0, 1000, false )
         {
             @Override
             protected void onValueChanged( int oldValue, int newValue )

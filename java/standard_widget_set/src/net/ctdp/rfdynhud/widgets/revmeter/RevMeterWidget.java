@@ -612,7 +612,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         
         final float centerX = offsetX + width / 2;
         final float centerY = offsetY + height / 2;
-        final float innerAspect = getInnerSize().getAspect();
+        final float innerAspect = getMarkersOnCircle() ? 1.0f : getInnerSize().getAspect();
         
         int nPoints = 360;
         int[] xPoints = new int[ nPoints ];

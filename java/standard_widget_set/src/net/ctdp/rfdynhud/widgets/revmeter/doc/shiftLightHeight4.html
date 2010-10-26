@@ -1,0 +1,20 @@
+<p>
+The <strong>shiftLightHeight</strong> property defines the height on the background texture,
+for the shift light. The width will be computed according to the image's original aspect ratio.
+</p>
+
+<p>
+A value of 0 will make the shift light image be scaled by the same factor as the backgorund image.
+</p>
+
+<p>
+In other words this means, that the coordinate is not in Widget space, but in texture space.
+If your background image has a height of 1000 and you size the Widget to a height of 250,
+a value of 500 means 500 * 250 / 1000 = 125 Pixel on the HUD.
+</p>
+
+<p>
+This makes sure, that the shift light is always at the same location on the background image
+no matter what size your Widget has (the background image will aways be scaled to the same size
+as the Widget.
+</p>
