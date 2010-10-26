@@ -461,7 +461,7 @@ public abstract class NeedleMeterWidget extends Widget
             int mountY = getNeedleMountY( height );
             
             needleTexture.setTranslation( mountX - needleTexture.getWidth() / 2, mountY - needleTexture.getHeight() + needlePivotBottomOffset.getIntValue() * backgroundScaleX );
-            needleTexture.setRotationCenter( (int)( needleTexture.getWidth() / 2 ), (int)( needleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * backgroundScaleX ) );
+            needleTexture.setRotationCenter( needleTexture.getWidth() / 2, (int)( needleTexture.getHeight() - needlePivotBottomOffset.getIntValue() * backgroundScaleX ) );
         }
         
         if ( displayValue.getBooleanValue() )

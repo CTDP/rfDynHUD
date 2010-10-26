@@ -795,7 +795,7 @@ public class FuelWidget extends Widget
         
         if ( displayFuelUsage.getBooleanValue() )
         {
-            fuelUsage.update( ( (long)Float.floatToIntBits( lastFuelUsage ) << 32 ) | (long)Float.floatToIntBits( avgFuelUsage ) );
+            fuelUsage.update( ( (long)Float.floatToIntBits( lastFuelUsage ) << 32 ) | Float.floatToIntBits( avgFuelUsage ) );
             
             if ( needsCompleteRedraw || ( clock.c() && fuelUsage.hasChanged() ) )
             {

@@ -27,17 +27,16 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.editor.util.BorderSelector;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
-import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
+public class BorderCellEditor extends ValueCellEditor<Property, JPanel, JButton>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -47,10 +46,8 @@ public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private final JLabel label = new JLabel();
     private final JButton button = new JButton();
     
-    private HierarchicalTable<Property> table = null;
     private int row = -1;
     private int column = -1;
-    private BorderProperty prop = null;
     
     private static BorderSelector borderSelector = null;
     
@@ -59,12 +56,10 @@ public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        this.table = table;
         this.row = row;
         this.column = column;
-        this.prop = (BorderProperty)property;
         
-        if ( prop.getButtonText() == null )
+        if ( property.getButtonText() == null )
         {
             //button.setVisible( false );
             button.setVisible( true );
@@ -74,8 +69,8 @@ public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
         else
         {
             button.setVisible( true );
-            button.setText( prop.getButtonText() );
-            button.setToolTipText( prop.getButtonTooltip() );
+            button.setText( property.getButtonText() );
+            button.setToolTipText( property.getButtonTooltip() );
         }
         
         if ( isSelected || forEditor )
@@ -115,9 +110,9 @@ public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
     
     public BorderCellEditor()
     {
-        super( false, null );
+        super();
         
-        setComponent( panel );
+        setComponent( panel, button );
         
         label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
         
@@ -128,41 +123,41 @@ public class BorderCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( prop != null )
+                if ( getProperty() != null )
                 {
-                    JFrame frame = (JFrame)table.getRootPane().getParent();
+                    JFrame frame = (JFrame)getTable().getRootPane().getParent();
                     if ( borderSelector == null )
                     {
                         borderSelector = new BorderSelector( GameFileSystem.INSTANCE.getBordersFolder() );
                     }
                     
-                    String result = borderSelector.showDialog( frame, prop.getWidget().getConfiguration(), (String)prop.getValue() );
+                    String result = borderSelector.showDialog( frame, getProperty().getWidget().getConfiguration(), (String)getProperty().getValue() );
                     
                     if ( result != null )
                     {
                         if ( result.equals( "" ) )
                         {
-                            prop.setValue( NONE );
+                            getProperty().setValue( NONE );
                             label.setText( NONE );
-                            table.setValueAt( NONE, row, column );
+                            getTable().setValueAt( NONE, row, column );
                         }
                         else
                         {
-                            prop.setValue( result );
+                            getProperty().setValue( result );
                             label.setText( result );
-                            table.setValueAt( result, row, column );
+                            getTable().setValueAt( result, row, column );
                         }
                         
-                        ( (PropertiesEditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
+                        ( (PropertiesEditorTable)getTable() ).getRFDynHUDEditor().setDirtyFlag();
                         
                         frame.repaint();
                     }
                     
-                    if ( prop.getButtonText() != null )
-                        prop.onButtonClicked( button );
+                    if ( getProperty().getButtonText() != null )
+                        getProperty().onButtonClicked( button );
                 }
                 
-                finalizeEdit( table, false );
+                finalizeEdit( false );
             }
         } );
         

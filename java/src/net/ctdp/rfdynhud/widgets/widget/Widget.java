@@ -1878,14 +1878,11 @@ public abstract class Widget implements Cloneable, Documented
         
         for ( int i = 0; i < lstTemplate.size(); i++ )
         {
-            if ( lstTemplate.get( i ) instanceof Property )
-            {
-                Property p0 = lstTemplate.get( i );
-                Property p1 = lstTarget.get( i );
-                
-                //if ( ( includePosition || ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) ) ) )
-                    p1.setValue( p0.getValue() );
-            }
+            Property p0 = lstTemplate.get( i );
+            Property p1 = lstTarget.get( i );
+            
+            //if ( ( includePosition || ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) ) ) )
+                p1.setValue( p0.getValue() );
         }
         
         return ( newWidget );

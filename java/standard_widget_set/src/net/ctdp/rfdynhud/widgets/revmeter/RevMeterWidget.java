@@ -574,7 +574,7 @@ public class RevMeterWidget extends NeedleMeterWidget
         if ( peakNeedleTexture != null )
         {
             peakNeedleTexture.setTranslation( mountX - peakNeedleTexture.getWidth() / 2, mountY - peakNeedleTexture.getHeight() + peakNeedlePivotBottomOffset.getIntValue() * getBackground().getScaleX() );
-            peakNeedleTexture.setRotationCenter( (int)( peakNeedleTexture.getWidth() / 2 ), (int)( peakNeedleTexture.getHeight() - peakNeedlePivotBottomOffset.getIntValue() * getBackground().getScaleY() ) );
+            peakNeedleTexture.setRotationCenter( peakNeedleTexture.getWidth() / 2, (int)( peakNeedleTexture.getHeight() - peakNeedlePivotBottomOffset.getIntValue() * getBackground().getScaleY() ) );
         }
     }
     

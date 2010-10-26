@@ -54,22 +54,22 @@ public class Tools
         
         if ( bytes >= TERA_BYTE )
         {
-            return ( String.valueOf( Math.round( (double)bytes * factor / TERA_BYTE ) / factor ) + " TB" );
+            return ( String.valueOf( Math.round( bytes * factor / TERA_BYTE ) / factor ) + " TB" );
         }
         
         if ( bytes >= GIGA_BYTE )
         {
-            return ( String.valueOf( Math.round( (double)bytes * factor / GIGA_BYTE ) / factor ) + " GB" );
+            return ( String.valueOf( Math.round( bytes * factor / GIGA_BYTE ) / factor ) + " GB" );
         }
         
         if ( bytes >= MEGA_BYTE )
         {
-            return ( String.valueOf( Math.round( (double)bytes * factor / MEGA_BYTE ) / factor ) + " MB" );
+            return ( String.valueOf( Math.round( bytes * factor / MEGA_BYTE ) / factor ) + " MB" );
         }
         
         if ( bytes >= KILO_BYTE )
         {
-            return ( String.valueOf( Math.round( (double)bytes * factor / KILO_BYTE ) / factor ) + " KB" );
+            return ( String.valueOf( Math.round( bytes * factor / KILO_BYTE ) / factor ) + " KB" );
         }
         
         return ( String.valueOf( bytes ) + " bytes" );

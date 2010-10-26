@@ -76,14 +76,9 @@ public class KeyCellRenderer<P extends Object> extends KeyValueCellRenderer<P, K
     }
     
     @Override
-    protected Object getCellEditorValueImpl() throws Throwable
+    public final Object getCellEditorValue()
     {
-        return ( getComponent().toString() );
-    }
-    
-    @Override
-    protected void applyOldValue( Object oldValue )
-    {
+        return ( null );
     }
     
     public KeyCellRenderer()

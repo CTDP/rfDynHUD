@@ -89,7 +89,7 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
             }
             else
             {
-                ps.println( (Property)o );
+                ps.println( o );
             }
         }
     }

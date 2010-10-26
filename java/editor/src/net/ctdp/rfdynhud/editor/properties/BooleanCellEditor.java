@@ -26,14 +26,14 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
+public class BooleanCellEditor extends ValueCellEditor<Property, JPanel, JCheckBox>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -43,26 +43,20 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private final JCheckBox checkbox = new JCheckBox();
     private final JButton button = new JButton();
     
-    private HierarchicalTable<Property> table = null;
-    private Property prop = null;
-    
     @Override
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        this.table = table;
-        this.prop = property;
-        
-        if ( prop.getButtonText() == null )
+        if ( property.getButtonText() == null )
         {
             button.setVisible( false );
         }
         else
         {
             button.setVisible( true );
-            button.setText( prop.getButtonText() );
-            button.setToolTipText( prop.getButtonTooltip() );
+            button.setText( property.getButtonText() );
+            button.setToolTipText( property.getButtonTooltip() );
         }
         
         if ( isSelected || forEditor )
@@ -99,9 +93,9 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
     
     public BooleanCellEditor()
     {
-        super( false, null );
+        super();
         
-        setComponent( panel );
+        setComponent( panel, checkbox );
         
         checkbox.setHorizontalAlignment( JCheckBox.CENTER );
         
@@ -110,7 +104,7 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                finalizeEdit( table, false );
+                finalizeEdit( false );
             }
         } );
         
@@ -121,11 +115,11 @@ public class BooleanCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( prop != null )
+                if ( getProperty() != null )
                 {
-                    prop.onButtonClicked( button );
+                    getProperty().onButtonClicked( button );
                     
-                    Object value = prop.getValue();
+                    Object value = getProperty().getValue();
                     if ( value instanceof Boolean )
                         checkbox.setSelected( (Boolean)value );
                     else

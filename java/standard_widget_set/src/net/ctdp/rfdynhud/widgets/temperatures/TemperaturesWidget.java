@@ -298,9 +298,9 @@ public class TemperaturesWidget extends Widget
     {
         final float beta = 1f - alpha;
         
-        result[ByteOrderManager.RED] = (byte)( (float)( color0[ByteOrderManager.RED] & 0xFF ) * beta + (float)( color1[ByteOrderManager.RED] & 0xFF ) * alpha );
-        result[ByteOrderManager.GREEN] = (byte)( (float)( color0[ByteOrderManager.GREEN] & 0xFF ) * beta + (float)( color1[ByteOrderManager.GREEN] & 0xFF ) * alpha );
-        result[ByteOrderManager.BLUE] = (byte)( (float)( color0[ByteOrderManager.BLUE] & 0xFF ) * beta + (float)( color1[ByteOrderManager.BLUE] & 0xFF ) * alpha );
+        result[ByteOrderManager.RED] = (byte)( ( color0[ByteOrderManager.RED] & 0xFF ) * beta + ( color1[ByteOrderManager.RED] & 0xFF ) * alpha );
+        result[ByteOrderManager.GREEN] = (byte)( ( color0[ByteOrderManager.GREEN] & 0xFF ) * beta + ( color1[ByteOrderManager.GREEN] & 0xFF ) * alpha );
+        result[ByteOrderManager.BLUE] = (byte)( ( color0[ByteOrderManager.BLUE] & 0xFF ) * beta + ( color1[ByteOrderManager.BLUE] & 0xFF ) * alpha );
     }
     
     private void drawEngine( float temp, VehiclePhysics.Engine engine, TextureImage2D texture, int x, int y, int width )

@@ -30,6 +30,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -71,6 +73,8 @@ public class ImageSelector extends JPanel
     public static interface DoubleClickSelectionListener
     {
         public void onImageSelectedByDoubleClick( String imageName );
+        
+        public void onDialogCloseRequested();
     }
     
     private final ArrayList<DoubleClickSelectionListener> doubleClickSelectionListeners = new ArrayList<ImageSelector.DoubleClickSelectionListener>();
@@ -199,6 +203,38 @@ public class ImageSelector extends JPanel
         return ( selectedFile );
     }
     
+    private void executeRowSelected()
+    {
+        int selIndex = table.getSelectedRow();
+        
+        if ( selIndex >= 0 )
+        {
+            File file = model.getFileAtRow( selIndex );
+            
+            if ( file.isDirectory() )
+            {
+                selectedFile = null;
+                try
+                {
+                    model.setFolder( file.getCanonicalFile() );
+                }
+                catch ( IOException ex )
+                {
+                    model.setFolder( file );
+                }
+                
+                updateColumnWidths();
+            }
+            else
+            {
+                for ( int i = 0; i < doubleClickSelectionListeners.size(); i++ )
+                {
+                    doubleClickSelectionListeners.get( i ).onImageSelectedByDoubleClick( selectedFile );
+                }
+            }
+        }
+    }
+    
     private ImageTable createTable( File folder )
     {
         ImageTable t = new ImageTable( new ImageTableModel( folder ) );
@@ -251,33 +287,29 @@ public class ImageSelector extends JPanel
             {
                 if ( ( e.getButton() == MouseEvent.BUTTON1 ) && ( e.getClickCount() == 2 ) )
                 {
-                    int selIndex = table.getSelectedRow();
+                    executeRowSelected();
+                }
+            }
+        } );
+        
+        t.addKeyListener( new KeyAdapter()
+        {
+            @Override
+            public void keyPressed( KeyEvent e )
+            {
+                if ( e.getKeyCode() == KeyEvent.VK_ENTER )
+                {
+                    e.consume();
                     
-                    if ( selIndex >= 0 )
+                    executeRowSelected();
+                }
+                else if ( e.getKeyCode() == KeyEvent.VK_ESCAPE )
+                {
+                    e.consume();
+                    
+                    for ( int i = 0; i < doubleClickSelectionListeners.size(); i++ )
                     {
-                        File file = model.getFileAtRow( selIndex );
-                        
-                        if ( file.isDirectory() )
-                        {
-                            selectedFile = null;
-                            try
-                            {
-                                model.setFolder( file.getCanonicalFile() );
-                            }
-                            catch ( IOException ex )
-                            {
-                                model.setFolder( file );
-                            }
-                            
-                            updateColumnWidths();
-                        }
-                        else
-                        {
-                            for ( int i = 0; i < doubleClickSelectionListeners.size(); i++ )
-                            {
-                                doubleClickSelectionListeners.get( i ).onImageSelectedByDoubleClick( selectedFile );
-                            }
-                        }
+                        doubleClickSelectionListeners.get( i ).onDialogCloseRequested();
                     }
                 }
             }
@@ -460,6 +492,8 @@ public class ImageSelector extends JPanel
         
         setSelectedFile( selectedFile );
         
+        table.requestFocus();
+        
         setPreviewVisible( true );
         dialog.setVisible( true );
         
@@ -493,6 +527,15 @@ public class ImageSelector extends JPanel
             @Override
             public void onImageSelectedByDoubleClick( String imageName )
             {
+                if ( dialog != null )
+                    dialog.setVisible( false );
+            }
+            
+            @Override
+            public void onDialogCloseRequested()
+            {
+                selectedFile = null;
+                
                 if ( dialog != null )
                     dialog.setVisible( false );
             }

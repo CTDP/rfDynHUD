@@ -27,7 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.editor.util.ImageSelector;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.Property;
@@ -36,7 +36,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ImageNameCellEditor extends KeyValueCellRenderer<Property, JPanel>
+public class ImageNameCellEditor extends ValueCellEditor<Property, JPanel, JButton>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -46,22 +46,18 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private final JLabel label = new JLabel();
     private final JButton button = new JButton();
     
-    private HierarchicalTable<Property> table = null;
     private int row = -1;
     private int column = -1;
-    private ImageProperty prop = null;
     
     @Override
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        this.table = table;
         this.row = row;
         this.column = column;
-        this.prop = (ImageProperty)property;
         
-        if ( prop.getButtonText() == null )
+        if ( property.getButtonText() == null )
         {
             //button.setVisible( false );
             button.setVisible( true );
@@ -71,8 +67,8 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<Property, JPanel>
         else
         {
             button.setVisible( true );
-            button.setText( prop.getButtonText() );
-            button.setToolTipText( prop.getButtonTooltip() );
+            button.setText( property.getButtonText() );
+            button.setToolTipText( property.getButtonTooltip() );
         }
         
         if ( isSelected || forEditor )
@@ -104,9 +100,9 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<Property, JPanel>
     
     public ImageNameCellEditor()
     {
-        super( false, null );
+        super();
         
-        setComponent( panel );
+        setComponent( panel, button );
         
         label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
         
@@ -117,19 +113,19 @@ public class ImageNameCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( prop != null )
+                if ( getProperty() != null )
                 {
-                    JFrame frame = (JFrame)table.getRootPane().getParent();
-                    String selFile = imageSelector.showDialog( frame, (String)prop.getValue(), prop.getNoImageAllowed() );
+                    JFrame frame = (JFrame)getTable().getRootPane().getParent();
+                    String selFile = imageSelector.showDialog( frame, (String)getProperty().getValue(), ( (ImageProperty)getProperty() ).getNoImageAllowed() );
                     
                     if ( selFile != null )
                     {
                         label.setText( selFile );
-                        table.setValueAt( getCellEditorValue(), row, column );
+                        getTable().setValueAt( getCellEditorValue(), row, column );
                     }
                     
-                    if ( prop.getButtonText() != null )
-                        prop.onButtonClicked( button );
+                    if ( getProperty().getButtonText() != null )
+                        getProperty().onButtonClicked( button );
                 }
             }
         } );

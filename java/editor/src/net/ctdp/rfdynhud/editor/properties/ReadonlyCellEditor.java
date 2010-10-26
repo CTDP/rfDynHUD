@@ -24,14 +24,14 @@ import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel>
+public class ReadonlyCellEditor extends ValueCellEditor<Property, JLabel, JLabel>
 {
     private static final long serialVersionUID = 7979822630367678241L;
     
@@ -78,10 +78,10 @@ public class ReadonlyCellEditor extends KeyValueCellRenderer<Property, JLabel>
     
     public ReadonlyCellEditor()
     {
-        super( false, null );
+        super();
         
         label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
         
-        setComponent( label );
+        setComponent( label, label );
     }
 }

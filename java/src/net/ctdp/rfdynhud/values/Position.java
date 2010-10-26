@@ -301,7 +301,7 @@ public class Position
         if ( positioning.isVCenter() )
             y = y + ( size.getEffectiveHeight() - (int)scaleH ) / 2;
         else if ( positioning.isBottom() )
-            y = (int)scaleH - y - (int)size.getEffectiveHeight();
+            y = (int)scaleH - y - size.getEffectiveHeight();
         
         if ( positioning.isHCenter() )
             x = x + ( size.getEffectiveWidth() - (int)scaleW ) / 2;
@@ -320,18 +320,18 @@ public class Position
             else
             {
                 newX = ( x < 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + x;
-                newY = (float)y / scaleH;
+                newY = y / scaleH;
             }
         }
         else if ( isPixelValue( this.y ) )
         {
-            newX = (float)x / getHundretPercentWidth();
+            newX = x / getHundretPercentWidth();
             newY = ( y < 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + y;
         }
         else
         {
-            newX = (float)x / getHundretPercentWidth();
-            newY = (float)y / scaleH;
+            newX = x / getHundretPercentWidth();
+            newY = y / scaleH;
         }
         
         return ( set( positioning, newX, newY ) );

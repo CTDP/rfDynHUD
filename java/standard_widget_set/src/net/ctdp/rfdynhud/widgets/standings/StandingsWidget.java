@@ -70,7 +70,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         @Override
         protected void onValueChanged( StandingsView oldValue, StandingsView newValue )
         {
-            ( (LocalStore)getLocalStore() ).view = null;
+            getLocalStore().view = null;
         }
     };
     private final BooleanProperty allowRelToLeaderView = new BooleanProperty( this, "allowRelToLeaderView", true );

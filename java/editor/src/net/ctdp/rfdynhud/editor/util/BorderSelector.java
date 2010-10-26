@@ -26,8 +26,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -39,11 +42,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
+import javax.swing.ActionMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -52,6 +59,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.PopupMenuEvent;
@@ -720,6 +728,7 @@ public class BorderSelector extends DefaultTableModel
                 }
             } );
             footer2.add( ok );
+            
             JButton cancel = new JButton( "Cancel" );
             cancel.addActionListener( new ActionListener()
             {
@@ -736,6 +745,35 @@ public class BorderSelector extends DefaultTableModel
             footer.add( footer2, BorderLayout.EAST );
             
             contentPane.add( footer, BorderLayout.SOUTH );
+            
+            dialog.addWindowListener( new WindowAdapter()
+            {
+                @Override
+                public void windowClosing( WindowEvent e )
+                {
+                    valueTextField.setText( "" );
+                    somethingChanged = false;
+                    dialog.setVisible( false );
+                }
+            } );
+            
+            JPanel panel = (JPanel)dialog.getContentPane();
+            InputMap im = panel.getInputMap( JComponent.WHEN_IN_FOCUSED_WINDOW );
+            ActionMap am = panel.getActionMap();
+            
+            im.put( KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0 ), "escape" );
+            am.put( "escape", new AbstractAction()
+            {
+                private static final long serialVersionUID = 1L;
+                
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    valueTextField.setText( "" );
+                    somethingChanged = false;
+                    dialog.setVisible( false );
+                }
+            });
             
             dialog.setSize( 550, 500 );
             dialog.setLocationRelativeTo( owner );

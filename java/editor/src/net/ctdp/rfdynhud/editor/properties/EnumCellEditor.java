@@ -26,14 +26,14 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class EnumCellEditor extends KeyValueCellRenderer<Property, JPanel>
+public class EnumCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -42,26 +42,20 @@ public class EnumCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private final DefaultComboBoxModel model = (DefaultComboBoxModel)combobox.getModel();
     private final JButton button = new JButton();
     
-    private HierarchicalTable<Property> table = null;
-    private Property prop = null;
-    
     @Override
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        this.table = table;
-        this.prop = property;
-        
-        if ( prop.getButtonText() == null )
+        if ( property.getButtonText() == null )
         {
             button.setVisible( false );
         }
         else
         {
             button.setVisible( true );
-            button.setText( prop.getButtonText() );
-            button.setToolTipText( prop.getButtonTooltip() );
+            button.setText( property.getButtonText() );
+            button.setToolTipText( property.getButtonTooltip() );
         }
         
         if ( isSelected && !forEditor )
@@ -101,17 +95,18 @@ public class EnumCellEditor extends KeyValueCellRenderer<Property, JPanel>
     
     public EnumCellEditor()
     {
-        super( false, null );
+        super();
         
-        setComponent( panel );
+        setComponent( panel, combobox );
         
         combobox.addActionListener( new java.awt.event.ActionListener()
         {
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( table != null )
-                    table.editingStopped( null );
+                //if ( getTable() != null )
+                //    getTable().editingStopped( null );
+                stopCellEditing();
             }
         } );
         
@@ -122,10 +117,10 @@ public class EnumCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( prop != null )
+                if ( getProperty() != null )
                 {
-                    prop.onButtonClicked( button );
-                    model.setSelectedItem( prop.getValue() );
+                    getProperty().onButtonClicked( button );
+                    model.setSelectedItem( getProperty().getValue() );
                 }
             }
         } );

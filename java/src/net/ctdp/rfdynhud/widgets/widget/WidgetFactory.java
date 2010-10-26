@@ -52,9 +52,9 @@ public class WidgetFactory
         try
         {
             if ( loadingAssembled )
-                widget = (Widget)clazz.getConstructor( boolean.class ).newInstance( false );
+                widget = clazz.getConstructor( boolean.class ).newInstance( false );
             else
-                widget = (Widget)clazz.getConstructor().newInstance();
+                widget = clazz.getConstructor().newInstance();
         }
         catch ( Throwable t )
         {
@@ -197,7 +197,7 @@ public class WidgetFactory
         if ( name == null )
             throw new IllegalArgumentException( "name must not be null" );
         
-        Class<Widget> clazz = (Class<Widget>)getWidgetClass( className );
+        Class<Widget> clazz = getWidgetClass( className );
         
         if ( clazz == null )
             return ( null );

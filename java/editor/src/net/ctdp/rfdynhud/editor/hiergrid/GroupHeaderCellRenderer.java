@@ -106,14 +106,9 @@ public class GroupHeaderCellRenderer extends KeyValueCellRenderer<Object, GroupH
     }
     
     @Override
-    protected Object getCellEditorValueImpl() throws Throwable
+    public final Object getCellEditorValue()
     {
-        return ( getComponent().toString() );
-    }
-    
-    @Override
-    protected void applyOldValue( Object oldValue )
-    {
+        return ( null );
     }
     
     public GroupHeaderCellRenderer()

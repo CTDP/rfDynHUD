@@ -192,14 +192,19 @@ public class ControlsWidget extends Widget
     {
         Rectangle2D bounds = TextureImage2D.getStringBounds( label, getFontProperty() );
         
-        if ( horizontalBars.getBooleanValue() )
+        if ( labelOffset.getIntValue() > -bounds.getWidth() )
         {
-            texture.drawString( label, offsetX + labelOffset.getIntValue(), offsetY + ( height - (int)bounds.getHeight() ) / 2 - (int)bounds.getY(), bounds, getFont(), isFontAntiAliased(), getFontColor(), true, null );
-        }
-        else
-        {
-            texture.drawString( label, offsetX + width / 2 - (int)bounds.getHeight() / 2 - (int)bounds.getY(), offsetY + height - labelOffset.getIntValue(), bounds, getFont(), isFontAntiAliased(), getFontColor(), TextDirection.UP, true, null );
-            //texture.drawString( label, offsetX + width / 2 + (int)bounds.getY() + (int)bounds.getHeight() / 2, offsetY + labelOffset.getIntValue(), bounds, getFont(), isFontAntiAliased(), getFontColor(), TextDirection.DOWN, true, null );
+            if ( horizontalBars.getBooleanValue() )
+            {
+                if ( labelOffset.getIntValue() < width )
+                    texture.drawString( label, offsetX + labelOffset.getIntValue(), offsetY + ( height - (int)bounds.getHeight() ) / 2 - (int)bounds.getY(), bounds, getFont(), isFontAntiAliased(), getFontColor(), true, null );
+            }
+            else
+            {
+                if ( labelOffset.getIntValue() < height )
+                    texture.drawString( label, offsetX + width / 2 - (int)bounds.getHeight() / 2 - (int)bounds.getY(), offsetY + height - labelOffset.getIntValue(), bounds, getFont(), isFontAntiAliased(), getFontColor(), TextDirection.UP, true, null );
+                    //texture.drawString( label, offsetX + width / 2 + (int)bounds.getY() + (int)bounds.getHeight() / 2, offsetY + labelOffset.getIntValue(), bounds, getFont(), isFontAntiAliased(), getFontColor(), TextDirection.DOWN, true, null );
+            }
         }
     }
     

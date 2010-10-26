@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.editor.util.BackgroundSelector;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
@@ -38,7 +38,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
+public class BackgroundCellEditor extends ValueCellEditor<Property, JPanel, JButton>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -46,24 +46,17 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private final JLabel label = new JLabel();
     private final JButton button = new JButton();
     
-    private HierarchicalTable<Property> table = null;
     private int row = -1;
     private int column = -1;
-    private BackgroundProperty prop = null;
     
     private static BackgroundSelector backgroundSelector = null;
     
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
+        super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
-        
-        this.prop = (BackgroundProperty)property;
-        
-        if ( prop.getButtonText() == null )
+        if ( property.getButtonText() == null )
         {
             //button.setVisible( false );
             button.setVisible( true );
@@ -73,8 +66,8 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
         else
         {
             button.setVisible( true );
-            button.setText( prop.getButtonText() );
-            button.setToolTipText( prop.getButtonTooltip() );
+            button.setText( property.getButtonText() );
+            button.setToolTipText( property.getButtonTooltip() );
         }
         
         /*
@@ -89,6 +82,8 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
             label.setForeground( table.getStyle().getValueCellFontColor() );
         }
         */
+        
+        BackgroundProperty prop = (BackgroundProperty)property;
         
         if ( prop.getBackgroundType().isColor() )
         {
@@ -130,17 +125,14 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
         else
             label.setText( String.valueOf( value ).substring( BackgroundProperty.IMAGE_INDICATOR.length() ) );
         
-        this.table = table;
         this.row = row;
         this.column = column;
-        
-        //return ( panel );
     }
     
     @Override
     protected Object getCellEditorValueImpl() throws Throwable
     {
-        if ( prop.getBackgroundType().isColor() )
+        if ( ( (BackgroundProperty)getProperty() ).getBackgroundType().isColor() )
             return ( BackgroundProperty.COLOR_INDICATOR + label.getText() );
         
         return ( BackgroundProperty.IMAGE_INDICATOR + label.getText() );
@@ -153,7 +145,9 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
     
     public BackgroundCellEditor()
     {
-        super( false, null );
+        super();
+        
+        setComponent( panel, button );
         
         label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
         
@@ -164,6 +158,7 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
+                BackgroundProperty prop = (BackgroundProperty)getProperty();
                 if ( prop != null )
                 {
                     if ( backgroundSelector == null )
@@ -171,7 +166,7 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         backgroundSelector = new BackgroundSelector( null, null, prop.getWidget().getConfiguration() );
                     }
                     
-                    JFrame frame = (JFrame)table.getRootPane().getParent();
+                    JFrame frame = (JFrame)getTable().getRootPane().getParent();
                     
                     String startColor = ( prop.getColorProperty() != null ) ? prop.getColorProperty().getColorKey() : null;
                     String startImage = ( prop.getImageProperty() != null ) ? prop.getImageProperty().getImageName() : null;
@@ -191,9 +186,9 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         else
                             label.setText( selImage );
                         
-                        table.setValueAt( getCellEditorValue(), row, column );
+                        getTable().setValueAt( getCellEditorValue(), row, column );
                         prop.setValue( getCellEditorValue() );
-                        ( (PropertiesEditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
+                        ( (PropertiesEditorTable)getTable() ).getRFDynHUDEditor().setDirtyFlag();
                     }
                     
                     frame.repaint();
@@ -202,7 +197,7 @@ public class BackgroundCellEditor extends KeyValueCellRenderer<Property, JPanel>
                         prop.onButtonClicked( button );
                 }
                 
-                finalizeEdit( table, false );
+                finalizeEdit( false );
             }
         } );
         

@@ -57,17 +57,17 @@ public final class ColorUtils
     {
         if ( ( ch >= 'A' ) && ( ch <= 'Z' ) )
         {
-            return ( (int)ch - 55 );
+            return ( ch - 55 );
         }
         
         if ( ( ch >= 'a' ) && ( ch <= 'z' ) )
         {
-            return ( (int)ch - 87 );
+            return ( ch - 87 );
         }
         
         if ( ( ch >= '0' ) && ( ch <= '9' ) )
         {
-            return ( (int)ch - 48 );
+            return ( ch - 48 );
         }
         
         return ( -1 );

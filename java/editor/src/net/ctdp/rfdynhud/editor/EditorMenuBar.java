@@ -614,7 +614,7 @@ public class EditorMenuBar extends JMenuBar
         it = classes.iterator();
         while ( it.hasNext() )
         {
-            Class<Widget> clazz = (Class<Widget>)it.next();
+            Class<Widget> clazz = it.next();
             
             try
             {
@@ -701,7 +701,7 @@ public class EditorMenuBar extends JMenuBar
         {
             DisplayMode dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode();
             
-            sysA = Math.round( (float)dm.getWidth() * 100f / (float)dm.getHeight() ) / 100f;
+            sysA = Math.round( dm.getWidth() * 100f / dm.getHeight() ) / 100f;
         }
         
         public final int w;
@@ -754,7 +754,7 @@ public class EditorMenuBar extends JMenuBar
         {
             this.w = w;
             this.h = h;
-            this.a = Math.round( (float)w * 100f / (float)h ) / 100f;
+            this.a = Math.round( w * 100f / h ) / 100f;
             this.forResolution = forResolution;
         }
     }

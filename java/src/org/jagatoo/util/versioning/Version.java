@@ -39,7 +39,7 @@ package org.jagatoo.util.versioning;
  * 
  * @author Marvin Froehlich (aka Qudus)
  */
-public class Version
+public class Version implements Comparable<Version>
 {
     private final int major;
     private final int minor;
@@ -102,6 +102,93 @@ public class Version
             return ( base + "-" + getAttributes() + " (build " + getBuild() + ")" );
         
         return ( base + " (build " + getBuild() + ")" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( !( o instanceof Version ) )
+            return ( false );
+        
+        Version that = (Version)o;
+        
+        if ( this.major != that.major )
+            return ( false );
+        
+        if ( this.minor != that.minor )
+            return ( false );
+        
+        if ( this.revision != that.revision )
+            return ( false );
+        
+        if ( this.build != that.build )
+            return ( false );
+        
+        if ( this.attributes == null )
+        {
+            if ( that.attributes != null )
+                return ( false );
+        }
+        else if ( that.attributes == null )
+        {
+            return ( false );
+        }
+        else if ( !this.attributes.equals( that.attributes ) )
+        {
+            return ( false );
+        }
+        
+        return ( true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo( Version that )
+    {
+        if ( this.major < that.major )
+            return ( -1 );
+        
+        if ( this.major > that.major )
+            return ( +1 );
+        
+        if ( this.minor < that.minor )
+            return ( -1 );
+        
+        if ( this.minor > that.minor )
+            return ( +1 );
+        
+        if ( this.revision < that.revision )
+            return ( -1 );
+        
+        if ( this.revision > that.revision )
+            return ( +1 );
+        
+        if ( this.build < that.build )
+            return ( -1 );
+        
+        if ( this.build > that.build )
+            return ( +1 );
+        
+        if ( this.attributes == null )
+        {
+            if ( that.attributes != null )
+                return ( -1 );
+        }
+        else if ( that.attributes == null )
+        {
+            return ( +1 );
+        }
+        else
+        {
+            return ( this.attributes.compareTo( that.attributes ) );
+        }
+        
+        return ( 0 );
     }
     
     /**

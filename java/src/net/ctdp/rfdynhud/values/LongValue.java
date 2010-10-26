@@ -68,7 +68,7 @@ public class LongValue
     
     public final float getFloatValue()
     {
-        return ( (float)value );
+        return ( value );
     }
     
     public final boolean hasChanged( boolean setUnchanged )

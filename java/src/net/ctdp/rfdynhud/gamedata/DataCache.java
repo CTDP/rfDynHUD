@@ -50,7 +50,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     }
     
     static final DataCache INSTANCE = new DataCache();
-    static final InputAction INPUT_ACTION_RESET_LAPTIMES_CACHE = __InpPrivilegedAccess.createInputAction( "ResetLaptimesCache", true, false, (InputActionConsumer)INSTANCE, DataCache.class.getClassLoader().getResource( DataCache.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetLaptimesCache.html" ) );
+    static final InputAction INPUT_ACTION_RESET_LAPTIMES_CACHE = __InpPrivilegedAccess.createInputAction( "ResetLaptimesCache", true, false, INSTANCE, DataCache.class.getClassLoader().getResource( DataCache.class.getPackage().getName().replace( '.', '/' ) + "/doc/ResetLaptimesCache.html" ) );
     
     private static class VersionException extends RuntimeException
     {

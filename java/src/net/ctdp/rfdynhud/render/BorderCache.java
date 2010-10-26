@@ -298,7 +298,7 @@ public class BorderCache
             Class<?> clazz = null;
             try
             {
-                clazz = (Class<?>)Class.forName( rendererClass );
+                clazz = Class.forName( rendererClass );
             }
             catch ( Throwable t )
             {

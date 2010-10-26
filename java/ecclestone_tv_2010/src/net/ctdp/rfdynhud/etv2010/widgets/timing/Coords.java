@@ -45,6 +45,7 @@ class Coords
     public int rowOffset1;
     public int rowOffset2;
     
+    @SuppressWarnings( "cast" )
     public void update( ETVImages images, int width, int height, int itemGap, int itemGap2, Rectangle2D bigPosBounds, Rectangle2D posBounds )
     {
         final int gap = itemGap;

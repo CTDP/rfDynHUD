@@ -310,7 +310,7 @@ public class Size extends AbstractSize
             else
             {
                 newW = ( width <= 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + width;
-                newH = (float)height / scaleH;
+                newH = height / scaleH;
             }
         }
         else
@@ -319,13 +319,13 @@ public class Size extends AbstractSize
             
             if ( isPixelValue( this.height ) )
             {
-                newW = (float)width / hundretPercentW;
+                newW = width / hundretPercentW;
                 newH = ( height <= 0 ? -PIXEL_OFFSET : +PIXEL_OFFSET ) + height;
             }
             else
             {
-                newW = (float)width / hundretPercentW;
-                newH = (float)height / scaleH;
+                newW = width / hundretPercentW;
+                newH = height / scaleH;
             }
         }
         

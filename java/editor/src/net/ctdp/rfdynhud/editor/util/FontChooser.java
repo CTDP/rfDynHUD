@@ -51,10 +51,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.ButtonGroup;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -62,6 +66,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -902,6 +907,23 @@ public class FontChooser extends JPanel
                 }
             } );
             
+            JPanel panel = (JPanel)dialog.getContentPane();
+            InputMap im = panel.getInputMap( JComponent.WHEN_IN_FOCUSED_WINDOW );
+            ActionMap am = panel.getActionMap();
+            
+            im.put( KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0 ), "escape" );
+            am.put( "escape", new AbstractAction()
+            {
+                private static final long serialVersionUID = 1L;
+                
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    setSelectedFont( null, 0 );
+                    dialog.setVisible( false );
+                }
+            });
+            
             okButton.addActionListener( new ActionListener()
             {
                 @Override
@@ -938,6 +960,8 @@ public class FontChooser extends JPanel
         }
         
         this.startFont = startFont;
+        
+        fontNamesList.requestFocus();
         
         dialog.setVisible( true );
         

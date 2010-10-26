@@ -249,7 +249,7 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
             
             if ( stintLength >= 2 )
             {
-                average = relevantFuel / (float)( fuelRelevantLaps );
+                average = relevantFuel / fuelRelevantLaps;
                 
                 onValuesUpdated( gameData, fuelRelevantLaps, relevantFuel, lastLap, average );
             }

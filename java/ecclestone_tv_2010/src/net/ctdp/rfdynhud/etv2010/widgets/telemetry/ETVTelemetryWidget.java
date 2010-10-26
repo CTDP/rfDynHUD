@@ -255,12 +255,12 @@ public class ETVTelemetryWidget extends RevMeterWidget
         return ( result );
     }
     
-    @SuppressWarnings( "unused" )
     private void drawBarLabel( String label, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
         Rectangle2D bounds = TextureImage2D.getStringBounds( label, controlsLabelFont );
         
-        texture.drawString( label, offsetX + controlsLabelOffset.getIntValue(), offsetY + ( height - (int)bounds.getHeight() ) / 2 - (int)bounds.getY(), bounds, controlsLabelFont.getFont(), controlsLabelFont.isAntiAliased(), controlsLabelFontColor.getColor(), true, null );
+        if ( ( controlsLabelOffset.getIntValue() > -bounds.getWidth() ) && ( controlsLabelOffset.getIntValue() < width ) )
+            texture.drawString( label, offsetX + controlsLabelOffset.getIntValue(), offsetY + ( height - (int)bounds.getHeight() ) / 2 - (int)bounds.getY(), bounds, controlsLabelFont.getFont(), controlsLabelFont.isAntiAliased(), controlsLabelFontColor.getColor(), true, null );
     }
     
     private void loadThrottleTexture( boolean isEditorMode, int w, int h )

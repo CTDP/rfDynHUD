@@ -22,6 +22,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -432,6 +434,25 @@ public class HierarchicalTable<P extends Object> extends JTable
             this.setBackground( style.getTableBackgroundColor() );
         
         addSelectionListener();
+        
+        addKeyListener( new KeyAdapter()
+        {
+            @Override
+            public void keyPressed( KeyEvent e )
+            {
+                if ( e.getKeyCode() == KeyEvent.VK_ENTER )
+                {
+                    e.consume();
+                    
+                    if ( ( getSelectedRow() >= 0 ) && getModel().isDataRow( getSelectedRow() ) )
+                    {
+                        editCellAt( getSelectedRow(), getModel().getFirstNonExpanderColumn() + 1 );
+                        if ( getCellEditor() instanceof ValueCellEditor<?, ?, ?> )
+                            ( (ValueCellEditor<?, ?, ?>)getCellEditor() ).onEditingStarted();
+                    }
+                }
+            }
+        } );
     }
     
     public HierarchicalTable( HierarchicalTableModel<P> model, TableCellRendererProvider<P> rendererProvider )

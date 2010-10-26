@@ -222,6 +222,11 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
         cancelled = false;
         
         imageSelector.setPreviewVisible( startType.isImage() );
+        
+        if ( startType.isColor() )
+            colorChooser.requestFocusOnHexValue();
+        else if ( startType.isImage() )
+            ;
         dialog.setVisible( true );
         
         if ( cancelled )
@@ -258,6 +263,15 @@ public class BackgroundSelector extends JTabbedPane implements ChangeListener
             @Override
             public void onImageSelectedByDoubleClick( String imageName )
             {
+                if ( dialog != null )
+                    dialog.setVisible( false );
+            }
+            
+            @Override
+            public void onDialogCloseRequested()
+            {
+                cancelled = true;
+                
                 if ( dialog != null )
                     dialog.setVisible( false );
             }

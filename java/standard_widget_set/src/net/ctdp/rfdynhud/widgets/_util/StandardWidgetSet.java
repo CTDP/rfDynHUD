@@ -178,7 +178,7 @@ public class StandardWidgetSet
             String posStr = String.valueOf( place );
             Rectangle2D bounds = TextureImage2D.getStringBounds( posStr, numberFont, numberFontAntialiased );
             float fw = (float)bounds.getWidth();
-            float fh = (float)( TextureImage2D.getFontAscent( numberFont ) - TextureImage2D.getFontDescent( numberFont ) );
+            float fh = TextureImage2D.getFontAscent( numberFont ) - TextureImage2D.getFontDescent( numberFont );
             
             texture.drawString( posStr, circleOffsetX + radius - (int)( fw / 2 ), circleOffsetY + radius + (int)( fh / 2 ), bounds, numberFont, numberFontAntialiased, numberFontColor, false, null );
         }

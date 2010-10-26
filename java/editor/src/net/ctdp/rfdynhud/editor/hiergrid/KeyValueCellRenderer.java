@@ -47,8 +47,6 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
     private int row = 0;
     private int column = 0;
     
-    private Object oldValue = null;
-    
     public void setComponent( C component )
     {
         this.component = component;
@@ -138,8 +136,6 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
         }
         
         component.setFont( style.getValueCellFont() );
-        
-        oldValue = value;
     }
     
     @SuppressWarnings( "unchecked" )
@@ -170,45 +166,6 @@ public abstract class KeyValueCellRenderer<P extends Object, C extends JComponen
     public Component getTableCellEditorComponent( JTable table, Object value, boolean isSelected, int row, int column )
     {
         return ( getTableCellComponent( table, value, isSelected, true, row, column, true ) );
-    }
-    
-    protected abstract Object getCellEditorValueImpl() throws Throwable;
-    
-    protected abstract void applyOldValue( Object oldValue );
-    
-    @Override
-    public final Object getCellEditorValue()
-    {
-        try
-        {
-            return ( getCellEditorValueImpl() );
-        }
-        catch ( Throwable t )
-        {
-            applyOldValue( oldValue );
-            
-            return ( oldValue );
-        }
-    }
-    
-    protected void finalizeEdit( JTable table, boolean cancel )
-    {
-        if ( ( table == null ) || !table.isEditing() )
-            return;
-        
-        int selRow = row; //table.getEditingRow();
-        int selCol = table.getEditingColumn();
-        //table.editingStopped( null );
-        if ( cancel )
-        {
-            cancelCellEditing();
-            table.setValueAt( getCellEditorValue(), selRow, selCol );
-        }
-        else
-        {
-            stopCellEditing();
-        }
-        table.getSelectionModel().setSelectionInterval( selRow, selRow );
     }
     
     protected KeyValueCellRenderer( boolean isKeyRenderer, C component )

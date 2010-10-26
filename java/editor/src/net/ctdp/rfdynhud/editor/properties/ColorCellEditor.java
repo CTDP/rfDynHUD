@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.editor.util.ColorChooser;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.Property;
@@ -38,7 +38,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
+public class ColorCellEditor extends ValueCellEditor<Property, JPanel, JButton>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -46,10 +46,8 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private final JLabel label = new JLabel();
     private final JButton button = new JButton();
     
-    private HierarchicalTable<Property> table = null;
     private int row = -1;
     private int column = -1;
-    private ColorProperty prop = null;
     
     private static ColorChooser colorChooser = null;
     
@@ -58,12 +56,10 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        this.table = table;
         this.row = row;
         this.column = column;
-        this.prop = (ColorProperty)property;
         
-        if ( prop.getButtonText() == null )
+        if ( property.getButtonText() == null )
         {
             //button.setVisible( false );
             button.setVisible( true );
@@ -73,8 +69,8 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
         else
         {
             button.setVisible( true );
-            button.setText( prop.getButtonText() );
-            button.setToolTipText( prop.getButtonTooltip() );
+            button.setText( property.getButtonText() );
+            button.setToolTipText( property.getButtonTooltip() );
         }
         
         /*
@@ -90,7 +86,7 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
         }
         */
         
-        Color color = prop.getColor();
+        Color color = ( (ColorProperty)property ).getColor();
         
         if ( ( color.getRed() < 50 ) && ( color.getGreen() < 50 ) && ( color.getBlue() < 50 ) && ( color.getAlpha() > 50 ) )
             label.setForeground( Color.WHITE );
@@ -120,9 +116,9 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
     
     public ColorCellEditor()
     {
-        super( false, null );
+        super();
         
-        setComponent( panel );
+        setComponent( panel, button );
         
         label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
         
@@ -133,32 +129,32 @@ public class ColorCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( prop != null )
+                if ( getProperty() != null )
                 {
-                    JFrame frame = (JFrame)table.getRootPane().getParent();
+                    JFrame frame = (JFrame)getTable().getRootPane().getParent();
                     if ( colorChooser == null )
                     {
-                        colorChooser = new ColorChooser( (String)prop.getValue(), prop.getWidget().getConfiguration() );
+                        colorChooser = new ColorChooser( (String)getProperty().getValue(), getProperty().getWidget().getConfiguration() );
                     }
                     
-                    String result = colorChooser.showDialog( frame, (String)prop.getValue(), prop.getWidget().getConfiguration() );
+                    String result = colorChooser.showDialog( frame, (String)getProperty().getValue(), getProperty().getWidget().getConfiguration() );
                     
                     if ( result != null )
                     {
-                        prop.setValue( result );
+                        getProperty().setValue( result );
                         
-                        label.setText( (String)prop.getValue() );
-                        table.setValueAt( getCellEditorValue(), row, column );
-                        ( (PropertiesEditorTable)table ).getRFDynHUDEditor().setDirtyFlag();
+                        label.setText( (String)getProperty().getValue() );
+                        getTable().setValueAt( getCellEditorValue(), row, column );
+                        ( (PropertiesEditorTable)getTable() ).getRFDynHUDEditor().setDirtyFlag();
                     }
                     
                     frame.repaint();
                     
-                    if ( prop.getButtonText() != null )
-                        prop.onButtonClicked( button );
+                    if ( getProperty().getButtonText() != null )
+                        getProperty().onButtonClicked( button );
                 }
                 
-                finalizeEdit( table, false );
+                finalizeEdit( false );
             }
         } );
         

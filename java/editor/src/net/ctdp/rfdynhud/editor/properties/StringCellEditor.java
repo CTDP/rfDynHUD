@@ -25,14 +25,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.properties.Property;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class StringCellEditor extends KeyValueCellRenderer<Property, JPanel>
+public class StringCellEditor extends ValueCellEditor<Property, JPanel, JTextField>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -40,26 +40,20 @@ public class StringCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private final JTextField textfield = new JTextField();
     private final JButton button = new JButton();
     
-    private HierarchicalTable<Property> table = null;
-    private Property prop = null;
-    
     @Override
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        this.prop = property;
-        this.table = table;
-        
-        if ( prop.getButtonText() == null )
+        if ( property.getButtonText() == null )
         {
             button.setVisible( false );
         }
         else
         {
             button.setVisible( true );
-            button.setText( prop.getButtonText() );
-            button.setToolTipText( prop.getButtonTooltip() );
+            button.setText( property.getButtonText() );
+            button.setToolTipText( property.getButtonTooltip() );
         }
         
         /*
@@ -114,16 +108,16 @@ public class StringCellEditor extends KeyValueCellRenderer<Property, JPanel>
     
     public StringCellEditor()
     {
-        super( false, null );
+        super();
         
-        setComponent( panel );
+        setComponent( panel, textfield );
         
         textfield.addActionListener( new java.awt.event.ActionListener()
         {
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                finalizeEdit( table, false );
+                finalizeEdit( false );
             }
         } );
         
@@ -134,10 +128,10 @@ public class StringCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( prop != null )
+                if ( getProperty() != null )
                 {
-                    prop.onButtonClicked( button );
-                    textfield.setText( String.valueOf( prop.getValue() ) );
+                    getProperty().onButtonClicked( button );
+                    textfield.setText( String.valueOf( getProperty().getValue() ) );
                 }
             }
         } );

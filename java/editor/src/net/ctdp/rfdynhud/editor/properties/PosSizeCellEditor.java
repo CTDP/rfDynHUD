@@ -26,7 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
-import net.ctdp.rfdynhud.editor.hiergrid.KeyValueCellRenderer;
+import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.values.Position;
@@ -36,7 +36,7 @@ import net.ctdp.rfdynhud.values.Size;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
+public class PosSizeCellEditor extends ValueCellEditor<Property, JPanel, JTextField>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -45,29 +45,23 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
     private final JButton button1 = new JButton();
     private final JButton button2 = new JButton();
     
-    private HierarchicalTable<Property> table = null;
-    private PosSizeProperty prop = null;
-    
     @Override
-    //public java.awt.Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column )
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
-        setComponent( panel );
-        
         super.prepareComponent( panel, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        this.prop = (PosSizeProperty)property;
+        PosSizeProperty psPorperty = (PosSizeProperty)property;
         
-        button2.setVisible( prop.isSizeProp() );
+        button2.setVisible( psPorperty.isSizeProp() );
         
         float fv = (Float)value;
-        boolean isPerc = prop.isPercentage();
+        boolean isPerc = psPorperty.isPercentage();
         
         button1.setVisible( true );
-        button1.setText( prop.getButton1Text( isPerc ) );
-        button1.setToolTipText( prop.getButton1Tooltip( isPerc ) );
-        button2.setText( prop.getButton2Text( isPerc ) );
-        button2.setToolTipText( prop.getButton2Tooltip( isPerc ) );
+        button1.setText( psPorperty.getButton1Text( isPerc ) );
+        button1.setToolTipText( psPorperty.getButton1Tooltip( isPerc ) );
+        button2.setText( psPorperty.getButton2Text( isPerc ) );
+        button2.setToolTipText( psPorperty.getButton2Tooltip( isPerc ) );
         
         button1.setPreferredSize( new Dimension( 30, 5 ) );
         button2.setPreferredSize( new Dimension( 30, 5 ) );
@@ -86,31 +80,31 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
         textfield.setFont( table.getStyle().getValueCellFont() );
         textfield.setBorder( null );
         
-        if ( prop.isSizeProp() )
+        if ( psPorperty.isSizeProp() )
             textfield.setText( Size.unparseValue( fv ) );
         else
             textfield.setText( Position.unparseValue( fv ) );
-        
-        this.table = table;
-        
-        //return ( panel );
     }
     
     @Override
     protected Object getCellEditorValueImpl() throws Throwable
     {
-        if ( prop.isSizeProp() )
-            return ( Size.parseValue( textfield.getText(), prop.isPercentage() ) );
+        PosSizeProperty psPorperty = (PosSizeProperty)getProperty();
         
-        return ( Position.parseValue( textfield.getText(), prop.isPercentage() ) );
+        if ( psPorperty.isSizeProp() )
+            return ( Size.parseValue( textfield.getText(), psPorperty.isPercentage() ) );
+        
+        return ( Position.parseValue( textfield.getText(), psPorperty.isPercentage() ) );
     }
     
     @Override
     protected void applyOldValue( Object oldValue )
     {
+        PosSizeProperty psPorperty = (PosSizeProperty)getProperty();
+        
         float fv = (Float)oldValue;
         
-        if ( prop.isSizeProp() )
+        if ( psPorperty.isSizeProp() )
             textfield.setText( Size.unparseValue( fv ) );
         else
             textfield.setText( Position.unparseValue( fv ) );
@@ -118,16 +112,18 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
     
     public PosSizeCellEditor()
     {
-        super( false, null );
+        super();
+        
+        setComponent( panel, textfield );
         
         textfield.addActionListener( new java.awt.event.ActionListener()
         {
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( table != null )
+                if ( getTable() != null )
                 {
-                    finalizeEdit( table, false );
+                    finalizeEdit( false );
                 }
             }
         } );
@@ -140,20 +136,22 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( prop != null )
+                PosSizeProperty psPorperty = (PosSizeProperty)getProperty();
+                
+                if ( psPorperty != null )
                 {
-                    //Float oldValue = (Float)prop.getValue();
-                    prop.onButtonClicked( button1 );
-                    Float newValue = (Float)prop.getValue();
-                    prop.onButtonClicked( button1 );
+                    //Float oldValue = psPorperty.getValue();
+                    getProperty().onButtonClicked( button1 );
+                    Float newValue = (Float)getProperty().getValue();
+                    getProperty().onButtonClicked( button1 );
                     
-                    if ( prop.isSizeProp() )
+                    if ( psPorperty.isSizeProp() )
                         textfield.setText( Size.unparseValue( newValue ) );
                     else
                         textfield.setText( Position.unparseValue( newValue ) );
                 }
                 
-                finalizeEdit( table, false );
+                finalizeEdit( false );
             }
         } );
         
@@ -162,20 +160,22 @@ public class PosSizeCellEditor extends KeyValueCellRenderer<Property, JPanel>
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                if ( prop != null )
+                PosSizeProperty psPorperty = (PosSizeProperty)getProperty();
+                
+                if ( psPorperty != null )
                 {
-                    //Float oldValue = (Float)prop.getValue();
-                    prop.onButton2Clicked( button2 );
-                    Float newValue = (Float)prop.getValue();
-                    prop.onButton2Clicked( button2 );
+                    //Float oldValue = psPorperty.getValue();
+                    psPorperty.onButton2Clicked( button2 );
+                    Float newValue = (Float)getProperty().getValue();
+                    psPorperty.onButton2Clicked( button2 );
                     
-                    if ( prop.isSizeProp() )
+                    if ( psPorperty.isSizeProp() )
                         textfield.setText( Size.unparseValue( newValue ) );
                     else
                         textfield.setText( Position.unparseValue( newValue ) );
                 }
                 
-                finalizeEdit( table, false );
+                finalizeEdit( false );
             }
         } );
         

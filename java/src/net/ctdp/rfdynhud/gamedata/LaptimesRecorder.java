@@ -115,10 +115,10 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             }
             
             vsi.averageLaptime.lap = count;
-            vsi.averageLaptime.sector1 = sumS1 / (float)count;
-            vsi.averageLaptime.sector2 = sumS2 / (float)count;
-            vsi.averageLaptime.sector3 = sumS3 / (float)count;
-            vsi.averageLaptime.laptime = sumL / (float)count;
+            vsi.averageLaptime.sector1 = sumS1 / count;
+            vsi.averageLaptime.sector2 = sumS2 / count;
+            vsi.averageLaptime.sector3 = sumS3 / count;
+            vsi.averageLaptime.laptime = sumL / count;
         }
     }
     
