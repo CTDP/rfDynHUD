@@ -150,7 +150,7 @@ public class ShiftLight
                 return;
             }
         }
-        else if ( isOffStatePartOfBackground() )
+        else
         {
             textureOff = null;
         }
@@ -165,20 +165,19 @@ public class ShiftLight
                 return;
             }
             
-            float scale = widget.getBackground().getScaleY();
-            int w, h;
-            if ( height.getIntValue() == 0 )
-            {
-                w = Math.round( it.getBaseWidth() * scale );
-                h = Math.round( it.getBaseHeight() * scale );
-            }
-            else
-            {
-                h = Math.round( height.getFloatValue() * scale );
-                w = Math.round( h * it.getBaseAspect() );
-            }
             if ( isOffStatePartOfBackground() )
             {
+                int w, h;
+                if ( height.getIntValue() == 0 )
+                {
+                    w = Math.round( it.getBaseWidth() * widget.getBackground().getScaleX() );
+                    h = Math.round( it.getBaseHeight() * widget.getBackground().getScaleY() );
+                }
+                else
+                {
+                    h = Math.round( height.getFloatValue() * widget.getBackground().getScaleY() );
+                    w = Math.round( h * it.getBaseAspect() );
+                }
                 if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h * 2 ) )
                 {
                     textureOn = TransformableTexture.getOrCreate( w, h * 2, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOn, isEditorMode );
@@ -198,6 +197,18 @@ public class ShiftLight
             }
             else
             {
+                float scale = widget.getBackground().getScaleY();
+                int w, h;
+                if ( height.getIntValue() == 0 )
+                {
+                    w = Math.round( it.getBaseWidth() * scale );
+                    h = Math.round( it.getBaseHeight() * scale );
+                }
+                else
+                {
+                    h = Math.round( height.getFloatValue() * scale );
+                    w = Math.round( h * it.getBaseAspect() );
+                }
                 if ( ( textureOn == null ) || ( textureOn.getWidth() != w ) || ( textureOn.getHeight() != h ) )
                 {
                     textureOn = TransformableTexture.getOrCreate( w, h, TransformableTexture.DEFAULT_PIXEL_PERFECT_POSITIONING, textureOn, isEditorMode );
