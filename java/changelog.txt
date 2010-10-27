@@ -73,13 +73,13 @@ Minor:
 * Added a management system for log files to archive a given number of log files for reference. See rfdynhud.ini 'numArchivedLogFiles'.
 * Added DashboardWidget.
 * Added ETVTelemetryWidget (Revs, Velocity, Trottle/Brake).
+* Fixed minimum clock frequency.
 
 TODO:
 
 * Meta config (merge configurations)
 * Add master d3d9.dll
 * General profiling to tweak performance
-* Fix/Improve clock frequencies
 
 * Improve viewed vehicle detection (use me if close, read from application)
 * Render plugin in replay mode (theoretically not possible, needs application memory access)
