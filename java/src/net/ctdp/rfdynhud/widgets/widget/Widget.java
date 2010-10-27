@@ -129,10 +129,11 @@ public abstract class Widget implements Cloneable, Documented
     /**
      * This method is invoked when the background has changed.
      * 
+     * @param imageChanged whether the image has changed
      * @param deltaScaleX the x-scale factor in as a difference between the old background image and the new one or -1 of no background image was selected
      * @param deltaScaleY the y-scale factor in as a difference between the old background image and the new one or -1 of no background image was selected
      */
-    protected void onBackgroundChanged( float deltaScaleX, float deltaScaleY ) {}
+    protected void onBackgroundChanged( boolean imageChanged, float deltaScaleX, float deltaScaleY ) {}
     private final BackgroundProperty backgroundProperty = canHaveBackground() || overridesDrawBackground ? new BackgroundProperty( this, "background", getInitialBackground() )
     {
         @Override

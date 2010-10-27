@@ -70,9 +70,9 @@ public abstract class NeedleMeterWidget extends Widget
     }
     
     @Override
-    protected void onBackgroundChanged( float deltaScaleX, float deltaScaleY )
+    protected void onBackgroundChanged( boolean imageChanged, float deltaScaleX, float deltaScaleY )
     {
-        super.onBackgroundChanged( deltaScaleX, deltaScaleY );
+        super.onBackgroundChanged( imageChanged, deltaScaleX, deltaScaleY );
         
         if ( deltaScaleX > 0f )
         {

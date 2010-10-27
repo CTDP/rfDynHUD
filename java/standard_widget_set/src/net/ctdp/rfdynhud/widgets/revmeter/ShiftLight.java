@@ -95,7 +95,13 @@ public class ShiftLight
         this.textureOn = null;
     }
     
-    public void onBackgroundChanged( float deltaScaleX, float deltaScaleY )
+    /**
+     * 
+     * @param imageChanged
+     * @param deltaScaleX
+     * @param deltaScaleY
+     */
+    public void onBackgroundChanged( boolean imageChanged, float deltaScaleX, float deltaScaleY )
     {
         resetTextures();
         

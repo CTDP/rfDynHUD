@@ -212,9 +212,9 @@ public class ETVTelemetryWidget extends RevMeterWidget
     }
     
     @Override
-    protected void onBackgroundChanged( float deltaScaleX, float deltaScaleY )
+    protected void onBackgroundChanged( boolean imageChanged, float deltaScaleX, float deltaScaleY )
     {
-        super.onBackgroundChanged( deltaScaleX, deltaScaleY );
+        super.onBackgroundChanged( imageChanged, deltaScaleX, deltaScaleY );
         
         maxVelocityLeftOffset.setIntValue( Math.round( maxVelocityLeftOffset.getIntValue() * deltaScaleX ) );
         maxVelocityTopOffset.setIntValue( Math.round( maxVelocityTopOffset.getIntValue() * deltaScaleY ) );

@@ -19,6 +19,8 @@ package net.ctdp.rfdynhud.widgets.widget;
 
 import java.awt.Color;
 
+import org.jagatoo.util.Tools;
+
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
@@ -130,6 +132,7 @@ public class WidgetBackground
         
         float deltaScaleX = -1.0f;
         float deltaScaleY = -1.0f;
+        boolean imageChanged = false;
         
         if ( newBGType.isColor() )
         {
@@ -139,6 +142,7 @@ public class WidgetBackground
                 
                 deltaScaleX = (float)width / (float)it.getBaseWidth();
                 deltaScaleY = (float)height / (float)it.getBaseHeight();
+                imageChanged = true;
             }
             
             backgroundTexture = null;
@@ -154,6 +158,7 @@ public class WidgetBackground
                 
                 deltaScaleX = (float)it.getBaseWidth() / (float)width;
                 deltaScaleY = (float)it.getBaseHeight() / (float)height;
+                imageChanged = true;
             }
             else if ( oldBGType.isImage() )
             {
@@ -169,6 +174,7 @@ public class WidgetBackground
                 
                 deltaScaleX = oldBgScaleX / newScaleX;
                 deltaScaleY = oldBgScaleY / newScaleY;
+                imageChanged = !Tools.objectsEqual( oldValue, newValue );
             }
             
             backgroundTexture = null;
@@ -177,7 +183,7 @@ public class WidgetBackground
             mergedBgTexDirty = true;
         }
         
-        widget.onBackgroundChanged( deltaScaleX, deltaScaleY );
+        widget.onBackgroundChanged( imageChanged, deltaScaleX, deltaScaleY );
         widget.forceAndSetDirty( true );
     }
     

@@ -206,12 +206,12 @@ public class RevMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected void onBackgroundChanged( float deltaScaleX, float deltaScaleY )
+    protected void onBackgroundChanged( boolean imageChanged, float deltaScaleX, float deltaScaleY )
     {
-        super.onBackgroundChanged( deltaScaleX, deltaScaleY );
+        super.onBackgroundChanged( imageChanged, deltaScaleX, deltaScaleY );
         
         for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
-            shiftLights[i].onBackgroundChanged( deltaScaleX, deltaScaleY );
+            shiftLights[i].onBackgroundChanged( imageChanged, deltaScaleX, deltaScaleY );
         
         // TODO: Don't set to null!
         gearBackgroundTexture = null;
