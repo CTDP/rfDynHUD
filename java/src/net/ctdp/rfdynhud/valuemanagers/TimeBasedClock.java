@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.valuemanagers;
 
+
 /**
  * The {@link TimeBasedClock} calculates frame gaps based on a given time delay to know, when to set the clock flag and when to reset.
  * 
@@ -24,7 +25,7 @@ package net.ctdp.rfdynhud.valuemanagers;
  */
 public class TimeBasedClock extends Clock
 {
-    public static final long DEFAULT_MIN_FRAMES = 10L;
+    public static final long DEFAULT_MIN_FRAMES = 3L;
     
     private final long delay;
     private final long minFrames;
