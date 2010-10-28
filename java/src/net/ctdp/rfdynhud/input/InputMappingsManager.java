@@ -500,16 +500,15 @@ public class InputMappingsManager
     private int hitCount = 0;
     
     /**
-     * 
+     * @param eventsManager
      * @param widgetsManager the manager to fire widget events on
      * @param gameData the live game data
      * @param isEditorMode editor mode? (certainly false)
-     * @param eventsManager the manager, the game fires events on
      * @param modifierMask the key modifier mask
      * 
      * @return -1 if plugin got disabled, 0 if plugin was and is disabled, 1 if plugin was and is enabled., 2 if plugin got enabled.
      */
-    public int update( WidgetsDrawingManager widgetsManager, LiveGameData gameData, boolean isEditorMode, GameEventsManager eventsManager, int modifierMask )
+    public int update( GameEventsManager eventsManager, WidgetsDrawingManager widgetsManager, LiveGameData gameData, boolean isEditorMode, int modifierMask )
     {
         if ( !gameData.getProfileInfo().isValid() )
         {
@@ -592,7 +591,7 @@ public class InputMappingsManager
                                 }
                                 else if ( isPluginEnabled && action.isWidgetAction() )
                                 {
-                                    widgetsManager.fireOnInputStateChanged( mapping, state, modifierMask, when, gameData, isEditorMode );
+                                    eventsManager.fireOnInputStateChanged( mapping, state, modifierMask, when, isEditorMode );
                                 }
                             }
                         }

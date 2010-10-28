@@ -36,6 +36,8 @@ public class GraphicsInfo
     
     public static interface GraphicsInfoUpdateListener extends LiveGameData.GameDataUpdateListener
     {
+        public void onViewportChanged( LiveGameData gameData, int viewportX, int viewportY, int viewportWidth, int viewportHeight );
+        
         public void onGraphicsInfoUpdated( LiveGameData gameData, boolean isEditorMode );
     }
     
@@ -100,6 +102,15 @@ public class GraphicsInfo
     
     void prepareDataUpdate()
     {
+    }
+    
+    void onViewportChanged( int viewportX, int viewportY, int viewportWidth, int viewportHeight )
+    {
+        if ( updateListeners != null )
+        {
+            for ( int i = 0; i < updateListeners.length; i++ )
+                updateListeners[i].onViewportChanged( gameData, viewportX, viewportY, viewportWidth, viewportHeight );
+        }
     }
     
     void onDataUpdated( boolean isEditorMode )

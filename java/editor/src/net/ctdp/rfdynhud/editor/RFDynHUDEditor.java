@@ -107,6 +107,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     private static final String BASE_WINDOW_TITLE = "rFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
     
     private LiveGameData gameData;
+    private WidgetsDrawingManager drawingManager;
     private WidgetsConfiguration widgetsConfig;
     private GameEventsManager eventsManager;
     private final GameResolution gameResolution;
@@ -931,7 +932,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         
         if ( !templateConfigFile.equals( this.currentTemplateFile ) || ( templateConfigFile.lastModified() > lastTemplateConfigModified ) )
         {
-            this.templateConfig = new WidgetsConfiguration();
+            this.templateConfig = new WidgetsConfiguration( gameData.getGameResolution().getViewportWidth(), gameData.getGameResolution().getViewportHeight() );
             
             __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), templateConfigFile, templateConfig, gameData, true, null );
             
@@ -1079,9 +1080,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             f.setResizable( false );
             f.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
             
-            WidgetsDrawingManager wdm = new WidgetsDrawingManager( true, designResolution[0], designResolution[1], true );
+            WidgetsDrawingManager wdm = new WidgetsDrawingManager( true, designResolution[0], designResolution[1] );
             WidgetsEditorPanel ep = new WidgetsEditorPanel( null, this, gameData, wdm );
-            ImportWidgetsEditorPanelInputHandler inputHandler = new ImportWidgetsEditorPanelInputHandler( this, ep, wdm );
+            ImportWidgetsEditorPanelInputHandler inputHandler = new ImportWidgetsEditorPanelInputHandler( this, ep, wdm.getWidgetsConfiguration() );
             ep.addMouseListener( inputHandler );
             ep.addKeyListener( inputHandler );
             
@@ -1110,7 +1111,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             
             //clearWidetRegions();
             
-            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), file, wdm, gameData, true, null );
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), file, wdm.getWidgetsConfiguration(), gameData, true, null );
             
             //updateWindowTitle();
             
@@ -1443,13 +1444,12 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     {
         int[] resolution = loadResolutionFromUserSettings();
         
-        WidgetsDrawingManager drawingManager = new WidgetsDrawingManager( true, resolution[0], resolution[1], true );
-        this.widgetsConfig = drawingManager;
+        this.drawingManager = new WidgetsDrawingManager( true, resolution[0], resolution[1] );
+        this.widgetsConfig = drawingManager.getWidgetsConfiguration();
         this.eventsManager = new GameEventsManager( null, drawingManager );
-        this.gameData = new LiveGameData( drawingManager.getGameResolution(), eventsManager );
-        eventsManager.setGameData( this.gameData );
+        this.gameData = new LiveGameData( drawingManager.getWidgetsConfiguration().getGameResolution(), eventsManager );
+        eventsManager.setGameData( this.gameData, drawingManager.getRenderListenersManager() );
         __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
-        eventsManager.setGameData( gameData );
         
         __GDPrivilegedAccess.setUpdatedInTimescope( gameData.getSetup() );
         __GDPrivilegedAccess.updateInfo( gameData );
@@ -1466,11 +1466,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     
     private WidgetsEditorPanel createEditorPanel()
     {
-        WidgetsDrawingManager drawingManager = (WidgetsDrawingManager)widgetsConfig;
-        
         WidgetsEditorPanel editorPanel = new WidgetsEditorPanel( this, gameData, drawingManager );
-        editorPanel.setPreferredSize( new Dimension( drawingManager.getGameResolution().getViewportWidth(), drawingManager.getGameResolution().getViewportHeight() ) );
-        WidgetsEditorPanelInputHandler inputHandler = new WidgetsEditorPanelInputHandler( editorPanel, drawingManager );
+        editorPanel.setPreferredSize( new Dimension( widgetsConfig.getGameResolution().getViewportWidth(), widgetsConfig.getGameResolution().getViewportHeight() ) );
+        WidgetsEditorPanelInputHandler inputHandler = new WidgetsEditorPanelInputHandler( editorPanel, widgetsConfig );
         editorPanel.addMouseListener( inputHandler );
         editorPanel.addMouseMotionListener( inputHandler );
         editorPanel.addKeyListener( inputHandler );

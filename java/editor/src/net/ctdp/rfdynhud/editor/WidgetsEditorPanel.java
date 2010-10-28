@@ -40,6 +40,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
@@ -60,6 +61,7 @@ public class WidgetsEditorPanel extends JPanel
     
     private TextureImage2D overlay;
     private final WidgetsDrawingManager drawingManager;
+    private final WidgetsConfiguration widgetsConfig;
     private final ByteBuffer dirtyRectsBuffer = TextureDirtyRectsManager.createByteBuffer( 1024 );
     private final ArrayList<Boolean> dirtyFlags = new ArrayList<Boolean>();
     private final Map<Widget, Rect2i> oldWidgetRects = new WeakHashMap<Widget, Rect2i>();
@@ -83,11 +85,6 @@ public class WidgetsEditorPanel extends JPanel
     private float recipScaleFactor = 1.0f;
     
     private int repaintCounter = 0;
-    
-    public final WidgetsDrawingManager getWidgetsDrawingManager()
-    {
-        return ( drawingManager );
-    }
     
     public final WidgetsEditorPanelSettings getSettings()
     {
@@ -142,10 +139,10 @@ public class WidgetsEditorPanel extends JPanel
     {
         drawingManager.resizeMainTexture( resX, resY );
         
-        for ( int i = 0; i < drawingManager.getNumWidgets(); i++ )
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
         {
-            drawingManager.getWidget( i ).forceAndSetDirty( true );
-            __WPrivilegedAccess.onCanvasSizeChanged( drawingManager.getWidget( i ) );
+            widgetsConfig.getWidget( i ).forceAndSetDirty( true );
+            __WPrivilegedAccess.onCanvasSizeChanged( widgetsConfig.getWidget( i ) );
         }
         
         setBackgroundImage( settings.loadBackgroundImage() );
@@ -188,8 +185,8 @@ public class WidgetsEditorPanel extends JPanel
         final int gridOffsetY = settings.getGridOffsetY();
         final int gridSizeX = settings.getGridSizeX();
         final int gridSizeY = settings.getGridSizeY();
-        final int gameResX = drawingManager.getGameResolution().getViewportWidth();
-        final int gameResY = drawingManager.getGameResolution().getViewportHeight();
+        final int gameResX = widgetsConfig.getGameResolution().getViewportWidth();
+        final int gameResY = widgetsConfig.getGameResolution().getViewportHeight();
         
         for ( int x = gridSizeX - 1 + gridOffsetX; x < gameResX - gridOffsetX; x += gridSizeX )
         {
@@ -253,8 +250,8 @@ public class WidgetsEditorPanel extends JPanel
     
     public boolean snapAllWidgetsToGrid()
     {
-        for ( int i = 0; i < drawingManager.getNumWidgets(); i++ )
-            clearWidgetRegion( drawingManager.getWidget( i ) );
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
+            clearWidgetRegion( widgetsConfig.getWidget( i ) );
         settings.snapAllWidgetsToGrid();
         setSelectedWidget( selectedWidget, false );
         repaint();
@@ -266,7 +263,7 @@ public class WidgetsEditorPanel extends JPanel
     {
         cacheGraphics.drawImage( backgroundImage, 0, 0, null );
         
-        drawingManager.setAllDirtyFlags();
+        widgetsConfig.setAllDirtyFlags();
         oldWidgetRects.clear();
         oldWidgetSubTexRects.clear();
     }
@@ -344,7 +341,7 @@ public class WidgetsEditorPanel extends JPanel
         
         if ( selectionChanged )
         {
-            drawingManager.setAllDirtyFlags();
+            widgetsConfig.setAllDirtyFlags();
         }
     }
     
@@ -562,18 +559,18 @@ public class WidgetsEditorPanel extends JPanel
     {
         boolean needsRepeat = false;
         
-        int n = drawingManager.getNumWidgets();
+        int n = widgetsConfig.getNumWidgets();
         
         for ( int i = 0; i < n; i++ )
         {
             if ( dirtyFlags.get( i ) )
             {
-                Widget widget1 = drawingManager.getWidget( i );
+                Widget widget1 = widgetsConfig.getWidget( i );
                 Rect2i r1 = null;
                 
                 for ( int j = 0; j < n; j++ )
                 {
-                    Widget widget2 = drawingManager.getWidget( j );
+                    Widget widget2 = widgetsConfig.getWidget( j );
                     
                     if ( !dirtyFlags.get( j ) ) // This also avoids i == j.
                     {
@@ -709,12 +706,12 @@ public class WidgetsEditorPanel extends JPanel
             oldWidgetRects = new HashMap<Widget, Rect2i>();
             oldWidgetSubTexRects = new HashMap<Widget, Rect2i[]>();
             
-            drawingManager.setAllDirtyFlags();
+            widgetsConfig.setAllDirtyFlags();
         }
         
         try
         {
-            int n = drawingManager.getNumWidgets();
+            int n = widgetsConfig.getNumWidgets();
             AffineTransform[][] affineTransforms = new AffineTransform[ n ][];
             Rect2i[][] transformedSubRects = new Rect2i[ n ][];
             
@@ -724,7 +721,7 @@ public class WidgetsEditorPanel extends JPanel
             subTexs.clear();
             for ( int i = 0; i < n; i++ )
             {
-                Widget widget = drawingManager.getWidget( i );
+                Widget widget = widgetsConfig.getWidget( i );
                 
                 dirtyFlags.add( widget.getDirtyFlag( false ) );
                 
@@ -756,11 +753,11 @@ public class WidgetsEditorPanel extends JPanel
             
             while ( checkOverlappingWidgetsAndTransferDirtyFlags( transformedSubRects, oldWidgetRects, oldWidgetSubTexRects ) );
             
-            drawingManager.drawWidgets( gameData, true, true );
+            drawingManager.drawWidgets( gameData, true, false, true );
             
             for ( int i = 0; i < n; i++ )
             {
-                Widget widget = drawingManager.getWidget( i );
+                Widget widget = widgetsConfig.getWidget( i );
                 
                 if ( dirtyFlags.get( i ) )
                 {
@@ -804,7 +801,7 @@ public class WidgetsEditorPanel extends JPanel
             // clear old rectangles of dirty widgets' sub textures...
             for ( int i = 0; i < n; i++ )
             {
-                Widget widget = drawingManager.getWidget( i );
+                Widget widget = widgetsConfig.getWidget( i );
                 
                 if ( dirtyFlags.get( i ) )
                 {
@@ -833,7 +830,7 @@ public class WidgetsEditorPanel extends JPanel
             BufferedImage bi = overlay.getBufferedImage();
             for ( int i = 0; i < n; i++ )
             {
-                Widget widget = drawingManager.getWidget( i );
+                Widget widget = widgetsConfig.getWidget( i );
                 TransformableTexture[] subTextures = subTexs.get( i );
                 
                 int offsetX = widget.getPosition().getEffectiveX();
@@ -916,12 +913,13 @@ public class WidgetsEditorPanel extends JPanel
     {
         super();
         
-        this.settings = ( settings == null ) ? new WidgetsEditorPanelSettings( drawingManager, editor, this ) : settings;
+        this.settings = ( settings == null ) ? new WidgetsEditorPanelSettings( drawingManager.getWidgetsConfiguration(), editor, this ) : settings;
         
         this.gameData = gameData;
         
         this.overlay = drawingManager.getMainTexture( 0 );
         this.drawingManager = drawingManager;
+        this.widgetsConfig = drawingManager.getWidgetsConfiguration();
         
         this.setFocusable( true );
     }

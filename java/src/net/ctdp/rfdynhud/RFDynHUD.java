@@ -119,7 +119,7 @@ public class RFDynHUD
             
             InputMappings mappings = inputMappingsManager.loadMappings( inputDeviceManager );
             
-            __WCPrivilegedAccess.setInputMappings( drawingManager, mappings );
+            __WCPrivilegedAccess.setInputMappings( drawingManager.getWidgetsConfiguration(), mappings );
         }
         catch ( Throwable t )
         {
@@ -136,7 +136,7 @@ public class RFDynHUD
     {
         try
         {
-            int pluginEnabled = inputMappingsManager.update( drawingManager, gameData, false, eventsManager, modifierMask );
+            int pluginEnabled = inputMappingsManager.update( eventsManager, drawingManager, gameData, false, modifierMask );
             
             if ( pluginEnabled == -1 )
             {
@@ -152,10 +152,10 @@ public class RFDynHUD
                 byte result = eventsManager.reloadConfigAndSetupTexture( false );
                 if ( result != 0 )
                 {
-                    int numWidgets = drawingManager.getNumWidgets();
+                    int numWidgets = drawingManager.getWidgetsConfiguration().getNumWidgets();
                     for ( int i = 0; i < numWidgets; i++ )
                     {
-                        drawingManager.getWidget( i ).forceCompleteRedraw( true );
+                        drawingManager.getWidgetsConfiguration().getWidget( i ).forceCompleteRedraw( true );
                     }
                 }
                 
@@ -167,7 +167,7 @@ public class RFDynHUD
             Logger.log( t );
         }
         
-        if ( inputMappingsManager.isPluginEnabled() && drawingManager.isValid() )
+        if ( inputMappingsManager.isPluginEnabled() && drawingManager.getWidgetsConfiguration().isValid() )
             return ( 1 );
         
         return ( 0 );
@@ -186,14 +186,14 @@ public class RFDynHUD
         
         try
         {
-            boolean newConfig = ( drawingManager.getId() != lastConfigId );
-            lastConfigId = drawingManager.getId();
+            boolean newConfig = ( drawingManager.getWidgetsConfiguration().getId() != lastConfigId );
+            lastConfigId = drawingManager.getWidgetsConfiguration().getId();
             
             __GDPrivilegedAccess.updateSessionTime( gameData, false, System.nanoTime() );
             
             drawingManager.refreshTextureInfoBuffer( false, gameData, newConfig );
             
-            drawingManager.drawWidgets( gameData, false, newConfig );
+            drawingManager.drawWidgets( gameData, false, eventsManager.hasWaitingWidgets(), newConfig );
             //TextureDirtyRectsManager.drawDirtyRects( overlay );
             
             int n = drawingManager.getNumTextures();
@@ -249,16 +249,14 @@ public class RFDynHUD
         
         Logger.log( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "...", false );
         
-        this.drawingManager = new WidgetsDrawingManager( false, gameResX, gameResY, true );
+        this.drawingManager = new WidgetsDrawingManager( false, gameResX, gameResY );
         Logger.log( " done." );
         
         this.eventsManager = new GameEventsManager( this, drawingManager );
         
-        this.gameData = new LiveGameData( drawingManager.getGameResolution(), eventsManager );
-        eventsManager.setGameData( this.gameData );
+        this.gameData = new LiveGameData( drawingManager.getWidgetsConfiguration().getGameResolution(), eventsManager );
+        eventsManager.setGameData( this.gameData, drawingManager.getRenderListenersManager() );
         this.gameData_CPP_Adapter = new _LiveGameData_CPP_Adapter( gameData );
-        
-        eventsManager.setGameData( gameData );
         
         this.inputDeviceManager = new InputDeviceManager();
         this.inputMappingsManager = new InputMappingsManager( this );

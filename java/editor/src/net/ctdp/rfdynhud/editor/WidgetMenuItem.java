@@ -27,7 +27,6 @@ import javax.swing.JMenuItem;
 
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.RelativePositioning;
@@ -67,7 +66,7 @@ public class WidgetMenuItem extends JMenuItem
     public static final int ICON_WIDTH = 64;
     public static final int ICON_HEIGHT = 50;
     public static final float ICON_ASPECT = (float)ICON_WIDTH / (float)ICON_HEIGHT;
-    private static final WidgetsDrawingManager tempWidgetsConfig = new WidgetsDrawingManager( true, 1920, 1200, false );
+    private static final WidgetsConfiguration tempWidgetsConfig = new WidgetsConfiguration( 1920, 1200 );
     
     private final RFDynHUDEditor editor;
     //private final Class<Widget> widgetClass;

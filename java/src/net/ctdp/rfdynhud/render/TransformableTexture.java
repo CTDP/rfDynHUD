@@ -26,6 +26,7 @@ import java.nio.ByteOrder;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -208,14 +209,14 @@ public class TransformableTexture
         return ( texture.getTextureCanvas() );
     }
     
-    protected void generateRectanglesForOneBigTexture( LiveGameData gameData, boolean isEditorMode, WidgetsDrawingManager widgetsManager )
+    protected void generateRectanglesForOneBigTexture( LiveGameData gameData, boolean isEditorMode, WidgetsConfiguration widgetsConfig )
     {
-        final int n = widgetsManager.getNumWidgets();
+        final int n = widgetsConfig.getNumWidgets();
         Rectangle[] tmp = new Rectangle[ n ];
         int m = 0;
         for ( int i = 0; i < n; i++ )
         {
-            Widget w = widgetsManager.getWidget( i );
+            Widget w = widgetsConfig.getWidget( i );
             if ( w.hasMasterCanvas( isEditorMode ) )
                 tmp[m++] = new Rectangle( w.getPosition().getEffectiveX(), w.getPosition().getEffectiveY(), w.getMaxWidth( gameData, isEditorMode ), w.getMaxHeight( gameData, isEditorMode ) );
         }

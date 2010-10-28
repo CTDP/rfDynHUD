@@ -21,34 +21,15 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
- * Don't use this at home!
+ * Listens for {@link Widget} render events.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class __RenderPrivilegedAccess
+public interface WidgetsRenderListener
 {
-    public static TransformableTexture createMainTexture( int width, int height )
-    {
-        return ( TransformableTexture.createMainTexture( width, height, false ) );
-    }
+    public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig );
     
-    public static void setOwnerWidget( Widget ownerWidget, TransformableTexture tt )
-    {
-        tt.setOwnerWidget( ownerWidget );
-    }
+    public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig );
     
-    public static final void onWidgetCleared( DrawnStringFactory dsf )
-    {
-        dsf.onWidgetCleared();
-    }
-    
-    public static final void fireBeforeWidgetsConfigurationCleared( WidgetsRenderListenersManager manager, WidgetsConfiguration widgetsConfig )
-    {
-        manager.fireBeforeWidgetsConfigurationCleared( widgetsConfig );
-    }
-    
-    public static final void fireAfterWidgetsConfigurationLoaded( WidgetsRenderListenersManager manager, WidgetsConfiguration widgetsConfig )
-    {
-        manager.fireAfterWidgetsConfigurationLoaded( widgetsConfig );
-    }
+    public void beforeWidgetsAreRendered( WidgetsConfiguration widgetsConfig, long sessionTime, long frameCounter );
 }

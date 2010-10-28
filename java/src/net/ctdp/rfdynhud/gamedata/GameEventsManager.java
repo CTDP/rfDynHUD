@@ -20,7 +20,9 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.File;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
+import net.ctdp.rfdynhud.render.WidgetsRenderListenersManager;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
@@ -78,14 +80,26 @@ public class GameEventsManager implements ConfigurationLoadListener
     private long lastSessionStartedTimestamp = -1L;
     private float lastSessionTime = 0f;
     
+    private GameEventsDispatcher eventsDispatcher;
+    private WidgetsRenderListenersManager renderListenersManager;
+    
+    public final boolean hasWaitingWidgets()
+    {
+        return ( eventsDispatcher.hasWaitingWidgets() );
+    }
+    
     /**
      * Sets live game data instance.
      * 
      * @param gameData
+     * @param renderListenersManager
      */
-    public void setGameData( LiveGameData gameData )
+    public void setGameData( LiveGameData gameData, WidgetsRenderListenersManager renderListenersManager )
     {
         this.gameData = gameData;
+        this.eventsDispatcher = new GameEventsDispatcher();
+        eventsDispatcher.setWidgetsConfiguration( widgetsManager.getWidgetsConfiguration() );
+        this.renderListenersManager = renderListenersManager;
     }
     
     /**
@@ -108,6 +122,8 @@ public class GameEventsManager implements ConfigurationLoadListener
     public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig )
     {
         needsOnVehicleControlChangedEvent = true;
+        
+        eventsDispatcher.fireAfterWidgetsConfigurationLoaded( widgetsConfig );
     }
     
     /**
@@ -116,6 +132,8 @@ public class GameEventsManager implements ConfigurationLoadListener
     public void onStartup()
     {
         this.running = true;
+        
+        eventsDispatcher.fireOnStarted( gameData, renderListenersManager );
     }
     
     /**
@@ -124,6 +142,8 @@ public class GameEventsManager implements ConfigurationLoadListener
     public void onShutdown()
     {
         this.running = false;
+        
+        eventsDispatcher.fireOnShutdown( gameData, renderListenersManager );
     }
     
     /**
@@ -136,13 +156,28 @@ public class GameEventsManager implements ConfigurationLoadListener
         return ( running );
     }
     
-    private void reloadPhysics( boolean onlyOnce )
+    /**
+     * 
+     * @param mapping
+     * @param state
+     * @param modifierMask
+     * @param when
+     * @param isEditorMode
+     */
+    public void fireOnInputStateChanged( InputMapping mapping, boolean state, int modifierMask, long when, boolean isEditorMode )
+    {
+        eventsDispatcher.fireOnInputStateChanged( mapping, state, modifierMask, when, gameData, isEditorMode );
+    }
+    
+    private void reloadPhysics( boolean onlyOnce, boolean isEditorMode )
     {
         if ( !onlyOnce || !physicsLoadedOnce )
         {
             __GDPrivilegedAccess.loadFromPhysicsFiles( gameData.getProfileInfo(), gameData.getTrackInfo(), gameData.getPhysics() );
             
             physicsLoadedOnce = true;
+            
+            eventsDispatcher.fireOnVehiclePhysicsUpdated( gameData, isEditorMode );
         }
     }
     
@@ -178,10 +213,10 @@ public class GameEventsManager implements ConfigurationLoadListener
             
             if ( !gameData.isInRealtimeMode() )
             {
-                int gameResX = widgetsManager.getGameResolution().getResX();
-                //int gameResY = widgetsManager.getGameResolution().getResY();
-                int viewportWidth = widgetsManager.getGameResolution().getViewportWidth();
-                //int viewportHeight = widgetsManager.getGameResolution().getViewportHeight();
+                int gameResX = widgetsManager.getWidgetsConfiguration().getGameResolution().getResX();
+                //int gameResY = widgetsManager.getWidgetsConfiguration().getGameResolution().getResY();
+                int viewportWidth = widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportWidth();
+                //int viewportHeight = widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportHeight();
                 
                 if ( (float)viewportWidth / (float)gameResX > 0.8f )
                     bigMonitor = true;
@@ -199,7 +234,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             SessionType sessionType = gameData.getScoringInfo().getSessionType();
             VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
             String vehicleClass = vsi.getVehicleClass();
-            Boolean result2 = __UtilPrivilegedAccess.reloadConfiguration( new ConfigurationLoader(), smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, sessionType, widgetsManager, gameData, isEditorMode, this, force );
+            Boolean result2 = __UtilPrivilegedAccess.reloadConfiguration( new ConfigurationLoader(), smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, this, force );
             
             if ( result2 == null )
             {
@@ -222,7 +257,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         {
             Logger.log( t );
             
-            __WCPrivilegedAccess.setValid( widgetsManager, false );
+            __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
             result = 0;
         }
         
@@ -295,7 +330,7 @@ public class GameEventsManager implements ConfigurationLoadListener
                 
                 if ( loadPhysicsAndSetup )
                 {
-                    reloadPhysics( true );
+                    reloadPhysics( true, isEditorMode );
                     reloadSetup();
                 }
                 
@@ -350,7 +385,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             __GDPrivilegedAccess.onSessionEnded( gameData );
         }
         
-        __WCPrivilegedAccess.setValid( widgetsManager, false );
+        __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
     }
     
     /**
@@ -413,17 +448,18 @@ public class GameEventsManager implements ConfigurationLoadListener
                 
                 if ( !isEditorMode )
                 {
-                    reloadPhysics( false );
+                    reloadPhysics( false, isEditorMode );
                     
                     if ( reloadSetup() )
                     {
                         waitingForSetup = false;
                         
-                        widgetsManager.fireOnVehicleSetupUpdated( gameData, isEditorMode );
+                        eventsDispatcher.fireOnVehicleSetupUpdated( gameData, isEditorMode );
                     }
                 }
                 
-                widgetsManager.fireOnRealtimeEntered( gameData, isEditorMode );
+                widgetsManager.onRealtimeEntered( gameData );
+                eventsDispatcher.fireOnRealtimeEntered( gameData, isEditorMode );
             }
         }
         catch ( Throwable t )
@@ -475,7 +511,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             {
                 __GDPrivilegedAccess.setRealtimeMode( false, gameData, isEditorMode );
                 
-                widgetsManager.fireOnRealtimeExited( gameData, isEditorMode );
+                eventsDispatcher.fireOnRealtimeExited( gameData, isEditorMode );
             }
         }
         catch ( Throwable t )
@@ -494,7 +530,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         onRealtimeExited( false );
         
         //byte result = reloadConfigAndSetupTexture( false );
-        __WCPrivilegedAccess.setValid( widgetsManager, false );
+        __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
         waitingForData = true;
         
         if ( rfDynHUD != null )
@@ -543,27 +579,27 @@ public class GameEventsManager implements ConfigurationLoadListener
         if ( this.isInGarage && !isInGarage )
         {
             this.isInGarage = false;
-            widgetsManager.fireOnGarageExited( gameData, isEditorMode );
+            eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
             
             if ( !isEditorMode )
             {
                 result = reloadConfigAndSetupTexture( false );
                 
                 if ( result != 0 )
-                    widgetsManager.fireOnGarageExited( gameData, isEditorMode );
+                    eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
             }
         }
         else if ( !this.isInGarage && isInGarage )
         {
             this.isInGarage = true;
-            widgetsManager.fireOnGarageEntered( gameData, isEditorMode );
+            eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
             
             if ( !isEditorMode )
             {
                 result = reloadConfigAndSetupTexture( false );
                 
                 if ( result != 0 )
-                    widgetsManager.fireOnGarageEntered( gameData, isEditorMode );
+                    eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
             }
         }
         
@@ -572,12 +608,12 @@ public class GameEventsManager implements ConfigurationLoadListener
         if ( this.isInPits && !isInPits )
         {
             this.isInPits = isInPits;
-            widgetsManager.fireOnPitsExited( gameData, isEditorMode );
+            eventsDispatcher.fireOnPitsExited( gameData, isEditorMode );
         }
         else if ( !this.isInPits && isInPits )
         {
             this.isInPits = isInPits;
-            widgetsManager.fireOnPitsEntered( gameData, isEditorMode );
+            eventsDispatcher.fireOnPitsEntered( gameData, isEditorMode );
         }
         
         return ( result );
@@ -585,7 +621,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     
     private byte checkWaitingData( boolean isEditorMode, boolean forceReload )
     {
-        widgetsManager.checkAndFireOnNeededDataComplete( gameData, isEditorMode );
+        eventsDispatcher.checkAndFireOnNeededDataComplete( gameData, isEditorMode );
         
         boolean waitingForSetup2 = ( System.nanoTime() <= setupReloadTryTime );
         
@@ -597,13 +633,13 @@ public class GameEventsManager implements ConfigurationLoadListener
                 waitingForSetup2 = false;
                 setupReloadTryTime = -1L;
                 
-                widgetsManager.fireOnVehicleSetupUpdated( gameData, isEditorMode );
+                eventsDispatcher.fireOnVehicleSetupUpdated( gameData, isEditorMode );
             }
         }
         
         if ( !waitingForData  )
         {
-            return ( widgetsManager.isValid() ? (byte)1 : (byte)0 );
+            return ( widgetsManager.getWidgetsConfiguration().isValid() ? (byte)1 : (byte)0 );
         }
         
         byte result = 0;
@@ -627,11 +663,11 @@ public class GameEventsManager implements ConfigurationLoadListener
                     String trackname = gameData.getTrackInfo().getTrackName();
                     if ( !trackname.equals( lastTrackname ) )
                     {
-                        widgetsManager.fireOnTrackChanged( trackname, gameData, isEditorMode );
+                        eventsDispatcher.fireOnTrackChanged( trackname, gameData, isEditorMode );
                         lastTrackname = trackname;
                     }
                     
-                    widgetsManager.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, isEditorMode );
+                    eventsDispatcher.fireOnSessionStarted( gameData.getScoringInfo().getSessionType(), gameData, isEditorMode );
                     needsOnVehicleControlChangedEvent = true;
                 }
                 
@@ -644,7 +680,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         }
         else if ( gameData.isInRealtimeMode() )
         {
-            result = widgetsManager.isValid() ? (byte)1 : (byte)0;
+            result = widgetsManager.getWidgetsConfiguration().isValid() ? (byte)1 : (byte)0;
         }
         
         return ( result );
@@ -669,7 +705,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            boolean vpChanged = __WCPrivilegedAccess.setViewport( viewportX, viewportY, viewportWidth, viewportHeight, widgetsManager );
+            boolean vpChanged = __WCPrivilegedAccess.setViewport( viewportX, viewportY, viewportWidth, viewportHeight, widgetsManager.getWidgetsConfiguration() );
             
             if ( ( viewportWidth > gameData.getGameResolution().getResX() ) || ( viewportHeight > gameData.getGameResolution().getResY() ) )
             {
@@ -686,7 +722,7 @@ public class GameEventsManager implements ConfigurationLoadListener
                     {
                         if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
                         {
-                            __WCPrivilegedAccess.setValid( widgetsManager, false );
+                            __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
                             result = 0;
                         }
                         else
@@ -696,10 +732,12 @@ public class GameEventsManager implements ConfigurationLoadListener
                             result = checkWaitingData( false, true );
                         }
                     }
+                    
+                    gameData.getGraphicsInfo().onViewportChanged( viewportX, viewportY, viewportWidth, viewportHeight );
                 }
                 else if ( !gameData.isInRealtimeMode() && ( viewportY == 0 ) )
                 {
-                    __WCPrivilegedAccess.setValid( widgetsManager, false );
+                    __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
                     result = 0;
                 }
                 else
@@ -803,7 +841,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             {
                 result = checkWaitingData( isEditorMode, false );
                 
-                widgetsManager.fireOnScoringInfoUpdated( gameData, isEditorMode );
+                eventsDispatcher.fireOnScoringInfoUpdated( gameData, isEditorMode );
                 
                 if ( !waitingForData && ( result != 0 ) )
                 {
@@ -820,13 +858,13 @@ public class GameEventsManager implements ConfigurationLoadListener
                     {
                         lastViewedVSIId = viewedVSI.getDriverId();
                         lastControl = viewedVSI.getVehicleControl();
-                        widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+                        eventsDispatcher.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
                         
                         result2 = reloadConfigAndSetupTexture( false );
                         
                         if ( result2 == 2 )
                         {
-                            widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+                            eventsDispatcher.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
                             needsOnVehicleControlChangedEvent = false;
                         }
                         
@@ -837,7 +875,7 @@ public class GameEventsManager implements ConfigurationLoadListener
                     }
                     else if ( needsOnVehicleControlChangedEvent )
                     {
-                        widgetsManager.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+                        eventsDispatcher.fireOnVehicleControlChanged( viewedVSI, gameData, isEditorMode );
                         needsOnVehicleControlChangedEvent = false;
                     }
                 }
@@ -898,7 +936,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         {
             VehicleScoringInfo vsi = scoringInfo.getVehicleScoringInfo( i );
             if ( vsi.isLapJustStarted() )
-                widgetsManager.fireOnLapStarted( vsi, gameData, isEditorMode );
+                eventsDispatcher.fireOnLapStarted( vsi, gameData, isEditorMode );
         }
     }
     

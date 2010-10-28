@@ -31,8 +31,8 @@ import java.awt.event.MouseWheelEvent;
 
 import javax.swing.JScrollPane;
 
-import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.values.RelativePositioning;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
 
@@ -72,7 +72,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
     
     private final WidgetsEditorPanel editorPanel;
     
-    private WidgetsDrawingManager widgetsManager;
+    private WidgetsConfiguration widgetsConfig;
     
     private BorderPart overBorderPart = null;
     
@@ -99,11 +99,11 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         
         int n = 0;
         
-        int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
+        int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsConfig.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
         
         for ( int i = numWidgets - 1; i >= 0; i-- )
         {
-            Widget widget = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getWidget( i ) : editorPanel.getScopeWidget().getPart( i );
+            Widget widget = ( editorPanel.getScopeWidget() == null ) ? widgetsConfig.getWidget( i ) : editorPanel.getScopeWidget().getPart( i );
             
             int wx = widget.getAbsoluteOffsetX();
             int wy = widget.getAbsoluteOffsetY();
@@ -133,7 +133,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         
         if ( ( e.getButton() == MouseEvent.BUTTON1 ) || ( e.getButton() == MouseEvent.BUTTON3 ) )
         {
-            int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
+            int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsConfig.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
             
             if ( hoveredWidgets.length < numWidgets )
                 hoveredWidgets = new Widget[ numWidgets ];
@@ -223,7 +223,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
                 
                 mouseMoved( e );
                 
-                widgetsManager.setAllDirtyFlags();
+                widgetsConfig.setAllDirtyFlags();
                 
                 editorPanel.repaint();
             }
@@ -305,7 +305,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         int x = Math.round( e.getX() * editorPanel.getRecipScaleFactor() );
         int y = Math.round( e.getY() * editorPanel.getRecipScaleFactor() );
         
-        int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
+        int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsConfig.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
         
         if ( hoveredWidgets2.length < numWidgets )
             hoveredWidgets2 = new Widget[ numWidgets ];
@@ -367,13 +367,13 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         {
             int maxRailDistance = editorPanel.getSettings().getMaxRailDistance();
             
-            int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
+            int numWidgets = ( editorPanel.getScopeWidget() == null ) ? widgetsConfig.getNumWidgets() : editorPanel.getScopeWidget().getNumParts();
             int closestRailX = Integer.MAX_VALUE;
             int closestRailY = Integer.MAX_VALUE;
             int rdx, rdy;
             for ( int i = 0; i < numWidgets; i++ )
             {
-                Widget w = ( editorPanel.getScopeWidget() == null ) ? widgetsManager.getWidget( i ) : editorPanel.getScopeWidget().getPart( i );
+                Widget w = ( editorPanel.getScopeWidget() == null ) ? widgetsConfig.getWidget( i ) : editorPanel.getScopeWidget().getPart( i );
                 
                 if ( w != widget )
                 {
@@ -977,7 +977,7 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         if ( editorPanel.hasFocus() )
         {
             if ( needsRedraw )
-                widgetsManager.setAllDirtyFlags();
+                widgetsConfig.setAllDirtyFlags();
             
             needsRedraw = false;
             
@@ -990,10 +990,10 @@ public class WidgetsEditorPanelInputHandler implements MouseListener, MouseMotio
         }
     }
     
-    public WidgetsEditorPanelInputHandler( WidgetsEditorPanel editorPanel, WidgetsDrawingManager widgetsManager )
+    public WidgetsEditorPanelInputHandler( WidgetsEditorPanel editorPanel, WidgetsConfiguration widgetsConfig )
     {
         this.editorPanel = editorPanel;
-        this.widgetsManager = widgetsManager;
+        this.widgetsConfig = widgetsConfig;
         
         Toolkit.getDefaultToolkit().addAWTEventListener( new AWTEventListener()
         {

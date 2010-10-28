@@ -18,18 +18,9 @@
 package net.ctdp.rfdynhud.render;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.ScoringInfo;
-import net.ctdp.rfdynhud.gamedata.SessionType;
-import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
-import net.ctdp.rfdynhud.input.InputAction;
-import net.ctdp.rfdynhud.input.InputMapping;
-import net.ctdp.rfdynhud.input.InputMappingsManager;
-import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.TimeBasedClock;
@@ -43,7 +34,7 @@ import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class WidgetsDrawingManager extends WidgetsConfiguration
+public class WidgetsDrawingManager
 {
     private final boolean oneTextureForAllWidgets;
     
@@ -56,6 +47,20 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
     
     private final Clock clock = new TimeBasedClock( 50000000L ); // 50 ms
     
+    private final WidgetsConfiguration widgetsConfig;
+    
+    private final WidgetsRenderListenersManager renderListenersManager = new WidgetsRenderListenersManager();
+    
+    public final WidgetsRenderListenersManager getRenderListenersManager()
+    {
+        return ( renderListenersManager );
+    }
+    
+    public final WidgetsConfiguration getWidgetsConfiguration()
+    {
+        return ( widgetsConfig );
+    }
+    
     public void resizeMainTexture( int gameResX, int gameResY )
     {
         if ( oneTextureForAllWidgets )
@@ -64,8 +69,8 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 textures[0] = TransformableTexture.createMainTexture( gameResX, gameResY, false );
         }
         
-        __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
-        __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
+        __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, widgetsConfig );
+        __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, widgetsConfig );
     }
     
     public final TextureImage2D getMainTexture( int widgetIndex )
@@ -81,165 +86,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         return ( tt.getTexture() );
     }
     
-    /**
-     * This method is executed when a new track was loaded.<br>
-     * <br>
-     * Calls {@link Widget#onTrackChanged(String, LiveGameData, boolean)} on each Widget.
-     * 
-     * @param trackname the track's name
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnTrackChanged( String trackname, LiveGameData gameData, boolean isEditorMode )
-    {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                getWidget( i ).onTrackChanged( trackname, gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    private final ArrayList<Widget> waitingWidgets = new ArrayList<Widget>();
-    
-    /**
-     * This method is called when a new session was started.<br>
-     * <br>
-     * Calls {@link Widget#onSessionStarted(SessionType, LiveGameData, boolean)} on each Widget.
-     * 
-     * @param sessionType the current session type
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnSessionStarted( SessionType sessionType, LiveGameData gameData, boolean isEditorMode )
-    {
-        //nextClockTime1 = 0L;
-        //nextClockTime2 = 0L;
-        
-        waitingWidgets.clear();
-        
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            Widget widget = getWidget( i );
-            
-            try
-            {
-                widget.onSessionStarted( sessionType, gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-            
-            waitingWidgets.add( widget );
-        }
-    }
-    
-    /**
-     * This method is called when a the user entered realtime mode.<br>
-     * <br>
-     * Calls {@link Widget#onRealtimeEntered(LiveGameData, boolean)} on each Widget.
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnRealtimeEntered( LiveGameData gameData, boolean isEditorMode )
-    {
-        clock.init( gameData.getScoringInfo().getSessionNanos() );
-        frameCounter = 0;
-        
-        waitingWidgets.clear();
-        
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            Widget widget = getWidget( i );
-            
-            try
-            {
-                widget.onRealtimeEntered( gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-            
-            waitingWidgets.add( widget );
-        }
-    }
-    
-    public void setAllWidgetsDirty()
-    {
-        int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            getWidget( i ).forceAndSetDirty( true );
-        }
-    }
-    
-    /**
-     * This method is called when a the user entered realtime mode.<br>
-     * <br>
-     * Calls {@link Widget#onRealtimeEntered(LiveGameData, boolean)} on each Widget.
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void checkAndFireOnNeededDataComplete( LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( waitingWidgets.size() == 0 )
-            return;
-        
-        for ( int i = waitingWidgets.size() - 1; i >= 0; i-- )
-        {
-            Widget widget = waitingWidgets.get( i );
-            int neededData = ( widget.getNeededData() & Widget.NEEDED_DATA_ALL );
-            
-            if ( ( ( neededData & Widget.NEEDED_DATA_TELEMETRY ) != 0 ) && gameData.getTelemetryData().isUpdatedInTimeScope() )
-                neededData &= ~Widget.NEEDED_DATA_TELEMETRY;
-            
-            if ( ( ( neededData & Widget.NEEDED_DATA_SCORING ) != 0 ) && !gameData.getScoringInfo().isUpdatedInTimeScope() )
-                neededData &= ~Widget.NEEDED_DATA_SCORING;
-            
-            //if ( ( ( neededData & Widget.NEEDED_DATA_SETUP ) != 0 ) && !gameData.getSetup().isUpdatedInTimeScope() )
-            //    neededData &= ~Widget.NEEDED_DATA_SETUP;
-            
-            if ( neededData == 0 )
-            {
-                try
-                {
-                    widget.onNeededDataComplete( gameData, isEditorMode );
-                }
-                catch ( Throwable t )
-                {
-                    Logger.log( t );
-                }
-                
-                waitingWidgets.remove( i );
-                
-                widget.forceReinitialization();
-                widget.forceCompleteRedraw( true );
-            }
-        }
-    }
-    
     public int collectTextures( LiveGameData gameData, boolean isEditorMode )
     {
         int numTextures = 0;
         
-        final int numWidgets = getNumWidgets();
+        final int numWidgets = widgetsConfig.getNumWidgets();
         
         if ( oneTextureForAllWidgets )
         {
             numTextures = 1;
-            textures[0].generateRectanglesForOneBigTexture( gameData, isEditorMode, this );
+            textures[0].generateRectanglesForOneBigTexture( gameData, isEditorMode, widgetsConfig );
         }
         else
         {
@@ -249,7 +105,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             for ( int i = 0; i < numWidgets; i++ )
             {
-                Widget widget = getWidget( i );
+                Widget widget = widgetsConfig.getWidget( i );
                 
                 if ( widget.hasMasterCanvas( isEditorMode ) )
                 {
@@ -270,7 +126,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         for ( int i = 0; i < numWidgets; i++ )
         {
-            Widget widget = getWidget( i );
+            Widget widget = widgetsConfig.getWidget( i );
             
             TransformableTexture[] subTextures = widget.getSubTextures( gameData, isEditorMode, widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth(), widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight() );
             if ( ( subTextures != null ) && ( subTextures.length > 0 ) )
@@ -337,10 +193,10 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             }
         }
         
-        for ( int i = 0; i < getNumWidgets(); i++ )
+        for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
         {
-            getWidget( i ).forceCompleteRedraw( true );
-            getWidget( i ).forceReinitialization();
+            widgetsConfig.getWidget( i ).forceCompleteRedraw( true );
+            widgetsConfig.getWidget( i ).forceReinitialization();
             // TODO: We possibly need to set this texture dirty!
         }
     }
@@ -352,13 +208,13 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         textureInfoBuffer.put( (byte)textures.length );
         
-        final int n = getNumWidgets();
+        final int n = widgetsConfig.getNumWidgets();
         if ( oneTextureForAllWidgets )
         {
             int j = 0;
             for ( int i = 0; i < n; i++ )
             {
-                Widget widget = getWidget( i );
+                Widget widget = widgetsConfig.getWidget( i );
                 
                 if ( widget.hasMasterCanvas( isEditorMode ) )
                     textures[0].setRectangleVisible( j++, widget.isVisible() );
@@ -380,7 +236,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             {
                 if ( widgetTextures[i] != null )
                 {
-                    Widget widget = getWidget( i );
+                    Widget widget = widgetsConfig.getWidget( i );
                     
                     rectOffset = widgetTextures[i].fillBuffer( widget.isVisible(), 0, 0, k++, rectOffset, textureInfoBuffer );
                     testRectOffset += widgetTextures[i].getNumUsedRectangles();
@@ -390,7 +246,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         for ( int i = 0; i < widgetSubTextures.length; i++ )
         {
-            Widget widget = getWidget( i );
+            Widget widget = widgetsConfig.getWidget( i );
             TransformableTexture[] subTextures = widgetSubTextures[i];
             if ( subTextures != null )
             {
@@ -429,259 +285,17 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         return ( textures[textureIndex] );
     }
     
-    /**
-     * This method is called when a the user exited the garage.<br>
-     * <br>
-     * Calls {@link Widget#onPitsEntered(LiveGameData, boolean)} on each Widget.
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnPitsEntered( LiveGameData gameData, boolean isEditorMode )
+    public void onRealtimeEntered( LiveGameData gameData )
     {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                getWidget( i ).onPitsEntered( gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
+        clock.init( gameData.getScoringInfo().getSessionNanos() );
+        frameCounter = 0L;
     }
     
-    /**
-     * This method is called when a the user entered the garage.<br>
-     * <br>
-     * Calls {@link Widget#onGarageEntered(LiveGameData, boolean)} on each Widget.
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnGarageEntered( LiveGameData gameData, boolean isEditorMode )
-    {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                getWidget( i ).onGarageEntered( gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This method is called when a the user exited the garage.<br>
-     * <br>
-     * Calls {@link Widget#onGarageExited(LiveGameData, boolean)} on each Widget.
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnGarageExited( LiveGameData gameData, boolean isEditorMode )
-    {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                getWidget( i ).onGarageExited( gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This method is called when a the user exited the garage.<br>
-     * <br>
-     * Calls {@link Widget#onPitsExited(LiveGameData, boolean)} on each Widget.
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnPitsExited( LiveGameData gameData, boolean isEditorMode )
-    {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                getWidget( i ).onPitsExited( gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This method is called when a the user exited realtime mode.<br>
-     * <br>
-     * Calls {@link Widget#onRealtimeExited(LiveGameData, boolean)} on each Widget.
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnRealtimeExited( LiveGameData gameData, boolean isEditorMode )
-    {
-        waitingWidgets.clear();
-        
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                getWidget( i ).onRealtimeExited( gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This method is called when {@link ScoringInfo} have been updated (done at 2Hz).
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode )
-    {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                getWidget( i ).onScoringInfoUpdated( gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This method is called when {@link VehicleSetup} has been updated.
-     * 
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnVehicleSetupUpdated( LiveGameData gameData, boolean isEditorMode )
-    {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            Widget widget = getWidget( i );
-            
-            try
-            {
-                widget.forceAndSetDirty( true );
-                widget.onVehicleSetupUpdated( gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This method is called when either the player's vehicle control has changed or another vehicle is being viewed.
-     * 
-     * @param viewedVSI the viewed vehicle
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnVehicleControlChanged( VehicleScoringInfo viewedVSI, LiveGameData gameData, boolean isEditorMode )
-    {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                __WPrivilegedAccess.onVehicleControlChanged( getWidget( i ), viewedVSI, gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This method is called when a lap has been finished and a new one was started.
-     * 
-     * @param vsi the vehicle
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnLapStarted( VehicleScoringInfo vsi, LiveGameData gameData, boolean isEditorMode )
-    {
-        final int n = getNumWidgets();
-        for ( int i = 0; i < n; i++ )
-        {
-            try
-            {
-                getWidget( i ).onLapStarted( vsi, gameData, isEditorMode );
-            }
-            catch ( Throwable t )
-            {
-                Logger.log( t );
-            }
-        }
-    }
-    
-    /**
-     * This method is fired by the {@link InputMappingsManager},
-     * if the state of a bound input component has changed.
-     * 
-     * @param mapping the input mapping
-     * @param state the current state of the input device component
-     * @param modifierMask the current key modifier mask
-     * @param when the timestamp of the input action in nano seconds
-     * @param gameData the live game data
-     * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
-     */
-    public void fireOnInputStateChanged( InputMapping mapping, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
-    {
-        Widget widget = getWidget( mapping.getWidgetName() );
-        
-        if ( widget == null )
-            return;
-        
-        InputAction action = mapping.getAction();
-        
-        try
-        {
-            if ( action == KnownInputActions.ToggleWidgetVisibility )
-                __WPrivilegedAccess.toggleInputVisible( widget );
-            else
-                __WPrivilegedAccess.onBoundInputStateChanged( widget, action, state, modifierMask, when, gameData, isEditorMode );
-        }
-        catch ( Throwable t )
-        {
-            Logger.log( t );
-        }
-    }
-    
-    private final boolean isWidgetReady( Widget widget, LiveGameData gameData )
+    private final boolean isWidgetReady( Widget widget, boolean hasWaitingWidgets, LiveGameData gameData )
     {
         boolean ready = true;
         
-        if ( !waitingWidgets.isEmpty() )
+        if ( hasWaitingWidgets )
         {
             int neededData = widget.getNeededData();
             
@@ -701,14 +315,15 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * 
      * @param gameData the live game data
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
+     * @param hasWaitingWidgets
      * @param completeRedrawForced complete redraw forced?
      */
-    public void drawWidgets( LiveGameData gameData, boolean isEditorMode, boolean completeRedrawForced )
+    public void drawWidgets( LiveGameData gameData, boolean isEditorMode, boolean hasWaitingWidgets, boolean completeRedrawForced )
     {
-        if ( !isValid() )
+        if ( !widgetsConfig.isValid() )
             return;
         
-        checkFixAndBakeConfiguration( isEditorMode );
+        __WCPrivilegedAccess.checkFixAndBakeConfiguration( widgetsConfig, isEditorMode );
         
         long sessionNanos = gameData.getScoringInfo().getSessionNanos();
         
@@ -716,10 +331,12 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         
         frameCounter++;
         
-        final int n = getNumWidgets();
+        renderListenersManager.fireBeforeWidgetsAreRendered( widgetsConfig, sessionNanos, frameCounter );
+        
+        final int n = widgetsConfig.getNumWidgets();
         for ( int i = 0; i < n; i++ )
         {
-            Widget widget = getWidget( i );
+            Widget widget = widgetsConfig.getWidget( i );
             TextureImage2D texture = getMainTexture( i );
             
             if ( texture != null )
@@ -727,7 +344,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
             
             try
             {
-                if ( isWidgetReady( widget, gameData ) )
+                if ( isWidgetReady( widget, hasWaitingWidgets, gameData ) )
                 {
                     __WPrivilegedAccess.updateVisibility( widget, gameData, isEditorMode );
                     
@@ -757,7 +374,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
         {
             for ( int i = 0; i < n; i++ )
             {
-                Widget widget = getWidget( i );
+                Widget widget = widgetsConfig.getWidget( i );
                 TextureImage2D texture = getMainTexture( i );
                 
                 if ( texture != null )
@@ -765,7 +382,7 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
                 
                 try
                 {
-                    if ( isWidgetReady( widget, gameData ) )
+                    if ( isWidgetReady( widget, hasWaitingWidgets, gameData ) )
                     {
                         if ( widget.isVisible() )
                         {
@@ -787,25 +404,16 @@ public class WidgetsDrawingManager extends WidgetsConfiguration
      * @param isEditorMode <code>true</code>, if the Editor is used for rendering instead of rFactor
      * @param gameResX the game x-resolution (current viewport)
      * @param gameResY the game y-resolution (current viewport)
-     * @param createTexture create a texture?
      */
-    public WidgetsDrawingManager( boolean isEditorMode, int gameResX, int gameResY, boolean createTexture )
+    public WidgetsDrawingManager( boolean isEditorMode, int gameResX, int gameResY )
     {
         this.oneTextureForAllWidgets = isEditorMode;
         
-        if ( createTexture )
-        {
-            if ( oneTextureForAllWidgets )
-                this.textures = new TransformableTexture[] { TransformableTexture.createMainTexture( gameResX, gameResY, false ) };
-            else
-                this.textures = new TransformableTexture[] {};
-        }
+        if ( oneTextureForAllWidgets )
+            this.textures = new TransformableTexture[] { TransformableTexture.createMainTexture( gameResX, gameResY, false ) };
         else
-        {
-            this.textures = null;
-        }
+            this.textures = new TransformableTexture[] {};
         
-        __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
-        __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
+        this.widgetsConfig = new WidgetsConfiguration( gameResX, gameResY );
     }
 }

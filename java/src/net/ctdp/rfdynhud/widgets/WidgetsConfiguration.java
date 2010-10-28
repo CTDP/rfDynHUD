@@ -282,6 +282,15 @@ public class WidgetsConfiguration implements Documented
         }
     }
     
+    void setAllWidgetsDirty()
+    {
+        int n = getNumWidgets();
+        for ( int i = 0; i < n; i++ )
+        {
+            getWidget( i ).forceAndSetDirty( true );
+        }
+    }
+    
     void setInputMappings( InputMappings inputMappings )
     {
         this.inputMappings = inputMappings;
@@ -381,7 +390,7 @@ public class WidgetsConfiguration implements Documented
      * 
      * @param isEditorMode editor mode?
      */
-    protected void checkFixAndBakeConfiguration( boolean isEditorMode )
+    void checkFixAndBakeConfiguration( boolean isEditorMode )
     {
         if ( !needsCheckFixAndBake )
             return;
@@ -958,8 +967,13 @@ public class WidgetsConfiguration implements Documented
     
     /**
      * Creates a new {@link WidgetsConfiguration}.
+     * 
+     * @param gameResX
+     * @param gameResY
      */
-    public WidgetsConfiguration()
+    public WidgetsConfiguration( int gameResX, int gameResY )
     {
+        __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
+        __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
     }
 }

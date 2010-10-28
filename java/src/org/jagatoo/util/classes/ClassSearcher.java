@@ -48,6 +48,26 @@ import java.util.jar.JarFile;
  */
 public class ClassSearcher
 {
+    private static boolean checkAndAddClass( String className, ClassSearchCriterium crit, Set<Class<?>> classes )
+    {
+        try
+        {
+            Class<?> clazz = Class.forName( className, false, ClassSearcher.class.getClassLoader() );
+            if ( crit.check( clazz ) )
+            {
+                classes.add( clazz );
+                
+                return ( true );
+            }
+        }
+        catch ( ClassNotFoundException e )
+        {
+            e.printStackTrace();
+        }
+        
+        return ( false );
+    }
+    
     /**
      * Reads all classnames in a given folder and its subfolders and
      * puts them into the List.
@@ -70,21 +90,19 @@ public class ClassSearcher
                 String className = file.getAbsolutePath().substring( lastIndex ).replace( '\\', '/' ).replace( '/', '.' );
                 className = className.substring( 0, className.length() - 6 );
                 
-                for ( String pkgName: packagePrefixes )
+                if ( ( packagePrefixes == null ) || ( packagePrefixes.length == 0 ) )
                 {
-                    if ( className.startsWith( pkgName + "." ) )
+                    checkAndAddClass( className, crit, classes );
+                }
+                else
+                {
+                    for ( String pkgName: packagePrefixes )
                     {
-                        try
+                        if ( className.startsWith( pkgName + "." ) )
                         {
-                            Class<?> clazz = Class.forName( className, false, ClassSearcher.class.getClassLoader() );
-                            if ( crit.check( clazz ) )
-                                classes.add( clazz );
+                            checkAndAddClass( className, crit, classes );
+                            break;
                         }
-                        catch ( ClassNotFoundException e )
-                        {
-                            e.printStackTrace();
-                        }
-                        break;
                     }
                 }
             }
@@ -123,24 +141,32 @@ public class ClassSearcher
             jarFilename = new File( jarFilename ).getCanonicalPath();
             JarFile jar = new JarFile( jarFilename );
             Enumeration<JarEntry> jarEntries = jar.entries();
+            
             while ( jarEntries.hasMoreElements() )
             {
                 JarEntry jarEntry = jarEntries.nextElement();
-                for ( int i = 0; i < packagePrefixes.length; i++ )
+                
+                if ( jarEntry.getName().endsWith( ".class" ) )
                 {
-                    if ( ( jarEntry.getName().startsWith( packagePrefixes[ i ] + "/" ) ) && ( jarEntry.getName().endsWith( ".class" ) ) )
+                    if ( ( packagePrefixes == null ) || ( packagePrefixes.length == 0 ) )
                     {
                         String className = jarEntry.getName().replace( '/', '.' );
                         className = className.substring( 0, className.length() - 6 );
-                        try
+                        
+                        checkAndAddClass( className, crit, classes );
+                    }
+                    else
+                    {
+                        for ( int i = 0; i < packagePrefixes.length; i++ )
                         {
-                            Class<?> clazz = Class.forName( className, false, ClassSearcher.class.getClassLoader() );
-                            if ( crit.check( clazz ) )
-                                classes.add( clazz );
-                        }
-                        catch ( ClassNotFoundException e )
-                        {
-                            e.printStackTrace();
+                            if ( jarEntry.getName().startsWith( packagePrefixes[ i ] + "/" ) )
+                            {
+                                String className = jarEntry.getName().replace( '/', '.' );
+                                className = className.substring( 0, className.length() - 6 );
+                                
+                                checkAndAddClass( className, crit, classes );
+                                break;
+                            }
                         }
                     }
                 }
@@ -163,10 +189,13 @@ public class ClassSearcher
      */
     public static List<Class<?>> findClasses( ClassSearchCriterium crit, String... packagePrefixes )
     {
-        String[] packagePrifixes_slash = new String[ packagePrefixes.length ];
-        for ( int i = 0; i < packagePrefixes.length; i++ )
+        String[] packagePrifixes_slash = ( packagePrefixes == null ) ? null : new String[ packagePrefixes.length ];
+        if ( packagePrefixes != null )
         {
-            packagePrifixes_slash[i] = packagePrefixes[i].replace( '.', '/' );
+            for ( int i = 0; i < packagePrefixes.length; i++ )
+            {
+                packagePrifixes_slash[i] = packagePrefixes[i].replace( '.', '/' );
+            }
         }
         
         Set<Class<?>> tmp = new HashSet<Class<?>>();
@@ -191,7 +220,7 @@ public class ClassSearcher
             @Override
             public int compare( Class<?> c1, Class< ? > c2 )
             {
-                return ( c1.getName().compareTo( c2.getName() ) );
+                return ( c1.getName().compareToIgnoreCase( c2.getName() ) );
             }
         } );
         

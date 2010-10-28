@@ -25,7 +25,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JOptionPane;
 
-import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
+import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
 /**
@@ -37,7 +37,7 @@ public class ImportWidgetsEditorPanelInputHandler implements MouseListener, KeyL
     private final RFDynHUDEditor editor;
     private final WidgetsEditorPanel editorPanel;
     
-    private WidgetsDrawingManager widgetsManager;
+    private WidgetsConfiguration widgetsConfig;
     
     private void importWidget()
     {
@@ -63,9 +63,9 @@ public class ImportWidgetsEditorPanelInputHandler implements MouseListener, KeyL
     
     private Widget getWidgetUnderMouse( int x, int y )
     {
-        for ( int i = widgetsManager.getNumWidgets() - 1; i >= 0; i-- )
+        for ( int i = widgetsConfig.getNumWidgets() - 1; i >= 0; i-- )
         {
-            Widget widget = widgetsManager.getWidget( i );
+            Widget widget = widgetsConfig.getWidget( i );
             
             int wx = widget.getPosition().getEffectiveX();
             int wy = widget.getPosition().getEffectiveY();
@@ -146,10 +146,10 @@ public class ImportWidgetsEditorPanelInputHandler implements MouseListener, KeyL
     {
     }
     
-    public ImportWidgetsEditorPanelInputHandler( RFDynHUDEditor editor, WidgetsEditorPanel editorPanel, WidgetsDrawingManager widgetsManager )
+    public ImportWidgetsEditorPanelInputHandler( RFDynHUDEditor editor, WidgetsEditorPanel editorPanel, WidgetsConfiguration widgetsConfig )
     {
         this.editor = editor;
         this.editorPanel = editorPanel;
-        this.widgetsManager = widgetsManager;
+        this.widgetsConfig = widgetsConfig;
     }
 }

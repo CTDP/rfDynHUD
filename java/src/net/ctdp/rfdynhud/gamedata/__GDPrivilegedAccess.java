@@ -184,4 +184,9 @@ public class __GDPrivilegedAccess
     {
         scoringInfo.toggleFixedViewedVSI();
     }
+    
+    public static final void setAllWidgetsDirty( WidgetsConfiguration widgetsConfig )
+    {
+        widgetsConfig.setAllDirtyFlags();
+    }
 }

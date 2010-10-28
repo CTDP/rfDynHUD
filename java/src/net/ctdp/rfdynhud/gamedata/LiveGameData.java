@@ -53,6 +53,7 @@ public class LiveGameData
     }
     
     private GameDataUpdateListener[] updateListeners = null;
+    GameEventsListener[] gameEventsListeners = null;
     
     public void registerListener( GameDataUpdateListener l )
     {
@@ -105,6 +106,59 @@ public class LiveGameData
         if ( index < updateListeners.length - 1 )
             System.arraycopy( updateListeners, index + 1, tmp, index, updateListeners.length - index - 1 );
         updateListeners = tmp;
+    }
+    
+    public void registerListener( GameEventsListener l )
+    {
+        if ( gameEventsListeners == null )
+        {
+            gameEventsListeners = new GameEventsListener[] { l };
+        }
+        else
+        {
+            for ( int i = 0; i < gameEventsListeners.length; i++ )
+            {
+                if ( gameEventsListeners[i] == l )
+                    return;
+            }
+            
+            GameEventsListener[] tmp = new GameEventsListener[ gameEventsListeners.length + 1 ];
+            System.arraycopy( gameEventsListeners, 0, tmp, 0, gameEventsListeners.length );
+            gameEventsListeners = tmp;
+            gameEventsListeners[gameEventsListeners.length - 1] = l;
+        }
+    }
+    
+    public void unregisterListener( GameEventsListener l )
+    {
+        if ( gameEventsListeners == null )
+            return;
+        
+        int index = -1;
+        for ( int i = 0; i < gameEventsListeners.length; i++ )
+        {
+            if ( gameEventsListeners[i] == l )
+            {
+                index = i;
+                break;
+            }
+        }
+        
+        if ( index < 0 )
+            return;
+        
+        if ( gameEventsListeners.length == 1 )
+        {
+            gameEventsListeners = null;
+            return;
+        }
+        
+        GameEventsListener[] tmp = new GameEventsListener[ gameEventsListeners.length - 1 ];
+        if ( index > 0 )
+            System.arraycopy( gameEventsListeners, 0, tmp, 0, index );
+        if ( index < gameEventsListeners.length - 1 )
+            System.arraycopy( gameEventsListeners, index + 1, tmp, index, gameEventsListeners.length - index - 1 );
+        gameEventsListeners = tmp;
     }
     
     /**
