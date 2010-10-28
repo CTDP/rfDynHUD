@@ -28,6 +28,7 @@ import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.render.WidgetsRenderListenersManager;
+import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
@@ -55,25 +56,39 @@ class GameEventsDispatcher
     
     /**
      * 
+     * @param isEditorMode
      * @param gameData
      * @param renderListenerManager
      */
-    public void fireOnStarted( LiveGameData gameData, WidgetsRenderListenersManager renderListenerManager )
+    public void fireOnStarted( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager )
     {
         if ( plugins != null )
         {
             for ( int i = 0; i < plugins.length; i++ )
-                plugins[i].onPluginStarted( gameData, renderListenerManager );
+                plugins[i].onPluginStarted( gameData, isEditorMode, renderListenerManager );
         }
     }
     
     /**
      * 
+     * @param manager
+     * @param gameData
      * @param widgetsConfig
      */
-    public void fireAfterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig )
+    public void fireBeforeWidgetsConfigurationCleared( WidgetsRenderListenersManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
-        
+        __RenderPrivilegedAccess.fireBeforeWidgetsConfigurationCleared( manager, gameData, widgetsConfig );
+    }
+    
+    /**
+     * 
+     * @param manager
+     * @param gameData
+     * @param widgetsConfig
+     */
+    public void fireAfterWidgetsConfigurationLoaded( WidgetsRenderListenersManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
+    {
+        __RenderPrivilegedAccess.fireAfterWidgetsConfigurationLoaded( manager, gameData, widgetsConfig );
     }
     
     /**
@@ -528,15 +543,16 @@ class GameEventsDispatcher
     
     /**
      * 
+     * @param isEditorMode
      * @param gameData
      * @param renderListenerManager
      */
-    public void fireOnShutdown( LiveGameData gameData, WidgetsRenderListenersManager renderListenerManager )
+    public void fireOnShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager )
     {
         if ( plugins != null )
         {
             for ( int i = 0; i < plugins.length; i++ )
-                plugins[i].onPluginShutdown( gameData, renderListenerManager );
+                plugins[i].onPluginShutdown( gameData, isEditorMode, renderListenerManager );
         }
     }
     

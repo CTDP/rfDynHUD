@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.render;
 
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -42,13 +43,13 @@ public class __RenderPrivilegedAccess
         dsf.onWidgetCleared();
     }
     
-    public static final void fireBeforeWidgetsConfigurationCleared( WidgetsRenderListenersManager manager, WidgetsConfiguration widgetsConfig )
+    public static final void fireBeforeWidgetsConfigurationCleared( WidgetsRenderListenersManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
-        manager.fireBeforeWidgetsConfigurationCleared( widgetsConfig );
+        manager.fireBeforeWidgetsConfigurationCleared( gameData, widgetsConfig );
     }
     
-    public static final void fireAfterWidgetsConfigurationLoaded( WidgetsRenderListenersManager manager, WidgetsConfiguration widgetsConfig )
+    public static final void fireAfterWidgetsConfigurationLoaded( WidgetsRenderListenersManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
-        manager.fireAfterWidgetsConfigurationLoaded( widgetsConfig );
+        manager.fireAfterWidgetsConfigurationLoaded( gameData, widgetsConfig );
     }
 }

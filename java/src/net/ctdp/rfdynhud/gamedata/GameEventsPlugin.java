@@ -28,7 +28,7 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public interface GameEventsPlugin
 {
-    public void onPluginStarted( LiveGameData gameData, WidgetsRenderListenersManager renderListenerManager );
+    public void onPluginStarted( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager );
     
-    public void onPluginShutdown( LiveGameData gameData, WidgetsRenderListenersManager renderListenerManager );
+    public void onPluginShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager );
 }

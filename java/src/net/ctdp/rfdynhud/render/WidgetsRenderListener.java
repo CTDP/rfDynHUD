@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.render;
 
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 
@@ -27,9 +28,9 @@ import net.ctdp.rfdynhud.widgets.widget.Widget;
  */
 public interface WidgetsRenderListener
 {
-    public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig );
+    public void beforeWidgetsConfigurationCleared( LiveGameData gameData, WidgetsConfiguration widgetsConfig );
     
-    public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig );
+    public void afterWidgetsConfigurationLoaded( LiveGameData gameData, WidgetsConfiguration widgetsConfig );
     
-    public void beforeWidgetsAreRendered( WidgetsConfiguration widgetsConfig, long sessionTime, long frameCounter );
+    public void beforeWidgetsAreRendered( LiveGameData gameData, WidgetsConfiguration widgetsConfig, long sessionTime, long frameCounter );
 }

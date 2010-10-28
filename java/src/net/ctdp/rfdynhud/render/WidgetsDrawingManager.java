@@ -331,7 +331,7 @@ public class WidgetsDrawingManager
         
         frameCounter++;
         
-        renderListenersManager.fireBeforeWidgetsAreRendered( widgetsConfig, sessionNanos, frameCounter );
+        renderListenersManager.fireBeforeWidgetsAreRendered( gameData, widgetsConfig, sessionNanos, frameCounter );
         
         final int n = widgetsConfig.getNumWidgets();
         for ( int i = 0; i < n; i++ )

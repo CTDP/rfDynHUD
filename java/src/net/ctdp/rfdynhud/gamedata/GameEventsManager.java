@@ -113,6 +113,8 @@ public class GameEventsManager implements ConfigurationLoadListener
         for ( int i = 0; i < n; i++ )
             widgetsConfig.getWidget( i ).clearRegion( false, ( (WidgetsDrawingManager)widgetsConfig ).getMainTexture( i ) );
         */
+        
+        eventsDispatcher.fireBeforeWidgetsConfigurationCleared( renderListenersManager, gameData, widgetsConfig );
     }
     
     /**
@@ -123,27 +125,47 @@ public class GameEventsManager implements ConfigurationLoadListener
     {
         needsOnVehicleControlChangedEvent = true;
         
-        eventsDispatcher.fireAfterWidgetsConfigurationLoaded( widgetsConfig );
+        eventsDispatcher.fireAfterWidgetsConfigurationLoaded( renderListenersManager, gameData, widgetsConfig );
+    }
+    
+    /**
+     * This method must be called when the game started up.
+     * 
+     * @param isEditorMode
+     */
+    public void onStartup( boolean isEditorMode )
+    {
+        this.running = true;
+        
+        eventsDispatcher.fireOnStarted( gameData, isEditorMode, renderListenersManager );
     }
     
     /**
      * This method must be called when the game started up.
      */
-    public void onStartup()
+    public final void onStartup()
     {
-        this.running = true;
+        onStartup( false );
+    }
+    
+    /**
+     * This method must be called when the game shut down.
+     * 
+     * @param isEditorMode
+     */
+    public void onShutdown( boolean isEditorMode )
+    {
+        this.running = false;
         
-        eventsDispatcher.fireOnStarted( gameData, renderListenersManager );
+        eventsDispatcher.fireOnShutdown( gameData, isEditorMode, renderListenersManager );
     }
     
     /**
      * This method must be called when the game shut down.
      */
-    public void onShutdown()
+    public final void onShutdown()
     {
-        this.running = false;
-        
-        eventsDispatcher.fireOnShutdown( gameData, renderListenersManager );
+        onShutdown( false );
     }
     
     /**

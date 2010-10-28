@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.render;
 
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**
@@ -81,36 +82,36 @@ public class WidgetsRenderListenersManager
         listeners = tmp;
     }
     
-    void fireBeforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig )
+    void fireBeforeWidgetsConfigurationCleared( LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
         if ( listeners != null )
         {
             for ( int i = 0; i < listeners.length; i++ )
             {
-                listeners[i].beforeWidgetsConfigurationCleared( widgetsConfig );
+                listeners[i].beforeWidgetsConfigurationCleared( gameData, widgetsConfig );
             }
         }
     }
     
-    void fireAfterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig )
+    void fireAfterWidgetsConfigurationLoaded( LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
         if ( listeners != null )
         {
             for ( int i = 0; i < listeners.length; i++ )
             {
-                listeners[i].afterWidgetsConfigurationLoaded( widgetsConfig );
+                listeners[i].afterWidgetsConfigurationLoaded( gameData, widgetsConfig );
             }
         }
         
     }
     
-    void fireBeforeWidgetsAreRendered( WidgetsConfiguration widgetsConfig, long sessionTime, long frameCounter )
+    void fireBeforeWidgetsAreRendered( LiveGameData gameData, WidgetsConfiguration widgetsConfig, long sessionTime, long frameCounter )
     {
         if ( listeners != null )
         {
             for ( int i = 0; i < listeners.length; i++ )
             {
-                listeners[i].beforeWidgetsAreRendered( widgetsConfig, sessionTime, frameCounter );
+                listeners[i].beforeWidgetsAreRendered( gameData, widgetsConfig, sessionTime, frameCounter );
             }
         }
     }
