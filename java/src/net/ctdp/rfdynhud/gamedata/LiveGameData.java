@@ -27,6 +27,8 @@ import net.ctdp.rfdynhud.util.Logger;
  */
 public class LiveGameData
 {
+    private final SupportedGames gameId;
+    
     private final GameResolution gameResolution;
     
     private boolean gamePaused = false;
@@ -190,6 +192,11 @@ public class LiveGameData
         if ( index < gameEventsListeners.length - 1 )
             System.arraycopy( gameEventsListeners, index + 1, tmp, index, gameEventsListeners.length - index - 1 );
         gameEventsListeners = tmp;
+    }
+    
+    public final SupportedGames getGameID()
+    {
+        return ( gameId );
     }
     
     /**
@@ -414,12 +421,15 @@ public class LiveGameData
     /**
      * Creates an instance of LiveGameData.
      * 
+     * @param gameId
      * @param gameResolution
      * @param eventsManager
      */
-    public LiveGameData( GameResolution gameResolution, GameEventsManager eventsManager )
+    public LiveGameData( SupportedGames gameId, GameResolution gameResolution, GameEventsManager eventsManager )
     {
         registerDataUpdateListener( DataCache.INSTANCE );
+        
+        this.gameId = gameId;
         
         this.gameResolution = gameResolution;
         this.telemetryData = new TelemetryData( this );

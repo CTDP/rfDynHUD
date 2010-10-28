@@ -1447,7 +1447,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         this.drawingManager = new WidgetsDrawingManager( true, resolution[0], resolution[1] );
         this.widgetsConfig = drawingManager.getWidgetsConfiguration();
         this.eventsManager = new GameEventsManager( null, drawingManager );
-        this.gameData = new LiveGameData( drawingManager.getWidgetsConfiguration().getGameResolution(), eventsManager );
+        this.gameData = new LiveGameData( __GameIDHelper.gameId, drawingManager.getWidgetsConfiguration().getGameResolution(), eventsManager );
         eventsManager.setGameData( this.gameData, drawingManager.getRenderListenersManager() );
         __GDPrivilegedAccess.updateProfileInfo( gameData.getProfileInfo() );
         
