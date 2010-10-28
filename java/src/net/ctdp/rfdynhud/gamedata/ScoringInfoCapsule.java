@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * 
@@ -87,6 +88,11 @@ class ScoringInfoCapsule
             offset += n;
             bytesToRead -= n;
         }
+    }
+    
+    void writeToStream( OutputStream out ) throws IOException
+    {
+        out.write( buffer, 0, BUFFER_SIZE );
     }
     
     /*

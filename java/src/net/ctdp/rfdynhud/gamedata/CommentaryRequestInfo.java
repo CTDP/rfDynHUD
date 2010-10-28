@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * 
@@ -128,6 +129,16 @@ public class CommentaryRequestInfo
         data.loadFromStream( in );
         
         onDataUpdated( isEditorMode );
+    }
+    
+    public void readFromStream( InputStream in ) throws IOException
+    {
+        loadFromStream( in, false );
+    }
+    
+    public void writeToStream( OutputStream out ) throws IOException
+    {
+        data.writeToStream( out );
     }
     
     /**

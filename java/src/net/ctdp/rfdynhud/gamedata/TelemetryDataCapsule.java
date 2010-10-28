@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
@@ -125,6 +126,11 @@ class TelemetryDataCapsule
             offset += n;
             bytesToRead -= n;
         }
+    }
+    
+    void writeToStream( OutputStream out ) throws IOException
+    {
+        out.write( buffer, 0, BUFFER_SIZE );
     }
     
     /*

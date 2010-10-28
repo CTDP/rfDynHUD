@@ -17,6 +17,9 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -203,6 +206,18 @@ public class VehicleScoringInfo
         
         oldLap = lap;
         lap = getLapsCompleted() + 1;
+    }
+    
+    public void readFromStream( InputStream in ) throws IOException
+    {
+        data.loadFromStream( in );
+        
+        onDataUpdated();
+    }
+    
+    public void writeToStream( OutputStream out ) throws IOException
+    {
+        data.writeToStream( out );
     }
     
     private void updateStintLength()

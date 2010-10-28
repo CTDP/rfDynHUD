@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -754,7 +755,7 @@ public class ScoringInfo
         
         onDataUpdated( editorPresets );
         
-        // Add postfixes to some vehicle's classes to get valid class-scoring in the editor.
+        // Add postfixes to some vehicles' classes to get valid class-scoring in the editor.
         String classA = "F1 2006";
         String classB = "F1 2006B";
         vehicleScoringInfo2[0].setVehClass( classA );
@@ -779,6 +780,39 @@ public class ScoringInfo
         vehicleScoringInfo2[19].setVehClass( classA );
         vehicleScoringInfo2[20].setVehClass( classA );
         vehicleScoringInfo2[21].setVehClass( classA );
+    }
+    
+    public void readFromStream( InputStream in ) throws IOException
+    {
+        prepareDataUpdate();
+        
+        data.loadFromStream( in );
+        
+        initVehicleScoringInfo();
+        
+        for ( int i = 0; i < numVehicles; i++ )
+        {
+            vehicleScoringInfoCapsules[i].loadFromStream( in );
+        }
+        
+        assignVSICapsules();
+        
+        for ( int i = 0; i < numVehicles; i++ )
+        {
+            vehicleScoringInfo2[i].onDataUpdated();
+        }
+        
+        onDataUpdated( null );
+    }
+    
+    public void writeToStream( OutputStream out ) throws IOException
+    {
+        data.writeToStream( out );
+        
+        for ( int i = 0; i < numVehicles; i++ )
+        {
+            vehicleScoringInfoCapsules[i].writeToStream( out );
+        }
     }
     
     /**

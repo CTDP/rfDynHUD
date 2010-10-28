@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
@@ -217,6 +218,18 @@ public class TelemetryData
         {
             Logger.log( t );
         }
+    }
+    
+    public void readFromStream( InputStream in ) throws IOException
+    {
+        data.loadFromStream( in );
+        
+        onDataUpdated( false );
+    }
+    
+    public void writeToStream( OutputStream out ) throws IOException
+    {
+        data.writeToStream( out );
     }
     
     boolean checkGamePaused( long timestamp )
