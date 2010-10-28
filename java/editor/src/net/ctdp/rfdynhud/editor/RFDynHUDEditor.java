@@ -1454,6 +1454,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         __GDPrivilegedAccess.setUpdatedInTimescope( gameData.getSetup() );
         __GDPrivilegedAccess.updateInfo( gameData );
         
+        eventsManager.onStartup( true );
         eventsManager.onSessionStarted( true );
         eventsManager.onTelemetryDataUpdated( true );
         eventsManager.onScoringInfoUpdated( true );
@@ -1660,6 +1661,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             {
                 try { Thread.sleep( 50L ); } catch ( InterruptedException e ) { e.printStackTrace(); }
             }
+            
+            editor.eventsManager.onShutdown( true );
             
             //System.exit( 0 );
         }
