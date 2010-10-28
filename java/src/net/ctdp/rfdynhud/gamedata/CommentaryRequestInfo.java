@@ -60,7 +60,7 @@ public class CommentaryRequestInfo
             updateListeners[updateListeners.length - 1] = l;
         }
         
-        gameData.registerListener( l );
+        gameData.registerDataUpdateListener( l );
     }
     
     public void unregisterListener( CommentaryInfoUpdateListener l )
@@ -94,7 +94,7 @@ public class CommentaryRequestInfo
             System.arraycopy( updateListeners, index + 1, tmp, index, updateListeners.length - index - 1 );
         updateListeners = tmp;
         
-        gameData.unregisterListener( l );
+        gameData.unregisterDataUpdateListener( l );
     }
     
     void prepareDataUpdate()

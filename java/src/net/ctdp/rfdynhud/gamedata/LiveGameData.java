@@ -53,30 +53,47 @@ public class LiveGameData
     }
     
     private GameDataUpdateListener[] updateListeners = null;
+    private int[] updateListenerCounts = null;
     GameEventsListener[] gameEventsListeners = null;
     
-    public void registerListener( GameDataUpdateListener l )
+    public void registerDataUpdateListener( GameDataUpdateListener l )
     {
         if ( updateListeners == null )
         {
             updateListeners = new GameDataUpdateListener[] { l };
+            updateListenerCounts = new int[] { 1 };
         }
         else
         {
+            int index = -1;
             for ( int i = 0; i < updateListeners.length; i++ )
             {
                 if ( updateListeners[i] == l )
-                    return;
+                {
+                    index = i;
+                    break;
+                }
+            }
+            
+            if ( index >= 0 )
+            {
+                updateListenerCounts[index]++;
+                return;
             }
             
             GameDataUpdateListener[] tmp = new GameDataUpdateListener[ updateListeners.length + 1 ];
             System.arraycopy( updateListeners, 0, tmp, 0, updateListeners.length );
             updateListeners = tmp;
             updateListeners[updateListeners.length - 1] = l;
+            
+            int[] tmp2 = new int[ updateListenerCounts.length + 1 ];
+            System.arraycopy( updateListenerCounts, 0, tmp2, 0, updateListenerCounts.length );
+            updateListenerCounts = tmp2;
+            updateListenerCounts[updateListenerCounts.length - 1] = 1;
         }
     }
     
-    public void unregisterListener( GameDataUpdateListener l )
+    public void unregisterDataUpdateListener( GameDataUpdateListener l )
     {
         if ( updateListeners == null )
             return;
@@ -94,9 +111,16 @@ public class LiveGameData
         if ( index < 0 )
             return;
         
+        if ( updateListenerCounts[index] > 1 )
+        {
+            updateListenerCounts[index]--;
+            return;
+        }
+        
         if ( updateListeners.length == 1 )
         {
             updateListeners = null;
+            updateListenerCounts = null;
             return;
         }
         
@@ -106,9 +130,16 @@ public class LiveGameData
         if ( index < updateListeners.length - 1 )
             System.arraycopy( updateListeners, index + 1, tmp, index, updateListeners.length - index - 1 );
         updateListeners = tmp;
+        
+        int[] tmp2 = new int[ updateListenerCounts.length - 1 ];
+        if ( index > 0 )
+            System.arraycopy( updateListenerCounts, 0, tmp2, 0, index );
+        if ( index < updateListenerCounts.length - 1 )
+            System.arraycopy( updateListenerCounts, index + 1, tmp2, index, updateListenerCounts.length - index - 1 );
+        updateListenerCounts = tmp2;
     }
     
-    public void registerListener( GameEventsListener l )
+    public void registerGameEventsListener( GameEventsListener l )
     {
         if ( gameEventsListeners == null )
         {
@@ -129,7 +160,7 @@ public class LiveGameData
         }
     }
     
-    public void unregisterListener( GameEventsListener l )
+    public void unregisterGameEventsListener( GameEventsListener l )
     {
         if ( gameEventsListeners == null )
             return;
@@ -388,7 +419,7 @@ public class LiveGameData
      */
     public LiveGameData( GameResolution gameResolution, GameEventsManager eventsManager )
     {
-        registerListener( DataCache.INSTANCE );
+        registerDataUpdateListener( DataCache.INSTANCE );
         
         this.gameResolution = gameResolution;
         this.telemetryData = new TelemetryData( this );

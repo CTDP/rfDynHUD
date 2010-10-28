@@ -96,7 +96,7 @@ public class TelemetryData
             updateListeners[updateListeners.length - 1] = l;
         }
         
-        gameData.registerListener( l );
+        gameData.registerDataUpdateListener( l );
     }
     
     public void unregisterListener( TelemetryDataUpdateListener l )
@@ -130,7 +130,7 @@ public class TelemetryData
             System.arraycopy( updateListeners, index + 1, tmp, index, updateListeners.length - index - 1 );
         updateListeners = tmp;
         
-        gameData.unregisterListener( l );
+        gameData.unregisterDataUpdateListener( l );
     }
     
     /**

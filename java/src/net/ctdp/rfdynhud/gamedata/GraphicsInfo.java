@@ -64,7 +64,7 @@ public class GraphicsInfo
             updateListeners[updateListeners.length - 1] = l;
         }
         
-        gameData.registerListener( l );
+        gameData.registerDataUpdateListener( l );
     }
     
     public void unregisterListener( GraphicsInfoUpdateListener l )
@@ -98,7 +98,7 @@ public class GraphicsInfo
             System.arraycopy( updateListeners, index + 1, tmp, index, updateListeners.length - index - 1 );
         updateListeners = tmp;
         
-        gameData.unregisterListener( l );
+        gameData.unregisterDataUpdateListener( l );
     }
     
     void prepareDataUpdate()
