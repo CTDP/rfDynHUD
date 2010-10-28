@@ -22,11 +22,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.jagatoo.util.classes.ClassSearcher;
-import org.jagatoo.util.classes.PackageSearcher;
-import org.jagatoo.util.classes.SuperClassCriterium;
-
+import net.ctdp.rfdynhud.widgets.widget.HiddenWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
+
+import org.jagatoo.util.classes.ClassSearcher;
+import org.jagatoo.util.classes.SuperClassCriterium;
 
 /**
  * Utility mathods for {@link Widget}s.
@@ -43,23 +43,15 @@ public class WidgetTools
     @SuppressWarnings( "unchecked" )
     public static List<Class<Widget>> findWidgetClasses()
     {
-        List<String> packages = PackageSearcher.findPackages( "*widgets*" );
-        ArrayList<String> tmp = new ArrayList<String>();
+        List<Class<?>> classes_ = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ) );
         
-        for ( String pkg : packages )
-        {
-            if ( !pkg.startsWith( "net.ctdp.rfdynhud.widgets.hidden" ) )
-                tmp.add( pkg );
-        }
-        packages = tmp;
-        
-        List<Class<?>> classes_ = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ), packages.toArray( new String[ packages.size() ] ) );
         ArrayList<Class<Widget>> classes = new ArrayList<Class<Widget>>();
-        
-        for ( Class<?> c : classes_ )
+        for ( int i = 0; i < classes_.size(); i++ )
         {
-            if ( !c.getPackage().getName().startsWith( "net.ctdp.rfdynhud.widgets.hidden" ) )
-                classes.add( (Class<Widget>)c );
+            Class<Widget> clazz = (Class<Widget>)classes_.get( i );
+            
+            if ( !clazz.isAnnotationPresent( HiddenWidget.class ) )
+                classes.add( clazz );
         }
         
         Collections.sort( classes, new Comparator<Class<Widget>>()

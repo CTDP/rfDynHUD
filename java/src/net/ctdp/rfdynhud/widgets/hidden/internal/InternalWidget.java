@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
+import net.ctdp.rfdynhud.widgets.widget.HiddenWidget;
 import net.ctdp.rfdynhud.widgets.widget.Widget;
 import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
@@ -33,6 +34,7 @@ import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
  * 
  * @author Marvin Froehlich (CTDP)
  */
+@HiddenWidget
 public class InternalWidget extends Widget
 {
     private DrawnString ds = null;

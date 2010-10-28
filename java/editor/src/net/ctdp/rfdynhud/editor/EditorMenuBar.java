@@ -575,6 +575,8 @@ public class EditorMenuBar extends JMenuBar
         }
         */
         
+        WidgetPackage rootPackage = new WidgetPackage( "", 0 );
+        
         ArrayList<WidgetPackage> widgetPackages = new ArrayList<WidgetPackage>();
         Iterator<Class<Widget>> it = classes.iterator();
         while ( it.hasNext() )
@@ -587,7 +589,12 @@ public class EditorMenuBar extends JMenuBar
                 if ( widget != null )
                 {
                     instances.put( clazz, widget );
-                    widgetPackages.add( widget.getWidgetPackage() );
+                    
+                    WidgetPackage wp = widget.getWidgetPackage();
+                    if ( wp == null )
+                        wp = rootPackage;
+                    
+                    widgetPackages.add( wp );
                 }
             }
             catch ( Throwable t )
