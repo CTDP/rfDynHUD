@@ -217,13 +217,11 @@ public class RFDynHUD
         return ( new String( buffer ) );
     }
     
-    private RFDynHUD( byte[] gameNameBuffer, int gameResX, int gameResY ) throws Throwable
+    public RFDynHUD( String gameName, int gameResX, int gameResY ) throws Throwable
     {
         //Logger.setStdStreams();
         
         Logger.log( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
-        
-        String gameName = extractGameName( gameNameBuffer );
         
         SupportedGames gameId = null;
         try
@@ -262,6 +260,11 @@ public class RFDynHUD
         this.inputMappingsManager = new InputMappingsManager( this );
         
         Logger.log( "Successfully created RFDynHUD instance." );
+    }
+    
+    private RFDynHUD( byte[] gameNameBuffer, int gameResX, int gameResY ) throws Throwable
+    {
+        this( extractGameName( gameNameBuffer ), gameResX, gameResY );
     }
     
     public static final RFDynHUD createInstance( byte[] gameNameBuffer, int gameResX, int gameResY )

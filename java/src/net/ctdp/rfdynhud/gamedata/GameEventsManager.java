@@ -40,6 +40,7 @@ import org.jagatoo.util.Tools;
  */
 public class GameEventsManager implements ConfigurationLoadListener
 {
+    public static boolean simulationMode = false;
     private final RFDynHUD rfDynHUD;
     private final WidgetsDrawingManager widgetsManager;
     private LiveGameData gameData = null;
@@ -323,7 +324,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            ThreeLetterCodeManager.updateThreeLetterCodes();
+            ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getScoringInfo().getThreeLetterCodeGenerator() );
             __GDPrivilegedAccess.updateInfo( gameData );
             
             if ( gameData.getProfileInfo().isValid() )
@@ -460,7 +461,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         try
         {
-            ThreeLetterCodeManager.updateThreeLetterCodes();
+            ThreeLetterCodeManager.updateThreeLetterCodes( gameData.getScoringInfo().getThreeLetterCodeGenerator() );
             
             __GDPrivilegedAccess.updateInfo( gameData );
             
@@ -646,6 +647,8 @@ public class GameEventsManager implements ConfigurationLoadListener
         eventsDispatcher.checkAndFireOnNeededDataComplete( gameData, isEditorMode );
         
         boolean waitingForSetup2 = ( System.nanoTime() <= setupReloadTryTime );
+        if ( simulationMode )
+            waitingForSetup2 = false;
         
         if ( waitingForSetup || waitingForSetup2 )
         {

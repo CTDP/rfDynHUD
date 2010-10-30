@@ -26,6 +26,9 @@ import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.ThreeLetterCodeGenerator;
+import net.ctdp.rfdynhud.util.ThreeLetterCodeGeneratorImpl;
+import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 
 /**
  * 
@@ -55,6 +58,8 @@ public class ScoringInfo
     private float extrapolationTime = 0.0f;
     private long sessionNanos = -1L;
     private float sessionTime = 0.0f;
+    
+    private float trackLength = -1f;
     
     private double raceLengthPercentage = 1.0;
     
@@ -143,6 +148,8 @@ public class ScoringInfo
     private String playerName = null;
     private String playerFilename = null;
     private String trackName = null;
+    
+    private ThreeLetterCodeGenerator tlcGenerator = new ThreeLetterCodeGeneratorImpl();
     
     private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
     private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
@@ -371,6 +378,8 @@ public class ScoringInfo
         fastestSector2VSI = null;
         fastestSector3VSI = null;
         
+        trackLength = -1f;
+        
         classScoringCalculated = false;
         
         if ( vehicleScoringInfo != null )
@@ -390,6 +399,30 @@ public class ScoringInfo
     void prepareDataUpdate()
     {
         lastUpdateTimestamp = System.nanoTime();
+    }
+    
+    /**
+     * Sets the generator to use to generate three-letter-codes and short forms from driver names.
+     * 
+     * @param tlcGenerator
+     */
+    public void setThreeLetterCodeGenerator( ThreeLetterCodeGenerator tlcGenerator )
+    {
+        if ( tlcGenerator == null )
+            throw new IllegalArgumentException( "tlcGenerator must not be null." );
+        
+        this.tlcGenerator = tlcGenerator;
+        ThreeLetterCodeManager.resetMaps();
+    }
+    
+    /**
+     * Gets the generator to use to generate three-letter-codes and short forms from driver names.
+     * 
+     * @return the generator to use to generate three-letter-codes and short forms from driver names.
+     */
+    public final ThreeLetterCodeGenerator getThreeLetterCodeGenerator()
+    {
+        return ( tlcGenerator );
     }
     
     final void updateSessionTime( long timestamp )
@@ -982,7 +1015,12 @@ public class ScoringInfo
      */
     public final float getTrackLength()
     {
-        return ( data.getTrackLength() );
+        if ( trackLength < 0f )
+        {
+            trackLength = data.getTrackLength();
+        }
+        
+        return ( trackLength );
     }
     
     /**

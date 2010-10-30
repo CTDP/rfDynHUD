@@ -348,7 +348,7 @@ public class VehicleScoringInfo
     {
         if ( ( nameShort == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
         {
-            nameShort = ThreeLetterCodeManager.getShortForm( getDriverName( false ), getDriverID() );
+            nameShort = ThreeLetterCodeManager.getShortForm( getDriverName( false ), getDriverID(), scoringInfo.getThreeLetterCodeGenerator() );
             lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
         }
         
@@ -374,7 +374,7 @@ public class VehicleScoringInfo
     {
         if ( ( nameTLC == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
         {
-            nameTLC = ThreeLetterCodeManager.getThreeLetterCode( getDriverName( false ), getDriverID() );
+            nameTLC = ThreeLetterCodeManager.getThreeLetterCode( getDriverName( false ), getDriverID(), scoringInfo.getThreeLetterCodeGenerator() );
             lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
         }
         

@@ -51,7 +51,7 @@ public class ThreeLetterCodeManager
         return ( updateId );
     }
     
-    private static void resetMaps()
+    public static void resetMaps()
     {
         if ( name2TLCMap == null )
             name2TLCMap = new HashMap<String, String>();
@@ -114,38 +114,7 @@ public class ThreeLetterCodeManager
         return ( sf );
     }
     
-    private static String generateThreeLetterCode( String driverName, Integer driverID )
-    {
-        if ( driverName.length() <= 3 )
-        {
-            return ( addTLC( driverName, driverID, driverName.toUpperCase() ) );
-        }
-        
-        int sp = driverName.lastIndexOf( ' ' );
-        if ( sp == -1 )
-        {
-            return ( addTLC( driverName, driverID, driverName.substring( 0, 3 ).toUpperCase() ) );
-        }
-        
-        String tlc = driverName.charAt( 0 ) + driverName.substring( sp + 1, Math.min( sp + 3, driverName.length() ) ).toUpperCase();
-        
-        return ( addTLC( driverName, driverID, tlc ) );
-    }
-    
-    private static String generateShortForm( String driverName, Integer driverID )
-    {
-        int sp = driverName.lastIndexOf( ' ' );
-        if ( sp == -1 )
-        {
-            return ( addShortForm( driverName, driverID, driverName ) );
-        }
-        
-        String sf = driverName.charAt( 0 ) + ". " + driverName.substring( sp + 1 );
-        
-        return ( addShortForm( driverName, driverID, sf ) );
-    }
-    
-    public static void updateThreeLetterCodes()
+    public static void updateThreeLetterCodes( final ThreeLetterCodeGenerator tlcGenerator )
     {
         try
         {
@@ -184,14 +153,14 @@ public class ThreeLetterCodeManager
                                 }
                                 else
                                 {
-                                    generateShortForm( key, null );
+                                    addShortForm( key, null, tlcGenerator.generateShortForm( key ) );
                                 }
                             }
                             else
                             {
                                 addTLC( key, null, value );
                                 
-                                generateShortForm( key, null );
+                                addShortForm( key, null, tlcGenerator.generateShortForm( key ) );
                             }
                             
                             return ( true );
@@ -216,10 +185,11 @@ public class ThreeLetterCodeManager
      * 
      * @param driverName the driver's full name
      * @param driverID the driver's id
+     * @param tlcGenerator
      * 
      * @return the three-letter-code.
      */
-    public static String getThreeLetterCode( String driverName, Integer driverID )
+    public static String getThreeLetterCode( String driverName, Integer driverID, ThreeLetterCodeGenerator tlcGenerator )
     {
         if ( ( driverID != null ) && ( id2TLCMap != null ) )
         {
@@ -244,7 +214,7 @@ public class ThreeLetterCodeManager
             }
         }
         
-        String tlc = generateThreeLetterCode( driverName, driverID );
+        String tlc = addTLC( driverName, driverID, tlcGenerator.generateThreeLetterCode( driverName ) );
         
         Logger.log( "WARNING: No three letter code found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated \"" + tlc + "\"." );
         
@@ -257,10 +227,11 @@ public class ThreeLetterCodeManager
      * 
      * @param driverName the driver's full name
      * @param driverID the driver's id
+     * @param tlcGenerator
      * 
      * @return the short form.
      */
-    public static String getShortForm( String driverName, Integer driverID )
+    public static String getShortForm( String driverName, Integer driverID, ThreeLetterCodeGenerator tlcGenerator )
     {
         if ( ( driverID != null ) && ( id2ShortFormMap != null ) )
         {
@@ -285,7 +256,7 @@ public class ThreeLetterCodeManager
             }
         }
         
-        String sf = generateShortForm( driverName, driverID );
+        String sf = addShortForm( driverName, driverID, tlcGenerator.generateShortForm( driverName ) );
         
         //Logger.log( "WARNING: No entry found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated short form \"" + sf + "\"." );
         
