@@ -24,7 +24,7 @@ import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 import org.openmali.types.twodee.Rect2i;
 

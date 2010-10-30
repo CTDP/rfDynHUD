@@ -41,9 +41,9 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 import org.openmali.types.twodee.Rect2i;
 

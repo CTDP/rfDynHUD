@@ -18,7 +18,7 @@
 package net.ctdp.rfdynhud.values;
 
 import net.ctdp.rfdynhud.properties.BorderProperty;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The InnerSize value provides an {@link AbstractSize} implementation for the inner

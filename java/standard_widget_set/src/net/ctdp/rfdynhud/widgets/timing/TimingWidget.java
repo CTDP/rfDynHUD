@@ -41,8 +41,8 @@ import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 /**
  * The {@link TimingWidget} displays lap- and sector times and gaps.

@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.ctdp.rfdynhud.widgets.widget.HiddenWidget;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.HiddenWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 import org.jagatoo.util.classes.ClassSearcher;
 import org.jagatoo.util.classes.SuperClassCriterium;

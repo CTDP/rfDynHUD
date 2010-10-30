@@ -46,9 +46,9 @@ import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
-import net.ctdp.rfdynhud.widgets.widget.StatefulWidget;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 import org.openmali.vecmath2.util.ColorUtils;
 

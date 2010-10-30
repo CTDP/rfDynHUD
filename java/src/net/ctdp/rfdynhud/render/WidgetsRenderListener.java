@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.render;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * Listens for {@link Widget} render events.

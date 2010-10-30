@@ -23,8 +23,8 @@ import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 /**
  * The {@link Position} class is an abstraction of a positional value tuple.

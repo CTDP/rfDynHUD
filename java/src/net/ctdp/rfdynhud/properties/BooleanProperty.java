@@ -18,7 +18,7 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link BooleanProperty} serves for customizing a primitive boolean value.

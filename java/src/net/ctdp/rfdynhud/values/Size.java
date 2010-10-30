@@ -21,8 +21,8 @@ import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 public class Size extends AbstractSize
 {

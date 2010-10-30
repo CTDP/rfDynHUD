@@ -17,7 +17,7 @@
  */
 package net.ctdp.rfdynhud.lessons.widgets._util;
 
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 public class LessonsWidgetSet
 {

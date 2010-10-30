@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.__ValPrivilegedAccess;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * <p>

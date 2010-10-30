@@ -47,7 +47,7 @@ import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 public class EditorPresetsWindow extends JDialog implements PropertyChangeListener
 {

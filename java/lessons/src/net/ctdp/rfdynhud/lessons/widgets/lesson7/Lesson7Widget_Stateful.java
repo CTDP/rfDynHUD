@@ -24,8 +24,8 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
-import net.ctdp.rfdynhud.widgets.widget.StatefulWidget;
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 /**
  * This Widget shows, how to preserve states over configuration reloads.

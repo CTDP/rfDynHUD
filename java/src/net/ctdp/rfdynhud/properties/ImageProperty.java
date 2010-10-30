@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.util.TextureManager;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link ImageProperty} serves for customizing an image.

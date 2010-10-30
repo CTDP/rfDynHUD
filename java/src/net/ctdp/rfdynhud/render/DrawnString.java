@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.render;
 
 import java.awt.geom.Rectangle2D;
 
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 import org.openmali.types.twodee.Rect2i;
 

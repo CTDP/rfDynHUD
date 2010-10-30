@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.properties;
 import java.awt.Color;
 
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 import org.openmali.vecmath2.util.ColorUtils;
 

@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.Size;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link PosSizeProperty} is utilized by the {@link Position} and {@link Size} classes to customize positional and size values.

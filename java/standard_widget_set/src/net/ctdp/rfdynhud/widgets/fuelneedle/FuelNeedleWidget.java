@@ -44,8 +44,8 @@ import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
-import net.ctdp.rfdynhud.widgets.widget.base.needlemeter.NeedleMeterWidget;
+import net.ctdp.rfdynhud.widgets.base.needlemeter.NeedleMeterWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 /**
  * The {@link FuelNeedleWidget} displays the current fuel load with a needle.

@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.properties;
 import java.awt.Color;
 
 import net.ctdp.rfdynhud.render.ImageTemplate;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link BackgroundProperty} unites {@link ColorProperty} and {@link ImageProperty}

@@ -19,12 +19,12 @@ package net.ctdp.rfdynhud.widgets.dashboard;
 
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
+import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.fuelneedle.FuelNeedleWidget;
 import net.ctdp.rfdynhud.widgets.revmeter.RevMeterWidget;
 import net.ctdp.rfdynhud.widgets.speedo.SpeedoWidget;
-import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
 
 public class DashboardWidget extends AbstractAssembledWidget
 {

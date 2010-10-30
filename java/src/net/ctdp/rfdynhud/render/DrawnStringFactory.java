@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.render;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 public class DrawnStringFactory
 {

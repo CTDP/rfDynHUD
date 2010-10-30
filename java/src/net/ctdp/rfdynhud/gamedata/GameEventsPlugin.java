@@ -18,7 +18,7 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.render.WidgetsRenderListenersManager;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * This interface defines the entry point for custom event listeners without having to

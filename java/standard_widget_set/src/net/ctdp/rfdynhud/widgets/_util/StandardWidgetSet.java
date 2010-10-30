@@ -26,7 +26,7 @@ import java.net.URL;
 
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 public class StandardWidgetSet
 {

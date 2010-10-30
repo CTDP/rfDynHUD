@@ -33,9 +33,9 @@ import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
-import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 import org.jagatoo.util.ini.IniWriter;
 import org.openmali.vecmath2.util.ColorUtils;

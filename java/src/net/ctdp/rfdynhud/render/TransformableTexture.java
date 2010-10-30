@@ -27,8 +27,8 @@ import java.nio.ByteOrder;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 import org.openmali.types.twodee.Rect2i;
 

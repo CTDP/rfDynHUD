@@ -54,9 +54,9 @@ import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
-import net.ctdp.rfdynhud.widgets.widget.base.needlemeter.NeedleMeterWidget;
+import net.ctdp.rfdynhud.widgets.base.needlemeter.NeedleMeterWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 /**
  * The {@link RevMeterWidget} displays rev/RPM information.

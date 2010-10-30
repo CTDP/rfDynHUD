@@ -17,7 +17,7 @@
  */
 package net.ctdp.rfdynhud.editor;
 
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 public interface WidgetSelectionListener
 {

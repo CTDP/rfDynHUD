@@ -19,7 +19,7 @@ package net.ctdp.rfdynhud.properties;
 
 import java.io.PrintStream;
 
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * A container for {@link Widget} {@link Property}s.

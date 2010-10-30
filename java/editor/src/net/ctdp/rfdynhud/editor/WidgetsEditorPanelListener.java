@@ -17,8 +17,8 @@
  */
 package net.ctdp.rfdynhud.editor;
 
-import net.ctdp.rfdynhud.widgets.widget.AbstractAssembledWidget;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * 

@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.input;
 import java.net.URL;
 
 import net.ctdp.rfdynhud.util.StringUtil;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * This is a simple abstraction of an input action.

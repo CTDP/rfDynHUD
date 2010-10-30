@@ -18,7 +18,7 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link ImagePropertyWithTransTexture} serves for customizing an image

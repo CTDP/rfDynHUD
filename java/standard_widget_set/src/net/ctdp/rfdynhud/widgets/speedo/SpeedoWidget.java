@@ -28,8 +28,8 @@ import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets._util.StandardWidgetSet;
-import net.ctdp.rfdynhud.widgets.widget.WidgetPackage;
-import net.ctdp.rfdynhud.widgets.widget.base.needlemeter.NeedleMeterWidget;
+import net.ctdp.rfdynhud.widgets.base.needlemeter.NeedleMeterWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 /**
  * The {@link SpeedoWidget} renders the current velocity as needle on a scale.

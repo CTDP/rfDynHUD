@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.properties;
 import net.ctdp.rfdynhud.render.BorderCache;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link BorderProperty} serves for customizing a border.

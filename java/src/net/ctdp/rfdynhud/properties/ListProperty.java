@@ -19,8 +19,8 @@ package net.ctdp.rfdynhud.properties;
 
 import java.util.Collection;
 
-import net.ctdp.rfdynhud.widgets.widget.Widget;
-import net.ctdp.rfdynhud.widgets.widget.__WPrivilegedAccess;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 import org.jagatoo.util.Tools;
 

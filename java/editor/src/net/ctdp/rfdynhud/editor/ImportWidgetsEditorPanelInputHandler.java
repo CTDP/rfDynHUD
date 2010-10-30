@@ -26,7 +26,7 @@ import java.awt.event.MouseListener;
 import javax.swing.JOptionPane;
 
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * 

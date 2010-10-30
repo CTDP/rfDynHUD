@@ -17,7 +17,7 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.widgets.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link FactoredFloatProperty} serves for customizing a primitive float value multiplied by a factor.
