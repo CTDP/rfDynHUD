@@ -15,43 +15,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.widgets.base.widget;
+package net.ctdp.rfdynhud.widgets.lessons.lesson3;
 
-import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
-
-public class AssembledWidget extends AbstractAssembledWidget
+public enum MyEnum
 {
-    @Override
-    public WidgetPackage getWidgetPackage()
+    ITEM0( "Text for Item 0" ),
+    ITEM1( "Text for Item 1" ),
+    ITEM2( "Text for Item 2" ),
+    ITEM3( "Text for Item 3" ),
+    ;
+    
+    private final String text;
+    
+    public final String getText()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        return ( text );
     }
     
-    @Override
-    protected void arrangeParts( Widget[] parts )
+    private MyEnum( String text )
     {
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Widget[] initParts( float width, boolean widthPercent, float height, boolean heightPercent )
-    {
-        return ( new Widget[ 0 ] );
-    }
-    
-    /**
-     * 
-     * @param initParts
-     */
-    public AssembledWidget( boolean initParts )
-    {
-        super( 33.6f, true, 23.0f, true, false );
-    }
-    
-    public AssembledWidget()
-    {
-        this( false );
+        this.text = text;
     }
 }

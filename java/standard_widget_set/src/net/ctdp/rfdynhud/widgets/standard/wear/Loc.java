@@ -15,43 +15,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.widgets.base.widget;
+package net.ctdp.rfdynhud.widgets.standard.wear;
 
-import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
+import net.ctdp.rfdynhud.util.LocalizationsManager;
 
-public class AssembledWidget extends AbstractAssembledWidget
+public class Loc
 {
-    @Override
-    public WidgetPackage getWidgetPackage()
+    private static final String l( String key )
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        return ( LocalizationsManager.INSTANCE.getLocalization( WearWidget.class, key ) );
     }
     
-    @Override
-    protected void arrangeParts( Widget[] parts )
-    {
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Widget[] initParts( float width, boolean widthPercent, float height, boolean heightPercent )
-    {
-        return ( new Widget[ 0 ] );
-    }
-    
-    /**
-     * 
-     * @param initParts
-     */
-    public AssembledWidget( boolean initParts )
-    {
-        super( 33.6f, true, 23.0f, true, false );
-    }
-    
-    public AssembledWidget()
-    {
-        this( false );
-    }
+    public static final String engine_header_prefix = l( "engine.header.prefix" );
+    public static final String tires_header_prefix = l( "tires.header.prefix" );
+    public static final String brakes_header_prefix = l( "brakes.header.prefix" );
 }
