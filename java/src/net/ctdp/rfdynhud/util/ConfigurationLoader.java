@@ -670,7 +670,7 @@ public class ConfigurationLoader implements PropertyLoader
         
         //__loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, isEditorMode, loadListener );
         
-        net.ctdp.rfdynhud.widgets.hidden.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.hidden.internal.InternalWidget();
+        net.ctdp.rfdynhud.widgets.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.internal.InternalWidget();
         internalWidget.setMessage( "Couldn't find any overlay file." );
         __WCPrivilegedAccess.addWidget( widgetsConfig, internalWidget, true );
         internalWidget.getPosition().setEffectivePosition( RelativePositioning.TOP_CENTER, ( widgetsConfig.getGameResolution().getViewportWidth() - internalWidget.getEffectiveWidth() ) / 2, 200 );
