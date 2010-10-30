@@ -30,7 +30,7 @@ import org.openmali.types.twodee.Rect2i;
 
 public class ETVUtils
 {
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Ecclestone TV 2010", WidgetPackage.composeVersion( 1, 1, 0 ), ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/ctdp.png" ), ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/etv2010/widgets/etv2010.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Ecclestone TV 2010", WidgetPackage.composeVersion( 1, 2, 0 ), WidgetPackage.CTDP_ICON, ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/etv2010/etv2010.png" ) );
     
     private static final boolean AA_TRIANGLE = true;
     

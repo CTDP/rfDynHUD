@@ -29,9 +29,9 @@ public class LessonsWidgetSet
      * if you release a new revision of your Widget set with
      * more or less significant changes.
      */
-    private static final int version = WidgetPackage.composeVersion( 1, 0, 0 );
+    private static final int version = WidgetPackage.composeVersion( 1, 2, 0 );
     
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Lessons", version, LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/ctdp.png" ), LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/lessons/widgets/lessons.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Lessons", version, WidgetPackage.CTDP_ICON, LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/lessons/lessons.png" ) );
     
     public static final String MY_FONT_COLOR_NAME = "MyFontColor";
     

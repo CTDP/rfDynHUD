@@ -17,14 +17,14 @@
  */
 package net.ctdp.rfdynhud.widgets.base.widget;
 
-import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
-
 public class AssembledWidget extends AbstractAssembledWidget
 {
+    private static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP", WidgetPackage.composeVersion( 1, 2, 0 ), WidgetPackage.CTDP_ICON );
+    
     @Override
     public WidgetPackage getWidgetPackage()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        return ( WIDGET_PACKAGE );
     }
     
     @Override
