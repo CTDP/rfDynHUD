@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.ctdp.rfdynhud.widgets.base.widget.HiddenWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Hidden;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 import org.jagatoo.util.classes.ClassSearcher;
@@ -50,7 +50,7 @@ public class WidgetTools
         {
             Class<Widget> clazz = (Class<Widget>)classes_.get( i );
             
-            if ( !clazz.isAnnotationPresent( HiddenWidget.class ) )
+            if ( !clazz.isAnnotationPresent( Hidden.class ) )
                 classes.add( clazz );
         }
         

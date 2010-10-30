@@ -75,6 +75,40 @@ public class WidgetFactory
         return ( widget );
     }
     
+    private static String getOldClassName( String className )
+    {
+        if ( className.startsWith( "net.ctdp.rfdynhud." ) )
+        {
+            if ( className.startsWith( "etv2010.widgets.", "net.ctdp.rfdynhud.".length() ) )
+                return ( "net.ctdp.rfdynhud.widgets.etv2010." + className.substring( "net.ctdp.rfdynhud.etv2010.widgets.".length() ) );
+            
+            if ( className.startsWith( "widgets.", "net.ctdp.rfdynhud.".length() ) )
+            {
+                if ( className.startsWith( "controls.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "dashboard.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "fuel.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "fuelneedle.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "image.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "map.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "misc.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "revmeter.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "rideheight.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "speedo.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "standings.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "startinglight.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "temperatures.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "timecomp.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "timing.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "trackposition.", "net.ctdp.rfdynhud.widgets.".length() )
+                  || className.startsWith( "wear.", "net.ctdp.rfdynhud.widgets.".length() )
+                   )
+                    return ( "net.ctdp.rfdynhud.widgets.standard." + className.substring( "net.ctdp.rfdynhud.widgets.".length() ) );
+            }
+        }
+        
+        return ( null );
+    }
+    
     /**
      * Gets the {@link Widget} {@link Class} instance.
      * 
@@ -90,6 +124,36 @@ public class WidgetFactory
         try
         {
             clazz = (Class<Widget>)Class.forName( className, false, Widget.class.getClassLoader() );
+        }
+        catch ( ClassNotFoundException e )
+        {
+            // branch for backwards compatiblity with old package names...
+            
+            String oldClassName = getOldClassName( className );
+            
+            if ( oldClassName == null )
+            {
+                Logger.log( e );
+                
+                return ( null );
+            }
+            
+            try
+            {
+                clazz = (Class<Widget>)Class.forName( oldClassName, false, Widget.class.getClassLoader() );
+            }
+            catch ( ClassNotFoundException e2 )
+            {
+                Logger.log( e );
+                
+                return ( null );
+            }
+            catch ( Throwable t2 )
+            {
+                Logger.log( getRootCause( t2 ) );
+                
+                return ( null );
+            }
         }
         catch ( Throwable t )
         {

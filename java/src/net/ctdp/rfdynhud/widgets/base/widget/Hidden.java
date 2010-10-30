@@ -26,6 +26,6 @@ import java.lang.annotation.RetentionPolicy;
  * @author Marvin Froehlich (CTDP)
  */
 @Retention( RetentionPolicy.RUNTIME )
-public @interface HiddenWidget
+public @interface Hidden
 {
 }
