@@ -15,11 +15,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.widgets.base.widget;
+package net.ctdp.rfdynhud.widgets.extra;
+
+import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 public class AssembledWidget extends AbstractAssembledWidget
 {
-    private static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP", WidgetPackage.composeVersion( 1, 2, 0 ), WidgetPackage.CTDP_ICON );
+    private static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Extra", WidgetPackage.composeVersion( 1, 2, 0 ), WidgetPackage.CTDP_ICON, WidgetPackage.EXTRA_ICON );
     
     @Override
     public WidgetPackage getWidgetPackage()

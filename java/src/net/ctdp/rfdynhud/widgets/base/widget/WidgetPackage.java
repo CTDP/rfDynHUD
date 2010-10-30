@@ -36,6 +36,7 @@ import net.ctdp.rfdynhud.util.Logger;
 public class WidgetPackage implements Comparable<WidgetPackage>
 {
     public static final URL CTDP_ICON = WidgetPackage.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/ctdp.png" );
+    public static final URL EXTRA_ICON = WidgetPackage.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/extra/extra.png" );
     
     private final String name;
     private final int version;
