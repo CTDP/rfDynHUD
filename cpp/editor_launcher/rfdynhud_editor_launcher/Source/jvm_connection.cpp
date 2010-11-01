@@ -255,45 +255,9 @@ bool createNewJavaVM( const char* PLUGIN_PATH, JavaVM** jvm, JNIEnv** env )
     const unsigned int NUM_OPTIONS = 7;
     JavaVMOption options[NUM_OPTIONS];
     
-    char* searchPath = cropBuffer2( appendPath2( "\\widget_sets\\*", setBuffer( PLUGIN_PATH, fileBuffer ), false ) );
-    
     setBuffer( "-Djava.class.path=", fileBuffer );
     addPostFix( PLUGIN_PATH, fileBuffer );
     addPostFix( "\\rfdynhud.jar", fileBuffer );
-    
-    char* searchPath2 = (char*)malloc( MAX_PATH );
-    
-    WIN32_FIND_DATA data;
-    WIN32_FIND_DATA data2;
-    HANDLE hFile = FindFirstFile( searchPath, &data );
-    if ( hFile != INVALID_HANDLE_VALUE )
-    {
-        do
-        {
-            if ( ( ( data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) != 0 ) && ( data.cFileName[0] != '.' ) && ( strcmp( data.cFileName, ".svn" ) != 0 ) )
-            {
-                searchPath2 = appendPath2( "\\*.jar", appendPath2( data.cFileName, appendPath2( "widget_sets", setBuffer( PLUGIN_PATH, searchPath2 ), true ), true ), false );
-                HANDLE hFile2 = FindFirstFile( searchPath2, &data2 );
-                if ( hFile2 != INVALID_HANDLE_VALUE )
-                {
-                    do
-                    {
-                        addPostFix( ";", fileBuffer );
-                        addPostFix( PLUGIN_PATH, fileBuffer );
-                        addPostFix( "\\", fileBuffer );
-                        addPostFix( "widget_sets\\", fileBuffer );
-                        addPostFix( data.cFileName, fileBuffer );
-                        addPostFix( "\\", fileBuffer );
-                        addPostFix( data2.cFileName, fileBuffer );
-                    }
-                    while ( FindNextFile( hFile2, &data2 ) );
-                }
-            }
-        }
-        while ( FindNextFile( hFile, &data ) );
-    }
-    
-    free( searchPath2 );
     
     addPostFix( ";", fileBuffer );
     addPostFix( PLUGIN_PATH, fileBuffer );
