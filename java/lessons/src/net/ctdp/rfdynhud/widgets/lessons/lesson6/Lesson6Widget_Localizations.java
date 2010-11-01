@@ -25,6 +25,7 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -67,6 +68,14 @@ public class Lesson6Widget_Localizations extends Widget
             return ( Loc.temperature_units_IMPERIAL );
         
         return ( Loc.temperature_units_METRIC );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
+    {
     }
     
     @Override

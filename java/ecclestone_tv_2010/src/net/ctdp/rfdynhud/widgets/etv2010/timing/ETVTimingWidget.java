@@ -36,6 +36,7 @@ import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
@@ -144,6 +145,14 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         hasRefTime.reset();
         
         forceCompleteRedraw( true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
+    {
     }
     
     /**

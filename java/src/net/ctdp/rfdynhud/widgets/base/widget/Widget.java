@@ -375,9 +375,7 @@ public abstract class Widget implements Cloneable, Documented
      * @param widgetInnerHeight the total widget height excluding borders
      * @param collector the collector to collect all the sub textures
      */
-    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
-    {
-    }
+    protected abstract void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector );
     
     /**
      * Gets the {@link TransformableTexture}s, that this {@link Widget} keeps.

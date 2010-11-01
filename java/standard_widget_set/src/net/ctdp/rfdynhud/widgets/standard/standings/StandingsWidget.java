@@ -39,6 +39,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.StandingsTools;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
@@ -340,6 +341,14 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         }
         
         return ( null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
+    {
     }
     
     private final String getDisplayedDriverName( VehicleScoringInfo vsi )

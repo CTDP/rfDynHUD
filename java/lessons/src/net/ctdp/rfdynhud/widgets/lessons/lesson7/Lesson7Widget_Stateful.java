@@ -22,6 +22,7 @@ import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
@@ -57,6 +58,14 @@ public class Lesson7Widget_Stateful extends StatefulWidget<MyGeneralStore, MyLoc
     protected MyLocalStore createLocalStore()
     {
         return ( new MyLocalStore() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
+    {
     }
     
     @Override

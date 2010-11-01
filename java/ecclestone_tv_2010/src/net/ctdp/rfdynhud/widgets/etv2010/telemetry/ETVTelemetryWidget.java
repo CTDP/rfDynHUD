@@ -42,10 +42,10 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
+import net.ctdp.rfdynhud.widgets.base.revneedlemeter.AbstractRevNeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
-import net.ctdp.rfdynhud.widgets.standard.revmeter.RevMeterWidget;
 
 /**
  * This {@link Widget} attempts to imitate the 2010er TV overlay for F1 telemetry
@@ -53,7 +53,7 @@ import net.ctdp.rfdynhud.widgets.standard.revmeter.RevMeterWidget;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ETVTelemetryWidget extends RevMeterWidget
+public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
 {
     public static final int MAX_VELOCITY_LOCAL_Z_INDEX = NEEDLE_LOCAL_Z_INDEX / 2;
     public static final int CONTROLS_LOCAL_Z_INDEX = MAX_VELOCITY_LOCAL_Z_INDEX + 1;
@@ -175,7 +175,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
         }
     };
     
-    private final IntProperty controlsLabelOffset = new IntProperty( this, "labelOffset", 15 )
+    private final IntProperty controlsLabelOffset = new IntProperty( this, "controlsLabelOffset", "labelOffset", 15 )
     {
         @Override
         protected void onValueChanged( int oldValue, int newValue )
@@ -422,7 +422,7 @@ public class ETVTelemetryWidget extends RevMeterWidget
             int h = Math.round( it.getBaseHeight() * getBackground().getScaleY() );
             boolean[] changeInfo = new boolean[ 2 ];
             maxVelocityTexture = it.getScaledTransformableTexture( w, h, maxVelocityTexture, isEditorMode, changeInfo );
-            maxVelocityTexture.setDynamic( true );
+            //maxVelocityTexture.setDynamic( true );
             
             if ( changeInfo[1] )
                 drawVelocityNumbers( speedUnits, maxVelocityTexture.getTexture(), -Math.round( maxVelocityLeftOffset.getFloatValue() * getBackground().getScaleX() ), -Math.round( maxVelocityTopOffset.getFloatValue() * getBackground().getScaleY() ) );
@@ -495,49 +495,13 @@ public class ETVTelemetryWidget extends RevMeterWidget
     }
     
     @Override
-    protected void saveShiftLightsProperties( WidgetsConfigurationWriter writer ) throws IOException
-    {
-        // We don't need these here!
-    }
-    
-    @Override
-    protected void saveBoostProperties( WidgetsConfigurationWriter writer ) throws IOException
-    {
-        // We don't need these here!
-    }
-    
-    @Override
     protected void saveDigiValueProperties( WidgetsConfigurationWriter writer ) throws IOException
     {
         // We don't need these here!
     }
     
     @Override
-    protected void saveDigiRevsProperties( WidgetsConfigurationWriter writer ) throws IOException
-    {
-        // We don't need these here!
-    }
-    
-    @Override
-    protected void getShiftLightsProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
-    {
-        // We don't need these here!
-    }
-    
-    @Override
-    protected void getBoostProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
-    {
-        // We don't need these here!
-    }
-    
-    @Override
     protected void getDigiValueProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
-    {
-        // We don't need these here!
-    }
-    
-    @Override
-    protected void getDigiRevsProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
     {
         // We don't need these here!
     }
@@ -671,12 +635,6 @@ public class ETVTelemetryWidget extends RevMeterWidget
         propsCont.addProperty( controlsLabelOffset );
     }
     
-    @Override
-    protected int getInitialNumberOfShiftLights()
-    {
-        return ( 0 );
-    }
-    
     public ETVTelemetryWidget()
     {
         super( 19.6915f, 21.75f );
@@ -711,11 +669,5 @@ public class ETVTelemetryWidget extends RevMeterWidget
         gearPosY.setIntValue( 345 );
         gearFont.setFont( ETVUtils.ETV_GEAR_FONT );
         gearFontColor.setColor( "#D9E0EB" );
-        
-        displayBoostBar.setBooleanValue( false );
-        displayBoostNumber.setBooleanValue( false );
-        
-        displayRPMString1.setBooleanValue( false );
-        displayRPMString2.setBooleanValue( false );
     }
 }
