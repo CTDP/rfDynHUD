@@ -145,10 +145,27 @@ public class IntValue
         return ( isValid() != oldValidity );
     }
     
+    public final String getValueAsStringWithSign()
+    {
+        if ( value == resetValue )
+            return ( N_A_VALUE );
+        
+        if ( value > 0 )
+            return ( "+" + String.valueOf( value ) );
+        
+        if ( value == -0 )
+            return ( "0" ); // avoid "-0"
+        
+        return ( String.valueOf( value ) );
+    }
+    
     public final String getValueAsString()
     {
         if ( value == resetValue )
             return ( N_A_VALUE );
+        
+        if ( value == -0 )
+            return ( "0" ); // avoid "-0"
         
         return ( String.valueOf( value ) );
     }

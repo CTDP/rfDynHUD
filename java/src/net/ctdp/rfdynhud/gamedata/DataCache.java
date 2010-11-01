@@ -40,6 +40,11 @@ import org.xml.sax.SAXParseException;
 
 class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsumer
 {
+    private static final int CURRENT_VERSION_MAJOR = 1;
+    private static final int CURRENT_VERSION_MINOR = 2;
+    private static final int CURRENT_VERSION_REVISION = 0;
+    private static final String CURRENT_VERSION_STRING = CURRENT_VERSION_MAJOR + "." + CURRENT_VERSION_MINOR + "." + CURRENT_VERSION_REVISION;
+    
     @Override
     public void onBoundInputStateChanged( InputAction action, boolean state, int modifierMask, long when, LiveGameData gameData, boolean isEditorMode )
     {
@@ -89,7 +94,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             }
             
             if ( isNewer )
-                throw new VersionException( "The configuration file has a newer format than this version of the Mod Deriver is able to handle." );
+                throw new VersionException( "The cache file has a newer format than this version of rfDynHUD is able to handle." );
         }
     }
     
@@ -123,6 +128,19 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         }
     }
     
+    static final boolean checkSessionType( ScoringInfo scoringInfo )
+    {
+        SessionType sessionType = scoringInfo.getSessionType();
+        
+        if ( sessionType == SessionType.TEST_DAY )
+            return ( true );
+        
+        if ( sessionType == SessionType.PRACTICE1 )
+            return ( scoringInfo.getNumVehicles() == 1 );
+        
+        return ( false );
+    }
+    
     void addLaptime( ScoringInfo scoringInfo, String teamName, Laptime laptime )
     {
         if ( !checkSessionType( scoringInfo ) )
@@ -149,19 +167,6 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     final Float getFuelUsage( String teamName )
     {
         return ( fuelUsages.get( teamName ) );
-    }
-    
-    static final boolean checkSessionType( ScoringInfo scoringInfo )
-    {
-        SessionType sessionType = scoringInfo.getSessionType();
-        
-        if ( sessionType == SessionType.TEST_DAY )
-            return ( true );
-        
-        if ( sessionType == SessionType.PRACTICE1 )
-            return ( scoringInfo.getNumVehicles() == 1 );
-        
-        return ( false );
     }
     
     private static File getCacheFile( String modName, String trackName, boolean createFolder )
@@ -207,7 +212,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             {
                 if ( ( path.getLevel() == 0 ) && name.equals( "CachedData" ) )
                 {
-                    VersionException.checkVersion( attributes.getValue( "version" ), 1, 1, 0 );
+                    VersionException.checkVersion( attributes.getValue( "version" ), CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_REVISION );
                 }
                 else if ( path.isAt( false, "CachedData" ) && name.equals( "VehicleData" ) )
                 {
@@ -330,7 +335,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             {
                 if ( ( path.getLevel() == 0 ) && name.equals( "CachedData" ) )
                 {
-                    VersionException.checkVersion( attributes.getValue( "version" ), 1, 1, 0 );
+                    VersionException.checkVersion( attributes.getValue( "version" ), CURRENT_VERSION_MAJOR, CURRENT_VERSION_MINOR, CURRENT_VERSION_REVISION );
                 }
                 else if ( path.isAt( false, "CachedData" ) && name.equals( "VehicleData" ) )
                 {
@@ -409,15 +414,15 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         player.cachedFastestNormalLaptime = null;
         player.cachedFastestHotLaptime = null;
         
-        if ( !checkSessionType( gameData.getScoringInfo() ) )
-            return;
-        
         File cacheFile = getCacheFile( gameData, false );
         
         if ( ( cacheFile == null ) || !cacheFile.exists() )
             return;
         
         loadFromCache( cacheFile );
+        
+        if ( !checkSessionType( gameData.getScoringInfo() ) )
+            return;
         
         player.cachedFastestNormalLaptime = fastestNormalLaptimes.get( gameData.getProfileInfo().getTeamName() );
         player.cachedFastestHotLaptime = fastestHotLaptimes.get( gameData.getProfileInfo().getTeamName() );
@@ -445,7 +450,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         {
             writer = new SimpleXMLWriter( cacheFile );
             
-            writer.writeElementAndPush( "CachedData", "version", "1.1.0" );
+            writer.writeElementAndPush( "CachedData", "version", CURRENT_VERSION_STRING );
             
             for ( String vehicleName : vehicleNames )
             {
@@ -485,9 +490,6 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
     @Override
     public void onRealtimeExited( LiveGameData gameData, boolean isEditorMode )
     {
-        if ( !checkSessionType( gameData.getScoringInfo() ) )
-            return;
-        
         //VehicleScoringInfo player = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
         //String teamName = player.getVehicleName();
         String teamName = gameData.getProfileInfo().getTeamName();

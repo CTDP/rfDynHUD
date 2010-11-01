@@ -164,10 +164,118 @@ public class FloatValue
         return ( isValid() != oldValidity );
     }
     
+    public final String getValueAsStringWithSign()
+    {
+        if ( isResetValue )
+            return ( N_A_VALUE );
+        
+        if ( value > 0f )
+            return ( "+" + String.valueOf( value ) );
+        
+        if ( value == -0f )
+            return ( "0" ); // avoid "-0"
+        
+        return ( String.valueOf( value ) );
+    }
+    
+    public final String getValueAsStringWithSign( boolean round )
+    {
+        if ( isResetValue )
+            return ( N_A_VALUE );
+        
+        if ( round )
+        {
+            int value_ = Math.round( value );
+            
+            if ( value_ == -0 )
+                return ( "0" ); // avoid "-0"
+            
+            if ( value_ > 0 )
+                return ( "+" + String.valueOf( value_ ) );
+            
+            return ( String.valueOf( value_ ) );
+        }
+        
+        if ( value == -0f )
+            return ( "0" ); // avoid "-0"
+        
+        if ( value > 0f )
+            return ( "+" + String.valueOf( value ) );
+        
+        return ( String.valueOf( value ) );
+    }
+    
+    public final String getValueAsStringWithSign( float factor, boolean round )
+    {
+        if ( isResetValue )
+            return ( N_A_VALUE );
+        
+        if ( round )
+        {
+            int value_ = Math.round( value * factor );
+            
+            if ( value_ == -0 )
+                return ( "0" ); // avoid "-0"
+            
+            if ( value_ > 0 )
+                return ( "+" + String.valueOf( value_ ) );
+            
+            return ( String.valueOf( value_ ) );
+        }
+        
+        float value_ = value * factor;
+        
+        if ( value_ == -0f )
+            return ( "0" ); // avoid "-0"
+        
+        if ( value_ > 0f )
+            return ( "+" + String.valueOf( value_ ) );
+        
+        return ( String.valueOf( value_ ) );
+    }
+    
+    public final String getValueAsStringWithSign( int precision )
+    {
+        if ( isResetValue )
+            return ( N_A_VALUE );
+        
+        if ( precision < 0 )
+            return ( "ERROR" );
+        
+        float value_ = value;
+        if ( value_ == -0f )
+            value_ = 0f;
+        
+        String sign = ( value_ > 0f ) ? "+" : "";
+        
+        switch ( precision )
+        {
+            case 0:
+                return ( sign + String.valueOf( Math.round( value ) ) );
+            case 1:
+                return ( sign + String.valueOf( Math.round( value * 10f ) / 10f ) );
+            case 2:
+                return ( sign + String.valueOf( Math.round( value * 100f ) / 100f ) );
+            case 3:
+                return ( sign + String.valueOf( Math.round( value * 1000f ) / 1000f ) );
+            case 4:
+                return ( sign + String.valueOf( Math.round( value * 10000f ) / 10000f ) );
+            case 5:
+                return ( sign + String.valueOf( Math.round( value * 100000f ) / 100000f ) );
+            case 6:
+                return ( sign + String.valueOf( Math.round( value * 1000000f ) / 1000000f ) );
+        }
+        
+        return ( sign + String.valueOf( value ) );
+    }
+    
     public final String getValueAsString()
     {
         if ( isResetValue )
             return ( N_A_VALUE );
+        
+        if ( value == -0f )
+            return ( "0" ); // avoid "-0"
         
         return ( String.valueOf( value ) );
     }
