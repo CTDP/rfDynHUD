@@ -54,7 +54,7 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class FuelNeedleWidget extends NeedleMeterWidget
 {
-    private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( this, "lowFuelWarningImageOff", "imageOff", "shiftlight_off.png", false, true )
+    private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( this, "lowFuelWarningImageOff", "imageOff", "standard/shiftlight_off.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -64,7 +64,7 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     };
     private TransformableTexture lowFuelWarningImageOff = null;
     
-    private final ImageProperty lowFuelWarningImageNameOn = new ImageProperty( this, "lowFuelWarningImageOn", "imageOn", "shiftlight_on_red.png", false, true )
+    private final ImageProperty lowFuelWarningImageNameOn = new ImageProperty( this, "lowFuelWarningImageOn", "imageOn", "standard/shiftlight_on_red.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -142,13 +142,13 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     @Override
     protected String getInitialBackground()
     {
-        return ( BackgroundProperty.IMAGE_INDICATOR + "smiths_chrono_fuel.png" );
+        return ( BackgroundProperty.IMAGE_INDICATOR + "standard/fuel_needle_bg.png" );
     }
     
     @Override
     protected String getInitialNeedleImage()
     {
-        return ( "chrono_needle.png" );
+        return ( "standard/fuel_needle.png" );
     }
     
     private final boolean isLowFuelWaningUsed()

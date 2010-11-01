@@ -41,7 +41,7 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class ImageWidget extends Widget
 {
-    private final ImagePropertyWithTexture imageName = new ImagePropertyWithTexture( this, "imageName", "ctdp.png" )
+    private final ImagePropertyWithTexture imageName = new ImagePropertyWithTexture( this, "imageName", "standard/ctdp.png" )
     {
         @Override
         public void onValueChanged( String oldValue, String newValue )

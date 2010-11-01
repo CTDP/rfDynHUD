@@ -137,6 +137,9 @@ public class ImageTableModel extends DefaultTableModel
     
     public void setFolder( File folder )
     {
+        if ( !folder.exists() )
+            folder = IMAGE_BASE_FOLDER;
+        
         this.folder = folder;
         
         folderNames.clear();
@@ -272,6 +275,9 @@ public class ImageTableModel extends DefaultTableModel
     
     public ImageTableModel( File initialFolder )
     {
+        if ( ( initialFolder != null ) && !initialFolder.exists() )
+            initialFolder = IMAGE_BASE_FOLDER;
+        
         this.folder = initialFolder;
     }
 }

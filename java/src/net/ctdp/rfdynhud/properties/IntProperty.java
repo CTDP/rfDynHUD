@@ -142,7 +142,7 @@ public class IntProperty extends Property
      * {@inheritDoc}
      */
     @Override
-    public void loadValue( String value )
+    public void loadValue( PropertyLoader loader, String value )
     {
         setValue( Integer.parseInt( value ) );
     }

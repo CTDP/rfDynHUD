@@ -43,7 +43,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     @Override
     protected String getInitialBackground()
     {
-        return ( BackgroundProperty.IMAGE_INDICATOR + "default_rev_meter_bg.png" );
+        return ( BackgroundProperty.IMAGE_INDICATOR + "standard/rev_meter_bg.png" );
     }
     
     @Override

@@ -184,9 +184,10 @@ public abstract class Property
     /**
      * Loads the value from the configuration file.
      * 
+     * @param loader the loader
      * @param value the value to load
      */
-    public abstract void loadValue( String value );
+    public abstract void loadValue( PropertyLoader loader, String value );
     
     /**
      * {@inheritDoc}

@@ -21,6 +21,7 @@ import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -711,7 +712,7 @@ public class Position
                 }
                 
                 @Override
-                public void loadValue( String value )
+                public void loadValue( PropertyLoader loader, String value )
                 {
                     Position.this.set( RelativePositioning.valueOf( value ), getX(), getY() );
                 }
@@ -789,7 +790,7 @@ public class Position
                 }
                 
                 @Override
-                public void loadValue( String value )
+                public void loadValue( PropertyLoader loader, String value )
                 {
                     if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                         value += "px";
@@ -870,7 +871,7 @@ public class Position
                 }
                 
                 @Override
-                public void loadValue( String value )
+                public void loadValue( PropertyLoader loader, String value )
                 {
                     if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                         value += "px";

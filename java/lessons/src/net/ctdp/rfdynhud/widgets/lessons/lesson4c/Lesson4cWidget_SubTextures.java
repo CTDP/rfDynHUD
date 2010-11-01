@@ -47,7 +47,7 @@ public class Lesson4cWidget_SubTextures extends Widget
     /*
      * We need an image for our sub texture.
      */
-    private final ImagePropertyWithTexture subImage = new ImagePropertyWithTexture( this, "subImage", "cyan_circle.png" );
+    private final ImagePropertyWithTexture subImage = new ImagePropertyWithTexture( this, "subImage", "standard/cyan_circle.png" );
     
     /*
      * A sub texture is represented by a TransformableTexture.

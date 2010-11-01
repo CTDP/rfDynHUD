@@ -66,7 +66,7 @@ public abstract class NeedleMeterWidget extends Widget
     @Override
     protected String getInitialBackground()
     {
-        return ( BackgroundProperty.IMAGE_INDICATOR + "default_rev_meter_bg.png" );
+        return ( BackgroundProperty.IMAGE_INDICATOR + "standard/rev_meter_bg.png" );
     }
     
     @Override
@@ -141,7 +141,7 @@ public abstract class NeedleMeterWidget extends Widget
     
     protected String getInitialNeedleImage()
     {
-        return ( "default_rev_meter_needle.png" );
+        return ( "standard/rev_meter_needle.png" );
     }
     
     private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", getInitialNeedleImage(), false, true )
@@ -165,7 +165,7 @@ public abstract class NeedleMeterWidget extends Widget
     
     protected final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
     
-    protected final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "cyan_circle.png", false, true );
+    protected final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "standard/cyan_circle.png", false, true );
     private TransformableTexture valueBackgroundTexture = null;
     private TextureImage2D valueBackgroundTexture_bak = null;
     

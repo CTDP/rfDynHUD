@@ -98,7 +98,7 @@ public class EnumProperty<E extends Enum<E>> extends Property
      * {@inheritDoc}
      */
     @Override
-    public void loadValue( String value )
+    public void loadValue( PropertyLoader loader, String value )
     {
         for ( Enum<?> e : this.value.getClass().getEnumConstants() )
         {

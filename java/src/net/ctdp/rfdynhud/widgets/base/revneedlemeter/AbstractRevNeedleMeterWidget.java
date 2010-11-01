@@ -89,7 +89,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
     
     protected String getInitialPeakNeedleImage()
     {
-        return ( "default_rev_meter_needle.png" );
+        return ( "standard/rev_meter_needle.png" );
     }
     
     protected final ImageProperty peakNeedleImageName = new ImageProperty( this, "peakNeedleImageName", "imageName", getInitialPeakNeedleImage(), false, true );

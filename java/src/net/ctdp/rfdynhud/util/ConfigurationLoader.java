@@ -97,7 +97,7 @@ public class ConfigurationLoader implements PropertyLoader
     {
         if ( property.isMatchingKey( effectiveKey ) )
         {
-            property.loadValue( currentValue );
+            property.loadValue( this, currentValue );
             
             return ( true );
         }

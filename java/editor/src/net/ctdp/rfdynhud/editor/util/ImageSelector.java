@@ -160,6 +160,7 @@ public class ImageSelector extends JPanel
         if ( name.equals( "" ) )
         {
             this.selectedFile = "";
+            update();
             setPreview( null );
             return;
         }
@@ -168,6 +169,7 @@ public class ImageSelector extends JPanel
         if ( !file.exists() )
         {
             this.selectedFile = null;
+            update();
             setPreview( null );
             return;
         }
@@ -176,6 +178,7 @@ public class ImageSelector extends JPanel
         {
             Logger.log( "WARNING: The given file is a directory." );
             this.selectedFile = null;
+            update();
             setPreview( null );
             return;
         }

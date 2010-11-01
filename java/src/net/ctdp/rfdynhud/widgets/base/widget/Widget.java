@@ -1659,9 +1659,9 @@ public abstract class Widget implements Cloneable, Documented
         if ( loader.getSourceVersion().getBuild() < 78 )
         {
             if ( loader.getCurrentKey().equals( "backgroundColor" ) )
-                backgroundProperty.loadValue( "color:" + loader.getCurrentValue() );
+                backgroundProperty.loadValue( loader, "color:" + loader.getCurrentValue() );
             else if ( loader.getCurrentKey().equals( "backgroundImageName" ) )
-                backgroundProperty.loadValue( "image:" + loader.getCurrentValue() );
+                backgroundProperty.loadValue( loader, "image:" + loader.getCurrentValue() );
         }
         
         if ( loader.loadProperty( name ) );

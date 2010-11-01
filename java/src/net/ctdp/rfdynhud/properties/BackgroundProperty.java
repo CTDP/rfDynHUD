@@ -60,6 +60,8 @@ public class BackgroundProperty extends Property
         }
     }
     
+    private final String defaultValue;
+    
     private ColorProperty color = null;
     private ImageProperty image = null;
     
@@ -290,8 +292,34 @@ public class BackgroundProperty extends Property
      * {@inheritDoc}
      */
     @Override
-    public void loadValue( String value )
+    public void loadValue( PropertyLoader loader, String value )
     {
+        // backwards compatiblity!
+        
+        if ( loader.getSourceVersion().getBuild() < 91 )
+        {
+            if ( value.startsWith( IMAGE_INDICATOR ) && ( getWidget() != null ) )
+            {
+                String value2 = value;
+                
+                if ( getWidget().getClass().getSimpleName().startsWith( "ETV" ) )
+                {
+                    if ( value.startsWith( "etv2010/", IMAGE_INDICATOR.length() ) )
+                        value2 = IMAGE_INDICATOR + "etv2010/telemetry/" + value.substring( IMAGE_INDICATOR.length() + 8 );
+                }
+                else
+                {
+                    if ( value.startsWith( "default_", IMAGE_INDICATOR.length() ) )
+                        value2 = IMAGE_INDICATOR + "standard/" + value.substring( IMAGE_INDICATOR.length() + 8 );
+                    else
+                        value2 = IMAGE_INDICATOR + "standard/" + value.substring( IMAGE_INDICATOR.length() );
+                }
+                
+                if ( value2.equals( defaultValue ) )
+                    value = value2;
+            }
+        }
+        
         setPropertyFromValue( value, false );
     }
     
@@ -305,6 +333,8 @@ public class BackgroundProperty extends Property
     public BackgroundProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
     {
         super( widget, name, nameForDisplay, false, PropertyEditorType.BACKGROUND );
+        
+        this.defaultValue = defaultValue;
         
         setPropertyFromValue( defaultValue, true );
     }

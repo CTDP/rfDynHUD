@@ -83,11 +83,11 @@ public class WearWidget extends Widget
     
     private final EnumProperty<HundredPercentBase> hundredPercentBase = new EnumProperty<HundredPercentBase>( this, "hundredPercentBase", "100% base", HundredPercentBase.SAFE_RANGE );
     
-    private final ImagePropertyWithTexture estimationImageName = new ImagePropertyWithTexture( this, "engineEstimationImage", "estimationImage", "start_finish.png", false, true );
-    private final ImagePropertyWithTexture failImageName = new ImagePropertyWithTexture( this, "engineFailImage", "failImage", "explode.png", false, true );
+    private final ImagePropertyWithTexture estimationImageName = new ImagePropertyWithTexture( this, "engineEstimationImage", "estimationImage", "standard/start_finish.png", false, true );
+    private final ImagePropertyWithTexture failImageName = new ImagePropertyWithTexture( this, "engineFailImage", "failImage", "standard/explode.png", false, true );
     
-    private final ImagePropertyWithTexture tireIcon = new ImagePropertyWithTexture( this, "tireIcon", "icon", "tire_small.png", false, true );
-    private final ImagePropertyWithTexture brakeDiscIcon = new ImagePropertyWithTexture( this, "brakeDiscIcon", "icon", "brake_disc_small.png", false, true );
+    private final ImagePropertyWithTexture tireIcon = new ImagePropertyWithTexture( this, "tireIcon", "icon", "standard/tire_small.png", false, true );
+    private final ImagePropertyWithTexture brakeDiscIcon = new ImagePropertyWithTexture( this, "brakeDiscIcon", "icon", "standard/brake_disc_small.png", false, true );
     
     private int maxIconWidth = 0;
     

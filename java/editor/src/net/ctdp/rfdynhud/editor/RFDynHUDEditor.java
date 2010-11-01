@@ -70,6 +70,7 @@ import net.ctdp.rfdynhud.gamedata.__GameIDHelper;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
@@ -371,7 +372,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             }
             
             @Override
-            public void loadValue( String value )
+            public void loadValue( PropertyLoader loader, String value )
             {
             }
         } );

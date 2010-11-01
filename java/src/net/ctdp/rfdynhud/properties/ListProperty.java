@@ -118,7 +118,7 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
      * {@inheritDoc}
      */
     @Override
-    public void loadValue( String value )
+    public void loadValue( PropertyLoader loader, String value )
     {
         for ( E e : this.list )
         {

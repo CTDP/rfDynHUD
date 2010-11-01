@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.values;
 
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -706,7 +707,7 @@ public class Size extends AbstractSize
                 }
                 
                 @Override
-                public void loadValue( String value )
+                public void loadValue( PropertyLoader loader, String value )
                 {
                     if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                         value += "px";
@@ -795,7 +796,7 @@ public class Size extends AbstractSize
                 }
                 
                 @Override
-                public void loadValue( String value )
+                public void loadValue( PropertyLoader loader, String value )
                 {
                     if ( !value.endsWith( "%" ) && !value.endsWith( "px" ) )
                         value += "px";

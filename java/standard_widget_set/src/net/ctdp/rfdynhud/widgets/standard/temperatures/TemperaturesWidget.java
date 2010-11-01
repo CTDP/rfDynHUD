@@ -73,8 +73,8 @@ public class TemperaturesWidget extends Widget
     
     private int gap = 7;
     
-    private final ImagePropertyWithTexture tireIcon = new ImagePropertyWithTexture( this, "tireIcon", "icon", "tire_small.png", false, true );
-    private final ImagePropertyWithTexture brakeDiscIcon = new ImagePropertyWithTexture( this, "brakeDiscIcon", "icon", "brake_disc_small.png", false, true );
+    private final ImagePropertyWithTexture tireIcon = new ImagePropertyWithTexture( this, "tireIcon", "icon", "standard/tire_small.png", false, true );
+    private final ImagePropertyWithTexture brakeDiscIcon = new ImagePropertyWithTexture( this, "brakeDiscIcon", "icon", "standard/brake_disc_small.png", false, true );
     
     private int maxIconWidth = 0;
     
@@ -810,7 +810,7 @@ public class TemperaturesWidget extends Widget
         if ( loader.getSourceVersion().getBuild() < 70 )
         {
             if ( loader.getCurrentKey().equals( "brakeTempsPeekDelay" ) )
-                brakeTempsPeakDelay.loadValue( loader.getCurrentValue() );
+                brakeTempsPeakDelay.loadValue( loader, loader.getCurrentValue() );
         }
         
         if ( loader.loadProperty( font2 ) );

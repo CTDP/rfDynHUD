@@ -76,14 +76,14 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     private final IntProperty velocity2 = new IntProperty( this, "velocity2", 110, 1, 1000 );
     private final IntProperty velocity3 = new IntProperty( this, "velocity3", 220, 1, 1000 );
     
-    private final ImageProperty maxVelocityOverlay = new ImageProperty( this, "maxVelocityOverlay", "image", "etv2010/max_velocity.png" );
+    private final ImageProperty maxVelocityOverlay = new ImageProperty( this, "maxVelocityOverlay", "image", "etv2010/telemetry/max_velocity.png" );
     private TransformableTexture maxVelocityTexture = null;
     private final IntProperty maxVelocityLeftOffset = new IntProperty( this, "maxVelocityLeftOffset", "leftOffset", 15 );
     private final IntProperty maxVelocityTopOffset = new IntProperty( this, "maxVelocityTopOffset", "topOffset", 80 );
     
     private boolean throttleDirty = true;
     
-    private final ImageProperty throttleImage = new ImageProperty( this, "throttleImage", null, "etv2010/throttle.png", false, false )
+    private final ImageProperty throttleImage = new ImageProperty( this, "throttleImage", null, "etv2010/telemetry/throttle.png", false, false )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -97,7 +97,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     
     private boolean brakeDirty = true;
     
-    private final ImageProperty brakeImage = new ImageProperty( this, "brakeImage", null, "etv2010/brake.png", false, false )
+    private final ImageProperty brakeImage = new ImageProperty( this, "brakeImage", null, "etv2010/telemetry/brake.png", false, false )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -208,7 +208,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     @Override
     protected String getInitialBackground()
     {
-        return ( BackgroundProperty.IMAGE_INDICATOR + "etv2010/background.png" );
+        return ( BackgroundProperty.IMAGE_INDICATOR + "etv2010/telemetry/background.png" );
     }
     
     @Override
@@ -223,13 +223,13 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     @Override
     protected String getInitialNeedleImage()
     {
-        return ( "etv2010/needle.png" );
+        return ( "etv2010/telemetry/needle.png" );
     }
     
     @Override
     protected String getInitialPeakNeedleImage()
     {
-        return ( "etv2010/peak_needle.png" );
+        return ( "etv2010/telemetry/peak_needle.png" );
     }
     
     /**

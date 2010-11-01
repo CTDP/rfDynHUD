@@ -111,7 +111,7 @@ public class ArrayProperty<E extends Object> extends Property
      * {@inheritDoc}
      */
     @Override
-    public void loadValue( String value )
+    public void loadValue( PropertyLoader loader, String value )
     {
         for ( E e : this.array )
         {

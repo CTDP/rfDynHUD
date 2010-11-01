@@ -33,26 +33,26 @@ public class ShiftLight
 {
     private static final String[] default_shift_light_on_images =
     {
-        "shiftlight_on_red.png",
-        "shiftlight_on_orange.png",
-        "shiftlight_on_yellow.png",
-        "shiftlight_on_lightgreen.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
-        "shiftlight_on_green.png",
+        "standard/shiftlight_on_red.png",
+        "standard/shiftlight_on_orange.png",
+        "standard/shiftlight_on_yellow.png",
+        "standard/shiftlight_on_lightgreen.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
+        "standard/shiftlight_on_green.png",
     };
     
     public static final ShiftLight DEFAULT_SHIFT_LIGHT1 = new ShiftLight( null, 1 );
@@ -340,7 +340,7 @@ public class ShiftLight
         this.widget = widget;
         this.indexOneBased = indexOneBased;
         
-        this.imageNameOff = new ImageProperty( widget, "shiftLightImageNameOff" + indexOneBased, "imageNameOff", "shiftlight_off.png", false, true )
+        this.imageNameOff = new ImageProperty( widget, "shiftLightImageNameOff" + indexOneBased, "imageNameOff", "standard/shiftlight_off.png", false, true )
         {
             @Override
             protected void onValueChanged( String oldValue, String newValue )

@@ -161,7 +161,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
     @Override
     protected String getInitialBackground()
     {
-        return ( BackgroundProperty.IMAGE_INDICATOR + "default_rev_meter_bg.png" );
+        return ( BackgroundProperty.IMAGE_INDICATOR + "standard/rev_meter_bg.png" );
     }
     
     @Override
@@ -631,41 +631,41 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
     private void handleBackwardsCompatiblity( PropertyLoader loader )
     {
         if ( loader.getCurrentKey().equals( "displayRevMarkers" ) )
-            displayMarkers.loadValue( loader.getCurrentValue() );
+            displayMarkers.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "displayRevMarkerNumbers" ) )
-            displayMarkerNumbers.loadValue( loader.getCurrentValue() );
+            displayMarkerNumbers.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "revMarkersInnerRadius" ) )
-            markersInnerRadius.loadValue( loader.getCurrentValue() );
+            markersInnerRadius.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "revMarkersLength" ) )
-            markersLength.loadValue( loader.getCurrentValue() );
+            markersLength.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "revMarkersBigStep" ) )
-            markersBigStep.loadValue( loader.getCurrentValue() );
+            markersBigStep.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "revMarkersSmallStep" ) )
-            markersSmallStep.loadValue( loader.getCurrentValue() );
+            markersSmallStep.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "revMarkersColor" ) )
-            markersColor.loadValue( loader.getCurrentValue() );
+            markersColor.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "revMarkersFont" ) )
-            markersFont.loadValue( loader.getCurrentValue() );
+            markersFont.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "revMarkersFontColor" ) )
-            markersFontColor.loadValue( loader.getCurrentValue() );
+            markersFontColor.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "displayVelocity" ) )
-            displayValue.loadValue( loader.getCurrentValue() );
+            displayValue.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "velocityBackgroundImageName" ) )
-            valueBackgroundImageName.loadValue( loader.getCurrentValue() );
+            valueBackgroundImageName.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "velocityPosX" ) )
-            valuePosX.loadValue( loader.getCurrentValue() );
+            valuePosX.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "velocityPosY" ) )
-            valuePosY.loadValue( loader.getCurrentValue() );
+            valuePosY.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "velocityFont" ) )
-            valueFont.loadValue( loader.getCurrentValue() );
+            valueFont.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "velocityFontColor" ) )
-            valueFontColor.loadValue( loader.getCurrentValue() );
+            valueFontColor.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "needleAxisBottomOffset" ) )
-            needlePivotBottomOffset.loadValue( loader.getCurrentValue() );
+            needlePivotBottomOffset.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.getCurrentKey().equals( "rotationForZeroRPM" ) )
-            { needleRotationForMinValue.loadValue( loader.getCurrentValue() ); needleRotationForMinValue.setFloatValue( -needleRotationForMinValue.getFloatValue() ); }
+            { needleRotationForMinValue.loadValue( loader, loader.getCurrentValue() ); needleRotationForMinValue.setFloatValue( -needleRotationForMinValue.getFloatValue() ); }
         else if ( loader.getCurrentKey().equals( "rotationForMaxRPM" ) )
-            { needleRotationForMaxValue.loadValue( loader.getCurrentValue() ); needleRotationForMaxValue.setFloatValue( -needleRotationForMaxValue.getFloatValue() ); }
+            { needleRotationForMaxValue.loadValue( loader, loader.getCurrentValue() ); needleRotationForMaxValue.setFloatValue( -needleRotationForMaxValue.getFloatValue() ); }
     }
     
     /**

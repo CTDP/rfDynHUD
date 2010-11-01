@@ -30,6 +30,8 @@ public class ImageProperty extends StringProperty
 {
     public static final boolean DEFAULT_NO_IMAGE_ALOWED = false;
     
+    private final String defaultValue;
+    
     private final boolean noImageAllowed;
     
     /**
@@ -86,6 +88,41 @@ public class ImageProperty extends StringProperty
     }
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadValue( PropertyLoader loader, String value )
+    {
+        // backwards compatiblity!
+        
+        if ( loader.getSourceVersion().getBuild() < 91 )
+        {
+            if ( !value.equals( "" ) && ( getWidget() != null ) )
+            {
+                String value2 = value;
+                
+                if ( getWidget().getClass().getSimpleName().startsWith( "ETV" ) )
+                {
+                    if ( value.startsWith( "etv2010/" ) )
+                        value2 = "etv2010/telemetry/" + value.substring( 8 );
+                }
+                else
+                {
+                    if ( value.startsWith( "default_" ) )
+                        value2 = "standard/" + value.substring( 8 );
+                    else
+                        value2 = "standard/" + value;
+                }
+                
+                if ( value2.equals( defaultValue ) )
+                    value = value2;
+            }
+        }
+        
+        setValue( value );
+    }
+    
+    /**
      * 
      * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
@@ -97,6 +134,8 @@ public class ImageProperty extends StringProperty
     public ImageProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
         super( widget, name, nameForDisplay, defaultValue, true, readonly, PropertyEditorType.IMAGE );
+        
+        this.defaultValue = defaultValue;
         
         this.noImageAllowed = noImageAllowed;
     }

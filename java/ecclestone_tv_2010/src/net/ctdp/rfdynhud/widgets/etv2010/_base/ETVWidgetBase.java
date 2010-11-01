@@ -43,7 +43,7 @@ public abstract class ETVWidgetBase extends Widget
         }
     };
     
-    protected final StringProperty imagesIni = new StringProperty( this, "imagesIni", "ecclestone_tv_2010/etv_2010_images.ini" )
+    protected final StringProperty imagesIni = new StringProperty( this, "imagesIni", "etv2010/general/etv_2010_images.ini" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -122,6 +122,8 @@ public abstract class ETVWidgetBase extends Widget
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( useImages, "Whether to use images to render the items." );
+        writer.writeProperty( imagesIni, "The ini file, that configures the background images." );
         writer.writeProperty( captionBackgroundColor, "The background color for the \"Lap\" caption." );
         writer.writeProperty( captionColor, "The font color for the \"Lap\" caption." );
         writer.writeProperty( dataBackgroundColor, "The background color for the data fields." );
@@ -137,7 +139,13 @@ public abstract class ETVWidgetBase extends Widget
     {
         super.loadProperty( loader );
         
-        if ( loader.loadProperty( captionBackgroundColor ) );
+        if ( loader.loadProperty( useImages ) );
+        else if ( loader.getCurrentKey().equals( imagesIni.getName() ) )
+        {
+            if ( loader.getSourceVersion().getBuild() >= 91 )
+                loader.loadProperty( imagesIni );
+        }
+        else if ( loader.loadProperty( captionBackgroundColor ) );
         else if ( loader.loadProperty( captionColor ) );
         else if ( loader.loadProperty( dataBackgroundColor ) );
         else if ( loader.loadProperty( itemGap ) );

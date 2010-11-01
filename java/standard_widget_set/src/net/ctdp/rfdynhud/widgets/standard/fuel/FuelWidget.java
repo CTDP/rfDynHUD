@@ -92,7 +92,7 @@ public class FuelWidget extends Widget
     private final ColorProperty fuelFontColor = new ColorProperty( this, "fuelFontColor", "#FFFFFFCD" );
     private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( this, "roundUpRemainingLaps", "roundUpRemLaps", false );
     
-    private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( this, "lowFuelWarningImageOff", "imageOff", "shiftlight_off.png", false, true )
+    private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( this, "lowFuelWarningImageOff", "imageOff", "standard/shiftlight_off.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -102,7 +102,7 @@ public class FuelWidget extends Widget
     };
     private TransformableTexture lowFuelWarningImageOff = null;
     
-    private final ImageProperty lowFuelWarningImageNameOn = new ImageProperty( this, "lowFuelWarningImageOn", "imageOn", "shiftlight_on_red.png", false, true )
+    private final ImageProperty lowFuelWarningImageNameOn = new ImageProperty( this, "lowFuelWarningImageOn", "imageOn", "standard/shiftlight_on_red.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )

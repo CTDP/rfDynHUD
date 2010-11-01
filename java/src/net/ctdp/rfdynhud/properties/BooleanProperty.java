@@ -91,7 +91,7 @@ public class BooleanProperty extends Property
      * {@inheritDoc}
      */
     @Override
-    public void loadValue( String value )
+    public void loadValue( PropertyLoader loader, String value )
     {
         setValue( Boolean.parseBoolean( value ) );
     }
