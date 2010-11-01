@@ -44,7 +44,7 @@ import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.StringUtil;
-import net.ctdp.rfdynhud.util.WidgetTools;
+import net.ctdp.rfdynhud.util.WidgetZYXComparator;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -143,7 +143,7 @@ public class WidgetsConfiguration implements Documented
     
     void sortWidgets()
     {
-        Collections.sort( widgets, WidgetTools.WIDGET_Z_Y_X_COMPARATOR );
+        Collections.sort( widgets, WidgetZYXComparator.INSTANCE );
     }
     
     /**

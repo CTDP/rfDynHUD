@@ -1475,7 +1475,8 @@ class VehiclePhysicsParser
         cchParser.parse( cchFile );
         
         ArrayList<Object[]> upgradesList = cchParser.getUpgradesList();
-        findAndLoadForcedUpgrades( upgradesList, vehicleFile.getParentFile(), trackName );
+        if ( trackName != null )
+            findAndLoadForcedUpgrades( upgradesList, vehicleFile.getParentFile(), trackName );
         
         new VEHParser( vehicleFile, simplifyUpgradesList( upgradesList ), physics ).parse( vehicleFile );
     }

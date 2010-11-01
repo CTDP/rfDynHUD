@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGenerator;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGeneratorImpl;
@@ -494,11 +495,10 @@ public class ScoringInfo
         if ( getSessionType().isRace() )
         {
             double trackRaceLaps = gameData.getTrackInfo().getRaceLaps();
-            if ( trackRaceLaps < 0.0 )
-            {
-                // We seem to be in editor mode
+            if ( __EDPrivilegedAccess.isEditorMode )
                 trackRaceLaps = 70;
-            }
+            else if ( trackRaceLaps < 0.0 ) // corrupt GDB file?
+                trackRaceLaps = data.getMaxLaps();
             
             VehicleScoringInfo leader = getLeadersVehicleScoringInfo();
             SessionLimit sessionLimit = leader.getSessionLimit();

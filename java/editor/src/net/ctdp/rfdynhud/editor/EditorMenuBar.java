@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -53,7 +51,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
@@ -558,7 +555,7 @@ public class EditorMenuBar extends JMenuBar
         JMenu menu = new JMenu( "Widgets" );
         menu.setDisplayedMnemonicIndex( 0 );
         
-        List<Class<Widget>> classes = WidgetTools.findWidgetClasses();
+        Class<Widget>[] classes_ = WidgetFactory.getWidgetClasses();
         
         HashMap<Class<Widget>, Widget> instances = new HashMap<Class<Widget>, Widget>();
         /*
@@ -578,11 +575,9 @@ public class EditorMenuBar extends JMenuBar
         WidgetPackage rootPackage = new WidgetPackage( "", 0 );
         
         ArrayList<WidgetPackage> widgetPackages = new ArrayList<WidgetPackage>();
-        Iterator<Class<Widget>> it = classes.iterator();
-        while ( it.hasNext() )
+        ArrayList<Class<Widget>> classes = new ArrayList<Class<Widget>>();
+        for ( Class<Widget> clazz : classes_ )
         {
-            Class<Widget> clazz = it.next();
-            
             try
             {
                 Widget widget = WidgetFactory.createWidget( clazz, "dummy" );
@@ -596,10 +591,11 @@ public class EditorMenuBar extends JMenuBar
                     
                     widgetPackages.add( wp );
                 }
+                
+                classes.add( clazz );
             }
             catch ( Throwable t )
             {
-                it.remove();
                 Logger.log( "Error handling Widget class " + clazz.getName() + ":" );
                 Logger.log( t );
             }
@@ -618,11 +614,8 @@ public class EditorMenuBar extends JMenuBar
         
         WidgetsDrawingManager widgetsManager = new WidgetsDrawingManager( true, WidgetMenuItem.ICON_WIDTH, WidgetMenuItem.ICON_HEIGHT );
         
-        it = classes.iterator();
-        while ( it.hasNext() )
+        for ( Class<Widget> clazz : classes )
         {
-            Class<Widget> clazz = it.next();
-            
             try
             {
                 Widget widget = instances.get( clazz );
@@ -641,7 +634,6 @@ public class EditorMenuBar extends JMenuBar
             }
             catch ( Throwable t )
             {
-                it.remove();
                 Logger.log( "Error handling Widget class " + clazz.getName() + ":" );
                 Logger.log( t );
             }

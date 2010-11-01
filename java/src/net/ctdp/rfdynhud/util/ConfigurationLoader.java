@@ -414,7 +414,7 @@ public class ConfigurationLoader implements PropertyLoader
                                 Class<Widget> clazz = WidgetFactory.getWidgetClass( value );
                                 if ( clazz == null )
                                 {
-                                    Logger.log( "Error: Unknown Widget class " + value + "." );
+                                    Logger.log( "Error: Unknown Widget class \"" + value + "\"." );
                                     badWidget = true;
                                 }
                                 else

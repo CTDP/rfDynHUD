@@ -36,7 +36,7 @@ import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetTools;
+import net.ctdp.rfdynhud.util.WidgetZYXComparator;
 import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -77,7 +77,7 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
     
     void sortParts()
     {
-        Arrays.sort( parts, WidgetTools.WIDGET_Z_Y_X_COMPARATOR );
+        Arrays.sort( parts, WidgetZYXComparator.INSTANCE );
     }
     
     /**

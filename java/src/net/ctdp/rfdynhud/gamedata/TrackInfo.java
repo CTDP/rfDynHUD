@@ -41,6 +41,8 @@ public class TrackInfo
     
     private static Object[] checkGDB( File gdb, String trackname )
     {
+        Object[] result = new Object[] { "N/A", -1 };
+        
         BufferedReader br = null;
         
         try
@@ -48,16 +50,13 @@ public class TrackInfo
             boolean trackFound = false;
             boolean raceLapsFound = false;
             
-            String trackname2 = null;
-            int trackRaceLaps = -1;
-            
             br = new BufferedReader( new FileReader( gdb ) );
             
             String line = null;
             while ( ( line = br.readLine() ) != null )
             {
                 line = line.trim();
-                if ( line.startsWith( "TrackName" ) )
+                if ( line.toLowerCase().startsWith( "trackname" ) )
                 {
                     int idx = line.indexOf( '=', 9 );
                     if ( idx >= 0 )
@@ -66,7 +65,7 @@ public class TrackInfo
                         
                         if ( ( trackname == null ) || tn.equals( trackname ) )
                         {
-                            trackname2 = tn;
+                            result[0] = tn;
                             trackFound = true;
                         }
                     }
@@ -78,7 +77,7 @@ public class TrackInfo
                     {
                         try
                         {
-                            trackRaceLaps = Integer.parseInt( line.substring( idx + 1 ).trim() );
+                            result[1] = Integer.parseInt( line.substring( idx + 1 ).trim() );
                             raceLapsFound = true;
                         }
                         catch ( Throwable t )
@@ -88,7 +87,7 @@ public class TrackInfo
                 }
                 
                 if ( trackFound && raceLapsFound )
-                    return ( new Object[] { trackname2, trackRaceLaps } );
+                    return ( result );
             }
         }
         catch ( Throwable t )
@@ -98,10 +97,10 @@ public class TrackInfo
         finally
         {
             if ( br != null )
-                try { br.close(); } catch ( Throwable t ) { Logger.log( t ); }
+                try { br.close(); } catch ( Throwable t ) {}
         }
         
-        return ( null );
+        return ( result );
     }
     
     /*

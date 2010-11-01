@@ -20,11 +20,9 @@ package net.ctdp.rfdynhud.input;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.WidgetTools;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetFactory;
 
@@ -79,11 +77,11 @@ public class KnownInputActions
             
             try
             {
-                List<Class<Widget>> classes = WidgetTools.findWidgetClasses();
+                Class<Widget>[] classes = WidgetFactory.getWidgetClasses();
                 
-                for ( int i = 0; i < classes.size(); i++ )
+                for ( int i = 0; i < classes.length; i++ )
                 {
-                    Class<Widget> c = classes.get( i );
+                    Class<Widget> c = classes[i];
                     
                     Widget widget = WidgetFactory.createWidget( c, "dummy" );
                     

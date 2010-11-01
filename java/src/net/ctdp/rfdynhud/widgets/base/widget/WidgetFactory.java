@@ -17,6 +17,21 @@
  */
 package net.ctdp.rfdynhud.widgets.base.widget;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jagatoo.util.classes.ClassSearcher;
+import org.jagatoo.util.classes.SuperClassCriterium;
+
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
@@ -27,6 +42,118 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  */
 public class WidgetFactory
 {
+    private static final List<Class<Widget>> widgetClasses;
+    private static final Map<String, Class<Widget>> widgetClassNameClassMap;
+    
+    private static void findWidgetSetJars( File folder, List<URL> jars )
+    {
+        for ( File f : folder.listFiles() )
+        {
+            if ( f.isDirectory() )
+            {
+                if ( !f.getName().equals( ".svn" ) )
+                    findWidgetSetJars( f, jars );
+            }
+            else if ( f.getName().toLowerCase().endsWith( ".jar" ) )
+            {
+                try
+                {
+                    jars.add( f.toURI().toURL() );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
+            }
+        }
+    }
+    
+    private static URL[] findWidgetSetJars( File widgetSetsFolder )
+    {
+        ArrayList<URL> jars = new ArrayList<URL>();
+        
+        for ( File f : widgetSetsFolder.listFiles() )
+        {
+            if ( f.isDirectory() && !f.getName().equals( ".svn" ) )
+            {
+                findWidgetSetJars( f, jars );
+            }
+        }
+        
+        URL[] urls = new URL[ jars.size() ];
+        
+        return ( jars.toArray( urls ) );
+    }
+    
+    /**
+     * Finds all publicly available and non-abstract {@link Widget} classes.
+     * 
+     * @return all non-abstract {@link Widget} classes in the classpath.
+     */
+    @SuppressWarnings( "unchecked" )
+    private static List<Class<Widget>> findWidgetClasses()
+    {
+        File widgetSetsFolder = GameFileSystem.INSTANCE.getWidgetSetsFolder();
+        
+        List<Class<?>> classes_;
+        if ( ( widgetSetsFolder != null ) && widgetSetsFolder.exists() )
+        {
+            URLClassLoader classLoader = new URLClassLoader( findWidgetSetJars( widgetSetsFolder ), Widget.class.getClassLoader() );
+            
+            try
+            {
+                classes_ = ClassSearcher.findClasses( true, classLoader, new SuperClassCriterium( Widget.class, false ) );
+            }
+            catch ( IOException e )
+            {
+                Logger.log( e );
+                classes_ = null;
+            }
+        }
+        else
+        {
+            classes_ = ClassSearcher.findClasses( new SuperClassCriterium( Widget.class, false ) );
+        }
+        
+        ArrayList<Class<Widget>> classes = new ArrayList<Class<Widget>>();
+        for ( int i = 0; i < classes_.size(); i++ )
+        {
+            Class<Widget> clazz = (Class<Widget>)classes_.get( i );
+            
+            if ( !clazz.isAnnotationPresent( Hidden.class ) )
+                classes.add( clazz );
+        }
+        
+        Collections.sort( classes, new Comparator<Class<Widget>>()
+        {
+            @Override
+            public int compare( Class<Widget> o1, Class<Widget> o2 )
+            {
+                return ( String.CASE_INSENSITIVE_ORDER.compare( o1.getSimpleName(), o2.getSimpleName() ) );
+            }
+        } );
+        
+        //return ( classes.toArray( new Class[ classes.size() ] ) );
+        return ( classes );
+    }
+    
+    static
+    {
+        widgetClasses = findWidgetClasses();
+        
+        widgetClassNameClassMap = new HashMap<String, Class<Widget>>();
+        for ( Class<Widget> clazz : widgetClasses )
+        {
+            widgetClassNameClassMap.put( clazz.getName(), clazz );
+        }
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    public static final Class<Widget>[] getWidgetClasses()
+    {
+        return ( widgetClasses.toArray( new Class[ widgetClasses.size() ] ) );
+    }
+    
     private static final Throwable getRootCause( Throwable t )
     {
         if ( t.getCause() == null )
@@ -116,16 +243,11 @@ public class WidgetFactory
      * 
      * @return the {@link Widget} {@link Class} instance or <code>null</code> on error.
      */
-    @SuppressWarnings( "unchecked" )
     public static Class<Widget> getWidgetClass( String className )
     {
-        Class<Widget> clazz = null;
+        Class<Widget> clazz = widgetClassNameClassMap.get( className );
         
-        try
-        {
-            clazz = (Class<Widget>)Class.forName( className, false, Widget.class.getClassLoader() );
-        }
-        catch ( ClassNotFoundException e )
+        if ( clazz == null )
         {
             // branch for backwards compatiblity with old package names...
             
@@ -133,33 +255,10 @@ public class WidgetFactory
             
             if ( oldClassName == null )
             {
-                Logger.log( e );
-                
                 return ( null );
             }
             
-            try
-            {
-                clazz = (Class<Widget>)Class.forName( oldClassName, false, Widget.class.getClassLoader() );
-            }
-            catch ( ClassNotFoundException e2 )
-            {
-                Logger.log( e );
-                
-                return ( null );
-            }
-            catch ( Throwable t2 )
-            {
-                Logger.log( getRootCause( t2 ) );
-                
-                return ( null );
-            }
-        }
-        catch ( Throwable t )
-        {
-            Logger.log( getRootCause( t ) );
-            
-            return ( null );
+            clazz = widgetClassNameClassMap.get( oldClassName );
         }
         
         return ( clazz );

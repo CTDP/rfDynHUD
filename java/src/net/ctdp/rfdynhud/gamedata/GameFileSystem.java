@@ -42,6 +42,8 @@ public abstract class GameFileSystem
     private final String locationsPath;
     private final File configFolder;
     private final String configPath;
+    private final File widgetSetsFolder;
+    private final String widgetSetsPath;
     private final File subPluginsFolder;
     private final String subPluginsPath;
     private final File cacheFolder;
@@ -101,6 +103,18 @@ public abstract class GameFileSystem
     protected File findConfigFolder( File pluginFolder, PluginINI pluginINI )
     {
         return ( pluginINI.getGeneralConfigFolder() );
+    }
+    
+    /**
+     * Called once at instantiation time to initialize the widget sets' folder.
+     * 
+     * @param pluginFolder the plugin's main folder
+     * 
+     * @return the widget sets' folder.
+     */
+    protected File findWidgetSetsFolder( File pluginFolder )
+    {
+        return ( new File( pluginFolder, "widget_sets" ).getAbsoluteFile() );
     }
     
     /**
@@ -292,6 +306,26 @@ public abstract class GameFileSystem
     }
     
     /**
+     * Gets widget sets' folder.
+     * 
+     * @return widget sets' folder.
+     */
+    public final File getWidgetSetsFolder()
+    {
+        return ( widgetSetsFolder );
+    }
+    
+    /**
+     * Gets widget sets' folder.
+     * 
+     * @return widget sets' folder.
+     */
+    public final String getWidgetSetsPath()
+    {
+        return ( widgetSetsPath );
+    }
+    
+    /**
      * Gets sub plugins' folder.
      * 
      * @return sub plugins' folder.
@@ -420,6 +454,9 @@ public abstract class GameFileSystem
         
         this.bordersFolder = findBordersFolder( pluginFolder, pluginINI, configFolder );
         this.bordersPath = bordersFolder.getAbsolutePath();
+        
+        this.widgetSetsFolder = findWidgetSetsFolder( pluginFolder );
+        this.widgetSetsPath = ( widgetSetsFolder == null ) ? null : widgetSetsFolder.getAbsolutePath();
         
         this.subPluginsFolder = findSubPluginsFolder( pluginFolder );
         this.subPluginsPath = ( subPluginsFolder == null ) ? null : subPluginsFolder.getAbsolutePath();

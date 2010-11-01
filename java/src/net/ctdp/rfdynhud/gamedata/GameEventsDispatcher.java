@@ -568,7 +568,8 @@ class GameEventsDispatcher
         {
             if ( f.isDirectory() )
             {
-                findPluginJars( f, jars );
+                if ( !f.getName().equals( ".svn" ) )
+                    findPluginJars( f, jars );
             }
             else if ( f.getName().toLowerCase().endsWith( ".jar" ) )
             {
@@ -590,7 +591,7 @@ class GameEventsDispatcher
         
         for ( File f : pluginsFolder.listFiles() )
         {
-            if ( f.isDirectory() )
+            if ( f.isDirectory() && !f.getName().equals( ".svn" ) )
             {
                 findPluginJars( f, jars );
             }
