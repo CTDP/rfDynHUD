@@ -42,6 +42,8 @@ public abstract class GameFileSystem
     private final String locationsPath;
     private final File configFolder;
     private final String configPath;
+    private final File subPluginsFolder;
+    private final String subPluginsPath;
     private final File cacheFolder;
     private final String cachePath;
     private final File bordersFolder;
@@ -99,6 +101,18 @@ public abstract class GameFileSystem
     protected File findConfigFolder( File pluginFolder, PluginINI pluginINI )
     {
         return ( pluginINI.getGeneralConfigFolder() );
+    }
+    
+    /**
+     * Called once at instantiation time to initialize the sub plugins' folder.
+     * 
+     * @param pluginFolder the plugin's main folder
+     * 
+     * @return the sub plugins' folder.
+     */
+    protected File findSubPluginsFolder( File pluginFolder )
+    {
+        return ( new File( pluginFolder, "plugins" ).getAbsoluteFile() );
     }
     
     /**
@@ -278,6 +292,26 @@ public abstract class GameFileSystem
     }
     
     /**
+     * Gets sub plugins' folder.
+     * 
+     * @return sub plugins' folder.
+     */
+    public final File getSubPluginsFolder()
+    {
+        return ( subPluginsFolder );
+    }
+    
+    /**
+     * Gets sub plugins' folder.
+     * 
+     * @return sub plugins' folder.
+     */
+    public final String getSubPluginsPath()
+    {
+        return ( subPluginsPath );
+    }
+    
+    /**
      * Gets the plugin's cache folder.
      * 
      * @return the plugin's cache folder.
@@ -386,6 +420,9 @@ public abstract class GameFileSystem
         
         this.bordersFolder = findBordersFolder( pluginFolder, pluginINI, configFolder );
         this.bordersPath = bordersFolder.getAbsolutePath();
+        
+        this.subPluginsFolder = findSubPluginsFolder( pluginFolder );
+        this.subPluginsPath = ( subPluginsFolder == null ) ? null : subPluginsFolder.getAbsolutePath();
         
         this.cacheFolder = findCacheFolder( pluginFolder, pluginINI );
         this.cachePath = ( cacheFolder == null ) ? null : cacheFolder.getAbsolutePath();

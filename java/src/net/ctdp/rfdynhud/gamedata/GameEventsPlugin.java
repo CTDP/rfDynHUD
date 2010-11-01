@@ -21,8 +21,14 @@ import net.ctdp.rfdynhud.render.WidgetsRenderListenersManager;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
+ * <p>
  * This interface defines the entry point for custom event listeners without having to
- * create an add a whole {@link Widget}
+ * create an add a whole {@link Widget}.
+ * </p>
+ * 
+ * <p>
+ * Implementing classes must define a constructor taking a java.io.File, which is being passed the GameEventsPlugin's 'baseFolder'.
+ * </p>
  * 
  * @author Marvin Froehlich (CTDP)
  */

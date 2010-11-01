@@ -17,11 +17,14 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import org.jagatoo.util.classes.ClassSearcher;
-import org.jagatoo.util.classes.SuperClassCriterium;
+import java.util.jar.JarFile;
 
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputMapping;
@@ -33,6 +36,9 @@ import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
+
+import org.jagatoo.util.classes.ClassSearcher;
+import org.jagatoo.util.classes.SuperClassCriterium;
 
 /**
  * Dispatches game and game data events.
@@ -556,13 +562,73 @@ class GameEventsDispatcher
         }
     }
     
+    private static void findPluginJars( File folder, List<URL> jars )
+    {
+        for ( File f : folder.listFiles() )
+        {
+            if ( f.isDirectory() )
+            {
+                findPluginJars( f, jars );
+            }
+            else if ( f.getName().toLowerCase().endsWith( ".jar" ) )
+            {
+                try
+                {
+                    jars.add( f.toURI().toURL() );
+                }
+                catch ( Throwable t )
+                {
+                    Logger.log( t );
+                }
+            }
+        }
+    }
+    
+    private static URL[] findPluginJars( File pluginsFolder )
+    {
+        ArrayList<URL> jars = new ArrayList<URL>();
+        
+        for ( File f : pluginsFolder.listFiles() )
+        {
+            if ( f.isDirectory() )
+            {
+                findPluginJars( f, jars );
+            }
+        }
+        
+        URL[] urls = new URL[ jars.size() ];
+        
+        return ( jars.toArray( urls ) );
+    }
+    
     private static final GameEventsPlugin[] findPlugins()
     {
         Logger.log( "Loading GameEventsPlugins..." );
         
-        List<Class<?>> pluginClasses = ClassSearcher.findClasses( new SuperClassCriterium( GameEventsPlugin.class, false ) );
+        File pluginsFolder = GameFileSystem.INSTANCE.getSubPluginsFolder();
         
-        if ( pluginClasses.size() == 0 )
+        HashMap<Class<?>, JarFile> jarMap = new HashMap<Class<?>, JarFile>();
+        List<Class<?>> pluginClasses;
+        if ( ( pluginsFolder != null ) && pluginsFolder.exists() )
+        {
+            URLClassLoader classLoader = new URLClassLoader( findPluginJars( pluginsFolder ), GameEventsPlugin.class.getClassLoader() );
+            
+            try
+            {
+                pluginClasses = ClassSearcher.findClasses( true, classLoader, jarMap, new SuperClassCriterium( GameEventsPlugin.class, false ) );
+            }
+            catch ( IOException e )
+            {
+                Logger.log( e );
+                pluginClasses = null;
+            }
+        }
+        else
+        {
+            pluginClasses = ClassSearcher.findClasses( jarMap, new SuperClassCriterium( GameEventsPlugin.class, false ) );
+        }
+        
+        if ( ( pluginClasses == null ) || ( pluginClasses.size() == 0 ) )
         {
             Logger.log( "No plugin found." );
             
@@ -574,10 +640,12 @@ class GameEventsDispatcher
         for ( int i = 0; i < pluginClasses.size(); i++ )
         {
             Class<?> pluginClazz = pluginClasses.get( i );
+            JarFile jar = jarMap.get( pluginClazz );
+            File baseFolder = ( jar == null ) ? null : new File( jar.getName() ).getParentFile();
             
             try
             {
-                plugins[i] = (GameEventsPlugin)pluginClazz.newInstance();
+                plugins[i] = (GameEventsPlugin)pluginClazz.getConstructor( File.class ).newInstance( baseFolder );
                 
                 Logger.log( "    Found plugin \"" + pluginClazz.getName() + "\"." );
             }

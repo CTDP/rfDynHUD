@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="D:/Spiele/rFactor/Plugins/rfDynHud/rfdynhud.jar"/>
-    <options buildIfNeeded="true" compress="true" descriptionLocation="/rfdynhud/rfdynhud_Marvin.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <jar path="D:/Spiele/rFactor/Plugins/rfDynHUD/plugins/simulation/simulation_recorder.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/rfdynhud/zzz_jardescs/simulation_recorder.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
     <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
@@ -11,6 +11,6 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=rfdynhud/src"/>
+        <javaElement handleIdentifier="=rfdynhud/test\/src&lt;net.ctdp.rfdynhud.test.optimization"/>
     </selectedElements>
 </jardesc>

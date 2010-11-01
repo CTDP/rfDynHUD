@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="D:/Spiele/rFactor/Plugins/rfDynHUD/widget_sets/ecclestone_tv_2010/ecclestone_tv_2010.jar"/>
-    <options buildIfNeeded="true" compress="true" descriptionLocation="/rfdynhud/zzz_jardescs/ecclestone_tv_2010.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <jar path="D:/Spiele/rFactor/Plugins/rfDynHUD/editor/rfdynhud_editor.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/rfdynhud/zzz_jardescs/rfdynhud_editor.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
     <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
@@ -11,6 +11,6 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=rfdynhud/ecclestone_tv_2010\/src"/>
+        <javaElement handleIdentifier="=rfdynhud/editor\/src"/>
     </selectedElements>
 </jardesc>
