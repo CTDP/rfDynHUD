@@ -146,7 +146,7 @@ bool _initializeD3D()
     logg( "Initializing DirectInput..." );
     if ( initDirectInput( hWnd ) )
     {
-        logg( "Succuessfully initialized DirectInput." );
+        logg( "Successfully initialized DirectInput." );
     }
     else
     {

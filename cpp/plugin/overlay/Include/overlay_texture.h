@@ -94,11 +94,11 @@ public:
     
     void buildAtlas( const unsigned char numSourceTextures, const unsigned char* numRectangles, const unsigned short* rectangles );
     
-    void updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed );
+    void updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, const bool updateAll, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed );
     
     void copyDirtyRectsToTexture( const unsigned char texIndex, const unsigned short numDirtyRects, const unsigned short* dirtyRectsBuffer, const unsigned char* sourceBuffer, const unsigned int sourceTexPitch, unsigned int* destBuffer, const unsigned int trgPitch, IDirect3DTexture9* texture );
     
-    void render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, const float postScaleX, const float postScaleY, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects );
+    void render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, const bool updateAll, const float postScaleX, const float postScaleY, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects );
 };
 
 class OverlayTextureManagerImpl : public OverlayTextureManager

@@ -313,7 +313,7 @@ const float VERTEX_OFFSET_Y = -0.5f;
 const float TEX_COORD_PIXEL_OFFSET_LT = 0.0f;
 const float TEX_COORD_PIXEL_OFFSET_RB = 0.0f;
 
-void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed )
+void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, const bool updateAll, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed )
 {
     if ( vertexBuffer == NULL )
         return;
@@ -340,12 +340,12 @@ void TextureAtlas::updateVertexBuffer( IDirect3DVertexBuffer9* vertexBuffer, cha
     v = 0;
     for ( idx_t = 0; idx_t < m_numSourceTextures; idx_t++ )
     {
-        texVis = ( idx_t > 0 ) || ( texVisibleFlags[idx_t] > 0 );
+        texVis = updateAll || ( idx_t > 0 ) || ( texVisibleFlags[idx_t] > 0 );
         for ( idx_r = 0; idx_r < m_numRectangles[idx_t]; idx_r++ )
         {
             z = 0.5f; //ZERO_Z_INDEX + ( (float)r * zIndexUnit );
             
-            if ( texVis && ( rectangleVisibleFlags[r] > 0 ) )
+            if ( updateAll || ( texVis && ( rectangleVisibleFlags[r] > 0 ) ) )
             {
                 rect = m_rectangles[r];
                 
@@ -736,7 +736,7 @@ static const unsigned char TRANSFORM_FLAG_TRANSLATION = 2;
 static const unsigned char TRANSFORM_FLAG_ROTATION    = 4;
 static const unsigned char TRANSFORM_FLAG_SCALE       = 8;
 
-void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, const float postScaleX, const float postScaleY, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects )
+void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayTexture, IDirect3DVertexBuffer9* vertexBuffer, const bool updateAll, const float postScaleX, const float postScaleY, char* texVisibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects )
 {
     if ( ( overlayTexture == NULL ) || ( vertexBuffer == NULL ) )
         return;
@@ -782,7 +782,7 @@ void TextureAtlas::render( LPDIRECT3DDEVICE9 device, IDirect3DTexture9* overlayT
     device->SetTransform( D3DTS_TEXTURE0, &m_texMatrix );
     
     if ( checkVisibleFlags( texVisibleFlags, m_numSourceTextures, isTransformed, rectangleVisibleFlags, m_numRectangles ) || m_justBuilt )
-        updateVertexBuffer( vertexBuffer, texVisibleFlags, rectangleVisibleFlags, isTransformed );
+        updateVertexBuffer( vertexBuffer, updateAll, texVisibleFlags, rectangleVisibleFlags, isTransformed );
     
     m_justBuilt = false;
     
@@ -943,11 +943,12 @@ void OverlayTextureManagerImpl::render( const float postScaleX, const float post
         copyDirtyRectsToTexture( numTextures, dirtyRectsBuffers, pixBuffCallback );
     }
     
+    bool updateAll = m_completeTextureUpdateForced;
     m_completeTextureUpdateForced = false;
     
     if ( m_overlayTexture != NULL )
     {
-        m_atlas->render( m_device, m_overlayTexture, m_vertexBuffer, postScaleX, postScaleY, visibleFlags, rectangleVisibleFlags, isTransformed, translations, rotCenters, rotations, scales, clipRects );
+        m_atlas->render( m_device, m_overlayTexture, m_vertexBuffer, updateAll, postScaleX, postScaleY, visibleFlags, rectangleVisibleFlags, isTransformed, translations, rotCenters, rotations, scales, clipRects );
     }
 }
 
