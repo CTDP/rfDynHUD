@@ -27,28 +27,30 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import net.ctdp.rfdynhud.editor.util.DefaultPropertyWriter;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.ListProperty;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesKeeper;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.TextureManager;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 import org.jagatoo.util.Tools;
-import org.jagatoo.util.ini.IniWriter;
 
 /**
  * Grid and rail settings for the {@link WidgetsEditorPanel}.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class WidgetsEditorPanelSettings
+public class WidgetsEditorPanelSettings implements PropertiesKeeper
 {
     private final WidgetsConfiguration widgetsConfig;
     private final GameResolution gameResolution;
@@ -163,8 +165,8 @@ public class WidgetsEditorPanelSettings
             }
             catch ( IOException e )
             {
-                Logger.log( "Unable to read background image file \"" + file.getAbsolutePath() + "\"" );
-                Logger.log( e );
+                RFDHLog.error( "Unable to read background image file \"" + file.getAbsolutePath() + "\"" );
+                RFDHLog.error( e );
                 
                 //result = null;
             }
@@ -174,7 +176,7 @@ public class WidgetsEditorPanelSettings
         {
             String message = "Background image not found: \"" + file.getAbsolutePath() + "\"!";
             
-            Logger.log( message );
+            RFDHLog.error( message );
             
             result = createFallbackImage( width, height, message );
         }
@@ -194,7 +196,7 @@ public class WidgetsEditorPanelSettings
     
     public void switchScreenshotSet( String screenshotSet )
     {
-        Logger.log( "Switching to Screenshot Set \"" + screenshotSet + "\"..." );
+        RFDHLog.printlnEx( "Switching to Screenshot Set \"" + screenshotSet + "\"..." );
         
         setScreenshotSet( screenshotSet );
         editorPanel.switchToGameResolution( gameResolution.getViewportWidth(), gameResolution.getViewportHeight() );
@@ -331,7 +333,57 @@ public class WidgetsEditorPanelSettings
         return ( gridSizeY.getIntValue() );
     }
     
-    public void getProperties( WidgetPropertiesContainer propsCont )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    {
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        ( (DefaultPropertyWriter)writer ).getIniWriter().writeSetting( "screenshotSet", getScreenshotSet() );
+        
+        writer.writeProperty( railDistanceX, null );
+        writer.writeProperty( railDistanceY, null );
+        writer.writeProperty( maxRailDistance, null );
+        writer.writeProperty( drawGrid, null );
+        writer.writeProperty( gridOffsetX, null );
+        writer.writeProperty( gridOffsetY, null );
+        writer.writeProperty( gridSizeX, null );
+        writer.writeProperty( gridSizeY, null );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        bgImageReloadSuppressed = true;
+        
+        if ( loader.loadProperty( railDistanceX ) );
+        else if ( loader.loadProperty( railDistanceY ) );
+        else if ( loader.loadProperty( maxRailDistance ) );
+        else if ( loader.loadProperty( drawGrid ) );
+        else if ( loader.loadProperty( gridOffsetX ) );
+        else if ( loader.loadProperty( gridOffsetY ) );
+        else if ( loader.loadProperty( gridSizeX ) );
+        else if ( loader.loadProperty( gridSizeY ) );
+        
+        bgImageReloadSuppressed = false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( new ListProperty<String, List<String>>( (Widget)null, "screenshotSet", getScreenshotSet(), getScreenshotSets() )
         {
@@ -365,34 +417,14 @@ public class WidgetsEditorPanelSettings
         propsCont.addProperty( gridSizeY );
     }
     
-    public void saveProperties( WidgetsConfigurationWriter writer, IniWriter iniWriter ) throws IOException
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDocumentationSource( Property property )
     {
-        iniWriter.writeSetting( "screenshotSet", getScreenshotSet() );
-        
-        writer.writeProperty( railDistanceX, null );
-        writer.writeProperty( railDistanceY, null );
-        writer.writeProperty( maxRailDistance, null );
-        writer.writeProperty( drawGrid, null );
-        writer.writeProperty( gridOffsetX, null );
-        writer.writeProperty( gridOffsetY, null );
-        writer.writeProperty( gridSizeX, null );
-        writer.writeProperty( gridSizeY, null );
-    }
-    
-    public void loadProperty( PropertyLoader loader )
-    {
-        bgImageReloadSuppressed = true;
-        
-        if ( loader.loadProperty( railDistanceX ) );
-        else if ( loader.loadProperty( railDistanceY ) );
-        else if ( loader.loadProperty( maxRailDistance ) );
-        else if ( loader.loadProperty( drawGrid ) );
-        else if ( loader.loadProperty( gridOffsetX ) );
-        else if ( loader.loadProperty( gridOffsetY ) );
-        else if ( loader.loadProperty( gridSizeX ) );
-        else if ( loader.loadProperty( gridSizeY ) );
-        
-        bgImageReloadSuppressed = false;
+        // TODO Auto-generated method stub
+        return null;
     }
     
     public final boolean isGridUsed()

@@ -42,7 +42,7 @@ import javax.swing.JPanel;
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.Tools;
 
@@ -90,13 +90,13 @@ public class PreviewAndScreenshotManager
                 f = new File( folder, filenameBase + Tools.padLeft( i, 3, "0" ) + ".png" );
             }
             
-            Logger.log( "Saving screenshot to file " + f.getPath() );
+            RFDHLog.printlnEx( "Saving screenshot to file " + f.getPath() );
             
             ImageIO.write( img, "PNG", f );
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
     }
     
@@ -111,7 +111,7 @@ public class PreviewAndScreenshotManager
             return;
         }
         
-        Logger.log( "Showing fullscreen preview" );
+        RFDHLog.printlnEx( "Showing fullscreen preview" );
         
         final GraphicsDevice graphDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         final DisplayMode desktopDM = graphDev.getDisplayMode();
@@ -214,7 +214,7 @@ public class PreviewAndScreenshotManager
             @Override
             public void windowClosed( WindowEvent e )
             {
-                Logger.log( "Closing fullscreen preview" );
+                RFDHLog.printlnEx( "Closing fullscreen preview" );
                 
                 if ( gridSuppressed )
                 {

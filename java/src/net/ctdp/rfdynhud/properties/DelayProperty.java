@@ -22,7 +22,7 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 /**
  * The {@link DelayProperty} serves for customizing a time delay.
  * A time delay is always measured in nano seconds internally.
- * This property provides the value in other units like millisoconds for easier use.
+ * This property provides the value in other units like milliseconds for easier use.
  * 
  * @author Marvin Froehlich (CTDP)
  */

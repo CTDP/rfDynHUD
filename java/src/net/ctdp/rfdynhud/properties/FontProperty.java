@@ -54,22 +54,22 @@ public class FontProperty extends Property
     public static String getDefaultNamedFontValue( String name )
     {
         if ( name.equals( STANDARD_FONT_NAME ) )
-            return ( "Monospaced-BOLD-13va" );
+            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 13, true, true ) );
         
         if ( name.equals( STANDARD_FONT2_NAME ) )
-            return ( "Monospaced-BOLD-12va" );
+            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 12, true, true ) );
         
         if ( name.equals( STANDARD_FONT3_NAME ) )
-            return ( "Monospaced-BOLD-11va" );
+            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 11, true, true ) );
         
         if ( name.equals( SMALLER_FONT_NAME ) )
-            return ( "Monospaced-BOLD-13va" );
+            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 13, true, true ) );
         
         if ( name.equals( SMALLER_FONT3_NAME ) )
-            return ( "Monospaced-BOLD-9va" );
+            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 9, true, true ) );
         
         if ( name.equals( BIGGER_FONT_NAME ) )
-            return ( "Monospaced-BOLD-14va" );
+            return ( FontUtils.getFontString( "Dialog", Font.PLAIN, 14, true, true ) );
         
         return ( null );
     }
@@ -154,6 +154,22 @@ public class FontProperty extends Property
     public final boolean setFont( Font font, boolean virtual, boolean antiAliased )
     {
         return ( setFont( FontUtils.getFontString( font, virtual, antiAliased ) ) );
+    }
+    
+    /**
+     * Sets the property's current value.
+     * 
+     * @param fontName
+     * @param style
+     * @param size
+     * @param virtual
+     * @param antiAliased
+     * 
+     * @return changed?
+     */
+    public final boolean setFont( String fontName, int style, int size, boolean virtual, boolean antiAliased )
+    {
+        return ( setFont( FontUtils.getFontString( fontName, style, size, virtual, antiAliased ) ) );
     }
     
     /**
@@ -261,6 +277,11 @@ public class FontProperty extends Property
     @Override
     public void loadValue( PropertyLoader loader, String value )
     {
+        if ( loader.getSourceVersion().getBuild() < 92 )
+        {
+            value = value.replace( '-', FontUtils.SEPARATOR );
+        }
+        
         setValue( value );
     }
     

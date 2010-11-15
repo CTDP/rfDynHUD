@@ -26,7 +26,7 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
  * 
  * @author Marvin Froehlich
  */
-public abstract class WidgetPropertiesContainer
+public abstract class PropertiesContainer
 {
     private int level = 0;
     
@@ -66,7 +66,7 @@ public abstract class WidgetPropertiesContainer
      * @param initiallyExpanded initially expanded?
      * @param pushed pushed one level down?
      */
-    protected abstract void addGroupImpl( String groupName, boolean initiallyExpanded, boolean pushed );
+    protected abstract void addGroupImpl( Object groupName, boolean initiallyExpanded, boolean pushed );
     
     /**
      * Creates a new property group inside the current group (pushed one level down).
@@ -74,7 +74,7 @@ public abstract class WidgetPropertiesContainer
      * @param groupName the new group's name
      * @param initiallyExpanded initially expanded?
      */
-    public final void pushGroup( String groupName, boolean initiallyExpanded )
+    public final void pushGroup( Object groupName, boolean initiallyExpanded )
     {
         level++;
         
@@ -88,7 +88,7 @@ public abstract class WidgetPropertiesContainer
      * 
      * @param groupName the new group's name
      */
-    public final void pushGroup( String groupName )
+    public final void pushGroup( Object groupName )
     {
         pushGroup( groupName, true );
     }
@@ -117,7 +117,7 @@ public abstract class WidgetPropertiesContainer
      * @param groupName the new group's name
      * @param initiallyExpanded initially expanded?
      */
-    public final void addGroup( String groupName, boolean initiallyExpanded )
+    public final void addGroup( Object groupName, boolean initiallyExpanded )
     {
         addGroupImpl( groupName, initiallyExpanded, false );
         
@@ -129,7 +129,7 @@ public abstract class WidgetPropertiesContainer
      * 
      * @param groupName the new group's name
      */
-    public final void addGroup( String groupName )
+    public final void addGroup( Object groupName )
     {
         addGroup( groupName, true );
     }
@@ -163,7 +163,7 @@ public abstract class WidgetPropertiesContainer
         dump( System.out );
     }
     
-    protected WidgetPropertiesContainer()
+    protected PropertiesContainer()
     {
     }
 }

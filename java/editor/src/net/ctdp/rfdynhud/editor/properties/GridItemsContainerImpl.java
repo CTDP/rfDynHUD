@@ -32,7 +32,7 @@ public class GridItemsContainerImpl extends ArrayList< Object > implements GridI
 {
     private static final long serialVersionUID = -2178071328264336996L;
     
-    private final String name;
+    private final Object name;
     private boolean expandFlag;
     
     /**
@@ -41,7 +41,7 @@ public class GridItemsContainerImpl extends ArrayList< Object > implements GridI
     @Override
     public final String getNameForGrid()
     {
-        return ( name );
+        return ( String.valueOf( name ) );
     }
     
     /**
@@ -107,7 +107,7 @@ public class GridItemsContainerImpl extends ArrayList< Object > implements GridI
         return ( getClass().getSimpleName() + " \"" + getNameForGrid() + "\"" );
     }
     
-    public GridItemsContainerImpl( String name, boolean expandFlag, int initialCapacity )
+    public GridItemsContainerImpl( Object name, boolean expandFlag, int initialCapacity )
     {
         super( initialCapacity );
         
@@ -115,17 +115,17 @@ public class GridItemsContainerImpl extends ArrayList< Object > implements GridI
         this.expandFlag = expandFlag;
     }
     
-    public GridItemsContainerImpl( String name, boolean expandFlag )
+    public GridItemsContainerImpl( Object name, boolean expandFlag )
     {
         this( name, expandFlag, 16 );
     }
     
-    public GridItemsContainerImpl( String name, int initialCapacity )
+    public GridItemsContainerImpl( Object name, int initialCapacity )
     {
         this( name, false, initialCapacity );
     }
     
-    public GridItemsContainerImpl( String name )
+    public GridItemsContainerImpl( Object name )
     {
         this( name, false );
     }

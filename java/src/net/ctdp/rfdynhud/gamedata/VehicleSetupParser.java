@@ -23,7 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -42,10 +42,10 @@ class VehicleSetupParser
             @Override
             protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
             {
-                Logger.log( "WARNING: ParsingException in the current setup file!" );
-                Logger.log( "Unparsable line in file \"" + filename + "\" is #" + lineNr + ": \"" + line + "\" (ommitting the quotes). Exception follows..." );
+                RFDHLog.exception( "WARNING: ParsingException in the current setup file!" );
+                RFDHLog.exception( "Unparsable line in file \"" + filename + "\" is #" + lineNr + ": \"" + line + "\" (ommitting the quotes). Exception follows..." );
                 
-                Logger.log( t );
+                RFDHLog.exception( t );
                 
                 return ( true );
             }
@@ -66,7 +66,7 @@ class VehicleSetupParser
                 }
                 catch ( IOException e )
                 {
-                    Logger.log( e );
+                    RFDHLog.exception( e );
                     
                     return ( false );
                 }
@@ -889,7 +889,7 @@ class VehicleSetupParser
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         
         setup.updatedInTimeScope = true;

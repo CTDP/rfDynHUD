@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.widgets.standard.misc;
 
+import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.GamePhase;
@@ -29,7 +30,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -37,7 +38,7 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
@@ -301,7 +302,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
             scoringString2.getMaxColWidths( new String[] { Loc.scoring_place_prefix + ":", Loc.scoring_place_na }, scoringAlignment, padding, scoringColWidths );
         
         if ( fastestLap.isValid() )
-            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort( false ) + ")" }, scoringAlignment, padding, scoringColWidths );
+            scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsString( fastestLap.getValue(), true ) + " (" + scoringInfo.getFastestLapVSI().getDriverNameShort() + ")" }, scoringAlignment, padding, scoringColWidths );
         else
             scoringString3.getMaxColWidths( new String[] { Loc.scoring_fastest_lap_prefix + ":", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, scoringColWidths );
     }
@@ -329,8 +330,8 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         {
             VehicleScoringInfo leaderVSI = scoringInfo.getLeadersVehicleScoringInfo();
             leaderID.update( leaderVSI.getDriverId() );
-            String leaderName = leaderVSI.getDriverNameShort( false );
-            place.update( scoringInfo.getOwnPlace( getConfiguration().getUseClassScoring() ) );
+            String leaderName = leaderVSI.getDriverNameShort();
+            place.update( vsi.getPlace( getConfiguration().getUseClassScoring() ) );
             VehicleScoringInfo fastestLapVSI = scoringInfo.getFastestLapVSI();
             String fastestLapper = fastestLapVSI.getDriverNameShort( false );
             Laptime fl = fastestLapVSI.getFastestLaptime();
@@ -600,7 +601,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -628,7 +629,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -639,6 +640,19 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
         propsCont.addProperty( displayVelocity );
         
         propsCont.addProperty( relTopspeedResetDelay );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
+        displayTiming.setBooleanValue( false );
+        displayVelocity.setBooleanValue( false );
     }
     
     public MiscWidget()

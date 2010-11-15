@@ -25,7 +25,7 @@ import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * Our world coordinate system is left-handed, with +y pointing up.
@@ -167,9 +167,13 @@ public class TelemetryData
         if ( editorPresets == null )
             return;
         
+        VehicleScoringInfo playerVSI = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+        
         setEngineBoostMapping( editorPresets.getEngineBoost() );
+        playerVSI.engineBoostMapping = editorPresets.getEngineBoost();
         
         this.engineRPM = editorPresets.getEngineRPM();
+        playerVSI.engineRPM = editorPresets.getEngineRPM();
         
         this.engineLifetime = editorPresets.getEngineLifetime();
         
@@ -209,14 +213,24 @@ public class TelemetryData
                     }
                     catch ( Throwable t )
                     {
-                        Logger.log( t );
+                        RFDHLog.exception( t );
                     }
                 }
+            }
+            
+            VehicleScoringInfo playerVSI = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
+            
+            if ( playerVSI != null ) // This can happen when scoring info has not yet been updated!
+            {
+                playerVSI.engineRPM = getEngineRPM();
+                playerVSI.engineMaxRPM = getEngineBaseMaxRPM();
+                playerVSI.engineBoostMapping = getEngineBoostMapping();
+                playerVSI.gear = getCurrentGear();
             }
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     

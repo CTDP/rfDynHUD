@@ -25,6 +25,7 @@ import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.properties.Property;
@@ -50,6 +51,13 @@ import org.openmali.vecmath2.util.ColorUtils;
  */
 public class ConfigurationLoader implements PropertyLoader
 {
+    private ConfigurationCandidatesIterator candidatesIterator = new ConfigurationCandidatesIterator();
+    private final ConfigurationLoadListener loadListener;
+    
+    private boolean defaultLoadingEnabled = true;
+    
+    private String noConfigFoundMessage = "Couldn't find any overlay configuration file.";
+    
     private String keyPrefix = null;
     
     private String currentKey = null;
@@ -58,6 +66,39 @@ public class ConfigurationLoader implements PropertyLoader
     private String effectiveKey = null;
     
     private Version sourceVersion = null;
+    
+    public void setCandidatesIterator( ConfigurationCandidatesIterator it )
+    {
+        if ( it == null )
+            throw new IllegalArgumentException( "it must not be null." );
+        
+        this.candidatesIterator = it;
+    }
+    
+    public final ConfigurationCandidatesIterator getCandidatesIterator()
+    {
+        return ( candidatesIterator );
+    }
+    
+    public void setDefaultLoadingEnabled( boolean enabled )
+    {
+        this.defaultLoadingEnabled = enabled;
+    }
+    
+    public final boolean isDefaultLoadingEnabled()
+    {
+        return ( defaultLoadingEnabled );
+    }
+    
+    public void setNoConfigFoundMessage( String message )
+    {
+        this.noConfigFoundMessage = message;
+    }
+    
+    public final String getNoConfigFoundMessage()
+    {
+        return ( noConfigFoundMessage );
+    }
     
     public void setKeyPrefix( String prefix )
     {
@@ -186,7 +227,7 @@ public class ConfigurationLoader implements PropertyLoader
                         if ( !quietMode )
                         {
                             //throw new ParsingException( "Found setting before the first (known) group started (line " + lineNr + ")." );
-                            Logger.log( "WARNING: Found setting before the first (known) group started (line " + lineNr + ")." );
+                            RFDHLog.exception( "WARNING: Found setting before the first (known) group started (line " + lineNr + ")." );
                         }
                         
                         settingBeforeGroupWarningThrown = true;
@@ -226,7 +267,7 @@ public class ConfigurationLoader implements PropertyLoader
                                 catch ( NumberFormatException e )
                                 {
                                     if ( !quietMode )
-                                        Logger.log( e );
+                                        RFDHLog.exception( e );
                                 }
                             }
                         }
@@ -247,14 +288,31 @@ public class ConfigurationLoader implements PropertyLoader
     /**
      * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
      * 
-     * @param in
      * @param widgetsConfig
+     * @param gameData
+     * @param isEditorMode
      * 
      * @throws IOException if anything went wrong.
      */
-    private void __loadConfiguration( InputStream in, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    public void clearConfiguration( WidgetsConfiguration widgetsConfig, LiveGameData gameData, final boolean isEditorMode ) throws IOException
     {
         __WCPrivilegedAccess.clear( widgetsConfig, gameData, isEditorMode, loadListener );
+    }
+    
+    /**
+     * Loads fully configured {@link Widget}s to a {@link WidgetsConfiguration}.
+     * 
+     * @param in
+     * @param name
+     * @param widgetsConfig
+     * @param gameData
+     * @param isEditorMode
+     * 
+     * @throws IOException if anything went wrong.
+     */
+    public void loadConfiguration( InputStream in, String name, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, final boolean isEditorMode ) throws IOException
+    {
+        clearConfiguration( widgetsConfig, gameData, isEditorMode );
         
         currentKey = null;
         currentValue = null;
@@ -324,7 +382,7 @@ public class ConfigurationLoader implements PropertyLoader
                     if ( !settingBeforeGroupWarningThrown )
                     {
                         //throw new ParsingException( "Found setting before the first (known) group started (line " + lineNr + ")." );
-                        Logger.log( "WARNING: Found setting before the first (known) group started (line " + lineNr + ")." );
+                        RFDHLog.exception( "WARNING: Found setting before the first (known) group started (line " + lineNr + ")." );
                         
                         settingBeforeGroupWarningThrown = true;
                     }
@@ -347,7 +405,7 @@ public class ConfigurationLoader implements PropertyLoader
                             }
                             catch ( Throwable t )
                             {
-                                Logger.log( "WANRING: Unable to parse rfDynHUDVersion." );
+                                RFDHLog.exception( "WANRING: Unable to parse rfDynHUD Version." );
                                 sourceVersion = new Version( 0, 0, 0, null, 0 );
                             }
                         }
@@ -362,7 +420,7 @@ public class ConfigurationLoader implements PropertyLoader
                         if ( color == null )
                         {
                             String msg = "ERROR: Illegal color value on line #" + lineNr + ": " + value;
-                            Logger.log( msg );
+                            RFDHLog.exception( msg );
                             
                             if ( errorMessages == null )
                                 errorMessages = msg;
@@ -376,12 +434,17 @@ public class ConfigurationLoader implements PropertyLoader
                         
                         break;
                     case NamedFonts:
+                        if ( getSourceVersion().getBuild() < 92 )
+                        {
+                            value = value.replace( '-', FontUtils.SEPARATOR );
+                        }
+                        
                         java.awt.Font font = FontUtils.parseFont( value, widgetsConfig.getGameResolution().getViewportHeight(), false, false );
                         
                         if ( ( font == FontUtils.FALLBACK_FONT ) || ( font == FontUtils.FALLBACK_VIRTUAL_FONT ) )
                         {
                             String msg = "ERROR: Illegal font value on line #" + lineNr + ": " + value;
-                            Logger.log( msg );
+                            RFDHLog.exception( msg );
                             
                             if ( errorMessages == null )
                                 errorMessages = msg;
@@ -403,7 +466,7 @@ public class ConfigurationLoader implements PropertyLoader
                         {
                             if ( !badWidget )
                                 //throw new ParsingException( "Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
-                                Logger.log( "WARNING: Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
+                                RFDHLog.error( "WARNING: Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
                             
                             badWidget = true;
                         }
@@ -414,7 +477,7 @@ public class ConfigurationLoader implements PropertyLoader
                                 Class<Widget> clazz = WidgetFactory.getWidgetClass( value );
                                 if ( clazz == null )
                                 {
-                                    Logger.log( "Error: Unknown Widget class \"" + value + "\"." );
+                                    RFDHLog.error( "Error: Unknown Widget class \"" + value + "\"." );
                                     badWidget = true;
                                 }
                                 else
@@ -425,7 +488,7 @@ public class ConfigurationLoader implements PropertyLoader
                                         currentWidget = WidgetFactory.createWidget( value, widgetName );
                                     if ( currentWidget == null )
                                     {
-                                        Logger.log( "Error creating Widget instance of class " + value + "." );
+                                        RFDHLog.error( "Error creating Widget instance of class " + value + "." );
                                         badWidget = true;
                                     }
                                     else
@@ -447,7 +510,7 @@ public class ConfigurationLoader implements PropertyLoader
                                 currentPart = WidgetFactory.createWidget( value, partName );
                                 if ( currentPart == null )
                                 {
-                                    Logger.log( "Error creating Widget part instance of class " + value + "." );
+                                    RFDHLog.error( "Error creating Widget part instance of class " + value + "." );
                                     badWidget = true;
                                 }
                                 else
@@ -468,7 +531,7 @@ public class ConfigurationLoader implements PropertyLoader
                             }
                             else
                             {
-                                Logger.log( "WARNING: Cannot load the Widget configuration line " + lineNr + "." );
+                                RFDHLog.exception( "WARNING: Cannot load the Widget configuration line " + lineNr + "." );
                             }
                         }
                         else if ( ( currentWidget == null ) || ( widgetName != null ) )
@@ -478,19 +541,19 @@ public class ConfigurationLoader implements PropertyLoader
                                 if ( currentWidget != null )
                                 {
                                     //throw new ParsingException( "Cannot load the Widget \"" + currentWidget.getName() + "\" (line " + lineNr + ")." );
-                                    Logger.log( "WARNING: Cannot load the Widget \"" + currentWidget.getName() + "\" (line " + lineNr + ")." );
+                                    RFDHLog.error( "WARNING: Cannot load the Widget \"" + currentWidget.getName() + "\" (line " + lineNr + ")." );
                                     badWidget = true;
                                 }
                                 else if ( widgetName != null )
                                 {
                                     //throw new ParsingException( "Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
-                                    Logger.log( "WARNING: Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
+                                    RFDHLog.error( "WARNING: Cannot load the Widget \"" + widgetName + "\" (line " + lineNr + ")." );
                                     badWidget = true;
                                 }
                                 else
                                 {
                                     //throw new ParsingException( "Cannot load the a Widget (line " + lineNr + ")." );
-                                    Logger.log( "WARNING: Cannot load the a Widget (line " + lineNr + ")." );
+                                    RFDHLog.error( "WARNING: Cannot load the a Widget (line " + lineNr + ")." );
                                     badWidget = true;
                                 }
                             }
@@ -508,7 +571,7 @@ public class ConfigurationLoader implements PropertyLoader
                         {
                             if ( partStack.isEmpty() )
                             {
-                                Logger.log( "WARNING: Found Widget part end at line " + lineNr + " with no part begun." );
+                                RFDHLog.error( "WARNING: Found Widget part end at line " + lineNr + " with no part begun." );
                             }
                             else
                             {
@@ -542,7 +605,7 @@ public class ConfigurationLoader implements PropertyLoader
                             catch ( Throwable t )
                             {
                                 //throw new Error( t );
-                                Logger.log( t );
+                                RFDHLog.error( t );
                             }
                         }
                         
@@ -584,18 +647,21 @@ public class ConfigurationLoader implements PropertyLoader
         }
         
         __WCPrivilegedAccess.sortWidgets( widgetsConfig );
-        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode, loadListener );
+        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode, name, loadListener );
     }
     
-    private static File currentlyLoadedConfigFile = null;
-    private static long lastModified = -1L;
-    private static boolean isFirstLoadAttempt = true;
+    private File currentlyLoadedConfigFile = null;
+    private long lastModified = -1L;
     
-    private File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    private File _loadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode ) throws IOException
     {
-        Logger.log( "Loading configuration file from \"" + file.getAbsolutePath() + "\"" );
+        RFDHLog.println( "Loading configuration file from \"" + file.getAbsolutePath() + "\"..." );
         
-        __loadConfiguration( new FileInputStream( file ), widgetsConfig, gameData, isEditorMode, loadListener );
+        String name = null;
+        if ( file.getName().startsWith( GameFileSystem.INSTANCE.getConfigPath() + File.pathSeparator ) )
+            name = file.getName().substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 );
+        
+        loadConfiguration( new FileInputStream( file ), name, widgetsConfig, gameData, isEditorMode );
         
         __WCPrivilegedAccess.setValid( widgetsConfig, true );
         
@@ -605,25 +671,25 @@ public class ConfigurationLoader implements PropertyLoader
         return ( currentlyLoadedConfigFile );
     }
     
-    private File load( File currentlyLoadedConfigFile, long lastModified, File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    private File load( File currentlyLoadedConfigFile, long lastModified, File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode ) throws IOException
     {
         if ( currentlyLoadedConfigFile == null )
-            return ( _loadConfiguration( configFile, widgetsConfig, gameData, isEditorMode, loadListener ) );
+            return ( _loadConfiguration( configFile, widgetsConfig, gameData, isEditorMode ) );
         
         if ( !configFile.equals( currentlyLoadedConfigFile ) || ( configFile.lastModified() > lastModified ) )
-            return ( _loadConfiguration( configFile, widgetsConfig, gameData, isEditorMode, loadListener ) );
+            return ( _loadConfiguration( configFile, widgetsConfig, gameData, isEditorMode ) );
         
         //__WCPrivilegedAccess.setValid( widgetsConfig, true );
         
         return ( currentlyLoadedConfigFile );
     }
     
-    private boolean load( File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    private boolean load( File configFile, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode ) throws IOException
     {
         File old_currentlyLoadedConfigFile = currentlyLoadedConfigFile;
         long old_lastModified = lastModified;
         
-        load( currentlyLoadedConfigFile, lastModified, configFile, widgetsConfig, gameData, isEditorMode, loadListener );
+        load( currentlyLoadedConfigFile, lastModified, configFile, widgetsConfig, gameData, isEditorMode );
         
         if ( !currentlyLoadedConfigFile.equals( old_currentlyLoadedConfigFile ) || ( lastModified > old_lastModified ) )
         {
@@ -645,12 +711,12 @@ public class ConfigurationLoader implements PropertyLoader
      * 
      * @throws IOException
      */
-    File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    File forceLoadConfiguration( File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode ) throws IOException
     {
         currentlyLoadedConfigFile = null;
         lastModified = -1L;
         
-        if ( load( file, widgetsConfig, gameData, isEditorMode, loadListener ) )
+        if ( load( file, widgetsConfig, gameData, isEditorMode ) )
             return ( currentlyLoadedConfigFile );
         
         return ( null );
@@ -661,22 +727,27 @@ public class ConfigurationLoader implements PropertyLoader
      * @param widgetsConfig
      * @param gameData
      * @param isEditorMode
-     * @param loadListener
      * @throws IOException
      */
-    void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    void loadFactoryDefaults( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode ) throws IOException
     {
-        Logger.log( "Loading factory default configuration." );
+        RFDHLog.println( "Loading factory default configuration." );
+        
+        clearConfiguration( widgetsConfig, gameData, isEditorMode );
         
         //__loadConfiguration( new InputStreamReader( ConfigurationLoader.class.getResourceAsStream( "/data/config/overlay.ini" ) ), widgetsConfig, gameData, isEditorMode, loadListener );
         
-        net.ctdp.rfdynhud.widgets.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.internal.InternalWidget();
-        internalWidget.setMessage( "Couldn't find any overlay file." );
-        __WCPrivilegedAccess.addWidget( widgetsConfig, internalWidget, true );
-        internalWidget.getPosition().setEffectivePosition( RelativePositioning.TOP_CENTER, ( widgetsConfig.getGameResolution().getViewportWidth() - internalWidget.getEffectiveWidth() ) / 2, 200 );
+        if ( ( getNoConfigFoundMessage() != null ) && ( getNoConfigFoundMessage().trim().length() > 0 ) )
+        {
+            net.ctdp.rfdynhud.widgets.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.internal.InternalWidget();
+            internalWidget.setMessage( getNoConfigFoundMessage() );
+            __WCPrivilegedAccess.addWidget( widgetsConfig, internalWidget, true );
+            internalWidget.getPosition().setEffectivePosition( RelativePositioning.TOP_CENTER, ( widgetsConfig.getGameResolution().getViewportWidth() - internalWidget.getEffectiveWidth() ) / 2, 200 );
+            
+            __WCPrivilegedAccess.sortWidgets( widgetsConfig );
+        }
         
-        __WCPrivilegedAccess.sortWidgets( widgetsConfig );
-        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode, loadListener );
+        __WCPrivilegedAccess.setJustLoaded( widgetsConfig, gameData, isEditorMode, null, loadListener );
         __WCPrivilegedAccess.setValid( widgetsConfig, true );
         
         currentlyLoadedConfigFile = null;
@@ -696,17 +767,14 @@ public class ConfigurationLoader implements PropertyLoader
      * @param bigMonitor
      * @param isInGarage
      * @param modName
-     * @param vehicleClass
+     * @param vehicleName
      * @param sessionType
      * @param widgetsConfig
      * @param gameData
      * @param isEditorMode
-     * @param loadListener
      * @param force
-     * 
-     * @return the file, from which the configuration has been loaded.
      */
-    Boolean reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener, boolean force )
+    void reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleName, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, boolean force )
     {
         if ( force || !widgetsConfig.isValid() )
         {
@@ -718,15 +786,21 @@ public class ConfigurationLoader implements PropertyLoader
         
         try
         {
-            ConfigurationCandidatesIterator it = new ConfigurationCandidatesIterator( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, sessionType );
-            
-            while ( it.hasNext() )
+            if ( isDefaultLoadingEnabled() )
             {
-                f = it.next();
+                ConfigurationCandidatesIterator it = getCandidatesIterator();
+                it.reset();
+                it.collectCandidates( smallMonitor, bigMonitor, isInGarage, modName, vehicleName, sessionType );
                 
-                if ( f.exists() )
+                while ( it.hasNext() )
                 {
-                    return ( load( f, widgetsConfig, gameData, isEditorMode, loadListener ) );
+                    f = it.next();
+                    
+                    if ( f.exists() )
+                    {
+                        load( f, widgetsConfig, gameData, isEditorMode );
+                        return;
+                    }
                 }
             }
             
@@ -734,33 +808,28 @@ public class ConfigurationLoader implements PropertyLoader
             {
                 __WCPrivilegedAccess.setValid( widgetsConfig, false );
                 
-                return ( null );
+                return;
             }
             
-            boolean result = ( ( currentlyLoadedConfigFile != null ) || isFirstLoadAttempt );
-            
-            if ( result )
+            if ( isDefaultLoadingEnabled() || !widgetsConfig.isValid() )
             {
-                loadFactoryDefaults( widgetsConfig, gameData, isEditorMode, loadListener );
+                loadFactoryDefaults( widgetsConfig, gameData, isEditorMode );
             }
-            
-            isFirstLoadAttempt = false;
-            
-            return ( result );
         }
         catch ( Throwable t )
         {
-            Logger.log( "Error loading overlay config file " + ( f != null ? f.getAbsolutePath() : "" ) + "." );
-            Logger.log( t );
+            RFDHLog.error( "Error loading overlay config file " + ( f != null ? f.getAbsolutePath() : "" ) + "." );
+            RFDHLog.error( t );
             
             __WCPrivilegedAccess.setValid( widgetsConfig, false );
             
-            boolean result = ( currentlyLoadedConfigFile != null );
-            
             currentlyLoadedConfigFile = null;
             lastModified = -1L;
-            
-            return ( result );
         }
+    }
+    
+    public ConfigurationLoader( ConfigurationLoadListener loadListener )
+    {
+        this.loadListener = loadListener;
     }
 }

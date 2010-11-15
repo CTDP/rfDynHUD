@@ -39,7 +39,7 @@ import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -886,7 +886,7 @@ public class WidgetsEditorPanel extends JPanel
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     

@@ -43,7 +43,7 @@ import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo;
 import net.ctdp.rfdynhud.gamedata.TrackInfo;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 public class StrategyTool
 {
@@ -186,7 +186,7 @@ public class StrategyTool
     
     private void requestClose()
     {
-        Logger.log( "Closing Strategy Calculator" );
+        RFDHLog.exception( "Closing Strategy Calculator" );
         
         frame.setVisible( false );
     }
@@ -429,7 +429,7 @@ public class StrategyTool
     
     public static void showStrategyTool( JFrame owner )
     {
-        Logger.log( "Opening Strategy Calculator" );
+        RFDHLog.printlnEx( "Opening Strategy Calculator" );
         
         new StrategyTool( owner ).frame.setVisible( true );
     }

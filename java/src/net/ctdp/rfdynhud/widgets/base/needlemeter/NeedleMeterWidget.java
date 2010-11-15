@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.widgets.base.needlemeter;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -38,7 +39,7 @@ import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -46,9 +47,9 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -129,7 +130,7 @@ public abstract class NeedleMeterWidget extends Widget
     protected final BooleanProperty lastMarkerBig = new BooleanProperty( this, "lastMarkerBig", false );
     
     protected final ColorProperty markersColor = new ColorProperty( this, "markersColor", "color", "#FFFFFF" );
-    protected final FontProperty markersFont = new FontProperty( this, "markersFont", "font", "Monospaced-BOLD-9va" );
+    protected final FontProperty markersFont = new FontProperty( this, "markersFont", "font", "Monospaced" + FontUtils.SEPARATOR + "BOLD" + FontUtils.SEPARATOR + "9va" );
     protected final ColorProperty markersFontColor = new ColorProperty( this, "markersFontColor", "fontColor", "#FFFFFF" );
     protected final ColorProperty markersFontDropShadowColor = new ColorProperty( this, "markersFontDropShadowColor", "fontDropShadowColor", "#00000000" );
     protected final BooleanProperty markerNumbersCentered = new BooleanProperty( this, "markerNumbersCentered", "numbersCentered", false );
@@ -181,7 +182,7 @@ public abstract class NeedleMeterWidget extends Widget
     private final IntValue valueValue = new IntValue();
     
     @Override
-    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
         super.onPropertyChanged( property, oldValue, newValue );
         
@@ -357,7 +358,7 @@ public abstract class NeedleMeterWidget extends Widget
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            log( t );
             
             return ( false );
         }
@@ -392,7 +393,7 @@ public abstract class NeedleMeterWidget extends Widget
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            log( t );
             
             return ( false );
         }
@@ -935,7 +936,7 @@ public abstract class NeedleMeterWidget extends Widget
         }
     }
     
-    protected void saveMarkersProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveMarkersProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( displayMarkers, "Display markers?" );
         writer.writeProperty( displayMarkerNumbers, "Display marker numbers?" );
@@ -955,7 +956,7 @@ public abstract class NeedleMeterWidget extends Widget
         writer.writeProperty( markerNumbersCentered, "Draw marker numbers at their centers at an equal distance around needle mount?" );
     }
     
-    protected void saveNeedleProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveNeedleProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( needleImageName, "The name of the needle image." );
         writer.writeProperty( needleMountX, "The x-offset in background image pixels to the needle mount (-1 for center)." );
@@ -965,7 +966,7 @@ public abstract class NeedleMeterWidget extends Widget
         writer.writeProperty( needleRotationForMaxValue, "The rotation for the needle image, that it has for max value (in degrees)." );
     }
     
-    protected void saveDigiValueProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveDigiValueProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( displayValue, "Display the digital value?" );
         writer.writeProperty( valueBackgroundImageName, "The name of the image to render behind the value number." );
@@ -979,7 +980,7 @@ public abstract class NeedleMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -1043,7 +1044,7 @@ public abstract class NeedleMeterWidget extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addMinValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addMinValuePropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( minValue );
     }
@@ -1055,7 +1056,7 @@ public abstract class NeedleMeterWidget extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addMaxValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addMaxValuePropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( maxValue );
     }
@@ -1069,7 +1070,7 @@ public abstract class NeedleMeterWidget extends Widget
      * 
      * @return <code>true</code>, if the implementation has added a group, <code>false</code> otherwise.
      */
-    protected boolean getSpecificPropertiesFirst( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected boolean getSpecificPropertiesFirst( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "Specific" );
         
@@ -1086,7 +1087,7 @@ public abstract class NeedleMeterWidget extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getMarkersProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getMarkersProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "Markers" );
         
@@ -1115,7 +1116,7 @@ public abstract class NeedleMeterWidget extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getNeedleProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "Needle" );
         
@@ -1144,7 +1145,7 @@ public abstract class NeedleMeterWidget extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getDigiValueProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getDigiValueProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( getDigiValuePropertiesGroupName() );
         
@@ -1160,7 +1161,7 @@ public abstract class NeedleMeterWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -1178,6 +1179,18 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected void initParentProperties()
     {
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        markersFont.setFont( "Dialog", Font.PLAIN, 5, false, true );
+        valueFont.setFont( "Dialog", Font.PLAIN, 5, false, true );
     }
     
     /**

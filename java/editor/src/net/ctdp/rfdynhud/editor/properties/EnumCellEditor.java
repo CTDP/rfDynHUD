@@ -24,6 +24,8 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
@@ -107,6 +109,28 @@ public class EnumCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
                 //if ( getTable() != null )
                 //    getTable().editingStopped( null );
                 stopCellEditing();
+            }
+        } );
+        
+        combobox.addPopupMenuListener( new PopupMenuListener()
+        {
+            @Override
+            public void popupMenuWillBecomeVisible( PopupMenuEvent e )
+            {
+            }
+            
+            @Override
+            public void popupMenuWillBecomeInvisible( PopupMenuEvent e )
+            {
+                if ( getTable() != null )
+                    getTable().repaint();
+            }
+            
+            @Override
+            public void popupMenuCanceled( PopupMenuEvent e )
+            {
+                if ( getTable() != null )
+                    getTable().repaint();
             }
         } );
         

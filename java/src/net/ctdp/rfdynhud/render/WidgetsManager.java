@@ -18,6 +18,8 @@
 package net.ctdp.rfdynhud.render;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.util.ConfigurationLoader;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**
@@ -25,9 +27,35 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class WidgetsRenderListenersManager
+public class WidgetsManager
 {
     private WidgetsRenderListener[] listeners = null;
+    
+    //private WidgetsConfiguration widgetsConfig;
+    private ConfigurationLoader loader = null;
+    
+    /**
+     * 
+     * @param widgetsConfig
+     * @param loader
+     */
+    void setConfigurationAndLoader( WidgetsConfiguration widgetsConfig, ConfigurationLoader loader )
+    {
+        //this.widgetsConfig = widgetsConfig;
+        this.loader = loader;
+    }
+    
+    /*
+    public final WidgetsConfiguration getWidgetsConfiguration()
+    {
+        return ( widgetsConfig );
+    }
+    */
+    
+    public final ConfigurationLoader getConfigurationLoader()
+    {
+        return ( loader );
+    }
     
     public void registerListener( WidgetsRenderListener l )
     {
@@ -88,7 +116,14 @@ public class WidgetsRenderListenersManager
         {
             for ( int i = 0; i < listeners.length; i++ )
             {
-                listeners[i].beforeWidgetsConfigurationCleared( gameData, widgetsConfig );
+                try
+                {
+                    listeners[i].beforeWidgetsConfigurationCleared( gameData, widgetsConfig );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
             }
         }
     }
@@ -99,7 +134,14 @@ public class WidgetsRenderListenersManager
         {
             for ( int i = 0; i < listeners.length; i++ )
             {
-                listeners[i].afterWidgetsConfigurationLoaded( gameData, widgetsConfig );
+                try
+                {
+                    listeners[i].afterWidgetsConfigurationLoaded( gameData, widgetsConfig );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
             }
         }
         
@@ -111,8 +153,19 @@ public class WidgetsRenderListenersManager
         {
             for ( int i = 0; i < listeners.length; i++ )
             {
-                listeners[i].beforeWidgetsAreRendered( gameData, widgetsConfig, sessionTime, frameCounter );
+                try
+                {
+                    listeners[i].beforeWidgetsAreRendered( gameData, widgetsConfig, sessionTime, frameCounter );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
             }
         }
+    }
+    
+    public WidgetsManager()
+    {
     }
 }

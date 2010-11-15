@@ -25,8 +25,8 @@ import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
@@ -252,7 +252,7 @@ public class EditorPresets
         return ( topSpeeds[index] );
     }
     
-    void getProperties( WidgetPropertiesContainer propsCont )
+    void getProperties( PropertiesContainer propsCont )
     {
         propsCont.addGroup( "Driver" );
         
@@ -284,7 +284,7 @@ public class EditorPresets
         propsCont.addProperty( fuelLoad );
     }
     
-    void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    void saveProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( driverName, null );
         writer.writeProperty( lastSector1Time, null );

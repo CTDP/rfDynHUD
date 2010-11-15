@@ -19,16 +19,16 @@ package net.ctdp.rfdynhud.widgets.base.widget;
 
 import java.awt.Color;
 
-import org.jagatoo.util.Tools;
-
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.TextureManager;
+
+import org.jagatoo.logging.Log;
+import org.jagatoo.util.Tools;
 
 /**
  * This class encapsulates a {@link Widget}'s effective background.
@@ -104,7 +104,7 @@ public class WidgetBackground
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    Log.exception( Widget.LOG_CHANNEL, t );
                 }
                 
                 backgroundScaleX = (float)width / (float)image.getBaseWidth();

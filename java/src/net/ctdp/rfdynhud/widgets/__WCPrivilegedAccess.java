@@ -69,9 +69,9 @@ public class __WCPrivilegedAccess
         widgetsConfig.checkFixAndBakeConfiguration( isEditorMode );
     }
     
-    public static final void setJustLoaded( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener )
+    public static final void setJustLoaded( WidgetsConfiguration config, LiveGameData gameData, boolean isEditorMode, String name, ConfigurationLoadListener loadListener )
     {
-        config.setJustLoaded( gameData, isEditorMode, loadListener );
+        config.setJustLoaded( gameData, isEditorMode, name, loadListener );
     }
     
     public static final boolean setViewport( int x, int y, int w, int h, WidgetsConfiguration widgetsConfig )

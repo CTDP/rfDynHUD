@@ -17,20 +17,21 @@
  */
 package net.ctdp.rfdynhud.widgets.lessons.lesson4b;
 
+import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -134,7 +135,7 @@ public class Lesson4bWidget_SubTextures extends Widget
     }
     
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -152,7 +153,7 @@ public class Lesson4bWidget_SubTextures extends Widget
     }
     
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -160,6 +161,17 @@ public class Lesson4bWidget_SubTextures extends Widget
         
         propsCont.addProperty( subImage );
         propsCont.addProperty( myFontColor );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 6, false, true );
     }
     
     public Lesson4bWidget_SubTextures()

@@ -24,6 +24,8 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
@@ -39,9 +41,11 @@ public class ListCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
     private static final long serialVersionUID = -7299720233662747237L;
     
     private final JPanel panel = new JPanel( new BorderLayout() );
+    private final JPanel panel2 = new JPanel( new BorderLayout() );
     private final JComboBox combobox = new JComboBox();
     private final DefaultComboBoxModel model = (DefaultComboBoxModel)combobox.getModel();
     private final JButton button = new JButton();
+    private final JButton button2 = new JButton();
     
     @Override
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
@@ -57,6 +61,22 @@ public class ListCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
             button.setVisible( true );
             button.setText( property.getButtonText() );
             button.setToolTipText( property.getButtonTooltip() );
+        }
+        
+        if ( property instanceof ListProperty<?, ?> )
+        {
+            ListProperty<?, ?> lp = (ListProperty<?, ?>)property;
+            
+            if ( lp.getButton2Text() == null )
+            {
+                button2.setVisible( false );
+            }
+            else
+            {
+                button2.setVisible( true );
+                button2.setText( lp.getButton2Text() );
+                button2.setToolTipText( lp.getButton2Tooltip() );
+            }
         }
         
         if ( isSelected && !forEditor )
@@ -111,7 +131,29 @@ public class ListCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
             }
         } );
         
-        button.setMargin( new Insets( 0, 3, 0 , 3 ) );
+        combobox.addPopupMenuListener( new PopupMenuListener()
+        {
+            @Override
+            public void popupMenuWillBecomeVisible( PopupMenuEvent e )
+            {
+            }
+            
+            @Override
+            public void popupMenuWillBecomeInvisible( PopupMenuEvent e )
+            {
+                if ( getTable() != null )
+                    getTable().repaint();
+            }
+            
+            @Override
+            public void popupMenuCanceled( PopupMenuEvent e )
+            {
+                if ( getTable() != null )
+                    getTable().repaint();
+            }
+        } );
+        
+        button.setMargin( new Insets( 0, 3, 0, 3 ) );
         
         button.addActionListener( new java.awt.event.ActionListener()
         {
@@ -126,7 +168,25 @@ public class ListCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
             }
         } );
         
+        button2.setMargin( new Insets( 0, 3, 0, 3 ) );
+        
+        button2.addActionListener( new java.awt.event.ActionListener()
+        {
+            @Override
+            public void actionPerformed( java.awt.event.ActionEvent e )
+            {
+                if ( getProperty() != null )
+                {
+                    getProperty().onButtonClicked( button2 );
+                    model.setSelectedItem( getProperty().getValue() );
+                }
+            }
+        } );
+        
         panel.add( combobox, BorderLayout.CENTER );
-        panel.add( button, BorderLayout.EAST );
+        
+        panel2.add( button, BorderLayout.WEST );
+        panel2.add( button2, BorderLayout.EAST );
+        panel.add( panel2, BorderLayout.EAST );
     }
 }

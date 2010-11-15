@@ -20,9 +20,8 @@ package net.ctdp.rfdynhud.widgets.etv2010._util;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 
-import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.render.ImageTemplate;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.TextureManager;
 
 import org.jagatoo.util.errorhandling.ParsingException;
@@ -40,9 +39,12 @@ public class ETVImages
         CAPTION,
         POSITION_FIRST,
         FASTEST,
+        //FASTEST_VS_1ST,
         FASTER,
         NEUTRAL,
+        //NEUTRAL_VS_1ST,
         SLOWER,
+        //SLOWER_VS_1ST,
         LABEL_YELLOW,
         LABEL_RED,
         ;
@@ -571,7 +573,7 @@ public class ETVImages
         return ( getLabeledDataCaptionRightS( scale, captionBounds ) );
     }
     
-    private void load( String iniFilename )
+    private void load( File iniFile )
     {
         big_position_neutral_image = TextureManager.getMissingImage();
         big_position_first_image = TextureManager.getMissingImage();
@@ -594,25 +596,16 @@ public class ETVImages
         
         try
         {
-            if ( iniFilename == null )
-                throw new IllegalArgumentException( "iniFilename must not be null." );
-            
-            iniFilename = iniFilename.trim();
-            
-            if ( iniFilename.length() == 0 )
-                throw new IllegalArgumentException( "iniFilename must not be empty." );
-            
-            File iniFile = new File( GameFileSystem.INSTANCE.getImagesFolder(), iniFilename );
+            if ( iniFile == null )
+                throw new IllegalArgumentException( "iniFile must not be null." );
             
             if ( iniFile.exists() )
             {
-                File f = new File( iniFilename );
-                
                 final String folder;
-                if ( f.getParentFile() == null )
+                if ( iniFile.getParentFile() == null )
                     folder = "";
                 else
-                    folder = f.getParentFile().getPath() + File.separator;
+                    folder = iniFile.getParentFile().getPath() + File.separator;
                 
                 new AbstractIniParser()
                 {
@@ -709,7 +702,7 @@ public class ETVImages
                         }
                         catch ( Throwable t )
                         {
-                            Logger.log( t );
+                            RFDHLog.exception( t );
                         }
                         
                         return ( true );
@@ -719,17 +712,17 @@ public class ETVImages
             else
             {
                 //throw new FileNotFoundException( "iniFile \"" + iniFile.getAbsolutePath() + "\" not found." );
-                Logger.log( "ERROR: ini file \"" + iniFile.getAbsolutePath() + "\" not found." );
+                RFDHLog.error( "ERROR: ini file \"" + iniFile.getAbsolutePath() + "\" not found." );
             }
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
-    public ETVImages( String iniFilename )
+    public ETVImages( File iniFile )
     {
-        load( iniFilename );
+        load( iniFile );
     }
 }

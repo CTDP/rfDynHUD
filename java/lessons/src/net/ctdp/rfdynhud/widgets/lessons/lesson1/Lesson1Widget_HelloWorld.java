@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.widgets.lessons.lesson1;
 
+import java.awt.Font;
+
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
@@ -117,6 +119,17 @@ public class Lesson1Widget_HelloWorld extends Widget
         {
             ds.draw( offsetX, offsetY, "Hello World", texture );
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     public Lesson1Widget_HelloWorld()

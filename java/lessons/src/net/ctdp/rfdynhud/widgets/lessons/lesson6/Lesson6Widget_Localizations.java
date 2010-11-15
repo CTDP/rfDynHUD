@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.widgets.lessons.lesson6;
 
+import java.awt.Font;
+
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
@@ -100,6 +102,17 @@ public class Lesson6Widget_Localizations extends Widget
             
             ds.draw( offsetX, offsetY, tireTempFL, texture );
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 7, false, true );
     }
     
     public Lesson6Widget_Localizations()

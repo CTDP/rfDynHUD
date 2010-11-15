@@ -30,7 +30,7 @@ import javax.imageio.ImageIO;
 import javax.swing.table.DefaultTableModel;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * Table model for the image selector.
@@ -49,7 +49,7 @@ public class ImageTableModel extends DefaultTableModel
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return ( null );
         }

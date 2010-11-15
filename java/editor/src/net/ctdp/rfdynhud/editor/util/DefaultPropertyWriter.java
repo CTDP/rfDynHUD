@@ -22,18 +22,23 @@ import java.io.IOException;
 import org.jagatoo.util.ini.IniWriter;
 
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 
 /**
- * Default implementation of a {@link WidgetsConfigurationWriter}.
+ * Default implementation of a {@link PropertyWriter}.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DefaultWidgetsConfigurationWriter implements WidgetsConfigurationWriter
+public class DefaultPropertyWriter implements PropertyWriter
 {
     private final IniWriter writer;
     
     private String keyPrefix = null;
+    
+    public final IniWriter getIniWriter()
+    {
+        return ( writer );
+    }
     
     public void setKeyPrefix( String prefix )
     {
@@ -78,13 +83,13 @@ public class DefaultWidgetsConfigurationWriter implements WidgetsConfigurationWr
         writeProperty( property, property.quoteValueInConfigurationFile(), comment );
     }
     
-    public DefaultWidgetsConfigurationWriter( IniWriter writer, String keyPrefix )
+    public DefaultPropertyWriter( IniWriter writer, String keyPrefix )
     {
         this.writer = writer;
         this.keyPrefix = keyPrefix;
     }
     
-    public DefaultWidgetsConfigurationWriter( IniWriter writer )
+    public DefaultPropertyWriter( IniWriter writer )
     {
         this( writer, null );
     }

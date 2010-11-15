@@ -70,7 +70,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import net.ctdp.rfdynhud.properties.BorderProperty;
-import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.render.BackgroundColorBorderRenderer;
 import net.ctdp.rfdynhud.render.BorderCache;
@@ -78,10 +78,9 @@ import net.ctdp.rfdynhud.render.BorderRenderer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.ImageBorderRenderer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 /**
  * The {@link BorderSelector} provides a dialog to select border images from a certain
@@ -121,7 +120,7 @@ public class BorderSelector extends DefaultTableModel
     
     private static void applyBorder( String borderKey, WidgetsConfiguration widgetsConfig )
     {
-        FlatWidgetPropertiesContainer wpc = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer wpc = new FlatPropertiesContainer();
         
         for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
         {
@@ -141,7 +140,7 @@ public class BorderSelector extends DefaultTableModel
                     if ( borderKey.equals( borderProp.getBorderAlias() ) )
                     {
                         borderProp.refresh();
-                        __WPrivilegedAccess.onPropertyChanged( borderProp, borderKey, borderKey, widget );
+                        widget.onPropertyChanged( borderProp, borderKey, borderKey );
                         
                         propFound = true;
                     }
@@ -232,7 +231,7 @@ public class BorderSelector extends DefaultTableModel
                 }
                 catch ( IOException e )
                 {
-                    Logger.log( e );
+                    RFDHLog.exception( e );
                 }
             }
             else if ( br instanceof BackgroundColorBorderRenderer )
@@ -324,7 +323,7 @@ public class BorderSelector extends DefaultTableModel
     private void setAllWidgetsDirty( WidgetsConfiguration widgetsConfig )
     {
         int n = widgetsConfig.getNumWidgets();
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );

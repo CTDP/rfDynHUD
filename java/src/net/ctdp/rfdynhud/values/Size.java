@@ -389,6 +389,11 @@ public class Size extends AbstractSize
         return ( Math.round( Math.max( getMinHeight(), scaleH + ( height * scaleH ) ) ) );
     }
     
+    public final boolean equalsEffective( int width, int height )
+    {
+        return ( ( getEffectiveWidth() == width ) && ( getEffectiveHeight() == height ) );
+    }
+    
     public void unbake()
     {
         bakedWidth = -1;

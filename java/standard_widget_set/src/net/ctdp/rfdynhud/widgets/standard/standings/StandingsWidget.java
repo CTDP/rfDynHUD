@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.widgets.standard.standings;
 
+import java.awt.Font;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -32,7 +33,7 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -41,7 +42,7 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.StandingsTools;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.values.NameDisplayType;
@@ -356,11 +357,11 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         switch ( nameDisplayType.getEnumValue() )
         {
             case FULL_NAME:
-                return ( vsi.getDriverName( false ) );
+                return ( vsi.getDriverName() );
             case SHORT_FORM:
-                return ( vsi.getDriverNameShort( false ) );
+                return ( vsi.getDriverNameShort() );
             case THREE_LETTER_CODE:
-                return ( vsi.getDriverNameTLC( true ) );
+                return ( vsi.getDriverNameTLC() );
         }
         
         // Unreachable code!
@@ -1010,7 +1011,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -1056,7 +1057,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    protected void addPositionAndSizePropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addPositionAndSizePropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         super.addPositionAndSizePropertiesToContainer( propsCont, forceAll );
         
@@ -1067,7 +1068,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -1088,6 +1089,17 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         if ( forceAll || showLapsOrStops.getBooleanValue() )
             propsCont.addProperty( abbreviate );
         propsCont.addProperty( showTopspeeds );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
     }
     
     public StandingsWidget()

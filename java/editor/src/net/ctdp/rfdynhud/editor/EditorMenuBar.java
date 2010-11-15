@@ -44,13 +44,11 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import net.ctdp.rfdynhud.editor.help.AboutPage;
-import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
 import net.ctdp.rfdynhud.editor.util.AvailableDisplayModes;
-import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
@@ -71,6 +69,9 @@ public class EditorMenuBar extends JMenuBar
     private final HashMap<String, DM> menuItemDMMap = new HashMap<String, EditorMenuBar.DM>();
     
     private boolean needsDMCheck = true;
+    
+    private JMenu directorMenu = null;
+    private JMenuItem toDirectorModeItem = null;
     
     public void setNeedsDMCheck()
     {
@@ -450,7 +451,7 @@ public class EditorMenuBar extends JMenuBar
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return ( null );
         }
@@ -515,7 +516,7 @@ public class EditorMenuBar extends JMenuBar
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
         
@@ -596,8 +597,8 @@ public class EditorMenuBar extends JMenuBar
             }
             catch ( Throwable t )
             {
-                Logger.log( "Error handling Widget class " + clazz.getName() + ":" );
-                Logger.log( t );
+                RFDHLog.error( "Error handling Widget class " + clazz.getName() + ":" );
+                RFDHLog.error( t );
             }
         }
         
@@ -634,12 +635,12 @@ public class EditorMenuBar extends JMenuBar
             }
             catch ( Throwable t )
             {
-                Logger.log( "Error handling Widget class " + clazz.getName() + ":" );
-                Logger.log( t );
+                RFDHLog.error( "Error handling Widget class " + clazz.getName() + ":" );
+                RFDHLog.error( t );
             }
         }
         
-        __WCPrivilegedAccess.setJustLoaded( widgetsManager.getWidgetsConfiguration(), gameData, true, null );
+        __WCPrivilegedAccess.setJustLoaded( widgetsManager.getWidgetsConfiguration(), gameData, true, widgetsManager.getWidgetsConfiguration().getName(), null );
         
         menu.addMenuListener( new MenuListener()
         {
@@ -832,7 +833,7 @@ public class EditorMenuBar extends JMenuBar
             {
                 DM dm = menuItemDMMap.get( ( (JMenuItem)e.getSource() ).getName() );
                 
-                Logger.log( "Switching to resolution " + dm.w + "x" + dm.h + "..." );
+                RFDHLog.printlnEx( "Switching to resolution " + dm.w + "x" + dm.h + "..." );
                 
                 editor.getEditorPanel().switchToGameResolution( dm.w, dm.h );
             }
@@ -940,7 +941,7 @@ public class EditorMenuBar extends JMenuBar
                 if ( e.getWhen() < lastWhen + 1500L )
                     return;
                 
-                PreviewAndScreenshotManager.showFullscreenPreview( editor.getMainWindow(), editor.getEditorPanel(), editor.getGameResolution(), editor.getCurrentConfigFile() );
+                editor.showFullscreenPreview();
                 
                 lastWhen = e.getWhen();
             }
@@ -954,7 +955,7 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                PreviewAndScreenshotManager.takeScreenshot( editor.getEditorPanel(), editor.getGameResolution(), editor.getCurrentConfigFile() );
+                editor.takeScreenshot();
             }
         } );
         menu.add( screenshotItem );
@@ -967,7 +968,7 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                StrategyTool.showStrategyTool( editor.getMainWindow() );
+                editor.showStrategyTool();
             }
         } );
         menu.add( manangerItem );
@@ -981,7 +982,7 @@ public class EditorMenuBar extends JMenuBar
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         JMenuItem inputMgrItem = new JMenuItem( "Open InputBindingsManager...", icon_inputMgrItem );
@@ -990,7 +991,7 @@ public class EditorMenuBar extends JMenuBar
             @Override
             public void actionPerformed( ActionEvent e )
             {
-                InputBindingsGUI.showInputBindingsGUI( editor );
+                editor.showInputBindingsGUI();
             }
         } );
         
@@ -1010,6 +1011,140 @@ public class EditorMenuBar extends JMenuBar
         menu.add( optionsItem );
         
         return ( menu );
+    }
+    
+    private void switchToDirectorMode()
+    {
+        if ( editor.switchToDirectorMode() )
+        {
+            for ( Component c : directorMenu.getMenuComponents() )
+            {
+                c.setEnabled( c != toDirectorModeItem );
+            }
+        }
+    }
+    
+    private void switchToEditorMode()
+    {
+        if ( editor.switchToEditorMode() )
+        {
+            for ( Component c : directorMenu.getMenuComponents() )
+            {
+                c.setEnabled( c == toDirectorModeItem );
+            }
+        }
+    }
+    
+    private JMenu createDirectorMenu()
+    {
+        directorMenu = new JMenu( "Director" );
+        
+        ImageIcon icon_directorModeItem = null;
+        try
+        {
+            icon_directorModeItem = new ImageIcon( ImageIO.read( this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/director/camera.png" ) ) );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
+        
+        toDirectorModeItem = new JMenuItem( "Switch to Director Mode", icon_directorModeItem );
+        toDirectorModeItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                switchToDirectorMode();
+            }
+        } );
+        directorMenu.add( toDirectorModeItem );
+        
+        JMenuItem returnItem = new JMenuItem( "Return to Editor Mode" );
+        returnItem.setEnabled( false );
+        returnItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                switchToEditorMode();
+            }
+        } );
+        
+        directorMenu.add( returnItem );
+        
+        directorMenu.addSeparator();
+        
+        JMenuItem sendConfigItem = new JMenuItem( "Send current configuration" );
+        sendConfigItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F3, 0 ) );
+        sendConfigItem.setEnabled( false );
+        sendConfigItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getDirectorManager().sendCurrentConfiguration( false );
+            }
+        } );
+        
+        directorMenu.add( sendConfigItem );
+        
+        JMenuItem applyWidgetStatesItem = new JMenuItem( "Apply Widget states" );
+        applyWidgetStatesItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_F4, 0 ) );
+        applyWidgetStatesItem.setEnabled( false );
+        applyWidgetStatesItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getDirectorManager().applyEffectiveStates( false );
+            }
+        } );
+        
+        directorMenu.add( applyWidgetStatesItem );
+        
+        directorMenu.addSeparator();
+        
+        JMenuItem openItem = new JMenuItem( "Open States Sets..." );
+        openItem.setEnabled( false );
+        openItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getDirectorManager().loadStatesSets();
+            }
+        } );
+        
+        directorMenu.add( openItem );
+        
+        JMenuItem saveStatesItem = new JMenuItem( "Save States Sets" );
+        saveStatesItem.setEnabled( false );
+        saveStatesItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getDirectorManager().saveStatesSets();
+            }
+        } );
+        
+        directorMenu.add( saveStatesItem );
+        
+        JMenuItem saveStatesAsItem = new JMenuItem( "Save States Sets As..." );
+        saveStatesAsItem.setEnabled( false );
+        saveStatesAsItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getDirectorManager().saveStatesSetsAs();
+            }
+        } );
+        
+        directorMenu.add( saveStatesAsItem );
+        
+        return ( directorMenu );
     }
     
     private JMenu createHelpMenu()
@@ -1057,6 +1192,7 @@ public class EditorMenuBar extends JMenuBar
         this.add( createWidgetsMenu( editor.getGameData() ) );
         this.add( createResolutionsMenu() );
         this.add( createToolsMenu() );
+        this.add( createDirectorMenu() );
         this.add( createHelpMenu() );
     }
 }

@@ -35,8 +35,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
-import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.RFDHLog;
+
+import org.jagatoo.util.strings.StringUtils;
 
 public class HelpWindow extends JDialog
 {
@@ -55,11 +56,11 @@ public class HelpWindow extends JDialog
         String s = "Unable to load readme";
         try
         {
-            s = StringUtil.loadString( new File( GameFileSystem.INSTANCE.getPluginFolder(), "readme.html" ).toURI().toURL() );
+            s = StringUtils.loadString( new File( GameFileSystem.INSTANCE.getPluginFolder(), "readme.html" ).toURI().toURL() );
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         JEditorPane p = new JEditorPane( "text/html", s );

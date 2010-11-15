@@ -17,7 +17,7 @@
  */
 package net.ctdp.rfdynhud.values;
 
-import net.ctdp.rfdynhud.gamedata.Laptime;
+import net.ctdp.rfdynhud.gamedata.Track;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 
 public enum LapState
@@ -49,63 +49,57 @@ public enum LapState
         this.SHORT = SHORT;
     }
     
-    public static LapState getLapState( VehicleScoringInfo viewedVSI, Laptime refTime, float beforeSectorTime, float afterSectorTime, boolean firstSec1StartIsSomewhere )
+    public static LapState getLapState( Track track, VehicleScoringInfo vsi, float beforeSectorDistance, float afterSectorDistance )
     {
-        if ( viewedVSI.getStintLength() < 1.0f )
+        if ( vsi.getStintLength() <= 1.0f )
             return ( OUTLAP );
         
-        float laptime = viewedVSI.getCurrentLaptime();
+        float lapDistance = vsi.getLapDistance();
         
-        if ( ( refTime == null ) || !refTime.isFinished() )
-        {
-            if ( laptime < afterSectorTime )
-            {
-                if ( firstSec1StartIsSomewhere && ( viewedVSI.getStintLength() < 2.0f ) )
-                    return ( SOMEWHERE );
-                
-                return ( AFTER_SECTOR1_START );
-            }
-            
-            if ( ( viewedVSI.getStintLength() % 1.0f ) > 0.9f )
-                return ( BEFORE_SECTOR3_END );
-            
-            return ( SOMEWHERE );
-        }
-        
-        switch ( viewedVSI.getSector() )
+        switch ( vsi.getSector() )
         {
             case 1:
-                if ( laptime < afterSectorTime )
-                {
-                    if ( firstSec1StartIsSomewhere && ( viewedVSI.getStintLength() < 2.0f ) )
-                        return ( SOMEWHERE );
-                    
+                // Sometimes lapDistance and sector lenghts/track length don't match!
+                if ( lapDistance > vsi.getScoringInfo().getTrackLength() / 2 )
                     return ( AFTER_SECTOR1_START );
-                }
                 
-                if ( laptime < refTime.getSector1() - beforeSectorTime )
+                if ( lapDistance < afterSectorDistance )
+                    return ( AFTER_SECTOR1_START );
+                
+                if ( ( track == null ) || ( lapDistance < track.getSector1Length() - beforeSectorDistance ) )
                     return ( SOMEWHERE );
                 
                 return ( BEFORE_SECTOR1_END );
                 
             case 2:
-                float sec1 = viewedVSI.getCurrentSector1();
-                if ( laptime < sec1 + afterSectorTime )
+                if ( track == null )
+                    return ( SOMEWHERE );
+                
+                if ( lapDistance - track.getSector1Length() < afterSectorDistance )
                     return ( AFTER_SECTOR2_START );
                 
-                float gap1 = viewedVSI.getCurrentSector1() - refTime.getSector1();
-                if ( laptime < refTime.getSector2( true ) + gap1 - beforeSectorTime )
+                if ( lapDistance < track.getSector2Length( true ) - afterSectorDistance )
                     return ( SOMEWHERE );
                 
                 return ( BEFORE_SECTOR2_END );
                 
             case 3:
-                float sec2 = viewedVSI.getCurrentSector2( true );
-                if ( laptime < sec2 + afterSectorTime )
+                // Sometimes lapDistance and sector lenghts/track length don't match!
+                if ( lapDistance < vsi.getScoringInfo().getTrackLength() / 2 )
+                    return ( BEFORE_SECTOR3_END );
+                
+                if ( track == null )
+                {
+                    if ( lapDistance >= vsi.getScoringInfo().getTrackLength() - beforeSectorDistance )
+                        return ( BEFORE_SECTOR3_END );
+                    
+                    return ( SOMEWHERE );
+                }
+                
+                if ( lapDistance - track.getSector2Length( true ) < afterSectorDistance )
                     return ( AFTER_SECTOR3_START );
                 
-                float gap2 = viewedVSI.getCurrentSector2( true ) - refTime.getSector2( true );
-                if ( laptime < refTime.getLapTime() + gap2 - beforeSectorTime )
+                if ( lapDistance - track.getSector2Length( true ) < track.getSector3Length() - afterSectorDistance )
                     return ( SOMEWHERE );
                 
                 return ( BEFORE_SECTOR3_END );
@@ -113,5 +107,10 @@ public enum LapState
         
         // Should be unreachable!
         return ( SOMEWHERE );
+    }
+    
+    public static LapState getLapState( Track track, VehicleScoringInfo vsi )
+    {
+        return ( getLapState( track, vsi, 400f, 400f ) );
     }
 }

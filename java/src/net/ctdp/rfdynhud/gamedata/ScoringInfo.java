@@ -20,13 +20,14 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGenerator;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGeneratorImpl;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
@@ -69,6 +70,10 @@ public class ScoringInfo
     public static interface ScoringInfoUpdateListener extends LiveGameData.GameDataUpdateListener
     {
         public void onScoringInfoUpdated( LiveGameData gameData, boolean isEditorMode );
+        
+        public void onPlayerJoined( LiveGameData gameData, VehicleScoringInfo joinedVSI, boolean rejoined );
+        
+        public void onPlayerLeft( LiveGameData gameData, Integer vsiID );
     }
     
     private ScoringInfoUpdateListener[] updateListeners = null;
@@ -140,11 +145,13 @@ public class ScoringInfo
     private boolean fixedViewedVSI = false;
     private VehicleScoringInfo playerVSI = null;
     private VehicleScoringInfo viewedVSI = null;
+    private VehicleScoringInfo controlledViewedVSI = null;
     private VehicleScoringInfo fastestLapVSI = null;
     private VehicleScoringInfo secondFastestLapVSI = null;
     private VehicleScoringInfo fastestSector1VSI = null;
     private VehicleScoringInfo fastestSector2VSI = null;
     private VehicleScoringInfo fastestSector3VSI = null;
+    private VehicleScoringInfo controlledCompareVSI = null;
     
     private String playerName = null;
     private String playerFilename = null;
@@ -155,6 +162,8 @@ public class ScoringInfo
     private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
     private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
     private final HashMap<Integer, Integer> nameDuplicatesMap = new HashMap<Integer, Integer>();
+    
+    private final ArrayList<Object[]> changedVSIs = new ArrayList<Object[]>();
     
     void initVehicleScoringInfo()
     {
@@ -265,6 +274,8 @@ public class ScoringInfo
                         {
                             // player left
                             
+                            changedVSIs.add( new Object[] { -1, vsi.getDriverID() } );
+                            
                             //Logger.log( "Player " + vsi.getDriverName() + " left the game." );
                             
                             leftVSICache.put( vsi.getDriverID(), vsi );
@@ -292,6 +303,7 @@ public class ScoringInfo
                     VehicleScoringInfoCapsule data = idCapsuleMap.get( joinedID );
                     
                     VehicleScoringInfo vsi = leftVSICache.remove( joinedID );
+                    
                     if ( vsi == null )
                     {
                         //Logger.log( "Player joined: " + data.getDriverName() + ", id = " + joinedID + ", index = " + firstFree );
@@ -299,18 +311,23 @@ public class ScoringInfo
                         vsi = vehicleScoringInfo[firstFree++];
                         vsi.data = data;
                         vsi.setDriverName( data.getDriverName(), joinedID );
+                        
+                        changedVSIs.add( new Object[] { +1, vsi } );
                     }
                     else
                     {
                         //Logger.log( "Player rejoined: " + data.getDriverName() + ", id = " + joinedID + ", index = " + firstFree );
                         
                         vehicleScoringInfo[firstFree++] = vsi;
+                        vsi.data = data;
+                        
                         if ( ( vsi.fastestLaptime == null ) && ( vsi.getBestLapTime() > 0f ) )
                         {
                             vsi.fastestLaptime = new Laptime( 0, 0f, 0f, 0f, false, false, true );
                             vsi.fastestLaptime.laptime = vsi.getBestLapTime();
                         }
-                        vsi.data = data;
+                        
+                        changedVSIs.add( new Object[] { +2, vsi } );
                     }
                 }
             }
@@ -336,7 +353,7 @@ public class ScoringInfo
             
             if ( somethingWrong > 0 )
             {
-                Logger.log( "WARNING: Something went wrong when initializing VehicleScoringInfos. Had to add " + somethingWrong + " instances. numVehicles = " + n + ", old = " + oldNumVehicles );
+                RFDHLog.printlnEx( "WARNING: Something went wrong when initializing VehicleScoringInfos. Had to add " + somethingWrong + " instances. numVehicles = " + n + ", old = " + oldNumVehicles );
             }
             
             System.arraycopy( vehicleScoringInfo, 0, vehicleScoringInfo2, 0, n );
@@ -361,8 +378,37 @@ public class ScoringInfo
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
+        
+        if ( ( changedVSIs.size() > 0 ) && ( updateListeners != null ) )
+        {
+            for ( int j = 0; j < changedVSIs.size(); j++ )
+            {
+                Object[] change = changedVSIs.get( j );
+                
+                for ( int i = 0; i < updateListeners.length; i++ )
+                {
+                    try
+                    {
+                        int changeId = ( (Integer)change[0] ).intValue();
+                        
+                        if ( changeId == -1 )
+                            updateListeners[i].onPlayerLeft( gameData, (Integer)change[1] );
+                        else if ( changeId == +1 )
+                            updateListeners[i].onPlayerJoined( gameData, (VehicleScoringInfo)change[1], false );
+                        else if ( changeId == +2 )
+                            updateListeners[i].onPlayerJoined( gameData, (VehicleScoringInfo)change[1], true );
+                    }
+                    catch ( Throwable t )
+                    {
+                        RFDHLog.exception( t );
+                    }
+                }
+            }
+        }
+        
+        changedVSIs.clear();
     }
     
     private void resetDerivateData()
@@ -372,12 +418,14 @@ public class ScoringInfo
         trackName = null;
         playerVSI = null;
         viewedVSI = null;
+        controlledViewedVSI = null;
         
         fastestLapVSI = null;
         secondFastestLapVSI = null;
         fastestSector1VSI = null;
         fastestSector2VSI = null;
         fastestSector3VSI = null;
+        controlledCompareVSI = null;
         
         trackLength = -1f;
         
@@ -498,7 +546,10 @@ public class ScoringInfo
             if ( __EDPrivilegedAccess.isEditorMode )
                 trackRaceLaps = 70;
             else if ( trackRaceLaps < 0.0 ) // corrupt GDB file?
+            {
+                RFDHLog.exception( "WARNING: \"RaceLaps\" not found in GDB. Engine and Brakes lifetime will probably be wrong." );
                 trackRaceLaps = data.getMaxLaps();
+            }
             
             VehicleScoringInfo leader = getLeadersVehicleScoringInfo();
             SessionLimit sessionLimit = leader.getSessionLimit();
@@ -509,7 +560,7 @@ public class ScoringInfo
                 {
                     // fall back to lap limited to at least have something.
                     
-                    Logger.log( "WARNING: No \"RaceTime\" found in RFM." );
+                    RFDHLog.exception( "WARNING: No \"RaceTime\" found in RFM." );
                     sessionLimit = SessionLimit.LAPS;
                 }
             }
@@ -629,7 +680,7 @@ public class ScoringInfo
                     }
                     catch ( Throwable t )
                     {
-                        Logger.log( t );
+                        RFDHLog.exception( t );
                     }
                 }
             }
@@ -642,7 +693,7 @@ public class ScoringInfo
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -1304,6 +1355,11 @@ public class ScoringInfo
         this.viewedVSI = null;
     }
     
+    void setControlledViewedVSI( VehicleScoringInfo controlledViewedVSI )
+    {
+        this.controlledViewedVSI = controlledViewedVSI;
+    }
+    
     private final TelemVect3 camPos = new TelemVect3();
     private final TelemVect3 carPos = new TelemVect3();
     
@@ -1314,6 +1370,9 @@ public class ScoringInfo
      */
     public final VehicleScoringInfo getViewedVehicleScoringInfo()
     {
+        if ( controlledViewedVSI != null )
+            return ( controlledViewedVSI );
+        
         if ( fixedViewedVSI )
             return ( getPlayersVehicleScoringInfo() );
         
@@ -1324,6 +1383,25 @@ public class ScoringInfo
         
         if ( viewedVSI == null )
         {
+            LiveGameDataController controller = gameData.getLiveGameDataController();
+            int controlledId = ( controller == null ) ? -1 : controller.getViewedVSIId();
+            
+            int n = getNumVehicles();
+            
+            if ( controlledId >= 0 )
+            {
+                for ( short i = 0; i < n; i++ )
+                {
+                    if ( vehicleScoringInfo2[i].getDriverId() == controlledId )
+                    {
+                        viewedVSI = vehicleScoringInfo2[i];
+                        return ( viewedVSI );
+                    }
+                }
+            }
+            
+            // Not found! Search the regular way...
+            
             gi.getCameraPosition( camPos );
             camPos.x *= -1f;
             camPos.y *= -1f;
@@ -1331,7 +1409,6 @@ public class ScoringInfo
             
             float closestDist = Float.MAX_VALUE;
             
-            int n = getNumVehicles();
             for ( short i = 0; i < n; i++ )
             {
                 vehicleScoringInfo2[i].getWorldPosition( carPos );
@@ -1565,6 +1642,27 @@ public class ScoringInfo
     public final Laptime getFastestLaptime()
     {
         return ( getFastestLapVSI().getFastestLaptime() );
+    }
+    
+    void setControlledCompareVSI( VehicleScoringInfo controlledCompareVSI )
+    {
+        this.controlledCompareVSI = controlledCompareVSI;
+    }
+    
+    /**
+     * <p>
+     * Gets the {@link VehicleScoringInfo} to compare against.
+     * </p>
+     * 
+     * <p>
+     * By default this is <code>null</code>, which leads to default behavior. But a plugin can override this.
+     * </p>
+     * 
+     * @return the {@link VehicleScoringInfo} to compare laptimes against.
+     */
+    public final VehicleScoringInfo getCompareVSI()
+    {
+        return ( controlledCompareVSI );
     }
     
     ScoringInfo( LiveGameData gameData, GameEventsManager eventsManager )

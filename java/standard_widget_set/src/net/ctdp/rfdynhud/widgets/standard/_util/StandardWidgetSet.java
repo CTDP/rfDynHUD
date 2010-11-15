@@ -26,6 +26,7 @@ import java.net.URL;
 
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 public class StandardWidgetSet
@@ -39,6 +40,7 @@ public class StandardWidgetSet
     public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Standard", VERSION, WidgetPackage.CTDP_ICON, getIcon( "net/ctdp/rfdynhud/widgets/standard/widgets.png" ) );
     public static final WidgetPackage WIDGET_PACKAGE_TELEMETRY = new WidgetPackage( "CTDP/Telemetry", VERSION, WidgetPackage.CTDP_ICON, getIcon( "net/ctdp/rfdynhud/widgets/standard/telemetry.png" ) );
     public static final WidgetPackage WIDGET_PACKAGE_TIMING = new WidgetPackage( "CTDP/Timing", VERSION, WidgetPackage.CTDP_ICON, getIcon( "net/ctdp/rfdynhud/widgets/standard/timing.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE_EXTRA = new WidgetPackage( "CTDP/Extra", VERSION, WidgetPackage.CTDP_ICON, WidgetPackage.EXTRA_ICON );
     
     public static final String POSITION_ITEM_FONT_COLOR_NAME = "PositionItemFontColor";
     public static final String POSITION_ITEM_COLOR_NORMAL = "PositionItemColorNormal";
@@ -75,7 +77,7 @@ public class StandardWidgetSet
     public static String getDefaultNamedFontValue( String name )
     {
         if ( name.equals( POSITION_ITEM_FONT_NAME ) )
-            return ( "Verdana-BOLD-9va" );
+            return ( FontUtils.getFontString( "Verdana", Font.BOLD, 9, true, true ) );
         
         return ( null );
     }

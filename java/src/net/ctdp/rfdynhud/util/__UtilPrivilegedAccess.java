@@ -24,7 +24,6 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
 
 /**
  * Don't use this at home!
@@ -33,19 +32,19 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
  */
 public class __UtilPrivilegedAccess
 {
-    public static File forceLoadConfiguration( ConfigurationLoader loader, File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    public static File forceLoadConfiguration( ConfigurationLoader loader, File file, final WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode ) throws IOException
     {
-        return ( loader.forceLoadConfiguration( file, widgetsConfig, gameData, isEditorMode, loadListener ) );
+        return ( loader.forceLoadConfiguration( file, widgetsConfig, gameData, isEditorMode ) );
     }
     
-    public static void loadFactoryDefaults( ConfigurationLoader loader, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener ) throws IOException
+    public static void loadFactoryDefaults( ConfigurationLoader loader, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode ) throws IOException
     {
-        loader.loadFactoryDefaults( widgetsConfig, gameData, isEditorMode, loadListener );
+        loader.loadFactoryDefaults( widgetsConfig, gameData, isEditorMode );
     }
     
-    public static Boolean reloadConfiguration( ConfigurationLoader loader, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener, boolean force )
+    public static void reloadConfiguration( ConfigurationLoader loader, boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleName, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, boolean force )
     {
-        return ( loader.reloadConfiguration( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, sessionType, widgetsConfig, gameData, isEditorMode, loadListener, force ) );
+        loader.reloadConfiguration( smallMonitor, bigMonitor, isInGarage, modName, vehicleName, sessionType, widgetsConfig, gameData, isEditorMode, force );
     }
     
     public static final TransformableTexture[] getSubTextureArray( SubTextureCollector collector, boolean sort )

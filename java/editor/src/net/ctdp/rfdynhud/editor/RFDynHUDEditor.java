@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -46,20 +47,23 @@ import javax.swing.text.html.HTMLDocument;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.WidgetImportManager.ImportDecision;
+import net.ctdp.rfdynhud.editor.director.DirectorManager;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
+import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
-import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.editor.properties.DefaultPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
-import net.ctdp.rfdynhud.editor.util.DefaultWidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.editor.util.DefaultPropertyWriter;
 import net.ctdp.rfdynhud.editor.util.EditorPropertyLoader;
 import net.ctdp.rfdynhud.editor.util.SaveAsDialog;
+import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.GameResolution;
@@ -68,19 +72,18 @@ import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.__GameIDHelper;
 import net.ctdp.rfdynhud.properties.ListProperty;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
-import net.ctdp.rfdynhud.util.Documented;
-import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.StringUtil;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.FontUtils;
+import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
@@ -93,12 +96,13 @@ import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.gui.awt_swing.GUITools;
 import org.jagatoo.util.ini.AbstractIniParser;
 import org.jagatoo.util.ini.IniWriter;
+import org.jagatoo.util.strings.StringUtils;
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, PropertySelectionListener<Property>
+public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelectionListener<Property>
 {
     static
     {
@@ -122,6 +126,14 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     private final WidgetsEditorPanel editorPanel;
     private final JScrollPane editorScrollPane;
     
+    private final JSplitPane mainSplit;
+    private final JSplitPane propsSplit;
+    
+    private final JTabbedPane tabDirector;
+    private DirectorManager directorMgr = null;
+    private File currentDirectorStatesSetsFile = null;
+    private String directorConnectionStrings = null;
+    
     private final PropertiesEditor propsEditor;
     private final PropertiesEditorTable editorTable;
     private final JEditorPane docPanel;
@@ -133,8 +145,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     
     private final EditorRunningIndicator runningIndicator;
     
-    private static final String doc_header = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
-    private static final String doc_footer = StringUtil.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
+    public static final String doc_header = StringUtils.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
+    public static final String doc_footer = StringUtils.loadString( RFDynHUDEditor.class.getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
     
     private boolean presetsWindowVisible = false;
     final EditorPresetsWindow presetsWindow;
@@ -163,6 +175,11 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
     public final WidgetsConfiguration getWidgetsConfiguration()
     {
         return ( widgetsConfig );
+    }
+    
+    public final DirectorManager getDirectorManager()
+    {
+        return ( directorMgr );
     }
     
     public final File getCurrentConfigFile()
@@ -227,10 +244,6 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         return ( getEditorPanel().getOverlayTexture() );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getDocumentationSource( Property property )
     {
         if ( property == null )
@@ -244,7 +257,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         if ( docURL == null )
             return ( "" );
         
-        return ( StringUtil.loadString( docURL ) );
+        return ( StringUtils.loadString( docURL ) );
     }
     
     private Property currentDocedProperty = null;
@@ -354,7 +367,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         return ( currentTemplateFile.getAbsolutePath().substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 ) );
     }
     
-    private void getProperties( WidgetPropertiesContainer propsCont )
+    private void getProperties( PropertiesContainer propsCont )
     {
         propsCont.addGroup( "Editor - General" );
         
@@ -377,7 +390,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             }
         } );
         
-        getEditorPanel().getSettings().getProperties( propsCont );
+        getEditorPanel().getSettings().getProperties( propsCont, true );
         
         propsCont.addProperty( new ListProperty<String, ArrayList<String>>( (Widget)null, "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
         {
@@ -404,7 +417,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                     }
                     catch ( IOException e )
                     {
-                        Logger.log( e );
+                        RFDHLog.exception( e );
                     }
                 }
             }
@@ -426,7 +439,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                     }
                     catch ( IOException e )
                     {
-                        Logger.log( e );
+                        RFDHLog.exception( e );
                     }
                 }
             }
@@ -451,11 +464,11 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         
         if ( widget == null )
         {
-            this.getProperties( new DefaultWidgetPropertiesContainer( propsList ) );
+            this.getProperties( new DefaultPropertiesContainer( propsList ) );
         }
         else
         {
-            widget.getProperties( new DefaultWidgetPropertiesContainer( propsList ), false );
+            widget.getProperties( new DefaultPropertiesContainer( propsList ), false );
         }
         
         onPropertySelected( null, -1 );
@@ -543,6 +556,27 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
     }
     
+    private void writeLastDirectorStatesFile( IniWriter writer ) throws Throwable
+    {
+        File file = currentDirectorStatesSetsFile;
+        if ( ( directorMgr != null ) && ( directorMgr.getCurrentFile() != null ) && directorMgr.getCurrentFile().exists() )
+            file = directorMgr.getCurrentFile();
+        
+        if ( ( file != null ) && file.exists() )
+        {
+            String filename = file.getAbsolutePath();
+            if ( filename.startsWith( GameFileSystem.INSTANCE.getConfigPath() ) )
+            {
+                if ( filename.charAt( GameFileSystem.INSTANCE.getConfigPath().length() ) == File.separatorChar )
+                    filename = filename.substring( GameFileSystem.INSTANCE.getConfigPath().length() + 1 );
+                else
+                    filename = filename.substring( GameFileSystem.INSTANCE.getConfigPath().length() );
+            }
+            
+            writer.writeSetting( "lastStatesSetsFile", filename );
+        }
+    }
+    
     private void writeLastImportFile( IniWriter writer ) throws Throwable
     {
         if ( lastImportFile != null )
@@ -568,11 +602,11 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         try
         {
             writer = new IniWriter( userSettingsFile );
-            WidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( writer );
+            PropertyWriter confWriter = new DefaultPropertyWriter( writer );
             
             writer.writeGroup( "General" );
             writer.writeSetting( "resolution", gameResolution.getResolutionString() );
-            getEditorPanel().getSettings().saveProperties( confWriter, writer );
+            getEditorPanel().getSettings().saveProperties( confWriter );
             writer.writeSetting( "templatesConfig", getCurrentTemplateFileForProperty() );
             writer.writeSetting( "defaultScaleType", presetsWindow.getDefaultScaleType() );
             writeLastConfig( writer );
@@ -584,6 +618,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             writer.writeSetting( "windowLocation", windowLeft + "x" + windowTop );
             writer.writeSetting( "windowSize", windowWidth + "x" + windowHeight );
             writer.writeSetting( "windowState", extendedState );
+            writer.writeSetting( "mainSplit", mainSplit.getDividerLocation() );
+            writer.writeSetting( "propsSplit", propsSplit.getDividerLocation() );
             
             writer.writeGroup( "PresetsWindow" );
             writer.writeSetting( "windowLocation", presetsWindow.getX() + "x" + presetsWindow.getY() );
@@ -593,6 +629,13 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             
             writer.writeGroup( "EditorPresets" );
             __EDPrivilegedAccess.saveProperties( presets, confWriter );
+            
+            writer.writeGroup( "Director" );
+            
+            writeLastDirectorStatesFile( writer );
+            
+            if ( directorConnectionStrings != null )
+                writer.writeSetting( "connectionStrings", directorConnectionStrings );
         }
         catch ( Throwable t )
         {
@@ -657,7 +700,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
         
@@ -704,7 +747,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -762,7 +805,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                             }
                             catch ( IOException e )
                             {
-                                Logger.log( e );
+                                RFDHLog.exception( e );
                             }
                         }
                         else if ( key.equals( "defaultScaleType" ) )
@@ -849,6 +892,28 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                                 t.printStackTrace();
                             }
                         }
+                        else if ( key.equals( "mainSplit" ) )
+                        {
+                            try
+                            {
+                                mainSplit.setDividerLocation( Integer.parseInt( value ) );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
+                        }
+                        else if ( key.equals( "propsSplit" ) )
+                        {
+                            try
+                            {
+                                propsSplit.setDividerLocation( Integer.parseInt( value ) );
+                            }
+                            catch ( Throwable t )
+                            {
+                                t.printStackTrace();
+                            }
+                        }
                     }
                     else if ( group.equals( "PresetsWindow" ) )
                     {
@@ -905,6 +970,21 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
                     {
                         __EDPrivilegedAccess.loadProperty( presets, loader );
                     }
+                    else if ( group.equals( "Director" ) )
+                    {
+                        if ( key.equals( "lastStatesSetsFile" ) )
+                        {
+                            File file = new File( value );
+                            if ( !file.isAbsolute() )
+                                currentDirectorStatesSetsFile = new File( GameFileSystem.INSTANCE.getConfigFolder(), value );
+                            if ( file.exists() )
+                                currentDirectorStatesSetsFile = file;
+                        }
+                        else if ( key.equals( "connectionStrings" ) )
+                        {
+                            directorConnectionStrings = value;
+                        }
+                    }
                     
                     return ( true );
                 }
@@ -912,7 +992,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         result[0] = true;
@@ -935,7 +1015,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         {
             this.templateConfig = new WidgetsConfiguration( gameData.getGameResolution().getViewportWidth(), gameData.getGameResolution().getViewportHeight() );
             
-            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), templateConfigFile, templateConfig, gameData, true, null );
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader( null ), templateConfigFile, templateConfig, gameData, true );
             
             this.currentTemplateFile = templateConfigFile;
             this.lastTemplateConfigModified = templateConfigFile.lastModified();
@@ -960,7 +1040,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         clearWidetRegions();
         
         __WCPrivilegedAccess.clear( widgetsConfig, gameData, true, null );
-        __UtilPrivilegedAccess.loadFactoryDefaults( new ConfigurationLoader(), widgetsConfig, gameData, true, null );
+        __UtilPrivilegedAccess.loadFactoryDefaults( new ConfigurationLoader( null ), widgetsConfig, gameData, true );
         
         getOverlayTexture().clear( true, null );
         editorPanel.setSelectedWidget( null, false );
@@ -975,7 +1055,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             
             clearWidetRegions();
             
-            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), configFile, widgetsConfig, gameData, true, null );
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader( null ), configFile, widgetsConfig, gameData, true );
             
             currentConfigFile = configFile;
             
@@ -987,7 +1067,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
     }
@@ -1047,7 +1127,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
@@ -1112,7 +1192,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             
             //clearWidetRegions();
             
-            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader(), file, wdm.getWidgetsConfiguration(), gameData, true, null );
+            __UtilPrivilegedAccess.forceLoadConfiguration( new ConfigurationLoader( null ), file, wdm.getWidgetsConfiguration(), gameData, true );
             
             //updateWindowTitle();
             
@@ -1131,7 +1211,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
         }
@@ -1158,7 +1238,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             JOptionPane.showMessageDialog( window, ( t.getMessage() != null ) ? t.getMessage() : t.getClass().getSimpleName(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE );
             
@@ -1184,7 +1264,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         saveConfig();
@@ -1204,6 +1284,22 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             if ( result == JOptionPane.YES_OPTION )
             {
                 saveConfig();
+            }
+        }
+        
+        if ( ( directorMgr != null ) && directorMgr.isConnected() )
+        {
+            if ( !directorMgr.checkUnsavedChanges() )
+                return;
+            
+            directorMgr.close();
+            
+            try
+            {
+                Thread.sleep( 200L );
+            }
+            catch ( Throwable t )
+            {
             }
         }
         
@@ -1232,7 +1328,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         if ( widget == null )
             return ( false );
         
-        Logger.log( "Removing Widget of type \"" + widget.getClass().getName() + "\" and name \"" + widget.getName() + "\"..." );
+        RFDHLog.println( "Removing Widget of type \"" + widget.getClass().getName() + "\" and name \"" + widget.getName() + "\"..." );
         
         if ( widget.getMasterWidget() == null )
             __WCPrivilegedAccess.removeWidget( widgetsConfig, widget );
@@ -1289,7 +1385,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
             if ( showMessage )
                 JOptionPane.showMessageDialog( null, "Cannot create Widget instance of type " + widgetClass.getName() + ". See log for more info." );
             else
-                Logger.log( "Cannot create Widget instance of type " + widgetClass.getName() );
+                RFDHLog.error( "Cannot create Widget instance of type " + widgetClass.getName() );
         }
         
         return ( widget );
@@ -1335,7 +1431,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         
         try
         {
-            Logger.log( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
+            RFDHLog.println( "Creating and adding new Widget of type \"" + widgetClazz.getSimpleName() + "\"..." );
             
             widget = getNewWidgetInstance( widgetClazz );
             if ( widget != null )
@@ -1393,10 +1489,100 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         return ( widget );
+    }
+    
+    public void showFullscreenPreview()
+    {
+        PreviewAndScreenshotManager.showFullscreenPreview( getMainWindow(), getEditorPanel(), getGameResolution(), getCurrentConfigFile() );
+    }
+    
+    public void takeScreenshot()
+    {
+        PreviewAndScreenshotManager.takeScreenshot( getEditorPanel(), getGameResolution(), getCurrentConfigFile() );
+    }
+    
+    public void showStrategyTool()
+    {
+        StrategyTool.showStrategyTool( getMainWindow() );
+    }
+    
+    public void mergeDirectorConnectionString( String connectionString )
+    {
+        if ( this.directorConnectionStrings == null )
+        {
+            this.directorConnectionStrings = connectionString;
+        }
+        else
+        {
+            String[] connStrings = this.directorConnectionStrings.split( ";" );
+            
+            String newConnStrings = "";
+            for ( int i = 0; i < connStrings.length; i++ )
+            {
+                if ( !connStrings[i].equalsIgnoreCase( connectionString ) )
+                    newConnStrings += ";" + connStrings[i];
+            }
+            this.directorConnectionStrings = connectionString + newConnStrings;
+        }
+    }
+    
+    public boolean switchToDirectorMode()
+    {
+        int divLoc = mainSplit.getDividerLocation();
+        
+        if ( directorMgr == null )
+            directorMgr = new DirectorManager( this );
+        
+        if ( ( currentDirectorStatesSetsFile != null ) && currentDirectorStatesSetsFile.exists() )
+        {
+            directorMgr.loadStatesSets( currentDirectorStatesSetsFile );
+        }
+        
+        tabDirector.removeAll();
+        tabDirector.addTab( "Director", directorMgr.getComponent() );
+        tabDirector.addTab( "Main", propsSplit );
+        tabDirector.setSelectedIndex( 0 );
+        
+        mainSplit.setRightComponent( tabDirector );
+        
+        mainSplit.setDividerLocation( divLoc );
+        ( (JSplitPane)directorMgr.getComponent() ).setDividerLocation( propsSplit.getDividerLocation() );
+        
+        if ( !directorMgr.startDirecting( directorConnectionStrings ) )
+        {
+            switchToEditorMode();
+            
+            return ( false );
+        }
+        
+        return ( true );
+    }
+    
+    public boolean switchToEditorMode()
+    {
+        if ( directorMgr != null )
+        {
+            if ( !directorMgr.checkUnsavedChanges() )
+                return ( false );
+            
+            directorMgr.close();
+            //directorMgr = null;
+            
+            int divLoc = mainSplit.getDividerLocation();
+            mainSplit.setRightComponent( propsSplit );
+            mainSplit.setDividerLocation( divLoc );
+        }
+        
+        return ( true );
+    }
+    
+    public void showInputBindingsGUI()
+    {
+        InputBindingsGUI.showInputBindingsGUI( this );
     }
     
     public void showPresetsWindow()
@@ -1497,6 +1683,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         
         __GameIDHelper.gameId = SupportedGames.rFactor; // make this dynamic somehow!
         
+        FontUtils.loadCustomFonts();
+        
         initGameDataObjects();
         
         this.window = new JFrame( BASE_WINDOW_TITLE );
@@ -1518,26 +1706,26 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         editorScrollPane.getViewport().setScrollMode( JViewport.SIMPLE_SCROLL_MODE );
         editorScrollPane.setPreferredSize( new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE ) );
         
-        JSplitPane split = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
-        split.setOneTouchExpandable( true );
-        split.setResizeWeight( 1 );
-        split.add( editorScrollPane );
+        mainSplit = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
+        mainSplit.setOneTouchExpandable( true );
+        mainSplit.setContinuousLayout( true );
+        mainSplit.setResizeWeight( 1 );
+        mainSplit.add( editorScrollPane );
         
         this.propsEditor = new PropertiesEditor();
         this.propsEditor.addChangeListener( new WidgetPropertyChangeListener( this ) );
         
-        JSplitPane split2 = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
-        split2.setResizeWeight( 0 );
-        split2.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
-        split2.setMinimumSize( new Dimension( 300, 10 ) );
+        propsSplit = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
+        propsSplit.setContinuousLayout( true );
+        propsSplit.setResizeWeight( 0 );
+        propsSplit.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
+        propsSplit.setMinimumSize( new Dimension( 300, 10 ) );
         
         editorTable = new PropertiesEditorTable( this, propsEditor );
         
-        split2.add( editorTable.createScrollPane() );
+        propsSplit.add( editorTable.createScrollPane() );
         
         editorTable.addPropertySelectionListener( this );
-        
-        split.resetToPreferredSizes();
         
         docPanel = new JEditorPane( "text/html", "" );
         ( (HTMLDocument)docPanel.getDocument() ).getStyleSheet().importStyleSheet( RFDynHUDEditor.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc.css" ) );
@@ -1545,15 +1733,17 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         docPanel.setAutoscrolls( false );
         JScrollPane sp = new JScrollPane( docPanel );
         sp.setMinimumSize( new Dimension( 300, 10 ) );
-        split2.add( sp );
-        split2.setDividerLocation( 450 );
+        propsSplit.add( sp );
+        propsSplit.setDividerLocation( 450 );
         
-        split2.resetToPreferredSizes();
-        split2.setContinuousLayout( true );
-        split.setContinuousLayout( true );
+        propsSplit.resetToPreferredSizes();
         
-        split.add( split2 );
-        contentPane.add( split, BorderLayout.CENTER );
+        mainSplit.add( propsSplit );
+        contentPane.add( mainSplit, BorderLayout.CENTER );
+        
+        mainSplit.resetToPreferredSizes();
+        
+        this.tabDirector = new JTabbedPane();
         
         this.runningIndicator = new EditorRunningIndicator( this );
         
@@ -1669,7 +1859,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, Documented, P
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             String message = t.getMessage();
             if ( ( message == null ) || ( message.length() == 0 ) )

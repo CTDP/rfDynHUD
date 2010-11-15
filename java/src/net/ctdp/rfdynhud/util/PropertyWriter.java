@@ -26,7 +26,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public interface WidgetsConfigurationWriter
+public interface PropertyWriter
 {
     public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException;
     

@@ -75,13 +75,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 /**
  * The {@link FontChooser} provides the ability to choose a font through a GUI dialog.
@@ -317,7 +316,7 @@ public class FontChooser extends JPanel
     private void setAllWidgetsDirty( WidgetsConfiguration widgetsConfig )
     {
         int n = widgetsConfig.getNumWidgets();
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
@@ -354,7 +353,7 @@ public class FontChooser extends JPanel
     {
         if ( widgetsConfig.addNamedFont( fontName, fontStr ) )
         {
-            FlatWidgetPropertiesContainer wpc = new FlatWidgetPropertiesContainer();
+            FlatPropertiesContainer wpc = new FlatPropertiesContainer();
             
             for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
             {
@@ -374,7 +373,7 @@ public class FontChooser extends JPanel
                         if ( fontName.equals( fontProp.getFontKey() ) )
                         {
                             fontProp.refresh();
-                            __WPrivilegedAccess.onPropertyChanged( fontProp, fontName, fontName, widget );
+                            widget.onPropertyChanged( fontProp, fontName, fontName );
                             
                             propFound = true;
                         }
@@ -1029,7 +1028,7 @@ public class FontChooser extends JPanel
         JPanel south0 = new JPanel( new GridLayout( 1, 1 ) );
         south0.setBorder( new BevelBorder( BevelBorder.LOWERED ) );
         JPanel south1 = new JPanel( new GridLayout( 2, 1 ) );
-        south1.setBorder( new EmptyBorder( 15, 15, 15, 15 ) );
+        south1.setBorder( new EmptyBorder( 0, 3, 2, 3 ) );
         south1.add( sampleLabel1 );
         south1.add( sampleLabel2 );
         south0.add( south1 );

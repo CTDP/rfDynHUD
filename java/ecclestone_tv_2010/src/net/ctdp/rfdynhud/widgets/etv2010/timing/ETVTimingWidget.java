@@ -26,19 +26,19 @@ import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
-import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.EnumValue;
@@ -47,8 +47,8 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LapState;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets.etv2010._base.ETVTimingWidgetBase;
-import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
 
 /**
  * The {@link ETVTimingWidget} displays the current lap time.
@@ -67,12 +67,11 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     
     private final IntProperty positionFontSize = new IntProperty( this, "positionFontSize", 200 );
     
+    private final BooleanProperty alwaysShowFull1000 = new BooleanProperty( this, "alwaysShowFull1000", "showFull1000", false );
+    
     protected final IntProperty positionItemGap = new IntProperty( this, "positionItemGap", 5, 0, 100 );
     
     private final EnumProperty<DisplayType> displayType = new EnumProperty<DisplayType>( this, "displayType", DisplayType.AT_SECTORS );
-    
-    private final FloatProperty visibleTimeBeforeSector = new FloatProperty( this, "visibleTimeBeforeSector", "visTimeBeforeSec", 7, 0, 100, false );
-    private final FloatProperty visibleTimeAfterSector = new FloatProperty( this, "visibleTimeAfterSector", "visTimeAfterSec", 7, 0, 100, false );
     
     private Font positionFont = null;
     
@@ -81,7 +80,9 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     private DrawnString bigPositionString = null;
     private DrawnString relPositionString = null;
     private DrawnString relTimeString = null;
+    private int laptimeOffsetX = 0;
     
+    private final IntValue vsiID = new IntValue();
     private final IntValue ownPlace = new IntValue();
     private final FloatValue ownLaptime = new FloatValue();
     private final IntValue relPlace = new IntValue();
@@ -98,7 +99,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
         super.onPropertyChanged( property, oldValue, newValue );
         
@@ -132,6 +133,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         super.onRealtimeEntered( gameData, isEditorMode );
         
+        vsiID.reset();
         ownPlace.reset();
         ownLaptime.reset();
         relPlace.reset();
@@ -165,18 +167,23 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
-        VehicleScoringInfo refVSI = scoringInfo.getFastestLapVSI();
-        Laptime relTime = refVSI.getFastestLaptime();
+        VehicleScoringInfo refVSI = ( scoringInfo.getCompareVSI() == null ) ? scoringInfo.getFastestLapVSI() : scoringInfo.getCompareVSI();
+        Laptime refTime = refVSI.getFastestLaptime();
+        if ( ( refTime != null ) && ( refTime.getLapTime() < 0f ) )
+            refTime = null;
         
-        LapState ls = isEditorMode ? LapState.AFTER_SECTOR1_START : LapState.getLapState( vsi, relTime, visibleTimeBeforeSector.getIntValue(), visibleTimeAfterSector.getIntValue(), true );
+        LapState ls = isEditorMode ? LapState.AFTER_SECTOR1_START : LapState.getLapState( gameData.getTrackInfo().getTrack(), vsi );
+        if ( !isEditorMode && ( ls == LapState.AFTER_SECTOR1_START ) && ( vsi.getStintLength() < 2.0f ) )
+            ls = LapState.SOMEWHERE;
         
         lapState.update( ls );
         
-        //if ( isEditorMode || ( ( ls != LapState.AFTER_SECTOR1_START ) && ( vsi.getNormalizedLapDistance() > 0.1f ) ) )
         if ( isEditorMode || ( ls != LapState.AFTER_SECTOR1_START ) )
         {
-            referenceTimeAbs = relTime;
+            referenceTimeAbs = refTime;
             referenceTimePers = vsi.getFastestLaptime();
+            if ( ( referenceTimePers != null ) && ( referenceTimePers.getLapTime() < 0f ) )
+                referenceTimePers = null;
             referencePlace = isEditorMode ? 1 : refVSI.getPlace( getConfiguration().getUseClassScoring() );
         }
         
@@ -198,15 +205,15 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         if ( displayType.getEnumValue() == DisplayType.IF_LAP_VALID )
         {
             //return ( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
-            return ( ls != LapState.OUTLAP );
+            return ( ( ls != LapState.OUTLAP ) && !vsi.isInPits() && ( vsi.getLaptime( vsi.getCurrentLap() ) != null ) && ( vsi.getLaptime( vsi.getCurrentLap() ).isInlap() != Boolean.TRUE ) );
         }
         
-        if ( relTime == null )
+        if ( refTime == null )
         {
             return ( ls == LapState.BEFORE_SECTOR3_END );
         }
         
-        if ( ( ls == LapState.SOMEWHERE ) || ( ls == LapState.OUTLAP ) )
+        if ( ( ls == LapState.SOMEWHERE ) || ( ls == LapState.OUTLAP ) || vsi.isInPits() || ( vsi.getLaptime( vsi.getCurrentLap() ) == null ) || ( vsi.getLaptime( vsi.getCurrentLap() ).isInlap() == Boolean.TRUE ) )
         {
             return ( false );
         }
@@ -258,6 +265,8 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         relPositionString = dsf.newDrawnString( "relPositionString", coords.posCenterA, 2 * ( coords.rowHeight + gap ) + vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), captionColor.getColor() );
         relTimeString = dsf.newDrawnString( "relTimeString", coords.dataRightA, 2 * ( coords.rowHeight + gap ) + vMiddle, Alignment.RIGHT, false, getFont(), isFontAntiAliased(), getFontColor() );
         
+        laptimeOffsetX = -TextureImage2D.getStringWidth( "00", getFontProperty() );
+        
         forceCompleteRedraw( true );
     }
     
@@ -273,98 +282,99 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         final boolean useImages = this.useImages.getBooleanValue();
         final int gap = itemGap.getIntValue();
         
+        // driver name field
         if ( useImages )
             ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset2, offsetY + 0 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, getImages(), BGType.NEUTRAL, texture, false );
         else
             ETVUtils.drawDataBackground( offsetX + coords.rowOffset2, offsetY + 0 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
         
+        // lap time field
         if ( useImages )
             ETVUtils.drawDataBackgroundI( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, getImages(), BGType.NEUTRAL, texture, false );
         else
             ETVUtils.drawDataBackground( offsetX + coords.rowOffset1, offsetY + 1 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColor.getColor(), texture, false );
         
+        // reference time field
         if ( isEditorMode || ( referenceTimeAbs != null ) )
         {
             BGType bgType = BGType.NEUTRAL;
             Color capBgColor = captionBackgroundColor.getColor();
+            Color dataBgColor = dataBackgroundColor.getColor();
             if ( referencePlace == 1 )
             {
                 bgType = BGType.POSITION_FIRST;
                 capBgColor = captionBackgroundColor1st.getColor();
+                dataBgColor = dataBackgroundColor1st.getColor();
             }
             
-            Color dataBgColor = dataBackgroundColor.getColor();
-            if ( referenceTimeAbs != null )
+            if ( ( referenceTimeAbs != null ) && ( isEditorMode || ( lapState.getValue().isAfterSectorStart() && !vsi.isInPits() ) ) )
             {
-                LapState ls = lapState.getValue();
-                
-                if ( !isEditorMode && !ls.isAfterSectorStart() )
+                switch ( vsi.getSector() )
                 {
-                    dataBgColor = dataBackgroundColor1st.getColor();
-                }
-                else
-                {
-                    switch ( vsi.getSector() )
-                    {
-                        case 1:
-                            if ( vsi.getLastLapTime() < referenceTimeAbs.getLapTime() )
-                            {
-                                bgType = BGType.FASTEST;
-                                dataBgColor = dataBackgroundColorFastest.getColor();
-                            }
-                            else if ( ( referenceTimePers != null ) && ( vsi.getLastLapTime() < referenceTimePers.getLapTime() ) )
-                            {
-                                bgType = BGType.FASTER;
-                                dataBgColor = dataBackgroundColorFaster.getColor();
-                            }
-                            else
-                            {
-                                bgType = BGType.SLOWER;
-                                dataBgColor = dataBackgroundColorSlower.getColor();
-                            }
-                            break;
-                        case 2:
-                            if ( vsi.getCurrentSector1() < referenceTimeAbs.getSector1() )
-                            {
-                                bgType = BGType.FASTEST;
-                                dataBgColor = dataBackgroundColorFastest.getColor();
-                            }
-                            else if ( ( referenceTimePers != null ) && ( vsi.getCurrentSector1() < referenceTimePers.getSector1() ) )
-                            {
-                                bgType = BGType.FASTER;
-                                dataBgColor = dataBackgroundColorFaster.getColor();
-                            }
-                            else
-                            {
-                                bgType = BGType.SLOWER;
-                                dataBgColor = dataBackgroundColorSlower.getColor();
-                            }
-                            break;
-                        case 3:
-                            if ( vsi.getCurrentSector2( true ) < referenceTimeAbs.getSector2( true ) )
-                            {
-                                bgType = BGType.FASTEST;
-                                dataBgColor = dataBackgroundColorFastest.getColor();
-                            }
-                            else if ( ( referenceTimePers != null ) && ( vsi.getCurrentSector2( true ) < referenceTimePers.getSector2( true ) ) )
-                            {
-                                bgType = BGType.FASTER;
-                                dataBgColor = dataBackgroundColorFaster.getColor();
-                            }
-                            else
-                            {
-                                bgType = BGType.SLOWER;
-                                dataBgColor = dataBackgroundColorSlower.getColor();
-                            }
-                            break;
-                    }
+                    case 1:
+                        if ( ( vsi.getLaptime( vsi.getLapsCompleted() ) == null ) || ( vsi.getLaptime( vsi.getLapsCompleted() ).isOutlap() == Boolean.TRUE ) )
+                        {
+                        }
+                        else if ( vsi.getLastLapTime() < referenceTimeAbs.getLapTime() )
+                        {
+                            bgType = BGType.FASTEST;
+                            dataBgColor = dataBackgroundColorFastest.getColor();
+                        }
+                        else if ( ( referenceTimePers != null ) && ( vsi.getLastLapTime() < referenceTimePers.getLapTime() ) )
+                        {
+                            bgType = BGType.FASTER;
+                            dataBgColor = dataBackgroundColorFaster.getColor();
+                        }
+                        else
+                        {
+                            bgType = BGType.SLOWER;
+                            dataBgColor = dataBackgroundColorSlower.getColor();
+                        }
+                        break;
+                    case 2:
+                        if ( vsi.getCurrentSector1() < referenceTimeAbs.getSector1() )
+                        {
+                            bgType = BGType.FASTEST;
+                            dataBgColor = dataBackgroundColorFastest.getColor();
+                        }
+                        else if ( ( referenceTimePers != null ) && ( vsi.getCurrentSector1() < referenceTimePers.getSector1() ) )
+                        {
+                            bgType = BGType.FASTER;
+                            dataBgColor = dataBackgroundColorFaster.getColor();
+                        }
+                        else
+                        {
+                            bgType = BGType.SLOWER;
+                            dataBgColor = dataBackgroundColorSlower.getColor();
+                        }
+                        break;
+                    case 3:
+                        if ( vsi.getCurrentSector2( true ) < referenceTimeAbs.getSector2( true ) )
+                        {
+                            bgType = BGType.FASTEST;
+                            dataBgColor = dataBackgroundColorFastest.getColor();
+                        }
+                        else if ( ( referenceTimePers != null ) && ( vsi.getCurrentSector2( true ) < referenceTimePers.getSector2( true ) ) )
+                        {
+                            bgType = BGType.FASTER;
+                            dataBgColor = dataBackgroundColorFaster.getColor();
+                        }
+                        else
+                        {
+                            bgType = BGType.SLOWER;
+                            dataBgColor = dataBackgroundColorSlower.getColor();
+                        }
+                        break;
                 }
             }
             
-            if ( useImages )
-                ETVUtils.drawLabeledDataBackgroundI( offsetX, offsetY + 2 * ( coords.rowHeight + gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), getImages(), bgType, texture, false );
-            else
-                ETVUtils.drawLabeledDataBackground( offsetX, offsetY + 2 * ( coords.rowHeight + gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), capBgColor, dataBgColor, texture, false );
+            if ( bgType != null )
+            {
+                if ( useImages )
+                    ETVUtils.drawLabeledDataBackgroundI( offsetX, offsetY + 2 * ( coords.rowHeight + gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), getImages(), bgType, texture, false );
+                else
+                    ETVUtils.drawLabeledDataBackground( offsetX, offsetY + 2 * ( coords.rowHeight + gap ), coords.mainFieldWidthA, coords.rowHeight, "00", getFontProperty(), capBgColor, dataBgColor, texture, false );
+            }
         }
         
         Color capBgColor = captionBackgroundColor.getColor();
@@ -376,8 +386,6 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             ETVUtils.drawBigPositionBackgroundI( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + gap + coords.rowHeight, getImages(), first, texture, false );
         else
             ETVUtils.drawDataBackground( offsetX + width - coords.bigPosWidth, offsetY, coords.bigPosWidth, coords.rowHeight + gap + coords.rowHeight, capBgColor, texture, false );
-        
-        drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort( getShowNamesInAllUppercase() ), texture, false );
     }
     
     @Override
@@ -387,8 +395,14 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         VehicleScoringInfo vsi = scoringInfo.getViewedVehicleScoringInfo();
         
-        ownPlace.update( vsi.getPlace( getConfiguration().getUseClassScoring() ) );
+        vsiID.update( vsi.getDriverId() );
+        if ( needsCompleteRedraw || ( clock.c() && vsiID.hasChanged() ) )
+        {
+            drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort( getShowNamesInAllUppercase() ), texture );
+        }
+        //drivernameString.draw( offsetX, offsetY, lapState.getValue().SHORT, texture );
         
+        ownPlace.update( vsi.getPlace( getConfiguration().getUseClassScoring() ) );
         if ( needsCompleteRedraw || ( clock.c() && ownPlace.hasChanged() ) )
         {
             bigPositionString.draw( offsetX, offsetY, ownPlace.getValueAsString(), captionColor.getColor(), texture );
@@ -422,10 +436,20 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         if ( needsCompleteRedraw || ( clock.c() && ownLaptime.hasChanged() ) )
         {
             if ( ownLaptime.isValid() )
-                laptimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( ownLaptime.getValue() ), texture );
+            {
+                if ( alwaysShowFull1000.getBooleanValue() || ls.isAfterSectorStart() )
+                    laptimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( ownLaptime.getValue() ), texture );
+                else
+                    laptimeString.draw( offsetX + laptimeOffsetX, offsetY, TimingUtil.getTimeAsString( ownLaptime.getValue(), false, false, true, false ), texture );
+            }
             else
+            {
                 laptimeString.draw( offsetX, offsetY, "", texture );
+            }
         }
+        
+        //debug( "abs: ", referenceTimeAbs );
+        //debug( "pers: ", referenceTimePers );
         
         if ( isEditorMode || ( referenceTimeAbs != null ) )
         {
@@ -500,7 +524,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             
             if ( needsCompleteRedraw || ( clock.c() && relLaptime.hasChanged() ) )
             {
-                if ( relLaptime.isValid() )
+                if ( relLaptime.isValid() && ownLaptime.isValid() )
                 {
                     if ( ls.isAfterSectorStart() )
                         relTimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsGapString( relLaptime.getValue() ), dataColor, texture );
@@ -520,16 +544,15 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
         writer.writeProperty( positionFontSize, "Font size for the position in percent relative to the normal font size." );
+        writer.writeProperty( alwaysShowFull1000, "Show full thousands in compare time, even if sector not completed?" );
         writer.writeProperty( positionItemGap, "The gap between the main elements and the position element in pixels." );
         
         writer.writeProperty( displayType, "Always display or just at sector boundaries or always if valid time was made?" );
-        writer.writeProperty( visibleTimeBeforeSector, "The Widget is visible for the given amount of seconds before the relative sector time is reached." );
-        writer.writeProperty( visibleTimeAfterSector, "The Widget is visible for the given amount after a sector was finished." );
     }
     
     /**
@@ -541,28 +564,28 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         super.loadProperty( loader );
         
         if ( loader.loadProperty( positionFontSize ) );
+        else if ( loader.loadProperty( alwaysShowFull1000 ) );
         else if ( loader.loadProperty( positionItemGap ) );
         else if ( loader.loadProperty( displayType ) );
-        else if ( loader.loadProperty( visibleTimeBeforeSector ) );
-        else if ( loader.loadProperty( visibleTimeAfterSector ) );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesForParentGroup( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getPropertiesForParentGroup( propsCont, forceAll );
         
         propsCont.addProperty( positionFontSize );
+        propsCont.addProperty( alwaysShowFull1000 );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void getItemGapProperty( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getItemGapProperty( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getItemGapProperty( propsCont, forceAll );
         
@@ -573,15 +596,13 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
         propsCont.addGroup( "Visiblity" );
         
         propsCont.addProperty( displayType );
-        propsCont.addProperty( visibleTimeBeforeSector );
-        propsCont.addProperty( visibleTimeAfterSector );
     }
     
     /**

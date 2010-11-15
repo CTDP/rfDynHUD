@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.widgets.etv2010.telemetry;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
@@ -33,14 +34,13 @@ import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.revneedlemeter.AbstractRevNeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -259,8 +259,11 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     {
         Rectangle2D bounds = TextureImage2D.getStringBounds( label, controlsLabelFont );
         
-        if ( ( controlsLabelOffset.getIntValue() > -bounds.getWidth() ) && ( controlsLabelOffset.getIntValue() < width ) )
-            texture.drawString( label, offsetX + controlsLabelOffset.getIntValue(), offsetY + ( height - (int)bounds.getHeight() ) / 2 - (int)bounds.getY(), bounds, controlsLabelFont.getFont(), controlsLabelFont.isAntiAliased(), controlsLabelFontColor.getColor(), true, null );
+        //int lblOff = Math.round( controlsLabelOffset.getIntValue() * getBackground().getScaleX() );
+        int lblOff = controlsLabelOffset.getIntValue();
+        
+        if ( ( lblOff > -bounds.getWidth() ) && ( lblOff < width ) )
+            texture.drawString( label, offsetX + lblOff, offsetY + ( height - (int)bounds.getHeight() ) / 2 - (int)bounds.getY(), bounds, controlsLabelFont.getFont(), controlsLabelFont.isAntiAliased(), controlsLabelFontColor.getColor(), true, null );
     }
     
     private void loadThrottleTexture( boolean isEditorMode, int w, int h )
@@ -432,7 +435,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            log( t );
             
             return ( false );
         }
@@ -495,13 +498,13 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     }
     
     @Override
-    protected void saveDigiValueProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveDigiValueProperties( PropertyWriter writer ) throws IOException
     {
         // We don't need these here!
     }
     
     @Override
-    protected void getDigiValueProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getDigiValueProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         // We don't need these here!
     }
@@ -510,7 +513,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -590,7 +593,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -633,6 +636,18 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         propsCont.addProperty( controlsLabelFont );
         propsCont.addProperty( controlsLabelFontColor );
         propsCont.addProperty( controlsLabelOffset );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        controlsLabelFont.setFont( "Dialog", Font.PLAIN, 4, false, true );
+        velocityNumberFont.setFont( "Dialog", Font.PLAIN, 4, false, true );
     }
     
     public ETVTelemetryWidget()

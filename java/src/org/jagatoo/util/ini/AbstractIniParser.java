@@ -777,7 +777,336 @@ public abstract class AbstractIniParser
     /**
      * Creates a new {@link AbstractIniParser}.
      */
-    public AbstractIniParser()
+    protected AbstractIniParser()
     {
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param in
+     * @param codepage
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    private static String parseIniValueImpl( InputStream in, String codepage, Charset charset, final String group, final String key, String defaultValue )
+    {
+        final String[] result = { defaultValue };
+        
+        try
+        {
+            new AbstractIniParser()
+            {
+                @Override
+                protected boolean onSettingParsed( int lineNr, String group_, String key_, String value, String comment ) throws ParsingException
+                {
+                    if ( group.equals( group_ ) && key.equals( key_ ) )
+                    {
+                        result[0] = value;
+                        
+                        return ( false );
+                    }
+                    
+                    return ( true );
+                }
+            }.parseImpl( in, codepage, charset );
+        }
+        catch ( Throwable t )
+        {
+            // Ignore this and return the default.
+        }
+        
+        return ( result[0] );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param in
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( InputStream in, String charset, String group, String key, String defaultValue )
+    {
+        return ( parseIniValueImpl( in, charset, null, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param in
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( InputStream in, Charset charset, String group, String key, String defaultValue )
+    {
+        return ( parseIniValueImpl( in, null, charset, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param in
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( InputStream in, String group, String key, String defaultValue )
+    {
+        return ( parseIniValueImpl( in, null, null, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param url
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( URL url, String charset, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = url.openStream();
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, charset, null, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param url
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( URL url, Charset charset, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = url.openStream();
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, null, charset, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param url
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( URL url, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = url.openStream();
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, null, null, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param file
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( File file, String charset, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = new FileInputStream( file );
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, charset, null, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param file
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( File file, Charset charset, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = new FileInputStream( file );
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, null, charset, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param file
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( File file, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = new FileInputStream( file );
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, null, null, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param filename
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( String filename, String charset, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = new FileInputStream( filename );
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, charset, null, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param filename
+     * @param charset
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( String filename, Charset charset, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = new FileInputStream( filename );
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, null, charset, group, key, defaultValue ) );
+    }
+    
+    /**
+     * Parses a single value from the given ini file.
+     * 
+     * @param filename
+     * @param group
+     * @param key
+     * @param defaultValue
+     * 
+     * @return the value or 'defaultValue'.
+     */
+    public static final String parseIniValue( String filename, String group, String key, String defaultValue )
+    {
+        InputStream in;
+        
+        try
+        {
+            in = new FileInputStream( filename );
+        }
+        catch ( IOException e )
+        {
+            return ( defaultValue );
+        }
+        
+        return ( parseIniValueImpl( in, null, null, group, key, defaultValue ) );
     }
 }

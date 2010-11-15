@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.widgets.standard.timing;
 
+import java.awt.Font;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -29,14 +30,14 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.IntValue;
@@ -333,7 +334,7 @@ public class TimingWidget extends Widget
             Laptime lt = afVSI.getFastestLaptime();
             float lap = ( lt == null ) ? -1f : lt.getLapTime();
             boolean lv = ( lap > 0f );
-            String leaderName = lv ? afVSI.getDriverName( false ) : "";
+            String leaderName = lv ? afVSI.getDriverName() : "";
             leaderID.update( lv ? scoringInfo.getFastestLapVSI().getDriverId() : -1 );
             
             if ( needsCompleteRedraw || leaderID.hasChanged() )
@@ -601,6 +602,7 @@ public class TimingWidget extends Widget
             float lap = myVSI.getCurrentLaptime();
             
             currLapValid.update( lap > 0f );
+            if ( isEditorMode || ( ( lap > 0f ) && ( myVSI.getLapsCompleted() >= myVSI.getStintStartLap() ) ) )
             if ( needsCompleteRedraw || clock.c() || ( clock.c() && ( currLapValid.hasChanged( false ) ) ) )
             {
                 currLapValid.setUnchanged();
@@ -933,7 +935,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -965,7 +967,7 @@ public class TimingWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -985,6 +987,7 @@ public class TimingWidget extends Widget
         super.prepareForMenuItem();
         
         colPadding = 1;
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 3, false, true );
     }
     
     public TimingWidget()

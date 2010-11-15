@@ -25,7 +25,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.TextureManager;
 
 /**
@@ -64,7 +64,7 @@ public class BorderCache
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return ( type[0] );
         }
@@ -99,7 +99,7 @@ public class BorderCache
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return ( image[0] );
         }
@@ -134,7 +134,7 @@ public class BorderCache
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return ( renderer[0] );
         }
@@ -189,7 +189,7 @@ public class BorderCache
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return ( measures );
         }
@@ -240,7 +240,7 @@ public class BorderCache
         
         if ( !iniFile.exists() || !iniFile.isFile() || !iniFile.getName().toLowerCase().endsWith( ".ini" ) )
         {
-            Logger.log( "[Error] Border ini file invalid \"" + iniFilename + "\"." );
+            RFDHLog.error( "[Error] Border ini file invalid \"" + iniFilename + "\"." );
             
             border = getFallback( iniFilename );
             
@@ -250,7 +250,7 @@ public class BorderCache
         String type = parseTypeFromIni( iniFile );
         if ( type == null )
         {
-            Logger.log( "[Error] No \"Type\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
+            RFDHLog.error( "[Error] No \"Type\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
             
             border = getFallback( iniFilename );
             
@@ -263,7 +263,7 @@ public class BorderCache
             
             if ( textureName == null )
             {
-                Logger.log( "[Error] No \"Image\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
+                RFDHLog.error( "[Error] No \"Image\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
                 
                 border = getFallback( iniFilename );
                 
@@ -288,7 +288,7 @@ public class BorderCache
             
             if ( rendererClass == null )
             {
-                Logger.log( "[Error] No \"RendererClass\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
+                RFDHLog.error( "[Error] No \"RendererClass\" setting found in \"" + iniFile.getAbsolutePath() + "\"." );
                 
                 border = getFallback( iniFilename );
                 
@@ -302,7 +302,7 @@ public class BorderCache
             }
             catch ( Throwable t )
             {
-                Logger.log( "[Error] Unable to load BorderRenderer class \"" + rendererClass + "\"." );
+                RFDHLog.error( "[Error] Unable to load BorderRenderer class \"" + rendererClass + "\"." );
                 
                 border = getFallback( iniFilename );
                 
@@ -311,7 +311,7 @@ public class BorderCache
             
             if ( !BorderRenderer.class.isAssignableFrom( clazz ) )
             {
-                Logger.log( "[Error] \"" + rendererClass + "\" is not a subclass of " + BorderRenderer.class.getName() + "." );
+                RFDHLog.error( "[Error] \"" + rendererClass + "\" is not a subclass of " + BorderRenderer.class.getName() + "." );
                 
                 border = getFallback( iniFilename );
                 
@@ -325,7 +325,7 @@ public class BorderCache
             }
             catch ( Throwable t )
             {
-                Logger.log( "[Error] Unable to instantiate " + clazz.getName() + " using default constructor." );
+                RFDHLog.error( "[Error] Unable to instantiate " + clazz.getName() + " using default constructor." );
                 
                 border = getFallback( iniFilename );
                 
@@ -341,7 +341,7 @@ public class BorderCache
             return ( bw );
         }
         
-        Logger.log( "[Error] Unknown border type \"" + type + "\" in border ini file \"" + iniFile.getAbsolutePath() + "\"." );
+        RFDHLog.error( "[Error] Unknown border type \"" + type + "\" in border ini file \"" + iniFile.getAbsolutePath() + "\"." );
         
         border = getFallback( iniFilename );
         

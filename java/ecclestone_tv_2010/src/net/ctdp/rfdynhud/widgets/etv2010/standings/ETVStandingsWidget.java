@@ -29,7 +29,7 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
@@ -39,7 +39,7 @@ import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.StandingsTools;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
@@ -90,8 +90,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
     private VehicleScoringInfo[] vehicleScoringInfos = null;
     
     private int oldNumVehicles = -1;
-    
-    private boolean isOnLeftSide = true;
     
     private IntValue[] lap = null;
     private float displayTime;
@@ -264,8 +262,6 @@ public class ETVStandingsWidget extends ETVWidgetBase
                 laptimeStrings[i] = dsf.newDrawnString( "laptimeStrings" + i, flagTextures[i].getWidth() / 2, vMiddle, Alignment.CENTER, false, getFont(), isFontAntiAliased(), getFontColor() );
             }
         }
-        
-        isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResolution().getViewportWidth() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
     }
     
     @Override
@@ -434,6 +430,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
                         off = -( ETVUtils.getTriangleWidth( itemHeight ) - itemGap.getIntValue() );
                     }
                     
+                    boolean isOnLeftSide = ( getPosition().getEffectiveX() < getConfiguration().getGameResolution().getViewportWidth() - getPosition().getEffectiveX() - getSize().getEffectiveWidth() );
                     if ( isOnLeftSide )
                         tt.setTranslation( width + off, offsetY2 );
                     else
@@ -458,7 +455,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -488,7 +485,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void getPropertiesCaptionBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getPropertiesCaptionBG( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getPropertiesCaptionBG( propsCont, forceAll );
         
@@ -502,7 +499,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void getPropertiesDataBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getPropertiesDataBG( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getPropertiesDataBG( propsCont, forceAll );
         
@@ -516,7 +513,7 @@ public class ETVStandingsWidget extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         

@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.widgets.lessons.lesson2b;
 
+import java.awt.Font;
+
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -119,6 +121,17 @@ public class Lesson2bWidget_FirstDynamics extends Widget
             
             ds.draw( offsetX, offsetY, tireTempFL, texture );
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     public Lesson2bWidget_FirstDynamics()

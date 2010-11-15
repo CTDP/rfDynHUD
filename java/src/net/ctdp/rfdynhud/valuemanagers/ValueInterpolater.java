@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.valuemanagers;
 
+
 /**
  * Interpolates a float value along time.
  * 
@@ -38,7 +39,7 @@ public class ValueInterpolater implements ManagedValue
     private final float speed;
     private final long speedNanos;
     private float value;
-    private long startTime = -1L;
+    private long startTime = 0L;
     
     /**
      * Gets the used {@link BoundaryType}.
@@ -131,15 +132,15 @@ public class ValueInterpolater implements ManagedValue
         {
             long t = ( nanoTime - startTime ) % speedNanos;
             float tf = (float)( t / 1000000000.0 );
-            float nt = tf / speedNanos;
+            float nt = tf / speed;
             
             this.value = minValue + ( maxValue - minValue ) * nt;
         }
         else if ( boundaryType == BoundaryType.BIDIRECTIONAL )
         {
             long t = ( nanoTime - startTime );
-            long n = t / speedNanos;
-            int m = (int)( n % 2 );
+            float n = (float)( t / (double)speedNanos );
+            int m = (int)( n % 2.0f );
             
             if ( m == 0 )
                 t = t % speedNanos;
@@ -147,10 +148,15 @@ public class ValueInterpolater implements ManagedValue
                 t = speedNanos - ( t % speedNanos );
             
             float tf = (float)( t / 1000000000.0 );
-            float nt = tf / speedNanos;
+            float nt = tf / speed;
             
             this.value = minValue + ( maxValue - minValue ) * nt;
         }
+    }
+    
+    public final void update( long nanoTime )
+    {
+        update( nanoTime, -1, false );
     }
     
     public ValueInterpolater( BoundaryType boundaryType, float minValue, float maxValue, float startValue, float speed )

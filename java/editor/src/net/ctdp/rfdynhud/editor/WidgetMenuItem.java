@@ -27,7 +27,7 @@ import javax.swing.JMenuItem;
 
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -84,7 +84,7 @@ public class WidgetMenuItem extends JMenuItem
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
             
             return ( null );
         }

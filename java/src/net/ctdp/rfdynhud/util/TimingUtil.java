@@ -50,10 +50,11 @@ public class TimingUtil
      * @param forceAllFields show hours or minutes, even, if they are all zero?
      * @param padHighest if true, the highest displayed field (i.e. hours or minuts) will be padded with a zero
      * @param showMillis show milli seconds?
+     * @param showFullMillis whether to show full milliseconds or just the tenths
      * 
      * @return a formatted String from the given seconds.
      */
-    public static String getTimeAsString( float seconds, boolean forceAllFields, boolean padHighest, boolean showMillis )
+    public static String getTimeAsString( float seconds, boolean forceAllFields, boolean padHighest, boolean showMillis, boolean showFullMillis )
     {
         if ( showMillis )
             seconds = Math.round( seconds * 1000f ) / 1000f;
@@ -97,12 +98,30 @@ public class TimingUtil
         
         if ( showMillis )
         {
-            int millis = Math.round( ( seconds * 1000f ) % 1000f );
+            int millis = showFullMillis ? ( Math.round( seconds * 1000f ) % 1000 ) : ( Math.round( seconds * 10f ) % 10 );
             
-            str += "." + pad3( millis );
+            if ( showFullMillis )
+                str += "." + pad3( millis );
+            else
+                str += "." + String.valueOf( millis );
         }
         
         return ( str );
+    }
+    
+    /**
+     * Gets a formatted String from the given seconds.
+     * 
+     * @param seconds the seconds to format to a time string
+     * @param forceAllFields show hours or minutes, even, if they are all zero?
+     * @param padHighest if true, the highest displayed field (i.e. hours or minuts) will be padded with a zero
+     * @param showMillis show milli seconds?
+     * 
+     * @return a formatted String from the given seconds.
+     */
+    public static String getTimeAsString( float seconds, boolean forceAllFields, boolean padHighest, boolean showMillis )
+    {
+        return ( getTimeAsString( seconds, forceAllFields, padHighest, showMillis, true ) );
     }
     
     /**

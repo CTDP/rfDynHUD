@@ -18,12 +18,17 @@
 package net.ctdp.rfdynhud.util;
 
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.io.File;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 
 public class FontUtils
 {
     public static final Font FALLBACK_FONT = Font.decode( "Impact-PLAIN-18" );
     public static final Font FALLBACK_VIRTUAL_FONT = Font.decode( "Impact-PLAIN-14" );
+    
+    public static final char SEPARATOR = '|';
     
     private static int parseStyle( String style )
     {
@@ -104,17 +109,17 @@ public class FontUtils
     
     public static final String getFontString( Font font, boolean virtual, boolean antiAliased )
     {
-        return ( font.getName() + "-" + getStyleString( font ) + "-" + font.getSize() + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
+        return ( font.getName() + SEPARATOR + getStyleString( font ) + SEPARATOR + font.getSize() + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
     }
     
     public static final String getFontString( String name, int awtFontStyle, int size, boolean virtual, boolean antiAliased )
     {
-        return ( name + "-" + getStyleString( awtFontStyle ) + "-" + size + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
+        return ( name + SEPARATOR + getStyleString( awtFontStyle ) + SEPARATOR + size + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
     }
     
     public static final String getFontString( String name, boolean bold, boolean italic, int size, boolean virtual, boolean antiAliased )
     {
-        return ( name + "-" + getStyleString( bold, italic ) + "-" + size + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
+        return ( name + SEPARATOR + getStyleString( bold, italic ) + SEPARATOR + size + ( virtual ? "v" : "" ) + ( antiAliased ? "a" : "" ) );
     }
     
     public static int getVirtualFontSize( int size, int gameResY )
@@ -141,7 +146,7 @@ public class FontUtils
             throw exception;
         
         if ( logException )
-            Logger.log( exception );
+            RFDHLog.exception( exception );
         
         if ( extractVirtualFlag || extractAntialiasFlag )
             return ( Boolean.FALSE );
@@ -155,7 +160,7 @@ public class FontUtils
             return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException, logException ) );
         
         int p0 = 0;
-        int p1 = str.indexOf( '-' );
+        int p1 = str.indexOf( SEPARATOR );
         if ( ( p1 == -1 ) || ( p1 == p0 ) )
             return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException, logException ) );
         
@@ -166,7 +171,7 @@ public class FontUtils
         if ( str.length() <= p0 )
             return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException, logException ) );
         
-        p1 = str.indexOf( '-', p0 );
+        p1 = str.indexOf( SEPARATOR, p0 );
         
         if ( ( p1 == -1 ) || ( p1 == p0 ) )
             return ( getFallback( new IllegalArgumentException( "Illegal font string " + str ), extractVirtualFlag, extractAntialiasFlag, throwException, logException ) );
@@ -225,5 +230,41 @@ public class FontUtils
     public static boolean parseAntiAliasFlag( String str, boolean throwException, boolean logException )
     {
         return ( (Boolean)_parseFont( str, -1, false, true, throwException, logException ) );
+    }
+    
+    public static void loadCustomFonts()
+    {
+        File folder = new File( ResourceManager.isJarMode() ? GameFileSystem.INSTANCE.getPluginFolder() : GameFileSystem.INSTANCE.getConfigFolder().getParentFile(), "fonts" );
+        
+        if ( !folder.exists() )
+            return;
+        
+        RFDHLog.printlnEx( "Loading custom fonts..." );
+        for ( File file : folder.listFiles() )
+        {
+            if ( file.isFile() && file.getName().toLowerCase().endsWith( "ttf" ) )
+            {
+                Font font = null;
+                try
+                {
+                    font = Font.createFont( Font.TRUETYPE_FONT, file );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( "Couldn't load font file \"" + file.getAbsolutePath() + "\". Message was: " + t.getMessage() );
+                }
+                
+                if ( font != null )
+                {
+                    Font testFont = new Font( font.getName(), font.getStyle(), font.getSize() );
+                    if ( testFont.getName().equals( font.getName() ) && testFont.getFamily().equals( font.getFamily() ) )
+                        RFDHLog.exception( "Couldn't register font \"" + font.getName() + "\". It is already registered." );
+                    else if ( GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont( font ) )
+                        RFDHLog.printlnEx( "    Loaded and registered custom font \"" + font.getName() + "\"." );
+                    else
+                        RFDHLog.exception( "Couldn't register font \"" + font.getName() + "\"." );
+                }
+            }
+        }
     }
 }

@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
+
+import org.jagatoo.util.strings.StringUtils;
 
 /**
  * Model of the currently used track
@@ -53,12 +55,17 @@ public class TrackInfo
             br = new BufferedReader( new FileReader( gdb ) );
             
             String line = null;
+            
             while ( ( line = br.readLine() ) != null )
             {
-                line = line.trim();
-                if ( line.toLowerCase().startsWith( "trackname" ) )
+                int offset = StringUtils.findFirstNonWhitespace( line );
+                
+                if ( offset < 0 )
+                    continue;
+                
+                if ( StringUtils.startsWithIgnoreCase( line, "TrackName", offset ) )
                 {
-                    int idx = line.indexOf( '=', 9 );
+                    int idx = line.indexOf( '=', offset + 9 );
                     if ( idx >= 0 )
                     {
                         String tn = line.substring( idx + 1 ).trim();
@@ -70,9 +77,9 @@ public class TrackInfo
                         }
                     }
                 }
-                else if ( line.startsWith( "RaceLaps" ) )
+                else if ( StringUtils.startsWithIgnoreCase( line, "RaceLaps", offset ) )
                 {
-                    int idx = line.indexOf( '=', 8 );
+                    int idx = line.indexOf( '=', offset + 8 );
                     if ( idx >= 0 )
                     {
                         try
@@ -92,7 +99,7 @@ public class TrackInfo
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         finally
         {
@@ -130,10 +137,10 @@ public class TrackInfo
     {
         if ( ( trackFolder == null ) || !trackFolder.exists() )
         {
-            Logger.log( "WARNING: Track folder not found: " + trackFolder );
+            RFDHLog.exception( "WARNING: Track folder not found: " + trackFolder );
             
             this.trackName = "N/A";
-            this.raceLaps = 60;
+            this.raceLaps = -1;
             
             return;
         }
@@ -151,8 +158,6 @@ public class TrackInfo
                 }
             }
         }
-        
-        return;
     }
     
     private void reset()
@@ -319,7 +324,7 @@ public class TrackInfo
                 }
                 catch ( IOException e )
                 {
-                    Logger.log( e );
+                    RFDHLog.exception( e );
                     this.lastTrack = null;
                 }
             }

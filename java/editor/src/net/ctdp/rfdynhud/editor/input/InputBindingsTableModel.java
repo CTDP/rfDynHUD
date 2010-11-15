@@ -30,7 +30,7 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputDeviceManager;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -377,7 +377,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -457,7 +457,7 @@ public class InputBindingsTableModel extends DefaultTableModel implements Widget
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     

@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.widgets.lessons.lesson3;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -26,14 +27,14 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -132,8 +133,10 @@ public class Lesson3Widget_Properties extends Widget
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
+        int h = TextureImage2D.getStringHeight( "XXX", getFontProperty() );
+        
         ds = drawnStringFactory.newDrawnString( "ds", 0, 0, Alignment.LEFT, false, myFont.getFont(), myFont.isAntiAliased(), getFontColor() );
-        ds2 = drawnStringFactory.newDrawnString( "ds2", 0, height - 20, Alignment.LEFT, false, myFont.getFont(), myFont.isAntiAliased(), getFontColor() );
+        ds2 = drawnStringFactory.newDrawnString( "ds2", 0, height - h, Alignment.LEFT, false, myFont.getFont(), myFont.isAntiAliased(), getFontColor() );
     }
     
     @Override
@@ -164,7 +167,7 @@ public class Lesson3Widget_Properties extends Widget
     }
     
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -201,7 +204,7 @@ public class Lesson3Widget_Properties extends Widget
     }
     
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -233,6 +236,18 @@ public class Lesson3Widget_Properties extends Widget
          * to your widget package (java package) and add html files using the property names.
          * Please see the examples in this lesson.
          */
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
+        myFont.setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     public Lesson3Widget_Properties()

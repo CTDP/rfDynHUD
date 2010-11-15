@@ -19,8 +19,8 @@ package net.ctdp.rfdynhud;
 
 import java.nio.ByteBuffer;
 
-import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
+import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata._LiveGameData_CPP_Adapter;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
@@ -31,7 +31,8 @@ import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureDirtyRectsManager;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.FontUtils;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
 import org.jagatoo.util.versioning.Version;
@@ -43,7 +44,7 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 2, 0, "Beta", 91 );
+    public static final Version VERSION = new Version( 1, 2, 0, "Beta", 92 );
     
     private final SupportedGames gameId;
     
@@ -123,7 +124,7 @@ public class RFDynHUD
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -140,14 +141,14 @@ public class RFDynHUD
             
             if ( pluginEnabled == -1 )
             {
-                Logger.log( "Plugin disabled" );
+                RFDHLog.println( "Plugin disabled" );
                 
                 return ( 0 );
             }
             
             if ( pluginEnabled == +2 )
             {
-                Logger.log( "Plugin enabled" );
+                RFDHLog.println( "Plugin enabled" );
                 
                 byte result = eventsManager.reloadConfigAndSetupTexture( false );
                 if ( result != 0 )
@@ -164,7 +165,7 @@ public class RFDynHUD
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         if ( inputMappingsManager.isPluginEnabled() && drawingManager.getWidgetsConfiguration().isValid() )
@@ -204,7 +205,7 @@ public class RFDynHUD
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         setRenderMode( result != 0 );
@@ -221,7 +222,7 @@ public class RFDynHUD
     {
         //Logger.setStdStreams();
         
-        Logger.log( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
+        RFDHLog.exception( "Creating RFDynHUD instance Version " + VERSION.toString() + "..." );
         
         SupportedGames gameId = null;
         try
@@ -232,7 +233,7 @@ public class RFDynHUD
         {
         }
         
-        Logger.log( "    Detected game \"" + gameName + "\" (" + ( gameId == null ? "unsupported" : "supported" ) + ")." );
+        RFDHLog.println( "    Detected game \"" + gameName + "\" (" + ( gameId == null ? "unsupported" : "supported" ) + ")." );
         
         if ( gameId == null )
             throw new Error( "Unsupported game" );
@@ -245,10 +246,12 @@ public class RFDynHUD
         //ByteOrderInitializer.setByteOrder( 3, 0, 1, 2 );
         //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
         
-        Logger.log( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "...", false );
+        RFDHLog.println( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "...", false );
         
         this.drawingManager = new WidgetsDrawingManager( false, gameResX, gameResY );
-        Logger.log( " done." );
+        RFDHLog.println( " done." );
+        
+        FontUtils.loadCustomFonts();
         
         this.eventsManager = new GameEventsManager( this, drawingManager );
         
@@ -259,7 +262,7 @@ public class RFDynHUD
         this.inputDeviceManager = new InputDeviceManager();
         this.inputMappingsManager = new InputMappingsManager( this );
         
-        Logger.log( "Successfully created RFDynHUD instance." );
+        RFDHLog.println( "Successfully created RFDynHUD instance." );
     }
     
     private RFDynHUD( byte[] gameNameBuffer, int gameResX, int gameResY ) throws Throwable
@@ -275,7 +278,7 @@ public class RFDynHUD
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return ( null );
         }

@@ -21,12 +21,14 @@ import java.nio.ByteBuffer;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.TimeBasedClock;
+import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetController;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 /**
@@ -49,9 +51,9 @@ public class WidgetsDrawingManager
     
     private final WidgetsConfiguration widgetsConfig;
     
-    private final WidgetsRenderListenersManager renderListenersManager = new WidgetsRenderListenersManager();
+    private final WidgetsManager renderListenersManager = new WidgetsManager();
     
-    public final WidgetsRenderListenersManager getRenderListenersManager()
+    public final WidgetsManager getRenderListenersManager()
     {
         return ( renderListenersManager );
     }
@@ -151,7 +153,7 @@ public class WidgetsDrawingManager
         
         if ( numTextures > TransformableTexture.MAX_NUM_TEXTURES )
         {
-            Logger.log( "WARNING: Number of displayed textures truncated. Possible reason: maxOpponents = " + gameData.getModInfo().getMaxOpponents() );
+            RFDHLog.error( "WARNING: Number of displayed textures truncated. Possible reason: maxOpponents = " + gameData.getModInfo().getMaxOpponents() );
             
             numTextures = TransformableTexture.MAX_NUM_TEXTURES;
         }
@@ -238,8 +240,33 @@ public class WidgetsDrawingManager
                 {
                     Widget widget = widgetsConfig.getWidget( i );
                     
+                    boolean dirty = false;
+                    
+                    if ( widget.getWidgetController() != null )
+                    {
+                        Position position = widget.getPosition();
+                        
+                        widgetTextures[i].setTranslation( position.getEffectiveX(), position.getEffectiveY() );
+                        dirty = widgetTextures[i].isDirty();
+                        
+                        if ( !position.isBaked() )
+                            position.bake();
+                    }
+                    
                     rectOffset = widgetTextures[i].fillBuffer( widget.isVisible(), 0, 0, k++, rectOffset, textureInfoBuffer );
                     testRectOffset += widgetTextures[i].getNumUsedRectangles();
+                    
+                    if ( dirty )
+                    {
+                        TransformableTexture[] subTextures = widgetSubTextures[i];
+                        if ( subTextures != null )
+                        {
+                            for ( int j = 0; j < subTextures.length; j++ )
+                            {
+                                subTextures[j].setDirty();
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -266,7 +293,7 @@ public class WidgetsDrawingManager
         
         if ( newConfig && ( rectOffset < testRectOffset ) )
         {
-            Logger.log( "WARNING: Number of displayed textures truncated. Possible reason: maxOpponents = " + gameData.getModInfo().getMaxOpponents() );
+            RFDHLog.error( "WARNING: Number of displayed textures truncated. Possible reason: maxOpponents = " + gameData.getModInfo().getMaxOpponents() );
         }
     }
     
@@ -291,7 +318,7 @@ public class WidgetsDrawingManager
         frameCounter = 0L;
     }
     
-    private final boolean isWidgetReady( Widget widget, boolean hasWaitingWidgets, LiveGameData gameData )
+    private static final boolean isWidgetReady( Widget widget, boolean hasWaitingWidgets, LiveGameData gameData )
     {
         boolean ready = true;
         
@@ -320,11 +347,6 @@ public class WidgetsDrawingManager
      */
     public void drawWidgets( LiveGameData gameData, boolean isEditorMode, boolean hasWaitingWidgets, boolean completeRedrawForced )
     {
-        if ( !widgetsConfig.isValid() )
-            return;
-        
-        __WCPrivilegedAccess.checkFixAndBakeConfiguration( widgetsConfig, isEditorMode );
-        
         long sessionNanos = gameData.getScoringInfo().getSessionNanos();
         
         clock.update( sessionNanos, frameCounter, completeRedrawForced );
@@ -333,12 +355,38 @@ public class WidgetsDrawingManager
         
         renderListenersManager.fireBeforeWidgetsAreRendered( gameData, widgetsConfig, sessionNanos, frameCounter );
         
+        if ( !widgetsConfig.isValid() )
+            return;
+        
+        __WCPrivilegedAccess.checkFixAndBakeConfiguration( widgetsConfig, isEditorMode );
+        
         final int n = widgetsConfig.getNumWidgets();
+        
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
-            TextureImage2D texture = getMainTexture( i );
             
+            WidgetController controller = widget.getWidgetController();
+            
+            if ( controller != null )
+            {
+                try
+                {
+                    controller.update( widget, gameData );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+                
+                __GDPrivilegedAccess.setControlledVSIs( gameData.getScoringInfo(), __WPrivilegedAccess.getControlledViewedVSI( controller ), __WPrivilegedAccess.getControlledCompareVSI( controller ) );
+            }
+            else
+            {
+                __GDPrivilegedAccess.setControlledVSIs( gameData.getScoringInfo(), null, null );
+            }
+            
+            TextureImage2D texture = getMainTexture( i );
             if ( texture != null )
                 texture.getTextureCanvas().setClip( 0, 0, texture.getWidth(), texture.getHeight() );
             
@@ -366,7 +414,7 @@ public class WidgetsDrawingManager
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
         
@@ -386,16 +434,25 @@ public class WidgetsDrawingManager
                     {
                         if ( widget.isVisible() )
                         {
+                            WidgetController controller = widget.getWidgetController();
+                            
+                            if ( controller != null )
+                                __GDPrivilegedAccess.setControlledVSIs( gameData.getScoringInfo(), __WPrivilegedAccess.getControlledViewedVSI( controller ), __WPrivilegedAccess.getControlledCompareVSI( controller ) );
+                            else
+                                __GDPrivilegedAccess.setControlledVSIs( gameData.getScoringInfo(), null, null );
+                            
                             widget.drawWidget( clock, completeRedrawForced, gameData, isEditorMode, texture, !oneTextureForAllWidgets );
                         }
                     }
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                 }
             }
         }
+        
+        __GDPrivilegedAccess.setControlledVSIs( gameData.getScoringInfo(), null, null );
     }
     
     /**

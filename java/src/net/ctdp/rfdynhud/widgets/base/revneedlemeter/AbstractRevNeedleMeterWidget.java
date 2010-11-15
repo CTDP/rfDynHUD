@@ -17,12 +17,12 @@
  */
 package net.ctdp.rfdynhud.widgets.base.revneedlemeter;
 
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
@@ -31,7 +31,7 @@ import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -39,9 +39,9 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
@@ -138,7 +138,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
             return ( result );
         
         if ( name.equals( DEFAULT_GEAR_FONT_NAME ) )
-            return ( "Monospaced-BOLD-26va" );
+            return ( "Monospaced" + FontUtils.SEPARATOR + "BOLD" + FontUtils.SEPARATOR + "26va" );
         
         return ( null );
     }
@@ -177,7 +177,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
     @Override
     protected float getValue( LiveGameData gameData, boolean isEditorMode )
     {
-        return ( gameData.getTelemetryData().getEngineRPM() );
+        return ( gameData.getScoringInfo().getViewedVehicleScoringInfo().getEngineRPM() );
     }
     
     @Override
@@ -234,7 +234,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            log( t );
             
             return ( false );
         }
@@ -277,7 +277,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            log( t );
             
             return ( false );
         }
@@ -412,13 +412,11 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
     {
         super.drawWidget( clock, needsCompleteRedraw, gameData, isEditorMode, texture, offsetX, offsetY, width, height );
         
-        TelemetryData telemData = gameData.getTelemetryData();
-        
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
         
         if ( displayGear.getBooleanValue() )
         {
-            gear.update( vsi.isPlayer() ? telemData.getCurrentGear() : -1000 );
+            gear.update( vsi.getCurrentGear() );
             if ( needsCompleteRedraw || gear.hasChanged() )
             {
                 String string;
@@ -461,7 +459,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
                 {
                     value = peakRPM;
                     
-                    float rpm2 = vsi.isPlayer() ? telemData.getEngineRPM() : 0f;
+                    float rpm2 = Math.max( 0f, vsi.getEngineRPM() );
                     
                     if ( rpm2 < peakRPM - 5f )
                     {
@@ -527,7 +525,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected void saveMarkersProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveMarkersProperties( PropertyWriter writer ) throws IOException
     {
         super.saveMarkersProperties( writer );
         
@@ -535,7 +533,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected void saveNeedleProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveNeedleProperties( PropertyWriter writer ) throws IOException
     {
         super.saveNeedleProperties( writer );
         
@@ -546,7 +544,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
         writer.writeProperty( peakNeedleDownshiftIgnoreTime, "The time in milliseconds to ignore current revs after a downshift." );
     }
     
-    protected void saveGearProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveGearProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( displayGear, "Display the gear?" );
         writer.writeProperty( gearBackgroundImageName, "The name of the image to render behind the gear number." );
@@ -560,7 +558,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -599,7 +597,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void addVisibilityPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         super.addVisibilityPropertiesToContainer( propsCont, forceAll );
         
@@ -613,7 +611,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void addMaxValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addMaxValuePropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         // We don't need this here!
     }
@@ -622,7 +620,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void getMarkersProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getMarkersProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getMarkersProperties( propsCont, forceAll );
         
@@ -633,7 +631,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void getNeedleProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getNeedleProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getNeedleProperties( propsCont, forceAll );
         
@@ -653,7 +651,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getGearProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getGearProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "Gear" );
         
@@ -678,11 +676,22 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
         getGearProperties( propsCont, forceAll );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        gearFont.setFont( "Dialog", Font.PLAIN, 8, false, true );
     }
     
     public AbstractRevNeedleMeterWidget( float width, float height )

@@ -48,7 +48,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.gui.awt_swing.GUITools;
 
@@ -176,7 +176,7 @@ public class ImageSelector extends JPanel
         
         if ( file.isDirectory() )
         {
-            Logger.log( "WARNING: The given file is a directory." );
+            RFDHLog.exception( "WARNING: The given file is a directory." );
             this.selectedFile = null;
             update();
             setPreview( null );

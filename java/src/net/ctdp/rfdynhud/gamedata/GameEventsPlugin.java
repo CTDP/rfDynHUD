@@ -17,8 +17,14 @@
  */
 package net.ctdp.rfdynhud.gamedata;
 
-import net.ctdp.rfdynhud.render.WidgetsRenderListenersManager;
+import java.io.File;
+
+import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+
+import org.jagatoo.logging.Log;
+import org.jagatoo.logging.LogChannel;
+import org.jagatoo.logging.LogLevel;
 
 /**
  * <p>
@@ -32,9 +38,150 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public interface GameEventsPlugin
+public abstract class GameEventsPlugin
 {
-    public void onPluginStarted( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager );
+    public static final LogChannel LOG_CHANNEL = new LogChannel( "rfDynHUD-GameEventsPlugin" );
     
-    public void onPluginShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager );
+    private final String name;
+    private final String logPrefix;
+    private final File baseFolder;
+    
+    public final String getName()
+    {
+        return ( name );
+    }
+    
+    public final File getBaseFolder()
+    {
+        return ( baseFolder );
+    }
+    
+    public void log( LogLevel logLevel, Object... message )
+    {
+        if ( ( message != null ) && ( message.length > 0 ) )
+        {
+            if ( ( message.length == 1 ) && ( message[0] instanceof Throwable ) )
+            {
+                Log.println( LOG_CHANNEL, logLevel, message );
+            }
+            else
+            {
+                Object[] message2 = new Object[ message.length + 1 ];
+                message2[0] = logPrefix;
+                System.arraycopy( message, 0, message2, 1, message.length );
+                Log.println( LOG_CHANNEL, logLevel, message2 );
+            }
+        }
+    }
+    
+    public void logCS( LogLevel logLevel, Object... message )
+    {
+        if ( ( message != null ) && ( message.length > 0 ) )
+        {
+            if ( ( message.length == 1 ) && ( message[0] instanceof Throwable ) )
+            {
+                Log.printlnCS( LOG_CHANNEL, logLevel, message );
+            }
+            else
+            {
+                Object[] message2 = new Object[ message.length + 1 ];
+                message2[0] = logPrefix;
+                System.arraycopy( message, 0, message2, 1, message.length );
+                Log.printlnCS( LOG_CHANNEL, logLevel, message2 );
+            }
+        }
+    }
+    
+    public void log( Object... message )
+    {
+        if ( ( message != null ) && ( message.length > 0 ) )
+        {
+            if ( ( message.length == 1 ) && ( message[0] instanceof Throwable ) )
+            {
+                Log.println( LOG_CHANNEL, message );
+            }
+            else
+            {
+                Object[] message2 = new Object[ message.length + 1 ];
+                message2[0] = logPrefix;
+                System.arraycopy( message, 0, message2, 1, message.length );
+                Log.println( LOG_CHANNEL, message2 );
+            }
+        }
+    }
+    
+    public void logCS( Object... message )
+    {
+        if ( ( message != null ) && ( message.length > 0 ) )
+        {
+            if ( ( message.length == 1 ) && ( message[0] instanceof Throwable ) )
+            {
+                Log.printlnCS( LOG_CHANNEL, message );
+            }
+            else
+            {
+                Object[] message2 = new Object[ message.length + 1 ];
+                message2[0] = logPrefix;
+                System.arraycopy( message, 0, message2, 1, message.length );
+                Log.printlnCS( LOG_CHANNEL, message2 );
+            }
+        }
+    }
+    
+    /**
+     * Logs data to the plugin's log file.
+     * 
+     * @param message the data to log
+     */
+    public final void debug( Object... message )
+    {
+        if ( ( message != null ) && ( message.length > 0 ) )
+        {
+            if ( ( message.length == 1 ) && ( message[0] instanceof Throwable ) )
+            {
+                Log.debug( LOG_CHANNEL, message );
+            }
+            else
+            {
+                Object[] message2 = new Object[ message.length + 1 ];
+                message2[0] = logPrefix;
+                System.arraycopy( message, 0, message2, 1, message.length );
+                Log.debug( LOG_CHANNEL, message2 );
+            }
+        }
+    }
+    
+    /**
+     * Logs data to the plugin's log file.
+     * 
+     * @param message the data to log
+     */
+    public final void debugCS( Object... message )
+    {
+        if ( ( message != null ) && ( message.length > 0 ) )
+        {
+            if ( ( message.length == 1 ) && ( message[0] instanceof Throwable ) )
+            {
+                Log.debugCS( LOG_CHANNEL, message );
+            }
+            else
+            {
+                Object[] message2 = new Object[ message.length + 1 ];
+                message2[0] = logPrefix;
+                System.arraycopy( message, 0, message2, 1, message.length );
+                Log.debugCS( LOG_CHANNEL, message2 );
+            }
+        }
+    }
+    
+    public abstract void onPluginStarted( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager );
+    
+    public abstract void onPluginShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager );
+    
+    protected GameEventsPlugin( String name, File baseFolder )
+    {
+        this.name = name;
+        this.logPrefix = "[" + name + "] ";
+        this.baseFolder = baseFolder;
+    }
 }

@@ -17,7 +17,9 @@
  */
 package net.ctdp.rfdynhud.widgets.standard.timecomp;
 
+import java.awt.Font;
 import java.io.IOException;
+import java.util.Arrays;
 
 import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -25,14 +27,14 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
@@ -190,13 +192,16 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
         
         timeStrings[numDisplayedLaps] = dsf.newDrawnString( "timeStrings" + numDisplayedLaps, null, relY, 0, 5, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
+        Arrays.fill( colWidths, 0 );
+        int totalWidth;
+        
         if ( displaySectors.getBooleanValue() )
         {
             if ( abbreviate.getBooleanValue() )
                 headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_sector1_short, Loc.header_sector2_short, Loc.header_sector3_short, Loc.header_lap_short }, colAligns, colPadding, colWidths );
             else
                 headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_sector1, Loc.header_sector2, Loc.header_sector3, Loc.header_lap }, colAligns, colPadding, colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, colAligns, colPadding, colWidths );
+            totalWidth = timeStrings[0].getMaxColWidths( new String[] { "00", "-00.000", "-00.000", "-00.000", "-0:00.000" }, colAligns, colPadding, colWidths );
         }
         else
         {
@@ -204,7 +209,21 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
                 headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap_short }, colAligns, colPadding, colWidths );
             else
                 headerString.getMaxColWidths( new String[] { Loc.header_lap_number, Loc.header_lap }, colAligns, colPadding, colWidths );
-            timeStrings[0].getMaxColWidths( new String[] { "00", "-0:00.000" }, colAligns, colPadding, colWidths );
+            totalWidth = timeStrings[0].getMaxColWidths( new String[] { "00", "-0:00.000" }, colAligns, colPadding, colWidths );
+        }
+        
+        if ( totalWidth < width )
+        {
+            int rest = width - totalWidth;
+            
+            if ( displaySectors.getBooleanValue() )
+            {
+                colWidths[2] += rest / 3;
+                rest -= rest / 3;
+                colWidths[3] += rest / 2;
+                rest -= rest / 2;
+                colWidths[4] += rest;
+            }
         }
         
         VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
@@ -258,9 +277,9 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
                 else
                 {
                     if ( displaySectors.getBooleanValue() )
-                        s = new String[] { String.valueOf( store.displayedLaps[i].getLap() ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector1(), true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector2(), true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector3(), true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getLapTime(), true ) };
+                        s = new String[] { String.valueOf( store.displayedLaps[i].getLap() ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector1(), false, false, true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector2(), false, false, true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getSector3(), false, false, true ), TimingUtil.getTimeAsString( store.displayedLaps[i].getLapTime(), false, false, true ) };
                     else
-                        s = new String[] { String.valueOf( store.displayedLaps[i].getLap() ), TimingUtil.getTimeAsString( store.displayedLaps[i].getLapTime(), true ) };
+                        s = new String[] { String.valueOf( store.displayedLaps[i].getLap() ), TimingUtil.getTimeAsString( store.displayedLaps[i].getLapTime(), false, false, true ) };
                     
                     lastDspIdx = i;
                 }
@@ -297,7 +316,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -321,7 +340,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -337,6 +356,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
         super.prepareForMenuItem();
         
         colPadding = 4;
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 3, false, true );
     }
     
     public TimeCompareWidget()

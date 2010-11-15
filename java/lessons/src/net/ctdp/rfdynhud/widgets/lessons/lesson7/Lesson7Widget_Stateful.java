@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.widgets.lessons.lesson7;
 
+import java.awt.Font;
+
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -71,8 +73,10 @@ public class Lesson7Widget_Stateful extends StatefulWidget<MyGeneralStore, MyLoc
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
+        int h = TextureImage2D.getStringHeight( "XXX", getFontProperty() );
+        
         ds_general = drawnStringFactory.newDrawnString( "ds_general", 0, 0, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), "General: ", null );
-        ds_local = drawnStringFactory.newDrawnString( "ds_local", 0, 20, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), "Local: ", null );
+        ds_local = drawnStringFactory.newDrawnString( "ds_local", 0, h, Alignment.LEFT, false, getFont(), isFontAntiAliased(), getFontColor(), "Local: ", null );
     }
     
     @Override
@@ -88,6 +92,17 @@ public class Lesson7Widget_Stateful extends StatefulWidget<MyGeneralStore, MyLoc
             ds_general.draw( offsetX, offsetY, String.valueOf( getGeneralStore().value ), texture );
             ds_local.draw( offsetX, offsetY, String.valueOf( getLocalStore().value ), texture );
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     public Lesson7Widget_Stateful()

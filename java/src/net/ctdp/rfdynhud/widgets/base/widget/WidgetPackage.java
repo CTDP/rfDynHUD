@@ -26,7 +26,7 @@ import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import net.ctdp.rfdynhud.util.Logger;
+import org.jagatoo.logging.Log;
 
 /**
  * The {@link WidgetPackage} class encapsulates properties for a {@link Widget}'s virtual package.
@@ -116,7 +116,7 @@ public class WidgetPackage implements Comparable<WidgetPackage>
                 }
                 catch ( IOException e )
                 {
-                    Logger.log( e );
+                    Log.exception( Widget.LOG_CHANNEL, e );
                     
                     icons[i] = null;
                 }
@@ -203,7 +203,7 @@ public class WidgetPackage implements Comparable<WidgetPackage>
                 }
                 catch ( MalformedURLException e )
                 {
-                    Logger.log( e );
+                    Log.exception( Widget.LOG_CHANNEL, e );
                     
                     urls[i] = null;
                 }

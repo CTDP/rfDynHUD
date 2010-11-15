@@ -81,11 +81,16 @@ public class Track
     /**
      * Gets the length of sector 2 in meters.
      * 
+     * @param includingSector1
+     * 
      * @return the length of sector 2 in meters.
      */
-    public final float getSector2Length()
+    public final float getSector2Length( boolean includingSector1 )
     {
-        return ( sector2Length );
+        if ( includingSector1 )
+            return ( sector2Length );
+        
+        return ( sector2Length - sector1Length );
     }
     
     /**

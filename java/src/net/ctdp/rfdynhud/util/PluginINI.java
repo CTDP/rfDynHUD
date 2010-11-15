@@ -31,6 +31,8 @@ public class PluginINI
 {
     private static final File IDE_DATA_FOLDER = ResourceManager.isJarMode() ? null : new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "yyy_data" ).getAbsoluteFile();
     
+    public static final String FILENAME = "rfdynhud.ini";
+    
     private final File pluginFolder;
     private final File iniFile;
     
@@ -101,7 +103,7 @@ public class PluginINI
         
         f = __UtilHelper.stripDotDots( f.getAbsolutePath() );
         
-        Logger.log( "Using " + name + " folder \"" + f.getAbsolutePath() + "\"." );
+        RFDHLog.printlnEx( "Using " + name + " folder \"" + f.getAbsolutePath() + "\"." );
         
         try
         {
@@ -109,8 +111,8 @@ public class PluginINI
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
-            Logger.log( "[ERROR] The " + name + " folder doesn't exist and couldn't be created." );
+            RFDHLog.exception( t );
+            RFDHLog.exception( "[ERROR] The " + name + " folder doesn't exist and couldn't be created." );
         }
         
         return ( f );
@@ -160,7 +162,7 @@ public class PluginINI
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -203,6 +205,6 @@ public class PluginINI
     public PluginINI( File pluginFolder )
     {
         this.pluginFolder = pluginFolder;
-        this.iniFile = new File( pluginFolder, "rfdynhud.ini" );
+        this.iniFile = new File( pluginFolder, FILENAME );
     }
 }

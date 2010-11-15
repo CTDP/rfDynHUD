@@ -27,8 +27,18 @@ import net.ctdp.rfdynhud.properties.FactoredIntProperty;
 public class IntervalManager implements ManagedValue
 {
     private final FactoredIntProperty property;
+    private final long interval;
     private long nextHitTime = -1L;
     private boolean hitState = false;
+    private boolean stateChanged = false;
+    
+    public final long getInterval()
+    {
+        if ( property != null )
+            return ( property.getFactoredValue() );
+        
+        return ( interval );
+    }
     
     public final FactoredIntProperty getProperty()
     {
@@ -37,13 +47,17 @@ public class IntervalManager implements ManagedValue
     
     public final boolean isUsed()
     {
-        return ( property.getIntValue() > 0 );
+        if ( property != null )
+            return ( property.getIntValue() > 0L );
+        
+        return ( interval > 0L );
     }
     
     public void reset()
     {
         nextHitTime = -1L;
         hitState = false;
+        stateChanged = false;
     }
     
     /**
@@ -65,6 +79,11 @@ public class IntervalManager implements ManagedValue
         return ( hitState );
     }
     
+    public final boolean getStateChanged()
+    {
+        return ( stateChanged );
+    }
+    
     /**
      * This method is invoked when the interval has been hit.
      * 
@@ -80,17 +99,27 @@ public class IntervalManager implements ManagedValue
     @Override
     public void update( long nanoTime, long frameCounter, boolean force )
     {
+        stateChanged = false;
+        
         if ( nextHitTime < 0L )
         {
-            nextHitTime = nanoTime + property.getFactoredValue();
+            if ( property != null )
+                nextHitTime = nanoTime + property.getFactoredValue();
+            else
+                nextHitTime = nanoTime + interval;
             hitState = true;
+            stateChanged = true;
             
             onIntervalHit( hitState );
         }
         else if ( nanoTime >= nextHitTime )
         {
-            nextHitTime = nanoTime + property.getFactoredValue();
+            if ( property != null )
+                nextHitTime = nanoTime + property.getFactoredValue();
+            else
+                nextHitTime = nanoTime + interval;
             hitState = !hitState;
+            stateChanged = true;
             
             onIntervalHit( hitState );
         }
@@ -107,5 +136,15 @@ public class IntervalManager implements ManagedValue
             throw new IllegalArgumentException( "intervalProperty must not be null." );
         
         this.property = intervalProperty;
+        this.interval = -1L;
+    }
+    
+    public IntervalManager( long intervalNanos )
+    {
+        if ( intervalNanos <= 0 )
+            throw new IllegalArgumentException( "intervalNanos must be greater than 0." );
+        
+        this.property = null;
+        this.interval = intervalNanos;
     }
 }

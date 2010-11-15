@@ -20,7 +20,7 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.File;
 import java.io.FileFilter;
 
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -184,7 +184,7 @@ public class ProfileInfo
         
         if ( plrFile == null )
         {
-            Logger.log( "ERROR: No Profile with PLR file found under \"" + USERDATA_FOLDER.getAbsolutePath() + "\". Plugin unusable!" );
+            RFDHLog.error( "ERROR: No Profile with PLR file found under \"" + USERDATA_FOLDER.getAbsolutePath() + "\". Plugin unusable!" );
             
             reset();
             return ( false );
@@ -197,7 +197,7 @@ public class ProfileInfo
         
         reset();
         
-        Logger.log( "INFO: Using PLR file \"" + plrFile.getAbsolutePath() + "\"" );
+        RFDHLog.printlnEx( "INFO: Using PLR file \"" + plrFile.getAbsolutePath() + "\"" );
         
         try
         {
@@ -254,7 +254,7 @@ public class ProfileInfo
                             }
                             catch ( Throwable t )
                             {
-                                Logger.log( "Unable to parse \"Show Extra Lap\" from PLR file. Defaulting to 'true'." );
+                                RFDHLog.debug( "Unable to parse \"Show Extra Lap\" from PLR file. Defaulting to 'true'." );
                                 showCurrentLap = true;
                             }
                         }
@@ -268,7 +268,7 @@ public class ProfileInfo
                             }
                             catch ( Throwable t )
                             {
-                                Logger.log( "Unable to parse \"Measurement Units\" from PLR file. Defaulting to METRIC." );
+                                RFDHLog.debug( "Unable to parse \"Measurement Units\" from PLR file. Defaulting to METRIC." );
                                 measurementUnits = MeasurementUnits.METRIC;
                             }
                         }
@@ -282,7 +282,7 @@ public class ProfileInfo
                             }
                             catch ( Throwable t )
                             {
-                                Logger.log( "Unable to parse \"Speed Units\" from PLR file. Defaulting to KPH." );
+                                RFDHLog.debug( "Unable to parse \"Speed Units\" from PLR file. Defaulting to KPH." );
                                 speedUnits = SpeedUnits.KPH;
                             }
                         }
@@ -309,7 +309,7 @@ public class ProfileInfo
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         updateId++;

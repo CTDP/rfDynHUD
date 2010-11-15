@@ -77,7 +77,7 @@ public class LocalizationsManager
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         return ( result );
@@ -91,7 +91,7 @@ public class LocalizationsManager
         
         if ( language == null )
         {
-            Logger.log( "Invalid localizations file \"" + f.getAbsolutePath() + "\"." );
+            RFDHLog.exception( "Invalid localizations file \"" + f.getAbsolutePath() + "\"." );
             return;
         }
         
@@ -130,7 +130,7 @@ public class LocalizationsManager
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -185,7 +185,7 @@ public class LocalizationsManager
         {
             if ( missingLoggedMap.get( globalKey ) != Boolean.TRUE )
             {
-                Logger.log( "WARNING: Localization key \"" + key + "\" missing for " + widgetClass.getName() + "." );
+                RFDHLog.exception( "WARNING: Localization key \"" + key + "\" missing for " + widgetClass.getName() + "." );
                 
                 missingLoggedMap.put( globalKey, Boolean.TRUE );
             }

@@ -19,15 +19,18 @@ package net.ctdp.rfdynhud.widgets.standard.revmeter;
 
 import java.io.IOException;
 
+import org.jagatoo.logging.Log;
+
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 public class ShiftLight
 {
@@ -151,7 +154,7 @@ public class ShiftLight
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                Log.exception( Widget.LOG_CHANNEL, t );
                 
                 return;
             }
@@ -226,7 +229,7 @@ public class ShiftLight
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return;
         }
@@ -290,7 +293,7 @@ public class ShiftLight
         }
     }
     
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( imageNameOff, "The name of the shift light image for \"off\" state." );
         writer.writeProperty( imageNameOn, "The name of the shift light image for \"on\" state." );
@@ -323,7 +326,7 @@ public class ShiftLight
      * @param propsCont
      * @param forceAll
      */
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "Shift Light " + indexOneBased );
         

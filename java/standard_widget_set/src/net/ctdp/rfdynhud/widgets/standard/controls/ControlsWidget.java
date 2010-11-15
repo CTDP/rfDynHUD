@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.widgets.standard.controls;
 
+import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
@@ -28,14 +29,14 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TextureImage2D.TextDirection;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
@@ -486,7 +487,7 @@ public class ControlsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -532,7 +533,7 @@ public class ControlsWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -553,13 +554,25 @@ public class ControlsWidget extends Widget
         propsCont.addProperty( labelOffset );
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
+        labelOffset.setIntValue( 3 );
+    }
+    
     public ControlsWidget()
     {
         super( 9.9f, 16.5f );
         
         setPadding( 3, 3, 3, 3 );
         
-        getFontProperty().setFont( "DokChampa-BOLD-22va" );
+        getFontProperty().setFont( "DokChampa", Font.BOLD, 22, true, true );
         getFontColorProperty().setColor( "#FFFFFF" );
     }
 }

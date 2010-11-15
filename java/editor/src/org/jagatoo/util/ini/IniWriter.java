@@ -431,13 +431,22 @@ public class IniWriter
     }
     
     /**
+     * Flushes the file.
+     * 
+     * @throws IOException
+     */
+    public void flush() throws IOException
+    {
+        writer.flush();
+    }
+    
+    /**
      * Flushes and closes the file.
      * 
      * @throws IOException
      */
     public void close() throws IOException
     {
-        writer.flush();
         writer.close();
     }
     

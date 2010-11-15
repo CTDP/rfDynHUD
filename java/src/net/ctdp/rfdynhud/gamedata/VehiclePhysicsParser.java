@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -507,9 +507,9 @@ class VehiclePhysicsParser
         @Override
         protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
-            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from TBC physics \"" + filename + "\"." );
-            Logger.log( "Line was \"" + line + "\". Exception follows." );
-            Logger.log( t );
+            RFDHLog.exception( "Warning: Unable to parse the line #" + lineNr + " from TBC physics \"" + filename + "\"." );
+            RFDHLog.exception( "Line was \"" + line + "\". Exception follows." );
+            RFDHLog.exception( t );
             
             return ( true );
         }
@@ -568,13 +568,13 @@ class VehiclePhysicsParser
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                     //throw new ParsingException( t );
                 }
             }
             else
             {
-                Logger.log( "Warning: Unable to find tire file \"" + filename + "\"." );
+                RFDHLog.exception( "Warning: Unable to find tire file \"" + filename + "\"." );
             }
         }
     }
@@ -650,9 +650,9 @@ class VehiclePhysicsParser
         @Override
         protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
-            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from engine physics \"" + filename + "\"." );
-            Logger.log( "Line was \"" + line + "\". Exception follows." );
-            Logger.log( t );
+            RFDHLog.exception( "Warning: Unable to parse the line #" + lineNr + " from engine physics \"" + filename + "\"." );
+            RFDHLog.exception( "Line was \"" + line + "\". Exception follows." );
+            RFDHLog.exception( t );
             
             return ( true );
         }
@@ -677,13 +677,13 @@ class VehiclePhysicsParser
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                     //throw new ParsingException( t );
                 }
             }
             else
             {
-                Logger.log( "Warning: Unable to find engine file \"" + filename + "\"." );
+                RFDHLog.exception( "Warning: Unable to find engine file \"" + filename + "\"." );
             }
         }
     }
@@ -850,9 +850,9 @@ class VehiclePhysicsParser
         @Override
         protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
-            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from HDV file \"" + filename + "\"." );
-            Logger.log( "Line was \"" + line + "\". Exception follows." );
-            Logger.log( t );
+            RFDHLog.exception( "Warning: Unable to parse the line #" + lineNr + " from HDV file \"" + filename + "\"." );
+            RFDHLog.exception( "Line was \"" + line + "\". Exception follows." );
+            RFDHLog.exception( t );
             
             return ( true );
         }
@@ -906,7 +906,7 @@ class VehiclePhysicsParser
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
                 
                 return ( null );
             }
@@ -959,9 +959,9 @@ class VehiclePhysicsParser
         @Override
         protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
-            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from CCH file \"" + filename + "\"." );
-            Logger.log( "Line was \"" + line + "\". Exception follows." );
-            Logger.log( t );
+            RFDHLog.exception( "Warning: Unable to parse the line #" + lineNr + " from CCH file \"" + filename + "\"." );
+            RFDHLog.exception( "Line was \"" + line + "\". Exception follows." );
+            RFDHLog.exception( t );
             
             return ( true );
         }
@@ -1128,9 +1128,9 @@ class VehiclePhysicsParser
                     }
                     catch ( Throwable t )
                     {
-                        Logger.log( "Warning: Unable to parse upgrade HDV line from upgrades file \"" + filename + "\"." );
-                        Logger.log( "Line was \"" + line + "\". Exception follows." );
-                        Logger.log( t );
+                        RFDHLog.exception( "Warning: Unable to parse upgrade HDV line from upgrades file \"" + filename + "\"." );
+                        RFDHLog.exception( "Line was \"" + line + "\". Exception follows." );
+                        RFDHLog.exception( t );
                     }
                 }
             }
@@ -1256,13 +1256,13 @@ class VehiclePhysicsParser
                         }
                         catch ( Throwable t )
                         {
-                            Logger.log( t );
+                            RFDHLog.exception( t );
                             //throw new ParsingException( t );
                         }
                     }
                     else
                     {
-                        Logger.log( "Warning: Unable to find HDV file \"" + value + "\"." );
+                        RFDHLog.exception( "Warning: Unable to find HDV file \"" + value + "\"." );
                     }
                 }
                 else if ( key.equalsIgnoreCase( "Upgrades" ) )
@@ -1294,13 +1294,13 @@ class VehiclePhysicsParser
                             }
                             catch ( Throwable t )
                             {
-                                Logger.log( t );
+                                RFDHLog.exception( t );
                                 //throw new ParsingException( t );
                             }
                         }
                         else
                         {
-                            Logger.log( "Warning: Unable to find Upgrades file \"" + value + "\"." );
+                            RFDHLog.exception( "Warning: Unable to find Upgrades file \"" + value + "\"." );
                         }
                     }
                 }
@@ -1312,9 +1312,9 @@ class VehiclePhysicsParser
         @Override
         protected boolean handleParsingException( int lineNr, String group, String line, Throwable t ) throws ParsingException
         {
-            Logger.log( "Warning: Unable to parse the line #" + lineNr + " from engine physics \"" + filename + "\"." );
-            Logger.log( "Line was \"" + line + "\". Exception follows." );
-            Logger.log( t );
+            RFDHLog.exception( "Warning: Unable to parse the line #" + lineNr + " from engine physics \"" + filename + "\"." );
+            RFDHLog.exception( "Line was \"" + line + "\". Exception follows." );
+            RFDHLog.exception( t );
             
             return ( true );
         }

@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.properties;
 import java.util.Collection;
 
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 import org.jagatoo.util.Tools;
 
@@ -80,7 +79,7 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
             onValueChanged( oldValue, value );
         
         if ( widget != null )
-            __WPrivilegedAccess.onPropertyChanged( this, oldValue, value, widget );
+            widget.onPropertyChanged( this, oldValue, value );
         
         return ( false );
     }
@@ -129,6 +128,16 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
                 return;
             }
         }
+    }
+    
+    public String getButton2Text()
+    {
+        return ( null );
+    }
+    
+    public String getButton2Tooltip()
+    {
+        return ( null );
     }
     
     /**

@@ -24,11 +24,13 @@ package net.ctdp.rfdynhud.properties;
  */
 public enum PropertyEditorType
 {
-    STRING,
+    BOOLEAN,
     INTEGER,
     FLOAT,
+    STRING,
+    FILENAME,
+    TIME,
     POS_SIZE,
-    BOOLEAN,
     ENUM,
     ARRAY,
     LIST,

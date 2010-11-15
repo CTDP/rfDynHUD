@@ -24,7 +24,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.gamedata.ByteUtil;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * This manager keeps information about plugged in Joysticks (Wheels) and their buttons.
@@ -296,7 +296,7 @@ public class InputDeviceManager
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     

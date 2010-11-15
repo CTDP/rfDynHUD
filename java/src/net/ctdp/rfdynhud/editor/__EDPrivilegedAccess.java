@@ -20,8 +20,8 @@ package net.ctdp.rfdynhud.editor;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 
 /**
  * Don't use this at home!
@@ -32,12 +32,12 @@ public class __EDPrivilegedAccess
 {
     public static boolean isEditorMode = false;
     
-    public static final void getEditorPresetsProperties( EditorPresets editorPresets, WidgetPropertiesContainer propsCont )
+    public static final void getEditorPresetsProperties( EditorPresets editorPresets, PropertiesContainer propsCont )
     {
         editorPresets.getProperties( propsCont );
     }
     
-    public static final void saveProperties( EditorPresets editorPresets, WidgetsConfigurationWriter writer ) throws IOException
+    public static final void saveProperties( EditorPresets editorPresets, PropertyWriter writer ) throws IOException
     {
         editorPresets.saveProperties( writer );
     }

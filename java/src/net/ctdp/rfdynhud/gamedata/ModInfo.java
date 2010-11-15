@@ -22,7 +22,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * Model of mod information
@@ -80,7 +80,7 @@ public class ModInfo
             }
             catch ( NumberFormatException e )
             {
-                Logger.log( e );
+                RFDHLog.exception( e );
             }
         }
         
@@ -105,7 +105,7 @@ public class ModInfo
             }
             catch ( NumberFormatException e )
             {
-                Logger.log( e );
+                RFDHLog.exception( e );
             }
         }
         
@@ -174,7 +174,7 @@ public class ModInfo
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         finally
         {

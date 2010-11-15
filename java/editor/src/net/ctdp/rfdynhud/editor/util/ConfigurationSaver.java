@@ -18,7 +18,9 @@
 package net.ctdp.rfdynhud.editor.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,7 +29,7 @@ import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.FontUtils;
@@ -46,7 +48,7 @@ public class ConfigurationSaver
     {
         HashSet<String> result = new HashSet<String>();
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         
         for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
         {
@@ -79,7 +81,7 @@ public class ConfigurationSaver
     {
         HashSet<String> result = new HashSet<String>();
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         
         for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
         {
@@ -106,7 +108,7 @@ public class ConfigurationSaver
     {
         HashSet<String> result = new HashSet<String>();
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         
         for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
         {
@@ -128,7 +130,7 @@ public class ConfigurationSaver
         return ( result );
     }
     
-    private static void saveWidget( Widget widget, IniWriter iniWriter, DefaultWidgetsConfigurationWriter confWriter ) throws IOException
+    private static void saveWidget( Widget widget, IniWriter iniWriter, DefaultPropertyWriter confWriter ) throws IOException
     {
         if ( widget.getMasterWidget() != null )
             iniWriter.writeSetting( "<WidgetPart>", ( widget.getName() == null ? "" : widget.getName() ), "The Widget part's name." );
@@ -154,7 +156,7 @@ public class ConfigurationSaver
             iniWriter.writeSetting( "</WidgetPart>", ( widget.getName() == null ? "" : widget.getName() ) );
     }
     
-    public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, File out ) throws IOException
+    public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, OutputStream out, boolean close ) throws IOException
     {
         final IniWriter iniWriter = new IniWriter( out )
         {
@@ -182,7 +184,7 @@ public class ConfigurationSaver
         iniWriter.writeSetting( "Design_Grid", "(" + gridOffsetX + "," + gridOffsetY + ";" + gridSizeX + "," + gridSizeY + ")" );
         
         iniWriter.writeGroup( "Global" );
-        widgetsConfig.saveProperties( new DefaultWidgetsConfigurationWriter( iniWriter ) );
+        widgetsConfig.saveProperties( new DefaultPropertyWriter( iniWriter ) );
         
         iniWriter.writeGroup( "NamedColors" );
         HashSet<String> usedColorNames = getUsedColorNames( widgetsConfig );
@@ -213,7 +215,7 @@ public class ConfigurationSaver
             iniWriter.writeSetting( alias, widgetsConfig.getBorderName( alias ) );
         }
         
-        DefaultWidgetsConfigurationWriter confWriter = new DefaultWidgetsConfigurationWriter( iniWriter );
+        DefaultPropertyWriter confWriter = new DefaultPropertyWriter( iniWriter );
         
         __WCPrivilegedAccess.sortWidgets( widgetsConfig );
         
@@ -232,6 +234,14 @@ public class ConfigurationSaver
             saveWidget( widget, iniWriter, confWriter );
         }
         
-        iniWriter.close();
+        if ( close )
+            iniWriter.close();
+        else
+            iniWriter.flush();
+    }
+    
+    public static void saveConfiguration( WidgetsConfiguration widgetsConfig, String designResultion, int gridOffsetX, int gridOffsetY, int gridSizeX, int gridSizeY, File out ) throws IOException
+    {
+        saveConfiguration( widgetsConfig, designResultion, gridOffsetX, gridOffsetY, gridSizeX, gridSizeY, new FileOutputStream( out ), true );
     }
 }

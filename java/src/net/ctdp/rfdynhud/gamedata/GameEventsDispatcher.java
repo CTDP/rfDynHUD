@@ -30,9 +30,9 @@ import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.InputMappingsManager;
 import net.ctdp.rfdynhud.input.KnownInputActions;
-import net.ctdp.rfdynhud.render.WidgetsRenderListenersManager;
+import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
@@ -66,12 +66,21 @@ class GameEventsDispatcher
      * @param gameData
      * @param renderListenerManager
      */
-    public void fireOnStarted( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager )
+    public void fireOnStarted( LiveGameData gameData, boolean isEditorMode, WidgetsManager renderListenerManager )
     {
         if ( plugins != null )
         {
             for ( int i = 0; i < plugins.length; i++ )
-                plugins[i].onPluginStarted( gameData, isEditorMode, renderListenerManager );
+            {
+                try
+                {
+                    plugins[i].onPluginStarted( gameData, isEditorMode, renderListenerManager );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
     }
     
@@ -81,7 +90,7 @@ class GameEventsDispatcher
      * @param gameData
      * @param widgetsConfig
      */
-    public void fireBeforeWidgetsConfigurationCleared( WidgetsRenderListenersManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
+    public void fireBeforeWidgetsConfigurationCleared( WidgetsManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
         __RenderPrivilegedAccess.fireBeforeWidgetsConfigurationCleared( manager, gameData, widgetsConfig );
     }
@@ -92,7 +101,7 @@ class GameEventsDispatcher
      * @param gameData
      * @param widgetsConfig
      */
-    public void fireAfterWidgetsConfigurationLoaded( WidgetsRenderListenersManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
+    public void fireAfterWidgetsConfigurationLoaded( WidgetsManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
         __RenderPrivilegedAccess.fireAfterWidgetsConfigurationLoaded( manager, gameData, widgetsConfig );
     }
@@ -111,7 +120,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onTrackChanged( trackname, gameData, isEditorMode );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onTrackChanged( trackname, gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
         
         final int n = widgetsConfig.getNumWidgets();
@@ -123,7 +141,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -159,7 +177,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
             
             waitingWidgets.add( widget );
@@ -189,7 +207,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
             
             waitingWidgets.add( widget );
@@ -231,7 +249,7 @@ class GameEventsDispatcher
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                 }
                 
                 waitingWidgets.remove( i );
@@ -255,7 +273,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onPitsEntered( gameData, isEditorMode );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onPitsEntered( gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
         
         final int n = widgetsConfig.getNumWidgets();
@@ -267,7 +294,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -285,7 +312,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onGarageEntered( gameData, isEditorMode );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onGarageEntered( gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
         
         final int n = widgetsConfig.getNumWidgets();
@@ -297,7 +333,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -315,7 +351,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onGarageExited( gameData, isEditorMode );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onGarageExited( gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
         
         final int n = widgetsConfig.getNumWidgets();
@@ -327,7 +372,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -345,7 +390,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onPitsExited( gameData, isEditorMode );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onPitsExited( gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
         
         final int n = widgetsConfig.getNumWidgets();
@@ -357,7 +411,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -383,7 +437,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -405,7 +459,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -421,7 +475,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onVehiclePhysicsUpdated( gameData );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onVehiclePhysicsUpdated( gameData );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
     }
     
@@ -436,7 +499,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onVehicleSetupUpdated( gameData, isEditorMode );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onVehicleSetupUpdated( gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
         
         final int n = widgetsConfig.getNumWidgets();
@@ -451,7 +523,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -468,7 +540,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
         
         final int n = widgetsConfig.getNumWidgets();
@@ -480,7 +561,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -497,7 +578,16 @@ class GameEventsDispatcher
         if ( gameData.gameEventsListeners != null )
         {
             for ( int i = 0; i < gameData.gameEventsListeners.length; i++ )
-                gameData.gameEventsListeners[i].onLapStarted( vsi, gameData, isEditorMode );
+            {
+                try
+                {
+                    gameData.gameEventsListeners[i].onLapStarted( vsi, gameData, isEditorMode );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
         
         final int n = widgetsConfig.getNumWidgets();
@@ -509,7 +599,7 @@ class GameEventsDispatcher
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }
@@ -543,7 +633,7 @@ class GameEventsDispatcher
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -553,12 +643,21 @@ class GameEventsDispatcher
      * @param gameData
      * @param renderListenerManager
      */
-    public void fireOnShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager )
+    public void fireOnShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsManager renderListenerManager )
     {
         if ( plugins != null )
         {
-            for ( int i = 0; i < plugins.length; i++ )
-                plugins[i].onPluginShutdown( gameData, isEditorMode, renderListenerManager );
+            for ( int i = plugins.length - 1; i >= 0; i-- )
+            {
+                try
+                {
+                    plugins[i].onPluginShutdown( gameData, isEditorMode, renderListenerManager );
+                }
+                catch ( Throwable t )
+                {
+                    RFDHLog.exception( t );
+                }
+            }
         }
     }
     
@@ -579,7 +678,7 @@ class GameEventsDispatcher
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                 }
             }
         }
@@ -604,7 +703,7 @@ class GameEventsDispatcher
     
     private static final GameEventsPlugin[] findPlugins()
     {
-        Logger.log( "Loading GameEventsPlugins..." );
+        RFDHLog.printlnEx( "Loading GameEventsPlugins..." );
         
         File pluginsFolder = GameFileSystem.INSTANCE.getSubPluginsFolder();
         
@@ -620,7 +719,7 @@ class GameEventsDispatcher
             }
             catch ( IOException e )
             {
-                Logger.log( e );
+                RFDHLog.exception( e );
                 pluginClasses = null;
             }
         }
@@ -631,7 +730,7 @@ class GameEventsDispatcher
         
         if ( ( pluginClasses == null ) || ( pluginClasses.size() == 0 ) )
         {
-            Logger.log( "No plugin found." );
+            RFDHLog.printlnEx( "No plugin found." );
             
             return ( null );
         }
@@ -648,16 +747,16 @@ class GameEventsDispatcher
             {
                 plugins[i] = (GameEventsPlugin)pluginClazz.getConstructor( File.class ).newInstance( baseFolder );
                 
-                Logger.log( "    Found plugin \"" + pluginClazz.getName() + "\"." );
+                RFDHLog.printlnEx( "    Found plugin \"" + pluginClazz.getName() + "\"." );
             }
             catch ( Throwable t )
             {
-                Logger.log( "WARNING: Couldn't instantiate GameEventsPlugin \"" + pluginClazz.getName() + "\"." );
-                Logger.log( t );
+                RFDHLog.exception( "WARNING: Couldn't instantiate GameEventsPlugin \"" + pluginClazz.getName() + "\"." );
+                RFDHLog.exception( t );
             }
         }
         
-        Logger.log( "Found and initialized " + plugins.length + " plugin" + ( plugins.length == 1 ? "" : "s" ) + "." );
+        RFDHLog.printlnEx( "Found and initialized " + plugins.length + " plugin" + ( plugins.length == 1 ? "" : "s" ) + "." );
         
         return ( plugins );
     }

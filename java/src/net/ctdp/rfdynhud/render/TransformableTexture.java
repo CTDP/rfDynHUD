@@ -158,6 +158,11 @@ public class TransformableTexture
         this.dirty = true;
     }
     
+    final boolean isDirty()
+    {
+        return ( dirty );
+    }
+    
     void setOwnerWidget( Widget ownerWidget )
     {
         this.ownerWidget = ownerWidget;
@@ -333,8 +338,14 @@ public class TransformableTexture
      */
     public void setTranslation( float transX, float transY )
     {
+        float oldX = this.transX;
+        float oldY = this.transY;
+        
         this.transX = pixelPerfectPositioning ? Math.round( transX ) : transX;
         this.transY = pixelPerfectPositioning ? Math.round( transY ) : transY;
+        
+        if ( ( this.transX == oldX ) && ( this.transY == oldY ) )
+            return;
         
         if ( ( this.transX != 0.0f ) || ( this.transY != 0.0f ) )
             this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_TRANSLATION ) & 0xFF );
@@ -390,7 +401,12 @@ public class TransformableTexture
     
     public void setRotation( float rotation )
     {
+        float old = this.rotation;
+        
         this.rotation = rotation;
+        
+        if ( this.rotation == old )
+            return;
         
         if ( rotation != 0.0f )
             this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_ROTATION ) & 0xFF );
@@ -417,8 +433,14 @@ public class TransformableTexture
     
     public void setScale( float scaleX, float scaleY )
     {
+        float oldX = this.scaleX;
+        float oldY = this.scaleY;
+        
         this.scaleX = scaleX;
         this.scaleY = scaleY;
+        
+        if ( ( this.scaleX == oldX ) && ( this.scaleY == oldY ) )
+            return;
         
         if ( ( scaleX != 1.0f ) || ( scaleY != 1.0f ) )
             this.transformFlags = (byte)( ( transformFlags | TRANSFORM_FLAG_SCALE ) & 0xFF );

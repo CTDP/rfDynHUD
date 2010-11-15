@@ -107,8 +107,8 @@ public class TextureManager
                 
                 if ( template != getMissingImage() )
                 {
-                    Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
-                    //Logger.log( new Exception() );
+                    RFDHLog.exception( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
+                    //RFDHLog.exception( new Exception() );
                     
                     template = getMissingImage();
                     
@@ -118,8 +118,8 @@ public class TextureManager
             }
             else
             {
-                Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
-                //Logger.log( new Exception() );
+                RFDHLog.exception( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
+                //RFDHLog.exception( new Exception() );
                 
                 template = getMissingImage();
             }
@@ -153,7 +153,7 @@ public class TextureManager
         }
         catch ( IOException e )
         {
-            Logger.log( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
+            RFDHLog.exception( "[ERROR] Unable to read input file \"" + f.getAbsolutePath() + "\"." );
             return ( getMissingImage() );
         }
         

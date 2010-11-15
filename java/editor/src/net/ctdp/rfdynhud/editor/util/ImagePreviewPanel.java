@@ -24,7 +24,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * Shows a full size preview of an image;
@@ -51,7 +51,7 @@ public class ImagePreviewPanel extends JPanel
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
                 
                 image = null;
             }

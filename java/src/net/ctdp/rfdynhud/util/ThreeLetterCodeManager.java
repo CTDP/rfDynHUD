@@ -121,7 +121,7 @@ public class ThreeLetterCodeManager
             File ini = new File( GameFileSystem.INSTANCE.getConfigFolder(), INI_FILENAME );
             if ( !ini.exists() )
             {
-                Logger.log( "WARNING: No " + INI_FILENAME + " found." );
+                RFDHLog.exception( "WARNING: No " + INI_FILENAME + " found." );
                 
                 resetMaps();
                 
@@ -169,13 +169,13 @@ public class ThreeLetterCodeManager
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                 }
             }
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -216,7 +216,7 @@ public class ThreeLetterCodeManager
         
         String tlc = addTLC( driverName, driverID, tlcGenerator.generateThreeLetterCode( driverName ) );
         
-        Logger.log( "WARNING: No three letter code found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated \"" + tlc + "\"." );
+        RFDHLog.printlnEx( "No three letter code found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated \"" + tlc + "\"." );
         
         return ( tlc );
     }

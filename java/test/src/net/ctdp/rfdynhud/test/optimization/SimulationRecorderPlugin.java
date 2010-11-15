@@ -40,8 +40,7 @@ import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata.TelemetryData.TelemetryDataUpdateListener;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.render.WidgetsRenderListener;
-import net.ctdp.rfdynhud.render.WidgetsRenderListenersManager;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**
@@ -49,7 +48,7 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsListener, GraphicsInfoUpdateListener, TelemetryDataUpdateListener, ScoringInfoUpdateListener, WidgetsRenderListener
+public class SimulationRecorderPlugin extends GameEventsPlugin implements GameEventsListener, GraphicsInfoUpdateListener, TelemetryDataUpdateListener, ScoringInfoUpdateListener, WidgetsRenderListener
 {
     private DataOutputStream os = null;
     
@@ -78,10 +77,11 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
      */
     public SimulationRecorderPlugin( File baseFolder )
     {
+        super( "Simulation", baseFolder );
     }
     
     @Override
-    public void onPluginStarted( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager )
+    public void onPluginStarted( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
         if ( isEditorMode )
             return;
@@ -92,7 +92,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
         
         gameData.registerGameEventsListener( this );
@@ -101,11 +101,11 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         gameData.getGraphicsInfo().registerListener( this );
         gameData.getTelemetryData().registerListener( this );
         gameData.getScoringInfo().registerListener( this );
-        renderListenerManager.registerListener( this );
+        widgetsManager.registerListener( this );
     }
     
     @Override
-    public void onPluginShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsRenderListenersManager renderListenerManager )
+    public void onPluginShutdown( LiveGameData gameData, boolean isEditorMode, WidgetsManager widgetsManager )
     {
         if ( isEditorMode )
             return;
@@ -116,7 +116,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -132,7 +132,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -148,7 +148,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -166,7 +166,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -182,7 +182,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -198,7 +198,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -214,7 +214,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -230,7 +230,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -261,7 +261,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
         */
     }
@@ -279,7 +279,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -295,7 +295,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -311,7 +311,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -332,7 +332,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -353,7 +353,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
         */
     }
@@ -377,8 +377,18 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
+    }
+    
+    @Override
+    public void onPlayerJoined( LiveGameData gameData, VehicleScoringInfo joinedVSI, boolean rejoined )
+    {
+    }
+    
+    @Override
+    public void onPlayerLeft( LiveGameData gameData, Integer vsiID )
+    {
     }
     
     @Override
@@ -395,7 +405,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -421,7 +431,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            log( e );
         }
     }
     
@@ -477,6 +487,7 @@ public class SimulationRecorderPlugin implements GameEventsPlugin, GameEventsLis
                     case ON_LAP:
                         //System.out.println( "lap" );
                         in.readShort();
+                        in.readShort(); // TODO: remove
                         break;
                     case ON_SESSION_STARTED:
                         break;

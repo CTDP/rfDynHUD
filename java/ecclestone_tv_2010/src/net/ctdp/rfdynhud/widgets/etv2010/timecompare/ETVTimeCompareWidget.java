@@ -31,14 +31,14 @@ import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -91,7 +91,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
         super.onPropertyChanged( property, oldValue, newValue );
         
@@ -167,14 +167,14 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
             return ( false );
         }
         
-        laps.update( vsi.getLapsCompleted() );
-        
         /*
-        if ( laps.getValue() >= NUM_DISPLAYED_LAPS )
+        if ( scoringInfo.getCompareVSI() != null )
         {
-            Logger.log( laps.hasChanged( false ) );
+            relVSI = scoringInfo.getCompareVSI();
         }
         */
+        
+        laps.update( vsi.getLapsCompleted() );
         
         if ( laps.hasChanged() )
         {
@@ -621,7 +621,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -647,7 +647,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         

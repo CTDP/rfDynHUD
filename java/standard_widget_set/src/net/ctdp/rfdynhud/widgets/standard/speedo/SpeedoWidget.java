@@ -25,8 +25,8 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.needlemeter.NeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
@@ -123,7 +123,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     }
     
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -142,13 +142,13 @@ public class SpeedoWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void addMaxValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addMaxValuePropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         // We don't need this here!
     }
     
     @Override
-    protected boolean getSpecificPropertiesFirst( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected boolean getSpecificPropertiesFirst( PropertiesContainer propsCont, boolean forceAll )
     {
         if ( !super.getSpecificPropertiesFirst( propsCont, forceAll ) )
             propsCont.addGroup( "Specific" );
@@ -159,7 +159,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     }
     
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
     }

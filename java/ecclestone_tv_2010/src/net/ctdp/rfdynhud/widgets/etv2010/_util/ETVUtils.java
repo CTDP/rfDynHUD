@@ -18,12 +18,14 @@
 package net.ctdp.rfdynhud.widgets.etv2010._util;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 import org.openmali.types.twodee.Rect2i;
@@ -96,19 +98,19 @@ public class ETVUtils
     public static String getDefaultNamedFontValue( String name )
     {
         if ( name.equals( ETV_FONT ) )
-            return ( "DokChampa-BOLD-16va" );
+            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 16, true, true ) );
         
         if ( name.equals( ETV_VELOCITY_FONT ) )
-            return ( "DokChampa-BOLD-18va" );
+            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 18, true, true ) );
         
         if ( name.equals( ETV_REV_MARKERS_FONT ) )
-            return ( "DokChampa-BOLD-18va" );
+            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 18, true, true ) );
         
         if ( name.equals( ETV_GEAR_FONT ) )
-            return ( "DokChampa-BOLD-30va" );
+            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 30, true, true ) );
         
         if ( name.equals( ETV_CONTROLS_LABEL_FONT ) )
-            return ( "DokChampa-BOLD-18va" );
+            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 18, true, true ) );
         
         return ( null );
     }

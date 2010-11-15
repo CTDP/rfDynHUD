@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.widgets.standard.temperatures;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -35,7 +36,7 @@ import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
@@ -45,7 +46,7 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -780,7 +781,7 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -832,7 +833,7 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void addFontPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         super.addFontPropertiesToContainer( propsCont, forceAll );
         
@@ -843,7 +844,7 @@ public class TemperaturesWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -875,6 +876,7 @@ public class TemperaturesWidget extends Widget
         super.prepareForMenuItem();
         
         gap = 1;
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
     }
     
     public TemperaturesWidget()

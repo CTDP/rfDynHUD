@@ -17,6 +17,7 @@
  */
 package net.ctdp.rfdynhud.widgets.standard.fuel;
 
+import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -35,16 +36,17 @@ import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
 import net.ctdp.rfdynhud.values.AbstractSize;
@@ -87,7 +89,7 @@ public class FuelWidget extends Widget
     private TextureImage2D fuelBarTexture = null;
     private final ColorProperty fuelBarBackgroundColor = new ColorProperty( this, "fuelBarBackgroundColor", "fuelBarBGColor", "#000000" );
     private final ColorProperty fuelBarColor = new ColorProperty( this, "fuelBarColor", "#54760B" );
-    private final FontProperty tankSizeFont = new FontProperty( this, "tankSizeFont", "Monospaced-PLAIN-9v" );
+    private final FontProperty tankSizeFont = new FontProperty( this, "tankSizeFont", FontUtils.getFontString( "Monospaced", Font.PLAIN, 9, true, false ) );
     private final FontProperty fuelFont = new FontProperty( this, "fuelFont", FontProperty.STANDARD_FONT_NAME );
     private final ColorProperty fuelFontColor = new ColorProperty( this, "fuelFontColor", "#FFFFFFCD" );
     private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( this, "roundUpRemainingLaps", "roundUpRemLaps", false );
@@ -185,7 +187,7 @@ public class FuelWidget extends Widget
     }
     
     @Override
-    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
         super.onPropertyChanged( property, oldValue, newValue );
         
@@ -372,7 +374,7 @@ public class FuelWidget extends Widget
     {
         super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
-        return ( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
+        return ( viewedVSI.isPlayer() );
     }
     
     /**
@@ -926,7 +928,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -1002,7 +1004,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void addFontPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         super.addFontPropertiesToContainer( propsCont, forceAll );
         
@@ -1013,7 +1015,7 @@ public class FuelWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         

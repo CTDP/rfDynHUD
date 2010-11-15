@@ -30,10 +30,10 @@ import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -455,7 +455,7 @@ public class WidgetImportManager
     {
         for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
         {
-            FlatWidgetPropertiesContainer propsCont3 = new FlatWidgetPropertiesContainer();
+            FlatPropertiesContainer propsCont3 = new FlatPropertiesContainer();
             widgetsConfig.getWidget( i ).getProperties( propsCont3, true );
             for ( Property prop3 : propsCont3.getList() )
             {
@@ -556,7 +556,7 @@ public class WidgetImportManager
     {
         try
         {
-            FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+            FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
             widget.getProperties( propsCont, true );
             List<Property> propsList = propsCont.getList();
             
@@ -569,7 +569,7 @@ public class WidgetImportManager
             
             String widgetType = widget.getClass().getSimpleName();
             
-            Logger.log( "Importing Widget of type \"" + widgetType + "\"..." );
+            RFDHLog.println( "Importing Widget of type \"" + widgetType + "\"..." );
             
             String name = widget.getName();
             if ( widgetsConfig.getWidget( name ) != null )
@@ -628,7 +628,7 @@ public class WidgetImportManager
             
             if ( hasDifferingNamedProps )
             {
-                FlatWidgetPropertiesContainer propsCont2 = new FlatWidgetPropertiesContainer();
+                FlatPropertiesContainer propsCont2 = new FlatPropertiesContainer();
                 newWidget.getProperties( propsCont2, true );
                 List<Property> propsList2 = propsCont2.getList();
                 
@@ -676,7 +676,7 @@ public class WidgetImportManager
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         return ( true );

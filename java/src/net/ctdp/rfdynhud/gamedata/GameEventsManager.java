@@ -20,11 +20,13 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.File;
 
 import net.ctdp.rfdynhud.RFDynHUD;
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
-import net.ctdp.rfdynhud.render.WidgetsRenderListenersManager;
+import net.ctdp.rfdynhud.render.WidgetsManager;
+import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -82,11 +84,19 @@ public class GameEventsManager implements ConfigurationLoadListener
     private float lastSessionTime = 0f;
     
     private GameEventsDispatcher eventsDispatcher;
-    private WidgetsRenderListenersManager renderListenersManager;
+    private WidgetsManager renderListenersManager;
+    
+    private final ConfigurationLoader loader = new ConfigurationLoader( this );
+    private boolean texturesRequested = false;
     
     public final boolean hasWaitingWidgets()
     {
         return ( eventsDispatcher.hasWaitingWidgets() );
+    }
+    
+    public final ConfigurationLoader getConfigurationLoader()
+    {
+        return ( loader );
     }
     
     /**
@@ -95,12 +105,13 @@ public class GameEventsManager implements ConfigurationLoadListener
      * @param gameData
      * @param renderListenersManager
      */
-    public void setGameData( LiveGameData gameData, WidgetsRenderListenersManager renderListenersManager )
+    public void setGameData( LiveGameData gameData, WidgetsManager renderListenersManager )
     {
         this.gameData = gameData;
         this.eventsDispatcher = new GameEventsDispatcher();
         eventsDispatcher.setWidgetsConfiguration( widgetsManager.getWidgetsConfiguration() );
         this.renderListenersManager = renderListenersManager;
+        __RenderPrivilegedAccess.setConfigurationAndLoader( widgetsManager.getWidgetsConfiguration(), loader, renderListenersManager );
     }
     
     /**
@@ -125,8 +136,17 @@ public class GameEventsManager implements ConfigurationLoadListener
     public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig )
     {
         needsOnVehicleControlChangedEvent = true;
+        texturesRequested = true;
         
         eventsDispatcher.fireAfterWidgetsConfigurationLoaded( renderListenersManager, gameData, widgetsConfig );
+        
+        widgetsManager.collectTextures( gameData, __EDPrivilegedAccess.isEditorMode );
+        //if ( usePlayer )
+            widgetsManager.clearCompleteTexture();
+        
+        //System.gc();
+        Runtime runtime = Runtime.getRuntime();
+        RFDHLog.debug( "INFO: Free heap space memory: " + Tools.formatBytes( runtime.freeMemory() ) + " / " + Tools.formatBytes( runtime.totalMemory() ) + " / " + Tools.formatBytes( runtime.maxMemory() ) );
     }
     
     /**
@@ -190,6 +210,25 @@ public class GameEventsManager implements ConfigurationLoadListener
     public void fireOnInputStateChanged( InputMapping mapping, boolean state, int modifierMask, long when, boolean isEditorMode )
     {
         eventsDispatcher.fireOnInputStateChanged( mapping, state, modifierMask, when, gameData, isEditorMode );
+    }
+    
+    private void reloadVehicleInfo()
+    {
+        gameData.getVehicleInfo().reset();
+        
+        try
+        {
+            File playerVEHFile = gameData.getProfileInfo().getVehicleFile();
+            
+            if ( ( playerVEHFile != null ) && playerVEHFile.exists() )
+            {
+                new VehicleInfoParser( playerVEHFile.getAbsolutePath(), gameData.getVehicleInfo() ).parse( playerVEHFile );
+            }
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+        }
     }
     
     private void reloadPhysics( boolean onlyOnce, boolean isEditorMode )
@@ -256,29 +295,21 @@ public class GameEventsManager implements ConfigurationLoadListener
             String modName = gameData.getModInfo().getName();
             SessionType sessionType = gameData.getScoringInfo().getSessionType();
             VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
-            String vehicleClass = vsi.getVehicleClass();
-            Boolean result2 = __UtilPrivilegedAccess.reloadConfiguration( new ConfigurationLoader(), smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, this, force );
+            String vehicleName = gameData.getVehicleInfo().getTeamName();
+            if ( ( vehicleName == null ) || ( vehicleName.length() == 0 ) )
+                vehicleName = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
+            __UtilPrivilegedAccess.reloadConfiguration( loader, smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleName, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, force );
             
-            if ( result2 == null )
+            if ( texturesRequested )
             {
-                result = 0;
-            }
-            else if ( result2.booleanValue() )
-            {
-                widgetsManager.collectTextures( gameData, isEditorMode );
-                //if ( usePlayer )
-                    widgetsManager.clearCompleteTexture();
-                
-                //System.gc();
-                Runtime runtime = Runtime.getRuntime();
-                Logger.log( "INFO: Free heap space memory: " + Tools.formatBytes( runtime.freeMemory() ) + " / " + Tools.formatBytes( runtime.totalMemory() ) + " / " + Tools.formatBytes( runtime.maxMemory() ) );
-                
                 result = 2;
+                
+                texturesRequested = false;
             }
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             __WCPrivilegedAccess.setValid( widgetsManager.getWidgetsConfiguration(), false );
             result = 0;
@@ -299,7 +330,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         if ( sessionRunning )
         {
             //Logger.log( "INFO: Got a call to StartSession() in already started RACE session. Looks like an rFactor bug. Ignoring this call." );
-            Logger.log( "INFO: Got a call to StartSession() in already started session. Looks like an rFactor bug. Ignoring this call." );
+            RFDHLog.debug( "INFO: Got a call to StartSession() in already started session. Looks like an rFactor bug. Ignoring this call." );
             return ( rfDynHUD.isInRenderMode() ? (byte)2 : (byte)0 );
         }
         
@@ -321,6 +352,13 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.lastControl = null;
         
         byte result = 0;
+        
+        if ( texturesRequested )
+        {
+            result = 2;
+            
+            texturesRequested = false;
+        }
         
         try
         {
@@ -351,6 +389,8 @@ public class GameEventsManager implements ConfigurationLoadListener
                         loadPhysicsAndSetup = false;
                 }
                 
+                reloadVehicleInfo();
+                
                 if ( loadPhysicsAndSetup )
                 {
                     reloadPhysics( true, isEditorMode );
@@ -364,7 +404,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         if ( rfDynHUD != null )
@@ -442,6 +482,13 @@ public class GameEventsManager implements ConfigurationLoadListener
         //Logger.log( ">>> onRealtimeEntered()" );
         byte result = 0;
         
+        if ( texturesRequested )
+        {
+            result = 2;
+            
+            texturesRequested = false;
+        }
+        
         this.isComingOutOfGarage = true;
         this.lastViewedVSIId = -1;
         this.lastControl = null;
@@ -456,7 +503,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         if ( !isEditorMode )
         {
-            Logger.log( "Entered cockpit." );
+            RFDHLog.printlnEx( "Entered cockpit." );
         }
         
         try
@@ -487,7 +534,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         if ( rfDynHUD != null )
@@ -515,7 +562,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     public void onRealtimeExited( boolean isEditorMode )
     {
         //Logger.log( ">>> onRealtimeExited()" );
-        Logger.log( "Exited cockpit." );
+        RFDHLog.printlnEx( "Exited cockpit." );
         
         //realtimeStartTime = -1f;
         this.isComingOutOfGarage = true;
@@ -539,7 +586,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -558,6 +605,8 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         if ( rfDynHUD != null )
             rfDynHUD.setRenderMode( false );
+        
+        texturesRequested = false;
         
         return ( 0 );
     }
@@ -664,7 +713,16 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         if ( !waitingForData  )
         {
-            return ( widgetsManager.getWidgetsConfiguration().isValid() ? (byte)1 : (byte)0 );
+            byte result = 1;
+            
+            if ( texturesRequested )
+            {
+                result = 2;
+                
+                texturesRequested = false;
+            }
+            
+            return ( widgetsManager.getWidgetsConfiguration().isValid() ? result : (byte)0 );
         }
         
         byte result = 0;
@@ -680,10 +738,12 @@ public class GameEventsManager implements ConfigurationLoadListener
                 if ( !gameData.isInRealtimeMode() || gameData.getScoringInfo().getSessionType().isRace() )
                 {
                     String modName = gameData.getModInfo().getName();
-                    String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
+                    String vehicleName = gameData.getVehicleInfo().getTeamName();
+                    if ( ( vehicleName == null ) || ( vehicleName.length() == 0 ) )
+                        vehicleName = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
                     SessionType sessionType = gameData.getScoringInfo().getSessionType();
                     String trackName = gameData.getTrackInfo().getTrackName();
-                    Logger.log( "Session started. (Mod: \"" + modName + "\", Car: \"" + vehicleClass + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
+                    RFDHLog.printlnEx( "Session started. (Mod: \"" + modName + "\", Car: \"" + vehicleName + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
                     
                     String trackname = gameData.getTrackInfo().getTrackName();
                     if ( !trackname.equals( lastTrackname ) )
@@ -705,7 +765,16 @@ public class GameEventsManager implements ConfigurationLoadListener
         }
         else if ( gameData.isInRealtimeMode() )
         {
-            result = widgetsManager.getWidgetsConfiguration().isValid() ? (byte)1 : (byte)0;
+            result = 1;
+            
+            if ( texturesRequested )
+            {
+                result = 2;
+                
+                texturesRequested = false;
+            }
+            
+            result = widgetsManager.getWidgetsConfiguration().isValid() ? result : (byte)0;
         }
         
         return ( result );
@@ -773,7 +842,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         if ( rfDynHUD != null )
@@ -804,7 +873,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         if ( rfDynHUD != null )
@@ -908,7 +977,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         if ( rfDynHUD != null )

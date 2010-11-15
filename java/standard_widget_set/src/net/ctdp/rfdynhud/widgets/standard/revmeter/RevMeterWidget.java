@@ -37,7 +37,7 @@ import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -45,10 +45,9 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.revneedlemeter.AbstractRevNeedleMeterWidget;
@@ -238,7 +237,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            log( t );
             
             return ( false );
         }
@@ -491,7 +490,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
             }
         }
         
-        float rpm = telemData.getEngineRPM();
+        float rpm = getValue( gameData, isEditorMode );
         //float maxRPM = telemData.getEngineMaxRPM();
         float maxRPM = gameData.getPhysics().getEngine().getMaxRPM( gameData.getSetup().getEngine().getRevLimit() );
         float boostMaxRPM = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
@@ -548,7 +547,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
     }
     
     @Override
-    protected void saveMarkersProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveMarkersProperties( PropertyWriter writer ) throws IOException
     {
         super.saveMarkersProperties( writer );
         
@@ -558,14 +557,14 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         writer.writeProperty( interpolateMarkerColors, "Interpolate medium and high colors." );
     }
     
-    protected void saveShiftLightsProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveShiftLightsProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( numShiftLights, "The number of shift lights to render." );
         for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
             shiftLights[i].saveProperties( writer );
     }
     
-    protected void saveBoostProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveBoostProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( displayBoostBar, "Display a graphical bar for engine boost mapping?" );
         writer.writeProperty( boostBarPosX, "The x-position of the boost bar." );
@@ -581,7 +580,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         writer.writeProperty( boostNumberFontColor, "The font color used to draw the boost bar." );
     }
     
-    protected void saveDigiRevsProperties( WidgetsConfigurationWriter writer ) throws IOException
+    protected void saveDigiRevsProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( displayRPMString1, "whether to display the digital RPM/Revs string or not" );
         writer.writeProperty( displayCurrRPM1, "whether to display the current revs or to hide them" );
@@ -608,7 +607,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -737,7 +736,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void getMarkersProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getMarkersProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getMarkersProperties( propsCont, forceAll );
         
@@ -754,7 +753,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getShiftLightsProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getShiftLightsProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "Shift Lights" );
         
@@ -785,7 +784,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getBoostProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getBoostProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "Engine Boost" );
         
@@ -809,7 +808,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getDigiRevsProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getDigiRevsProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "DigitalRevs1" );
         
@@ -849,7 +848,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         

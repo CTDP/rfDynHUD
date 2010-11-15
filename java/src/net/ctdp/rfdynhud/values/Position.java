@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.values;
 
-import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
@@ -217,8 +216,9 @@ public class Position
             this.x = x;
             this.y = y;
             
-            if ( !__EDPrivilegedAccess.isEditorMode )
-                widget.forceCompleteRedraw( true );
+            // Since we're no longer drawing everything on one big texture now, we don't need this anymore.
+            //if ( !__EDPrivilegedAccess.isEditorMode )
+            //    widget.forceCompleteRedraw( true );
             widget.setDirtyFlag();
             
             if ( b )
@@ -451,6 +451,11 @@ public class Position
         return ( -1 );
     }
     
+    public final boolean equalsEffective( int x, int y )
+    {
+        return ( ( getEffectiveX() == x ) && ( getEffectiveY() == y ) );
+    }
+    
     public void unbake()
     {
         bakedX = -1;
@@ -459,10 +464,10 @@ public class Position
     
     public void bake()
     {
-        boolean isSizeBasked = false;
+        boolean isSizeBaked = false;
         if ( size instanceof Size )
         {
-            isSizeBasked = ( (Size)size ).isBaked();
+            isSizeBaked = ( (Size)size ).isBaked();
             ( (Size)size ).unbake();
         }
         unbake();
@@ -470,7 +475,7 @@ public class Position
         bakedX = getEffectiveX();
         bakedY = getEffectiveY();
         
-        if ( isSizeBasked )
+        if ( isSizeBaked )
         {
             ( (Size)size ).bake();
         }

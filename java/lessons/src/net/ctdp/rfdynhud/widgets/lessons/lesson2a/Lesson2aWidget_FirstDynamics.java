@@ -17,6 +17,8 @@
  */
 package net.ctdp.rfdynhud.widgets.lessons.lesson2a;
 
+import java.awt.Font;
+
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -91,6 +93,17 @@ public class Lesson2aWidget_FirstDynamics extends Widget
             
             ds.draw( offsetX, offsetY, String.valueOf( velocity ), texture );
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     public Lesson2aWidget_FirstDynamics()

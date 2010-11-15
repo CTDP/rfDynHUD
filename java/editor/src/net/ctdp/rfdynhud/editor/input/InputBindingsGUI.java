@@ -49,8 +49,9 @@ import javax.swing.KeyStroke;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.input.InputAction;
-import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.RFDHLog;
+
+import org.jagatoo.util.strings.StringUtils;
 
 public class InputBindingsGUI implements DirectInputConnection.PollingListener
 {
@@ -80,7 +81,7 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
             }
         }
         
-        Logger.log( "Closing InputBindingsManager" );
+        RFDHLog.printlnEx( "Closing InputBindingsManager" );
         
         directInputConnection.interruptPolling();
         frame.dispose();
@@ -166,11 +167,11 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
         String s = "Unable to load readme";
         try
         {
-            s = StringUtil.loadString( InputBindingsGUI.class.getClassLoader().getResource( InputBindingsGUI.class.getPackage().getName().replace( '.', '/' ) + "/documentation.html" ) );
+            s = StringUtils.loadString( InputBindingsGUI.class.getClassLoader().getResource( InputBindingsGUI.class.getPackage().getName().replace( '.', '/' ) + "/documentation.html" ) );
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         JEditorPane p = new JEditorPane( "text/html", s );
@@ -329,7 +330,7 @@ public class InputBindingsGUI implements DirectInputConnection.PollingListener
     
     public static void showInputBindingsGUI( RFDynHUDEditor editor )
     {
-        Logger.log( "Opening InputBindingsManager" );
+        RFDHLog.printlnEx( "Opening InputBindingsManager" );
         
         if ( gui == null )
         {

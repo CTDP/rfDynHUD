@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.render;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -28,6 +29,11 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
  */
 public class __RenderPrivilegedAccess
 {
+    public static void setConfigurationAndLoader( WidgetsConfiguration widgetsConfig, ConfigurationLoader loader, WidgetsManager widgetsManager )
+    {
+        widgetsManager.setConfigurationAndLoader( widgetsConfig, loader );
+    }
+    
     public static TransformableTexture createMainTexture( int width, int height )
     {
         return ( TransformableTexture.createMainTexture( width, height, false ) );
@@ -43,12 +49,12 @@ public class __RenderPrivilegedAccess
         dsf.onWidgetCleared();
     }
     
-    public static final void fireBeforeWidgetsConfigurationCleared( WidgetsRenderListenersManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
+    public static final void fireBeforeWidgetsConfigurationCleared( WidgetsManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
         manager.fireBeforeWidgetsConfigurationCleared( gameData, widgetsConfig );
     }
     
-    public static final void fireAfterWidgetsConfigurationLoaded( WidgetsRenderListenersManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
+    public static final void fireAfterWidgetsConfigurationLoaded( WidgetsManager manager, LiveGameData gameData, WidgetsConfiguration widgetsConfig )
     {
         manager.fireAfterWidgetsConfigurationLoaded( gameData, widgetsConfig );
     }

@@ -258,6 +258,12 @@ public class FuelUsageRecorder implements ScoringInfo.ScoringInfoUpdateListener
         }
     }
     
+    @Override
+    public void onPlayerJoined( LiveGameData gameData, VehicleScoringInfo joinedVSI, boolean rejoined ) {}
+    
+    @Override
+    public void onPlayerLeft( LiveGameData gameData, Integer vsiID ) {}
+    
     /**
      * {@inheritDoc}
      */

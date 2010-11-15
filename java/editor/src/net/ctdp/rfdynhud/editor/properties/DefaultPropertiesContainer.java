@@ -23,9 +23,9 @@ import java.util.Stack;
 
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 
-public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
+public class DefaultPropertiesContainer extends PropertiesContainer
 {
     private final Stack<GridItemsContainer<Property>> groupStack = new Stack<GridItemsContainer<Property>>();
     private GridItemsContainer<Property> currList = null;
@@ -39,7 +39,7 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
     }
     
     @Override
-    protected void addGroupImpl( String groupName, boolean initiallyExpanded, boolean pushed )
+    protected void addGroupImpl( Object groupName, boolean initiallyExpanded, boolean pushed )
     {
         if ( !lastGroupPushed[getLevel()] && !pushed && ( groupStack.size() > 1 ) )
         {
@@ -100,7 +100,7 @@ public class DefaultWidgetPropertiesContainer extends WidgetPropertiesContainer
         dump( groupStack.get( 0 ), ps, 0 );
     }
     
-    public DefaultWidgetPropertiesContainer( GridItemsContainer<Property> root )
+    public DefaultPropertiesContainer( GridItemsContainer<Property> root )
     {
         groupStack.push( root );
         

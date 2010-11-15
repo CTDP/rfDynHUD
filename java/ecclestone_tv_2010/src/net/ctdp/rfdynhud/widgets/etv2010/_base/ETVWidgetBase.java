@@ -17,16 +17,18 @@
  */
 package net.ctdp.rfdynhud.widgets.etv2010._base;
 
+import java.awt.Font;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
+import net.ctdp.rfdynhud.properties.FilenameProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages;
@@ -43,7 +45,7 @@ public abstract class ETVWidgetBase extends Widget
         }
     };
     
-    protected final StringProperty imagesIni = new StringProperty( this, "imagesIni", "etv2010/general/etv_2010_images.ini" )
+    protected final FilenameProperty imagesIni = new FilenameProperty( this, "imagesIni", null, "etv2010/general/etv_2010_images.ini", new String[] { "ini" }, new String[] { "ini files" }, GameFileSystem.INSTANCE.getImagesFolder(), false )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -103,7 +105,7 @@ public abstract class ETVWidgetBase extends Widget
         
         if ( images == null )
         {
-            images = new ETVImages( imagesIni.getStringValue() );
+            images = new ETVImages( imagesIni.getFileValue() );
         }
         
         return ( images );
@@ -118,7 +120,7 @@ public abstract class ETVWidgetBase extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -156,7 +158,7 @@ public abstract class ETVWidgetBase extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesForParentGroup( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getPropertiesForParentGroup( propsCont, forceAll );
         
@@ -169,7 +171,7 @@ public abstract class ETVWidgetBase extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getPropertiesCaptionBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesCaptionBG( PropertiesContainer propsCont, boolean forceAll )
     {
         if ( forceAll || !useImages.getBooleanValue() )
         {
@@ -183,7 +185,7 @@ public abstract class ETVWidgetBase extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getPropertiesCaption( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesCaption( PropertiesContainer propsCont, boolean forceAll )
     {
         getPropertiesCaptionBG( propsCont, forceAll );
         
@@ -196,7 +198,7 @@ public abstract class ETVWidgetBase extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getPropertiesDataBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesDataBG( PropertiesContainer propsCont, boolean forceAll )
     {
         if ( forceAll || !useImages.getBooleanValue() )
         {
@@ -210,7 +212,7 @@ public abstract class ETVWidgetBase extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getPropertiesData( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesData( PropertiesContainer propsCont, boolean forceAll )
     {
         getPropertiesDataBG( propsCont, forceAll );
     }
@@ -221,7 +223,7 @@ public abstract class ETVWidgetBase extends Widget
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getItemGapProperty( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getItemGapProperty( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( itemGap );
     }
@@ -230,7 +232,7 @@ public abstract class ETVWidgetBase extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -274,6 +276,8 @@ public abstract class ETVWidgetBase extends Widget
         useImages.setBooleanValue( false );
         
         itemGap.setIntValue( 0 );
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 4, false, true );
     }
     
     @Override

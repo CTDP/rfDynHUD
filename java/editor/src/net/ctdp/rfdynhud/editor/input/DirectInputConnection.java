@@ -18,7 +18,7 @@
 package net.ctdp.rfdynhud.editor.input;
 
 import net.ctdp.rfdynhud.input.InputDeviceManager;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * This class interfaces native DirectInput.
@@ -44,16 +44,16 @@ public class DirectInputConnection
         {
             try
             {
-                Logger.log( "Loading library direct_input_connection.dll..." );
+                RFDHLog.printlnEx( "Loading library direct_input_connection.dll..." );
                 
                 System.loadLibrary( "direct_input_connection" );
                 libLoaded = true;
                 
-                Logger.log( "Library loaded." );
+                RFDHLog.printlnEx( "Library loaded." );
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
         
@@ -78,9 +78,9 @@ public class DirectInputConnection
         
         if ( loadLib() )
         {
-            Logger.log( "Initializing input device and component names..." );
+            RFDHLog.printlnEx( "Initializing input device and component names..." );
             nativeInitInputDeviceManager( buffer, windowTitle.length(), buffer.length );
-            Logger.log( "Done initializing input device and component names." );
+            RFDHLog.printlnEx( "Done initializing input device and component names." );
         }
     }
     
@@ -93,13 +93,13 @@ public class DirectInputConnection
     {
         try
         {
-            Logger.log( "Executing request from native library to initialize device and component names..." );
+            RFDHLog.printlnEx( "Executing request from native library to initialize device and component names..." );
             inputDeviceManager.decodeData( deviceData );
-            Logger.log( "Native request executed." );
+            RFDHLog.printlnEx( "Native request executed." );
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
     }
     
@@ -131,7 +131,7 @@ public class DirectInputConnection
                 {
                     //try { Thread.sleep( 50L ); } catch ( Throwable t ) {}
                     
-                    Logger.log( "Polling for a key or button to be bound..." );
+                    RFDHLog.printlnEx( "Polling for a key or button to be bound..." );
                     
                     initDirectInputAndStartPolling( buffer, windowTitle.length(), buffer.length );
                 }
@@ -150,7 +150,7 @@ public class DirectInputConnection
         if ( !isPolling() )
             return;
         
-        Logger.log( "Interrupting input polling." );
+        RFDHLog.printlnEx( "Interrupting input polling." );
         
         nativeInterruptPolling();
         
@@ -161,7 +161,7 @@ public class DirectInputConnection
     {
         if ( stringLength == 0 )
         {
-            Logger.log( "Input polling cancelled." );
+            RFDHLog.printlnEx( "Input polling cancelled." );
             
             listener.onPollingFinished( true, null, -1, 0 );
         }
@@ -169,7 +169,7 @@ public class DirectInputConnection
         {
             String string = new String( buffer, 0, stringLength );
             
-            Logger.log( "Caught input to be bound: " + string );
+            RFDHLog.printlnEx( "Caught input to be bound: " + string );
             
             listener.onPollingFinished( false, string, keyCode, modifierMask );
         }

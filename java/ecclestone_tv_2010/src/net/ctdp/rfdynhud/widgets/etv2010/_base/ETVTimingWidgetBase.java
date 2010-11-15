@@ -21,8 +21,8 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
 
 public abstract class ETVTimingWidgetBase extends ETVWidgetBase
@@ -40,7 +40,7 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -76,7 +76,7 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void getPropertiesCaptionBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesCaptionBG( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getPropertiesCaptionBG( propsCont, forceAll );
         
@@ -90,7 +90,7 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void getPropertiesDataBG( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesDataBG( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getPropertiesDataBG( propsCont, forceAll );
         
@@ -107,7 +107,7 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    protected void getPropertiesData( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesData( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getPropertiesData( propsCont, forceAll );
         
@@ -120,7 +120,7 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
     }

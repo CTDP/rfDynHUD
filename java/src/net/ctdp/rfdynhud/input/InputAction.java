@@ -19,8 +19,9 @@ package net.ctdp.rfdynhud.input;
 
 import java.net.URL;
 
-import net.ctdp.rfdynhud.util.StringUtil;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+
+import org.jagatoo.util.strings.StringUtils;
 
 /**
  * This is a simple abstraction of an input action.
@@ -75,8 +76,8 @@ public class InputAction implements Comparable<InputAction>
         return ( consumer );
     }
     
-    private static final String doc_header = StringUtil.loadString( InputAction.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
-    private static final String doc_footer = StringUtil.loadString( InputAction.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
+    private static final String doc_header = StringUtils.loadString( InputAction.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc_header.html" ) );
+    private static final String doc_footer = StringUtils.loadString( InputAction.class.getClassLoader().getResource( "net/ctdp/rfdynhud/editor/properties/doc_footer.html" ) );
     
     private static String getDoc( URL docURL )
     {
@@ -86,7 +87,7 @@ public class InputAction implements Comparable<InputAction>
         if ( doc_header.equals( "" ) )
             return ( null );
         
-        return ( doc_header + StringUtil.loadString( docURL ) + doc_footer );
+        return ( doc_header + StringUtils.loadString( docURL ) + doc_footer );
     }
     
     void setDoc( URL docURL )

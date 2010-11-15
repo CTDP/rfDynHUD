@@ -114,6 +114,12 @@ class TopspeedRecorder implements TelemetryData.TelemetryDataUpdateListener, Sco
     }
     
     @Override
+    public void onPlayerJoined( LiveGameData gameData, VehicleScoringInfo joinedVSI, boolean rejoined ) {}
+    
+    @Override
+    public void onPlayerLeft( LiveGameData gameData, Integer vsiID ) {}
+    
+    @Override
     public void onGamePauseStateChanged( LiveGameData gameData, boolean isEditorMode, boolean isPaused ) {}
     
     @Override

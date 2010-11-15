@@ -15,45 +15,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.util;
+package net.ctdp.rfdynhud.plugins.director;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.net.URL;
+import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.util.ConfigurationCandidatesIterator;
 
 /**
+ * Insert class comment here.
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class StringUtil
+public class NullingConfigurationCandidatesIterator extends ConfigurationCandidatesIterator
 {
-    public static final String loadString( URL url )
+    private boolean nulling = false;
+    
+    public void setNulling( boolean b )
     {
-        if ( url == null )
-            return ( "" );
-        
-        StringBuilder sb = new StringBuilder();
-        
-        BufferedInputStream in = null;
-        try
-        {
-            int c;
-            in = new BufferedInputStream( url.openStream() );
-            while ( ( c = in.read() ) >= 0 )
-            {
-                sb.append( (char)c );
-            }
-        }
-        catch ( IOException e )
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if ( in != null )
-                try { in.close(); } catch ( IOException e2 ) {}
-        }
-        
-        return ( sb.toString() );
+        this.nulling = b;
+    }
+    
+    @Override
+    public void collectCandidates( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleName, SessionType sessionType )
+    {
+        if ( !nulling )
+            super.collectCandidates( smallMonitor, bigMonitor, isInGarage, modName, vehicleName, sessionType );
     }
 }

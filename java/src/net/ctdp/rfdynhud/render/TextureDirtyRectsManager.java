@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.openmali.types.twodee.Rect2i;
 
@@ -71,7 +71,7 @@ public class TextureDirtyRectsManager
             {
                 if ( buffer.limit() - buffer.position() < 2 + 2 * 4 * 1 )
                 {
-                    Logger.log( "WARNING: Cannot write dirty rects to the buffer." );
+                    RFDHLog.exception( "WARNING: Cannot write dirty rects to the buffer." );
                 }
                 else
                 {
@@ -87,7 +87,7 @@ public class TextureDirtyRectsManager
                     
                     buffer.flip();
                     
-                    Logger.log( "WARNING: Cannot write all dirty rects to the buffer. Adding one full size rect. Performance may drop." );
+                    RFDHLog.exception( "WARNING: Cannot write all dirty rects to the buffer. Adding one full size rect. Performance may drop." );
                 }
             }
             else

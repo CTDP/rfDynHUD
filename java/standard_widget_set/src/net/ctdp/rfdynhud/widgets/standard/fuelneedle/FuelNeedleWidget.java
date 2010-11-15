@@ -30,13 +30,13 @@ import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
 import net.ctdp.rfdynhud.values.AbstractSize;
@@ -123,7 +123,7 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
         super.onPropertyChanged( property, oldValue, newValue );
         
@@ -279,7 +279,7 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     {
         super.onVehicleControlChanged( viewedVSI, gameData, isEditorMode );
         
-        return ( viewedVSI.isPlayer() && viewedVSI.getVehicleControl().isLocalPlayer() );
+        return ( viewedVSI.isPlayer() );
     }
     
     /**
@@ -439,7 +439,7 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     }
     
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -474,13 +474,13 @@ public class FuelNeedleWidget extends NeedleMeterWidget
      * {@inheritDoc}
      */
     @Override
-    protected void addMaxValuePropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addMaxValuePropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         // We don't need this here!
     }
     
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         

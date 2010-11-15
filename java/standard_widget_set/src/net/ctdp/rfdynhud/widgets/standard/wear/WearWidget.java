@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.widgets.standard.wear;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
@@ -33,7 +34,7 @@ import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
@@ -42,7 +43,7 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.Size;
@@ -408,7 +409,7 @@ public class WearWidget extends Widget
         
         if ( displayEngine.getBooleanValue() )
         {
-            engineHeaderString = dsf.newDrawnString( "engineHeaderString", left0, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            engineHeaderString = dsf.newDrawnString( "engineHeaderString", left0, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor, Loc.engine_header_prefix + ": ", gameData.getVehicleInfo().getEngineName() );
             if ( getDisplayWearPercent_engine() )
             {
                 engineWearString = dsf.newDrawnString( "engineWearString", null, engineHeaderString, width, 2, Alignment.RIGHT, false, font, fontAntiAliased, fontColor, null, "%" );
@@ -777,7 +778,7 @@ public class WearWidget extends Widget
         if ( needsCompleteRedraw )
         {
             if ( displayEngine.getBooleanValue() )
-                engineHeaderString.draw( offsetX, offsetY, Loc.engine_header_prefix + ":", texture );
+                engineHeaderString.draw( offsetX, offsetY, "", texture );
             if ( displayTires.getBooleanValue() )
             {
                 // TODO: Try to find a way to detect tire compound change on pit stop!
@@ -1073,7 +1074,7 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         super.saveProperties( writer );
         
@@ -1133,7 +1134,7 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    protected void addFontPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         super.addFontPropertiesToContainer( propsCont, forceAll );
         
@@ -1144,7 +1145,7 @@ public class WearWidget extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
         
@@ -1180,6 +1181,7 @@ public class WearWidget extends Widget
         super.prepareForMenuItem();
         
         gap = 1;
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
     }
     
     public WearWidget()

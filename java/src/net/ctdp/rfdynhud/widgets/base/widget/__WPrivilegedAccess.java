@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.widgets.base.widget;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.input.InputAction;
-import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
@@ -67,14 +66,19 @@ public class __WPrivilegedAccess
         return ( widget.hasLocalStore() );
     }
     
+    public static final VehicleScoringInfo getControlledViewedVSI( WidgetController controller )
+    {
+        return ( controller.getViewedVSI() );
+    }
+    
+    public static final VehicleScoringInfo getControlledCompareVSI( WidgetController controller )
+    {
+        return ( controller.getCompareVSI() );
+    }
+    
     public static final boolean isInitialized( Widget widget )
     {
         return ( widget.isInitialized() );
-    }
-    
-    public static final void onPropertyChanged( Property property, Object oldValue, Object newValue, Widget widget )
-    {
-        widget.onPropertyChanged( property, oldValue, newValue );
     }
     
     public static final void onPositionChanged( RelativePositioning oldPositioning, int oldX, int oldY, RelativePositioning newPositioning, int newX, int newY, Widget widget )

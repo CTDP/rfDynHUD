@@ -28,7 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.input.InputActionConsumer;
 import net.ctdp.rfdynhud.input.__InpPrivilegedAccess;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.xml.SimpleXMLHandler;
 import org.jagatoo.util.xml.SimpleXMLParser;
@@ -185,7 +185,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             }
             catch ( Throwable t )
             {
-                Logger.log( "WARNING: Failed to create cache folder. Data-Cache deactivated." );
+                RFDHLog.exception( "WARNING: Failed to create cache folder. Data-Cache deactivated." );
             }
         }
         else if ( !cacheFolder.exists() )
@@ -229,7 +229,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                         }
                         catch ( NumberFormatException e )
                         {
-                            Logger.log( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
+                            RFDHLog.exception( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
                         }
                     }
                     else if ( name.equals( "FastestLap" ) )
@@ -267,7 +267,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                         }
                         catch ( NumberFormatException e )
                         {
-                            Logger.log( "WARNING: DataCache: Unable to parse laptime." );
+                            RFDHLog.exception( "WARNING: DataCache: Unable to parse laptime." );
                         }
                     }
                 }
@@ -290,8 +290,8 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             @Override
             protected void onParsingException( XMLPath path, ExceptionSeverity severity, SAXParseException ex ) throws SAXException
             {
-                Logger.log( "XML parsing exception at " + path.toString() );
-                Logger.log( ex );
+                RFDHLog.exception( "XML parsing exception at " + path.toString() );
+                RFDHLog.exception( ex );
             }
         };
         
@@ -301,19 +301,19 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         }
         catch ( ParserConfigurationException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         catch ( SAXException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         catch ( VersionException e )
         {
-            Logger.log( "ERROR: " + e.getMessage() );
+            RFDHLog.exception( "ERROR: " + e.getMessage() );
         }
     }
     
@@ -351,7 +351,7 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
                     }
                     catch ( NumberFormatException e )
                     {
-                        Logger.log( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
+                        RFDHLog.exception( "WARNING: DataCache: Unable to parse value \"" + attributes.getValue( "average" ) + "\" to a float for fuel usage." );
                     }
                 }
             }
@@ -373,8 +373,8 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
             @Override
             protected void onParsingException( XMLPath path, ExceptionSeverity severity, SAXParseException ex ) throws SAXException
             {
-                Logger.log( "XML parsing exception at " + path.toString() );
-                Logger.log( ex );
+                RFDHLog.exception( "XML parsing exception at " + path.toString() );
+                RFDHLog.exception( ex );
             }
         };
         
@@ -384,19 +384,19 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         }
         catch ( ParserConfigurationException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         catch ( SAXException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         catch ( VersionException e )
         {
-            Logger.log( "Error: " + e.getMessage() );
+            RFDHLog.exception( "Error: " + e.getMessage() );
         }
         
         return ( result[0] );
@@ -475,11 +475,11 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         }
         catch ( IOException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         catch ( SAXException e )
         {
-            Logger.log( e );
+            RFDHLog.exception( e );
         }
         finally
         {

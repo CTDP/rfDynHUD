@@ -18,7 +18,7 @@
 package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * Complete model of live game data.
@@ -44,7 +44,10 @@ public class LiveGameData
     
     private final ProfileInfo profileInfo;
     private final ModInfo modInfo;
+    private final VehicleInfo vehicleInfo;
     private final TrackInfo trackInfo;
+    
+    private LiveGameDataController controller = null;
     
     public static interface GameDataUpdateListener
     {
@@ -209,6 +212,26 @@ public class LiveGameData
         return ( gameResolution );
     }
     
+    /**
+     * Sets the controller.
+     * 
+     * @param controller
+     */
+    public void setLiveGameDataController( LiveGameDataController controller )
+    {
+        this.controller = controller;
+    }
+    
+    /**
+     * Gets the controller.
+     * 
+     * @return the controller.
+     */
+    public final LiveGameDataController getLiveGameDataController()
+    {
+        return ( controller );
+    }
+    
     void setGamePaused( boolean paused, boolean isEditorMode )
     {
         if ( paused == this.gamePaused )
@@ -226,7 +249,7 @@ public class LiveGameData
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                 }
             }
         }
@@ -255,7 +278,7 @@ public class LiveGameData
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                 }
             }
         }
@@ -279,7 +302,7 @@ public class LiveGameData
                     }
                     catch ( Throwable t )
                     {
-                        Logger.log( t );
+                        RFDHLog.exception( t );
                     }
                 }
             }
@@ -300,7 +323,7 @@ public class LiveGameData
                     }
                     catch ( Throwable t )
                     {
-                        Logger.log( t );
+                        RFDHLog.exception( t );
                     }
                 }
             }
@@ -392,6 +415,16 @@ public class LiveGameData
     }
     
     /**
+     * Gets the vehicle info.
+     * 
+     * @return the vehicle info.
+     */
+    public final VehicleInfo getVehicleInfo()
+    {
+        return ( vehicleInfo );
+    }
+    
+    /**
      * Gets the profile info.
      * 
      * @return the profile info.
@@ -439,6 +472,7 @@ public class LiveGameData
         
         this.profileInfo = new ProfileInfo();
         this.modInfo = new ModInfo( profileInfo );
+        this.vehicleInfo = new VehicleInfo();
         this.trackInfo = new TrackInfo( profileInfo );
         
         VehicleSetupParser.loadDefaultSetup( physics, setup );

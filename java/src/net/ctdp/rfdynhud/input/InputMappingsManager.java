@@ -30,7 +30,7 @@ import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -189,7 +189,7 @@ public class InputMappingsManager
             
             if ( keyCode < 0 )
             {
-                Logger.log( "    WARNING: The Keyboard doesn't have a key called \"" + parts3[0] + "\". Skipping mapping in line #" + lineNr + "." );
+                RFDHLog.exception( "    WARNING: The Keyboard doesn't have a key called \"" + parts3[0] + "\". Skipping mapping in line #" + lineNr + "." );
                 return ( null );
             }
             
@@ -204,7 +204,7 @@ public class InputMappingsManager
             
             if ( jindex < 0 )
             {
-                Logger.log( "    WARNING: Joystick \"" + device + "\" not found. Skipping mapping in line #" + lineNr );
+                RFDHLog.exception( "    WARNING: Joystick \"" + device + "\" not found. Skipping mapping in line #" + lineNr );
                 return ( null );
             }
             
@@ -218,7 +218,7 @@ public class InputMappingsManager
                 
                 if ( bindex < 0 )
                 {
-                    Logger.log( "    WARNING: Joystick \"" + device + "\" doesn't have a button called \"" + parts3[0] + "\". Skipping mapping in line #" + lineNr + "." );
+                    RFDHLog.exception( "    WARNING: Joystick \"" + device + "\" doesn't have a button called \"" + parts3[0] + "\". Skipping mapping in line #" + lineNr + "." );
                     return ( null );
                 }
                 
@@ -230,7 +230,7 @@ public class InputMappingsManager
                 
                 if ( bindex < 0 )
                 {
-                    Logger.log( "    WARNING: Joystick \"" + device + "\" doesn't have a button called \"" + component + "\". Skipping mapping in line #" + lineNr + "." );
+                    RFDHLog.exception( "    WARNING: Joystick \"" + device + "\" doesn't have a button called \"" + component + "\". Skipping mapping in line #" + lineNr + "." );
                     return ( null );
                 }
             }
@@ -243,7 +243,7 @@ public class InputMappingsManager
         
         if ( valueParts.length < 2 )
         {
-            Logger.log( "    WARNING: Illegal mapping at line #" + lineNr + ". Skipping." );
+            RFDHLog.exception( "    WARNING: Illegal mapping at line #" + lineNr + ". Skipping." );
             return ( null );
         }
         
@@ -256,7 +256,7 @@ public class InputMappingsManager
         
         if ( ( actionName != null ) && ( KnownInputActions.get( actionName ) == null ) )
         {
-            Logger.log( "    WARNING: No InputAction with the name \"" + actionName + "\" found. Skipping line #" + lineNr + "." );
+            RFDHLog.exception( "    WARNING: No InputAction with the name \"" + actionName + "\" found. Skipping line #" + lineNr + "." );
             return ( null );
         }
         
@@ -276,7 +276,7 @@ public class InputMappingsManager
             
             if ( !configFile.exists() || !configFile.canRead() )
             {
-                Logger.log( "    WARNING: No readable " + CONFIG_FILE_NAME + " config file found in the config folder." );
+                RFDHLog.exception( "    WARNING: No readable " + CONFIG_FILE_NAME + " config file found in the config folder." );
                 
                 numDevices = 0;
                 numComponents = null;
@@ -474,7 +474,7 @@ public class InputMappingsManager
                 
                 mappings[i] = new InputMapping( widgetName, KnownInputActions.get( actionName ), device + "::" + component, keyCode, modifierMask, hitTimes );
                 
-                Logger.log( "    Bound \"" + mappings[i].getDeviceComponent() + "\" to \"" + widgetName + "::" + actionName + "\"" );
+                RFDHLog.println( "    Bound \"" + mappings[i].getDeviceComponent() + "\" to \"" + widgetName + "::" + actionName + "\"" );
                 
                 c++;
             }
@@ -489,7 +489,7 @@ public class InputMappingsManager
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
         }
         
         return ( new InputMappings( mappings ) );

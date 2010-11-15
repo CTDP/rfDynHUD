@@ -40,7 +40,7 @@ import javax.swing.JScrollPane;
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
-import net.ctdp.rfdynhud.editor.properties.DefaultWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.editor.properties.DefaultPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
@@ -114,7 +114,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     
     private void fillPropertiesList( GridItemsContainer<Property> props )
     {
-        DefaultWidgetPropertiesContainer propsCont = new DefaultWidgetPropertiesContainer( props );
+        DefaultPropertiesContainer propsCont = new DefaultPropertiesContainer( props );
         
         propsCont.addGroup( "General" );
         

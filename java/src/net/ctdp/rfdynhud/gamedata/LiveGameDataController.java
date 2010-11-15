@@ -15,58 +15,50 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.properties;
-
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
+package net.ctdp.rfdynhud.gamedata;
 
 /**
+ * <p>
+ * Controls values in {@link LiveGameData}.
+ * </p>
+ * 
+ * <p>
+ * Currently it only controls the currently viewed vehicle and engine RPM, boost and gear.
+ * </p>
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class FlatWidgetPropertiesContainer extends WidgetPropertiesContainer
+public class LiveGameDataController
 {
-    private final ArrayList<Property> properties = new ArrayList<Property>();
+    private int viewedVSIId = -1;
     
-    /**
-     * Gets the properties list.
-     * 
-     * @return the properties list.
-     */
-    public final List<Property> getList()
+    public void setViewedVSI( int vsiId )
     {
-        return ( properties );
+        this.viewedVSIId = vsiId;
     }
     
-    @Override
-    protected void clearImpl()
+    public final int getViewedVSIId()
     {
-        properties.clear();
+        return ( viewedVSIId );
     }
     
-    @Override
-    protected void addGroupImpl( String groupName, boolean initiallyExpanded, boolean pushed )
+    public void setEngineRPM( VehicleScoringInfo vsi, float engineRPM, float engineMaxRPM )
     {
+        vsi.engineMaxRPM = engineRPM;
+        vsi.engineMaxRPM = engineMaxRPM;
     }
     
-    @Override
-    protected void popGroupImpl()
+    public void setEngineBoostMapping( VehicleScoringInfo vsi, int engineBoostMapping )
     {
+        vsi.engineBoostMapping = engineBoostMapping;
     }
     
-    @Override
-    protected void addPropertyImpl( Property property )
+    public void setCurrentGear( VehicleScoringInfo vsi, int gear )
     {
-        properties.add( property );
+        vsi.gear = gear;
     }
     
-    @Override
-    public void dump( PrintStream ps )
+    public LiveGameDataController()
     {
-        for ( int i = 0; i < properties.size(); i++ )
-        {
-            ps.println( properties.get( i ) );
-        }
     }
 }

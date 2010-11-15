@@ -22,8 +22,6 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -41,6 +39,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
@@ -588,25 +588,24 @@ public class SaveAsDialog extends JDialog implements ActionListener
         tbxMod = new JTextField( "" );
         tbxMod.setActionCommand( Actions.MOD.name() );
         tbxMod.addActionListener( this );
-        tbxMod.addFocusListener( new FocusListener()
+        tbxMod.getDocument().addDocumentListener( new DocumentListener()
         {
-            private String oldContent = null;
-            
             @Override
-            public void focusGained( FocusEvent e )
+            public void removeUpdate( DocumentEvent e )
             {
-                oldContent = ( (JTextField)e.getSource() ).getText();
+                onActionPerformed( Actions.MOD );
             }
             
             @Override
-            public void focusLost( FocusEvent e )
+            public void insertUpdate( DocumentEvent e )
             {
-                if ( !( (JTextField)e.getSource() ).getText().equals( oldContent ) )
-                {
-                    onActionPerformed( Actions.MOD );
-                }
-                
-                oldContent = null;
+                onActionPerformed( Actions.MOD );
+            }
+            
+            @Override
+            public void changedUpdate( DocumentEvent e )
+            {
+                onActionPerformed( Actions.MOD );
             }
         } );
         pr.add( tbxMod );
@@ -628,25 +627,24 @@ public class SaveAsDialog extends JDialog implements ActionListener
         tbxVehicle = new JTextField( "" );
         tbxVehicle.setActionCommand( Actions.VEHICLE.name() );
         tbxVehicle.addActionListener( this );
-        tbxVehicle.addFocusListener( new FocusListener()
+        tbxVehicle.getDocument().addDocumentListener( new DocumentListener()
         {
-            private String oldContent = null;
-            
             @Override
-            public void focusGained( FocusEvent e )
+            public void removeUpdate( DocumentEvent e )
             {
-                oldContent = ( (JTextField)e.getSource() ).getText();
+                onActionPerformed( Actions.VEHICLE );
             }
             
             @Override
-            public void focusLost( FocusEvent e )
+            public void insertUpdate( DocumentEvent e )
             {
-                if ( !( (JTextField)e.getSource() ).getText().equals( oldContent ) )
-                {
-                    onActionPerformed( Actions.VEHICLE );
-                }
-                
-                oldContent = null;
+                onActionPerformed( Actions.VEHICLE );
+            }
+            
+            @Override
+            public void changedUpdate( DocumentEvent e )
+            {
+                onActionPerformed( Actions.VEHICLE );
             }
         } );
         pr.add( tbxVehicle );

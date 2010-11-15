@@ -53,11 +53,10 @@ import javax.swing.event.PopupMenuListener;
 
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
 import org.openmali.vecmath2.util.ColorUtils;
 
@@ -389,7 +388,7 @@ public class ColorChooser extends JPanel
     private void setAllWidgetsDirty( WidgetsConfiguration widgetsConfig )
     {
         int n = widgetsConfig.getNumWidgets();
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( int i = 0; i < n; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
@@ -425,7 +424,7 @@ public class ColorChooser extends JPanel
     {
         if ( widgetsConfig.addNamedColor( colorKey, color ) )
         {
-            FlatWidgetPropertiesContainer wpc = new FlatWidgetPropertiesContainer();
+            FlatPropertiesContainer wpc = new FlatPropertiesContainer();
             
             for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
             {
@@ -450,7 +449,7 @@ public class ColorChooser extends JPanel
                         if ( colorKey.equals( colorProp.getColorKey() ) )
                         {
                             colorProp.refresh();
-                            __WPrivilegedAccess.onPropertyChanged( colorProp, colorKey, colorKey, widget );
+                            widget.onPropertyChanged( colorProp, colorKey, colorKey );
                             
                             propFound = true;
                         }

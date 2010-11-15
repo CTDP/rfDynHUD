@@ -21,8 +21,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import net.ctdp.rfdynhud.util.Logger;
 import net.ctdp.rfdynhud.util.PluginINI;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ResourceManager;
 import net.ctdp.rfdynhud.util.__UtilHelper;
 
@@ -68,7 +68,7 @@ public abstract class GameFileSystem
         }
         catch ( Throwable t )
         {
-            Logger.log( t );
+            RFDHLog.exception( t );
             
             return ( null );
         }
@@ -437,9 +437,7 @@ public abstract class GameFileSystem
     
     protected GameFileSystem()
     {
-        final boolean isJarMode = ResourceManager.isJarMode();
-        
-        if ( isJarMode )
+        if ( ResourceManager.isJarMode() )
             this.gameFolder = findGameFolder( pluginFolder );
         else
             this.gameFolder = readDevGameFolder();

@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetFactory;
 
@@ -107,7 +107,7 @@ public class KnownInputActions
             }
             catch ( Throwable t )
             {
-                Logger.log( t );
+                RFDHLog.exception( t );
             }
         }
     }

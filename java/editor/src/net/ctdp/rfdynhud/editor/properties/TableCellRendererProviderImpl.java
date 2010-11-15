@@ -38,8 +38,10 @@ public class TableCellRendererProviderImpl implements TableCellRendererProvider<
     //private final BooleanCellEditor booleanEditor = new BooleanCellEditor();
     //private final IntegerCellEditor integerEditor = new IntegerCellEditor();
     //private final FloatCellEditor floatEditor = new FloatCellEditor();
-    //private final PosSizeCellEditor posSizeEditor = new PosSizeCellEditor();
     //private final StringCellEditor stringEditor = new StringCellEditor();
+    //private final FilenameCellEditor filenameEditor = new FilenameCellEditor();
+    //private final TimeCellEditor timeEditor = new TimeCellEditor();
+    //private final PosSizeCellEditor posSizeEditor = new PosSizeCellEditor();
     //private final EnumCellEditor enumEditor = new EnumCellEditor();
     //private final ArrayCellEditor arrayEditor = new ArrayCellEditor();
     //private final ListCellEditor listEditor = new ListCellEditor();
@@ -79,13 +81,21 @@ public class TableCellRendererProviderImpl implements TableCellRendererProvider<
                     //result = floatEditor;
                     result = new FloatCellEditor();
                     break;
-                case POS_SIZE:
-                    //result = posSizeEditor;
-                    result = new PosSizeCellEditor();
-                    break;
                 case STRING:
                     //result = stringEditor;
                     result = new StringCellEditor();
+                    break;
+                case FILENAME:
+                    //result = filenameEditor;
+                    result = new FilenameCellEditor();
+                    break;
+                case TIME:
+                    //result = timeEditor;
+                    result = new TimeCellEditor();
+                    break;
+                case POS_SIZE:
+                    //result = posSizeEditor;
+                    result = new PosSizeCellEditor();
                     break;
                 case ENUM:
                     //result = enumEditor;
@@ -157,13 +167,21 @@ public class TableCellRendererProviderImpl implements TableCellRendererProvider<
                     //result = floatEditor;
                     result = new FloatCellEditor();
                     break;
-                case POS_SIZE:
-                    //result = posSizeEditor;
-                    result = new PosSizeCellEditor();
-                    break;
                 case STRING:
                     //result = stringEditor;
                     result = new StringCellEditor();
+                    break;
+                case FILENAME:
+                    //result = filenameEditor;
+                    result = new FilenameCellEditor();
+                    break;
+                case TIME:
+                    //result = timeEditor;
+                    result = new TimeCellEditor();
+                    break;
+                case POS_SIZE:
+                    //result = posSizeEditor;
+                    result = new PosSizeCellEditor();
                     break;
                 case ENUM:
                     //result = enumEditor;

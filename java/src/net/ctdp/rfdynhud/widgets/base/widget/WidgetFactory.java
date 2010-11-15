@@ -32,7 +32,7 @@ import org.jagatoo.util.classes.ClassSearcher;
 import org.jagatoo.util.classes.SuperClassCriterium;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
-import net.ctdp.rfdynhud.util.Logger;
+import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 
 /**
@@ -62,7 +62,7 @@ public class WidgetFactory
                 }
                 catch ( Throwable t )
                 {
-                    Logger.log( t );
+                    RFDHLog.exception( t );
                 }
             }
         }
@@ -106,7 +106,7 @@ public class WidgetFactory
             }
             catch ( IOException e )
             {
-                Logger.log( e );
+                RFDHLog.exception( e );
                 classes_ = null;
             }
         }
@@ -185,7 +185,7 @@ public class WidgetFactory
         }
         catch ( Throwable t )
         {
-            Logger.log( getRootCause( t ) );
+            RFDHLog.exception( getRootCause( t ) );
             
             return ( null );
         }
@@ -367,7 +367,7 @@ public class WidgetFactory
         
         if ( !AbstractAssembledWidget.class.isAssignableFrom( clazz ) )
         {
-            Logger.log( "ERROR: The given class " + className + " is not a sub class of " + AbstractAssembledWidget.class.getName() + "." );
+            RFDHLog.error( "ERROR: The given class " + className + " is not a sub class of " + AbstractAssembledWidget.class.getName() + "." );
             
             return ( null );
         }

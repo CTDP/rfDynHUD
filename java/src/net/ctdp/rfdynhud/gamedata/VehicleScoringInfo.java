@@ -90,7 +90,22 @@ public class VehicleScoringInfo
     
     float topspeed = 0f;
     
+    float engineRPM = -1f;
+    float engineMaxRPM = -1f;
+    int engineBoostMapping = -1;
+    int gear = -1000;
+    
     private static final HashMap<String, Integer> classToIDMap = new HashMap<String, Integer>();
+    
+    public final ScoringInfo getScoringInfo()
+    {
+        return ( scoringInfo );
+    }
+    
+    public final boolean isValid()
+    {
+        return ( data != null );
+    }
     
     private void updateClassID()
     {
@@ -206,6 +221,21 @@ public class VehicleScoringInfo
         
         oldLap = lap;
         lap = getLapsCompleted() + 1;
+        
+        if ( isPlayer() && gameData.getTelemetryData().isUpdatedInTimeScope() )
+        {
+            engineRPM = gameData.getTelemetryData().getEngineRPM();
+            engineMaxRPM = gameData.getTelemetryData().getEngineMaxRPM();
+            engineBoostMapping = gameData.getTelemetryData().getEngineBoostMapping();
+            gear = gameData.getTelemetryData().getCurrentGear();
+        }
+        else
+        {
+            engineRPM = -1f;
+            engineMaxRPM = -1f;
+            engineBoostMapping = -1;
+            gear = -1000;
+        }
     }
     
     public void readFromStream( InputStream in ) throws IOException
@@ -262,7 +292,7 @@ public class VehicleScoringInfo
             }
         }
         
-        if ( gameData.isInRealtimeMode() )
+        if ( !isPlayer() || gameData.isInRealtimeMode() )
             stintLength = currentLap - stintStartLap + trackPos;
         else
             stintLength = 0.0f;
@@ -338,6 +368,16 @@ public class VehicleScoringInfo
     }
     
     /**
+     * Gets the full name of the driver driving this vehicle.
+     * 
+     * @return the full name of the driver driving this vehicle.
+     */
+    public final String getDriverName()
+    {
+        return ( getDriverName( false ) );
+    }
+    
+    /**
      * Gets driver name (short form)
      * 
      * @param upperCase whether the name should be in all upper case
@@ -364,6 +404,16 @@ public class VehicleScoringInfo
     }
     
     /**
+     * Gets driver name (short form)
+     * 
+     * @return driver name (short form)
+     */
+    public final String getDriverNameShort()
+    {
+        return ( getDriverNameShort( false ) );
+    }
+    
+    /**
      * Gets driver name (three letter code)
      * 
      * @param upperCase whether the name should be in all upper case
@@ -387,6 +437,16 @@ public class VehicleScoringInfo
         }
         
         return ( nameTLC );
+    }
+    
+    /**
+     * Gets driver name (three letter code)
+     * 
+     * @return driver name (three letter code)
+     */
+    public final String getDriverNameTLC()
+    {
+        return ( getDriverNameTLC( true ) );
     }
     
     /**
@@ -1252,6 +1312,50 @@ public class VehicleScoringInfo
     }
     
     /**
+     * Gets the current engine RPM.<br />
+     * This is only valid, if set by a {@link LiveGameDataController}.
+     * 
+     * @return the current engine RPM or -1, if unknown.
+     */
+    public final float getEngineRPM()
+    {
+        return ( engineRPM );
+    }
+    
+    /**
+     * Gets the current engine' max RPM.<br />
+     * This is only valid, if set by a {@link LiveGameDataController}.
+     * 
+     * @return the current engine max RPM or -1, if unknown.
+     */
+    public final float getEngineMaxRPM()
+    {
+        return ( engineMaxRPM );
+    }
+    
+    /**
+     * Gets the current engine boost mapping.<br />
+     * This is only valid, if set by a {@link LiveGameDataController}.
+     * 
+     * @return the current engine boost mapping or -1, if unknown.
+     */
+    public final int getEngineBoostMapping()
+    {
+        return ( engineBoostMapping );
+    }
+    
+    /**
+     * Gets the current gear.<br />
+     * This is only valid, if set by a {@link LiveGameDataController}.
+     * 
+     * @return the current gear or -1000, if unknown.
+     */
+    public final int getCurrentGear()
+    {
+        return ( gear );
+    }
+    
+    /**
      * velocity (meters/sec) in local vehicle coordinates
      * 
      * @param localVel output buffer
@@ -1376,6 +1480,18 @@ public class VehicleScoringInfo
     public final void getLocalRotationalAcceleration( TelemVect3 localRotAccel )
     {
         data.getLocalRotationalAcceleration( localRotAccel );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        if ( data == null )
+            return ( this.getClass().getSimpleName() + " (invalid)" );
+        
+        return ( this.getClass().getSimpleName() + " (\"" + getDriverName() + "\", " + getDriverId() + ")" );
     }
     
     // Future use

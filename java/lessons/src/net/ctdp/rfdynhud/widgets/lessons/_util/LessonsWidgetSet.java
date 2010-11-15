@@ -17,6 +17,9 @@
  */
 package net.ctdp.rfdynhud.widgets.lessons._util;
 
+import java.awt.Font;
+
+import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 public class LessonsWidgetSet
@@ -48,7 +51,7 @@ public class LessonsWidgetSet
     public static String getDefaultNamedFontValue( String name )
     {
         if ( name.equals( MY_FONT_NAME ) )
-            return ( "Monospaced-BOLD-13va" );
+            return ( FontUtils.getFontString( "Monospaced", Font.BOLD, 13, true, true ) );
         
         return ( null );
     }

@@ -29,12 +29,6 @@
  */
 package org.jagatoo.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-
 /**
  * General utility methods.
  * 
@@ -73,53 +67,6 @@ public class Tools
         }
         
         return ( String.valueOf( bytes ) + " bytes" );
-    }
-    
-    // magic number for Windows, 64Mb - 32Kb)
-    private static final long MAX_COPY_COUNT = ( 64L * 1024L * 1024L ) - ( 32L * 1024L );
-    
-    public static void copyFile( File source, File dest ) throws IOException
-    {
-        if ( dest.exists() )
-            throw new IOException( "Destination file already exists." );
-        
-        FileChannel in = null;
-        FileChannel out = null;
-        
-        try
-        {
-            in = new FileInputStream( source ).getChannel();
-            out = new FileOutputStream( dest ).getChannel();
-            
-            long size = in.size();
-            long position = 0L;
-            
-            while ( position < size )
-                position += in.transferTo( position, MAX_COPY_COUNT, out );
-            
-            dest.setLastModified( source.lastModified() );
-        }
-        finally
-        {
-            if ( in != null )
-                in.close();
-            
-            if ( out != null )
-                out.close();
-        }
-    }
-    
-    public static void deleteFolderRecursively( File folder )
-    {
-        for ( File f : folder.listFiles() )
-        {
-            if ( f.isFile() )
-                f.delete();
-            else
-                deleteFolderRecursively( f );
-        }
-        
-        folder.delete();
     }
     
     public static final Number getNumber( String string )

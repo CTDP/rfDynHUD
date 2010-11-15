@@ -14,7 +14,7 @@ v1.0.0 - 1.0.1
 * Added estimated (at the end of the race) engine lifetime marker to the WearWidget.
 * Moved readme.html from the config folder to the root plugin folder.
 
-v1.0.1 - 1.1.0
+v1.0.1 - 1.2.0
 
 Major:
 
@@ -39,6 +39,7 @@ Major:
 * Added SpeedoWidget.
 * Added AssembledWidget to combine existing Widgets to create a new and more complex one in an efficient way.
 * Added support for images to style the ETV Widgets. Images are made by Daniel Zemla.
+* Added a Director plugin and editor extension to control a remote in game rfDynHUD from a Director mode in the editor.
 
 Minor:
 

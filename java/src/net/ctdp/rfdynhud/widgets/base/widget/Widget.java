@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
@@ -33,15 +34,16 @@ import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.GenericPropertiesIterator;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.properties.PropertiesKeeper;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -49,11 +51,8 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
-import net.ctdp.rfdynhud.util.Documented;
-import net.ctdp.rfdynhud.util.Logger;
-import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.GenericPositionsIterator;
@@ -65,7 +64,11 @@ import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
+import org.jagatoo.logging.Log;
+import org.jagatoo.logging.LogChannel;
+import org.jagatoo.logging.LogLevel;
 import org.jagatoo.util.classes.ClassUtil;
+import org.jagatoo.util.strings.StringUtils;
 import org.openmali.types.twodee.Rect2i;
 
 /**
@@ -74,8 +77,10 @@ import org.openmali.types.twodee.Rect2i;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public abstract class Widget implements Cloneable, Documented
+public abstract class Widget implements Cloneable, PropertiesKeeper
 {
+    public static final LogChannel LOG_CHANNEL = new LogChannel( "rfDynHUD-Widget" );
+    
     public static final int NEEDED_DATA_TELEMETRY = 1;
     public static final int NEEDED_DATA_SCORING = 2;
     //public static final int NEEDED_DATA_SETUP = 4;
@@ -87,6 +92,8 @@ public abstract class Widget implements Cloneable, Documented
     
     private final StringProperty type = new StringProperty( this, "type", this.getClass().getSimpleName(), true );
     private final StringProperty name = new StringProperty( this, "name", this.getClass().getSimpleName() + "1" );
+    
+    private WidgetController controller = null;
     
     private final BooleanProperty inputVisible = new BooleanProperty( this, "initialVisibility", true );
     private boolean autoVisible = true;
@@ -157,17 +164,73 @@ public abstract class Widget implements Cloneable, Documented
     /**
      * Logs data to the plugin's log file.
      * 
+     * @param logLevel the log level
+     * @param data the data to log
+     */
+    protected final void log( LogLevel logLevel, Object... data )
+    {
+        Log.println( LOG_CHANNEL, logLevel, data );
+    }
+    
+    /**
+     * Logs data to the plugin's log file.
+     * 
+     * @param logLevel the log level
+     * @param data the data to log (comma separated)
+     */
+    protected final void logCS( LogLevel logLevel, Object... data )
+    {
+        Log.printlnCS( LOG_CHANNEL, logLevel, data );
+    }
+    
+    /**
+     * Logs data to the plugin's log file.
+     * 
      * @param data the data to log
      */
     protected final void log( Object... data )
     {
-        if ( ( data == null ) || ( data.length == 0 ) )
-            return;
-        
-        for ( int i = 0; i < data.length; i++ )
-        {
-            Logger.log( data[i], i == data.length - 1 );
-        }
+        Log.println( LOG_CHANNEL, data );
+    }
+    
+    /**
+     * Logs data to the plugin's log file.
+     * 
+     * @param data the data to log (comma separated)
+     */
+    protected final void logCS( Object... data )
+    {
+        Log.printlnCS( LOG_CHANNEL, data );
+    }
+    
+    /**
+     * Logs data to the plugin's log file.
+     * 
+     * @param data the data to log
+     */
+    protected final void debug( Object... data )
+    {
+        Log.debug( LOG_CHANNEL, data );
+    }
+    
+    /**
+     * Logs data to the plugin's log file.
+     * 
+     * @param data the data to log (comma separated)
+     */
+    protected final void debugCS( Object... data )
+    {
+        Log.debugCS( LOG_CHANNEL, data );
+    }
+    
+    public void setWidgetController( WidgetController controller )
+    {
+        this.controller = controller;
+    }
+    
+    public final WidgetController getWidgetController()
+    {
+        return ( controller );
     }
     
     protected void onVisibilityChanged( boolean visible )
@@ -181,22 +244,23 @@ public abstract class Widget implements Cloneable, Documented
     }
     
     /**
-     * 
-     * @param property the changed property
-     * @param oldValue the old value
-     * @param newValue the new value
+     * {@inheritDoc}
      */
-    protected void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    @Override
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
         forceCompleteRedraw( true );
         
-        if ( property == zIndex )
+        if ( __EDPrivilegedAccess.isEditorMode )
         {
-            WidgetsConfiguration wc = getConfiguration();
-            
-            if ( wc != null )
+            if ( property == zIndex )
             {
-                __WCPrivilegedAccess.sortWidgets( wc );
+                WidgetsConfiguration wc = getConfiguration();
+                
+                if ( wc != null )
+                {
+                    __WCPrivilegedAccess.sortWidgets( wc );
+                }
             }
         }
     }
@@ -212,21 +276,24 @@ public abstract class Widget implements Cloneable, Documented
      */
     protected void onPositionChanged( RelativePositioning oldPositioning, int oldX, int oldY, RelativePositioning newPositioning, int newX, int newY )
     {
-        if ( getMasterWidget() == null )
+        if ( __EDPrivilegedAccess.isEditorMode )
         {
-            WidgetsConfiguration wc = getConfiguration();
-            
-            if ( wc != null )
+            if ( getMasterWidget() == null )
             {
-                __WCPrivilegedAccess.sortWidgets( wc );
+                WidgetsConfiguration wc = getConfiguration();
+                
+                if ( wc != null )
+                {
+                    __WCPrivilegedAccess.sortWidgets( wc );
+                }
             }
-        }
-        else
-        {
-            getMasterWidget().sortParts();
-            
-            if ( getMasterWidget().getBackground() != null )
-                getMasterWidget().getBackground().setMergedBGDirty();
+            else
+            {
+                getMasterWidget().sortParts();
+                
+                if ( getMasterWidget().getBackground() != null )
+                    getMasterWidget().getBackground().setMergedBGDirty();
+            }
         }
     }
     
@@ -239,21 +306,24 @@ public abstract class Widget implements Cloneable, Documented
      */
     protected void onSizeChanged( int oldWidth, int oldHeight, int newWidth, int newHeight )
     {
-        if ( getMasterWidget() == null )
+        if ( __EDPrivilegedAccess.isEditorMode )
         {
-            WidgetsConfiguration wc = getConfiguration();
-            
-            if ( wc != null )
+            if ( getMasterWidget() == null )
             {
-                __WCPrivilegedAccess.sortWidgets( wc );
+                WidgetsConfiguration wc = getConfiguration();
+                
+                if ( wc != null )
+                {
+                    __WCPrivilegedAccess.sortWidgets( wc );
+                }
             }
-        }
-        else
-        {
-            getMasterWidget().sortParts();
-            
-            if ( getMasterWidget().getBackground() != null )
-                getMasterWidget().getBackground().setMergedBGDirty();
+            else
+            {
+                getMasterWidget().sortParts();
+                
+                if ( getMasterWidget().getBackground() != null )
+                    getMasterWidget().getBackground().setMergedBGDirty();
+            }
         }
         
         if ( getBackground() != null )
@@ -271,7 +341,7 @@ public abstract class Widget implements Cloneable, Documented
             getBackground().onWidgetSizeChanged();
         }
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         getProperties( propsCont, true );
         
         for ( int i = 0; i < propsCont.getList().size(); i++ )
@@ -686,18 +756,46 @@ public abstract class Widget implements Cloneable, Documented
     /**
      * Bakes effective position and size to variables, so that they don't need to be recalculated
      * during runtime on each access.
+     * 
+     * @param convertToPixels if true, all coordinates are converted to absolute pixels and positioned to TOP_LEFT.
      */
-    public void bake()
+    public void bake( boolean convertToPixels )
     {
         Iterator<Position> it1 = new GenericPositionsIterator( this );
         
         while ( it1.hasNext() )
-            it1.next().bake();
+        {
+            Position pos = it1.next();
+            
+            /*
+            if ( convertToPixels )
+            {
+                pos.setXToPixels();
+                pos.setYToPixels();
+                
+                pos.setEffectivePosition( RelativePositioning.TOP_LEFT, pos.getEffectiveX(), pos.getEffectiveY() );
+            }
+            */
+            
+            pos.bake();
+        }
         
         Iterator<Size> it2 = new GenericSizesIterator( this );
         
         while ( it2.hasNext() )
-            it2.next().bake();
+        {
+            Size size = it2.next();
+            
+            /*
+            if ( convertToPixels )
+            {
+                size.setWidthToPixels();
+                size.setHeightToPixels();
+            }
+            */
+            
+            size.bake();
+        }
     }
     
     public void setAllPosAndSizeToPercents()
@@ -1021,7 +1119,21 @@ public abstract class Widget implements Cloneable, Documented
     
     final void _updateVisibility( LiveGameData gameData, boolean isEditorMode )
     {
-        Boolean result = updateVisibility( gameData, isEditorMode );
+        Boolean result;
+        
+        if ( controller != null )
+        {
+            result = controller.isWidgetVisible();
+            
+            if ( result == null )
+                result = updateVisibility( gameData, isEditorMode );
+            else
+                updateVisibility( gameData, isEditorMode );
+        }
+        else
+        {
+            result = updateVisibility( gameData, isEditorMode );
+        }
         
         if ( result != null )
             setUpdatedVisibility( result.booleanValue() );
@@ -1613,13 +1725,10 @@ public abstract class Widget implements Cloneable, Documented
     
     
     /**
-     * Saves all settings to the config file.
-     * 
-     * @param writer the widgets configuration writer to write properties to
-     * 
-     * @throws IOException if something went wrong
+     * {@inheritDoc}
      */
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( positioningProperty, "The way, position coordinates are interpreted (relative to). Valid values: TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER_CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT." );
         writer.writeProperty( xProperty, "The x-coordinate for the position." );
@@ -1650,10 +1759,9 @@ public abstract class Widget implements Cloneable, Documented
     }
     
     /**
-     * Loads (and parses) a certain property from a config file.
-     * 
-     * @param loader the property loader to load properties from
+     * {@inheritDoc}
      */
+    @Override
     public void loadProperty( PropertyLoader loader )
     {
         if ( loader.getSourceVersion().getBuild() < 78 )
@@ -1693,26 +1801,26 @@ public abstract class Widget implements Cloneable, Documented
     }
     
     /**
-     * Adds the type and name properties to the {@link WidgetPropertiesContainer}.
+     * Adds the type and name properties to the {@link PropertiesContainer}.
      * 
      * @param propsCont the container to add the properties to
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addTypeAndNamePropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addTypeAndNamePropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( type );
         propsCont.addProperty( name );
     }
     
     /**
-     * Adds the visibility properties to the {@link WidgetPropertiesContainer}.
+     * Adds the visibility properties to the {@link PropertiesContainer}.
      * 
      * @param propsCont the container to add the properties to
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addVisibilityPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         if ( masterWidget == null )
         {
@@ -1721,13 +1829,13 @@ public abstract class Widget implements Cloneable, Documented
     }
     
     /**
-     * Adds the position and size properties to the {@link WidgetPropertiesContainer}.
+     * Adds the position and size properties to the {@link PropertiesContainer}.
      * 
      * @param propsCont the container to add the properties to
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addPositionAndSizePropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addPositionAndSizePropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( positioningProperty );
         propsCont.addProperty( xProperty );
@@ -1744,7 +1852,7 @@ public abstract class Widget implements Cloneable, Documented
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addBorderPropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addBorderPropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( border );
     }
@@ -1756,7 +1864,7 @@ public abstract class Widget implements Cloneable, Documented
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addPaddingPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addPaddingPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.pushGroup( "Padding", false );
         
@@ -1776,7 +1884,7 @@ public abstract class Widget implements Cloneable, Documented
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addBackgroundPropertyToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addBackgroundPropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( backgroundProperty );
     }
@@ -1789,7 +1897,7 @@ public abstract class Widget implements Cloneable, Documented
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void addFontPropertiesToContainer( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addProperty( font );
         propsCont.addProperty( fontColor );
@@ -1802,18 +1910,15 @@ public abstract class Widget implements Cloneable, Documented
      * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
      *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
      */
-    protected void getPropertiesForParentGroup( WidgetPropertiesContainer propsCont, boolean forceAll )
+    protected void getPropertiesForParentGroup( PropertiesContainer propsCont, boolean forceAll )
     {
     }
     
     /**
-     * Puts all editable properties to the editor.
-     * 
-     * @param propsCont the container to add the properties to
-     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
-     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     * {@inheritDoc}
      */
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         propsCont.addGroup( "General" );
         
@@ -1864,8 +1969,8 @@ public abstract class Widget implements Cloneable, Documented
         if ( newWidget == null )
             return ( null );
         
-        FlatWidgetPropertiesContainer pcTemplate = new FlatWidgetPropertiesContainer();
-        FlatWidgetPropertiesContainer pcTarget = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer pcTemplate = new FlatPropertiesContainer();
+        FlatPropertiesContainer pcTarget = new FlatPropertiesContainer();
         
         this.getProperties( pcTemplate, true );
         newWidget.getProperties( pcTarget, true );
@@ -1904,7 +2009,7 @@ public abstract class Widget implements Cloneable, Documented
             return ( "" );
         }
         
-        return ( StringUtil.loadString( docURL ) );
+        return ( StringUtils.loadString( docURL ) );
     }
     
     /**

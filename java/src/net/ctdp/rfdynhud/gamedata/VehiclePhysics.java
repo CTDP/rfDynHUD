@@ -20,8 +20,7 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.File;
 
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
-import net.ctdp.rfdynhud.util.Logger;
-
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
  * This is a model of vehicle physics settings.
@@ -1880,7 +1879,7 @@ public class VehiclePhysics
     {
         if ( index >= tireCompounds.length )
         {
-            Logger.log( "WARNING: Unknown tire compound index " + index + ". Using closest one." );
+            RFDHLog.exception( "WARNING: Unknown tire compound index " + index + ". Using closest one." );
             index = tireCompounds.length - 1;
         }
         
@@ -2181,7 +2180,7 @@ public class VehiclePhysics
 		}
     	catch ( Throwable t )
     	{
-    		Logger.log( t );
+    	    RFDHLog.exception( t );
 		}
     }
     
@@ -2193,25 +2192,25 @@ public class VehiclePhysics
     	    
 			VehiclePhysicsParser.parsePhysicsFiles( profileInfo.getCCHFile(), profileInfo.getVehicleFile(), trackInfo.getTrackName(), this );
 			
-			Logger.log( "Successfully parsed physics files. (Took " + ( System.currentTimeMillis() - t0 ) + "ms.)" );
+			RFDHLog.println( "Successfully parsed physics files. (Took " + ( System.currentTimeMillis() - t0 ) + "ms.)" );
 			
 			if ( getInstalledUpgrades() == null )
 			{
-			    Logger.log( "No upgrades installed." );
+			    RFDHLog.printlnEx( "INFO: No upgrades installed." );
 			}
 			else
 			{
-			    Logger.log( "Installed upgrades:" );
+			    RFDHLog.printlnEx( "Installed upgrades:" );
 			    for ( UpgradeIdentifier ui : getInstalledUpgrades() )
-			        Logger.log( "  " + ui.getUpgradeType() + ", " + ui.getUpgradeLevel()/* + ", " + ui.getDescription()*/ );
+			        RFDHLog.printlnEx( "  " + ui.getUpgradeType() + ", " + ui.getUpgradeLevel()/* + ", " + ui.getDescription()*/ );
 			}
 			
 			if ( getUsedTBCFile() != null )
-			    Logger.log( "Used TBC file: " + getUsedTBCFile().getAbsolutePath() );
+			    RFDHLog.printlnEx( "Used TBC file: " + getUsedTBCFile().getAbsolutePath() );
 		}
     	catch ( Throwable t )
     	{
-    		Logger.log( t );
+    	    RFDHLog.exception( t );
 		}
     }
     

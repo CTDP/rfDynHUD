@@ -35,21 +35,21 @@ import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.FlatWidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertiesKeeper;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.WidgetPropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
-import net.ctdp.rfdynhud.util.ConfigurationLoader;
-import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.FontUtils;
-import net.ctdp.rfdynhud.util.StringUtil;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.WidgetZYXComparator;
-import net.ctdp.rfdynhud.util.WidgetsConfigurationWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
+import org.jagatoo.util.strings.StringUtils;
 import org.openmali.vecmath2.util.ColorUtils;
 
 /**
@@ -57,7 +57,7 @@ import org.openmali.vecmath2.util.ColorUtils;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class WidgetsConfiguration implements Documented
+public class WidgetsConfiguration implements PropertiesKeeper
 {
     public static interface ConfigurationLoadListener
     {
@@ -66,6 +66,8 @@ public class WidgetsConfiguration implements Documented
     }
     
     private int id = 0;
+    
+    private String name = null;
     
     private final ArrayList<Widget> widgets = new ArrayList<Widget>();
     private final HashMap<String, Widget> widgetsMap = new HashMap<String, Widget>();
@@ -94,6 +96,11 @@ public class WidgetsConfiguration implements Documented
     public final int getId()
     {
         return ( id );
+    }
+    
+    public final String getName()
+    {
+        return ( name );
     }
     
     void setValid( boolean valid )
@@ -222,6 +229,8 @@ public class WidgetsConfiguration implements Documented
         fontStringMap.clear();
         fontVirtualMap.clear();
         borderMap.clear();
+        
+        this.name = null;
     }
     
     boolean updateNameMapping( Widget widget, String oldName )
@@ -302,9 +311,10 @@ public class WidgetsConfiguration implements Documented
     }
     
     @SuppressWarnings( "rawtypes" )
-    void setJustLoaded( LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener loadListener )
+    void setJustLoaded( LiveGameData gameData, boolean isEditorMode, String name, ConfigurationLoadListener loadListener )
     {
         this.id++;
+        this.name = name;
         this.needsCheckFixAndBake = true;
         
         for ( int i = 0; i < widgets.size(); i++ )
@@ -368,7 +378,7 @@ public class WidgetsConfiguration implements Documented
                 widget.forceReinitialization();
                 widget.forceCompleteRedraw( true );
                 if ( widget.getPosition().isBaked() )
-                    widget.bake();
+                    widget.bake( false );
             }
             
             fixVirtualNamedFonts();
@@ -450,7 +460,7 @@ public class WidgetsConfiguration implements Documented
             
             if ( !isEditorMode )
             {
-                w.bake();
+                w.bake( !isEditorMode );
             }
         }
         
@@ -580,7 +590,7 @@ public class WidgetsConfiguration implements Documented
         colorMap.remove( oldName );
         colorMap.put( newName, color );
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( Widget widget : widgets )
         {
             propsCont.clear();
@@ -604,7 +614,7 @@ public class WidgetsConfiguration implements Documented
         
         colorMap.remove( oldName );
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( Widget widget : widgets )
         {
             propsCont.clear();
@@ -731,7 +741,7 @@ public class WidgetsConfiguration implements Documented
     
     private void resetAllFontProperties()
     {
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( Widget widget : widgets )
         {
             propsCont.clear();
@@ -752,7 +762,7 @@ public class WidgetsConfiguration implements Documented
         fontStringMap.put( newName, fontStringMap.remove( oldName ) );
         fontVirtualMap.put( newName, fontVirtualMap.remove( oldName ) );
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( Widget widget : widgets )
         {
             propsCont.clear();
@@ -773,7 +783,7 @@ public class WidgetsConfiguration implements Documented
         fontStringMap.remove( oldName );
         fontVirtualMap.remove( oldName );
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( Widget widget : widgets )
         {
             propsCont.clear();
@@ -862,7 +872,7 @@ public class WidgetsConfiguration implements Documented
         borderMap.remove( oldName );
         borderMap.put( newName, border );
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( Widget widget : widgets )
         {
             propsCont.clear();
@@ -881,7 +891,7 @@ public class WidgetsConfiguration implements Documented
         
         borderMap.remove( oldName );
         
-        FlatWidgetPropertiesContainer propsCont = new FlatWidgetPropertiesContainer();
+        FlatPropertiesContainer propsCont = new FlatPropertiesContainer();
         for ( Widget widget : widgets )
         {
             propsCont.clear();
@@ -903,35 +913,36 @@ public class WidgetsConfiguration implements Documented
     }
     
     /**
-     * Saves all settings to the config file.
-     * 
-     * @param writer the writer to write to
-     * 
-     * @throws IOException if something went wrong
+     * {@inheritDoc}
      */
-    public void saveProperties( WidgetsConfigurationWriter writer ) throws IOException
+    @Override
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    {
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( useClassScoring, "Ignore vehicles from other classes than the viewed one for scoring?" );
     }
     
     /**
-     * Loads (and parses) a certain property from a config file.
-     * 
-     * @param loader the loader to load from
+     * {@inheritDoc}
      */
-    public void loadProperty( ConfigurationLoader loader )
+    @Override
+    public void loadProperty( PropertyLoader loader )
     {
         if ( loader.loadProperty( useClassScoring ) );
     }
     
     /**
-     * Puts all editable properties to the editor.
-     * 
-     * @param propsCont the container to add the properties to
-     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
-     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     * {@inheritDoc}
      */
-    public void getProperties( WidgetPropertiesContainer propsCont, boolean forceAll )
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         //propsCont.addGroup( "General" );
         
@@ -950,7 +961,7 @@ public class WidgetsConfiguration implements Documented
             return ( "" );
         }
         
-        return ( StringUtil.loadString( docURL ) );
+        return ( StringUtils.loadString( docURL ) );
     }
     
     /**
