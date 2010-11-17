@@ -35,9 +35,9 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -46,8 +46,8 @@ import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.revneedlemeter.AbstractRevNeedleMeterWidget;
@@ -74,10 +74,10 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         return ( 20 );
     }
     
-    protected final ColorProperty revMarkersMediumColor = new ColorProperty( this, "revMarkersMediumColor", "mediumColor", "#FFFF00" );
-    protected final ColorProperty revMarkersHighColor = new ColorProperty( this, "revMarkersHighColor", "highColor", "#FF0000" );
-    protected final BooleanProperty fillHighBackground = new BooleanProperty( this, "fillHighBackground", false );
-    protected final BooleanProperty interpolateMarkerColors = new BooleanProperty( this, "interpolateMarkerColors", "interpolateColors", false );
+    protected final ColorProperty revMarkersMediumColor = new ColorProperty( "revMarkersMediumColor", "mediumColor", "#FFFF00" );
+    protected final ColorProperty revMarkersHighColor = new ColorProperty( "revMarkersHighColor", "highColor", "#FF0000" );
+    protected final BooleanProperty fillHighBackground = new BooleanProperty( "fillHighBackground", false );
+    protected final BooleanProperty interpolateMarkerColors = new BooleanProperty( "interpolateMarkerColors", "interpolateColors", false );
     
     
     private void initShiftLights( int oldNumber, int newNumber )
@@ -104,52 +104,52 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         }
     }
     
-    private final IntProperty numShiftLights = new IntProperty( this, "numShiftLights", 0, 0, 20 )
+    private final IntProperty numShiftLights = new IntProperty( "numShiftLights", 0, 0, 20 )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
-            initShiftLights( oldValue, newValue );
+            if ( oldValue != null )
+                initShiftLights( oldValue, newValue );
         }
     };
     
     private final ShiftLight[] shiftLights = { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null };
     
-    
-    protected final BooleanProperty displayBoostBar = new BooleanProperty( this, "displayBoostBar", "displayBar", true );
-    protected final IntProperty boostBarPosX = new IntProperty( this, "boostBarPosX", "barPosX", 135 );
-    protected final IntProperty boostBarPosY = new IntProperty( this, "boostBarPosY", "barPosY", 671 );
-    protected final IntProperty boostBarWidth = new IntProperty( this, "boostBarWidth", "barWidth", 438 );
-    protected final IntProperty boostBarHeight = new IntProperty( this, "boostBarHeight", "barHeight", 27 );
-    protected final BooleanProperty displayBoostNumber = new BooleanProperty( this, "displayBoostNumber", "displayNumber", true );
-    protected final ImageProperty boostNumberBackgroundImageName = new ImageProperty( this, "boostNumberBackgroundImageName", "numBGImageName", "", false, true );
+    protected final BooleanProperty displayBoostBar = new BooleanProperty( "displayBoostBar", "displayBar", true );
+    protected final IntProperty boostBarPosX = new IntProperty( "boostBarPosX", "barPosX", 135 );
+    protected final IntProperty boostBarPosY = new IntProperty( "boostBarPosY", "barPosY", 671 );
+    protected final IntProperty boostBarWidth = new IntProperty( "boostBarWidth", "barWidth", 438 );
+    protected final IntProperty boostBarHeight = new IntProperty( "boostBarHeight", "barHeight", 27 );
+    protected final BooleanProperty displayBoostNumber = new BooleanProperty( "displayBoostNumber", "displayNumber", true );
+    protected final ImageProperty boostNumberBackgroundImageName = new ImageProperty( "boostNumberBackgroundImageName", "numBGImageName", "", false, true );
     private TransformableTexture boostNumberBackgroundTexture = null;
     private TextureImage2D boostNumberBackgroundTexture_bak = null;
     private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
-    protected final IntProperty boostNumberPosX = new IntProperty( this, "boostNumberPosX", "numberPosX", 392 );
-    protected final IntProperty boostNumberPosY = new IntProperty( this, "boostNumberPosY", "numberPosY", 544 );
-    protected final FontProperty boostNumberFont = new FontProperty( this, "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
-    protected final ColorProperty boostNumberFontColor = new ColorProperty( this, "boostNumberFontColor", "numberFontColor", "#FF0000" );
+    protected final IntProperty boostNumberPosX = new IntProperty( "boostNumberPosX", "numberPosX", 392 );
+    protected final IntProperty boostNumberPosY = new IntProperty( "boostNumberPosY", "numberPosY", 544 );
+    protected final FontProperty boostNumberFont = new FontProperty( "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
+    protected final ColorProperty boostNumberFontColor = new ColorProperty( "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
-    protected final BooleanProperty displayRPMString1 = new BooleanProperty( this, "displayRPMString1", "displayRPMString", true );
-    protected final BooleanProperty displayCurrRPM1 = new BooleanProperty( this, "displayCurrRPM1", "displayCurrRPM", true );
-    protected final BooleanProperty displayMaxRPM1 = new BooleanProperty( this, "displayMaxRPM1", "displayMaxRPM", true );
-    protected final BooleanProperty useBoostRevLimit1 = new BooleanProperty( this, "useBoostRevLimit1", "useBoostRevLimit", false );
-    protected final IntProperty rpmPosX1 = new IntProperty( this, "rpmPosX1", "rpmPosX", 170 );
-    protected final IntProperty rpmPosY1 = new IntProperty( this, "rpmPosY1", "rpmPosY", 603 );
-    protected final FontProperty rpmFont1 = new FontProperty( this, "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
-    protected final ColorProperty rpmFontColor1 = new ColorProperty( this, "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
-    protected final StringProperty rpmJoinString1 = new StringProperty( this, "rpmJoinString1", "rpmJoinString", " / " );
+    protected final BooleanProperty displayRPMString1 = new BooleanProperty( "displayRPMString1", "displayRPMString", true );
+    protected final BooleanProperty displayCurrRPM1 = new BooleanProperty( "displayCurrRPM1", "displayCurrRPM", true );
+    protected final BooleanProperty displayMaxRPM1 = new BooleanProperty( "displayMaxRPM1", "displayMaxRPM", true );
+    protected final BooleanProperty useBoostRevLimit1 = new BooleanProperty( "useBoostRevLimit1", "useBoostRevLimit", false );
+    protected final IntProperty rpmPosX1 = new IntProperty( "rpmPosX1", "rpmPosX", 170 );
+    protected final IntProperty rpmPosY1 = new IntProperty( "rpmPosY1", "rpmPosY", 603 );
+    protected final FontProperty rpmFont1 = new FontProperty( "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
+    protected final ColorProperty rpmFontColor1 = new ColorProperty( "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    protected final StringProperty rpmJoinString1 = new StringProperty( "rpmJoinString1", "rpmJoinString", " / " );
     
-    protected final BooleanProperty displayRPMString2 = new BooleanProperty( this, "displayRPMString2", "displayRPMString", false );
-    protected final BooleanProperty displayCurrRPM2 = new BooleanProperty( this, "displayCurrRPM2", "displayCurrRPM", true );
-    protected final BooleanProperty displayMaxRPM2 = new BooleanProperty( this, "displayMaxRPM2", "displayMaxRPM", true );
-    protected final BooleanProperty useBoostRevLimit2 = new BooleanProperty( this, "useBoostRevLimit2", "useBoostRevLimit", false );
-    protected final IntProperty rpmPosX2 = new IntProperty( this, "rpmPosX2", "rpmPosX", 170 );
-    protected final IntProperty rpmPosY2 = new IntProperty( this, "rpmPosY2", "rpmPosY", 603 );
-    protected final FontProperty rpmFont2 = new FontProperty( this, "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
-    protected final ColorProperty rpmFontColor2 = new ColorProperty( this, "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
-    protected final StringProperty rpmJoinString2 = new StringProperty( this, "rpmJoinString2", "rpmJoinString", " / " );
+    protected final BooleanProperty displayRPMString2 = new BooleanProperty( "displayRPMString2", "displayRPMString", false );
+    protected final BooleanProperty displayCurrRPM2 = new BooleanProperty( "displayCurrRPM2", "displayCurrRPM", true );
+    protected final BooleanProperty displayMaxRPM2 = new BooleanProperty( "displayMaxRPM2", "displayMaxRPM", true );
+    protected final BooleanProperty useBoostRevLimit2 = new BooleanProperty( "useBoostRevLimit2", "useBoostRevLimit", false );
+    protected final IntProperty rpmPosX2 = new IntProperty( "rpmPosX2", "rpmPosX", 170 );
+    protected final IntProperty rpmPosY2 = new IntProperty( "rpmPosY2", "rpmPosY", 603 );
+    protected final FontProperty rpmFont2 = new FontProperty( "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
+    protected final ColorProperty rpmFontColor2 = new ColorProperty( "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    protected final StringProperty rpmJoinString2 = new StringProperty( "rpmJoinString2", "rpmJoinString", " / " );
     
     private DrawnString rpmString1 = null;
     private DrawnString rpmString2 = null;

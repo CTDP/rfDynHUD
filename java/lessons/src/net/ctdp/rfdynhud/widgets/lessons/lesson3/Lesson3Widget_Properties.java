@@ -52,7 +52,7 @@ public class Lesson3Widget_Properties extends Widget
 {
     /*
      * This is a property definition for a color value.
-     * It needs a reference to the owning Widget, a name to be displayed in the editor and used in config files
+     * It needs a name to be displayed in the editor and used in config files
      * and of course a default value.
      * 
      * See through the other constructors to learn about more possibilities
@@ -60,24 +60,24 @@ public class Lesson3Widget_Properties extends Widget
      * 
      * There are properties for any type of value and a generic one for all other types.
      */
-    private final ColorProperty coldColor = new ColorProperty( this, "coldColor", "#0000FF" );
+    private final ColorProperty coldColor = new ColorProperty( "coldColor", "#0000FF" );
     
     /*
      * This color uses a named color.
      * This Widget must implement the getDefaultNamedColorValue() method like below.
      */
-    private final ColorProperty hotColor = new ColorProperty( this, "hotColor", LessonsWidgetSet.MY_FONT_COLOR_NAME );
+    private final ColorProperty hotColor = new ColorProperty( "hotColor", LessonsWidgetSet.MY_FONT_COLOR_NAME );
     
     /*
      * This font uses a named font.
      * This Widget must implement the getDefaultNamedFontValue() method like below.
      */
-    private final FontProperty myFont = new FontProperty( this, "myFont", LessonsWidgetSet.MY_FONT_NAME );
+    private final FontProperty myFont = new FontProperty( "myFont", LessonsWidgetSet.MY_FONT_NAME );
     
     /*
      * This is a simple selection on 'MyEnum'.
      */
-    private final EnumProperty<MyEnum> myEnum = new EnumProperty<MyEnum>( this, "myEnum", MyEnum.ITEM0 );
+    private final EnumProperty<MyEnum> myEnum = new EnumProperty<MyEnum>( "myEnum", MyEnum.ITEM0 );
     
     private DrawnString ds = null;
     private DrawnString ds2 = null;

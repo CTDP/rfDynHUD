@@ -56,10 +56,10 @@ public class TrackPositionWidget extends Widget
     private static final int LINE_THICKNESS = 1;
     private static final int BASE_LINE_PADDING = 30;
     
-    private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9, 1, 100, false )
+    private final IntProperty baseItemRadius = new IntProperty( "itemRadius", "radius", 9, 1, 100, false )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             super.onValueChanged( oldValue, newValue );
             
@@ -76,21 +76,21 @@ public class TrackPositionWidget extends Widget
     }
     private int itemBlackBorderWidth = 2;
     
-    private final ColorProperty lineColor = new ColorProperty( this, "lineColor", "#FFFFFF" );
+    private final ColorProperty lineColor = new ColorProperty( "lineColor", "#FFFFFF" );
     
-    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
-    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
-    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
-    private final BooleanProperty useMyColorForMe1st = new BooleanProperty( this, "useMyColorForMe1st", false );
-    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
-    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
+    private final ColorProperty markColorNormal = new ColorProperty( "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final ColorProperty markColorLeader = new ColorProperty( "markColorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
+    private final ColorProperty markColorMe = new ColorProperty( "markColorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
+    private final BooleanProperty useMyColorForMe1st = new BooleanProperty( "useMyColorForMe1st", false );
+    private final ColorProperty markColorNextInFront = new ColorProperty( "markColorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
+    private final ColorProperty markColorNextBehind = new ColorProperty( "markColorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
     
-    private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
+    private final BooleanProperty displayPositionNumbers = new BooleanProperty( "displayPosNumbers", true );
     
-    private final BooleanProperty displayNameLabels = new BooleanProperty( this, "displayNameLabels", false );
-    private final EnumProperty<LabelPositioning> nameLabelPos = new EnumProperty<LabelPositioning>( this, "nameLabelPos", LabelPositioning.BELOW );
-    private final FontProperty nameLabelFont = new FontProperty( this, "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT_NAME );
-    private final ColorProperty nameLabelFontColor = new ColorProperty( this, "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final BooleanProperty displayNameLabels = new BooleanProperty( "displayNameLabels", false );
+    private final EnumProperty<LabelPositioning> nameLabelPos = new EnumProperty<LabelPositioning>( "nameLabelPos", LabelPositioning.BELOW );
+    private final FontProperty nameLabelFont = new FontProperty( "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT_NAME );
+    private final ColorProperty nameLabelFontColor = new ColorProperty( "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
     
     private int maxDisplayedVehicles = -1;
     

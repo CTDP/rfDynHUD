@@ -53,13 +53,13 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class TimingWidget extends Widget
 {
-    private final BooleanProperty displayAbsFastest = new BooleanProperty( this, "displayAbsFastest", true );
-    private final BooleanProperty cumulativeSectors = new BooleanProperty( this, "cumulativeSectors", false );
-    private final BooleanProperty forceCurrentCumulSectors = new BooleanProperty( this, "forceCurrentCumulSectors", "forceCurrCumulSects", true );
-    private final IntProperty lastLapDisplayDelay = new IntProperty( this, "lastLapDisplayDelay", 10000, -100, Integer.MAX_VALUE ); // ten seconds
+    private final BooleanProperty displayAbsFastest = new BooleanProperty( "displayAbsFastest", true );
+    private final BooleanProperty cumulativeSectors = new BooleanProperty( "cumulativeSectors", false );
+    private final BooleanProperty forceCurrentCumulSectors = new BooleanProperty( "forceCurrentCumulSectors", "forceCurrCumulSects", true );
+    private final IntProperty lastLapDisplayDelay = new IntProperty( "lastLapDisplayDelay", 10000, -100, Integer.MAX_VALUE ); // ten seconds
     
-    private final ColorProperty slowerColor = new ColorProperty( this, "slowerColor", "#FF7248" );
-    private final ColorProperty fasterColor = new ColorProperty( this, "fasterColor", "#6AFF3D" );
+    private final ColorProperty slowerColor = new ColorProperty( "slowerColor", "#FF7248" );
+    private final ColorProperty fasterColor = new ColorProperty( "fasterColor", "#6AFF3D" );
     
     private DrawnString absFastestLapHeaderString = null;
     private DrawnString absFastestLapDriverString = null;

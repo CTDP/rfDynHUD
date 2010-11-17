@@ -34,9 +34,11 @@ import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.properties.Position;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -52,9 +54,7 @@ import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
 import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LongValue;
-import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
@@ -73,28 +73,28 @@ public class FuelWidget extends Widget
     private static final InputAction INPUT_ACTION_INC_PITSTOP_FUEL = new InputAction( "IncPitstopFuelAction" );
     private static final InputAction INPUT_ACTION_DEC_PITSTOP_FUEL = new InputAction( "DecPitstopFuelAction" );
     
-    private final FontProperty font2 = new FontProperty( this, "font2", FontProperty.STANDARD_FONT3_NAME );
+    private final FontProperty font2 = new FontProperty( "font2", FontProperty.STANDARD_FONT3_NAME );
     
-    private final BooleanProperty displayFuelBar = new BooleanProperty( this, "displayFuelBar", true );
-    private final BooleanProperty displayTankSize = new BooleanProperty( this, "displayTankSize", true );
-    private final BooleanProperty displayFuelLoad = new BooleanProperty( this, "displayFuelLoad", true );
-    private final BooleanProperty displayFuelWeight = new BooleanProperty( this, "displayFuelWeight", true );
-    private final BooleanProperty displayFuelLaps = new BooleanProperty( this, "displayFuelLaps", true );
-    private final BooleanProperty displayFuelUsage = new BooleanProperty( this, "displayFuelUsage", true );
-    private final BooleanProperty displayPitstopInfo = new BooleanProperty( this, "displayPitstopInfo", true );
+    private final BooleanProperty displayFuelBar = new BooleanProperty( "displayFuelBar", true );
+    private final BooleanProperty displayTankSize = new BooleanProperty( "displayTankSize", true );
+    private final BooleanProperty displayFuelLoad = new BooleanProperty( "displayFuelLoad", true );
+    private final BooleanProperty displayFuelWeight = new BooleanProperty( "displayFuelWeight", true );
+    private final BooleanProperty displayFuelLaps = new BooleanProperty( "displayFuelLaps", true );
+    private final BooleanProperty displayFuelUsage = new BooleanProperty( "displayFuelUsage", true );
+    private final BooleanProperty displayPitstopInfo = new BooleanProperty( "displayPitstopInfo", true );
     
-    private final BooleanProperty horizontalFuelBar = new BooleanProperty( this, "horizontalFuelBar", "horizFuelBar", false );
+    private final BooleanProperty horizontalFuelBar = new BooleanProperty( "horizontalFuelBar", "horizFuelBar", false );
     private final Size fuelBarWidth;
-    private final ImageProperty fuelBarImage = new ImageProperty( this, "fuelBarImage", null, "", false, true );
+    private final ImageProperty fuelBarImage = new ImageProperty( "fuelBarImage", null, "", false, true );
     private TextureImage2D fuelBarTexture = null;
-    private final ColorProperty fuelBarBackgroundColor = new ColorProperty( this, "fuelBarBackgroundColor", "fuelBarBGColor", "#000000" );
-    private final ColorProperty fuelBarColor = new ColorProperty( this, "fuelBarColor", "#54760B" );
-    private final FontProperty tankSizeFont = new FontProperty( this, "tankSizeFont", FontUtils.getFontString( "Monospaced", Font.PLAIN, 9, true, false ) );
-    private final FontProperty fuelFont = new FontProperty( this, "fuelFont", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty fuelFontColor = new ColorProperty( this, "fuelFontColor", "#FFFFFFCD" );
-    private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( this, "roundUpRemainingLaps", "roundUpRemLaps", false );
+    private final ColorProperty fuelBarBackgroundColor = new ColorProperty( "fuelBarBackgroundColor", "fuelBarBGColor", "#000000" );
+    private final ColorProperty fuelBarColor = new ColorProperty( "fuelBarColor", "#54760B" );
+    private final FontProperty tankSizeFont = new FontProperty( "tankSizeFont", FontUtils.getFontString( "Monospaced", Font.PLAIN, 9, true, false ) );
+    private final FontProperty fuelFont = new FontProperty( "fuelFont", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty fuelFontColor = new ColorProperty( "fuelFontColor", "#FFFFFFCD" );
+    private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( "roundUpRemainingLaps", "roundUpRemLaps", false );
     
-    private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( this, "lowFuelWarningImageOff", "imageOff", "standard/shiftlight_off.png", false, true )
+    private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( "lowFuelWarningImageOff", "imageOff", "standard/shiftlight_off.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -104,7 +104,7 @@ public class FuelWidget extends Widget
     };
     private TransformableTexture lowFuelWarningImageOff = null;
     
-    private final ImageProperty lowFuelWarningImageNameOn = new ImageProperty( this, "lowFuelWarningImageOn", "imageOn", "standard/shiftlight_on_red.png", false, true )
+    private final ImageProperty lowFuelWarningImageNameOn = new ImageProperty( "lowFuelWarningImageOn", "imageOn", "standard/shiftlight_on_red.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -148,9 +148,9 @@ public class FuelWidget extends Widget
     //private final PosSizeProperty lowFuelWarningImageWidthProperty = lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" );
     private final PosSizeProperty lowFuelWarningImageHeightProperty = lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" );
     
-    private final IntProperty lowFuelWarningLaps = new IntProperty( this, "lowFuelWarningLaps", "laps", 1, 1, 10, false );
+    private final IntProperty lowFuelWarningLaps = new IntProperty( "lowFuelWarningLaps", "laps", 1, 1, 10, false );
     
-    private final FactoredIntProperty lowFuelBlinkTime = new FactoredIntProperty( this, "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 );
+    private final FactoredIntProperty lowFuelBlinkTime = new FactoredIntProperty( "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 );
     private final IntervalManager lowFuelBlinkManager = new IntervalManager( lowFuelBlinkTime );
     
     private DrawnString fuelLoadString0 = null;
@@ -184,23 +184,6 @@ public class FuelWidget extends Widget
     public WidgetPackage getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
-    }
-    
-    @Override
-    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
-    {
-        super.onPropertyChanged( property, oldValue, newValue );
-        
-        if ( property == lowFuelWarningImagePositionPositioningProperty )
-            forceReinitialization();
-        else if ( property == lowFuelWarningImagePositionXProperty )
-            forceReinitialization();
-        else if ( property == lowFuelWarningImagePositionYProperty )
-            forceReinitialization();
-        //else if ( property == lowFuelWarningImageWidthProperty )
-        //    forceReinitialization();
-        else if ( property == lowFuelWarningImageHeightProperty )
-            forceReinitialization();
     }
     
     /**

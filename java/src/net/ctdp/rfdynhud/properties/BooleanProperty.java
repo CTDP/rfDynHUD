@@ -17,8 +17,6 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link BooleanProperty} serves for customizing a primitive boolean value.
@@ -30,12 +28,60 @@ public class BooleanProperty extends Property
     private boolean value;
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getValue() );
+    }
+    
+    /**
      * Invoked when the value has changed.
      * 
+     * @param oldValue the old value
      * @param newValue the new value
      */
-    protected void onValueChanged( boolean newValue )
+    protected void onValueChanged( Boolean oldValue, boolean newValue )
     {
+    }
+    
+    /**
+     * Invoked when the value has been set.
+     * 
+     * @param value the new value
+     */
+    void onValueSet( boolean value )
+    {
+    }
+    
+    /**
+     * Sets the property's value.
+     * 
+     * @param value the new value
+     * @param firstTime
+     * 
+     * @return changed?
+     */
+    protected final boolean setBooleanValue( boolean value, boolean firstTime )
+    {
+        if ( value == this.value )
+            return ( false );
+        
+        Boolean oldValue = firstTime ? null : this.value;
+        this.value = value;
+        
+        onValueSet( this.value );
+        
+        if ( !firstTime )
+        {
+            triggerCommonOnValueChanged( !value, value );
+            onValueChanged( oldValue, value );
+        }
+        
+        return ( true );
     }
     
     /**
@@ -45,18 +91,9 @@ public class BooleanProperty extends Property
      * 
      * @return changed?
      */
-    public boolean setBooleanValue( boolean value )
+    public final boolean setBooleanValue( boolean value )
     {
-        if ( value == this.value )
-            return ( false );
-        
-        this.value = value;
-        
-        triggerCommonOnValueChanged( !value, value );
-        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-            onValueChanged( value );
-        
-        return ( true );
+        return ( setBooleanValue( value, false ) );
     }
     
     /**
@@ -98,118 +135,47 @@ public class BooleanProperty extends Property
     
     /**
      * 
-     * @param widgetsConfig the owner widgets configuration
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue
-     * @param readonly read only property?
-     */
-    BooleanProperty( WidgetsConfiguration widgetsConfig, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
-    {
-        super( widgetsConfig, name, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
-        
-        this.value = defaultValue;
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public BooleanProperty( Widget widget, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
+    public BooleanProperty( String name, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
+        super( name, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
         
-        this.value = defaultValue;
+        setBooleanValue( defaultValue, true );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public BooleanProperty( Widget widget, String name, String nameForDisplay, boolean defaultValue )
+    public BooleanProperty( String name, String nameForDisplay, boolean defaultValue )
     {
-        this( widget, name, nameForDisplay, defaultValue, false );
+        this( name, nameForDisplay, defaultValue, false );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public BooleanProperty( Widget widget, String name, boolean defaultValue, boolean readonly )
+    public BooleanProperty( String name, boolean defaultValue, boolean readonly )
     {
-        this( widget, name, null, defaultValue, readonly );
+        this( name, null, defaultValue, readonly );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public BooleanProperty( Widget widget, String name, boolean defaultValue )
+    public BooleanProperty( String name, boolean defaultValue )
     {
-        this( widget, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean defaultValue, boolean readonly )
-    {
-        super( w2pf, name, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
-        
-        this.value = defaultValue;
-        
-        w2pf.addProperty( this );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, boolean defaultValue )
-    {
-        this( w2pf, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, boolean defaultValue, boolean readonly )
-    {
-        this( w2pf, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public BooleanProperty( WidgetToPropertyForwarder w2pf, String name, boolean defaultValue )
-    {
-        this( w2pf, name, defaultValue, false );
+        this( name, defaultValue, false );
     }
 }

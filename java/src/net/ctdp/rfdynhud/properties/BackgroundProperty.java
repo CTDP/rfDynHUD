@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.properties;
 import java.awt.Color;
 
 import net.ctdp.rfdynhud.render.ImageTemplate;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link BackgroundProperty} unites {@link ColorProperty} and {@link ImageProperty}
@@ -78,6 +77,36 @@ public class BackgroundProperty extends Property
     }
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getBackgroundType(), null, getValue() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    boolean setKeeper( PropertiesKeeper keeper, boolean force )
+    {
+        boolean result = super.setKeeper( keeper, force );
+        
+        if ( result )
+        {
+            if ( color != null )
+                color.setKeeper( keeper, force );
+            if ( image != null )
+                image.setKeeper( keeper, force );
+        }
+        
+        return ( result );
+    }
+    
+    /**
      * Invoked when the value has changed.
      * 
      * @param oldBGType the old background type
@@ -89,7 +118,17 @@ public class BackgroundProperty extends Property
     {
     }
     
-    private boolean setPropertyFromValue( String value, boolean suppressEvent )
+    /**
+     * Invoked when the value has been set.
+     * 
+     * @param bgType thew new background type
+     * @param value the new value
+     */
+    void onValueSet( BackgroundType bgType, String value )
+    {
+    }
+    
+    private boolean setPropertyFromValue( String value, boolean firstTime, boolean suppressEvent )
     {
         if ( value == null )
             throw new IllegalArgumentException( "value must not be null." );
@@ -99,24 +138,36 @@ public class BackgroundProperty extends Property
         if ( ( getBackgroundType() != null ) && value.equals( getValue() ) )
             return ( false );
         
-        BackgroundType oldBGType = this.backgroundType;
-        String oldValue = ( oldBGType == null ) ? null : ( oldBGType.isColor() ? this.getColorProperty().getColorKey() : this.getImageProperty().getImageName() );
+        BackgroundType oldBGType = firstTime ? null : this.backgroundType;
+        String oldValue = firstTime ? null : ( ( oldBGType == null ) ? null : ( oldBGType.isColor() ? this.getColorProperty().getColorKey() : this.getImageProperty().getImageName() ) );
         
         if ( value.startsWith( BackgroundProperty.COLOR_INDICATOR ) )
         {
             value = value.substring( BackgroundProperty.COLOR_INDICATOR.length() ).trim();
             
             if ( color == null )
-                this.color = new ColorProperty( widget, getName(), getNameForDisplay(), value, false );
+            {
+                this.color = new ColorProperty( getName(), getNameForDisplay(), value, false );
+                if ( getKeeper() != null )
+                    this.color.setKeeper( getKeeper(), false );
+            }
             else
+            {
                 this.color.setColor( value );
+            }
             
             if ( image == null )
-                this.image = new ImageProperty( widget, getName(), getNameForDisplay(), "default_rev_meter_bg.png", false, false );
+            {
+                this.image = new ImageProperty( getName(), getNameForDisplay(), "default_rev_meter_bg.png", false, false );
+                if ( getKeeper() != null )
+                    this.image.setKeeper( getKeeper(), false );
+            }
             
             this.backgroundType = BackgroundType.COLOR;
             
-            if ( !suppressEvent && ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+            onValueSet( this.backgroundType, value );
+            
+            if ( !suppressEvent )
             {
                 triggerCommonOnValueChanged( oldValue, value );
                 onValueChanged( oldBGType, backgroundType, oldValue, value );
@@ -127,16 +178,28 @@ public class BackgroundProperty extends Property
             value = value.substring( BackgroundProperty.IMAGE_INDICATOR.length() ).trim();
             
             if ( color == null )
-                this.color = new ColorProperty( widget, getName(), getNameForDisplay(), "StandardBackground", false );
+            {
+                this.color = new ColorProperty( getName(), getNameForDisplay(), "StandardBackground", false );
+                if ( getKeeper() != null )
+                    this.color.setKeeper( getKeeper(), false );
+            }
             
             if ( image == null )
-                this.image = new ImageProperty( widget, getName(), getNameForDisplay(), value, false, false );
+            {
+                this.image = new ImageProperty( getName(), getNameForDisplay(), value, false, false );
+                if ( getKeeper() != null )
+                    this.image.setKeeper( getKeeper(), false );
+            }
             else
+            {
                 this.image.setImageName( value );
+            }
             
             this.backgroundType = BackgroundType.IMAGE;
             
-            if ( !suppressEvent && ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+            onValueSet( this.backgroundType, value );
+            
+            if ( !suppressEvent )
             {
                 triggerCommonOnValueChanged( oldValue, value );
                 onValueChanged( oldBGType, backgroundType, oldValue, value );
@@ -176,7 +239,7 @@ public class BackgroundProperty extends Property
     @Override
     public void setValue( Object value )
     {
-        setPropertyFromValue( String.valueOf( value ), false );
+        setPropertyFromValue( String.valueOf( value ), false, false );
     }
     
     /**
@@ -188,7 +251,7 @@ public class BackgroundProperty extends Property
      */
     public boolean setColorValue( String value )
     {
-        return ( setPropertyFromValue( COLOR_INDICATOR + value, false ) );
+        return ( setPropertyFromValue( COLOR_INDICATOR + value, false, false ) );
     }
     
     /**
@@ -200,7 +263,7 @@ public class BackgroundProperty extends Property
      */
     public boolean setImageValue( String value )
     {
-        return ( setPropertyFromValue( IMAGE_INDICATOR + value, false ) );
+        return ( setPropertyFromValue( IMAGE_INDICATOR + value, false, false ) );
     }
     
     /**
@@ -224,24 +287,22 @@ public class BackgroundProperty extends Property
             if ( colorValue.equals( oldValue ) )
                 return;
             
-            setPropertyFromValue( IMAGE_INDICATOR + imageValue, true );
-            setPropertyFromValue( COLOR_INDICATOR + colorValue, true );
+            setPropertyFromValue( IMAGE_INDICATOR + imageValue, false, true );
+            setPropertyFromValue( COLOR_INDICATOR + colorValue, false, true );
             
             triggerCommonOnValueChanged( oldValue, colorValue );
-            if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) )
-                onValueChanged( oldBGType, backgroundType, oldValue, colorValue );
+            onValueChanged( oldBGType, backgroundType, oldValue, colorValue );
         }
         else if ( type.isImage() )
         {
             if ( imageValue.equals( oldValue ) )
                 return;
             
-            setPropertyFromValue( COLOR_INDICATOR + colorValue, true );
-            setPropertyFromValue( IMAGE_INDICATOR + imageValue, true );
+            setPropertyFromValue( COLOR_INDICATOR + colorValue, false, true );
+            setPropertyFromValue( IMAGE_INDICATOR + imageValue, false, true );
             
             triggerCommonOnValueChanged( oldValue, imageValue );
-            if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) )
-                onValueChanged( oldBGType, backgroundType, oldValue, imageValue );
+            onValueChanged( oldBGType, backgroundType, oldValue, imageValue );
         }
     }
     
@@ -298,11 +359,11 @@ public class BackgroundProperty extends Property
         
         if ( loader.getSourceVersion().getBuild() < 91 )
         {
-            if ( value.startsWith( IMAGE_INDICATOR ) && ( getWidget() != null ) )
+            if ( value.startsWith( IMAGE_INDICATOR ) && ( getKeeper() != null ) )
             {
                 String value2 = value;
                 
-                if ( getWidget().getClass().getSimpleName().startsWith( "ETV" ) )
+                if ( getKeeper().getClass().getSimpleName().startsWith( "ETV" ) )
                 {
                     if ( value.startsWith( "etv2010/", IMAGE_INDICATOR.length() ) )
                         value2 = IMAGE_INDICATOR + "etv2010/telemetry/" + value.substring( IMAGE_INDICATOR.length() + 8 );
@@ -320,58 +381,31 @@ public class BackgroundProperty extends Property
             }
         }
         
-        setPropertyFromValue( value, false );
+        setPropertyFromValue( value, false, false );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public BackgroundProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
+    public BackgroundProperty( String name, String nameForDisplay, String defaultValue )
     {
-        super( widget, name, nameForDisplay, false, PropertyEditorType.BACKGROUND );
+        super( name, nameForDisplay, false, PropertyEditorType.BACKGROUND );
         
         this.defaultValue = defaultValue;
         
-        setPropertyFromValue( defaultValue, true );
+        setPropertyFromValue( defaultValue, true, false );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public BackgroundProperty( Widget widget, String name, String defaultValue )
+    public BackgroundProperty( String name, String defaultValue )
     {
-        this( widget, name, null, defaultValue );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public BackgroundProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
-    {
-        this( (Widget)null, name, nameForDisplay, defaultValue );
-        
-        w2pf.addProperty( this );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public BackgroundProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
-    {
-        this( w2pf, name, null, defaultValue );
+        this( name, null, defaultValue );
     }
 }

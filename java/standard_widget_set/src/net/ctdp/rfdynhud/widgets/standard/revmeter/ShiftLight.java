@@ -25,6 +25,7 @@ import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.RFDHLog;
@@ -295,6 +296,11 @@ public class ShiftLight
     
     public void saveProperties( PropertyWriter writer ) throws IOException
     {
+        if ( imageNameOff.getKeeper() == null )
+            __PropsPrivilegedAccess.setKeeper( imageNameOff, widget, false );
+        if ( imageNameOn.getKeeper() == null )
+            __PropsPrivilegedAccess.setKeeper( imageNameOn, widget, false );
+        
         writer.writeProperty( imageNameOff, "The name of the shift light image for \"off\" state." );
         writer.writeProperty( imageNameOn, "The name of the shift light image for \"on\" state." );
         writer.writeProperty( posX, "The x-offset in background image pixels for the shift light image." );
@@ -305,6 +311,11 @@ public class ShiftLight
     
     public boolean loadProperty( PropertyLoader loader )
     {
+        if ( imageNameOff.getKeeper() == null )
+            __PropsPrivilegedAccess.setKeeper( imageNameOff, widget, false );
+        if ( imageNameOn.getKeeper() == null )
+            __PropsPrivilegedAccess.setKeeper( imageNameOn, widget, false );
+        
         if ( loader.loadProperty( imageNameOff ) )
             return ( true );
         if ( loader.loadProperty( imageNameOn ) )
@@ -328,6 +339,11 @@ public class ShiftLight
      */
     public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
+        if ( imageNameOff.getKeeper() == null )
+            __PropsPrivilegedAccess.setKeeper( imageNameOff, widget, false );
+        if ( imageNameOn.getKeeper() == null )
+            __PropsPrivilegedAccess.setKeeper( imageNameOn, widget, false );
+        
         propsCont.addGroup( "Shift Light " + indexOneBased );
         
         propsCont.addProperty( imageNameOff );
@@ -343,7 +359,7 @@ public class ShiftLight
         this.widget = widget;
         this.indexOneBased = indexOneBased;
         
-        this.imageNameOff = new ImageProperty( widget, "shiftLightImageNameOff" + indexOneBased, "imageNameOff", "standard/shiftlight_off.png", false, true )
+        this.imageNameOff = new ImageProperty( "shiftLightImageNameOff" + indexOneBased, "imageNameOff", "standard/shiftlight_off.png", false, true )
         {
             @Override
             protected void onValueChanged( String oldValue, String newValue )
@@ -351,7 +367,7 @@ public class ShiftLight
                 textureOff = null;
             }
         };
-        this.imageNameOn = new ImageProperty( widget, "shiftLightImageNameOn" + indexOneBased, "imageNameOn", default_shift_light_on_images[indexOneBased - 1] )
+        this.imageNameOn = new ImageProperty( "shiftLightImageNameOn" + indexOneBased, "imageNameOn", default_shift_light_on_images[indexOneBased - 1] )
         {
             @Override
             protected void onValueChanged( String oldValue, String newValue )
@@ -359,30 +375,30 @@ public class ShiftLight
                 textureOn = null;
             }
         };
-        this.posX = new IntProperty( widget, "shiftLightPosX" + indexOneBased, "posX", 625 - 32 * ( indexOneBased - 1 ) )
+        this.posX = new IntProperty( "shiftLightPosX" + indexOneBased, "posX", 625 - 32 * ( indexOneBased - 1 ) )
         {
             @Override
-            protected void onValueChanged( int oldValue, int newValue )
+            protected void onValueChanged( Integer oldValue, int newValue )
             {
                 resetTextures();
             }
         };
-        this.posY = new IntProperty( widget, "shiftLightPosY" + indexOneBased, "posY", 42 )
+        this.posY = new IntProperty( "shiftLightPosY" + indexOneBased, "posY", 42 )
         {
             @Override
-            protected void onValueChanged( int oldValue, int newValue )
+            protected void onValueChanged( Integer oldValue, int newValue )
             {
                 resetTextures();
             }
         };
-        this.height = new IntProperty( widget, "shiftLightHeight" + indexOneBased, "height", 0, 0, 1000, false )
+        this.height = new IntProperty( "shiftLightHeight" + indexOneBased, "height", 0, 0, 1000, false )
         {
             @Override
-            protected void onValueChanged( int oldValue, int newValue )
+            protected void onValueChanged( Integer oldValue, int newValue )
             {
                 resetTextures();
             }
         };
-        this.activationRPM = new IntProperty( widget, "shiftLightRPM" + indexOneBased, "activationRPM", 100 - 250 * indexOneBased, -5000, 0, false );
+        this.activationRPM = new IntProperty( "shiftLightRPM" + indexOneBased, "activationRPM", 100 - 250 * indexOneBased, -5000, 0, false );
     }
 }

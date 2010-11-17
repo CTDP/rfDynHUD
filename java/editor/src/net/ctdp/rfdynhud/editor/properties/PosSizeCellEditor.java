@@ -28,9 +28,9 @@ import javax.swing.JTextField;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.properties.Position;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.values.Position;
-import net.ctdp.rfdynhud.values.Size;
+import net.ctdp.rfdynhud.properties.Size;
 
 /**
  * 

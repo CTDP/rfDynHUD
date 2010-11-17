@@ -37,6 +37,7 @@ import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
@@ -48,7 +49,6 @@ import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
@@ -60,12 +60,12 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class TemperaturesWidget extends Widget
 {
-    private final FontProperty font2 = new FontProperty( this, "font2", FontProperty.SMALLER_FONT_NAME );
+    private final FontProperty font2 = new FontProperty( "font2", FontProperty.SMALLER_FONT_NAME );
     
-    private final BooleanProperty displayEngine = new BooleanProperty( this, "displayEngine", true );
-    private final BooleanProperty displayWaterTemp = new BooleanProperty( this, "displayWaterTemp", true );
-    private final BooleanProperty displayTires = new BooleanProperty( this, "displayTires", true );
-    private final BooleanProperty displayBrakes = new BooleanProperty( this, "displayBrakes", true );
+    private final BooleanProperty displayEngine = new BooleanProperty( "displayEngine", true );
+    private final BooleanProperty displayWaterTemp = new BooleanProperty( "displayWaterTemp", true );
+    private final BooleanProperty displayTires = new BooleanProperty( "displayTires", true );
+    private final BooleanProperty displayBrakes = new BooleanProperty( "displayBrakes", true );
     
     private final Size engineHeight = Size.newLocalSize( this, 0f, true, 10.0f, true );
     
@@ -74,12 +74,12 @@ public class TemperaturesWidget extends Widget
     
     private int gap = 7;
     
-    private final ImagePropertyWithTexture tireIcon = new ImagePropertyWithTexture( this, "tireIcon", "icon", "standard/tire_small.png", false, true );
-    private final ImagePropertyWithTexture brakeDiscIcon = new ImagePropertyWithTexture( this, "brakeDiscIcon", "icon", "standard/brake_disc_small.png", false, true );
+    private final ImagePropertyWithTexture tireIcon = new ImagePropertyWithTexture( "tireIcon", "icon", "standard/tire_small.png", false, true );
+    private final ImagePropertyWithTexture brakeDiscIcon = new ImagePropertyWithTexture( "brakeDiscIcon", "icon", "standard/brake_disc_small.png", false, true );
     
     private int maxIconWidth = 0;
     
-    private final DelayProperty brakeTempsPeakDelay = new DelayProperty( this, "brakeTempsPeakDelay", "peakDelay", DelayProperty.DisplayUnits.MILLISECONDS, 7000, 0, 20000, false );
+    private final DelayProperty brakeTempsPeakDelay = new DelayProperty( "brakeTempsPeakDelay", "peakDelay", DelayProperty.DisplayUnits.MILLISECONDS, 7000, 0, 20000, false );
     
     private DrawnString engineHeaderString = null;
     private DrawnString engineWaterTempString = null;

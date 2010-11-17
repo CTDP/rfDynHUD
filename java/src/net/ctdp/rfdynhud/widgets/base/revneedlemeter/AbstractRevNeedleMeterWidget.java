@@ -58,7 +58,7 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
     public static final int PEAK_NEEDLE_LOCAL_Z_INDEX = NEEDLE_LOCAL_Z_INDEX - 1;
     public static final String DEFAULT_GEAR_FONT_NAME = "GearFont";
     
-    private final BooleanProperty hideWhenViewingOtherCar = new BooleanProperty( this, "hideWhenViewingOtherCar", "hideWhenOtherCar", false );
+    private final BooleanProperty hideWhenViewingOtherCar = new BooleanProperty( "hideWhenViewingOtherCar", "hideWhenOtherCar", false );
     
     
     @Override
@@ -73,18 +73,18 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
         return ( 20 );
     }
     
-    protected final BooleanProperty useMaxRevLimit = new BooleanProperty( this, "useMaxRevLimit", true );
+    protected final BooleanProperty useMaxRevLimit = new BooleanProperty( "useMaxRevLimit", true );
     
     
-    protected final BooleanProperty displayGear = new BooleanProperty( this, "displayGear", "displayGear", true );
-    protected final ImageProperty gearBackgroundImageName = new ImageProperty( this, "gearBackgroundImageName", "bgImageName", "", false, true );
+    protected final BooleanProperty displayGear = new BooleanProperty( "displayGear", "displayGear", true );
+    protected final ImageProperty gearBackgroundImageName = new ImageProperty( "gearBackgroundImageName", "bgImageName", "", false, true );
     private TransformableTexture gearBackgroundTexture = null;
     private TextureImage2D gearBackgroundTexture_bak = null;
-    protected final IntProperty gearPosX = new IntProperty( this, "gearPosX", "posX", 354 );
-    protected final IntProperty gearPosY = new IntProperty( this, "gearPosY", "posY", 512 );
+    protected final IntProperty gearPosX = new IntProperty( "gearPosX", "posX", 354 );
+    protected final IntProperty gearPosY = new IntProperty( "gearPosY", "posY", 512 );
     private int gearBackgroundTexPosX, gearBackgroundTexPosY;
-    protected final FontProperty gearFont = new FontProperty( this, "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
-    protected final ColorProperty gearFontColor = new ColorProperty( this, "gearFontColor", "fontColor", "#1A261C" );
+    protected final FontProperty gearFont = new FontProperty( "gearFont", "font", DEFAULT_GEAR_FONT_NAME );
+    protected final ColorProperty gearFontColor = new ColorProperty( "gearFontColor", "fontColor", "#1A261C" );
     
     
     protected String getInitialPeakNeedleImage()
@@ -92,13 +92,13 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
         return ( "standard/rev_meter_needle.png" );
     }
     
-    protected final ImageProperty peakNeedleImageName = new ImageProperty( this, "peakNeedleImageName", "imageName", getInitialPeakNeedleImage(), false, true );
-    protected final IntProperty peakNeedlePivotBottomOffset = new IntProperty( this, "peakNeedlePivotBottomOffset", "pivotBottomOffset", 60 );
+    protected final ImageProperty peakNeedleImageName = new ImageProperty( "peakNeedleImageName", "imageName", getInitialPeakNeedleImage(), false, true );
+    protected final IntProperty peakNeedlePivotBottomOffset = new IntProperty( "peakNeedlePivotBottomOffset", "pivotBottomOffset", 60 );
     private TransformableTexture peakNeedleTexture = null;
     
-    protected final DelayProperty peakNeedleCooldown = new DelayProperty( this, "peakNeedleCooldown", "cooldown", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
-    protected final DelayProperty peakNeedleWaitTime = new DelayProperty( this, "peakNeedleWaitTime", "wait", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
-    protected final DelayProperty peakNeedleDownshiftIgnoreTime = new DelayProperty( this, "peakNeedleDownshiftIgnoreTime", "downshiftIgnoreTime", DelayProperty.DisplayUnits.MILLISECONDS, 1500, 0, 5000, false );
+    protected final DelayProperty peakNeedleCooldown = new DelayProperty( "peakNeedleCooldown", "cooldown", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
+    protected final DelayProperty peakNeedleWaitTime = new DelayProperty( "peakNeedleWaitTime", "wait", DelayProperty.DisplayUnits.MILLISECONDS, 1000, 0, 5000, false );
+    protected final DelayProperty peakNeedleDownshiftIgnoreTime = new DelayProperty( "peakNeedleDownshiftIgnoreTime", "downshiftIgnoreTime", DelayProperty.DisplayUnits.MILLISECONDS, 1500, 0, 5000, false );
     private long nextPeakRecordTime = -1L;
     private long lastPeakRecordTime = -1L;
     

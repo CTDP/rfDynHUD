@@ -175,7 +175,7 @@ public class WidgetImportManager
                 {
                     if ( borderProp2.getName().equals( borderProp.getName() ) )
                     {
-                        borderProp.setBorder( borderProp2.getWidget().getConfiguration().getBorderName( borderProp2.getBorderAlias() ) );
+                        borderProp.setBorder( ( (Widget)borderProp2.getKeeper() ).getConfiguration().getBorderName( borderProp2.getBorderAlias() ) );
                     }
                 }
             }
@@ -219,7 +219,7 @@ public class WidgetImportManager
                 {
                     if ( colorProp2.getName().equals( colorProp.getName() ) )
                     {
-                        colorProp.setColor( colorProp2.getWidget().getConfiguration().getNamedColor( colorProp2.getColorKey() ) );
+                        colorProp.setColor( ( (Widget)colorProp2.getKeeper() ).getConfiguration().getNamedColor( colorProp2.getColorKey() ) );
                     }
                 }
             }
@@ -241,7 +241,7 @@ public class WidgetImportManager
                 {
                     if ( fontProp2.getName().equals( fontProp.getName() ) )
                     {
-                        fontProp.setFont( fontProp2.getWidget().getConfiguration().getNamedFontString( fontProp2.getFontKey() ) );
+                        fontProp.setFont( ( (Widget)fontProp2.getKeeper() ).getConfiguration().getNamedFontString( fontProp2.getFontKey() ) );
                     }
                 }
             }
@@ -263,7 +263,7 @@ public class WidgetImportManager
                 {
                     if ( borderProp2.getName().equals( borderProp.getName() ) )
                     {
-                        widgetsConfig.addBorderAlias( borderProp2.getBorderAlias(), borderProp2.getWidget().getConfiguration().getBorderName( borderProp2.getBorderAlias() ) );
+                        widgetsConfig.addBorderAlias( borderProp2.getBorderAlias(), ( (Widget)borderProp2.getKeeper() ).getConfiguration().getBorderName( borderProp2.getBorderAlias() ) );
                         borderProp.refresh();
                     }
                 }
@@ -286,7 +286,7 @@ public class WidgetImportManager
                 {
                     if ( bgProp2.getName().equals( bgProp.getName() ) )
                     {
-                        widgetsConfig.addNamedColor( bgProp2.getColorProperty().getColorKey(), bgProp2.getWidget().getConfiguration().getNamedColor( bgProp2.getColorProperty().getColorKey() ) );
+                        widgetsConfig.addNamedColor( bgProp2.getColorProperty().getColorKey(), ( (Widget)bgProp2.getKeeper() ).getConfiguration().getNamedColor( bgProp2.getColorProperty().getColorKey() ) );
                         bgProp.getColorProperty().refresh();
                     }
                 }
@@ -309,7 +309,7 @@ public class WidgetImportManager
                 {
                     if ( colorProp2.getName().equals( colorProp.getName() ) )
                     {
-                        widgetsConfig.addNamedColor( colorProp2.getColorKey(), colorProp2.getWidget().getConfiguration().getNamedColor( colorProp2.getColorKey() ) );
+                        widgetsConfig.addNamedColor( colorProp2.getColorKey(), ( (Widget)colorProp2.getKeeper() ).getConfiguration().getNamedColor( colorProp2.getColorKey() ) );
                         colorProp.refresh();
                     }
                 }
@@ -332,7 +332,7 @@ public class WidgetImportManager
                 {
                     if ( fontProp2.getName().equals( fontProp.getName() ) )
                     {
-                        widgetsConfig.addNamedFont( fontProp2.getFontKey(), fontProp2.getWidget().getConfiguration().getNamedFontString( fontProp2.getFontKey() ) );
+                        widgetsConfig.addNamedFont( fontProp2.getFontKey(), ( (Widget)fontProp2.getKeeper() ).getConfiguration().getNamedFontString( fontProp2.getFontKey() ) );
                         fontProp.refresh();
                     }
                 }
@@ -353,7 +353,7 @@ public class WidgetImportManager
             while ( widgetsConfig.getBorderAliases().contains( baseAlias + number ) )
                 number++;
             
-            widgetsConfig.addBorderAlias( baseAlias + number, borderProp.getWidget().getConfiguration().getBorderName( borderProp.getBorderAlias() ) );
+            widgetsConfig.addBorderAlias( baseAlias + number, ( (Widget)borderProp.getKeeper() ).getConfiguration().getBorderName( borderProp.getBorderAlias() ) );
             
             for ( Property property : propsList )
             {
@@ -380,7 +380,7 @@ public class WidgetImportManager
             while ( widgetsConfig.getColorNames().contains( baseName + number ) )
                 number++;
             
-            widgetsConfig.addNamedColor( baseName + number, bgProp.getWidget().getConfiguration().getNamedColor( bgProp.getColorProperty().getColorKey() ) );
+            widgetsConfig.addNamedColor( baseName + number, ( (Widget)bgProp.getKeeper() ).getConfiguration().getNamedColor( bgProp.getColorProperty().getColorKey() ) );
             
             for ( Property property : propsList )
             {
@@ -407,7 +407,7 @@ public class WidgetImportManager
             while ( widgetsConfig.getColorNames().contains( baseName + number ) )
                 number++;
             
-            widgetsConfig.addNamedColor( baseName + number, colorProp.getWidget().getConfiguration().getNamedColor( colorProp.getColorKey() ) );
+            widgetsConfig.addNamedColor( baseName + number, ( (Widget)colorProp.getKeeper() ).getConfiguration().getNamedColor( colorProp.getColorKey() ) );
             
             for ( Property property : propsList )
             {
@@ -434,7 +434,7 @@ public class WidgetImportManager
             while ( widgetsConfig.getFontNames().contains( baseName + number ) )
                 number++;
             
-            widgetsConfig.addNamedFont( baseName + number, fontProp.getWidget().getConfiguration().getNamedFontString( fontProp.getFontKey() ) );
+            widgetsConfig.addNamedFont( baseName + number, ( (Widget)fontProp.getKeeper() ).getConfiguration().getNamedFontString( fontProp.getFontKey() ) );
             
             for ( Property property : propsList )
             {
@@ -484,7 +484,7 @@ public class WidgetImportManager
             {
                 BorderProperty borderProp = (BorderProperty)property;
                 
-                String border1 = borderProp.getWidget().getConfiguration().getBorderName( borderProp.getBorderAlias() );
+                String border1 = ( (Widget)borderProp.getKeeper() ).getConfiguration().getBorderName( borderProp.getBorderAlias() );
                 if ( border1 != null )
                 {
                     String border2 = widgetsConfig.getBorderName( borderProp.getBorderAlias() );
@@ -502,7 +502,7 @@ public class WidgetImportManager
                 {
                     if ( bgProp.getBackgroundType() == BackgroundType.COLOR )
                     {
-                        Color color1 = bgProp.getWidget().getConfiguration().getNamedColor( bgProp.getColorProperty().getColorKey() );
+                        Color color1 = ( (Widget)bgProp.getKeeper() ).getConfiguration().getNamedColor( bgProp.getColorProperty().getColorKey() );
                         if ( color1 != null )
                         {
                             Color color2 = widgetsConfig.getNamedColor( bgProp.getColorProperty().getColorKey() );
@@ -518,7 +518,7 @@ public class WidgetImportManager
             {
                 ColorProperty colorProp = (ColorProperty)property;
                 
-                Color color1 = colorProp.getWidget().getConfiguration().getNamedColor( colorProp.getColorKey() );
+                Color color1 = ( (Widget)colorProp.getKeeper() ).getConfiguration().getNamedColor( colorProp.getColorKey() );
                 if ( color1 != null )
                 {
                     Color color2 = widgetsConfig.getNamedColor( colorProp.getColorKey() );
@@ -532,7 +532,7 @@ public class WidgetImportManager
             {
                 FontProperty fontProp = (FontProperty)property;
                 
-                String font1 = fontProp.getWidget().getConfiguration().getNamedFontString( fontProp.getFontKey() );
+                String font1 = ( (Widget)fontProp.getKeeper() ).getConfiguration().getNamedFontString( fontProp.getFontKey() );
                 if ( font1 != null )
                 {
                     String font2 = widgetsConfig.getNamedFontString( fontProp.getFontKey() );

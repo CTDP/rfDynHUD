@@ -19,7 +19,6 @@ package net.ctdp.rfdynhud.properties;
 
 import java.io.IOException;
 
-import net.ctdp.rfdynhud.util.Documented;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -28,7 +27,7 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public interface PropertiesKeeper extends Documented
+public interface PropertiesKeeper
 {
     /**
      * Invoked when a kept {@link Property} has changed.

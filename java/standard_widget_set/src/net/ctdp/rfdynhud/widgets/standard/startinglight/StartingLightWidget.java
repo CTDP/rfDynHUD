@@ -50,7 +50,7 @@ public class StartingLightWidget extends Widget
     private static final int MAX_LIGHTS = 5;
     
     private TextureImage2D offImage = null;
-    private final ImageProperty offImageProp = new ImageProperty( this, "offImageName", "standard/starting_light_off.png" )
+    private final ImageProperty offImageProp = new ImageProperty( "offImageName", "standard/starting_light_off.png" )
     {
         @Override
         public void setValue( Object value )
@@ -63,7 +63,7 @@ public class StartingLightWidget extends Widget
     };
     
     private TextureImage2D onImage = null;
-    private final ImageProperty onImageProp = new ImageProperty( this, "onImageName", "standard/starting_light_on.png" )
+    private final ImageProperty onImageProp = new ImageProperty( "onImageName", "standard/starting_light_on.png" )
     {
         @Override
         public void setValue( Object value )
@@ -75,9 +75,9 @@ public class StartingLightWidget extends Widget
         }
     };
     
-    private final IntProperty numRows = new IntProperty( this, "numRows", 2, 1, 4 );
+    private final IntProperty numRows = new IntProperty( "numRows", 2, 1, 4 );
     
-    private final FloatProperty visibleTimeAfterLightsOff = new FloatProperty( this, "visibleTimeAfterLightsOff", "visTimeAfterOff", 4.0f, 0f, 60f, false );
+    private final FloatProperty visibleTimeAfterLightsOff = new FloatProperty( "visibleTimeAfterLightsOff", "visTimeAfterOff", 4.0f, 0f, 60f, false );
     
     private final EnumValue<GamePhase> gamePhase = new EnumValue<GamePhase>();
     private final IntValue numLights = new IntValue();

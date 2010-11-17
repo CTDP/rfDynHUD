@@ -28,7 +28,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -116,6 +115,24 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private WidgetsConfiguration widgetsConfig;
     private GameEventsManager eventsManager;
     private final GameResolution gameResolution;
+    private final Property gameResProp = new Property( "resolution", true, PropertyEditorType.STRING )
+    {
+        @Override
+        public void setValue( Object value )
+        {
+        }
+        
+        @Override
+        public Object getValue()
+        {
+            return ( gameResolution.getResolutionString() );
+        }
+        
+        @Override
+        public void loadValue( PropertyLoader loader, String value )
+        {
+        }
+    };
     
     private boolean alwaysShowHelpOnStartup = true;
     
@@ -159,6 +176,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     
     private WidgetsConfiguration templateConfig = null;
     private long lastTemplateConfigModified = -1L;
+    
+    private final Property templateConfigProp;
     
     ImportDecision lastImportDecision = ImportDecision.USE_DESTINATION_ALIASES;
     
@@ -244,22 +263,6 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( getEditorPanel().getOverlayTexture() );
     }
     
-    public String getDocumentationSource( Property property )
-    {
-        if ( property == null )
-            return ( "" );
-        
-        if ( __PropsPrivilegedAccess.isWidgetsConfigProperty( property ) )
-            return ( widgetsConfig.getDocumentationSource( property ) );
-        
-        URL docURL = this.getClass().getClassLoader().getResource( this.getClass().getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getName() + ".html" );
-        
-        if ( docURL == null )
-            return ( "" );
-        
-        return ( StringUtils.loadString( docURL ) );
-    }
-    
     private Property currentDocedProperty = null;
     private Widget currentDocedWidget = null;
     
@@ -277,7 +280,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 }
                 else
                 {
-                    String helpText = editorPanel.getSelectedWidget().getDocumentationSource( null );
+                    String helpText = editorPanel.getSelectedWidget().getDocumentationSource();
                     if ( helpText == null )
                     {
                         docPanel.setText( doc_header + "" + doc_footer );
@@ -300,12 +303,11 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         {
             if ( editorPanel.getSelectedWidget() == null )
             {
-                docPanel.setText( doc_header + getDocumentationSource( property ) + doc_footer );
+                docPanel.setText( doc_header + property.getDocumentationSource() + doc_footer );
             }
             else
             {
-                //docPanel.setText( doc_header + editorPanel.getSelectedWidget().getDocumentationSource( property ) + doc_footer );
-                docPanel.setText( doc_header + property.getWidget().getDocumentationSource( property ) + doc_footer );
+                docPanel.setText( doc_header + property.getDocumentationSource() + doc_footer );
             }
             
             docPanel.setCaretPosition( 0 );
@@ -371,79 +373,11 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     {
         propsCont.addGroup( "Editor - General" );
         
-        propsCont.addProperty( new Property( (Widget)null, "resolution", true, PropertyEditorType.STRING )
-        {
-            @Override
-            public void setValue( Object value )
-            {
-            }
-            
-            @Override
-            public Object getValue()
-            {
-                return ( gameResolution.getResolutionString() );
-            }
-            
-            @Override
-            public void loadValue( PropertyLoader loader, String value )
-            {
-            }
-        } );
+        propsCont.addProperty( gameResProp );
         
         getEditorPanel().getSettings().getProperties( propsCont, true );
         
-        propsCont.addProperty( new ListProperty<String, ArrayList<String>>( (Widget)null, "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
-        {
-            @Override
-            protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-            {
-                return ( true );
-            }
-            
-            @Override
-            public void setValue( Object value )
-            {
-                if ( value.equals( "none" ) )
-                {
-                    currentTemplateFile = null;
-                    lastTemplateConfigModified = -1L;
-                    templateConfig = null;
-                }
-                else
-                {
-                    try
-                    {
-                        loadTemplateConfig( new File( GameFileSystem.INSTANCE.getConfigFolder(), (String)value ) );
-                    }
-                    catch ( IOException e )
-                    {
-                        RFDHLog.exception( e );
-                    }
-                }
-            }
-            
-            @Override
-            public String getValue()
-            {
-                return ( getCurrentTemplateFileForProperty() );
-            }
-            
-            @Override
-            public void onButtonClicked( Object button )
-            {
-                if ( currentTemplateFile != null )
-                {
-                    try
-                    {
-                        loadTemplateConfig( currentTemplateFile );
-                    }
-                    catch ( IOException e )
-                    {
-                        RFDHLog.exception( e );
-                    }
-                }
-            }
-        } );
+        propsCont.addProperty( templateConfigProp );
         
         propsCont.addGroup( "Configuration - Global" );
         
@@ -1666,6 +1600,58 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         return ( editorPanel );
     }
     
+    private Property createTemplateConfigProperty()
+    {
+        Property templateConfigProp = new ListProperty<String, ArrayList<String>>( "templateConfig", "templateConfig", getCurrentTemplateFileForProperty(), getConfigurationFiles(), false, "reload" )
+        {
+            @Override
+            public void setValue( Object value )
+            {
+                if ( value.equals( "none" ) )
+                {
+                    currentTemplateFile = null;
+                    lastTemplateConfigModified = -1L;
+                    templateConfig = null;
+                }
+                else
+                {
+                    try
+                    {
+                        loadTemplateConfig( new File( GameFileSystem.INSTANCE.getConfigFolder(), (String)value ) );
+                    }
+                    catch ( IOException e )
+                    {
+                        RFDHLog.exception( e );
+                    }
+                }
+            }
+            
+            @Override
+            public String getValue()
+            {
+                return ( getCurrentTemplateFileForProperty() );
+            }
+            
+            @Override
+            public void onButtonClicked( Object button )
+            {
+                if ( currentTemplateFile != null )
+                {
+                    try
+                    {
+                        loadTemplateConfig( currentTemplateFile );
+                    }
+                    catch ( IOException e )
+                    {
+                        RFDHLog.exception( e );
+                    }
+                }
+            }
+        };
+        
+        return ( templateConfigProp );
+    }
+    
     public RFDynHUDEditor()
     {
         super();
@@ -1699,6 +1685,11 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         
         this.editorPanel = createEditorPanel();
         this.gameResolution = widgetsConfig.getGameResolution();
+        
+        templateConfigProp = createTemplateConfigProperty();
+        
+        __PropsPrivilegedAccess.setKeeper( gameResProp, null, false );
+        __PropsPrivilegedAccess.setKeeper( templateConfigProp, null, false );
         
         editorScrollPane = new JScrollPane( editorPanel );
         editorScrollPane.getHorizontalScrollBar().setUnitIncrement( 20 );
@@ -1784,6 +1775,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 }
             }
         } );
+        
+        __PropsPrivilegedAccess.attachKeeper( editorPanel.getSettings(), false );
     }
     
     public static void main( String[] args )

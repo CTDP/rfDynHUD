@@ -36,18 +36,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-
-import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
+import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.properties.DefaultPropertiesContainer;
-import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 
 public class EditorPresetsWindow extends JDialog implements PropertyChangeListener
 {
@@ -66,7 +65,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     
     private boolean setWindowSize = true;
     
-    private final EnumProperty<ScaleType> defaultScaleType = new EnumProperty<ScaleType>( (Widget)null, "defaultScaleType", ScaleType.PERCENTS );
+    private final EnumProperty<ScaleType> defaultScaleType = new EnumProperty<ScaleType>( "defaultScaleType", ScaleType.PERCENTS );
     
     public void setDontSetWindowSize()
     {
@@ -212,6 +211,8 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     public EditorPresetsWindow( RFDynHUDEditor editor )
     {
         super( editor.getMainWindow(), "rfDynHUD Editor Presets", false );
+        
+        __PropsPrivilegedAccess.setKeeper( defaultScaleType, null, false );
         
         this.editor = editor;
         setLocationRelativeTo( editor.getMainWindow() );

@@ -58,32 +58,32 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     public static final int MAX_VELOCITY_LOCAL_Z_INDEX = NEEDLE_LOCAL_Z_INDEX / 2;
     public static final int CONTROLS_LOCAL_Z_INDEX = MAX_VELOCITY_LOCAL_Z_INDEX + 1;
     
-    private final BooleanProperty displayVelocityNumbers = new BooleanProperty( this, "displayVelocityNumbers", "displayNumbers", true );
+    private final BooleanProperty displayVelocityNumbers = new BooleanProperty( "displayVelocityNumbers", "displayNumbers", true );
     
-    private final FontProperty velocityNumberFont = new FontProperty( this, "velocityNumberFont", "font", ETVUtils.ETV_VELOCITY_FONT, false );
-    private final ColorProperty velocityNumberFontColor = new ColorProperty( this, "velocityNumberFontColor", "color", ETVUtils.ETV_CAPTION_FONT_COLOR, false );
+    private final FontProperty velocityNumberFont = new FontProperty( "velocityNumberFont", "font", ETVUtils.ETV_VELOCITY_FONT, false );
+    private final ColorProperty velocityNumberFontColor = new ColorProperty( "velocityNumberFontColor", "color", ETVUtils.ETV_CAPTION_FONT_COLOR, false );
     
-    private final IntProperty velocityNumber1PosX = new IntProperty( this, "velocityNumber1PosX", "pos1X", 270 );
-    private final IntProperty velocityNumber1PosY = new IntProperty( this, "velocityNumber1PosY", "pos1Y", 620 );
-    private final IntProperty velocityNumber2PosX = new IntProperty( this, "velocityNumber2PosX", "pos2X", 100 );
-    private final IntProperty velocityNumber3PosX = new IntProperty( this, "velocityNumber3PosX", "pos3X", 100 );
-    private final IntProperty velocityNumber4PosX = new IntProperty( this, "velocityNumber4PosX", "pos4X", 270 );
-    private final IntProperty velocityNumber4PosY = new IntProperty( this, "velocityNumber4PosY", "pos4Y", 50 );
-    private final IntProperty velocityUnitsPosX = new IntProperty( this, "velocityUnitsPosX", "unitsPosX", 300 );
-    private final IntProperty velocityUnitsPosY = new IntProperty( this, "velocityUnitsPosY", "unitsPosY", 660 );
+    private final IntProperty velocityNumber1PosX = new IntProperty( "velocityNumber1PosX", "pos1X", 270 );
+    private final IntProperty velocityNumber1PosY = new IntProperty( "velocityNumber1PosY", "pos1Y", 620 );
+    private final IntProperty velocityNumber2PosX = new IntProperty( "velocityNumber2PosX", "pos2X", 100 );
+    private final IntProperty velocityNumber3PosX = new IntProperty( "velocityNumber3PosX", "pos3X", 100 );
+    private final IntProperty velocityNumber4PosX = new IntProperty( "velocityNumber4PosX", "pos4X", 270 );
+    private final IntProperty velocityNumber4PosY = new IntProperty( "velocityNumber4PosY", "pos4Y", 50 );
+    private final IntProperty velocityUnitsPosX = new IntProperty( "velocityUnitsPosX", "unitsPosX", 300 );
+    private final IntProperty velocityUnitsPosY = new IntProperty( "velocityUnitsPosY", "unitsPosY", 660 );
     
-    private final IntProperty maxVelocity = new IntProperty( this, "maxVelocity", 340, 1, 1000 );
-    private final IntProperty velocity2 = new IntProperty( this, "velocity2", 110, 1, 1000 );
-    private final IntProperty velocity3 = new IntProperty( this, "velocity3", 220, 1, 1000 );
+    private final IntProperty maxVelocity = new IntProperty( "maxVelocity", 340, 1, 1000 );
+    private final IntProperty velocity2 = new IntProperty( "velocity2", 110, 1, 1000 );
+    private final IntProperty velocity3 = new IntProperty( "velocity3", 220, 1, 1000 );
     
-    private final ImageProperty maxVelocityOverlay = new ImageProperty( this, "maxVelocityOverlay", "image", "etv2010/telemetry/max_velocity.png" );
+    private final ImageProperty maxVelocityOverlay = new ImageProperty( "maxVelocityOverlay", "image", "etv2010/telemetry/max_velocity.png" );
     private TransformableTexture maxVelocityTexture = null;
-    private final IntProperty maxVelocityLeftOffset = new IntProperty( this, "maxVelocityLeftOffset", "leftOffset", 15 );
-    private final IntProperty maxVelocityTopOffset = new IntProperty( this, "maxVelocityTopOffset", "topOffset", 80 );
+    private final IntProperty maxVelocityLeftOffset = new IntProperty( "maxVelocityLeftOffset", "leftOffset", 15 );
+    private final IntProperty maxVelocityTopOffset = new IntProperty( "maxVelocityTopOffset", "topOffset", 80 );
     
     private boolean throttleDirty = true;
     
-    private final ImageProperty throttleImage = new ImageProperty( this, "throttleImage", null, "etv2010/telemetry/throttle.png", false, false )
+    private final ImageProperty throttleImage = new ImageProperty( "throttleImage", null, "etv2010/telemetry/throttle.png", false, false )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -97,7 +97,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     
     private boolean brakeDirty = true;
     
-    private final ImageProperty brakeImage = new ImageProperty( this, "brakeImage", null, "etv2010/telemetry/brake.png", false, false )
+    private final ImageProperty brakeImage = new ImageProperty( "brakeImage", null, "etv2010/telemetry/brake.png", false, false )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -109,53 +109,53 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     private TransformableTexture texBrake1 = null;
     private TransformableTexture texBrake2 = null;
     
-    private final IntProperty controlsPosX = new IntProperty( this, "controlsPosX", 600 )
+    private final IntProperty controlsPosX = new IntProperty( "controlsPosX", 600 )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             throttleDirty = true;
             brakeDirty = true;
         }
     };
-    private final IntProperty controlsPosY = new IntProperty( this, "controlsPosY", 400 )
+    private final IntProperty controlsPosY = new IntProperty( "controlsPosY", 400 )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             throttleDirty = true;
             brakeDirty = true;
         }
     };
-    private final IntProperty controlsWidth = new IntProperty( this, "controlsWidth", 350 )
+    private final IntProperty controlsWidth = new IntProperty( "controlsWidth", 350 )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             throttleDirty = true;
             brakeDirty = true;
         }
     };
-    private final IntProperty controlsHeight = new IntProperty( this, "controlsHeight", 80 )
+    private final IntProperty controlsHeight = new IntProperty( "controlsHeight", 80 )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             throttleDirty = true;
             brakeDirty = true;
         }
     };
-    private final IntProperty controlsGap = new IntProperty( this, "controlsGap", "gap", 2 )
+    private final IntProperty controlsGap = new IntProperty( "controlsGap", "gap", 2 )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             throttleDirty = true;
             brakeDirty = true;
         }
     };
     
-    private final FontProperty controlsLabelFont = new FontProperty( this, "controlsLabelFont", "labelFont", ETVUtils.ETV_CONTROLS_LABEL_FONT )
+    private final FontProperty controlsLabelFont = new FontProperty( "controlsLabelFont", "labelFont", ETVUtils.ETV_CONTROLS_LABEL_FONT )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -165,7 +165,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         }
     };
     
-    private final ColorProperty controlsLabelFontColor = new ColorProperty( this, "controlsLabelFontColor", "labelFontColor", "#FFFFFF" )
+    private final ColorProperty controlsLabelFontColor = new ColorProperty( "controlsLabelFontColor", "labelFontColor", "#FFFFFF" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -175,10 +175,10 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         }
     };
     
-    private final IntProperty controlsLabelOffset = new IntProperty( this, "controlsLabelOffset", "labelOffset", 15 )
+    private final IntProperty controlsLabelOffset = new IntProperty( "controlsLabelOffset", "labelOffset", 15 )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             brakeDirty = true;
             throttleDirty = true;

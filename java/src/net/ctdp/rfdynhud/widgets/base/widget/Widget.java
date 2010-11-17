@@ -39,11 +39,14 @@ import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.GenericPropertiesIterator;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.properties.Position;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertiesKeeper;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
+import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -58,9 +61,7 @@ import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.GenericPositionsIterator;
 import net.ctdp.rfdynhud.values.GenericSizesIterator;
 import net.ctdp.rfdynhud.values.InnerSize;
-import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
@@ -90,12 +91,12 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     
     private boolean dirtyFlag = true;
     
-    private final StringProperty type = new StringProperty( this, "type", this.getClass().getSimpleName(), true );
-    private final StringProperty name = new StringProperty( this, "name", this.getClass().getSimpleName() + "1" );
+    private final StringProperty type = new StringProperty( "type", this.getClass().getSimpleName(), true );
+    private final StringProperty name = new StringProperty( "name", this.getClass().getSimpleName() + "1" );
     
     private WidgetController controller = null;
     
-    private final BooleanProperty inputVisible = new BooleanProperty( this, "initialVisibility", true );
+    private final BooleanProperty inputVisible = new BooleanProperty( "initialVisibility", true );
     private boolean autoVisible = true;
     private boolean updatedVisible = true;
     private boolean visibilityChangedSinceLastDraw = true;
@@ -112,14 +113,14 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     private final PosSizeProperty widthProperty;
     private final PosSizeProperty heightProperty;
     private final InnerSize innerSize;
-    private final IntProperty zIndex = new IntProperty( this, "zIndex", 0 );
+    private final IntProperty zIndex = new IntProperty( "zIndex", 0 );
     
-    private final IntProperty paddingTop = new IntProperty( this, "paddingTop", "top", 0, 0, 1000, false );
-    private final IntProperty paddingLeft = new IntProperty( this, "paddingLeft", "left", 0, 0, 1000, false );
-    private final IntProperty paddingRight = new IntProperty( this, "paddingRight", "right", 0, 0, 1000, false );
-    private final IntProperty paddingBottom = new IntProperty( this, "paddingBottom", "bottom", 0, 0, 1000, false );
+    private final IntProperty paddingTop = new IntProperty( "paddingTop", "top", 0, 0, 1000, false );
+    private final IntProperty paddingLeft = new IntProperty( "paddingLeft", "left", 0, 0, 1000, false );
+    private final IntProperty paddingRight = new IntProperty( "paddingRight", "right", 0, 0, 1000, false );
+    private final IntProperty paddingBottom = new IntProperty( "paddingBottom", "bottom", 0, 0, 1000, false );
     
-    private final BorderProperty border = new BorderProperty( this, "border", BorderProperty.DEFAULT_BORDER_NAME, paddingTop, paddingLeft, paddingRight, paddingBottom );
+    private final BorderProperty border = new BorderProperty( "border", BorderProperty.DEFAULT_BORDER_NAME, paddingTop, paddingLeft, paddingRight, paddingBottom );
     
     /**
      * Gets the initial value for the background property.
@@ -141,7 +142,7 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      * @param deltaScaleY the y-scale factor in as a difference between the old background image and the new one or -1 of no background image was selected
      */
     protected void onBackgroundChanged( boolean imageChanged, float deltaScaleX, float deltaScaleY ) {}
-    private final BackgroundProperty backgroundProperty = canHaveBackground() || overridesDrawBackground ? new BackgroundProperty( this, "background", getInitialBackground() )
+    private final BackgroundProperty backgroundProperty = canHaveBackground() || overridesDrawBackground ? new BackgroundProperty( "background", getInitialBackground() )
     {
         @Override
         protected void onValueChanged( BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
@@ -152,8 +153,8 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     } : null;
     private final WidgetBackground background = canHaveBackground() || overridesDrawBackground ? new WidgetBackground( this, backgroundProperty ) : null;
     
-    private final FontProperty font = new FontProperty( this, "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty fontColor = new ColorProperty( this, "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    private final FontProperty font = new FontProperty( "font", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty fontColor = new ColorProperty( "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
     
     private TransformableTexture[] subTextures = null;
     
@@ -249,18 +250,13 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     @Override
     public void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
-        forceCompleteRedraw( true );
+        forceAndSetDirty( true );
         
         if ( __EDPrivilegedAccess.isEditorMode )
         {
-            if ( property == zIndex )
+            if ( ( property == zIndex ) && ( getConfiguration() != null ) )
             {
-                WidgetsConfiguration wc = getConfiguration();
-                
-                if ( wc != null )
-                {
-                    __WCPrivilegedAccess.sortWidgets( wc );
-                }
+                __WCPrivilegedAccess.sortWidgets( getConfiguration() );
             }
         }
     }
@@ -398,6 +394,18 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     void setConfiguration( WidgetsConfiguration config )
     {
         this.config = config;
+        
+        if ( this.config != null )
+        {
+            FlatPropertiesContainer pc = new FlatPropertiesContainer();
+            
+            getProperties( pc, true );
+            
+            for ( int i = 0; i < pc.getList().size(); i++ )
+            {
+                __PropsPrivilegedAccess.setKeeper( pc.getList().get( i ), this, false );
+            }
+        }
     }
     
     /**
@@ -1992,19 +2000,14 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
         return ( newWidget );
     }
     
-    private String getDocumentationSource( Class<?> clazz, Property property )
+    private String getDocumentationSource( Class<?> clazz )
     {
-        URL docURL = null;
-        
-        if ( property == null )
-            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/widget.html" );
-        else
-            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getName() + ".html" );
+        URL docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/widget.html" );
         
         if ( docURL == null )
         {
             if ( ( clazz.getSuperclass() != null ) && ( clazz.getSuperclass() != Object.class ) )
-                return ( getDocumentationSource( clazz.getSuperclass(), property ) );
+                return ( getDocumentationSource( clazz.getSuperclass() ) );
             
             return ( "" );
         }
@@ -2012,13 +2015,9 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
         return ( StringUtils.loadString( docURL ) );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final String getDocumentationSource( Property property )
+    public final String getDocumentationSource()
     {
-        return ( getDocumentationSource( this.getClass(), property ) );
+        return ( getDocumentationSource( this.getClass() ) );
     }
     
     

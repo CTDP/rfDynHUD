@@ -23,7 +23,7 @@ import javax.swing.JButton;
 
 import net.ctdp.rfdynhud.editor.director.widgetstatesset.WidgetStatesSet;
 import net.ctdp.rfdynhud.properties.ListProperty;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 
 /**
  * Insert class comment here.
@@ -60,7 +60,9 @@ public class StateSetsListProperty extends ListProperty<WidgetStatesSet, List<Wi
     
     public StateSetsListProperty( DirectorManager manager, List<WidgetStatesSet> list )
     {
-        super( (Widget)null, "states sets", null, list );
+        super( "states sets", null, list );
+        
+        __PropsPrivilegedAccess.setKeeper( this, null, false );
         
         this.manager = manager;
     }

@@ -18,7 +18,6 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link ImagePropertyWithTransTexture} serves for customizing an image
@@ -114,101 +113,46 @@ public class ImagePropertyWithTransTexture extends ImageProperty
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param readonly read only property?
      * @param noImageAllowed allow "no image" for this property?
      */
-    public ImagePropertyWithTransTexture( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
+    public ImagePropertyWithTransTexture( String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
     {
-        super( widget, name, nameForDisplay, defaultValue, readonly, noImageAllowed );
+        super( name, nameForDisplay, defaultValue, readonly, noImageAllowed );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public ImagePropertyWithTransTexture( Widget widget, String name, String nameForDisplay, String defaultValue )
+    public ImagePropertyWithTransTexture( String name, String nameForDisplay, String defaultValue )
     {
-        this( widget, name, nameForDisplay, defaultValue, false, DEFAULT_NO_IMAGE_ALOWED );
+        this( name, nameForDisplay, defaultValue, false, DEFAULT_NO_IMAGE_ALOWED );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public ImagePropertyWithTransTexture( Widget widget, String name, String defaultValue, boolean readonly )
+    public ImagePropertyWithTransTexture( String name, String defaultValue, boolean readonly )
     {
-        this( widget, name, null, defaultValue, readonly, DEFAULT_NO_IMAGE_ALOWED );
+        this( name, null, defaultValue, readonly, DEFAULT_NO_IMAGE_ALOWED );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public ImagePropertyWithTransTexture( Widget widget, String name, String defaultValue )
+    public ImagePropertyWithTransTexture( String name, String defaultValue )
     {
-        this( widget, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     * @param noImageAllowed allow "no image" for this property?
-     */
-    public ImagePropertyWithTransTexture( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly, boolean noImageAllowed )
-    {
-        this( (Widget)null, name, nameForDisplay, defaultValue, readonly, noImageAllowed );
-        
-        w2pf.addProperty( this );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public ImagePropertyWithTransTexture( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
-    {
-        this( w2pf, name, nameForDisplay, defaultValue, false, DEFAULT_NO_IMAGE_ALOWED );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public ImagePropertyWithTransTexture( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
-    {
-        this( w2pf, name, null, defaultValue, readonly, DEFAULT_NO_IMAGE_ALOWED );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public ImagePropertyWithTransTexture( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
-    {
-        this( w2pf, name, defaultValue, false );
+        this( name, defaultValue, false );
     }
 }

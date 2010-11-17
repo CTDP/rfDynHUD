@@ -18,10 +18,7 @@
 package net.ctdp.rfdynhud.editor.director.widgetstate;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-
-import org.jagatoo.util.strings.StringUtils;
 
 import net.ctdp.rfdynhud.editor.director.DirectorManager;
 import net.ctdp.rfdynhud.editor.director.DriverCapsule;
@@ -32,12 +29,13 @@ import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.GenericPropertiesIterator;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.ListProperty;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertiesKeeper;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.TimeProperty;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -60,9 +58,9 @@ public class WidgetState implements PropertiesKeeper
     private final DirectorManager manager;
     
     private final StringProperty name;
-    private final StringProperty widgetName = new StringProperty( (Widget)null, "widgetName", "widgetName" );
-    private final EnumProperty<VisibleType> visibleType = new EnumProperty<VisibleType>( (Widget)null, "visibleType", VisibleType.AUTO );
-    private final TimeProperty visibleStart = new TimeProperty( (Widget)null, "visibleStart", "00:00:00" )
+    private final StringProperty widgetName = new StringProperty( "widgetName", "widgetName" );
+    private final EnumProperty<VisibleType> visibleType = new EnumProperty<VisibleType>( "visibleType", VisibleType.AUTO );
+    private final TimeProperty visibleStart = new TimeProperty( "visibleStart", "00:00:00" )
     {
         @Override
         public String getButtonText()
@@ -76,11 +74,11 @@ public class WidgetState implements PropertiesKeeper
             setNanoValue( manager.getSessionTime() );
         }
     };
-    private final DelayProperty visibleTime = new DelayProperty( (Widget)null, "visibleTime", DisplayUnits.SECONDS, 20, 0, Integer.MAX_VALUE );
+    private final DelayProperty visibleTime = new DelayProperty( "visibleTime", DisplayUnits.SECONDS, 20, 0, Integer.MAX_VALUE );
     private final ListProperty<DriverCapsule, List<DriverCapsule>> forDriver;
     private final ListProperty<DriverCapsule, List<DriverCapsule>> compareDriver;
-    private final IntProperty posX = new IntProperty( (Widget)null, "posX", -10000 );
-    private final IntProperty posY = new IntProperty( (Widget)null, "posY", -10000 );
+    private final IntProperty posX = new IntProperty( "posX", -10000 );
+    private final IntProperty posY = new IntProperty( "posY", -10000 );
     
     private final EffectiveWidgetState effectiveState = new EffectiveWidgetState();
     
@@ -306,40 +304,11 @@ public class WidgetState implements PropertiesKeeper
         propsCont.addProperty( posY );
     }
     
-    private String getDocumentationSource( Class<?> clazz, Property property )
-    {
-        URL docURL = null;
-        
-        if ( property == null )
-            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/widget.html" );
-        else
-            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getName() + ".html" );
-        
-        if ( docURL == null )
-        {
-            if ( ( clazz.getSuperclass() != null ) && ( clazz.getSuperclass() != Object.class ) )
-                return ( getDocumentationSource( clazz.getSuperclass(), property ) );
-            
-            return ( "" );
-        }
-        
-        return ( StringUtils.loadString( docURL ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final String getDocumentationSource( Property property )
-    {
-        return ( getDocumentationSource( this.getClass(), property ) );
-    }
-    
     public WidgetState( List<DriverCapsule> driversList, final DirectorManager manager )
     {
         this.manager = manager;
         
-        this.name = new StringProperty( (Widget)null, "name", "WidgetState" )
+        this.name = new StringProperty( "name", "WidgetState" )
         {
             @Override
             public String getButtonText()
@@ -354,7 +323,9 @@ public class WidgetState implements PropertiesKeeper
             }
         };
         
-        this.forDriver = new ListProperty<DriverCapsule, List<DriverCapsule>>( (Widget)null, "forDriver", DriverCapsule.DEFAULT_DRIVER, driversList );
-        this.compareDriver = new ListProperty<DriverCapsule, List<DriverCapsule>>( (Widget)null, "compareDriver", DriverCapsule.DEFAULT_DRIVER, driversList );
+        this.forDriver = new ListProperty<DriverCapsule, List<DriverCapsule>>( "forDriver", DriverCapsule.DEFAULT_DRIVER, driversList );
+        this.compareDriver = new ListProperty<DriverCapsule, List<DriverCapsule>>( "compareDriver", DriverCapsule.DEFAULT_DRIVER, driversList );
+        
+        __PropsPrivilegedAccess.attachKeeper( this, false );
     }
 }

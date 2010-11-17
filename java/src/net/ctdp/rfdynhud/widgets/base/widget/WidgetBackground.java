@@ -125,6 +125,9 @@ public class WidgetBackground
     
     void onPropertyValueChanged( Widget widget, BackgroundType oldBGType, BackgroundType newBGType, String oldValue, String newValue )
     {
+        if ( oldBGType == null )
+            return;
+        
         changeCount++;
         
         int width = getWidth();
@@ -134,9 +137,9 @@ public class WidgetBackground
         float deltaScaleY = -1.0f;
         boolean imageChanged = false;
         
-        if ( newBGType.isColor() )
+        if ( newBGType == BackgroundType.COLOR )
         {
-            if ( oldBGType.isImage() )
+            if ( oldBGType == BackgroundType.IMAGE )
             {
                 ImageTemplate it = TextureManager.getImage( oldValue );
                 
@@ -150,9 +153,9 @@ public class WidgetBackground
             bgTexDirty = true;
             mergedBgTexDirty = true;
         }
-        else if ( newBGType.isImage() )
+        else if ( newBGType == BackgroundType.IMAGE )
         {
-            if ( oldBGType.isColor() )
+            if ( oldBGType == BackgroundType.COLOR )
             {
                 ImageTemplate it = TextureManager.getImage( newValue );
                 
@@ -160,7 +163,7 @@ public class WidgetBackground
                 deltaScaleY = (float)it.getBaseHeight() / (float)height;
                 imageChanged = true;
             }
-            else if ( oldBGType.isImage() )
+            else if ( oldBGType == BackgroundType.IMAGE )
             {
                 ImageTemplate it = TextureManager.getImage( oldValue );
                 

@@ -591,9 +591,9 @@ public class EditorMenuBar extends JMenuBar
                         wp = rootPackage;
                     
                     widgetPackages.add( wp );
+                    
+                    classes.add( clazz );
                 }
-                
-                classes.add( clazz );
             }
             catch ( Throwable t )
             {

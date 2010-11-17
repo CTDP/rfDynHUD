@@ -33,6 +33,7 @@ import net.ctdp.rfdynhud.editor.util.BackgroundSelector;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * 
@@ -163,7 +164,7 @@ public class BackgroundCellEditor extends ValueCellEditor<Property, JPanel, JBut
                 {
                     if ( backgroundSelector == null )
                     {
-                        backgroundSelector = new BackgroundSelector( null, null, prop.getWidget().getConfiguration() );
+                        backgroundSelector = new BackgroundSelector( null, null, ( (Widget)prop.getKeeper() ).getConfiguration() );
                     }
                     
                     JFrame frame = (JFrame)getTable().getRootPane().getParent();
@@ -171,7 +172,7 @@ public class BackgroundCellEditor extends ValueCellEditor<Property, JPanel, JBut
                     String startColor = ( prop.getColorProperty() != null ) ? prop.getColorProperty().getColorKey() : null;
                     String startImage = ( prop.getImageProperty() != null ) ? prop.getImageProperty().getImageName() : null;
                     
-                    Object[] result = backgroundSelector.showDialog( frame, prop.getBackgroundType(), startColor, startImage, prop.getWidget().getConfiguration() );
+                    Object[] result = backgroundSelector.showDialog( frame, prop.getBackgroundType(), startColor, startImage, ( (Widget)prop.getKeeper() ).getConfiguration() );
                     
                     if ( result != null )
                     {

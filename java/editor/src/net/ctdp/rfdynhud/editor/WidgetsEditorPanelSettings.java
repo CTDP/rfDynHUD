@@ -204,84 +204,54 @@ public class WidgetsEditorPanelSettings implements PropertiesKeeper
             editor.getMenuBar().setNeedsDMCheck();
     }
     
-    private final IntProperty railDistanceX = new IntProperty( (Widget)null, "railDistanceX", 10, 0, 100 );
-    private final IntProperty railDistanceY = new IntProperty( (Widget)null, "railDistanceY", 10, 0, 100 );
-    private final IntProperty maxRailDistance = new IntProperty( (Widget)null, "maxRailDistance", 250, 0, 99999 );
+    private final IntProperty railDistanceX = new IntProperty( "railDistanceX", 10, 0, 100 );
+    private final IntProperty railDistanceY = new IntProperty( "railDistanceY", 10, 0, 100 );
+    private final IntProperty maxRailDistance = new IntProperty( "maxRailDistance", 250, 0, 99999 );
     
-    private final BooleanProperty drawGrid = new BooleanProperty( (Widget)null, "drawGrid", false )
+    private final BooleanProperty drawGrid = new BooleanProperty( "drawGrid", false )
     {
         @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
-        
-        @Override
-        protected void onValueChanged( boolean newValue )
+        protected void onValueChanged( Boolean oldValue, boolean newValue )
         {
             if ( !bgImageReloadSuppressed && ( WidgetsEditorPanelSettings.this.widgetsConfig != null ) )
                 editorPanel.setBackgroundImage( loadBackgroundImage() );
         }
     };
     
-    private final IntProperty gridOffsetX = new IntProperty( (Widget)null, "gridOffsetX", 0 )
+    private final IntProperty gridOffsetX = new IntProperty( "gridOffsetX", 0 )
     {
         @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
-        
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( WidgetsEditorPanelSettings.this.widgetsConfig != null ) )
                 editorPanel.setBackgroundImage( loadBackgroundImage() );
         }
     };
     
-    private final IntProperty gridOffsetY = new IntProperty( (Widget)null, "gridOffsetY", 0 )
+    private final IntProperty gridOffsetY = new IntProperty( "gridOffsetY", 0 )
     {
         @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
-        
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( WidgetsEditorPanelSettings.this.widgetsConfig != null ) )
                 editorPanel.setBackgroundImage( loadBackgroundImage() );
         }
     };
     
-    private final IntProperty gridSizeX = new IntProperty((Widget) null, "gridSizeX", 10, 0, 5000 )
+    private final IntProperty gridSizeX = new IntProperty( "gridSizeX", 10, 0, 5000 )
     {
         @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
-        
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( WidgetsEditorPanelSettings.this.widgetsConfig != null ) )
                 editorPanel.setBackgroundImage( loadBackgroundImage() );
         }
     };
     
-    private final IntProperty gridSizeY = new IntProperty( (Widget)null, "gridSizeY", 10, 0, 5000 )
+    private final IntProperty gridSizeY = new IntProperty( "gridSizeY", 10, 0, 5000 )
     {
         @Override
-        protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-        {
-            return ( true );
-        }
-        
-        @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             if ( !bgImageReloadSuppressed && ( WidgetsEditorPanelSettings.this.widgetsConfig != null ) )
                 editorPanel.setBackgroundImage( loadBackgroundImage() );
@@ -385,14 +355,8 @@ public class WidgetsEditorPanelSettings implements PropertiesKeeper
     @Override
     public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
-        propsCont.addProperty( new ListProperty<String, List<String>>( (Widget)null, "screenshotSet", getScreenshotSet(), getScreenshotSets() )
+        propsCont.addProperty( new ListProperty<String, List<String>>( "screenshotSet", getScreenshotSet(), getScreenshotSets() )
         {
-            @Override
-            protected boolean getTriggerOnValueChangedBeforeAttachedToConfig()
-            {
-                return ( true );
-            }
-            
             @Override
             public void setValue( Object value )
             {
@@ -415,16 +379,6 @@ public class WidgetsEditorPanelSettings implements PropertiesKeeper
         propsCont.addProperty( gridOffsetY );
         propsCont.addProperty( gridSizeX );
         propsCont.addProperty( gridSizeY );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDocumentationSource( Property property )
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
     
     public final boolean isGridUsed()

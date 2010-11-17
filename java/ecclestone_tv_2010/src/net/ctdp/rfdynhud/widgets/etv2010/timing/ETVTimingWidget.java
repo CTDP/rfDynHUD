@@ -65,13 +65,13 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         ;
     }
     
-    private final IntProperty positionFontSize = new IntProperty( this, "positionFontSize", 200 );
+    private final IntProperty positionFontSize = new IntProperty( "positionFontSize", 200 );
     
-    private final BooleanProperty alwaysShowFull1000 = new BooleanProperty( this, "alwaysShowFull1000", "showFull1000", false );
+    private final BooleanProperty alwaysShowFull1000 = new BooleanProperty( "alwaysShowFull1000", "showFull1000", false );
     
-    protected final IntProperty positionItemGap = new IntProperty( this, "positionItemGap", 5, 0, 100 );
+    protected final IntProperty positionItemGap = new IntProperty( "positionItemGap", 5, 0, 100 );
     
-    private final EnumProperty<DisplayType> displayType = new EnumProperty<DisplayType>( this, "displayType", DisplayType.AT_SECTORS );
+    private final EnumProperty<DisplayType> displayType = new EnumProperty<DisplayType>( "displayType", DisplayType.AT_SECTORS );
     
     private Font positionFont = null;
     
@@ -110,9 +110,6 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         else if ( property == getFontProperty() )
         {
             positionFont = null;
-            
-            forceReinitialization();
-            forceCompleteRedraw( false );
         }
     }
     

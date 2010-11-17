@@ -53,9 +53,9 @@ public class Lesson4bWidget_SubTextures extends Widget
     /*
      * We need an image for our sub texture.
      */
-    private final ImagePropertyWithTexture subImage = new ImagePropertyWithTexture( this, "subImage", "standard/cyan_circle.png" );
+    private final ImagePropertyWithTexture subImage = new ImagePropertyWithTexture( "subImage", "standard/cyan_circle.png" );
     
-    private final ColorProperty myFontColor = new ColorProperty( this, "myFontColor", "#000000" );
+    private final ColorProperty myFontColor = new ColorProperty( "myFontColor", "#000000" );
     
     /*
      * A sub texture is represented by a TransformableTexture.

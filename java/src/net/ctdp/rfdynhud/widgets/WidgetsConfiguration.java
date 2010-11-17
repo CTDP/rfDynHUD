@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.widgets;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,7 +48,6 @@ import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
-import org.jagatoo.util.strings.StringUtils;
 import org.openmali.vecmath2.util.ColorUtils;
 
 /**
@@ -83,7 +81,7 @@ public class WidgetsConfiguration implements PropertiesKeeper
     private final HashMap<String, Object> localStores = new HashMap<String, Object>();
     private final HashMap<String, Boolean> visibilities = new HashMap<String, Boolean>();
     
-    private final BooleanProperty useClassScoring = __PropsPrivilegedAccess.newBooleanProperty( this, "useClassScoring", "useClassScoring", false, false );
+    private final BooleanProperty useClassScoring = new BooleanProperty( "useClassScoring", "useClassScoring", false, false );
     
     private boolean needsCheckFixAndBake = true;
     
@@ -186,7 +184,8 @@ public class WidgetsConfiguration implements PropertiesKeeper
             //    visibilities.put( getLocalStoreKey( widget ), widget.isInputVisible() );
         }
         
-        __WPrivilegedAccess.setConfiguration( null, widget, false );
+        if ( widget.getConfiguration() != null )
+            __WPrivilegedAccess.setConfiguration( null, widget, false );
     }
     
     /**
@@ -918,6 +917,8 @@ public class WidgetsConfiguration implements PropertiesKeeper
     @Override
     public void onPropertyChanged( Property property, Object oldValue, Object newValue )
     {
+        for ( int i = 0; i < getNumWidgets(); i++ )
+            getWidget( i ).forceAndSetDirty( true );
     }
     
     /**
@@ -949,33 +950,6 @@ public class WidgetsConfiguration implements PropertiesKeeper
         propsCont.addProperty( useClassScoring );
     }
     
-    private String getDocumentationSource( Class<?> clazz, Property property )
-    {
-        URL docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getName() + ".html" );
-        
-        if ( docURL == null )
-        {
-            if ( ( clazz.getSuperclass() != null ) && ( clazz.getSuperclass() != Object.class ) )
-                return ( getDocumentationSource( clazz.getSuperclass(), property ) );
-            
-            return ( "" );
-        }
-        
-        return ( StringUtils.loadString( docURL ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final String getDocumentationSource( Property property )
-    {
-        if ( property == null )
-            return ( "" );
-        
-        return ( getDocumentationSource( this.getClass(), property ) );
-    }
-    
     /**
      * Creates a new {@link WidgetsConfiguration}.
      * 
@@ -986,5 +960,6 @@ public class WidgetsConfiguration implements PropertiesKeeper
     {
         __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
         __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
+        __PropsPrivilegedAccess.attachKeeper( this, false );
     }
 }

@@ -18,7 +18,6 @@
 package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link TimeProperty} serves for customizing a time value.
@@ -32,12 +31,31 @@ public class TimeProperty extends Property
     private long value;
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getNanoValue() );
+    }
+    
+    /**
      * Invoked when the value has changed.
      * 
      * @param oldValue the old value
      * @param newValue the new value
      */
-    protected void onValueChanged( long oldValue, long newValue )
+    protected void onValueChanged( Long oldValue, long newValue )
+    {
+    }
+    
+    /**
+     * 
+     * @param nanos
+     */
+    void onValueSet( long nanos )
     {
     }
     
@@ -45,27 +63,25 @@ public class TimeProperty extends Property
      * Sets the property's value.
      * 
      * @param nanos the time in nano seconds
-     * @param triggerOnChange
+     * @param firstTime
      * 
      * @return changed?
      */
-    private boolean setNanoValue( long nanos, boolean triggerOnChange )
+    protected final boolean setNanoValue( long nanos, boolean firstTime )
     {
         if ( nanos == this.value )
             return ( false );
         
-        long oldValue = this.value;
+        Long oldValue = firstTime ? null : this.value;
         
         this.value = nanos;
         
-        if ( triggerOnChange )
+        onValueSet( this.value );
+        
+        if ( !firstTime )
         {
-            if ( widget != null )
-                widget.forceAndSetDirty( true );
-            
             triggerCommonOnValueChanged( oldValue, value );
-            if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-                onValueChanged( oldValue, value );
+            onValueChanged( oldValue, value );
         }
         
         return ( true );
@@ -78,9 +94,9 @@ public class TimeProperty extends Property
      * 
      * @return changed?
      */
-    public boolean setNanoValue( long nanos )
+    public final boolean setNanoValue( long nanos )
     {
-        return ( setNanoValue( nanos, true ) );
+        return ( setNanoValue( nanos, false ) );
     }
     
     /**
@@ -97,79 +113,60 @@ public class TimeProperty extends Property
      * Sets the property's value.
      * 
      * @param time the new value in the format &quot;00:00:00&quot;.
-     * @param triggerOnChange
+     * @param firstTime
      * 
      * @return changed?
      */
-    private boolean setTimeValue( String time, boolean triggerOnChange )
+    private boolean setTimeValue( String time, boolean firstTime )
     {
-        long oldValue = this.value;
-        
         if ( time != null )
             time = time.trim();
         
         if ( ( time == null ) || ( time.length() == 0 ) )
         {
-            this.value = 0L;
+            return ( setNanoValue( 0L, firstTime ) );
+        }
+        
+        long nanos = 0L;
+        
+        int p0 = time.lastIndexOf( ':' );
+        
+        if ( p0 == -1 )
+        {
+            // seconds
+            nanos = Long.parseLong( time ) * ONE_SECOND;
         }
         else
         {
-            long nanos = 0L;
-            
-            int p0 = time.lastIndexOf( ':' );
-            
-            if ( p0 == -1 )
-            {
+            if ( p0 == time.length() - 1 )
                 // seconds
-                nanos = Long.parseLong( time ) * ONE_SECOND;
-            }
+                nanos = 0L;
             else
+                // seconds
+                nanos = Long.parseLong( time.substring( p0 + 1 ) ) * ONE_SECOND;
+            
+            if ( p0 > 0 )
             {
-                if ( p0 == time.length() - 1 )
-                    // seconds
-                    nanos = 0L;
-                else
-                    // seconds
-                    nanos = Long.parseLong( time.substring( p0 + 1 ) ) * ONE_SECOND;
+                int p1 = p0;
+                p0 = time.lastIndexOf( ':', p1 - 1 );
                 
-                if ( p0 > 0 )
+                if ( p0 < 0 )
                 {
-                    int p1 = p0;
-                    p0 = time.lastIndexOf( ':', p1 - 1 );
+                    // minutes
+                    nanos += Long.parseLong( time.substring( 0, p1 ) ) * ONE_SECOND * 60L;
+                }
+                else
+                {
+                    // minutes
+                    nanos += Long.parseLong( time.substring( p0 + 1, p1 ) ) * ONE_SECOND * 60L;
                     
-                    if ( p0 < 0 )
-                    {
-                        // minutes
-                        nanos += Long.parseLong( time.substring( 0, p1 ) ) * ONE_SECOND * 60L;
-                    }
-                    else
-                    {
-                        // minutes
-                        nanos += Long.parseLong( time.substring( p0 + 1, p1 ) ) * ONE_SECOND * 60L;
-                        
-                        // hours
-                        nanos += Long.parseLong( time.substring( 0, p0 ) ) * ONE_SECOND * 3600L;
-                    }
+                    // hours
+                    nanos += Long.parseLong( time.substring( 0, p0 ) ) * ONE_SECOND * 3600L;
                 }
             }
-            
-            this.value = nanos;
         }
         
-        if ( this.value == oldValue )
-            return ( false );
-        
-        if ( triggerOnChange )
-        {
-            if ( widget != null )
-                widget.forceAndSetDirty( true );
-            
-            triggerCommonOnValueChanged( oldValue, value );
-            if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-                onValueChanged( oldValue, value );
-        }
-        
-        return ( true );
+        return ( setNanoValue( nanos, firstTime ) );
     }
     
     /**
@@ -179,9 +176,9 @@ public class TimeProperty extends Property
      * 
      * @return changed?
      */
-    public boolean setTimeValue( String time )
+    public final boolean setTimeValue( String time )
     {
-        return ( setTimeValue( time, true ) );
+        return ( setTimeValue( time, false ) );
     }
     
     /**
@@ -246,101 +243,47 @@ public class TimeProperty extends Property
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public TimeProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly )
+    public TimeProperty( String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.TIME, null, null );
+        super( name, nameForDisplay, readonly, PropertyEditorType.TIME, null, null );
         
-        setTimeValue( defaultValue, false );
+        setTimeValue( defaultValue, true );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public TimeProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
+    public TimeProperty( String name, String nameForDisplay, String defaultValue )
     {
-        this( widget, name, nameForDisplay, defaultValue, false );
+        this( name, nameForDisplay, defaultValue, false );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public TimeProperty( Widget widget, String name, String defaultValue, boolean readonly )
+    public TimeProperty( String name, String defaultValue, boolean readonly )
     {
-        this( widget, name, null, defaultValue, readonly );
+        this( name, null, defaultValue, readonly );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public TimeProperty( Widget widget, String name, String defaultValue )
+    public TimeProperty( String name, String defaultValue )
     {
-        this( widget, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public TimeProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly )
-    {
-        this( (Widget)null, name, nameForDisplay, defaultValue, readonly );
-        
-        w2pf.addProperty( this );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public TimeProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
-    {
-        this( w2pf, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public TimeProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
-    {
-        this( w2pf, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public TimeProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
-    {
-        this( w2pf, name, defaultValue, false );
+        this( name, defaultValue, false );
     }
 }

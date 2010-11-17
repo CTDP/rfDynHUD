@@ -28,9 +28,11 @@ import net.ctdp.rfdynhud.properties.FactoredIntProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
+import net.ctdp.rfdynhud.properties.Position;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
@@ -40,9 +42,7 @@ import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
 import net.ctdp.rfdynhud.values.AbstractSize;
-import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.values.RelativePositioning;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.widgets.base.needlemeter.NeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
@@ -54,7 +54,7 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class FuelNeedleWidget extends NeedleMeterWidget
 {
-    private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( this, "lowFuelWarningImageOff", "imageOff", "standard/shiftlight_off.png", false, true )
+    private final ImageProperty lowFuelWarningImageNameOff = new ImageProperty( "lowFuelWarningImageOff", "imageOff", "standard/shiftlight_off.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -64,7 +64,7 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     };
     private TransformableTexture lowFuelWarningImageOff = null;
     
-    private final ImageProperty lowFuelWarningImageNameOn = new ImageProperty( this, "lowFuelWarningImageOn", "imageOn", "standard/shiftlight_on_red.png", false, true )
+    private final ImageProperty lowFuelWarningImageNameOn = new ImageProperty( "lowFuelWarningImageOn", "imageOn", "standard/shiftlight_on_red.png", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -108,9 +108,9 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     //private final PosSizeProperty lowFuelWarningImageWidthProperty = lowFuelWarningImageSize.getWidthProperty( "lowFuelWarningImageWidth", "imageWidth" );
     private final PosSizeProperty lowFuelWarningImageHeightProperty = lowFuelWarningImageSize.getHeightProperty( "lowFuelWarningImageHeight", "imageHeight" );
     
-    private final IntProperty lowFuelWarningLaps = new IntProperty( this, "lowFuelWarningLaps", "laps", 1, 1, 10, false );
+    private final IntProperty lowFuelWarningLaps = new IntProperty( "lowFuelWarningLaps", "laps", 1, 1, 10, false );
     
-    private final FactoredIntProperty lowFuelBlinkTime = new FactoredIntProperty( this, "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 );
+    private final FactoredIntProperty lowFuelBlinkTime = new FactoredIntProperty( "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 );
     private final IntervalManager lowFuelBlinkManager = new IntervalManager( lowFuelBlinkTime );
     
     /**

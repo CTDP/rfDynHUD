@@ -43,8 +43,6 @@ public class FontProperty extends Property
     private static final BufferedImage METRICS_PROVIDER_IMAGE = new BufferedImage( 16, 16, BufferedImage.TYPE_INT_BGR );
     private static final Graphics2D METRICS_PROVIDER = METRICS_PROVIDER_IMAGE.createGraphics();
     
-    private final WidgetsConfiguration widgetsConf;
-    
     private String fontKey;
     private Font font = null;
     private Boolean antiAliased = null;
@@ -75,12 +73,32 @@ public class FontProperty extends Property
     }
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getValue() );
+    }
+    
+    /**
      * Invoked when the value has changed.
      * 
      * @param oldValue the old value
      * @param newValue the new value
      */
     protected void onValueChanged( String oldValue, String newValue )
+    {
+    }
+    
+    /**
+     * Invoked when the value has been set.
+     * 
+     * @param value the new value
+     */
+    void onValueSet( String value )
     {
     }
     
@@ -96,15 +114,16 @@ public class FontProperty extends Property
      * Sets the property's current value.
      * 
      * @param fontKey the new value
+     * @param firstTime
      * 
      * @return changed?
      */
-    public boolean setFont( String fontKey )
+    protected final boolean setFont( String fontKey, boolean firstTime )
     {
         if ( ( fontKey == null ) && ( this.fontKey == null ) )
             return ( false );
         
-        final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
+        final WidgetsConfiguration widgetsConf = ( getKeeper() == null ) ? null : ( (Widget)getKeeper() ).getConfiguration();
         
         if ( widgetsConf == null )
         {
@@ -112,6 +131,14 @@ public class FontProperty extends Property
             this.font = null;
             this.antiAliased = null;
             this.metrics = null;
+            
+            onValueSet( this.fontKey );
+            
+            if ( !firstTime )
+            {
+                triggerCommonOnValueChanged( null, fontKey );
+                onValueChanged( null, fontKey );
+            }
         }
         else
         {
@@ -130,16 +157,29 @@ public class FontProperty extends Property
             
             if ( ( newValue == null ) || !newValue.equals( oldValue ) )
             {
-                if ( widget != null )
-                    widget.forceAndSetDirty( true );
+                onValueSet( this.fontKey );
                 
-                triggerCommonOnValueChanged( oldValue, fontKey );
-                if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-                    onValueChanged( oldValue, fontKey );
+                if ( !firstTime )
+                {
+                    triggerCommonOnValueChanged( firstTime ? null : oldValue, fontKey );
+                    onValueChanged( firstTime ? null : oldValue, fontKey );
+                }
             }
         }
         
         return ( true );
+    }
+    
+    /**
+     * Sets the property's current value.
+     * 
+     * @param fontKey the new value
+     * 
+     * @return changed?
+     */
+    public final boolean setFont( String fontKey )
+    {
+        return ( setFont( fontKey, false ) );
     }
     
     /**
@@ -194,18 +234,21 @@ public class FontProperty extends Property
         
         if ( font == null )
         {
-            font = widget.getConfiguration().getNamedFont( fontKey );
+            final Widget widget = (Widget)getKeeper();
+            final WidgetsConfiguration widgetsConfig = widget.getConfiguration();
+            
+            font = widgetsConfig.getNamedFont( fontKey );
             if ( font == null )
             {
                 String fontStr = widget.getDefaultNamedFontValue( fontKey );
                 if ( fontStr != null )
                 {
-                    widget.getConfiguration().addNamedFont( fontKey, fontStr );
-                    font = widget.getConfiguration().getNamedFont( fontKey );
+                    widgetsConfig.addNamedFont( fontKey, fontStr );
+                    font = widgetsConfig.getNamedFont( fontKey );
                 }
                 else
                 {
-                    font = FontUtils.parseFont( fontKey, widget.getConfiguration().getGameResolution().getViewportHeight(), false, true );
+                    font = FontUtils.parseFont( fontKey, widgetsConfig.getGameResolution().getViewportHeight(), false, true );
                 }
             }
         }
@@ -222,12 +265,15 @@ public class FontProperty extends Property
     {
         if ( antiAliased == null )
         {
+            final Widget widget = (Widget)getKeeper();
+            final WidgetsConfiguration widgetsConfig = widget.getConfiguration();
+            
             String fontStr = widget.getConfiguration().getNamedFontString( fontKey );
             if ( fontStr == null )
             {
                 fontStr = widget.getDefaultNamedFontValue( fontKey );
                 if ( fontStr != null )
-                    widget.getConfiguration().addNamedFont( fontKey, fontStr );
+                    widgetsConfig.addNamedFont( fontKey, fontStr );
                 else
                     fontStr = fontKey;
             }
@@ -287,164 +333,47 @@ public class FontProperty extends Property
     
     /**
      * 
-     * @param widgetsConf the owner widgets configuration
-     * @param widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue
      * @param readonly
      */
-    private FontProperty( WidgetsConfiguration widgetsConf, Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly )
+    public FontProperty( String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.FONT, null, null );
+        super( name, nameForDisplay, readonly, PropertyEditorType.FONT, null, null );
         
-        this.widgetsConf = widgetsConf;
-        this.fontKey = defaultValue;
+        setFont( defaultValue, true );
     }
     
     /**
      * 
-     * @param widgetsConf the owner widgets configuration
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public FontProperty( WidgetsConfiguration widgetsConf, String name, String nameForDisplay, String defaultValue, boolean readonly )
-    {
-        this( widgetsConf, null, name, nameForDisplay, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public FontProperty( WidgetsConfiguration widgetsConf, String name, String nameForDisplay, String defaultValue )
+    public FontProperty( String name, String nameForDisplay, String defaultValue )
     {
-        this( widgetsConf, name, nameForDisplay, defaultValue, false );
+        this( name, nameForDisplay, defaultValue, false );
     }
     
     /**
      * 
-     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public FontProperty( WidgetsConfiguration widgetsConf, String name, String defaultValue, boolean readonly )
+    public FontProperty( String name, String defaultValue, boolean readonly )
     {
-        this( widgetsConf, name, null, defaultValue, readonly );
+        this( name, null, defaultValue, readonly );
     }
     
     /**
      * 
-     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public FontProperty( WidgetsConfiguration widgetsConf, String name, String defaultValue )
+    public FontProperty( String name, String defaultValue )
     {
-        this( widgetsConf, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public FontProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly )
-    {
-        this( null, widget, name, nameForDisplay, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public FontProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
-    {
-        this( widget, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public FontProperty( Widget widget, String name, String defaultValue, boolean readonly )
-    {
-        this( widget, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public FontProperty( Widget widget, String name, String defaultValue )
-    {
-        this( widget, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public FontProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly )
-    {
-        this( (Widget)null, name, nameForDisplay, defaultValue, readonly );
-        
-        w2pf.addProperty( this );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public FontProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
-    {
-        this( w2pf, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public FontProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
-    {
-        this( w2pf, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public FontProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
-    {
-        this( w2pf, name, defaultValue, false );
+        this( name, defaultValue, false );
     }
 }

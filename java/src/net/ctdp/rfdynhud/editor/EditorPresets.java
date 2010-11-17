@@ -21,13 +21,14 @@ import java.io.IOException;
 import java.util.Random;
 
 import net.ctdp.rfdynhud.properties.EnumProperty;
+import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.PropertyWriter;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * Presets for telemetry and scoring info in the editor.
@@ -50,20 +51,20 @@ public class EditorPresets
         ;
     }
     
-    private final StringProperty driverName = new StringProperty( (Widget)null, "driverName", "Mike Self" );
-    private final FloatProperty lastSector1Time = new FloatProperty( (Widget)null, "lastSector1Time", 27.729182f, 0f, Float.MAX_VALUE );
-    private final FloatProperty lastSector2Time = new FloatProperty( (Widget)null, "lastSector2Time", 29.413128f, 0f, Float.MAX_VALUE );
-    private final FloatProperty lastSector3Time = new FloatProperty( (Widget)null, "lastSector3Time", 26.336235f, 0f, Float.MAX_VALUE );
-    private final FloatProperty currentSector1Time = new FloatProperty( (Widget)null, "currentSector1Time", 29.138f, 0f, Float.MAX_VALUE );
-    private final FloatProperty currentSector2Time = new FloatProperty( (Widget)null, "currentSector2Time", 27.988f, 0f, Float.MAX_VALUE );
-    private final EnumProperty<EngineBoostMapping> engineBoost = new EnumProperty<EngineBoostMapping>( (Widget)null, "engineBoost", EngineBoostMapping.B5 );
-    private final IntProperty engineRPM = new IntProperty( (Widget)null, "engineRPM", 3750, 0, 22000 );
-    private final IntProperty engineLifetime = new IntProperty( (Widget)null, "engineLifetime", 1000, 0, Integer.MAX_VALUE );
-    private final FloatProperty brakeDiscThicknessFL = new FloatProperty( (Widget)null, "brakeDiscThicknessFL", 0.021f, 0f, Float.MAX_VALUE );
-    private final FloatProperty brakeDiscThicknessFR = new FloatProperty( (Widget)null, "brakeDiscThicknessFR", 0.0145f, 0f, Float.MAX_VALUE );
-    private final FloatProperty brakeDiscThicknessRL = new FloatProperty( (Widget)null, "brakeDiscThicknessRL", 0.018f, 0f, Float.MAX_VALUE );
-    private final FloatProperty brakeDiscThicknessRR = new FloatProperty( (Widget)null, "brakeDiscThicknessRR", 0.022f, 0f, Float.MAX_VALUE );
-    private final FloatProperty fuelLoad = new FloatProperty( (Widget)null, "fuelLoad", 90.0f, 0f, 300f );
+    private final StringProperty driverName = new StringProperty( "driverName", "Mike Self" );
+    private final FloatProperty lastSector1Time = new FloatProperty( "lastSector1Time", 27.729182f, 0f, Float.MAX_VALUE );
+    private final FloatProperty lastSector2Time = new FloatProperty( "lastSector2Time", 29.413128f, 0f, Float.MAX_VALUE );
+    private final FloatProperty lastSector3Time = new FloatProperty( "lastSector3Time", 26.336235f, 0f, Float.MAX_VALUE );
+    private final FloatProperty currentSector1Time = new FloatProperty( "currentSector1Time", 29.138f, 0f, Float.MAX_VALUE );
+    private final FloatProperty currentSector2Time = new FloatProperty( "currentSector2Time", 27.988f, 0f, Float.MAX_VALUE );
+    private final EnumProperty<EngineBoostMapping> engineBoost = new EnumProperty<EngineBoostMapping>( "engineBoost", EngineBoostMapping.B5 );
+    private final IntProperty engineRPM = new IntProperty( "engineRPM", 3750, 0, 22000 );
+    private final IntProperty engineLifetime = new IntProperty( "engineLifetime", 1000, 0, Integer.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessFL = new FloatProperty( "brakeDiscThicknessFL", 0.021f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessFR = new FloatProperty( "brakeDiscThicknessFR", 0.0145f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessRL = new FloatProperty( "brakeDiscThicknessRL", 0.018f, 0f, Float.MAX_VALUE );
+    private final FloatProperty brakeDiscThicknessRR = new FloatProperty( "brakeDiscThicknessRR", 0.022f, 0f, Float.MAX_VALUE );
+    private final FloatProperty fuelLoad = new FloatProperty( "fuelLoad", 90.0f, 0f, 300f );
     
     private final float[] topSpeeds = new float[ 22 ];
     
@@ -252,38 +253,6 @@ public class EditorPresets
         return ( topSpeeds[index] );
     }
     
-    void getProperties( PropertiesContainer propsCont )
-    {
-        propsCont.addGroup( "Driver" );
-        
-        propsCont.addProperty( driverName );
-        
-        propsCont.addGroup( "Lap Times" );
-        
-        propsCont.addProperty( lastSector1Time );
-        propsCont.addProperty( lastSector2Time );
-        propsCont.addProperty( lastSector3Time );
-        propsCont.addProperty( currentSector1Time );
-        propsCont.addProperty( currentSector2Time );
-        
-        propsCont.addGroup( "Engine" );
-        
-        propsCont.addProperty( engineBoost );
-        propsCont.addProperty( engineRPM );
-        propsCont.addProperty( engineLifetime );
-        
-        propsCont.addGroup( "Brakes" );
-        
-        propsCont.addProperty( brakeDiscThicknessFL );
-        propsCont.addProperty( brakeDiscThicknessFR );
-        propsCont.addProperty( brakeDiscThicknessRL );
-        propsCont.addProperty( brakeDiscThicknessRR );
-        
-        propsCont.addGroup( "Fuel" );
-        
-        propsCont.addProperty( fuelLoad );
-    }
-    
     void saveProperties( PropertyWriter writer ) throws IOException
     {
         writer.writeProperty( driverName, null );
@@ -320,6 +289,38 @@ public class EditorPresets
         else if ( loader.loadProperty( fuelLoad ) );
     }
     
+    void getProperties( PropertiesContainer propsCont )
+    {
+        propsCont.addGroup( "Driver" );
+        
+        propsCont.addProperty( driverName );
+        
+        propsCont.addGroup( "Lap Times" );
+        
+        propsCont.addProperty( lastSector1Time );
+        propsCont.addProperty( lastSector2Time );
+        propsCont.addProperty( lastSector3Time );
+        propsCont.addProperty( currentSector1Time );
+        propsCont.addProperty( currentSector2Time );
+        
+        propsCont.addGroup( "Engine" );
+        
+        propsCont.addProperty( engineBoost );
+        propsCont.addProperty( engineRPM );
+        propsCont.addProperty( engineLifetime );
+        
+        propsCont.addGroup( "Brakes" );
+        
+        propsCont.addProperty( brakeDiscThicknessFL );
+        propsCont.addProperty( brakeDiscThicknessFR );
+        propsCont.addProperty( brakeDiscThicknessRL );
+        propsCont.addProperty( brakeDiscThicknessRR );
+        
+        propsCont.addGroup( "Fuel" );
+        
+        propsCont.addProperty( fuelLoad );
+    }
+    
     /**
      * Constructs {@link EditorPresets}.
      */
@@ -331,5 +332,14 @@ public class EditorPresets
         {
             topSpeeds[i] = 250f + rnd.nextFloat() * 55f;
         }
-    }
+        
+        FlatPropertiesContainer pc = new FlatPropertiesContainer();
+        
+        getProperties( pc );
+        
+        for ( int i = 0; i < pc.getList().size(); i++ )
+        {
+            __PropsPrivilegedAccess.setKeeper( pc.getList().get( i ), null, false );
+        }
+   }
 }

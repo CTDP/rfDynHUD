@@ -25,7 +25,6 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 import org.jagatoo.util.io.FileUtils;
 
@@ -45,6 +44,17 @@ public class FilenameProperty extends Property
     private File file = null;
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getValue() );
+    }
+    
+    /**
      * Invoked when the property's value has changed.
      * 
      * @param oldValue the old value
@@ -54,9 +64,18 @@ public class FilenameProperty extends Property
     {
     }
     
-    private boolean setFilenameValue( String value, boolean triggerOnChange )
+    /**
+     * Invoked when the property's value has been set.
+     * 
+     * @param value the new value
+     */
+    void onValueSet( String value )
     {
-        String oldValue = this.value;
+    }
+    
+    protected boolean setFilenameValue( String value, boolean firstTime )
+    {
+        String oldValue = firstTime ? null : this.value;
         
         File file = new File( value );
         
@@ -85,14 +104,12 @@ public class FilenameProperty extends Property
             this.value = value.replace( '\\', '/' );
         }
         
-        if ( widget != null )
-            widget.forceAndSetDirty( true );
+        onValueSet( this.value );
         
-        if ( triggerOnChange )
+        if ( !firstTime )
         {
             triggerCommonOnValueChanged( oldValue, value );
-            if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-                onValueChanged( oldValue, value );
+            onValueChanged( oldValue, value );
         }
         
         return ( true );
@@ -105,9 +122,9 @@ public class FilenameProperty extends Property
      * 
      * @return changed?
      */
-    public boolean setFilenameValue( String value )
+    public final boolean setFilenameValue( String value )
     {
-        return ( setFilenameValue( value, true ) );
+        return ( setFilenameValue( value, false ) );
     }
     
     /**
@@ -182,7 +199,6 @@ public class FilenameProperty extends Property
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
@@ -191,9 +207,9 @@ public class FilenameProperty extends Property
      * @param base the base folder
      * @param readonly read only property?
      */
-    protected FilenameProperty( Widget widget, String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs, File base, boolean readonly )
+    protected FilenameProperty( String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs, File base, boolean readonly )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.FILENAME, "...", "Browse file..." );
+        super( name, nameForDisplay, readonly, PropertyEditorType.FILENAME, "...", "Browse file..." );
         
         this.base = base;
         this.basePath = FileUtils.getCanonicalFile( base ).getAbsolutePath() + File.separator;
@@ -201,12 +217,11 @@ public class FilenameProperty extends Property
         this.extensions = extensions;
         this.extensionDescs = extensionDescs;
         
-        setFilenameValue( defaultValue, false );
+        setFilenameValue( defaultValue, true );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
@@ -214,129 +229,46 @@ public class FilenameProperty extends Property
      * @param extensionDescs the extension descriptions
      * @param readonly read only property?
      */
-    protected FilenameProperty( Widget widget, String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs, boolean readonly )
+    protected FilenameProperty( String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs, boolean readonly )
     {
-        this( widget, name, nameForDisplay, defaultValue, extensions, extensionDescs, GameFileSystem.INSTANCE.getConfigFolder(), readonly );
+        this( name, nameForDisplay, defaultValue, extensions, extensionDescs, GameFileSystem.INSTANCE.getConfigFolder(), readonly );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param extensions the extensions to browse for
      * @param extensionDescs the extension descriptions
      */
-    public FilenameProperty( Widget widget, String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs )
+    public FilenameProperty( String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs )
     {
-        this( widget, name, nameForDisplay, defaultValue, extensions, extensionDescs, false );
+        this( name, nameForDisplay, defaultValue, extensions, extensionDescs, false );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param extensions the extensions to browse for
      * @param extensionDescs the extension descriptions
      * @param readonly read only property?
      */
-    public FilenameProperty( Widget widget, String name, String defaultValue, String[] extensions, String[] extensionDescs, boolean readonly )
+    public FilenameProperty( String name, String defaultValue, String[] extensions, String[] extensionDescs, boolean readonly )
     {
-        this( widget, name, null, defaultValue, extensions, extensionDescs, readonly );
+        this( name, null, defaultValue, extensions, extensionDescs, readonly );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param extensions the extensions to browse for
      * @param extensionDescs the extension descriptions
      */
-    public FilenameProperty( Widget widget, String name, String defaultValue, String[] extensions, String[] extensionDescs )
+    public FilenameProperty( String name, String defaultValue, String[] extensions, String[] extensionDescs )
     {
-        this( widget, name, defaultValue, extensions, extensionDescs, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param extensions the extensions to browse for
-     * @param extensionDescs the extension descriptions
-     * @param base the base folder
-     * @param readonly read only property?
-     */
-    protected FilenameProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs, File base, boolean readonly )
-    {
-        super( w2pf, name, nameForDisplay, readonly, PropertyEditorType.FILENAME, "...", "Browse file..." );
-        
-        this.base = base;
-        this.basePath = FileUtils.getCanonicalFile( base ).getAbsolutePath() + File.separator;
-        
-        this.extensions = extensions;
-        this.extensionDescs = extensionDescs;
-        
-        setFilenameValue( defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param extensions the extensions to browse for
-     * @param extensionDescs the extension descriptions
-     * @param readonly read only property?
-     */
-    protected FilenameProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs, boolean readonly )
-    {
-        this( w2pf, name, nameForDisplay, defaultValue, extensions, extensionDescs, GameFileSystem.INSTANCE.getConfigFolder(), readonly );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param extensions the extensions to browse for
-     * @param extensionDescs the extension descriptions
-     */
-    public FilenameProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, String[] extensions, String[] extensionDescs )
-    {
-        this( w2pf, name, nameForDisplay, defaultValue, extensions, extensionDescs, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param extensions the extensions to browse for
-     * @param extensionDescs the extension descriptions
-     * @param readonly read only property?
-     */
-    public FilenameProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, String[] extensions, String[] extensionDescs, boolean readonly )
-    {
-        this( w2pf, name, null, defaultValue, extensions, extensionDescs, readonly );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param extensions the extensions to browse for
-     * @param extensionDescs the extension descriptions
-     */
-    public FilenameProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, String[] extensions, String[] extensionDescs )
-    {
-        this( w2pf, name, defaultValue, extensions, extensionDescs, false );
+        this( name, defaultValue, extensions, extensionDescs, false );
     }
 }

@@ -17,10 +17,6 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.values.Position;
-import net.ctdp.rfdynhud.values.Size;
-import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
-
 /**
  * Don't use this at home!
  * 
@@ -28,24 +24,33 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  */
 public class __PropsPrivilegedAccess
 {
-    public static final void addPosition( WidgetToPropertyForwarder w2pf, Position position )
+    public static final void setKeeper( Property property, PropertiesKeeper keeper, boolean force )
     {
-        w2pf.addPosition( position );
+        property.setKeeper( keeper, force );
     }
     
-    public static final void addSize( WidgetToPropertyForwarder w2pf, Size size )
+    public static final void attachKeeper( PropertiesKeeper keeper, boolean force )
     {
-        w2pf.addSize( size );
+        FlatPropertiesContainer pc = new FlatPropertiesContainer();
+        
+        keeper.getProperties( pc, true );
+        
+        for ( int i = 0; i < pc.getList().size(); i++ )
+        {
+            pc.getList().get( i ).setKeeper( keeper, force );
+        }
     }
     
-    public static final BooleanProperty newBooleanProperty( WidgetsConfiguration widgetsConfig, String propertyName, String nameForDisplay, boolean defaultValue, boolean readonly )
+    public static final void detachKeeper( PropertiesKeeper keeper )
     {
-        return ( new BooleanProperty( widgetsConfig, propertyName, nameForDisplay, defaultValue, readonly ) );
-    }
-    
-    public static final boolean isWidgetsConfigProperty( Property property )
-    {
-        return ( property.widgetsConfig != null );
+        FlatPropertiesContainer pc = new FlatPropertiesContainer();
+        
+        keeper.getProperties( pc, true );
+        
+        for ( int i = 0; i < pc.getList().size(); i++ )
+        {
+            pc.getList().get( i ).setKeeper( null, false );
+        }
     }
     
     public static final void setCellRenderer( Object renderer, Property property )

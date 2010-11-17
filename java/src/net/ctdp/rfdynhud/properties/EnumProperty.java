@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link EnumProperty} serves for customizing a value from an enum.
@@ -31,6 +30,17 @@ public class EnumProperty<E extends Enum<E>> extends Property
     private E value;
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getValue() );
+    }
+    
+    /**
      * Invoked when the value has changed.
      * 
      * @param oldValue the old value
@@ -41,28 +51,51 @@ public class EnumProperty<E extends Enum<E>> extends Property
     }
     
     /**
+     * Invoked when the value has been set.
+     * 
+     * @param value the new value
+     */
+    void onValueSet( E value )
+    {
+    }
+    
+    /**
+     * Sets the selected value.
+     * 
+     * @param value the new value
+     * @param firstTime
+     * 
+     * @return changed?
+     */
+    protected final boolean setEnumValue( E value, boolean firstTime )
+    {
+        if ( value == this.value )
+            return ( false );
+        
+        E oldValue = firstTime ? null : this.value;
+        this.value = value;
+        
+        onValueSet( this.value );
+        
+        if ( !firstTime )
+        {
+            triggerCommonOnValueChanged( oldValue, value );
+            onValueChanged( oldValue, value );
+        }
+        
+        return ( true );
+    }
+    
+    /**
      * Sets the selected value.
      * 
      * @param value the new value
      * 
      * @return changed?
      */
-    public boolean setEnumValue( E value )
+    public final boolean setEnumValue( E value )
     {
-        if ( value == this.value )
-            return ( false );
-        
-        E oldValue = this.value;
-        this.value = value;
-        
-        if ( widget != null )
-            widget.forceAndSetDirty( true );
-        
-        triggerCommonOnValueChanged( oldValue, value );
-        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-            onValueChanged( oldValue, value );
-        
-        return ( true );
+        return ( setEnumValue( value, false ) );
     }
     
     /**
@@ -113,101 +146,47 @@ public class EnumProperty<E extends Enum<E>> extends Property
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public EnumProperty( Widget widget, String name, String nameForDisplay, E defaultValue, boolean readonly )
+    public EnumProperty( String name, String nameForDisplay, E defaultValue, boolean readonly )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.ENUM, null, null );
+        super( name, nameForDisplay, readonly, PropertyEditorType.ENUM, null, null );
         
-        this.value = defaultValue;
+        setEnumValue( defaultValue, true );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public EnumProperty( Widget widget, String name, String nameForDisplay, E defaultValue )
+    public EnumProperty( String name, String nameForDisplay, E defaultValue )
     {
-        this( widget, name, nameForDisplay, defaultValue, false );
+        this( name, nameForDisplay, defaultValue, false );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public EnumProperty( Widget widget, String name, E defaultValue, boolean readonly )
+    public EnumProperty( String name, E defaultValue, boolean readonly )
     {
-        this( widget, name, null, defaultValue, readonly );
+        this( name, null, defaultValue, readonly );
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public EnumProperty( Widget widget, String name, E defaultValue )
+    public EnumProperty( String name, E defaultValue )
     {
-        this( widget, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public EnumProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue, boolean readonly )
-    {
-        this( (Widget)null, name, nameForDisplay, defaultValue, readonly );
-        
-        w2pf.addProperty( this );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public EnumProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, E defaultValue )
-    {
-        this( w2pf, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public EnumProperty( WidgetToPropertyForwarder w2pf, String name, E defaultValue, boolean readonly )
-    {
-        this( w2pf, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public EnumProperty( WidgetToPropertyForwarder w2pf, String name, E defaultValue )
-    {
-        this( w2pf, name, defaultValue, false );
+        this( name, defaultValue, false );
     }
 }

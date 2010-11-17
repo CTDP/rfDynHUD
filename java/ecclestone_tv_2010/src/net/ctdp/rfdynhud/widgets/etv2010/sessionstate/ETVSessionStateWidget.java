@@ -57,7 +57,7 @@ import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
  */
 public class ETVSessionStateWidget extends ETVWidgetBase
 {
-    private final EnumProperty<SessionLimit> sessionLimitPreference = new EnumProperty<SessionLimit>( this, "sessionLimitPreference", "sessionLimitPref", SessionLimit.LAPS );
+    private final EnumProperty<SessionLimit> sessionLimitPreference = new EnumProperty<SessionLimit>( "sessionLimitPreference", "sessionLimitPref", SessionLimit.LAPS );
     
     private SessionLimit sessionLimit = SessionLimit.LAPS;
     

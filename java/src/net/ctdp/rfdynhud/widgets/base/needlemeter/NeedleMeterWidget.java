@@ -86,28 +86,28 @@ public abstract class NeedleMeterWidget extends Widget
     
     protected static final float MIN_MAX_VALUE_NONE = 1000000000f;
     
-    protected final FloatProperty minValue = new FloatProperty( this, "minValue", -MIN_MAX_VALUE_NONE );
-    protected final FloatProperty maxValue = new FloatProperty( this, "maxValue", +MIN_MAX_VALUE_NONE );
+    protected final FloatProperty minValue = new FloatProperty( "minValue", -MIN_MAX_VALUE_NONE );
+    protected final FloatProperty maxValue = new FloatProperty( "maxValue", +MIN_MAX_VALUE_NONE );
     
     
-    protected final BooleanProperty displayMarkers = new BooleanProperty( this, "displayMarkers", true );
-    protected final BooleanProperty displayMarkerNumbers = new BooleanProperty( this, "displayMarkerNumbers", "displayNumbers", true );
-    protected final BooleanProperty markerNumbersInside = new BooleanProperty( this, "markerNumbersInside", "numbersInside", false );
-    protected final IntProperty markersInnerRadius = new IntProperty( this, "markersInnerRadius", "innerRadius", 224, 1, Integer.MAX_VALUE, false );
-    protected final IntProperty markersLength = new IntProperty( this, "markersLength", "length", 50, 4, Integer.MAX_VALUE, false );
-    protected final BooleanProperty markersOnCircle = new BooleanProperty( this, "markersOnCircle", true );
-    protected final FactoredFloatProperty firstMarkerNumberOffset = new FactoredFloatProperty( this, "firstMarkerNumberOffset", "firstNumberOffset", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, 0f, -360.0f, +360.0f );
-    protected final FactoredFloatProperty lastMarkerNumberOffset = new FactoredFloatProperty( this, "lastMarkerNumberOffset", "lastNumberOffset", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, 0f, -360.0f, +360.0f );
+    protected final BooleanProperty displayMarkers = new BooleanProperty( "displayMarkers", true );
+    protected final BooleanProperty displayMarkerNumbers = new BooleanProperty( "displayMarkerNumbers", "displayNumbers", true );
+    protected final BooleanProperty markerNumbersInside = new BooleanProperty( "markerNumbersInside", "numbersInside", false );
+    protected final IntProperty markersInnerRadius = new IntProperty( "markersInnerRadius", "innerRadius", 224, 1, Integer.MAX_VALUE, false );
+    protected final IntProperty markersLength = new IntProperty( "markersLength", "length", 50, 4, Integer.MAX_VALUE, false );
+    protected final BooleanProperty markersOnCircle = new BooleanProperty( "markersOnCircle", true );
+    protected final FactoredFloatProperty firstMarkerNumberOffset = new FactoredFloatProperty( "firstMarkerNumberOffset", "firstNumberOffset", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, 0f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty lastMarkerNumberOffset = new FactoredFloatProperty( "lastMarkerNumberOffset", "lastNumberOffset", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, 0f, -360.0f, +360.0f );
     
     protected int getMarkersBigStepLowerLimit()
     {
         return ( 300 );
     }
     
-    protected final IntProperty markersBigStep = new IntProperty( this, "markersBigStep", "bigStep", 1000, getMarkersBigStepLowerLimit(), Integer.MAX_VALUE, false )
+    protected final IntProperty markersBigStep = new IntProperty( "markersBigStep", "bigStep", 1000, getMarkersBigStepLowerLimit(), Integer.MAX_VALUE, false )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             fixSmallStep();
         }
@@ -118,22 +118,22 @@ public abstract class NeedleMeterWidget extends Widget
         return ( 20 );
     }
     
-    protected final IntProperty markersSmallStep = new IntProperty( this, "markersSmallStep", "smallStep", 200, getMarkersSmallStepLowerLimit(), Integer.MAX_VALUE, false )
+    protected final IntProperty markersSmallStep = new IntProperty( "markersSmallStep", "smallStep", 200, getMarkersSmallStepLowerLimit(), Integer.MAX_VALUE, false )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             fixSmallStep();
         }
     };
     
-    protected final BooleanProperty lastMarkerBig = new BooleanProperty( this, "lastMarkerBig", false );
+    protected final BooleanProperty lastMarkerBig = new BooleanProperty( "lastMarkerBig", false );
     
-    protected final ColorProperty markersColor = new ColorProperty( this, "markersColor", "color", "#FFFFFF" );
-    protected final FontProperty markersFont = new FontProperty( this, "markersFont", "font", "Monospaced" + FontUtils.SEPARATOR + "BOLD" + FontUtils.SEPARATOR + "9va" );
-    protected final ColorProperty markersFontColor = new ColorProperty( this, "markersFontColor", "fontColor", "#FFFFFF" );
-    protected final ColorProperty markersFontDropShadowColor = new ColorProperty( this, "markersFontDropShadowColor", "fontDropShadowColor", "#00000000" );
-    protected final BooleanProperty markerNumbersCentered = new BooleanProperty( this, "markerNumbersCentered", "numbersCentered", false );
+    protected final ColorProperty markersColor = new ColorProperty( "markersColor", "color", "#FFFFFF" );
+    protected final FontProperty markersFont = new FontProperty( "markersFont", "font", "Monospaced" + FontUtils.SEPARATOR + "BOLD" + FontUtils.SEPARATOR + "9va" );
+    protected final ColorProperty markersFontColor = new ColorProperty( "markersFontColor", "fontColor", "#FFFFFF" );
+    protected final ColorProperty markersFontDropShadowColor = new ColorProperty( "markersFontDropShadowColor", "fontDropShadowColor", "#00000000" );
+    protected final BooleanProperty markerNumbersCentered = new BooleanProperty( "markerNumbersCentered", "numbersCentered", false );
     
     
     protected void onNeedleImageNameChanged() {}
@@ -145,7 +145,7 @@ public abstract class NeedleMeterWidget extends Widget
         return ( "standard/rev_meter_needle.png" );
     }
     
-    private final ImageProperty needleImageName = new ImageProperty( this, "needleImageName", "imageName", getInitialNeedleImage(), false, true )
+    private final ImageProperty needleImageName = new ImageProperty( "needleImageName", "imageName", getInitialNeedleImage(), false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -154,28 +154,28 @@ public abstract class NeedleMeterWidget extends Widget
         }
     };
     
-    protected final IntProperty needleMountX = new IntProperty( this, "needleMountX", -1, -1, 5000 );
-    protected final IntProperty needleMountY = new IntProperty( this, "needleMountY", -1, -1, 5000 );
+    protected final IntProperty needleMountX = new IntProperty( "needleMountX", -1, -1, 5000 );
+    protected final IntProperty needleMountY = new IntProperty( "needleMountY", -1, -1, 5000 );
     
-    protected final IntProperty needlePivotBottomOffset = new IntProperty( this, "needlePivotBottomOffset", "pivotBottomOffset", 60 );
+    protected final IntProperty needlePivotBottomOffset = new IntProperty( "needlePivotBottomOffset", "pivotBottomOffset", 60 );
     
-    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( this, "needleRotationForMinValue", "rotForMin", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, -122.4f, -360.0f, +360.0f );
-    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( this, "needleRotationForMaxValue", "rotForMax", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, +118.8f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty needleRotationForMinValue = new FactoredFloatProperty( "needleRotationForMinValue", "rotForMin", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, -122.4f, -360.0f, +360.0f );
+    protected final FactoredFloatProperty needleRotationForMaxValue = new FactoredFloatProperty( "needleRotationForMaxValue", "rotForMax", FactoredFloatProperty.FACTOR_DEGREES_TO_RADIANS, +118.8f, -360.0f, +360.0f );
     
     private Boolean drawNeeldeMount = null;
     
-    protected final BooleanProperty displayValue = new BooleanProperty( this, "displayValue", true );
+    protected final BooleanProperty displayValue = new BooleanProperty( "displayValue", true );
     
-    protected final ImageProperty valueBackgroundImageName = new ImageProperty( this, "valueBackgroundImageName", "backgroundImage", "standard/cyan_circle.png", false, true );
+    protected final ImageProperty valueBackgroundImageName = new ImageProperty( "valueBackgroundImageName", "backgroundImage", "standard/cyan_circle.png", false, true );
     private TransformableTexture valueBackgroundTexture = null;
     private TextureImage2D valueBackgroundTexture_bak = null;
     
-    protected final IntProperty valuePosX = new IntProperty( this, "valuePosX", "posX", 100 );
-    protected final IntProperty valuePosY = new IntProperty( this, "valuePosY", "posY", 100 );
+    protected final IntProperty valuePosX = new IntProperty( "valuePosX", "posX", 100 );
+    protected final IntProperty valuePosY = new IntProperty( "valuePosY", "posY", 100 );
     private int valueBackgroundTexPosX, valueBackgroundTexPosY;
     
-    protected final FontProperty valueFont = new FontProperty( this, "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
-    protected final ColorProperty valueFontColor = new ColorProperty( this, "valueFontColor", "fontColor", "#1A261C" );
+    protected final FontProperty valueFont = new FontProperty( "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
+    protected final ColorProperty valueFontColor = new ColorProperty( "valueFontColor", "fontColor", "#1A261C" );
     
     private DrawnString valueString = null;
     
@@ -186,7 +186,7 @@ public abstract class NeedleMeterWidget extends Widget
     {
         super.onPropertyChanged( property, oldValue, newValue );
         
-        if ( ( property == needleMountX ) || ( property == needleMountY ) )
+        if ( ( oldValue != null ) && ( ( property == needleMountX ) || ( property == needleMountY ) ) )
         {
             drawNeeldeMount = true;
         }

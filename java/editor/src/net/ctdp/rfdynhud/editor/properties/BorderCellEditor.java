@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.editor.util.BorderSelector;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * 
@@ -131,7 +132,7 @@ public class BorderCellEditor extends ValueCellEditor<Property, JPanel, JButton>
                         borderSelector = new BorderSelector( GameFileSystem.INSTANCE.getBordersFolder() );
                     }
                     
-                    String result = borderSelector.showDialog( frame, getProperty().getWidget().getConfiguration(), (String)getProperty().getValue() );
+                    String result = borderSelector.showDialog( frame, ( (Widget)getProperty().getKeeper() ).getConfiguration(), (String)getProperty().getValue() );
                     
                     if ( result != null )
                     {

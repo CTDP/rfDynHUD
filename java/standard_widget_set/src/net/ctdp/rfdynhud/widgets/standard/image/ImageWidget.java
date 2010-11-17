@@ -41,7 +41,7 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class ImageWidget extends Widget
 {
-    private final ImagePropertyWithTexture imageName = new ImagePropertyWithTexture( this, "imageName", "standard/ctdp.png" )
+    private final ImagePropertyWithTexture imageName = new ImagePropertyWithTexture( "imageName", "standard/ctdp.png" )
     {
         @Override
         public void onValueChanged( String oldValue, String newValue )
@@ -52,7 +52,7 @@ public class ImageWidget extends Widget
         }
     };
     
-    private final StringProperty visibleIf = new StringProperty( this, "visibleIf", "" );
+    private final StringProperty visibleIf = new StringProperty( "visibleIf", "" );
     
     private Widget visibleIfWidget = null;
     

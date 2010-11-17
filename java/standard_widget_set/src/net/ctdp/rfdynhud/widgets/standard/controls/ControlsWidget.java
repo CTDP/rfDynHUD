@@ -49,10 +49,10 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class ControlsWidget extends Widget
 {
-    private final BooleanProperty horizontalBars = new BooleanProperty( this, "horizontalBars", false )
+    private final BooleanProperty horizontalBars = new BooleanProperty( "horizontalBars", false )
     {
         @Override
-        protected void onValueChanged( boolean newValue )
+        protected void onValueChanged( Boolean oldValue, boolean newValue )
         {
             clutchDirty = true;
             brakeDirty = true;
@@ -60,21 +60,21 @@ public class ControlsWidget extends Widget
         }
     };
     
-    private final BooleanProperty swapThrottleAndBrake = new BooleanProperty( this, "swapThrottleAndBrake", "swapThrottle/Brake", false );
+    private final BooleanProperty swapThrottleAndBrake = new BooleanProperty( "swapThrottleAndBrake", "swapThrottle/Brake", false );
     private boolean oldSwapTB = swapThrottleAndBrake.getBooleanValue();
     
     private boolean clutchDirty = true;
     
-    private final BooleanProperty displayClutch = new BooleanProperty( this, "displayClutch", true )
+    private final BooleanProperty displayClutch = new BooleanProperty( "displayClutch", true )
     {
         @Override
-        protected void onValueChanged( boolean newValue )
+        protected void onValueChanged( Boolean oldValue, boolean newValue )
         {
             clutchDirty = true;
         }
     };
     
-    private final ImageProperty clutchImage = new ImageProperty( this, "clutchImage", null, "", false, true )
+    private final ImageProperty clutchImage = new ImageProperty( "clutchImage", null, "", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -83,7 +83,7 @@ public class ControlsWidget extends Widget
         }
     };
     
-    private final ColorProperty clutchColor = new ColorProperty( this, "clutchColor", "#0000FF" )
+    private final ColorProperty clutchColor = new ColorProperty( "clutchColor", "#0000FF" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -97,16 +97,16 @@ public class ControlsWidget extends Widget
     
     private boolean brakeDirty = true;
     
-    private final BooleanProperty displayBrake = new BooleanProperty( this, "displayBrake", true )
+    private final BooleanProperty displayBrake = new BooleanProperty( "displayBrake", true )
     {
         @Override
-        protected void onValueChanged( boolean newValue )
+        protected void onValueChanged( Boolean oldValue, boolean newValue )
         {
             brakeDirty = true;
         }
     };
     
-    private final ImageProperty brakeImage = new ImageProperty( this, "brakeImage", null, "", false, true )
+    private final ImageProperty brakeImage = new ImageProperty( "brakeImage", null, "", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -115,7 +115,7 @@ public class ControlsWidget extends Widget
         }
     };
     
-    private final ColorProperty brakeColor = new ColorProperty( this, "brakeColor", "#FF0000" )
+    private final ColorProperty brakeColor = new ColorProperty( "brakeColor", "#FF0000" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -129,16 +129,16 @@ public class ControlsWidget extends Widget
     
     private boolean throttleDirty = true;
     
-    private final BooleanProperty displayThrottle = new BooleanProperty( this, "displayThrottle", true )
+    private final BooleanProperty displayThrottle = new BooleanProperty( "displayThrottle", true )
     {
         @Override
-        protected void onValueChanged( boolean newValue )
+        protected void onValueChanged( Boolean oldValue, boolean newValue )
         {
             throttleDirty = true;
         }
     };
     
-    private final ImageProperty throttleImage = new ImageProperty( this, "throttleImage", null, "", false, true )
+    private final ImageProperty throttleImage = new ImageProperty( "throttleImage", null, "", false, true )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -147,7 +147,7 @@ public class ControlsWidget extends Widget
         }
     };
     
-    private final ColorProperty throttleColor = new ColorProperty( this, "throttleColor", "#00FF00" )
+    private final ColorProperty throttleColor = new ColorProperty( "throttleColor", "#00FF00" )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -159,12 +159,12 @@ public class ControlsWidget extends Widget
     private TextureImage2D scaledThrottleTexture = null;
     private TransformableTexture texThrottle = null;
     
-    private final IntProperty gap = new IntProperty( this, "gap", 5 );
+    private final IntProperty gap = new IntProperty( "gap", 5 );
     
-    private final IntProperty labelOffset = new IntProperty( this, "labelOffset", 20 )
+    private final IntProperty labelOffset = new IntProperty( "labelOffset", 20 )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             clutchDirty = true;
             brakeDirty = true;

@@ -36,16 +36,16 @@ import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
 
 public abstract class ETVWidgetBase extends Widget
 {
-    protected final BooleanProperty useImages = new BooleanProperty( this, "useImages", true )
+    protected final BooleanProperty useImages = new BooleanProperty( "useImages", true )
     {
         @Override
-        protected void onValueChanged( boolean newValue )
+        protected void onValueChanged( Boolean oldValue, boolean newValue )
         {
             images = null;
         }
     };
     
-    protected final FilenameProperty imagesIni = new FilenameProperty( this, "imagesIni", null, "etv2010/general/etv_2010_images.ini", new String[] { "ini" }, new String[] { "ini files" }, GameFileSystem.INSTANCE.getImagesFolder(), false )
+    protected final FilenameProperty imagesIni = new FilenameProperty( "imagesIni", null, "etv2010/general/etv_2010_images.ini", new String[] { "ini" }, new String[] { "ini files" }, GameFileSystem.INSTANCE.getImagesFolder(), false )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -56,13 +56,13 @@ public abstract class ETVWidgetBase extends Widget
     
     private ETVImages images = null;
     
-    protected final ColorProperty captionBackgroundColor = new ColorProperty( this, "captionBgColor", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR );
-    protected final ColorProperty captionColor = new ColorProperty( this, "captionColor", ETVUtils.ETV_CAPTION_FONT_COLOR );
-    protected final ColorProperty dataBackgroundColor = new ColorProperty( this, "dataBgColor", ETVUtils.ETV_DATA_BACKGROUND_COLOR );
+    protected final ColorProperty captionBackgroundColor = new ColorProperty( "captionBgColor", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR );
+    protected final ColorProperty captionColor = new ColorProperty( "captionColor", ETVUtils.ETV_CAPTION_FONT_COLOR );
+    protected final ColorProperty dataBackgroundColor = new ColorProperty( "dataBgColor", ETVUtils.ETV_DATA_BACKGROUND_COLOR );
     
-    protected final IntProperty itemGap = new IntProperty( this, "itemGap", 3, 0, 100 );
+    protected final IntProperty itemGap = new IntProperty( "itemGap", 3, 0, 100 );
     
-    protected final BooleanProperty showNamesInAllUppercase = new BooleanProperty( this, "showNamesInAllUppercase", "namesUpperCase", true );
+    protected final BooleanProperty showNamesInAllUppercase = new BooleanProperty( "showNamesInAllUppercase", "namesUpperCase", true );
     
     @Override
     public WidgetPackage getWidgetPackage()

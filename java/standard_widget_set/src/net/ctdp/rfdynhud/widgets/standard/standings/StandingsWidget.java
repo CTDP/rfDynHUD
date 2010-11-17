@@ -61,13 +61,13 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
 {
     private static final InputAction INPUT_ACTION_CYCLE_VIEW = new InputAction( "CycleStandingsViewAction" );
     
-    private final ColorProperty fontColor_me = new ColorProperty( this, "fontColor_me", "#367727" );
-    private final ColorProperty fontColor_out = new ColorProperty( this, "fontColor_out", "#646464" );
-    private final ColorProperty fontColor_finished = new ColorProperty( this, "fontColor_finished", "#00FF00" );
+    private final ColorProperty fontColor_me = new ColorProperty( "fontColor_me", "#367727" );
+    private final ColorProperty fontColor_out = new ColorProperty( "fontColor_out", "#646464" );
+    private final ColorProperty fontColor_finished = new ColorProperty( "fontColor_finished", "#00FF00" );
     
-    private final BooleanProperty useAutoWidth = new BooleanProperty( this, "useAutoWidth", false );
+    private final BooleanProperty useAutoWidth = new BooleanProperty( "useAutoWidth", false );
     
-    private final EnumProperty<StandingsView> initialView = new EnumProperty<StandingsView>( this, "initialView", StandingsView.RELATIVE_TO_ME )
+    private final EnumProperty<StandingsView> initialView = new EnumProperty<StandingsView>( "initialView", StandingsView.RELATIVE_TO_ME )
     {
         @Override
         protected void onValueChanged( StandingsView oldValue, StandingsView newValue )
@@ -75,15 +75,15 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
             getLocalStore().view = null;
         }
     };
-    private final BooleanProperty allowRelToLeaderView = new BooleanProperty( this, "allowRelToLeaderView", true );
-    private final BooleanProperty allowRelToMeView = new BooleanProperty( this, "allowRelToMeView", true );
-    private final BooleanProperty allowAbsTimesView = new BooleanProperty( this, "allowAbsTimesView", true );
+    private final BooleanProperty allowRelToLeaderView = new BooleanProperty( "allowRelToLeaderView", true );
+    private final BooleanProperty allowRelToMeView = new BooleanProperty( "allowRelToMeView", true );
+    private final BooleanProperty allowAbsTimesView = new BooleanProperty( "allowAbsTimesView", true );
     
-    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", "forceLeaderDispl", true );
-    private final EnumProperty<NameDisplayType> nameDisplayType = new EnumProperty<NameDisplayType>( this, "nameDisplayType", NameDisplayType.FULL_NAME );
-    private final BooleanProperty showLapsOrStops = new BooleanProperty( this, "showLapsOrStops", true );
-    private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
-    private final BooleanProperty showTopspeeds = new BooleanProperty( this, "showTopspeeds", true );
+    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( "forceLeaderDisplayed", "forceLeaderDispl", true );
+    private final EnumProperty<NameDisplayType> nameDisplayType = new EnumProperty<NameDisplayType>( "nameDisplayType", NameDisplayType.FULL_NAME );
+    private final BooleanProperty showLapsOrStops = new BooleanProperty( "showLapsOrStops", true );
+    private final BooleanProperty abbreviate = new BooleanProperty( "abbreviate", false );
+    private final BooleanProperty showTopspeeds = new BooleanProperty( "showTopspeeds", true );
     
     private final LongValue lastScoringUpdateId = new LongValue();
     

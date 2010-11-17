@@ -47,12 +47,12 @@ public class Lesson4aWidget_Images extends Widget
      * We pass null for the display-name, which means "use the name parameter" and we define
      * to allow no-image with the last parameter.
      */
-    private final ImageProperty image1 = new ImageProperty( this, "image", null, "standard/ctdp.png", false, true );
+    private final ImageProperty image1 = new ImageProperty( "image", null, "standard/ctdp.png", false, true );
     
     /*
      * This is a simple image property for an image to be displayed somewhere on the Widget.
      */
-    private final ImageProperty image2 = new ImageProperty( this, "image2", "standard/shiftlight_on_red.png" );
+    private final ImageProperty image2 = new ImageProperty( "image2", "standard/shiftlight_on_red.png" );
     
     /*
      * These two TextureImage2Ds cache the property images in actual size

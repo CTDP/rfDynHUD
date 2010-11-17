@@ -48,8 +48,8 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
 {
-    private final BooleanProperty abbreviate = new BooleanProperty( this, "abbreviate", false );
-    private final BooleanProperty displaySectors = new BooleanProperty( this, "displaySectors", true );
+    private final BooleanProperty abbreviate = new BooleanProperty( "abbreviate", false );
+    private final BooleanProperty displaySectors = new BooleanProperty( "displaySectors", true );
     
     private DrawnString headerString = null;
     private DrawnString[] timeStrings = null;

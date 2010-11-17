@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.values;
 import java.lang.reflect.Field;
 
 import net.ctdp.rfdynhud.properties.GenericFieldsIterator;
+import net.ctdp.rfdynhud.properties.Position;
 
 /**
  * <p>

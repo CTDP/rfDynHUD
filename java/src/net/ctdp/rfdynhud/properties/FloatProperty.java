@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link FloatProperty} serves for customizing a primitive float value.
@@ -64,13 +63,62 @@ public class FloatProperty extends Property
     }
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getValue() );
+    }
+    
+    /**
      * Invoked when the value has changed.
      * 
      * @param oldValue the old value
      * @param newValue the new value
      */
-    protected void onValueChanged( float oldValue, float newValue )
+    protected void onValueChanged( Float oldValue, float newValue )
     {
+    }
+    
+    /**
+     * Invoked when the value has been set.
+     * 
+     * @param value the new value
+     */
+    void onValueSet( float value )
+    {
+    }
+    
+    /**
+     * Sets the property's value.
+     * 
+     * @param value the new value
+     * @param firstTime
+     * 
+     * @return changed?
+     */
+    protected final boolean setFloatValue( float value, boolean firstTime )
+    {
+        value = fixValue( value );
+        
+        if ( value == this.value )
+            return ( false );
+        
+        Float oldValue = firstTime ? null : this.value;
+        this.value = value;
+        
+        onValueSet( this.value );
+        
+        if ( !firstTime )
+        {
+            triggerCommonOnValueChanged( oldValue, value );
+            onValueChanged( oldValue, value );
+        }
+        
+        return ( true );
     }
     
     /**
@@ -80,24 +128,9 @@ public class FloatProperty extends Property
      * 
      * @return changed?
      */
-    public boolean setFloatValue( float value )
+    public final boolean setFloatValue( float value )
     {
-        value = fixValue( value );
-        
-        if ( value == this.value )
-            return ( false );
-        
-        float oldValue = this.value;
-        this.value = value;
-        
-        if ( widget != null )
-            widget.forceAndSetDirty( true );
-        
-        triggerCommonOnValueChanged( oldValue, value );
-        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-            onValueChanged( oldValue, value );
-        
-        return ( true );
+        return ( setFloatValue( value, false ) );
     }
     
     /**
@@ -164,7 +197,6 @@ public class FloatProperty extends Property
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
@@ -172,151 +204,84 @@ public class FloatProperty extends Property
      * @param maxValue the maximum value
      * @param readonly read only property?
      */
-    public FloatProperty( Widget widget, String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly )
+    FloatProperty( String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly, boolean initialize )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.FLOAT, null, null );
+        super( name, nameForDisplay, readonly, PropertyEditorType.FLOAT, null, null );
         
-        this.value = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public FloatProperty( Widget widget, String name, String nameForDisplay, float defaultValue, boolean readonly )
-    {
-        this( widget, name, nameForDisplay, defaultValue, -Float.MAX_VALUE, +Float.MAX_VALUE, readonly );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public FloatProperty( Widget widget, String name, String nameForDisplay, float defaultValue )
-    {
-        this( widget, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public FloatProperty( Widget widget, String name, float defaultValue, boolean readonly )
-    {
-        this( widget, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public FloatProperty( Widget widget, String name, float defaultValue )
-    {
-        this( widget, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param minValue the minimum value
-     * @param maxValue the maximum value
-     */
-    public FloatProperty( Widget widget, String name, float defaultValue, float minValue, float maxValue )
-    {
-        this( widget, name, null, defaultValue, minValue, maxValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param minValue the minimum value
-     * @param maxValue the maximum value
-     * @param readonly read only property?
-     */
-    public FloatProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly )
-    {
-        this( (Widget)null, name, nameForDisplay, defaultValue, minValue, maxValue, readonly );
         
-        w2pf.addProperty( this );
+        if ( initialize )
+            setFloatValue( defaultValue, true );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
+     */
+    public FloatProperty( String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly )
+    {
+        this( name, nameForDisplay, defaultValue, minValue, maxValue, readonly, true );
+    }
+    
+    /**
+     * 
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public FloatProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, float defaultValue, boolean readonly )
+    public FloatProperty( String name, String nameForDisplay, float defaultValue, boolean readonly )
     {
-        this( w2pf, name, nameForDisplay, defaultValue, -Float.MAX_VALUE, +Float.MAX_VALUE, readonly );
+        this( name, nameForDisplay, defaultValue, -Float.MAX_VALUE, +Float.MAX_VALUE, readonly );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public FloatProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, float defaultValue )
+    public FloatProperty( String name, String nameForDisplay, float defaultValue )
     {
-        this( w2pf, name, nameForDisplay, defaultValue, false );
+        this( name, nameForDisplay, defaultValue, false );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public FloatProperty( WidgetToPropertyForwarder w2pf, String name, float defaultValue, boolean readonly )
+    public FloatProperty( String name, float defaultValue, boolean readonly )
     {
-        this( w2pf, name, null, defaultValue, readonly );
+        this( name, null, defaultValue, readonly );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public FloatProperty( WidgetToPropertyForwarder w2pf, String name, float defaultValue )
+    public FloatProperty( String name, float defaultValue )
     {
-        this( w2pf, name, defaultValue, false );
+        this( name, defaultValue, false );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param minValue the minimum value
      * @param maxValue the maximum value
      */
-    public FloatProperty( WidgetToPropertyForwarder w2pf, String name, float defaultValue, float minValue, float maxValue )
+    public FloatProperty( String name, float defaultValue, float minValue, float maxValue )
     {
-        this( w2pf, name, null, defaultValue, minValue, maxValue, false );
+        this( name, null, defaultValue, minValue, maxValue, false );
     }
 }

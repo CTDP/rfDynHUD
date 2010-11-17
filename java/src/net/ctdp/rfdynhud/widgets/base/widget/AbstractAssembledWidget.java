@@ -67,7 +67,8 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
     private void makeWidgetPart( Widget part )
     {
         part.setMasterWidget( this );
-        part.setConfiguration( getConfiguration() );
+        if ( getConfiguration() != null )
+            part.setConfiguration( getConfiguration() );
         
         part.getBorderProperty().setBorder( null );
         part.setPadding( 0, 0, 0, 0 );

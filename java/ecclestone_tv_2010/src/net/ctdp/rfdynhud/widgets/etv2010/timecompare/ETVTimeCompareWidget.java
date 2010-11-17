@@ -29,23 +29,22 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.etv2010._base.ETVTimingWidgetBase;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages;
-import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
 
 /**
  * The {@link ETVTimeCompareWidget} displays lap time gaps in race sessions.
@@ -56,10 +55,10 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
 {
     private static final int NUM_DISPLAYED_LAPS = 3;
     
-    private final IntProperty displayEveryXLaps = new IntProperty( this, "displayEveryXLaps", 3, 1, 20 );
-    private final FloatProperty visibleTime = new FloatProperty( this, "visibleTime", 8.0f, 1.0f, 60.0f );
+    private final IntProperty displayEveryXLaps = new IntProperty( "displayEveryXLaps", 3, 1, 20 );
+    private final FloatProperty visibleTime = new FloatProperty( "visibleTime", 8.0f, 1.0f, 60.0f );
     
-    private final BooleanProperty preferNextInFront = new BooleanProperty( this, "preferNextInFront", false );
+    private final BooleanProperty preferNextInFront = new BooleanProperty( "preferNextInFront", false );
     
     private DrawnString positionString1 = null;
     private DrawnString positionString2 = null;
@@ -85,21 +84,6 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     private final boolean getUseClassScoring()
     {
         return ( getConfiguration().getUseClassScoring() );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
-    {
-        super.onPropertyChanged( property, oldValue, newValue );
-        
-        if ( property == getFontProperty() )
-        {
-            forceReinitialization();
-            forceCompleteRedraw( false );
-        }
     }
     
     /**

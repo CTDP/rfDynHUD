@@ -21,10 +21,10 @@ import java.nio.ByteBuffer;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.properties.Position;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.TimeBasedClock;
-import net.ctdp.rfdynhud.values.Position;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;

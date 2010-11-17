@@ -231,17 +231,7 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
     {
         if ( property != currentDocedProperty )
         {
-            // TODO: Get directly from Property through prop.getPropertiesKeeper().
-            WidgetState ws = getSelectedWidgetState();
-            
-            if ( row < 2 )
-            {
-                docPanel.setText( RFDynHUDEditor.doc_header +  stateSetsListProp.getSelectedValue().getDocumentationSource( property ) + RFDynHUDEditor.doc_footer );
-            }
-            else if ( ws != null )
-            {
-                docPanel.setText( RFDynHUDEditor.doc_header + ws.getDocumentationSource( property ) + RFDynHUDEditor.doc_footer );
-            }
+            docPanel.setText( RFDynHUDEditor.doc_header + property.getDocumentationSource() + RFDynHUDEditor.doc_footer );
             
             docPanel.setCaretPosition( 0 );
             

@@ -36,8 +36,6 @@ public class ColorProperty extends Property
     
     public static final Color FALLBACK_COLOR = Color.MAGENTA;
     
-    private final WidgetsConfiguration widgetsConf;
-    
     private String colorKey;
     private Color color = null;
     
@@ -53,12 +51,32 @@ public class ColorProperty extends Property
     }
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getValue() );
+    }
+    
+    /**
      * Invoked when the value has changed.
      * 
      * @param oldValue the old value
      * @param newValue the new value
      */
     protected void onValueChanged( String oldValue, String newValue )
+    {
+    }
+    
+    /**
+     * Invoked when the value has been set.
+     * 
+     * @param value the new value
+     */
+    void onValueSet( String value )
     {
     }
     
@@ -74,10 +92,11 @@ public class ColorProperty extends Property
      * Sets the new property's value.
      * 
      * @param colorKey the new value
+     * @param firstTime
      * 
      * @return changed?
      */
-    public boolean setColor( String colorKey )
+    protected final boolean setColor( String colorKey, boolean firstTime )
     {
         if ( ( ( colorKey == null ) && ( this.colorKey == null ) ) || ( ( colorKey != null ) && colorKey.equals( this.colorKey ) ) )
             return ( false );
@@ -86,14 +105,27 @@ public class ColorProperty extends Property
         this.colorKey = colorKey;
         this.color = null;
         
-        if ( widget != null )
-            widget.forceAndSetDirty( true );
+        onValueSet( this.colorKey );
         
-        triggerCommonOnValueChanged( oldValue, colorKey );
-        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
+        if ( !firstTime )
+        {
+            triggerCommonOnValueChanged( oldValue, colorKey );
             onValueChanged( oldValue, colorKey );
+        }
         
         return ( true );
+    }
+    
+    /**
+     * Sets the new property's value.
+     * 
+     * @param colorKey the new value
+     * 
+     * @return changed?
+     */
+    public final boolean setColor( String colorKey )
+    {
+        return ( setColor( colorKey, false ) );
     }
     
     /**
@@ -144,11 +176,12 @@ public class ColorProperty extends Property
         
         if ( color == null )
         {
-            final WidgetsConfiguration widgetsConf = ( widget != null ) ? widget.getConfiguration() : this.widgetsConf;
+            final Widget widget = (Widget)getKeeper();
+            final WidgetsConfiguration widgetsConf = widget.getConfiguration();
             
             color = widgetsConf.getNamedColor( colorKey );
             
-            if ( ( color == null ) && ( widget != null ) )
+            if ( color == null )
             {
                 String colorStr = widget.getDefaultNamedColorValue( colorKey );
                 if ( colorStr != null )
@@ -210,164 +243,47 @@ public class ColorProperty extends Property
     
     /**
      * 
-     * @param widgetsConf the owner widgets configuration
-     * @param widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    private ColorProperty( WidgetsConfiguration widgetsConf, Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly )
+    public ColorProperty( String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.COLOR, null, null );
+        super( name, nameForDisplay, readonly, PropertyEditorType.COLOR, null, null );
         
-        this.widgetsConf = widgetsConf;
-        this.colorKey = defaultValue;
+        setColor( defaultValue, true );
     }
     
     /**
      * 
-     * @param widgetsConf the owner widgets configuration
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public ColorProperty( WidgetsConfiguration widgetsConf, String name, String nameForDisplay, String defaultValue, boolean readonly )
-    {
-        this( widgetsConf, null, name, nameForDisplay, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public ColorProperty( WidgetsConfiguration widgetsConf, String name, String nameForDisplay, String defaultValue )
+    public ColorProperty( String name, String nameForDisplay, String defaultValue )
     {
-        this( widgetsConf, name, nameForDisplay, defaultValue, false );
+        this( name, nameForDisplay, defaultValue, false );
     }
     
     /**
      * 
-     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public ColorProperty( WidgetsConfiguration widgetsConf, String name, String defaultValue, boolean readonly )
+    public ColorProperty( String name, String defaultValue, boolean readonly )
     {
-        this( widgetsConf, name, null, defaultValue, readonly );
+        this( name, null, defaultValue, readonly );
     }
     
     /**
      * 
-     * @param widgetsConf the owner widgets configuration
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public ColorProperty( WidgetsConfiguration widgetsConf, String name, String defaultValue )
+    public ColorProperty( String name, String defaultValue )
     {
-        this( widgetsConf, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public ColorProperty( Widget widget, String name, String nameForDisplay, String defaultValue, boolean readonly )
-    {
-        this( null, widget, name, nameForDisplay, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public ColorProperty( Widget widget, String name, String nameForDisplay, String defaultValue )
-    {
-        this( widget, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public ColorProperty( Widget widget, String name, String defaultValue, boolean readonly )
-    {
-        this( widget, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public ColorProperty( Widget widget, String name, String defaultValue )
-    {
-        this( widget, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public ColorProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue, boolean readonly )
-    {
-        this( null, null, name, nameForDisplay, defaultValue, readonly );
-        
-        w2pf.addProperty( this );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public ColorProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, String defaultValue )
-    {
-        this( w2pf, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public ColorProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue, boolean readonly )
-    {
-        this( w2pf, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public ColorProperty( WidgetToPropertyForwarder w2pf, String name, String defaultValue )
-    {
-        this( w2pf, name, defaultValue, false );
+        this( name, defaultValue, false );
     }
 }

@@ -18,7 +18,6 @@
 package net.ctdp.rfdynhud.editor.director.widgetstatesset;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,10 +30,8 @@ import net.ctdp.rfdynhud.properties.PropertiesKeeper;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.PropertyWriter;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-
-import org.jagatoo.util.strings.StringUtils;
 
 /**
  * Insert class comment here.
@@ -43,7 +40,7 @@ import org.jagatoo.util.strings.StringUtils;
  */
 public class WidgetStatesSet implements PropertiesKeeper, Comparable<WidgetStatesSet>
 {
-    private final StringProperty name = new StringProperty( (Widget)null, "name", "" );
+    private final StringProperty name = new StringProperty( "name", "" );
     
     private final ArrayList<WidgetState> states = new ArrayList<WidgetState>();
     
@@ -165,36 +162,8 @@ public class WidgetStatesSet implements PropertiesKeeper, Comparable<WidgetState
         }
     }
     
-    private String getDocumentationSource( Class<?> clazz, Property property )
-    {
-        URL docURL = null;
-        
-        if ( property == null )
-            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/widget.html" );
-        else
-            docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + property.getName() + ".html" );
-        
-        if ( docURL == null )
-        {
-            if ( ( clazz.getSuperclass() != null ) && ( clazz.getSuperclass() != Object.class ) )
-                return ( getDocumentationSource( clazz.getSuperclass(), property ) );
-            
-            return ( "" );
-        }
-        
-        return ( StringUtils.loadString( docURL ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final String getDocumentationSource( Property property )
-    {
-        return ( getDocumentationSource( this.getClass(), property ) );
-    }
-    
     public WidgetStatesSet()
     {
+        __PropsPrivilegedAccess.attachKeeper( this, false );
     }
 }

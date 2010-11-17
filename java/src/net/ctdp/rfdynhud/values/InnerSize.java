@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.values;
 
 import net.ctdp.rfdynhud.properties.BorderProperty;
+import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**

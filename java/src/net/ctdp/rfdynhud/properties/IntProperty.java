@@ -17,7 +17,6 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link IntProperty} serves for customizing a primitive int value.
@@ -64,13 +63,62 @@ public class IntProperty extends Property
     }
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onKeeperSet()
+    {
+        super.onKeeperSet();
+        
+        onValueChanged( null, getValue() );
+    }
+    
+    /**
      * Invoked when the value has changed.
      * 
      * @param oldValue the old value
      * @param newValue the new value
      */
-    protected void onValueChanged( int oldValue, int newValue )
+    protected void onValueChanged( Integer oldValue, int newValue )
     {
+    }
+    
+    /**
+     * Invoked when the value has been set.
+     * 
+     * @param value the new value
+     */
+    void onValueSet( int value )
+    {
+    }
+    
+    /**
+     * Sets the property's value.
+     * 
+     * @param value the new value
+     * @param firstTime
+     * 
+     * @return changed?
+     */
+    protected final boolean setIntValue( int value, boolean firstTime )
+    {
+        value = fixValue( value );
+        
+        if ( value == this.value )
+            return ( false );
+        
+        Integer oldValue = firstTime ? null : this.value;
+        this.value = value;
+        
+        onValueSet( this.value );
+        
+        if ( !firstTime )
+        {
+            triggerCommonOnValueChanged( oldValue, value );
+            onValueChanged( oldValue, value );
+        }
+        
+        return ( true );
     }
     
     /**
@@ -80,24 +128,9 @@ public class IntProperty extends Property
      * 
      * @return changed?
      */
-    public boolean setIntValue( int value )
+    public final boolean setIntValue( int value )
     {
-        value = fixValue( value );
-        
-        if ( value == this.value )
-            return ( false );
-        
-        int oldValue = this.value;
-        this.value = value;
-        
-        if ( widget != null )
-            widget.forceAndSetDirty( true );
-        
-        triggerCommonOnValueChanged( oldValue, value );
-        if ( getTriggerOnValueChangedBeforeAttachedToConfig() || ( ( getWidget() != null ) && ( getWidget().getConfiguration() != null ) ) )
-            onValueChanged( oldValue, value );
-        
-        return ( true );
+        return ( setIntValue( value, false ) );
     }
     
     /**
@@ -149,159 +182,92 @@ public class IntProperty extends Property
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param minValue the minimum value
      * @param maxValue the maximum value
      * @param readonly read only property?
+     * @param initialize
      */
-    public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
+    IntProperty( String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly, boolean initialize )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.INTEGER, null, null );
+        super( name, nameForDisplay, readonly, PropertyEditorType.INTEGER, null, null );
         
-        this.value = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue, boolean readonly )
-    {
-        this( widget, name, nameForDisplay, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, readonly );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     */
-    public IntProperty( Widget widget, String name, String nameForDisplay, int defaultValue )
-    {
-        this( widget, name, nameForDisplay, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param readonly read only property?
-     */
-    public IntProperty( Widget widget, String name, int defaultValue, boolean readonly )
-    {
-        this( widget, name, null, defaultValue, readonly );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     */
-    public IntProperty( Widget widget, String name, int defaultValue )
-    {
-        this( widget, name, defaultValue, false );
-    }
-    
-    /**
-     * 
-     * @param widget the owner widget
-     * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
-     * @param defaultValue the default value
-     * @param minValue the minimum value
-     * @param maxValue the maximum value
-     */
-    public IntProperty( Widget widget, String name, int defaultValue, int minValue, int maxValue )
-    {
-        this( widget, name, null, defaultValue, minValue, maxValue, false );
-    }
-    
-    /**
-     * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
-     * @param name the technical name used internally. See {@link #getName()}.
-     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
-     * @param defaultValue the default value
-     * @param minValue the minimum value
-     * @param maxValue the maximum value
-     * @param readonly read only property?
-     */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
-    {
-        this( (Widget)null, name, nameForDisplay, defaultValue, minValue, maxValue, readonly );
         
-        w2pf.addProperty( this );
+        if ( initialize )
+            setIntValue( defaultValue, true );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
+     * @param name the technical name used internally. See {@link #getName()}.
+     * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
+     * @param defaultValue the default value
+     * @param minValue the minimum value
+     * @param maxValue the maximum value
+     * @param readonly read only property?
+     */
+    public IntProperty( String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly )
+    {
+        this( name, nameForDisplay, defaultValue, minValue, maxValue, readonly, true );
+    }
+    
+    /**
+     * 
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue, boolean readonly )
+    public IntProperty( String name, String nameForDisplay, int defaultValue, boolean readonly )
     {
-        this( w2pf, name, nameForDisplay, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, readonly );
+        this( name, nameForDisplay, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, readonly );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param defaultValue the default value
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, String nameForDisplay, int defaultValue )
+    public IntProperty( String name, String nameForDisplay, int defaultValue )
     {
-        this( w2pf, name, nameForDisplay, defaultValue, false );
+        this( name, nameForDisplay, defaultValue, false );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param readonly read only property?
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue, boolean readonly )
+    public IntProperty( String name, int defaultValue, boolean readonly )
     {
-        this( w2pf, name, null, defaultValue, readonly );
+        this( name, null, defaultValue, readonly );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue )
+    public IntProperty(  String name, int defaultValue )
     {
-        this( w2pf, name, defaultValue, false );
+        this( name, defaultValue, false );
     }
     
     /**
      * 
-     * @param w2pf call {@link WidgetToPropertyForwarder#finish(Widget)} after all
      * @param name the technical name used internally. See {@link #getName()}. 'nameForDisplay' is set to the same value.
      * @param defaultValue the default value
      * @param minValue the minimum value
      * @param maxValue the maximum value
      */
-    public IntProperty( WidgetToPropertyForwarder w2pf, String name, int defaultValue, int minValue, int maxValue )
+    public IntProperty( String name, int defaultValue, int minValue, int maxValue )
     {
-        this( w2pf, name, null, defaultValue, minValue, maxValue, false );
+        this( name, null, defaultValue, minValue, maxValue, false );
     }
 }

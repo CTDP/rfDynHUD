@@ -27,14 +27,14 @@ import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
 
 public abstract class ETVTimingWidgetBase extends ETVWidgetBase
 {
-    protected final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR_1ST );
-    protected final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_DATA_BACKGROUND_COLOR_1ST );
-    protected final ColorProperty dataBackgroundColorFastest = new ColorProperty( this, "dataBgColorFastest", ETVUtils.ETV_DATA_BACKGROUND_COLOR_FASTEST );
-    protected final ColorProperty dataBackgroundColorFaster = new ColorProperty( this, "dataBgColorFaster", ETVUtils.ETV_DATA_BACKGROUND_COLOR_FASTER );
-    protected final ColorProperty dataBackgroundColorSlower = new ColorProperty( this, "dataBgColorSlower", ETVUtils.ETV_DATA_BACKGROUND_COLOR_SLOWER );
-    protected final ColorProperty dataColorFastest = new ColorProperty( this, "dataColorFastest", ETVUtils.ETV_DATA_FONT_COLOR_FASTEST );
-    protected final ColorProperty dataColorFaster = new ColorProperty( this, "dataColorFaster", ETVUtils.ETV_DATA_FONT_COLOR_FASTER );
-    protected final ColorProperty dataColorSlower = new ColorProperty( this, "dataColorSlower", ETVUtils.ETV_DATA_FONT_COLOR_SLOWER );
+    protected final ColorProperty captionBackgroundColor1st = new ColorProperty( "captionBgColor1st", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR_1ST );
+    protected final ColorProperty dataBackgroundColor1st = new ColorProperty( "dataBgColor1st", ETVUtils.ETV_DATA_BACKGROUND_COLOR_1ST );
+    protected final ColorProperty dataBackgroundColorFastest = new ColorProperty( "dataBgColorFastest", ETVUtils.ETV_DATA_BACKGROUND_COLOR_FASTEST );
+    protected final ColorProperty dataBackgroundColorFaster = new ColorProperty( "dataBgColorFaster", ETVUtils.ETV_DATA_BACKGROUND_COLOR_FASTER );
+    protected final ColorProperty dataBackgroundColorSlower = new ColorProperty( "dataBgColorSlower", ETVUtils.ETV_DATA_BACKGROUND_COLOR_SLOWER );
+    protected final ColorProperty dataColorFastest = new ColorProperty( "dataColorFastest", ETVUtils.ETV_DATA_FONT_COLOR_FASTEST );
+    protected final ColorProperty dataColorFaster = new ColorProperty( "dataColorFaster", ETVUtils.ETV_DATA_FONT_COLOR_FASTER );
+    protected final ColorProperty dataColorSlower = new ColorProperty( "dataColorSlower", ETVUtils.ETV_DATA_FONT_COLOR_SLOWER );
     
     /**
      * {@inheritDoc}

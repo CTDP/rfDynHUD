@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.editor.util.FontChooser;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 
 /**
@@ -118,10 +119,10 @@ public class FontCellEditor extends ValueCellEditor<Property, JPanel, JButton>
                     JFrame frame = (JFrame)getTable().getRootPane().getParent();
                     if ( fontChooser == null )
                     {
-                        fontChooser = new FontChooser( (String)getProperty().getValue(), getProperty().getWidget().getConfiguration() );
+                        fontChooser = new FontChooser( (String)getProperty().getValue(), ( (Widget)getProperty().getKeeper() ).getConfiguration() );
                     }
                     
-                    String result = fontChooser.showDialog( frame, (String)getProperty().getValue(), getProperty().getWidget().getConfiguration() );
+                    String result = fontChooser.showDialog( frame, (String)getProperty().getValue(), ( (Widget)getProperty().getKeeper() ).getConfiguration() );
                     
                     if ( result != null )
                     {

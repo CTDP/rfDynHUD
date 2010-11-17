@@ -49,10 +49,10 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class RideHeightWidget extends Widget
 {
-    private final BooleanProperty displayHeader = new BooleanProperty( this, "displayHeader", true );
+    private final BooleanProperty displayHeader = new BooleanProperty( "displayHeader", true );
     
-    private final FontProperty headerFont = new FontProperty( this, "headerFont", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty headerFontColor = new ColorProperty( this, "headerFontColor", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    private final FontProperty headerFont = new FontProperty( "headerFont", "font", FontProperty.STANDARD_FONT_NAME );
+    private final ColorProperty headerFontColor = new ColorProperty( "headerFontColor", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
     
     private float minFL = Float.MAX_VALUE;
     private float minFR = Float.MAX_VALUE;

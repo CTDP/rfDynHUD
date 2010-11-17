@@ -67,17 +67,17 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class MapWidget extends Widget
 {
-    private final BooleanProperty rotationEnabled = new BooleanProperty( this, "rotationEnabled", false );
+    private final BooleanProperty rotationEnabled = new BooleanProperty( "rotationEnabled", false );
     
     
-    private final ColorProperty roadColorSec1 = new ColorProperty( this, "roadColorSec1", "colorSec1", "#000000" );
-    private final ColorProperty roadBoundaryColorSec1 = new ColorProperty( this, "roadBoundaryColorSec1", "boundaryColorSec1", "#FFFFFF" );
-    private final ColorProperty roadColorSec2 = new ColorProperty( this, "roadColorSec2", "colorSec2", "#000000" );
-    private final ColorProperty roadBoundaryColorSec2 = new ColorProperty( this, "roadBoundaryColorSec2", "boundaryColorSec2", "#FFFFFF" );
-    private final ColorProperty roadColorSec3 = new ColorProperty( this, "roadColorSec3", "colorSec3", "#000000" );
-    private final ColorProperty roadBoundaryColorSec3 = new ColorProperty( this, "roadBoundaryColorSec3", "boundaryColorSec3", "#FFFFFF" );
-    private final ColorProperty pitlaneColor = new ColorProperty( this, "pitlaneColor", "pitlaneColor", "#FFFF00" );
-    private final IntProperty roadWidth = new IntProperty( this, "roadWidth", "width", 4, 2, 20, false )
+    private final ColorProperty roadColorSec1 = new ColorProperty( "roadColorSec1", "colorSec1", "#000000" );
+    private final ColorProperty roadBoundaryColorSec1 = new ColorProperty( "roadBoundaryColorSec1", "boundaryColorSec1", "#FFFFFF" );
+    private final ColorProperty roadColorSec2 = new ColorProperty( "roadColorSec2", "colorSec2", "#000000" );
+    private final ColorProperty roadBoundaryColorSec2 = new ColorProperty( "roadBoundaryColorSec2", "boundaryColorSec2", "#FFFFFF" );
+    private final ColorProperty roadColorSec3 = new ColorProperty( "roadColorSec3", "colorSec3", "#000000" );
+    private final ColorProperty roadBoundaryColorSec3 = new ColorProperty( "roadBoundaryColorSec3", "boundaryColorSec3", "#FFFFFF" );
+    private final ColorProperty pitlaneColor = new ColorProperty( "pitlaneColor", "pitlaneColor", "#FFFF00" );
+    private final IntProperty roadWidth = new IntProperty( "roadWidth", "width", 4, 2, 20, false )
     {
         @Override
         protected int fixValue( int value )
@@ -92,10 +92,10 @@ public class MapWidget extends Widget
     
     private Track track = null;
     private float scale = 1f;
-    private final IntProperty baseItemRadius = new IntProperty( this, "itemRadius", "radius", 9, 1, 100, false )
+    private final IntProperty baseItemRadius = new IntProperty( "itemRadius", "radius", 9, 1, 100, false )
     {
         @Override
-        protected void onValueChanged( int oldValue, int newValue )
+        protected void onValueChanged( Integer oldValue, int newValue )
         {
             super.onValueChanged( oldValue, newValue );
             
@@ -114,19 +114,19 @@ public class MapWidget extends Widget
     
     private boolean needsBGClear = false;
     
-    private final ColorProperty markColorNormal = new ColorProperty( this, "markColorNormal", "colorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
-    private final ColorProperty markColorLeader = new ColorProperty( this, "markColorLeader", "colorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
-    private final ColorProperty markColorMe = new ColorProperty( this, "markColorMe", "colorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
-    private final BooleanProperty useMyColorForMe1st = new BooleanProperty( this, "useMyColorForMe1st", false );
-    private final ColorProperty markColorNextInFront = new ColorProperty( this, "markColorNextInFront", "colorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
-    private final ColorProperty markColorNextBehind = new ColorProperty( this, "markColorNextBehind", "colorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
+    private final ColorProperty markColorNormal = new ColorProperty( "markColorNormal", "colorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final ColorProperty markColorLeader = new ColorProperty( "markColorLeader", "colorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
+    private final ColorProperty markColorMe = new ColorProperty( "markColorMe", "colorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
+    private final BooleanProperty useMyColorForMe1st = new BooleanProperty( "useMyColorForMe1st", false );
+    private final ColorProperty markColorNextInFront = new ColorProperty( "markColorNextInFront", "colorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
+    private final ColorProperty markColorNextBehind = new ColorProperty( "markColorNextBehind", "colorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
     
-    private final BooleanProperty displayPositionNumbers = new BooleanProperty( this, "displayPosNumbers", true );
+    private final BooleanProperty displayPositionNumbers = new BooleanProperty( "displayPosNumbers", true );
     
-    private final BooleanProperty displayNameLabels = new BooleanProperty( this, "displayNameLabels", false );
-    private final EnumProperty<LabelPositioning> nameLabelPos = new EnumProperty<LabelPositioning>( this, "nameLabelPos", LabelPositioning.BELOW_RIGHT );
-    private final FontProperty nameLabelFont = new FontProperty( this, "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT_NAME );
-    private final ColorProperty nameLabelFontColor = new ColorProperty( this, "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final BooleanProperty displayNameLabels = new BooleanProperty( "displayNameLabels", false );
+    private final EnumProperty<LabelPositioning> nameLabelPos = new EnumProperty<LabelPositioning>( "nameLabelPos", LabelPositioning.BELOW_RIGHT );
+    private final FontProperty nameLabelFont = new FontProperty( "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT_NAME );
+    private final ColorProperty nameLabelFontColor = new ColorProperty( "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
     
     private int maxDisplayedVehicles = -1;
     

@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
@@ -43,7 +44,6 @@ import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
-import net.ctdp.rfdynhud.values.Size;
 import net.ctdp.rfdynhud.values.StandingsView;
 import net.ctdp.rfdynhud.values.StringValue;
 import net.ctdp.rfdynhud.widgets.etv2010._base.ETVWidgetBase;
@@ -57,11 +57,11 @@ import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
  */
 public class ETVStandingsWidget extends ETVWidgetBase
 {
-    private final ColorProperty captionBackgroundColor1st = new ColorProperty( this, "captionBgColor1st", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR_1ST );
-    private final ColorProperty dataBackgroundColor1st = new ColorProperty( this, "dataBgColor1st", ETVUtils.ETV_DATA_BACKGROUND_COLOR_1ST );
+    private final ColorProperty captionBackgroundColor1st = new ColorProperty( "captionBgColor1st", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR_1ST );
+    private final ColorProperty dataBackgroundColor1st = new ColorProperty( "dataBgColor1st", ETVUtils.ETV_DATA_BACKGROUND_COLOR_1ST );
     
-    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( this, "forceLeaderDisplayed", "forceLeaderDispl", true );
-    private final BooleanProperty showFastestLapsInRace = new BooleanProperty( this, "showFastestLapsInRace", "showFastLapsRace", true );
+    private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( "forceLeaderDisplayed", "forceLeaderDispl", true );
+    private final BooleanProperty showFastestLapsInRace = new BooleanProperty( "showFastestLapsInRace", "showFastLapsRace", true );
     
     private DrawnString[] captionStrings = null;
     private DrawnString[] nameStrings = null;

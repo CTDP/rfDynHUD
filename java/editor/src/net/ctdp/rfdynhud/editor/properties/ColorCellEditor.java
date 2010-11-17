@@ -32,6 +32,7 @@ import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
 import net.ctdp.rfdynhud.editor.util.ColorChooser;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 
 /**
@@ -134,10 +135,10 @@ public class ColorCellEditor extends ValueCellEditor<Property, JPanel, JButton>
                     JFrame frame = (JFrame)getTable().getRootPane().getParent();
                     if ( colorChooser == null )
                     {
-                        colorChooser = new ColorChooser( (String)getProperty().getValue(), getProperty().getWidget().getConfiguration() );
+                        colorChooser = new ColorChooser( (String)getProperty().getValue(), ( (Widget)getProperty().getKeeper() ).getConfiguration() );
                     }
                     
-                    String result = colorChooser.showDialog( frame, (String)getProperty().getValue(), getProperty().getWidget().getConfiguration() );
+                    String result = colorChooser.showDialog( frame, (String)getProperty().getValue(), ( (Widget)getProperty().getKeeper() ).getConfiguration() );
                     
                     if ( result != null )
                     {

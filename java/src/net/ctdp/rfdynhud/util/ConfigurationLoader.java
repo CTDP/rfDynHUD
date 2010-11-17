@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
+import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
@@ -349,7 +350,7 @@ public class ConfigurationLoader implements PropertyLoader
                     else
                         currentPart.loadProperty( ConfigurationLoader.this );
                     
-                    __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
+                    //__WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
                     currentWidget = null;
                     widgetName = null;
                     badWidget = false;
@@ -502,6 +503,8 @@ public class ConfigurationLoader implements PropertyLoader
                                             currentWidget.loadProperty( ConfigurationLoader.this );
                                         else
                                             currentPart.loadProperty( ConfigurationLoader.this );
+                                        
+                                        __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
                                     }
                                 }
                             }
@@ -620,7 +623,7 @@ public class ConfigurationLoader implements PropertyLoader
             {
                 if ( currentWidget != null )
                 {
-                    __WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
+                    //__WCPrivilegedAccess.addWidget( widgetsConfig, currentWidget, true );
                     currentWidget = null;
                 }
                 
@@ -639,6 +642,7 @@ public class ConfigurationLoader implements PropertyLoader
         for ( int i = 0; i < widgetsConfig.getNumWidgets(); i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
+            __PropsPrivilegedAccess.attachKeeper( widget, true );
             
             if ( widget instanceof AbstractAssembledWidget )
             {

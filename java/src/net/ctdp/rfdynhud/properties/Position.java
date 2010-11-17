@@ -15,14 +15,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.values;
+package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.properties.PosSizeProperty;
-import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyEditorType;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
+import net.ctdp.rfdynhud.values.AbstractSize;
+import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
@@ -685,7 +681,7 @@ public class Position
     {
         if ( !propExistsWithName( posProp, name, nameForDisplay ) )
         {
-            posProp = new Property( widget, name, nameForDisplay, PropertyEditorType.ENUM )
+            posProp = new Property( name, nameForDisplay, PropertyEditorType.ENUM )
             {
                 @Override
                 public void setValue( Object value )
@@ -746,7 +742,7 @@ public class Position
     {
         if ( !propExistsWithName( xProp, name, nameForDisplay ) )
         {
-            xProp = new PosSizeProperty( widget, name, nameForDisplay, false, false )
+            xProp = new PosSizeProperty( name, nameForDisplay, false, false )
             {
                 @Override
                 public boolean isPercentage()
@@ -827,7 +823,7 @@ public class Position
     {
         if ( !propExistsWithName( yProp, name, nameForDisplay ) )
         {
-            yProp = new PosSizeProperty( widget, name, nameForDisplay, false, false )
+            yProp = new PosSizeProperty( name, nameForDisplay, false, false )
             {
                 @Override
                 public boolean isPercentage()
@@ -940,55 +936,5 @@ public class Position
     public static final Position newGlobalPosition( Widget widget, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
     {
         return ( new Position( widget, true, positioning, x, xPercent, y, yPercent, size ) );
-    }
-    
-    protected Position( WidgetToPropertyForwarder w2pf, boolean isGlobalPosition, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
-    {
-        this.widget = null;
-        this.isGlobalPosition = isGlobalPosition;
-        
-        this.positioning = positioning;
-        this.x = xPercent ? x * 0.01f : PIXEL_OFFSET + x;
-        this.y = yPercent ? y * 0.01f : PIXEL_OFFSET + y;
-        
-        this.size = size;
-        
-        __PropsPrivilegedAccess.addPosition( w2pf, this );
-    }
-    
-    /**
-     * Create a new positional property for positions local to a Widget's area.
-     * 
-     * @param w2pf the object to use as a placeholder for the Widget to come
-     * @param positioning the used {@link RelativePositioning}
-     * @param x the x position
-     * @param xPercent interpret 'x' as percents?
-     * @param y the y position
-     * @param yPercent interpret 'y' as percents?
-     * @param size the size for the area
-     * 
-     * @return the new Position.
-     */
-    public static final Position newLocalPosition( WidgetToPropertyForwarder w2pf, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
-    {
-        return ( new Position( w2pf, false, positioning, x, xPercent, y, yPercent, size ) );
-    }
-    
-    /**
-     * Create a new positional property for global positions on the whole screen area.
-     * 
-     * @param w2pf the object to use as a placeholder for the Widget to come
-     * @param positioning the used {@link RelativePositioning}
-     * @param x the x position
-     * @param xPercent interpret 'x' as percents?
-     * @param y the y position
-     * @param yPercent interpret 'y' as percents?
-     * @param size the size for the area
-     * 
-     * @return the new Position.
-     */
-    public static final Position newGlobalPosition( WidgetToPropertyForwarder w2pf, RelativePositioning positioning, float x, boolean xPercent, float y, boolean yPercent, AbstractSize size )
-    {
-        return ( new Position( w2pf, true, positioning, x, xPercent, y, yPercent, size ) );
     }
 }

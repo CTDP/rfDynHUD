@@ -15,13 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.values;
+package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.properties.PosSizeProperty;
-import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.WidgetToPropertyForwarder;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
+import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
@@ -37,7 +33,7 @@ public class Size extends AbstractSize
     private int bakedWidth = -1;
     private int bakedHeight = -1;
     
-    /*final*/ Widget widget;
+    private final Widget widget;
     private final boolean isGlobalSize;
     
     /*
@@ -657,7 +653,7 @@ public class Size extends AbstractSize
         {
             boolean ro = isGlobalSize ? widget.hasFixedSize() : false;
             
-            widthProp = new PosSizeProperty( widget, name, nameForDisplay, ro, true )
+            widthProp = new PosSizeProperty( name, nameForDisplay, ro, true )
             {
                 @Override
                 public boolean isPercentage()
@@ -746,7 +742,7 @@ public class Size extends AbstractSize
         {
             boolean ro = isGlobalSize ? widget.hasFixedSize() : false;
             
-            heightProp = new PosSizeProperty( widget, name, nameForDisplay, ro, true )
+            heightProp = new PosSizeProperty( name, nameForDisplay, ro, true )
             {
                 @Override
                 public boolean isPercentage()
@@ -858,48 +854,5 @@ public class Size extends AbstractSize
     public static final Size newGlobalSize( Widget widget, float width, boolean widthPercent, float height, boolean heightPercent )
     {
         return ( new Size( widget, true, width, widthPercent, height, heightPercent ) );
-    }
-    
-    protected Size( WidgetToPropertyForwarder w2pf, boolean isGlobalSize, float width, boolean widthPercent, float height, boolean heightPercent )
-    {
-        this.widget = null;
-        this.isGlobalSize = isGlobalSize;
-        
-        this.width = widthPercent ? width * 0.01f : PIXEL_OFFSET + width;
-        this.height = heightPercent ? height * 0.01f : PIXEL_OFFSET + height;
-        
-        __PropsPrivilegedAccess.addSize( w2pf, this );
-    }
-    
-    /**
-     * Create a new size property for sizes local to a Widget's area.
-     * 
-     * @param w2pf the object to use as a placeholder for the Widget to come
-     * @param width the new width value
-     * @param widthPercent interpret 'width' as percents?
-     * @param height the new height value
-     * @param heightPercent interpret 'height' as percents?
-     * 
-     * @return the new Size.
-     */
-    public static final Size newLocalSize( WidgetToPropertyForwarder w2pf, float width, boolean widthPercent, float height, boolean heightPercent )
-    {
-        return ( new Size( w2pf, false, width, widthPercent, height, heightPercent ) );
-    }
-    
-    /**
-     * Create a new size property for global positions on the whole screen area.
-     * 
-     * @param w2pf the object to use as a placeholder for the Widget to come
-     * @param width the new width value
-     * @param widthPercent interpret 'width' as percents?
-     * @param height the new height value
-     * @param heightPercent interpret 'height' as percents?
-     * 
-     * @return the new Size.
-     */
-    public static final Size newGlobalSize( WidgetToPropertyForwarder w2pf, float width, boolean widthPercent, float height, boolean heightPercent )
-    {
-        return ( new Size( w2pf, true, width, widthPercent, height, heightPercent ) );
     }
 }

@@ -17,9 +17,6 @@
  */
 package net.ctdp.rfdynhud.properties;
 
-import net.ctdp.rfdynhud.values.Position;
-import net.ctdp.rfdynhud.values.Size;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * The {@link PosSizeProperty} is utilized by the {@link Position} and {@link Size} classes to customize positional and size values.
@@ -105,28 +102,26 @@ public abstract class PosSizeProperty extends Property
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param readonly read only property?
      * @param isSizeProp <code>true</code>, if this is a size property, <code>false</code>, if this is a position property
      */
-    public PosSizeProperty( Widget widget, String name, String nameForDisplay, boolean readonly, boolean isSizeProp )
+    public PosSizeProperty( String name, String nameForDisplay, boolean readonly, boolean isSizeProp )
     {
-        super( widget, name, nameForDisplay, readonly, PropertyEditorType.POS_SIZE, null, null );
+        super( name, nameForDisplay, readonly, PropertyEditorType.POS_SIZE, null, null );
         
         this.isSizeProp = isSizeProp;
     }
     
     /**
      * 
-     * @param widget the owner widget
      * @param name the technical name used internally. See {@link #getName()}.
      * @param nameForDisplay the name displayed in the editor. See {@link #getNameForDisplay()}. If <code>null</code> is passed, the value of the name parameter is used.
      * @param isSizeProp <code>true</code>, if this is a size property, <code>false</code>, if this is a position property
      */
-    public PosSizeProperty( Widget widget, String name, String nameForDisplay, boolean isSizeProp )
+    public PosSizeProperty( String name, String nameForDisplay, boolean isSizeProp )
     {
-        this( widget, name, nameForDisplay, false, isSizeProp );
+        this( name, nameForDisplay, false, isSizeProp );
     }
 }
