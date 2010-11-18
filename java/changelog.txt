@@ -40,6 +40,8 @@ Major:
 * Added AssembledWidget to combine existing Widgets to create a new and more complex one in an efficient way.
 * Added support for images to style the ETV Widgets. Images are made by Daniel Zemla.
 * Added a Director plugin and editor extension to control a remote in game rfDynHUD from a Director mode in the editor.
+* Added TinyPositionWidget.
+* Added ETVFastestLapWidget.
 
 Minor:
 

@@ -66,7 +66,7 @@ class Coords
         if ( images != null )
         {
             float ldScale = images.getLabeledDataImageScale( rowHeight );
-            float dScale = images.getLabeledDataImageScale( rowHeight );
+            float dScale = images.getDataImageScale( rowHeight );
             //ldVBL = images.getLabeledDataVirtualProjectionBorderLeft() * ldScale;
             ldBL = images.getLabeledDataLabelBorderLeft() * ldScale;
             ldBR = (int)( images.getLabeledDataDataBorderRight() * ldScale );

@@ -570,6 +570,17 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
      * {@inheritDoc}
      */
     @Override
+    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
+        
+        propsCont.addProperty( displayType );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void getPropertiesForParentGroup( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getPropertiesForParentGroup( propsCont, forceAll );
@@ -596,10 +607,6 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Visiblity" );
-        
-        propsCont.addProperty( displayType );
     }
     
     /**

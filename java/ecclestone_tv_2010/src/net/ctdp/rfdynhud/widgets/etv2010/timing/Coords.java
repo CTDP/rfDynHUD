@@ -34,7 +34,7 @@ class Coords
     public int bigPosWidth;
     public int bigPosCenter;
     
-    public int mainWidth;
+    private int mainWidth;
     public int mainFieldWidthA;
     public int mainFieldWidthB;
     
@@ -61,7 +61,7 @@ class Coords
         if ( images != null )
         {
             float ldScale = images.getLabeledDataImageScale( rowHeight );
-            float dScale = images.getLabeledDataImageScale( rowHeight );
+            float dScale = images.getDataImageScale( rowHeight );
             ldBL = images.getLabeledDataLabelBorderLeft() * ldScale;
             dBL = (int)( images.getDataBorderLeft() * dScale );
             dBR = (int)( images.getDataBorderRight() * dScale );

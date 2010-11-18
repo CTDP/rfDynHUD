@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.widgets.etv2010.timing;
+package net.ctdp.rfdynhud.widgets.etv2010.fastestlap;
 
 import net.ctdp.rfdynhud.util.LocalizationsManager;
 
@@ -23,8 +23,8 @@ public class Loc
 {
     private static final String l( String key )
     {
-        return ( LocalizationsManager.INSTANCE.getLocalization( ETVTimingWidget.class, key ) );
+        return ( LocalizationsManager.INSTANCE.getLocalization( ETVFastestLapWidget.class, key ) );
     }
     
-    public static final String blah = l( "blah" );
+    public static final String caption_fastestLap = l( "caption.fastestLap" );
 }
