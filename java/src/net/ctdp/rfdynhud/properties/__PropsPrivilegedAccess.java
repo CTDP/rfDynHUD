@@ -24,35 +24,6 @@ package net.ctdp.rfdynhud.properties;
  */
 public class __PropsPrivilegedAccess
 {
-    public static final void setKeeper( Property property, PropertiesKeeper keeper, boolean force )
-    {
-        property.setKeeper( keeper, force );
-    }
-    
-    public static final void attachKeeper( PropertiesKeeper keeper, boolean force )
-    {
-        FlatPropertiesContainer pc = new FlatPropertiesContainer();
-        
-        keeper.getProperties( pc, true );
-        
-        for ( int i = 0; i < pc.getList().size(); i++ )
-        {
-            pc.getList().get( i ).setKeeper( keeper, force );
-        }
-    }
-    
-    public static final void detachKeeper( PropertiesKeeper keeper )
-    {
-        FlatPropertiesContainer pc = new FlatPropertiesContainer();
-        
-        keeper.getProperties( pc, true );
-        
-        for ( int i = 0; i < pc.getList().size(); i++ )
-        {
-            pc.getList().get( i ).setKeeper( null, false );
-        }
-    }
-    
     public static final void setCellRenderer( Object renderer, Property property )
     {
         property.cellRenderer = renderer;

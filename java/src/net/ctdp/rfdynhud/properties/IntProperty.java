@@ -114,7 +114,7 @@ public class IntProperty extends Property
         
         if ( !firstTime )
         {
-            triggerCommonOnValueChanged( oldValue, value );
+            triggerKeepersOnPropertyChanged( oldValue, value );
             onValueChanged( oldValue, value );
         }
         

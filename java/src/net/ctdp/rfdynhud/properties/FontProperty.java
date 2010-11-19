@@ -136,7 +136,7 @@ public class FontProperty extends Property
             
             if ( !firstTime )
             {
-                triggerCommonOnValueChanged( null, fontKey );
+                triggerKeepersOnPropertyChanged( null, fontKey );
                 onValueChanged( null, fontKey );
             }
         }
@@ -161,7 +161,7 @@ public class FontProperty extends Property
                 
                 if ( !firstTime )
                 {
-                    triggerCommonOnValueChanged( firstTime ? null : oldValue, fontKey );
+                    triggerKeepersOnPropertyChanged( firstTime ? null : oldValue, fontKey );
                     onValueChanged( firstTime ? null : oldValue, fontKey );
                 }
             }

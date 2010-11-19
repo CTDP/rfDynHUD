@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.gamedata.GameResolution;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputMappings;
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
@@ -40,7 +41,6 @@ import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertiesKeeper;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.WidgetZYXComparator;
@@ -960,6 +960,6 @@ public class WidgetsConfiguration implements PropertiesKeeper
     {
         __GDPrivilegedAccess.setGameResolution( gameResX, gameResY, this );
         __WCPrivilegedAccess.setViewport( 0, 0, gameResX, gameResY, this );
-        __PropsPrivilegedAccess.attachKeeper( this, false );
+        AbstractPropertiesKeeper.attachKeeper( this );
     }
 }

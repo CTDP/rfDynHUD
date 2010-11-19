@@ -77,7 +77,7 @@ public class BooleanProperty extends Property
         
         if ( !firstTime )
         {
-            triggerCommonOnValueChanged( !value, value );
+            triggerKeepersOnPropertyChanged( !value, value );
             onValueChanged( oldValue, value );
         }
         

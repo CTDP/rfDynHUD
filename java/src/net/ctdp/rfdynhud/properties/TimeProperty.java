@@ -80,7 +80,7 @@ public class TimeProperty extends Property
         
         if ( !firstTime )
         {
-            triggerCommonOnValueChanged( oldValue, value );
+            triggerKeepersOnPropertyChanged( oldValue, value );
             onValueChanged( oldValue, value );
         }
         

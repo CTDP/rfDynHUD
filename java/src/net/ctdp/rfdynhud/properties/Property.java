@@ -45,7 +45,7 @@ public abstract class Property
     
     protected void onKeeperSet()
     {
-        triggerCommonOnValueChanged( null, getValue() );
+        triggerKeepersOnPropertyChanged( null, getValue() );
     }
     
     boolean setKeeper( PropertiesKeeper keeper, boolean force )
@@ -135,7 +135,7 @@ public abstract class Property
      */
     public abstract Object getValue();
     
-    void triggerCommonOnValueChanged( Object oldValue, Object newValue )
+    void triggerKeepersOnPropertyChanged( Object oldValue, Object newValue )
     {
         if ( keeper != null )
             keeper.onPropertyChanged( this, oldValue, newValue );

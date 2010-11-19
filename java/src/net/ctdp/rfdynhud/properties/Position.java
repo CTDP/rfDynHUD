@@ -697,7 +697,7 @@ public class Position
                         
                         setEffectivePosition( (RelativePositioning)value, currX, currY );
                         
-                        triggerCommonOnValueChanged( oldValue, value );
+                        triggerKeepersOnPropertyChanged( oldValue, value );
                         onPositioningPropertySet( (RelativePositioning)value );
                     }
                     else
@@ -761,7 +761,7 @@ public class Position
                         set( x, getY() );
                         
                         if ( x != oldValue )
-                            triggerCommonOnValueChanged( oldValue, value );
+                            triggerKeepersOnPropertyChanged( oldValue, value );
                         onXPropertySet( x );
                     }
                 }
@@ -842,7 +842,7 @@ public class Position
                         set( getX(), y );
                         
                         if ( y != oldValue )
-                            triggerCommonOnValueChanged( oldValue, value );
+                            triggerKeepersOnPropertyChanged( oldValue, value );
                         onYPropertySet( y );
                     }
                 }

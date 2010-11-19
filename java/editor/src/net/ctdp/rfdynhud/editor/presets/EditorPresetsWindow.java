@@ -44,9 +44,9 @@ import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 
 public class EditorPresetsWindow extends JDialog implements PropertyChangeListener
 {
@@ -212,7 +212,7 @@ public class EditorPresetsWindow extends JDialog implements PropertyChangeListen
     {
         super( editor.getMainWindow(), "rfDynHUD Editor Presets", false );
         
-        __PropsPrivilegedAccess.setKeeper( defaultScaleType, null, false );
+        AbstractPropertiesKeeper.setKeeper( defaultScaleType, null );
         
         this.editor = editor;
         setLocationRelativeTo( editor.getMainWindow() );

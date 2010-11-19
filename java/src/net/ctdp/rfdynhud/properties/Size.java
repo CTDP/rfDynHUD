@@ -672,7 +672,7 @@ public class Size extends AbstractSize
                         set( width, getHeight() );
                         
                         if ( width != oldValue )
-                            triggerCommonOnValueChanged( oldValue, width );
+                            triggerKeepersOnPropertyChanged( oldValue, width );
                         onWidthPropertySet( width );
                     }
                 }
@@ -761,7 +761,7 @@ public class Size extends AbstractSize
                         set( getWidth(), height );
                         
                         if ( height != oldValue )
-                            triggerCommonOnValueChanged( oldValue, height );
+                            triggerKeepersOnPropertyChanged( oldValue, height );
                         onHeightPropertySet( height );
                     }
                 }

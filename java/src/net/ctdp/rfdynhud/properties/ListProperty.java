@@ -94,7 +94,7 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
         
         if ( !firstTime )
         {
-            triggerCommonOnValueChanged( oldValue, value );
+            triggerKeepersOnPropertyChanged( oldValue, value );
             onValueChanged( oldValue, value );
         }
         

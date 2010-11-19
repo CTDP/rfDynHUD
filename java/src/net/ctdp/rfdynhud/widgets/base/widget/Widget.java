@@ -30,6 +30,7 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleSetup;
 import net.ctdp.rfdynhud.input.InputAction;
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.BorderProperty;
@@ -46,7 +47,6 @@ import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
@@ -403,7 +403,7 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
             
             for ( int i = 0; i < pc.getList().size(); i++ )
             {
-                __PropsPrivilegedAccess.setKeeper( pc.getList().get( i ), this, false );
+                AbstractPropertiesKeeper.setKeeper( pc.getList().get( i ), this );
             }
         }
     }

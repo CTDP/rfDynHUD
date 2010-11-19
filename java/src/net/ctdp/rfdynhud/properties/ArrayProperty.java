@@ -91,7 +91,7 @@ public class ArrayProperty<E extends Object> extends Property
         
         if ( !firstTime )
         {
-            triggerCommonOnValueChanged( oldValue, value );
+            triggerKeepersOnPropertyChanged( oldValue, value );
             onValueChanged( oldValue, value );
         }
         

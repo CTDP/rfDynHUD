@@ -19,19 +19,19 @@ package net.ctdp.rfdynhud.widgets.standard.revmeter;
 
 import java.io.IOException;
 
-import org.jagatoo.logging.Log;
-
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TransformableTexture;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+
+import org.jagatoo.logging.Log;
 
 public class ShiftLight
 {
@@ -296,10 +296,8 @@ public class ShiftLight
     
     public void saveProperties( PropertyWriter writer ) throws IOException
     {
-        if ( imageNameOff.getKeeper() == null )
-            __PropsPrivilegedAccess.setKeeper( imageNameOff, widget, false );
-        if ( imageNameOn.getKeeper() == null )
-            __PropsPrivilegedAccess.setKeeper( imageNameOn, widget, false );
+        AbstractPropertiesKeeper.setKeeper( imageNameOff, widget );
+        AbstractPropertiesKeeper.setKeeper( imageNameOn, widget );
         
         writer.writeProperty( imageNameOff, "The name of the shift light image for \"off\" state." );
         writer.writeProperty( imageNameOn, "The name of the shift light image for \"on\" state." );
@@ -311,10 +309,8 @@ public class ShiftLight
     
     public boolean loadProperty( PropertyLoader loader )
     {
-        if ( imageNameOff.getKeeper() == null )
-            __PropsPrivilegedAccess.setKeeper( imageNameOff, widget, false );
-        if ( imageNameOn.getKeeper() == null )
-            __PropsPrivilegedAccess.setKeeper( imageNameOn, widget, false );
+        AbstractPropertiesKeeper.setKeeper( imageNameOff, widget );
+        AbstractPropertiesKeeper.setKeeper( imageNameOn, widget );
         
         if ( loader.loadProperty( imageNameOff ) )
             return ( true );
@@ -339,10 +335,8 @@ public class ShiftLight
      */
     public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
-        if ( imageNameOff.getKeeper() == null )
-            __PropsPrivilegedAccess.setKeeper( imageNameOff, widget, false );
-        if ( imageNameOn.getKeeper() == null )
-            __PropsPrivilegedAccess.setKeeper( imageNameOn, widget, false );
+        AbstractPropertiesKeeper.setKeeper( imageNameOff, widget );
+        AbstractPropertiesKeeper.setKeeper( imageNameOn, widget );
         
         propsCont.addGroup( "Shift Light " + indexOneBased );
         

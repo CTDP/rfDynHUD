@@ -25,12 +25,12 @@ import net.ctdp.rfdynhud.editor.director.DirectorManager;
 import net.ctdp.rfdynhud.editor.director.DriverCapsule;
 import net.ctdp.rfdynhud.editor.director.widgetstate.WidgetState;
 import net.ctdp.rfdynhud.editor.util.DefaultPropertyWriter;
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertiesKeeper;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 
 /**
@@ -164,6 +164,6 @@ public class WidgetStatesSet implements PropertiesKeeper, Comparable<WidgetState
     
     public WidgetStatesSet()
     {
-        __PropsPrivilegedAccess.attachKeeper( this, false );
+        AbstractPropertiesKeeper.attachKeeper( this );
     }
 }

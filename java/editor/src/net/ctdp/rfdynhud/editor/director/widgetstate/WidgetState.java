@@ -23,6 +23,7 @@ import java.util.List;
 import net.ctdp.rfdynhud.editor.director.DirectorManager;
 import net.ctdp.rfdynhud.editor.director.DriverCapsule;
 import net.ctdp.rfdynhud.editor.director.EffectiveWidgetState;
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.DelayProperty.DisplayUnits;
 import net.ctdp.rfdynhud.properties.EnumProperty;
@@ -35,7 +36,6 @@ import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.properties.TimeProperty;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -326,6 +326,6 @@ public class WidgetState implements PropertiesKeeper
         this.forDriver = new ListProperty<DriverCapsule, List<DriverCapsule>>( "forDriver", DriverCapsule.DEFAULT_DRIVER, driversList );
         this.compareDriver = new ListProperty<DriverCapsule, List<DriverCapsule>>( "compareDriver", DriverCapsule.DEFAULT_DRIVER, driversList );
         
-        __PropsPrivilegedAccess.attachKeeper( this, false );
+        AbstractPropertiesKeeper.attachKeeper( this );
     }
 }

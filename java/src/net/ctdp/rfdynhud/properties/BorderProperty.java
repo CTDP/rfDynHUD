@@ -129,7 +129,7 @@ public class BorderProperty extends Property
         
         if ( !firstTime )
         {
-            triggerCommonOnValueChanged( oldValue, borderAliasOrName );
+            triggerKeepersOnPropertyChanged( oldValue, borderAliasOrName );
             onValueChanged( oldValue, borderAliasOrName );
         }
         

@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.properties;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.util.PropertyWriter;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
 /**
  * Interface for all classes, that keep properties.
@@ -58,8 +57,8 @@ public interface PropertiesKeeper
      * Puts all editable properties to the editor.
      * 
      * @param propsCont the container to add the properties to
-     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
-     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     * @param forceAll If <code>true</code>, all properties provided by this {@link PropertiesKeeper} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link PropertiesKeeper}'s situation have to be added, some can be ignored.
      */
     public void getProperties( PropertiesContainer propsCont, boolean forceAll );
 }

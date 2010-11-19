@@ -70,12 +70,12 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SupportedGames;
 import net.ctdp.rfdynhud.gamedata.__GDPrivilegedAccess;
 import net.ctdp.rfdynhud.gamedata.__GameIDHelper;
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.ListProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyEditorType;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.render.ByteOrderInitializer;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
@@ -1688,8 +1688,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         
         templateConfigProp = createTemplateConfigProperty();
         
-        __PropsPrivilegedAccess.setKeeper( gameResProp, null, false );
-        __PropsPrivilegedAccess.setKeeper( templateConfigProp, null, false );
+        AbstractPropertiesKeeper.setKeeper( gameResProp, null );
+        AbstractPropertiesKeeper.setKeeper( templateConfigProp, null );
         
         editorScrollPane = new JScrollPane( editorPanel );
         editorScrollPane.getHorizontalScrollBar().setUnitIncrement( 20 );
@@ -1776,7 +1776,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             }
         } );
         
-        __PropsPrivilegedAccess.attachKeeper( editorPanel.getSettings(), false );
+        AbstractPropertiesKeeper.attachKeeper( editorPanel.getSettings() );
     }
     
     public static void main( String[] args )

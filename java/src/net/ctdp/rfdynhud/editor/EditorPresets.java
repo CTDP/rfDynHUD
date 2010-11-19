@@ -20,6 +20,7 @@ package net.ctdp.rfdynhud.editor;
 import java.io.IOException;
 import java.util.Random;
 
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FlatPropertiesContainer;
 import net.ctdp.rfdynhud.properties.FloatProperty;
@@ -27,7 +28,6 @@ import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.__PropsPrivilegedAccess;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 
 /**
@@ -339,7 +339,7 @@ public class EditorPresets
         
         for ( int i = 0; i < pc.getList().size(); i++ )
         {
-            __PropsPrivilegedAccess.setKeeper( pc.getList().get( i ), null, false );
+            AbstractPropertiesKeeper.setKeeper( pc.getList().get( i ), null );
         }
    }
 }

@@ -169,7 +169,7 @@ public class BackgroundProperty extends Property
             
             if ( !suppressEvent )
             {
-                triggerCommonOnValueChanged( oldValue, value );
+                triggerKeepersOnPropertyChanged( oldValue, value );
                 onValueChanged( oldBGType, backgroundType, oldValue, value );
             }
         }
@@ -201,7 +201,7 @@ public class BackgroundProperty extends Property
             
             if ( !suppressEvent )
             {
-                triggerCommonOnValueChanged( oldValue, value );
+                triggerKeepersOnPropertyChanged( oldValue, value );
                 onValueChanged( oldBGType, backgroundType, oldValue, value );
             }
         }
@@ -290,7 +290,7 @@ public class BackgroundProperty extends Property
             setPropertyFromValue( IMAGE_INDICATOR + imageValue, false, true );
             setPropertyFromValue( COLOR_INDICATOR + colorValue, false, true );
             
-            triggerCommonOnValueChanged( oldValue, colorValue );
+            triggerKeepersOnPropertyChanged( oldValue, colorValue );
             onValueChanged( oldBGType, backgroundType, oldValue, colorValue );
         }
         else if ( type.isImage() )
@@ -301,7 +301,7 @@ public class BackgroundProperty extends Property
             setPropertyFromValue( COLOR_INDICATOR + colorValue, false, true );
             setPropertyFromValue( IMAGE_INDICATOR + imageValue, false, true );
             
-            triggerCommonOnValueChanged( oldValue, imageValue );
+            triggerKeepersOnPropertyChanged( oldValue, imageValue );
             onValueChanged( oldBGType, backgroundType, oldValue, imageValue );
         }
     }

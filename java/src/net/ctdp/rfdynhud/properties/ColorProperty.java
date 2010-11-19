@@ -109,7 +109,7 @@ public class ColorProperty extends Property
         
         if ( !firstTime )
         {
-            triggerCommonOnValueChanged( oldValue, colorKey );
+            triggerKeepersOnPropertyChanged( oldValue, colorKey );
             onValueChanged( oldValue, colorKey );
         }
         
