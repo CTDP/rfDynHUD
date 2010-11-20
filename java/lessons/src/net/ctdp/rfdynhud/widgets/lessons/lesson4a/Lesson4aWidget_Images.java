@@ -46,11 +46,10 @@ public class Lesson4aWidget_Images extends Widget
      * This property provides a way to let the user choose an image for your background.
      * We pass null for the display-name, which means "use the name parameter" and we define
      * to allow no-image with the last parameter.
+     * 
+     * "standard/ctdp.png" expands to "rFactor/Plugins/rfDynHUD/config/images/standard/ctdp.png"
      */
     private final ImageProperty image1 = new ImageProperty( "image", null, "standard/ctdp.png", false, true );
-	/*
-	 * "standard/ctdp.png" expands to "rFactor/Plugins/rfdynhud/config/images/standard/ctdp.png"
-	 */
     
     /*
      * This is a simple image property for an image to be displayed somewhere on the Widget.

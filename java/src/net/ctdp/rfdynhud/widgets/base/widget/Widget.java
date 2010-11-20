@@ -1774,7 +1774,7 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     {
         if ( loader.getSourceVersion().getBuild() < 78 )
         {
-            if ( loader.getCurrentKey().equals( "backgroundColor" ) )
+            if ( loader.getCurrentKey().equals( "backgroundColor" ) && !this.getClass().getSimpleName().startsWith( "ETV" ) )
                 backgroundProperty.loadValue( loader, "color:" + loader.getCurrentValue() );
             else if ( loader.getCurrentKey().equals( "backgroundImageName" ) )
                 backgroundProperty.loadValue( loader, "image:" + loader.getCurrentValue() );

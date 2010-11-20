@@ -149,6 +149,8 @@ public abstract class ETVWidgetBase extends Widget
         }
         else if ( loader.loadProperty( captionBackgroundColor ) );
         else if ( loader.loadProperty( captionColor ) );
+        else if ( ( loader.getSourceVersion().getBuild() < 78 ) && loader.getCurrentKey().equals( "backgroundColor" ) )
+            dataBackgroundColor.loadValue( loader, loader.getCurrentValue() );
         else if ( loader.loadProperty( dataBackgroundColor ) );
         else if ( loader.loadProperty( itemGap ) );
         else if ( loader.loadProperty( showNamesInAllUppercase ) );
