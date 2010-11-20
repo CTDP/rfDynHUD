@@ -60,6 +60,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     private boolean waitingForGraphics = false;
     private boolean waitingForTelemetry = false;
     private boolean waitingForScoring = false;
+    private boolean waitingForGarageStartLocation = false;
     private boolean waitingForSetup = false;
     private long setupReloadTryTime = -1L;
     private boolean waitingForData = false;
@@ -341,6 +342,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.waitingForGraphics = !isEditorMode;
         this.waitingForTelemetry = !isEditorMode;
         this.waitingForScoring = !isEditorMode;
+        this.waitingForGarageStartLocation = !isEditorMode;
         this.waitingForSetup = false;
         this.setupReloadTryTime = -1L;
         this.waitingForData = !isEditorMode;
@@ -435,6 +437,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.waitingForGraphics = false;
         this.waitingForTelemetry = false;
         this.waitingForScoring = false;
+        this.waitingForGarageStartLocation = false;
         this.waitingForSetup = false;
         this.setupReloadTryTime = -1L;
         this.waitingForData = false;
@@ -496,6 +499,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.waitingForGraphics = waitingForGraphics || !isEditorMode;
         this.waitingForTelemetry = waitingForTelemetry || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.waitingForScoring = waitingForScoring || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
+        this.waitingForGarageStartLocation = true;
         this.waitingForSetup = false; //waitingForSetup || ( currentSessionIsRace != Boolean.FALSE ); //( editorPresets == null );
         this.setupReloadTryTime = System.nanoTime() + 5000000000L;
         this.waitingForData = !isEditorMode;
@@ -915,7 +919,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         {
             this.currentSessionIsRace = gameData.getScoringInfo().getSessionType().isRace();
             
-            if ( waitingForScoring )
+            if ( waitingForGarageStartLocation )
             {
                 final VehicleScoringInfo vsi = gameData.getScoringInfo().getPlayersVehicleScoringInfo();
                 vsi.getWorldPosition( garageStartLocation );
@@ -925,6 +929,8 @@ public class GameEventsManager implements ConfigurationLoadListener
                 
                 this.isInPits = gameData.getScoringInfo().getPlayersVehicleScoringInfo().isInPits();
                 this.isInGarage = isInPits;
+                
+                this.waitingForGarageStartLocation = false;
             }
             
             this.waitingForScoring = false;

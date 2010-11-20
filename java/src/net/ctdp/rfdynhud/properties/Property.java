@@ -242,7 +242,7 @@ public abstract class Property
     
     private String getDocumentationSource( Class<?> clazz )
     {
-        URL docURL = this.getClass().getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + this.getName() + ".html" );
+        URL docURL = clazz.getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + this.getName() + ".html" );
         
         if ( docURL == null )
         {

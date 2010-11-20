@@ -619,7 +619,7 @@ public class WearWidget extends Widget
                     if ( maxLaps > 0 )
                     {
                         int lapsRemaining = (int)scoringInfo.getPlayersVehicleScoringInfo().getLapsRemaining( maxLaps );
-                        int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * lapsRemaining ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
+                        int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * Math.max( 0, lapsRemaining + 1 ) ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
                         
                         if ( ( x2 <= 0 ) && failImageName.hasTexture() )
                             texture.drawImage( failImageName.getTexture(), x, y, false, null );
@@ -975,9 +975,11 @@ public class WearWidget extends Widget
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearFL.getValue() * 100f, 1, true );
                     brakeWearFLString.draw( offsetX, offsetY, string, texture );
-                    float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
-                    if ( variancePercent > 0.000001f )
+                    if ( brake.hasDiscFailureVariance() )
+                    {
+                        float variancePercent = brake.getDiscFailureVarianceRange() * 100f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                         brakeWearVarianceFLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
+                    }
                     
                     left = brakeWearFLString.getAbsX() + 3;
                     top = brakeWearFLString.getAbsY();
@@ -1006,10 +1008,11 @@ public class WearWidget extends Widget
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearFR.getValue() * 100f, 1, true );
                     brakeWearFRString.draw( offsetX, offsetY, string, texture );
-                    float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
-                    if ( variancePercent > 0.000001f )
+                    if ( brake.hasDiscFailureVariance() )
+                    {
+                        float variancePercent = brake.getDiscFailureVarianceRange() * 100f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                         brakeWearVarianceFRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
-                    
+                    }
                     left = brakeWearFRString.getAbsX() - brakeWidth - 3;
                     top = brakeWearFRString.getAbsY();
                 }
@@ -1031,9 +1034,11 @@ public class WearWidget extends Widget
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearRL.getValue() * 100f, 1, true );
                     brakeWearRLString.draw( offsetX, offsetY, string, texture );
-                    float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
-                    if ( variancePercent > 0.000001f )
+                    if ( brake.hasDiscFailureVariance() )
+                    {
+                        float variancePercent = brake.getDiscFailureVarianceRange() * 100f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                         brakeWearVarianceRLString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
+                    }
                     
                     left = brakeWearRLString.getAbsX() + 3;
                     top = brakeWearRLString.getAbsY();
@@ -1056,9 +1061,11 @@ public class WearWidget extends Widget
                 {
                     String string = NumberUtil.formatFloat( brakeDiscWearRR.getValue() * 100f, 1, true );
                     brakeWearRRString.draw( offsetX, offsetY, string, texture );
-                    float variancePercent = brake.getDiscFailureVariance() * 200f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
-                    if ( variancePercent > 0.000001f )
+                    if ( brake.hasDiscFailureVariance() )
+                    {
+                        float variancePercent = brake.getDiscFailureVarianceRange() * 100f / ( setup.getWheelAndTire( wheel ).getBrakeDiscThickness() - brake.getMaxDiscFailure() );
                         brakeWearVarianceRRString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
+                    }
                     
                     left = brakeWearRRString.getAbsX() - brakeWidth - 3;
                     top = brakeWearRRString.getAbsY();

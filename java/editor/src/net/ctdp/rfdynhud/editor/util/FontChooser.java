@@ -894,7 +894,8 @@ public class FontChooser extends JPanel
             contentPane.add( footer, BorderLayout.SOUTH );
             
             dialog.pack();
-            dialog.setResizable( false );
+            dialog.setSize( dialog.getWidth(), dialog.getHeight() + 100 );
+            //dialog.setResizable( false );
             
             dialog.addWindowListener( new WindowAdapter()
             {

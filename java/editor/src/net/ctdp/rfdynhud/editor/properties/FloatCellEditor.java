@@ -40,6 +40,10 @@ public class FloatCellEditor extends ValueCellEditor<Property, JPanel, JTextFiel
     private static final long serialVersionUID = -7299720233662747237L;
     
     private static final DecimalFormat FORMAT = new DecimalFormat( "0.#", DecimalFormatSymbols.getInstance( Locale.US ) );
+    static
+    {
+        FORMAT.setMaximumFractionDigits( 6 );
+    }
     
     private final JPanel panel = new JPanel( new BorderLayout() );
     private final JTextField textfield = new JTextField();

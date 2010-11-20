@@ -1345,6 +1345,7 @@ public class VehiclePhysics
         {
             private float dryLateralGrip;
             private float dryLongitudinalGrip;
+            private float optimumTemperatureK;
             private float optimumTemperature;
             private float gripLossPerDegreeBelowOptimum;
             private float gripLossPerDegreeAboveOptimum;
@@ -1390,6 +1391,7 @@ public class VehiclePhysics
             void setOptimumTemperatureC( float optTemp )
             {
                 this.optimumTemperature = optTemp;
+                this.optimumTemperatureK = optTemp + MeasurementUnits.Convert.ZERO_KELVIN;
             }
             
             /**
@@ -1432,7 +1434,7 @@ public class VehiclePhysics
              */
             void setAboveAndBelowTempsAndPressures( float belowTempC, float aboveTempC, float offPress )
             {
-                float recipOptimumTemperature = ( optimumTemperature != 0.0f ) ? ( 1.0f / optimumTemperature ) : 0.0f;
+                float recipOptimumTemperature = ( optimumTemperatureK != 0.0f ) ? ( 1.0f / optimumTemperatureK ) : 0.0f;
                 
                 this.gripLossPerDegreeBelowOptimum = belowTempC * recipOptimumTemperature;
                 this.gripLossPerDegreeAboveOptimum = aboveTempC * recipOptimumTemperature;
@@ -1601,7 +1603,7 @@ public class VehiclePhysics
             {
                 float diffTemp = avgTemperatureC - optimumTemperature;
                 
-                return ( 1.0f - ( ( diffTemp < 0.0f ) ? ( gripLossPerDegreeBelowOptimum * -diffTemp ) : ( gripLossPerDegreeAboveOptimum * diffTemp ) ) );
+                return ( 1.0f - 0.5f * (float)Math.pow( ( diffTemp < 0.0f ) ? ( gripLossPerDegreeBelowOptimum * -diffTemp ) : ( gripLossPerDegreeAboveOptimum * diffTemp ), 2.0 ) );
             }
             
             /**

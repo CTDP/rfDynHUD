@@ -547,8 +547,8 @@ public class ScoringInfo
                 trackRaceLaps = 70;
             else if ( trackRaceLaps < 0.0 ) // corrupt GDB file?
             {
-                RFDHLog.exception( "WARNING: \"RaceLaps\" not found in GDB. Engine and Brakes lifetime will probably be wrong." );
-                trackRaceLaps = data.getMaxLaps();
+                RFDHLog.exception( "WARNING: \"RaceLaps\" not found in GDB. Using rFactor default value 50." );
+                trackRaceLaps = 50; // rFactor standard value, if this is missing.
             }
             
             VehicleScoringInfo leader = getLeadersVehicleScoringInfo();

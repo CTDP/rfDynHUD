@@ -427,18 +427,60 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         texCanvas.setColor( Color.WHITE );
         texCanvas.drawRect( offsetX, offsetY, width - 1, height - 1 );
         
+        int midBoost = ( ( maxBoost % 2 ) == 0 ) ? -maxBoost / 2 : maxBoost / 2 + 1;
+        
         int x0 = 0;
-        for ( int i = 1; i <= maxBoost; i++ )
+        for ( int b = 1; b <= maxBoost; b++ )
         {
-            int right = Math.min( width * i / maxBoost, width - 1 );
+            int right = Math.min( width * b / maxBoost, width - 1 );
             
-            if ( i <= boost )
+            if ( b <= boost )
             {
-                Color color = new Color( Math.min( Math.round( ( 255f / maxBoost ) + i * 255f / ( maxBoost + 1 ) ), 255 ), 0, 0 );
+                Color color;
+                
+                if ( maxBoost == 1 )
+                {
+                    color = Color.RED;
+                }
+                else if ( maxBoost == 2 )
+                {
+                    if ( b == 1 )
+                        color = Color.GREEN;
+                    else
+                        color = Color.RED;
+                }
+                else
+                {
+                    boolean isMidBoost = ( midBoost < 0 ) ? ( b == -midBoost || b == -midBoost + 1 ) : ( b == midBoost );
+                    
+                    if ( isMidBoost )
+                    {
+                        color = Color.YELLOW;
+                    }
+                    else if ( b < Math.abs( midBoost ) )
+                    {
+                        int r = Math.round( ( b - 1 ) * 255f / ( Math.abs( midBoost ) - 1 ) );
+                        
+                        color = new Color( r, 255, 0 );
+                    }
+                    else if ( midBoost < 0 )
+                    {
+                        int g = Math.round( ( -midBoost + 1 - b - midBoost - 1 ) * 255f / ( maxBoost + midBoost - 1 ) );
+                        
+                        color = new Color( 255, g, 0 );
+                    }
+                    else
+                    {
+                        int g = Math.round( ( midBoost - b + midBoost - 1 ) * 255f / ( maxBoost - midBoost ) );
+                        
+                        color = new Color( 255, g, 0 );
+                    }
+                }
+                
                 image.clear( color, offsetX + x0 + 1, offsetY + 1, right - x0 - 1, height - 2, true, null );
             }
             
-            if ( i < maxBoost )
+            if ( b < maxBoost )
                 texCanvas.drawLine( offsetX + right, offsetY + 1, offsetX + right, offsetY + height - 2 );
             
             x0 = right;

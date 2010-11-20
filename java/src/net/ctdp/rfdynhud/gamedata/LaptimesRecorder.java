@@ -185,7 +185,7 @@ class LaptimesRecorder implements ScoringInfo.ScoringInfoUpdateListener
             }
             else if ( vsi.getFinishStatus() == FinishStatus.NONE )
             {
-                Laptime laptime = vsi.laptimes.get( lapsCompleted );
+                Laptime laptime = vsi.laptimes.isEmpty() ? null : vsi.laptimes.get( lapsCompleted );
                 
                 if ( laptime == null )
                 {
