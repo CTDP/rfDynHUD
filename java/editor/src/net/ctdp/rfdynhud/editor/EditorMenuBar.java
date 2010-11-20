@@ -985,7 +985,7 @@ public class EditorMenuBar extends JMenuBar
             RFDHLog.exception( t );
         }
         
-        JMenuItem inputMgrItem = new JMenuItem( "Open InputBindingsManager...", icon_inputMgrItem );
+        JMenuItem inputMgrItem = new JMenuItem( "Edit Input Bindings...", icon_inputMgrItem );
         inputMgrItem.addActionListener( new ActionListener()
         {
             @Override

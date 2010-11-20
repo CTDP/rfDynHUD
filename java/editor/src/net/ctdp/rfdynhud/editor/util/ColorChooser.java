@@ -1022,6 +1022,9 @@ public class ColorChooser extends JPanel
             
             JPanel footer = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
             
+            JButton resetButton = new JButton( "Reset" );
+            footer.add( resetButton );
+            
             JButton okButton = new JButton( "OK" );
             footer.add( okButton );
             
@@ -1074,6 +1077,15 @@ public class ColorChooser extends JPanel
                 public void actionPerformed( ActionEvent e )
                 {
                     setToLocalTransparent();
+                }
+            } );
+            
+            resetButton.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    setSelectedColorFromKey( ColorChooser.this.startColor, widgetsConfig );
                 }
             } );
             

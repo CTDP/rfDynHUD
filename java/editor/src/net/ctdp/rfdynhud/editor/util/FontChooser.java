@@ -885,6 +885,9 @@ public class FontChooser extends JPanel
             
             JPanel footer = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
             
+            JButton resetButton = new JButton( "Reset" );
+            footer.add( resetButton );
+            
             JButton okButton = new JButton( "OK" );
             footer.add( okButton );
             
@@ -923,6 +926,15 @@ public class FontChooser extends JPanel
                     dialog.setVisible( false );
                 }
             });
+            
+            resetButton.addActionListener( new ActionListener()
+            {
+                @Override
+                public void actionPerformed( ActionEvent e )
+                {
+                    setSelectedFontFromKey( FontChooser.this.startFont, widgetsConfig );
+                }
+            } );
             
             okButton.addActionListener( new ActionListener()
             {
