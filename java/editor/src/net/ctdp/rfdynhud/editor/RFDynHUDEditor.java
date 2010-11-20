@@ -41,7 +41,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.UIManager;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.html.HTMLDocument;
 
 import net.ctdp.rfdynhud.RFDynHUD;
@@ -61,6 +60,7 @@ import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
 import net.ctdp.rfdynhud.editor.util.DefaultPropertyWriter;
 import net.ctdp.rfdynhud.editor.util.EditorPropertyLoader;
+import net.ctdp.rfdynhud.editor.util.OverlayFileFilter;
 import net.ctdp.rfdynhud.editor.util.SaveAsDialog;
 import net.ctdp.rfdynhud.editor.util.StrategyTool;
 import net.ctdp.rfdynhud.gamedata.GameEventsManager;
@@ -1026,7 +1026,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         
         fc.setMultiSelectionEnabled( false );
         fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
-        fc.setFileFilter( new FileNameExtensionFilter( "ini files", "ini" ) );
+        fc.setFileFilter( new OverlayFileFilter() );
         
         if ( fc.showOpenDialog( window ) != JFileChooser.APPROVE_OPTION )
             return ( null );
