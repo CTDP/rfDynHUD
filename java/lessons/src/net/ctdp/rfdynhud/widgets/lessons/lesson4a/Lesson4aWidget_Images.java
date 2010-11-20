@@ -48,6 +48,9 @@ public class Lesson4aWidget_Images extends Widget
      * to allow no-image with the last parameter.
      */
     private final ImageProperty image1 = new ImageProperty( "image", null, "standard/ctdp.png", false, true );
+	/*
+	 * "standard/ctdp.png" expands to "rFactor/Plugins/rfdynhud/config/images/standard/ctdp.png"
+	 */
     
     /*
      * This is a simple image property for an image to be displayed somewhere on the Widget.
