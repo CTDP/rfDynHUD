@@ -177,8 +177,8 @@ class VehiclePhysicsParser
                 
                 String[] values = frontGripTempPress.substring( 1, frontGripTempPress.length() - 1 ).split( "," );
                 float belowTemp = Float.parseFloat( values[0].trim() );
-                float aboveTemp = belowTemp;
-                float offPress = Float.parseFloat( values[1].trim() );
+                float aboveTemp = Float.parseFloat( values[1].trim() );
+                float offPress = Float.parseFloat( values[2].trim() );
                 
                 currentCompound.getWheel( Wheel.FRONT_LEFT ).setAboveAndBelowTempsAndPressures( belowTemp, aboveTemp, offPress );
                 currentCompound.getWheel( Wheel.FRONT_RIGHT ).setAboveAndBelowTempsAndPressures( belowTemp, aboveTemp, offPress );
@@ -187,10 +187,10 @@ class VehiclePhysicsParser
             {
                 // old way
                 
-                String[] values = frontTempAndPressGrip.substring( 1, frontGripTempPress.length() - 1 ).split( "," );
+                String[] values = frontTempAndPressGrip.substring( 1, frontTempAndPressGrip.length() - 1 ).split( "," );
                 float belowTemp = Float.parseFloat( values[0].trim() );
-                float aboveTemp = Float.parseFloat( values[1].trim() );
-                float offPress = Float.parseFloat( values[2].trim() );
+                float aboveTemp = belowTemp;
+                float offPress = Float.parseFloat( values[1].trim() );
                 
                 currentCompound.getWheel( Wheel.FRONT_LEFT ).setAboveAndBelowTempsAndPressures( belowTemp, aboveTemp, offPress );
                 currentCompound.getWheel( Wheel.FRONT_RIGHT ).setAboveAndBelowTempsAndPressures( belowTemp, aboveTemp, offPress );
@@ -205,8 +205,8 @@ class VehiclePhysicsParser
                 
                 String[] values = rearGripTempPress.substring( 1, rearGripTempPress.length() - 1 ).split( "," );
                 float belowTemp = Float.parseFloat( values[0].trim() );
-                float aboveTemp = belowTemp;
-                float offPress = Float.parseFloat( values[1].trim() );
+                float aboveTemp = Float.parseFloat( values[1].trim() );
+                float offPress = Float.parseFloat( values[2].trim() );
                 
                 currentCompound.getWheel( Wheel.REAR_LEFT ).setAboveAndBelowTempsAndPressures( belowTemp, aboveTemp, offPress );
                 currentCompound.getWheel( Wheel.REAR_RIGHT ).setAboveAndBelowTempsAndPressures( belowTemp, aboveTemp, offPress );
@@ -215,10 +215,10 @@ class VehiclePhysicsParser
             {
                 // old way
                 
-                String[] values = rearTempAndPressGrip.substring( 1, rearGripTempPress.length() - 1 ).split( "," );
+                String[] values = rearTempAndPressGrip.substring( 1, rearTempAndPressGrip.length() - 1 ).split( "," );
                 float belowTemp = Float.parseFloat( values[0].trim() );
-                float aboveTemp = Float.parseFloat( values[1].trim() );
-                float offPress = Float.parseFloat( values[2].trim() );
+                float aboveTemp = belowTemp;
+                float offPress = Float.parseFloat( values[1].trim() );
                 
                 currentCompound.getWheel( Wheel.REAR_LEFT ).setAboveAndBelowTempsAndPressures( belowTemp, aboveTemp, offPress );
                 currentCompound.getWheel( Wheel.REAR_RIGHT ).setAboveAndBelowTempsAndPressures( belowTemp, aboveTemp, offPress );

@@ -1346,7 +1346,7 @@ public class VehiclePhysics
             private float dryLateralGrip;
             private float dryLongitudinalGrip;
             private float optimumTemperatureK;
-            private float optimumTemperature;
+            private float optimumTemperatureC;
             private float gripLossPerDegreeBelowOptimum;
             private float gripLossPerDegreeAboveOptimum;
             private float optPress;
@@ -1390,8 +1390,8 @@ public class VehiclePhysics
             
             void setOptimumTemperatureC( float optTemp )
             {
-                this.optimumTemperature = optTemp;
-                this.optimumTemperatureK = optTemp + MeasurementUnits.Convert.ZERO_KELVIN;
+                this.optimumTemperatureC = optTemp;
+                this.optimumTemperatureK = optTemp - MeasurementUnits.Convert.ZERO_KELVIN;
             }
             
             /**
@@ -1401,7 +1401,7 @@ public class VehiclePhysics
              */
             public final float getOptimumTemperatureC()
             {
-                return ( optimumTemperature );
+                return ( optimumTemperatureC );
             }
             
             /**
@@ -1411,7 +1411,7 @@ public class VehiclePhysics
              */
             public final float getOptimumTemperatureF()
             {
-                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + optimumTemperature * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
+                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + optimumTemperatureC * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
             }
             
             /**
@@ -1518,7 +1518,7 @@ public class VehiclePhysics
              */
             public final float getBelowTemperatureC( float grip )
             {
-                return ( optimumTemperature - ( grip / gripLossPerDegreeBelowOptimum ) );
+                return ( optimumTemperatureC - ( grip / gripLossPerDegreeBelowOptimum ) );
             }
             
             /**
@@ -1560,7 +1560,7 @@ public class VehiclePhysics
              */
             public final float getAboveTemperatureC( float grip )
             {
-                return ( optimumTemperature + ( grip / gripLossPerDegreeAboveOptimum ) );
+                return ( optimumTemperatureC + ( grip / gripLossPerDegreeAboveOptimum ) );
             }
             
             /**
@@ -1601,9 +1601,10 @@ public class VehiclePhysics
              */
             public final float getGripFactorByTemperatureC( float avgTemperatureC )
             {
-                float diffTemp = avgTemperatureC - optimumTemperature;
+                float diffTemp = avgTemperatureC - optimumTemperatureC;
+                float gripLossTimesDiffTemp = ( diffTemp < 0.0f ) ? ( gripLossPerDegreeBelowOptimum * -diffTemp ) : ( gripLossPerDegreeAboveOptimum * diffTemp );
                 
-                return ( 1.0f - 0.5f * (float)Math.pow( ( diffTemp < 0.0f ) ? ( gripLossPerDegreeBelowOptimum * -diffTemp ) : ( gripLossPerDegreeAboveOptimum * diffTemp ), 2.0 ) );
+                return ( 1.0f - 0.5f * gripLossTimesDiffTemp * gripLossTimesDiffTemp );
             }
             
             /**
@@ -1830,10 +1831,10 @@ public class VehiclePhysics
         
         void setOptimumTempForAll4( float optimumTempC )
         {
-            frontLeft.optimumTemperature = optimumTempC;
-            frontRight.optimumTemperature = optimumTempC;
-            rearLeft.optimumTemperature = optimumTempC;
-            rearRight.optimumTemperature = optimumTempC;
+            frontLeft.optimumTemperatureC = optimumTempC;
+            frontRight.optimumTemperatureC = optimumTempC;
+            rearLeft.optimumTemperatureC = optimumTempC;
+            rearRight.optimumTemperatureC = optimumTempC;
         }
         
         TireCompound()
@@ -2038,22 +2039,22 @@ public class VehiclePhysics
         tc.name = name;
         tc.index = index;
         tc.frontLeft.setDryGrip( 2.19570f, 2.30307f );
-        tc.frontLeft.optimumTemperature = optTemp;
+        tc.frontLeft.optimumTemperatureC = optTemp;
         tc.frontLeft.gripFactorPerWear = new float[] { 1.0f, 0.9400f, 0.9371f, 0.9344f, 0.9321f, 0.9301f, 0.9282f, 0.9264f, 0.9248f, 0.9233f, 0.9219f, 0.9205f, 0.9191f, 0.9177f, 0.9161f, 0.9066f, 0.7588f };
         tc.frontLeft.setOptimumPressure( optPress, optPressMult );
         tc.frontLeft.setAboveAndBelowTempsAndPressures( 3.870f, 2.269f, 0.814f );
         tc.frontRight.setDryGrip( 2.19570f, 2.30307f );
-        tc.frontRight.optimumTemperature = tc.frontLeft.optimumTemperature;
+        tc.frontRight.optimumTemperatureC = tc.frontLeft.optimumTemperatureC;
         tc.frontRight.gripFactorPerWear = tc.frontLeft.gripFactorPerWear;
         tc.frontRight.setOptimumPressure( optPress, optPressMult );
         tc.frontRight.setAboveAndBelowTempsAndPressures( 3.870f, 2.269f, 0.814f );
         tc.rearLeft.setDryGrip( 2.19570f, 2.30307f );
-        tc.rearLeft.optimumTemperature = tc.frontLeft.optimumTemperature;
+        tc.rearLeft.optimumTemperatureC = tc.frontLeft.optimumTemperatureC;
         tc.rearLeft.gripFactorPerWear = tc.frontLeft.gripFactorPerWear;
         tc.rearLeft.setOptimumPressure( optPress, optPressMult );
         tc.rearLeft.setAboveAndBelowTempsAndPressures( 3.870f, 2.269f, 0.814f );
         tc.rearRight.setDryGrip( 2.19570f, 2.30307f );
-        tc.rearRight.optimumTemperature = tc.frontLeft.optimumTemperature;
+        tc.rearRight.optimumTemperatureC = tc.frontLeft.optimumTemperatureC;
         tc.rearRight.gripFactorPerWear = tc.frontLeft.gripFactorPerWear;
         tc.rearRight.setOptimumPressure( optPress, optPressMult );
         tc.rearRight.setAboveAndBelowTempsAndPressures( 3.870f, 2.269f, 0.814f );
@@ -2228,8 +2229,9 @@ public class VehiclePhysics
         TireCompound tc = vp.getTireCompound( 0 );
         TireCompound.CompoundWheel cw = tc.getWheel( Wheel.FRONT_LEFT );
         
-        cw.optimumTemperature = 100f;
-        cw.setAboveAndBelowTempsAndPressures( 1f, 1f, 0f );
-        System.out.println( tc.getWheel( Wheel.FRONT_LEFT ).getGripFactorByTemperatureC( 500 ) );
+        cw.setOptimumTemperatureC( 100.0f );
+        cw.setAboveAndBelowTempsAndPressures( 1.524f, 3.523f, 0.845f );
+        System.out.println( "FL: temp: opt-temp: " + cw.getOptimumTemperatureC() + ", grip-loss/°above: " + cw.getGripLossPerDegreeCAboveOptimum() );
+        System.out.println( tc.getWheel( Wheel.FRONT_LEFT ).getGripFactorByTemperatureC( 111.05894f ) );
     }
 }

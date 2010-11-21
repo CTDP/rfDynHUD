@@ -36,6 +36,9 @@ public class OverlayFileFilter extends FileFilter implements java.io.FileFilter
         
         String name = f.getName().toLowerCase();
         
+        if ( name.equals( "overlay.ini" ) )
+            return ( true );
+        
         if ( !name.startsWith( "overlay_" ) )
             return ( false );
         
@@ -48,6 +51,6 @@ public class OverlayFileFilter extends FileFilter implements java.io.FileFilter
     @Override
     public String getDescription()
     {
-        return ( "Overlay Configurations (overlay_*.ini)" );
+        return ( "Overlay Configurations (overlay*.ini)" );
     }
 }
