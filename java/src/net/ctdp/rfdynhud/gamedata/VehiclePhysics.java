@@ -1629,7 +1629,7 @@ public class VehiclePhysics
                 return ( optPress + ( optPressMult * load ) );
             }
             
-            /**
+            /*
              * Computes the optimum tire pressure for the given grip fraction and load.
              * 
              * @param grip the actual grip fraction
@@ -1637,6 +1637,7 @@ public class VehiclePhysics
              * 
              * @return the optimum tire pressure for the given grip fraction and load.
              */
+            /*
             public final float getPressureForGrip( float grip, float load )
             {
                 if ( grip <= 0.0f )
@@ -1649,6 +1650,7 @@ public class VehiclePhysics
                 
                 return ( Math.abs( optPressLoad + grip / offPressureGrip ) );
             }
+            */
             
             /**
              * Computes the grip fraction of the tire at the given pressure and load.
@@ -1666,9 +1668,9 @@ public class VehiclePhysics
                 float optPressLoad = getOptimumPressure( load );
                 float recipOptPress = ( optPressLoad != 0.0f ) ? ( 1.0f / optPressLoad ) : 0.0f;
                 
-                float offPressureGrip = offPressure * recipOptPress;
+                float offPressGrip = Math.abs( pressure - optPressLoad ) * offPressure * recipOptPress;
                 
-                return ( offPressureGrip * Math.abs( pressure - optPressLoad ) );
+                return ( 1.0f - 0.5f * offPressGrip * offPressGrip  );
             }
             
             /**
