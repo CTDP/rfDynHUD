@@ -420,7 +420,7 @@ public class WidgetsEditorPanel extends JPanel
             repaint();
     }
     
-    private void drawSelection( AbstractAssembledWidget master, Widget widget, Rect2i[] subTextureRects, Graphics2D g )
+    private void drawSelection( AbstractAssembledWidget master, Widget widget, Rect2i[] subTextureRects, Graphics2D g, float scaleFactor )
     {
         //texture.getTextureCanvas().setClip( offsetX, offsetY, width, height );
         
@@ -696,7 +696,7 @@ public class WidgetsEditorPanel extends JPanel
         return ( needsRepeat );
     }
     
-    public void drawWidgets( Graphics2D g2, boolean drawEverything, boolean drawSelection )
+    public void drawWidgets( Graphics2D g2, boolean drawEverything, float scaleFactor, boolean drawSelection )
     {
         Map<Widget, Rect2i> oldWidgetRects = this.oldWidgetRects;
         Map<Widget, Rect2i[]> oldWidgetSubTexRects = this.oldWidgetSubTexRects;
@@ -873,14 +873,14 @@ public class WidgetsEditorPanel extends JPanel
                 if ( selectedWidget == null )
                 {
                     if ( scopeWidget != null )
-                        drawSelection( scopeWidget, null, selSubRects, g2 );
+                        drawSelection( scopeWidget, null, selSubRects, g2, scaleFactor );
                 }
                 else
                 {
                     if ( selectedWidget.getMasterWidget() == null )
-                        drawSelection( null, selectedWidget, selSubRects, g2 );
+                        drawSelection( null, selectedWidget, selSubRects, g2, scaleFactor );
                     else
-                        drawSelection( selectedWidget.getMasterWidget(), selectedWidget, selSubRects, g2 );
+                        drawSelection( selectedWidget.getMasterWidget(), selectedWidget, selSubRects, g2, scaleFactor );
                 }
             }
         }
@@ -906,7 +906,7 @@ public class WidgetsEditorPanel extends JPanel
         
         //System.out.println( "paintComponent()" );
         
-        drawWidgets( (Graphics2D)g, false, true );
+        drawWidgets( (Graphics2D)g, false, scaleFactor, true );
     }
     
     public WidgetsEditorPanel( WidgetsEditorPanelSettings settings, RFDynHUDEditor editor, LiveGameData gameData, WidgetsDrawingManager drawingManager )

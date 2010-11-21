@@ -66,7 +66,7 @@ public class PreviewAndScreenshotManager
             gridSuppressed = true;
         }
         
-        editorPanel.drawWidgets( img.createGraphics(), true, false );
+        editorPanel.drawWidgets( img.createGraphics(), true, 1.0f, false );
         
         if ( gridSuppressed )
         {
@@ -123,7 +123,7 @@ public class PreviewAndScreenshotManager
             @Override
             protected void paintComponent( Graphics g )
             {
-                editorPanel.drawWidgets( (Graphics2D)g, true, false );
+                editorPanel.drawWidgets( (Graphics2D)g, true, 1.0f, false );
             }
         };
         p.setBackground( Color.BLACK );

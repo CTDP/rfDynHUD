@@ -167,7 +167,7 @@ public class PosSizeCellEditor extends ValueCellEditor<Property, JPanel, JTextFi
                     //Float oldValue = psPorperty.getValue();
                     psPorperty.onButton2Clicked( button2 );
                     Float newValue = (Float)getProperty().getValue();
-                    psPorperty.onButton2Clicked( button2 );
+                    //psPorperty.onButton2Clicked( button2 );
                     
                     if ( psPorperty.isSizeProp() )
                         textfield.setText( Size.unparseValue( newValue ) );

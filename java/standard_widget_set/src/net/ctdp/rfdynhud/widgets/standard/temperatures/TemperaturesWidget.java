@@ -412,8 +412,8 @@ public class TemperaturesWidget extends Widget
         WheelPart wpRight = WheelPart.getRightPart( wheel );
         
         final float optimumTemp = compoundWheel.getOptimumTemperature();
-        final float coldTemp = compoundWheel.getBelowTemperature( 0.33f );
-        final float overheatingTemp = compoundWheel.getAboveTemperature( 0.33f );
+        final float coldTemp = compoundWheel.getBelowTemperature( 0.95f );
+        final float overheatingTemp = compoundWheel.getAboveTemperature( 0.95f );
         
         float tempLeft = telemData.getTireTemperature( wheel, wpLeft );
         float tempCenter = telemData.getTireTemperature( wheel, WheelPart.CENTER );
@@ -468,8 +468,8 @@ public class TemperaturesWidget extends Widget
         
         Texture2DCanvas texCanvas = texture.getTextureCanvas();
         
-        final float coldTemp2 = compoundWheel.getBelowTemperature( 0.5f );
-        final float overheatingTemp2 = compoundWheel.getAboveTemperature( 0.5f );
+        final float coldTemp2 = compoundWheel.getBelowTemperature( 0.98f );
+        final float overheatingTemp2 = compoundWheel.getAboveTemperature( 0.98f );
         
         int[] xPoints = { x, x + hw, x + w };
         int[] yPoints = new int[ 3 ];

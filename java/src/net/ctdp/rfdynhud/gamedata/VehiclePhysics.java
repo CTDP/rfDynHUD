@@ -1345,6 +1345,8 @@ public class VehiclePhysics
         {
             private float dryLateralGrip;
             private float dryLongitudinalGrip;
+            private float gripTempPress1;
+            private float gripTempPress2;
             private float optimumTemperatureK;
             private float optimumTemperatureC;
             private float gripLossPerDegreeBelowOptimum;
@@ -1434,6 +1436,9 @@ public class VehiclePhysics
              */
             void setAboveAndBelowTempsAndPressures( float belowTempC, float aboveTempC, float offPress )
             {
+                this.gripTempPress1 = belowTempC;
+                this.gripTempPress2 = aboveTempC;
+                
                 float recipOptimumTemperature = ( optimumTemperatureK != 0.0f ) ? ( 1.0f / optimumTemperatureK ) : 0.0f;
                 
                 this.gripLossPerDegreeBelowOptimum = belowTempC * recipOptimumTemperature;
@@ -1476,39 +1481,6 @@ public class VehiclePhysics
             }
             
             /**
-             * Gets the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
-             * 
-             * @return the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
-             */
-            public final float getGripLossPerDegreeCAboveOptimum()
-            {
-                return ( gripLossPerDegreeAboveOptimum );
-            }
-            
-            /**
-             * Gets the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
-             * 
-             * @return the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
-             */
-            public final float getGripLossPerDegreeFAboveOptimum()
-            {
-                return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + gripLossPerDegreeAboveOptimum * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
-            }
-            
-            /**
-             * Gets the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
-             * 
-             * @return the grip loss (fraction) per degree above {@link #getOptimumTemperature()}.
-             */
-            public final float getGripLossPerDegreeAboveOptimum()
-            {
-                if ( measurementUnits == MeasurementUnits.IMPERIAL )
-                    return ( getGripLossPerDegreeFAboveOptimum() );
-                
-                return ( getGripLossPerDegreeCAboveOptimum() );
-            }
-            
-            /**
              * Gets the temperature in Celsius, that a tire will have at the given grip fraction value.
              * This function will always return a value below {@link #getOptimumTemperature()}.
              * 
@@ -1518,7 +1490,11 @@ public class VehiclePhysics
              */
             public final float getBelowTemperatureC( float grip )
             {
-                return ( optimumTemperatureC - ( grip / gripLossPerDegreeBelowOptimum ) );
+                //return ( optimumTemperatureC - ( grip / gripLossPerDegreeBelowOptimum ) );
+                
+                float dt = (float)Math.sqrt( ( grip - 1.0f ) / -0.5f ) * optimumTemperatureK / gripTempPress1;
+                
+                return ( optimumTemperatureC - dt );
             }
             
             /**
@@ -1560,7 +1536,11 @@ public class VehiclePhysics
              */
             public final float getAboveTemperatureC( float grip )
             {
-                return ( optimumTemperatureC + ( grip / gripLossPerDegreeAboveOptimum ) );
+                //return ( optimumTemperatureC + ( grip / gripLossPerDegreeAboveOptimum ) );
+                
+                float dt = (float)Math.sqrt( ( grip - 1.0f ) / -0.5f ) * optimumTemperatureK / gripTempPress2;
+                
+                return ( optimumTemperatureC + dt );
             }
             
             /**
@@ -2233,7 +2213,7 @@ public class VehiclePhysics
         
         cw.setOptimumTemperatureC( 100.0f );
         cw.setAboveAndBelowTempsAndPressures( 1.524f, 3.523f, 0.845f );
-        System.out.println( "FL: temp: opt-temp: " + cw.getOptimumTemperatureC() + ", grip-loss/°above: " + cw.getGripLossPerDegreeCAboveOptimum() );
+        System.out.println( "FL: temp: opt-temp: " + cw.getOptimumTemperatureC() + ", grip-loss/°above: " + cw.gripLossPerDegreeAboveOptimum );
         System.out.println( tc.getWheel( Wheel.FRONT_LEFT ).getGripFactorByTemperatureC( 111.05894f ) );
     }
 }

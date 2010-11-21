@@ -571,7 +571,7 @@ public class Size extends AbstractSize
         {
             float f = Float.parseFloat( value.substring( 0, value.length() - 2 ) );
             
-            if ( f < 0f )
+            if ( f <= 0f )
                 return ( -PIXEL_OFFSET + f );
             
             return ( +PIXEL_OFFSET + f );
@@ -600,15 +600,35 @@ public class Size extends AbstractSize
     public static String unparseValue( float value )
     {
         if ( isPosPixelValue( value ) )
-            return ( String.valueOf( (int)( value - PIXEL_OFFSET ) ) + "px" );
+        {
+            int px = (int)( value - PIXEL_OFFSET );
+            
+            if ( px == 0 )
+                return ( "-" + String.valueOf( px ) + "px" );
+            
+            return ( String.valueOf( px ) + "px" );
+        }
         
         if ( isNegPixelValue( value ) )
-            return ( String.valueOf( (int)( value + PIXEL_OFFSET ) ) + "px" );
+        {
+            int px = (int)( value + PIXEL_OFFSET );
+            
+            if ( px == 0 )
+                return ( "-" + String.valueOf( px ) + "px" );
+            
+            return ( String.valueOf( px ) + "px" );
+        }
         
+        String s;
         if ( value == 0.0f )
-            return ( "-" + String.valueOf( value * 100f ) + "%" );
+            s = "-" + String.valueOf( value * 100f ) + "%";
+        else
+            s = String.valueOf( value * 100f ) + "%";
         
-        return ( String.valueOf( value * 100f ) + "%" );
+        if ( s.startsWith( "--" ) )
+            return ( s.substring( 1 ) );
+        
+        return ( s );
     }
     
     /*
