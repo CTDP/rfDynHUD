@@ -35,7 +35,7 @@ public abstract class GameFileSystem
 {
     private final File pluginFolder = __UtilHelper.PLUGIN_FOLDER;
     private final String pluginPath = pluginFolder.getAbsolutePath();
-    private final PluginINI pluginINI = new PluginINI( pluginFolder );
+    private final PluginINI pluginINI = __UtilHelper.PLUGIN_INI;
     private final File gameFolder;
     private final String gamePath;
     private final File locationsFolder;

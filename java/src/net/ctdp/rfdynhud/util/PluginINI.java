@@ -39,6 +39,7 @@ public class PluginINI
     private long lastModified = -1;
     
     private String general_language = null;
+    private File general_logFolder = null;
     private File general_configFolder = null;
     private File general_cacheFolder = null;
     
@@ -86,6 +87,13 @@ public class PluginINI
         return ( path );
     }
     
+    /**
+     * 
+     * @param name
+     * @param configPath
+     * @param fallback
+     * @return
+     */
     private File getFolder( String name, String configPath, String fallback )
     {
         if ( configPath == null )
@@ -103,7 +111,7 @@ public class PluginINI
         
         f = __UtilHelper.stripDotDots( f.getAbsolutePath() );
         
-        RFDHLog.printlnEx( "Using " + name + " folder \"" + f.getAbsolutePath() + "\"." );
+        //RFDHLog.printlnEx( "Using " + name + " folder \"" + f.getAbsolutePath() + "\"." );
         
         try
         {
@@ -111,8 +119,9 @@ public class PluginINI
         }
         catch ( Throwable t )
         {
-            RFDHLog.exception( t );
-            RFDHLog.exception( "[ERROR] The " + name + " folder doesn't exist and couldn't be created." );
+            t.printStackTrace();
+            //RFDHLog.exception( t );
+            //RFDHLog.exception( "[ERROR] The " + name + " folder doesn't exist and couldn't be created." );
         }
         
         return ( f );
@@ -141,6 +150,10 @@ public class PluginINI
                         {
                             general_language = value;
                         }
+                        else if ( key.equals( "logFolder" ) )
+                        {
+                            general_logFolder = getFolder( "log", value, "log" );
+                        }
                         else if ( key.equals( "configFolder" ) )
                         {
                             general_configFolder = getFolder( "config", value, "config" );
@@ -162,7 +175,8 @@ public class PluginINI
         }
         catch ( Throwable t )
         {
-            RFDHLog.exception( t );
+            t.printStackTrace();
+            //RFDHLog.exception( t );
         }
     }
     
@@ -176,6 +190,18 @@ public class PluginINI
         update();
         
         return ( general_language );
+    }
+    
+    /**
+     * Gets the configFolder setting from GENERAL group.
+     * 
+     * @return the configFolder setting from GENERAL group.
+     */
+    public final File getGeneralLogFolder()
+    {
+        update();
+        
+        return ( general_logFolder );
     }
     
     /**

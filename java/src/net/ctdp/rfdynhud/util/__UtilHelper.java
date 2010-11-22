@@ -68,5 +68,6 @@ public class __UtilHelper
     }
     
     public static final File PLUGIN_FOLDER = extractPluginFolder();
-    public static final File LOG_FOLDER = new File( PLUGIN_FOLDER, "log" ).getAbsoluteFile();
+    public static final PluginINI PLUGIN_INI = new PluginINI( PLUGIN_FOLDER );
+    public static final File LOG_FOLDER = PLUGIN_INI.getGeneralLogFolder();
 }
