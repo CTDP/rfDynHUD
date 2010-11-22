@@ -1,19 +1,17 @@
 // rfdynhud_editor_launcher.cpp : Defines the entry point for the console application.
-//
 
+#include "common.h"
 #include "filesystem.h"
 #include "jvm_connection.hpp"
-//#include "tchar.h"
-
-static const char* RFACTOR_PATH = getRFactorPath();
-static const char* PLUGIN_PATH = getPluginPath();
 
 //int _tmain( int argc, _TCHAR* argv[] )
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
 {
-    deleteLogFile( PLUGIN_PATH );
+    initPluginIniFilename();
     
-    if ( !launchEditor( PLUGIN_PATH ) )
+    deleteLogFile( getPluginPath() );
+    
+    if ( !launchEditor( getPluginPath() ) )
         return ( 1 );
     
     destroyJVM();

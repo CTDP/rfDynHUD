@@ -1,6 +1,8 @@
 #include "filesystem.h"
 #include <string.h>
 #include <Windows.h>
+#include "common.h"
+#include <stdio.h>
 
 char* cropBuffer( const char* src, const unsigned int length )
 {
@@ -72,25 +74,31 @@ char* getPluginPath()
 
 char* getLogFolder()
 {
+    initPluginIniFilename();
+    
     char* buffer = (char*)malloc( MAX_PATH );
-    unsigned int len = getPluginPath_( buffer );
+    unsigned int len = getFolderFromPluginIni( "GENERAL", "logFolder", "log", buffer, MAX_PATH );
     
-    memcpy( buffer + len, "\\log", 5 );
-    
-    char* result = cropBuffer( buffer, len + 5 );
+    char* result = cropBuffer( buffer, len + 1 );
     free( buffer );
+    
+    createDirectoryWithParents( result );
     
     return ( result );
 }
 
 char* getLogFilename()
 {
+    initPluginIniFilename();
+    
     char* buffer = (char*)malloc( MAX_PATH );
-    unsigned int len = getPluginPath_( buffer );
+    unsigned int len = getFolderFromPluginIni( "GENERAL", "logFolder", "log", buffer, MAX_PATH );
     
-    memcpy( buffer + len, "\\log\\rfdynhud_editor.log", 25 );
+    createDirectoryWithParents( buffer );
     
-    char* result = cropBuffer( buffer, len + 25 );
+    memcpy( buffer + len, "\\rfdynhud_editor.log", 21 );
+    
+    char* result = cropBuffer( buffer, len + 21 );
     free( buffer );
     
     return ( result );
@@ -227,4 +235,40 @@ char checkFileExists( const char* filename, bool checkReadOnly )
         return ( -1 );
     
     return ( 1 );
+}
+
+int lastIndexOf( const char* s, const char c )
+{
+    int len = strlen( s );
+    for ( int i = len - 1; i >= 0; i-- )
+    {
+        if ( s[i] == c )
+            return ( i );
+    }
+    
+    return ( -1 );
+}
+
+bool createDirectoryWithParents( const char* dirname )
+{
+    if ( checkDirectoryExists( dirname, false ) == 1 )
+        return ( true );
+    
+    int slashPos = lastIndexOf( dirname, '\\' );
+    if ( slashPos == -1 )
+        return ( false );
+    
+    char* parent = (char*)malloc( slashPos + 1 );
+    memcpy( parent, dirname, slashPos );
+    parent[slashPos] = '\0';
+    
+    if ( !createDirectoryWithParents( parent ) )
+    {
+        free( parent );
+        return ( false );
+    }
+    
+    free( parent );
+    
+    return ( CreateDirectory( dirname, NULL ) == TRUE );
 }
