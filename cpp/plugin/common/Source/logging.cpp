@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include "timing.h"
 #include "util.h"
+#include "common.h"
 #include <vector>
 
 char* LOG_FILENAME = NULL;
@@ -111,20 +112,16 @@ void renameOldLogFile()
     free( buffer );
 }
 
-void handleArchivedLogFiles( const char* PLUGIN_PATH )
+void handleArchivedLogFiles()
 {
-    char* filename = (char*)malloc( MAX_PATH );
-    const unsigned int pluginPathLength = strlen( PLUGIN_PATH );
-    memcpy( filename, PLUGIN_PATH, pluginPathLength );
-    memcpy( filename + pluginPathLength, "\\rfdynhud.ini", 14 );
-    
     char* buffer = (char*)malloc( 16 );
-    readIniString( filename, "GENERAL", "numArchivedLogFiles", "5", buffer, 16 );
+    getPluginIniSetting( "GENERAL", "numArchivedLogFiles", "5", buffer, 16 );
     unsigned int numArchivedLogFiles = (unsigned int)max( 0, atoi( buffer ) );
     free( buffer );
     buffer = NULL;
     
     const unsigned int folderLength = findLastSeparator( LOG_FILENAME );
+    char* filename = (char*)malloc( MAX_PATH );
     memcpy( filename, LOG_FILENAME, folderLength + 1 );
     memcpy( filename + folderLength + 1, "rfdynhud-*.log", 15 );
     
@@ -186,7 +183,7 @@ void handleArchivedLogFiles( const char* PLUGIN_PATH )
     free( filename );
 }
 
-void checkLogfile( const char* PLUGIN_PATH )
+void checkLogfile()
 {
     DWORD procId = GetCurrentProcessId();
     
@@ -206,7 +203,7 @@ void checkLogfile( const char* PLUGIN_PATH )
     {
         // File too small. Last run seems to have crashed.
         renameOldLogFile();
-        handleArchivedLogFiles( PLUGIN_PATH );
+        handleArchivedLogFiles();
         
         writeProcessIdAndWinVersion( procId );
         
@@ -235,7 +232,7 @@ void checkLogfile( const char* PLUGIN_PATH )
     {
         // File seems to be from the last run. Hence we delete and recreate it.
         renameOldLogFile();
-        handleArchivedLogFiles( PLUGIN_PATH );
+        handleArchivedLogFiles();
         
         writeProcessIdAndWinVersion( procId );
         
@@ -261,9 +258,10 @@ void initLogFilename( const char* RFACTOR_PATH, const char* PLUGIN_PATH )
     if ( LOG_FILENAME != NULL )
         return;
     
+    initPluginIniFilename( RFACTOR_PATH, PLUGIN_PATH );
+    
     char* log_folder = (char*)malloc( MAX_PATH );
-    memcpy( log_folder, PLUGIN_PATH, strlen( PLUGIN_PATH ) );
-    memcpy( log_folder + strlen( PLUGIN_PATH ), "\\log", 5 );
+    getFolderFromPluginIni( "GENERAL", "logFolder", "log", log_folder, MAX_PATH );
     
     bool usePluginFolder = false;
     bool directoryCreated = false;
@@ -283,9 +281,9 @@ void initLogFilename( const char* RFACTOR_PATH, const char* PLUGIN_PATH )
             
             createFallbackLogfilename( RFACTOR_PATH );
             
-            checkLogfile( PLUGIN_PATH );
+            checkLogfile();
             
-            logg( "WARNING: log folder cound not be created. Logging to rFactor root folder." );
+            logg3( "WARNING: log folder \"", log_folder, "\" cound not be created. Logging to plugin folder." );
             
             return;
         }
@@ -296,22 +294,45 @@ void initLogFilename( const char* RFACTOR_PATH, const char* PLUGIN_PATH )
     {
         // Log folder doesn't exist. Try to create it.
         
-        result = checkDirectoryExists( PLUGIN_PATH, true );
+        if ( !createDirectoryWithParents( log_folder ) )
+            result = 0;
+        else
+            result = checkDirectoryExists( log_folder, true );
+        
         if ( result != 1 )
         {
             // Plugin directory doesn't exist or is readonly. We cannot do more than log into the rfactor folder.
             
             createFallbackLogfilename( RFACTOR_PATH );
             
-            checkLogfile( PLUGIN_PATH );
+            checkLogfile();
             
-            logg( "WARNING: log folder cound not be created. Logging to rFactor root folder." );
+            logg3( "WARNING: log folder \"", log_folder, "\" cound not be created. Logging to rFactor root folder." );
             
             return;
         }
         
-        CreateDirectory( log_folder, NULL );
         directoryCreated = true;
+    }
+    
+    const char* filename = "\\rfdynhud.log";
+    unsigned int l2 = strlen( filename );
+    
+    if ( usePluginFolder )
+    {
+        unsigned int l1 = strlen( PLUGIN_PATH );
+        
+        LOG_FILENAME = (char*)malloc( l1 + l2 + 1 );
+        memcpy( LOG_FILENAME, PLUGIN_PATH, l1 );
+        memcpy( LOG_FILENAME + l1, filename, l2 + 1 );
+    }
+    else
+    {
+        unsigned int l1 = strlen( log_folder );
+        
+        LOG_FILENAME = (char*)malloc( l1 + l2 + 1 );
+        memcpy( LOG_FILENAME, log_folder, l1 );
+        memcpy( LOG_FILENAME + l1, filename, l2 + 1 );
     }
     
     if ( log_folder != NULL )
@@ -320,15 +341,7 @@ void initLogFilename( const char* RFACTOR_PATH, const char* PLUGIN_PATH )
         log_folder = NULL;
     }
     
-    const char* filename = usePluginFolder ? "\\rfdynhud.log" : "\\log\\rfdynhud.log";
-    unsigned int l1 = strlen( PLUGIN_PATH );
-    unsigned int l2 = strlen( filename );
-    
-    LOG_FILENAME = (char*)malloc( l1 + l2 + 1 );
-    memcpy( LOG_FILENAME, PLUGIN_PATH, l1 );
-    memcpy( LOG_FILENAME + l1, filename, l2 + 1 );
-    
-    checkLogfile( PLUGIN_PATH );
+    checkLogfile();
     
     if ( directoryCreated )
         logg( "INFO: Log directory not found. It has been created." );

@@ -22,4 +22,6 @@ char* addPostFix( const char* postfix, char* buffer );
 char checkDirectoryExists( const char* dirname, bool checkReadOnly );
 char checkFileExists( const char* filename, bool checkReadOnly );
 
+bool createDirectoryWithParents( const char* dirname );
+
 #endif // _FILESYSTEM_H

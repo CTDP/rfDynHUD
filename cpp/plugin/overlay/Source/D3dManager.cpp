@@ -4,6 +4,7 @@
 #include "handshake.hpp"
 #include "direct_input.h"
 #include "filesystem.h"
+#include "common.h"
 #include "logging.h"
 
 static const char* RFACTOR_PATH = getRFactorPath();
@@ -174,6 +175,7 @@ void D3DManager::initialize( void* d3dDev, const unsigned short _resX, const uns
         return;
     
     fileBuffer = (char*)malloc( MAX_PATH );
+    initPluginIniFilename( RFACTOR_PATH, PLUGIN_PATH );
     initLogFilename( RFACTOR_PATH, PLUGIN_PATH );
     
     resX = _resX;

@@ -3,6 +3,7 @@
 #include <Windows.h>
 
 #include "filesystem.h"
+#include "common.h"
 #include "logging.h"
 
 const char* MEM_KEY = "rfDynHUD";
@@ -133,6 +134,7 @@ bool Handshake::doSanityCheck( const char* RFACTOR_PATH, const char* PLUGIN_PATH
         return ( false );
     }
     
+    //readIniString( ini_filename, "GENERAL", "numArchivedLogFiles", "5", buffer, 16 );
     if ( checkDirectoryExists( getFullPath2( RFACTOR_PATH, "Plugins\\rfDynHUD\\config", fileBuffer ), false ) == 0 )
     {
         logg( "    WARNING: config directory not found in the rFactor Plugins\\rfDynHUD folder. Fallback config will be used.\r\nUse the editor to create a valid config and store it as overlay.ini in the config folder. Please see the readme.txt in the config folder for more info." );

@@ -171,6 +171,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\common\Source\common.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\dummy_direct_input.cpp"
 				>
 			</File>
@@ -212,6 +216,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\common\Include\common.h"
+				>
+			</File>
 			<File
 				RelativePath="..\common\Include\direct_input.h"
 				>

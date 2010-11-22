@@ -198,3 +198,39 @@ char checkFileExists( const char* filename, bool checkReadOnly )
     
     return ( 1 );
 }
+
+int lastIndexOf( const char* s, const char c )
+{
+    int len = strlen( s );
+    for ( int i = len - 1; i >= 0; i-- )
+    {
+        if ( s[i] == c )
+            return ( i );
+    }
+    
+    return ( -1 );
+}
+
+bool createDirectoryWithParents( const char* dirname )
+{
+    if ( checkDirectoryExists( dirname, false ) == 1 )
+        return ( true );
+    
+    int slashPos = lastIndexOf( dirname, '\\' );
+    if ( slashPos == -1 )
+        return ( false );
+    
+    char* parent = (char*)malloc( slashPos + 1 );
+    memcpy( parent, dirname, slashPos );
+    parent[slashPos] = '\0';
+    
+    if ( !createDirectoryWithParents( parent ) )
+    {
+        free( parent );
+        return ( false );
+    }
+    
+    free( parent );
+    
+    return ( CreateDirectory( dirname, NULL ) == TRUE );
+}

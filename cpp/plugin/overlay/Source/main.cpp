@@ -8,6 +8,7 @@
 #include "window_handle.h"
 
 #include "filesystem.h"
+#include "common.h"
 #include "logging.h"
 
 HHOOK hook;
@@ -87,6 +88,7 @@ BOOL WINAPI DllMain( HMODULE hDll, DWORD dwReason, PVOID pvReserved )
         if ( hMod == NULL )
         {
             //MessageBox( NULL, "Error loading original 32 bit d3d9.dll", "Error loading original 32 bit d3d9.dll", MB_OK );
+            initPluginIniFilename( getRFactorPath(), getPluginPath() );
             initLogFilename( getRFactorPath(), getPluginPath() );
             logg3( "Error loading original 32 bit d3d9.dll from \"", sysd3d, "\"." );
             return ( FALSE );
