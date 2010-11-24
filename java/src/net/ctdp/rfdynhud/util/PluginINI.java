@@ -113,15 +113,18 @@ public class PluginINI
         
         //RFDHLog.printlnEx( "Using " + name + " folder \"" + f.getAbsolutePath() + "\"." );
         
-        try
+        if ( ResourceManager.isJarMode() || !name.equals( "log" ) )
         {
-            f.mkdirs();
-        }
-        catch ( Throwable t )
-        {
-            t.printStackTrace();
-            //RFDHLog.exception( t );
-            //RFDHLog.exception( "[ERROR] The " + name + " folder doesn't exist and couldn't be created." );
+            try
+            {
+                f.mkdirs();
+            }
+            catch ( Throwable t )
+            {
+                t.printStackTrace();
+                //RFDHLog.exception( t );
+                //RFDHLog.exception( "[ERROR] The " + name + " folder doesn't exist and couldn't be created." );
+            }
         }
         
         return ( f );

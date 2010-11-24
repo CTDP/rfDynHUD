@@ -299,7 +299,7 @@ public class WearWidget extends Widget
                 engineLifetimeLossPerLap = -1f;
                 testLifetimeAtLapStart = true;
             }
-            else
+            else if ( vsi.getLapsRemaining( gameData.getScoringInfo().getEstimatedMaxLaps( vsi ) ) > 0.1f )
             {
                 engineLifetimeLossPerLap = engineLifetimeAtLapStart - engineLifetime;
                 engineLifetimeAtLapStart = engineLifetime;
@@ -618,8 +618,8 @@ public class WearWidget extends Widget
                     final int maxLaps = scoringInfo.getEstimatedMaxLaps( scoringInfo.getPlayersVehicleScoringInfo() );
                     if ( maxLaps > 0 )
                     {
-                        int lapsRemaining = (int)scoringInfo.getPlayersVehicleScoringInfo().getLapsRemaining( maxLaps );
-                        int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * Math.max( 0, lapsRemaining + 1 ) ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
+                        int lapsRemaining = Math.max( 0, (int)scoringInfo.getPlayersVehicleScoringInfo().getLapsRemaining( maxLaps ) );
+                        int x2 = (int)( ( engineLifetimeAtLapStart - ( engineLifetimeLossPerLap * ( lapsRemaining + 1 ) ) + maxLifetimeTotal - safeLifetimeTotal ) * width / maxLifetimeTotal );
                         
                         if ( ( x2 <= 0 ) && failImageName.hasTexture() )
                             texture.drawImage( failImageName.getTexture(), x, y, false, null );

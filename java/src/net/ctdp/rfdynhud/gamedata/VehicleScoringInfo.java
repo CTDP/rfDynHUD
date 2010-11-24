@@ -59,6 +59,7 @@ public class VehicleScoringInfo
     private Integer classID = null;
     
     private String vehicleName = null;
+    private VehicleInfo vehicleInfo = null;
     
     short placeByClass = -1;
     int numVehiclesInClass = -1;
@@ -218,6 +219,7 @@ public class VehicleScoringInfo
         classID = null;
         
         vehicleName = null;
+        vehicleInfo = null;
         
         oldLap = lap;
         lap = getLapsCompleted() + 1;
@@ -503,6 +505,16 @@ public class VehicleScoringInfo
         }
         
         return ( vehicleName );
+    }
+    
+    public final VehicleInfo getVehicleInfo()
+    {
+        if ( vehicleInfo == null )
+        {
+            vehicleInfo = gameData.getModInfo().getVehicleRegistry().getVehicleForDriver( getVehicleName() );
+        }
+        
+        return ( vehicleInfo );
     }
     
     /**

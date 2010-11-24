@@ -316,10 +316,12 @@ public abstract class AbstractIniParser
         
         if ( line.startsWith( "[" ) )
         {
-            if ( handler == null )
-                throw new ParsingException( "This method cannot parse groups." );
+            ParsingException pe = new ParsingException( "This method cannot parse groups." );
             
-            return ( handler.handleParsingException( lineNr, currentGroup, line, new ParsingException( "This method cannot parse groups." ) ) );
+            if ( handler == null )
+                throw pe;
+            
+            return ( handler.handleParsingException( lineNr, currentGroup, line, pe ) );
         }
         
         int idx = line.indexOf( operator );

@@ -182,7 +182,23 @@ public class ETVFastestLapWidget extends ETVTimingWidgetBase
             
             VehicleScoringInfo vsi = gameData.getScoringInfo().getFastestLapVSI();
             
-            String teamName = vsi.isPlayer() ? gameData.getVehicleInfo().getTeamName() : vsi.getVehicleClass();
+            String teamName;
+            if ( vsi.isPlayer() )
+            {
+                teamName = gameData.getVehicleInfo().getTeamName();
+            }
+            else if ( vsi.getVehicleInfo() != null )
+            {
+                teamName = vsi.getVehicleInfo().getTeamName();
+            }
+            else
+            {
+                teamName = vsi.getVehicleClass();
+            }
+            if ( teamName == null )
+            {
+                teamName = vsi.getVehicleClass();
+            }
             
             drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort( getShowNamesInAllUppercase() ), texture, false );
             teamnameString.draw( offsetX, offsetY, teamName, texture, false );

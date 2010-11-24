@@ -22,6 +22,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.jagatoo.util.ini.AbstractIniParser;
+import org.jagatoo.util.ini.IniLine;
+import org.jagatoo.util.io.FileUtils;
+
 import net.ctdp.rfdynhud.util.RFDHLog;
 
 /**
@@ -35,31 +39,120 @@ public class ModInfo
     
     private String modName = null;
     private File rfmFile = null;
+    private File vehiclesDir = null;
+    private String[] vehicleFilter = null;
     private int maxOpponents = -1;
     private float raceDuration = -1f;
     
+    private final VehicleRegistry vehicleRegistry = new VehicleRegistry();
+    
+    final VehicleRegistry getVehicleRegistry()
+    {
+        return ( vehicleRegistry );
+    }
+    
+    /**
+     * 
+     * @param line
+     * @param keyLength
+     * @return
+     */
     private static String parseValuePart( String line, int keyLength )
     {
-        int p = line.indexOf( '=', keyLength );
-        
-        if ( p >= 0 )
+        IniLine iniLine = new IniLine();
+        try
         {
-            String s = line.substring( p + 1 ).trim();
+            if ( !AbstractIniParser.parseLine( 0, null, line, "=", iniLine, null ) )
+                return ( null );
             
-            p = s.indexOf( ' ' );
+            return ( iniLine.getValue() );
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.exception( t );
+            return ( null );
+        }
+    }
+    
+    private static String[] parseVehicleFilter( String line )
+    {
+        // 'line' is trimmed and starts with "Vehicle Filter".
+        
+        String[] vehicleFilter = null;
+        
+        String value = parseValuePart( line, 14 );
+        
+        if ( value != null )
+        {
+            value = value.toLowerCase();
             
-            if ( p > 0 )
-                s = s.substring( 0, p ).trim();
+            if ( value.startsWith( "or:" ) )
+                value = value.substring( 3 ).trim();
             
-            p = s.indexOf( '\t' );
+            vehicleFilter = value.split( " " );
             
-            if ( p > 0 )
-                s = s.substring( 0, p ).trim();
-            
-            return ( s );
+            for ( int i = 0; i < vehicleFilter.length; i++ )
+            {
+                vehicleFilter[i] = vehicleFilter[i].trim();
+            }
         }
         
-        return ( null );
+        if ( vehicleFilter != null )
+        {
+            int n = 0;
+            for ( int i = 0; i < vehicleFilter.length; i++ )
+            {
+                if ( !vehicleFilter[i].equals( "" ) )
+                    n++;
+            }
+            
+            if ( n == 0 )
+            {
+                vehicleFilter = null;
+            }
+            else if ( n < vehicleFilter.length )
+            {
+                String[] tmp = new String[ n ];
+                int j = 0;
+                for ( int i = 0; i < vehicleFilter.length; i++ )
+                {
+                    if ( !vehicleFilter[i].equals( "" ) )
+                        tmp[j++] = vehicleFilter[i];
+                }
+                
+                vehicleFilter = tmp;
+            }
+        }
+        
+        return ( vehicleFilter );
+    }
+    
+    private static File parseVehiclesDir( String line )
+    {
+        // 'line' is trimmed and starts with "VehiclesDir".
+        
+        File vehiclesDir = null;
+        
+        String value = parseValuePart( line, 11 );
+        
+        if ( value != null )
+        {
+            try
+            {
+                vehiclesDir = new File( value );
+                if ( !vehiclesDir.isAbsolute() )
+                    vehiclesDir = new File( GameFileSystem.INSTANCE.getGameFolder(), value );
+                
+                if ( vehiclesDir.exists() )
+                    vehiclesDir = FileUtils.getCanonicalFile( vehiclesDir );
+            }
+            catch ( Throwable t )
+            {
+                RFDHLog.exception( t );
+            }
+        }
+        
+        return ( vehiclesDir );
     }
     
     private static int parseMaxOpponents( String line )
@@ -160,7 +253,15 @@ public class ModInfo
                 
                 String lLine = line.toLowerCase();
                 
-                if ( lLine.startsWith( "max opponents" ) )
+                if ( ( level == 0 ) && lLine.startsWith( "vehicle filter" ) )
+                {
+                    vehicleFilter = parseVehicleFilter( line );
+                }
+                else if ( ( level == 1 ) && groupStack[0].equalsIgnoreCase( "ConfigOverrides" ) && lLine.startsWith( "vehiclesdir" ) )
+                {
+                    vehiclesDir = parseVehiclesDir( line );
+                }
+                else if ( lLine.startsWith( "max opponents" ) )
                 {
                     maxOpponents = parseMaxOpponents( line );
                 }
@@ -187,8 +288,13 @@ public class ModInfo
     {
         this.modName = profileInfo.getModName();
         this.rfmFile = new File( new File( GameFileSystem.INSTANCE.getGameFolder(), "rfm" ), modName + ".rfm" );
+        this.vehiclesDir = new File( new File( GameFileSystem.INSTANCE.getGameFolder(), "GameData" ), "Vehicles" );
+        this.vehicleFilter = null;
         
         parseRFM( rfmFile );
+        
+        if ( vehiclesDir != null )
+            vehicleRegistry.update( vehicleFilter, vehiclesDir );
     }
     
     /**
@@ -209,6 +315,26 @@ public class ModInfo
     public final File getRFMFile()
     {
         return ( rfmFile );
+    }
+    
+    /**
+     * Gets the vehicle filter.
+     * 
+     * @return the vehicle filter.
+     */
+    public final String[] getVehicleFilter()
+    {
+        return ( vehicleFilter );
+    }
+    
+    /**
+     * Gets the folder, where to search for .VEH files.
+     * 
+     * @return the folder, where to search for .VEH files.
+     */
+    public final File getVehiclesFolder()
+    {
+        return ( vehiclesDir );
     }
     
     /**
