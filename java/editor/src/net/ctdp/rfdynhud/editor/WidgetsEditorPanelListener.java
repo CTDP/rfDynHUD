@@ -34,6 +34,15 @@ public interface WidgetsEditorPanelListener extends WidgetSelectionListener
     public void onWidgetPositionSizeChanged( Widget widget );
     
     /**
+     * Invoked when a copy of the selected Widget is requested.
+     * 
+     * @param widget the {@link Widget} to be copied
+     * 
+     * @return the copy or <code>null</code>.
+     */
+    public Widget onWidgetCopyRequested( Widget widget );
+    
+    /**
      * Invoked when a {@link Widget} has been removed.
      * 
      * @param widget the removed {@link Widget}

@@ -1969,6 +1969,22 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
         return ( WidgetFactory.createWidget( clazz, "CloneOf" + getName() ) );
     }
     
+    /**
+     * Clones the value of the src property to the trg property.
+     * This method is invoked on the target Widget.
+     * 
+     * @param src
+     * @param trg
+     * 
+     * @return <code>true</code>, if the properties list needs to be refreshed, <code>false</code> otherwise.
+     */
+    protected boolean cloneProperty( Property src, Property trg )
+    {
+        trg.setValue( src.getValue() );
+        
+        return ( false );
+    }
+    
     @Override
     public Widget clone()
     {
@@ -1994,7 +2010,11 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
             Property p1 = lstTarget.get( i );
             
             //if ( ( includePosition || ( !p0.getName().equals( "x" ) && !p0.getName().equals( "y" ) && !p0.getName().equals( "positioning" ) ) ) )
-                p1.setValue( p0.getValue() );
+                if ( newWidget.cloneProperty( p0, p1 ) )
+                {
+                    pcTarget.clear();
+                    newWidget.getProperties( pcTarget, true );
+                }
         }
         
         return ( newWidget );

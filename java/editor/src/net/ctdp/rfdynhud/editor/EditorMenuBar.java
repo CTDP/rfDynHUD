@@ -212,6 +212,22 @@ public class EditorMenuBar extends JMenuBar
         return ( snapAllWidgetsToGrid );
     }
     
+    private static JMenuItem createCopyWidgetMenu( final RFDynHUDEditor editor )
+    {
+        JMenuItem copyItem = new JMenuItem( "Copy selected Widget" );
+        //copyItem.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ) );
+        copyItem.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                editor.getEditorPanel().copySelectedWidget();
+            }
+        } );
+        
+        return ( copyItem );
+    }
+    
     private static JMenuItem createRemoveWidgetMenu( final RFDynHUDEditor editor )
     {
         JMenuItem removeItem = new JMenuItem( "Remove selected Widget (DEL)" );
@@ -262,6 +278,11 @@ public class EditorMenuBar extends JMenuBar
             }
         } );
         menu.add( makeAllPercents );
+        
+        menu.addSeparator();
+        
+        final JMenuItem copyItem = createCopyWidgetMenu( editor );
+        menu.add( copyItem );
         
         menu.addSeparator();
         
@@ -414,6 +435,11 @@ public class EditorMenuBar extends JMenuBar
         
         JMenuItem snapAllWidgetsToGrid = createSnapAllWidgetsToGridMenu( editor );
         menu.add( snapAllWidgetsToGrid );
+        
+        menu.addSeparator();
+        
+        JMenuItem copyItem = createCopyWidgetMenu( editor );
+        menu.add( copyItem );
         
         menu.addSeparator();
         

@@ -29,13 +29,16 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
+import net.ctdp.rfdynhud.properties.GenericPropertiesIterator;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -88,6 +91,10 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
             {
                 shiftLights[i] = new ShiftLight( this, i + 1 );
                 
+                GenericPropertiesIterator it = new GenericPropertiesIterator( shiftLights[i] );
+                while ( it.hasNext() )
+                    AbstractPropertiesKeeper.setKeeper( it.next(), this );
+                
                 if ( ( i == 0 ) && ( oldNumber == 0 ) && ( newNumber == 1 ) )
                 {
                     shiftLights[0].activationRPM.setValue( -500 );
@@ -109,7 +116,9 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         @Override
         protected void onValueChanged( Integer oldValue, int newValue )
         {
-            if ( oldValue != null )
+            if ( oldValue == null )
+                oldValue = 0;
+            //if ( oldValue != null )
                 initShiftLights( oldValue, newValue );
         }
     };
@@ -899,6 +908,20 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         getBoostProperties( propsCont, forceAll );
         
         getDigiRevsProperties( propsCont, forceAll );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean cloneProperty( Property src, Property trg )
+    {
+        boolean result = super.cloneProperty( src, trg );
+        
+        if ( trg == numShiftLights )
+            return ( true );
+        
+        return ( result );
     }
     
     protected int getInitialNumberOfShiftLights()

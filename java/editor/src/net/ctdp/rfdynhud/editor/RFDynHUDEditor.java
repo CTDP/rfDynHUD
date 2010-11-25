@@ -1257,6 +1257,27 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     }
     
     @Override
+    public Widget onWidgetCopyRequested( Widget widget )
+    {
+        String widgetType = widget.getClass().getSimpleName();
+        
+        RFDHLog.println( "Copying Widget of type \"" + widgetType + "\"..." );
+        
+        String name = widgetsConfig.findFreeName( widgetType );
+        
+        Widget newWidget = widget.clone();
+        
+        if ( newWidget == null )
+            return ( null );
+        
+        newWidget.setName( name );
+        
+        __WCPrivilegedAccess.addWidget( widgetsConfig, newWidget, false );
+        
+        return ( newWidget );
+    }
+    
+    @Override
     public boolean onWidgetRemoved( Widget widget )
     {
         if ( widget == null )

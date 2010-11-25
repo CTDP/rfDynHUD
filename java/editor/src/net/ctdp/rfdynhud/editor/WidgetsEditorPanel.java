@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -348,6 +349,34 @@ public class WidgetsEditorPanel extends JPanel
     public final Widget getSelectedWidget()
     {
         return ( selectedWidget );
+    }
+    
+    public void copySelectedWidget()
+    {
+        if ( getSelectedWidget() == null )
+        {
+            JOptionPane.showMessageDialog( this.getParent(), "No Widget selected", "Copy Widget", JOptionPane.ERROR_MESSAGE );
+            return;
+        }
+        
+        Widget copy = null;
+        
+        for ( int i = 0; i < listeners.size(); i++ )
+        {
+            copy = listeners.get( i ).onWidgetCopyRequested( getSelectedWidget() );
+            if ( copy != null )
+                break;
+        }
+        
+        if ( copy != null )
+        {
+            setSelectedWidget( copy, false );
+            
+            clearEverything();
+            repaint();
+            
+            JOptionPane.showMessageDialog( this.getParent(), "Widget successfully copied.\nWarning. The Widget is at the very same place as the original.", "Copy Widget", JOptionPane.INFORMATION_MESSAGE );
+        }
     }
     
     public void removeSelectedWidget()

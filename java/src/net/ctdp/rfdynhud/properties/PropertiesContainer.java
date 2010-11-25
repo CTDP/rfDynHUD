@@ -55,6 +55,8 @@ public abstract class PropertiesContainer
     {
         clearImpl();
         
+        level = 0;
+        
         numGroups = 0;
         numProperties = 0;
     }
