@@ -823,10 +823,16 @@ public class WearWidget extends Widget
                 int engineWidth;
                 if ( getDisplayWearPercent_engine() )
                 {
-                    engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( engineLifetime.getValue() * 100f, 1, true ), texture );
-                    final float variancePercent = getEngineMinLifetimePercent( physics.getEngine(), raceLengthPercentage, hundredPercentBase );
-                    if ( variancePercent > 0.001f )
+                    boolean hasVariance = physics.getEngine().hasLifetimeVariance();
+                    float lt = engineLifetime.getValue() * 100f;
+                    if ( !hasVariance )
+                        lt = Math.max( 0f, lt );
+                    engineWearString.draw( offsetX, offsetY, NumberUtil.formatFloat( lt, 1, true ), texture );
+                    if ( hasVariance )
+                    {
+                        final float variancePercent = getEngineMinLifetimePercent( physics.getEngine(), raceLengthPercentage, hundredPercentBase );
                         engineVarianceString.draw( offsetX, offsetY, NumberUtil.formatFloat( -variancePercent, 1, true ), texture );
+                    }
                     
                     //engineWidth = width - engineHeaderString.getAbsX() - 5 - Math.max( engineVarianceString.getLastWidth(), engineWearString.getLastWidth() );
                     engineWidth = width - engineHeaderString.getAbsX() - 0 - engineWearStringMaxWidth;

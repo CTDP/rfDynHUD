@@ -326,11 +326,10 @@ public class GameEventsManager implements ConfigurationLoadListener
      */
     public byte onSessionStarted( boolean isEditorMode )
     {
-        //Logger.log( ">>> onSessionStarted()" );
+        RFDHLog.profile( "[PROFILE]: onSessionStarted()" );
         //if ( currentSessionIsRace == Boolean.TRUE )
         if ( sessionRunning )
         {
-            //Logger.log( "INFO: Got a call to StartSession() in already started RACE session. Looks like an rFactor bug. Ignoring this call." );
             RFDHLog.debug( "INFO: Got a call to StartSession() in already started session. Looks like an rFactor bug. Ignoring this call." );
             return ( rfDynHUD.isInRenderMode() ? (byte)2 : (byte)0 );
         }
@@ -433,7 +432,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      */
     public void onSessionEnded( boolean isEditorMode )
     {
-        //Logger.log( ">>> onSessionEnded()" );
+        RFDHLog.profile( "[PROFILE]: onSessionEnded()" );
         this.waitingForGraphics = false;
         this.waitingForTelemetry = false;
         this.waitingForScoring = false;
@@ -482,7 +481,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      */
     public byte onRealtimeEntered( boolean isEditorMode )
     {
-        //Logger.log( ">>> onRealtimeEntered()" );
+        RFDHLog.profile( "[PROFILE]: onRealtimeEntered()" );
         byte result = 0;
         
         if ( texturesRequested )
@@ -565,7 +564,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      */
     public void onRealtimeExited( boolean isEditorMode )
     {
-        //Logger.log( ">>> onRealtimeExited()" );
+        RFDHLog.profile( "[PROFILE]: onRealtimeExited()" );
         RFDHLog.printlnEx( "Exited cockpit." );
         
         //realtimeStartTime = -1f;
@@ -796,7 +795,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      */
     public final byte onGraphicsInfoUpdated( short viewportX, short viewportY, short viewportWidth, short viewportHeight )
     {
-        //Logger.log( ">>> onGraphicsInfoUpdated()" );
+        RFDHLog.profile( "[PROFILE]: onGraphicsInfoUpdated()" );
         this.waitingForGraphics = false;
         
         byte result = 0;
@@ -814,7 +813,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             {
                 if ( vpChanged )
                 {
-                    //Logger.log( "INFO: (Viewport changed) " + viewportX + ", " + viewportY + ", " + viewportWidth + "x" + viewportHeight );
+                    RFDHLog.debug( "[DEBUG]: (Viewport changed): ", viewportX, ", ", viewportY, ", ", viewportWidth, "x", viewportHeight );
                     
                     if ( gameData.getProfileInfo().isValid() )
                     {
@@ -863,7 +862,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      */
     public final byte onTelemetryDataUpdated( boolean isEditorMode )
     {
-        //Logger.log( ">>> onTelemetryDataUpdated()" );
+        RFDHLog.profile( "[PROFILE]: onTelemetryDataUpdated()" );
         byte result = 0;
         
         try
@@ -904,7 +903,8 @@ public class GameEventsManager implements ConfigurationLoadListener
      */
     public final byte onScoringInfoUpdated( boolean isEditorMode )
     {
-        //Logger.log( ">>> onScoringInfoUpdated() (" + gameData.getScoringInfo().getNumVehicles() + ")" );
+        RFDHLog.profile( "[PROFILE]: onScoringInfoUpdated()" );
+        //RFDHLog.profile( "[PROFILE]: onScoringInfoUpdated(", gameData.getScoringInfo().getNumVehicles(), ")" );
         if ( gameData.getScoringInfo().getNumVehicles() == 0 ) // What the hell is this again???
         {
             if ( rfDynHUD != null )

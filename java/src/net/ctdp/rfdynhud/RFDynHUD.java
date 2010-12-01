@@ -44,7 +44,7 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 2, 0, "Beta", 94 );
+    public static final Version VERSION = new Version( 1, 2, 0, "Beta", 95 );
     
     private final SupportedGames gameId;
     

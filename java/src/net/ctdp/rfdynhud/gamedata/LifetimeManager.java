@@ -108,6 +108,12 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
     public void onRealtimeEntered( LiveGameData gameData, boolean isEditorMode ) {}
     
     /**
+     * This "corrects" a calculation deviation between rFactor and rfDynHUD.
+     * I have no idea, why this has to be done. But it works.
+     */
+    private static final double LOSS_CORRECTION_FACTOR = 1 / 0.98;
+    
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -230,13 +236,14 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         
         final double raceLengthPercentage = scoringInfo.getRaceLengthPercentage();
         final double recipRaceLengthPercentage = 1.0 / raceLengthPercentage;
+        //RFDHLog.debug( ">>>> " + engine.getSafeLifetimeTotal( raceLengthPercentage ) );
         
-        telemData.engineLifetime = (float)( ( engineLifetime100Percent * raceLengthPercentage ) - engineLifetimeLoss );
+        telemData.engineLifetime = (float)( ( engineLifetime100Percent * raceLengthPercentage ) - ( engineLifetimeLoss * LOSS_CORRECTION_FACTOR ) );
         
-        telemData.brakeDiscThicknessFL = (float)( brakeDiscThicknessFL100Percent - ( brakeDiscThicknessFLLoss * recipRaceLengthPercentage ) );
-        telemData.brakeDiscThicknessFR = (float)( brakeDiscThicknessFR100Percent - ( brakeDiscThicknessFRLoss * recipRaceLengthPercentage ) );
-        telemData.brakeDiscThicknessRL = (float)( brakeDiscThicknessRL100Percent - ( brakeDiscThicknessRLLoss * recipRaceLengthPercentage ) );
-        telemData.brakeDiscThicknessRR = (float)( brakeDiscThicknessRR100Percent - ( brakeDiscThicknessRRLoss * recipRaceLengthPercentage ) );
+        telemData.brakeDiscThicknessFL = (float)( brakeDiscThicknessFL100Percent - ( brakeDiscThicknessFLLoss * LOSS_CORRECTION_FACTOR * recipRaceLengthPercentage ) );
+        telemData.brakeDiscThicknessFR = (float)( brakeDiscThicknessFR100Percent - ( brakeDiscThicknessFRLoss * LOSS_CORRECTION_FACTOR * recipRaceLengthPercentage ) );
+        telemData.brakeDiscThicknessRL = (float)( brakeDiscThicknessRL100Percent - ( brakeDiscThicknessRLLoss * LOSS_CORRECTION_FACTOR * recipRaceLengthPercentage ) );
+        telemData.brakeDiscThicknessRR = (float)( brakeDiscThicknessRR100Percent - ( brakeDiscThicknessRRLoss * LOSS_CORRECTION_FACTOR * recipRaceLengthPercentage ) );
         
         lastOilTemperature = telemData.getEngineOilTemperatureC();
         lastEngineRevs = telemData.getEngineRPM();

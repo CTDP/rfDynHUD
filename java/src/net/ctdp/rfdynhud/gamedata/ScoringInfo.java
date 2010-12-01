@@ -276,7 +276,7 @@ public class ScoringInfo
                             
                             changedVSIs.add( new Object[] { -1, vsi.getDriverID() } );
                             
-                            //Logger.log( "Player " + vsi.getDriverName() + " left the game." );
+                            RFDHLog.debug( "[DEBUG]: ", vsi.getDriverName(), " left the game." );
                             
                             leftVSICache.put( vsi.getDriverID(), vsi );
                             vehicleScoringInfo[i] = vehicleScoringInfo[j];
@@ -306,20 +306,20 @@ public class ScoringInfo
                     
                     if ( vsi == null )
                     {
-                        //Logger.log( "Player joined: " + data.getDriverName() + ", id = " + joinedID + ", index = " + firstFree );
-                        
                         vsi = vehicleScoringInfo[firstFree++];
                         vsi.data = data;
                         vsi.setDriverName( data.getDriverName(), joinedID );
+                        
+                        RFDHLog.debug( "[DEBUG]: Player joined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ) );
                         
                         changedVSIs.add( new Object[] { +1, vsi } );
                     }
                     else
                     {
-                        //Logger.log( "Player rejoined: " + data.getDriverName() + ", id = " + joinedID + ", index = " + firstFree );
-                        
                         vehicleScoringInfo[firstFree++] = vsi;
                         vsi.data = data;
+                        
+                        RFDHLog.debug( "[DEBUG]: Player rejoined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ) );
                         
                         if ( ( vsi.fastestLaptime == null ) && ( vsi.getBestLapTime() > 0f ) )
                         {
