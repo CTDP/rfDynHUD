@@ -270,6 +270,10 @@ public class VehiclePhysics
         
         private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
         
+        void reset()
+        {
+        }
+        
         /**
          * Gets the engine's name.
          * 
@@ -1162,6 +1166,11 @@ public class VehiclePhysics
                 return ( torque );
             }
             
+            void reset()
+            {
+                brakeFadeRange = DEFAULT_BRAKE_FADE_RANGE;
+            }
+            
     		WheelBrake()
     		{
     		}
@@ -1195,6 +1204,14 @@ public class VehiclePhysics
             
             // Unreachable code!
             return ( null );
+        }
+        
+        void reset()
+        {
+            brakeFrontLeft.reset();
+            brakeFrontRight.reset();
+            brakeRearLeft.reset();
+            brakeRearRight.reset();
         }
     }
     
@@ -2042,6 +2059,18 @@ public class VehiclePhysics
         tc.rearRight.setAboveAndBelowTempsAndPressures( 3.870f, 2.269f, 0.814f );
         
         return ( tc );
+    }
+    
+    void reset()
+    {
+        engine.reset();
+        brakes.reset();
+        
+        tireCompounds = null;
+        tcBestGripFrontLeft = null;
+        tcBestGripFrontRight = null;
+        tcBestGripRearLeft = null;
+        tcBestGripRearRight = null;
     }
     
     void applyMeasurementUnits( MeasurementUnits measurementUnits )

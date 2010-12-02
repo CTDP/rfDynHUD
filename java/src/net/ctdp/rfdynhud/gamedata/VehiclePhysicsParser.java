@@ -1471,6 +1471,8 @@ class VehiclePhysicsParser
     
     public static void parsePhysicsFiles( File cchFile, File vehicleFile, String trackName, VehiclePhysics physics ) throws Throwable
     {
+        physics.reset();
+        
         CCHParser cchParser = new CCHParser( cchFile.getAbsolutePath(), vehicleFile.getName() );
         cchParser.parse( cchFile );
         

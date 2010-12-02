@@ -64,6 +64,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     private boolean waitingForSetup = false;
     private long setupReloadTryTime = -1L;
     private boolean waitingForData = false;
+    private Boolean cockpitLeftInRaceSession = null;
     
     private boolean needsOnVehicleControlChangedEvent = false;
     
@@ -352,6 +353,9 @@ public class GameEventsManager implements ConfigurationLoadListener
         this.lastViewedVSIId = -1;
         this.lastControl = null;
         
+        if ( gameData.isInRealtimeMode() )
+            this.cockpitLeftInRaceSession = false;
+        
         byte result = 0;
         
         if ( texturesRequested )
@@ -578,6 +582,9 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         this.needsOnVehicleControlChangedEvent = true;
         
+        if ( gameData.getScoringInfo().getSessionType().isRace() )
+            cockpitLeftInRaceSession = true;
+        
         try
         {
             if ( gameData.getProfileInfo().isValid() )
@@ -702,6 +709,16 @@ public class GameEventsManager implements ConfigurationLoadListener
         if ( simulationMode )
             waitingForSetup2 = false;
         
+        if ( !waitingForScoring && gameData.getScoringInfo().getSessionType().isRace() && ( cockpitLeftInRaceSession == Boolean.FALSE ) )
+        {
+            waitingForSetup = false;
+            waitingForSetup2 = false;
+            gameData.getSetup().updatedInTimeScope = true;
+        }
+        
+        if ( !waitingForScoring )
+            cockpitLeftInRaceSession = null;
+        
         if ( waitingForSetup || waitingForSetup2 )
         {
             if ( reloadSetup() )
@@ -711,6 +728,11 @@ public class GameEventsManager implements ConfigurationLoadListener
                 setupReloadTryTime = -1L;
                 
                 eventsDispatcher.fireOnVehicleSetupUpdated( gameData, isEditorMode );
+            }
+            else if ( waitingForSetup && !waitingForSetup2 )
+            {
+                waitingForSetup = false;
+                gameData.getSetup().updatedInTimeScope = true;
             }
         }
         
@@ -1011,8 +1033,10 @@ public class GameEventsManager implements ConfigurationLoadListener
     {
         ScoringInfo scoringInfo = gameData.getScoringInfo();
         
+        //RFDHLog.debugCS( waitingForScoring, lastSessionStartedTimestamp, updateTimestamp, updateTimestamp - lastSessionStartedTimestamp > 3000000000L, scoringInfo.getSessionTime(), lastSessionTime, lastSessionTime > scoringInfo.getSessionTime() );
         if ( !waitingForScoring && scoringInfo.getSessionType().isRace() && ( lastSessionStartedTimestamp != -1L ) && ( updateTimestamp - lastSessionStartedTimestamp > 3000000000L ) && ( scoringInfo.getSessionTime() > 0f ) && ( lastSessionTime > scoringInfo.getSessionTime() ) )
         {
+            //RFDHLog.debug( "RACE RESTART" );
             onSessionStarted( false );
         }
     }
