@@ -135,6 +135,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     };
     
     private boolean alwaysShowHelpOnStartup = true;
+    private boolean watchedWaitFor60Seconds = false;
     
     private final JFrame window;
     private int windowLeft, windowTop;
@@ -546,6 +547,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             writeLastConfig( writer );
             writeLastImportFile( writer );
             writer.writeSetting( "alwaysShowHelpOnStartup", alwaysShowHelpOnStartup );
+            writer.writeSetting( "waitedWithHelp", watchedWaitFor60Seconds ? "yes_we_can!" : false );
             writer.writeSetting( "lastImportDecision", lastImportDecision );
             
             writer.writeGroup( "MainWindow" );
@@ -773,6 +775,10 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                         else if ( key.equals( "alwaysShowHelpOnStartup" ) )
                         {
                             alwaysShowHelpOnStartup = Boolean.parseBoolean( value );
+                        }
+                        else if ( key.equals( "waitedWithHelp" ) )
+                        {
+                            watchedWaitFor60Seconds = value.equals( "yes_we_can!" );
                         }
                         else if ( key.equals( "lastImportDecision" ) )
                         {
@@ -1247,6 +1253,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         
         presetsWindow.dispose();
         getMainWindow().dispose();
+        if ( HelpWindow.instance != null )
+            HelpWindow.instance.dispose();
         System.exit( 0 );
     }
     
@@ -1547,7 +1555,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     
     public void showHelpWindow()
     {
-        alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( window, alwaysShowHelpOnStartup ).getAlwaysShowOnStartup();
+        alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( window, alwaysShowHelpOnStartup, false ).getAlwaysShowOnStartup();
     }
     
     private static void initTestGameData( LiveGameData gameData, EditorPresets editorPresets )
@@ -1850,9 +1858,10 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
                 {
                     ( (JFrame)e.getSource() ).removeWindowListener( this );
                     
-                    if ( editor.alwaysShowHelpOnStartup )
+                    if ( editor.alwaysShowHelpOnStartup || !editor.watchedWaitFor60Seconds )
                     {
-                        editor.alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( editor.window, true ).getAlwaysShowOnStartup();
+                        editor.alwaysShowHelpOnStartup = HelpWindow.showHelpWindow( editor.window, editor.alwaysShowHelpOnStartup, !editor.watchedWaitFor60Seconds ).getAlwaysShowOnStartup();
+                        editor.watchedWaitFor60Seconds = ( HelpWindow.instance.waitEndTime != null ) && ( HelpWindow.instance.waitEndTime < System.nanoTime() );
                     }
                 }
             } );

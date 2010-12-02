@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 
 import javax.swing.JButton;
@@ -45,6 +46,19 @@ public class HelpWindow extends JDialog
     
     private JCheckBox cbAlwaysShowOnStartup;
     private JScrollPane sp;
+    private final JButton closeButton;
+    
+    public Long waitEndTime = null;
+    
+    private final WindowListener closeListener = new WindowAdapter()
+    {
+        @Override
+        public void windowClosing( WindowEvent e )
+        {
+            HelpWindow.this.setVisible( false );
+            HelpWindow.this.removeWindowListener( this );
+        }
+    };
     
     public final boolean getAlwaysShowOnStartup()
     {
@@ -91,8 +105,8 @@ public class HelpWindow extends JDialog
         JPanel p = new JPanel();
         buttons.add( p, BorderLayout.CENTER );
         
-        JButton btnClose = new JButton( "Close" );
-        btnClose.addActionListener( new ActionListener()
+        closeButton = new JButton( "Close" );
+        closeButton.addActionListener( new ActionListener()
         {
             @Override
             public void actionPerformed( ActionEvent e )
@@ -100,37 +114,86 @@ public class HelpWindow extends JDialog
                 HelpWindow.this.dispose();
             }
         } );
-        buttons.add( btnClose, BorderLayout.EAST );
+        buttons.add( closeButton, BorderLayout.EAST );
         
         this.add( buttons, BorderLayout.SOUTH );
         
-        this.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+        this.setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
     }
     
-    public static HelpWindow showHelpWindow( final JFrame parent, boolean alwaysShowOnStartup )
+    public static HelpWindow instance = null;
+    
+    public static HelpWindow showHelpWindow( final JFrame parent, boolean alwaysShowOnStartup, boolean waitFor60Seconds )
     {
-        final HelpWindow hw = new HelpWindow( parent, alwaysShowOnStartup );
-        
-        hw.addWindowListener( new WindowAdapter()
+        if ( instance == null )
         {
-            private boolean shot = false;
+            instance = new HelpWindow( parent, alwaysShowOnStartup );
             
-            @Override
-            public void windowOpened( WindowEvent e )
+            instance.addWindowListener( new WindowAdapter()
             {
-                if ( shot )
-                    return;
-                
-                hw.pack();
-                hw.setLocationRelativeTo( parent );
-                hw.sp.getVerticalScrollBar().setValue( 0 );
-                
-                shot = true;
-            }
-        } );
+                @Override
+                public void windowOpened( WindowEvent e )
+                {
+                    instance.pack();
+                    instance.setLocationRelativeTo( parent );
+                    instance.sp.getVerticalScrollBar().setValue( 0 );
+                    
+                    instance.removeWindowListener( this );
+                }
+            } );
+        }
         
-        hw.setVisible( true );
+        if ( waitFor60Seconds )
+        {
+            instance.removeWindowListener( instance.closeListener );
+            instance.waitEndTime = System.nanoTime() + 60000000000L;
+            
+            new Thread()
+            {
+                private int seconds = 60;
+                
+                @Override
+                public void run()
+                {
+                    instance.closeButton.setEnabled( false );
+                    instance.closeButton.setText( "Waiting for 60 seconds" );
+                    
+                    while ( System.nanoTime() < instance.waitEndTime )
+                    {
+                        int seconds2 = (int)( ( instance.waitEndTime - System.nanoTime() ) / 1000000000L );
+                        
+                        if ( seconds2 != seconds )
+                        {
+                            seconds = seconds2;
+                            instance.closeButton.setText( "Waiting for " + seconds + " seconds" );
+                        }
+                        
+                        try
+                        {
+                            Thread.sleep( 50L );
+                        }
+                        catch ( InterruptedException e )
+                        {
+                        }
+                    }
+                    
+                    instance.addWindowListener( instance.closeListener );
+                    instance.closeButton.setEnabled( true );
+                    instance.closeButton.setText( "Close" );
+                }
+            }.start();
+        }
+        else
+        {
+            instance.addWindowListener( instance.closeListener );
+            
+            instance.closeButton.setEnabled( true );
+            instance.closeButton.setText( "Close" );
+            instance.waitEndTime = null;
+        }
         
-        return ( hw );
+        instance.setVisible( true );
+        
+        return ( instance );
     }
 }

@@ -54,6 +54,7 @@ public class RFDynHUD
     private final GameEventsManager eventsManager;
     private final InputDeviceManager inputDeviceManager;
     private final InputMappingsManager inputMappingsManager;
+    private InputMappings inputMappings = null;
     
     private boolean renderMode = false;
     
@@ -112,15 +113,20 @@ public class RFDynHUD
         return ( inputMappingsManager );
     }
     
+    public final InputMappings getInputMappings()
+    {
+        return ( inputMappings );
+    }
+    
     public void initInput( byte[] deviceData )
     {
         try
         {
             inputDeviceManager.decodeData( deviceData );
             
-            InputMappings mappings = inputMappingsManager.loadMappings( inputDeviceManager );
+            inputMappings = inputMappingsManager.loadMappings( inputDeviceManager );
             
-            __WCPrivilegedAccess.setInputMappings( drawingManager.getWidgetsConfiguration(), mappings );
+            __WCPrivilegedAccess.setInputMappings( drawingManager.getWidgetsConfiguration(), inputMappings );
         }
         catch ( Throwable t )
         {

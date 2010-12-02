@@ -22,6 +22,8 @@ import java.io.File;
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputMapping;
+import net.ctdp.rfdynhud.input.KnownInputActions;
+import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
 import net.ctdp.rfdynhud.render.WidgetsDrawingManager;
 import net.ctdp.rfdynhud.render.WidgetsManager;
 import net.ctdp.rfdynhud.render.__RenderPrivilegedAccess;
@@ -29,11 +31,13 @@ import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.util.__UtilPrivilegedAccess;
+import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration.ConfigurationLoadListener;
 import net.ctdp.rfdynhud.widgets.__WCPrivilegedAccess;
 
 import org.jagatoo.util.Tools;
+import org.jagatoo.util.ini.AbstractIniParser;
 
 /**
  * The events manager receives events from rFactor and modifies state-flags appropriately.
@@ -116,6 +120,100 @@ public class GameEventsManager implements ConfigurationLoadListener
         __RenderPrivilegedAccess.setConfigurationAndLoader( widgetsManager.getWidgetsConfiguration(), loader, renderListenersManager );
     }
     
+    private void validateInputBindings()
+    {
+        if ( ( rfDynHUD == null ) || ( rfDynHUD.getInputMappings() == null ) )
+            return;
+        
+        if ( !gameData.isInRealtimeMode() )
+            return;
+        
+        if ( !widgetsManager.getWidgetsConfiguration().isValid() )
+            return;
+        
+        if ( !gameData.getProfileInfo().isValid() )
+            return;
+        
+        if ( ( gameData.getProfileInfo().getPLRFile() == null ) || !gameData.getProfileInfo().getPLRFile().exists() )
+            return;
+        
+        File controller_ini = new File( gameData.getProfileInfo().getPLRFile().getParentFile(), "Controller.ini" );
+        if ( !controller_ini.exists() )
+            return;
+        
+        String[] warning = null;
+        
+        String value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Increment Boost", null );
+        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        {
+            if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.IncBoost ) )
+            {
+                String message = "No Input Binding for IncBoost, but bound in rFactor.";
+                //if ( warning == null )
+                    warning = new String[] { message };
+            }
+        }
+        
+        value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Decrement Boost", null );
+        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        {
+            if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.DecBoost ) )
+            {
+                String message = "No Input Binding for DecBoost, but bound in rFactor.";
+                if ( warning == null )
+                {
+                    warning = new String[] { message };
+                }
+                else
+                {
+                    String[] tmp = new String[ warning.length + 1 ];
+                    System.arraycopy( warning, 0, tmp, 0, warning.length );
+                    warning = tmp;
+                    warning[warning.length - 1] = message;
+                }
+            }
+        }
+        
+        value = AbstractIniParser.parseIniValue( controller_ini, "Input", "Control - Temporary Boost", null );
+        if ( ( value != null ) && !value.equals( "(0, 89)" ) )
+        {
+            if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.TempBoost ) )
+            {
+                String message = "No Input Binding for TempBoost, but bound in rFactor.";
+                if ( warning == null )
+                {
+                    warning = new String[] { message };
+                }
+                else
+                {
+                    String[] tmp = new String[ warning.length + 1 ];
+                    System.arraycopy( warning, 0, tmp, 0, warning.length );
+                    warning = tmp;
+                    warning[warning.length - 1] = message;
+                }
+            }
+        }
+        
+        if ( warning != null )
+        {
+            String[] tmp = new String[ warning.length + 3 ];
+            System.arraycopy( warning, 0, tmp, 0, warning.length );
+            warning = tmp;
+            warning[warning.length - 3] = "Engine wear display will be wrong.";
+            warning[warning.length - 2] = "Edit the Input Bindings in the editor (Tools->Edit Input Bindings)";
+            warning[warning.length - 1] = "and add proper bindings.";
+            
+            net.ctdp.rfdynhud.widgets.internal.InternalWidget internalWidget = new net.ctdp.rfdynhud.widgets.internal.InternalWidget();
+            internalWidget.setMessage( warning );
+            __WCPrivilegedAccess.addWidget( widgetsManager.getWidgetsConfiguration(), internalWidget, true );
+            internalWidget.getSize().setEffectiveSize( 600, 200 );
+            internalWidget.getPosition().setEffectivePosition( RelativePositioning.TOP_CENTER, ( widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportWidth() - internalWidget.getEffectiveWidth() ) / 2, ( widgetsManager.getWidgetsConfiguration().getGameResolution().getViewportHeight() - internalWidget.getEffectiveHeight() ) / 2 );
+            
+            AbstractPropertiesKeeper.attachKeeper( internalWidget, true );
+            __WCPrivilegedAccess.sortWidgets( widgetsManager.getWidgetsConfiguration() );
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -139,6 +237,7 @@ public class GameEventsManager implements ConfigurationLoadListener
     {
         needsOnVehicleControlChangedEvent = true;
         texturesRequested = true;
+        validateInputBindings();
         
         eventsDispatcher.fireAfterWidgetsConfigurationLoaded( renderListenersManager, gameData, widgetsConfig );
         

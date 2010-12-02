@@ -748,6 +748,7 @@ public class ConfigurationLoader implements PropertyLoader
             __WCPrivilegedAccess.addWidget( widgetsConfig, internalWidget, true );
             internalWidget.getPosition().setEffectivePosition( RelativePositioning.TOP_CENTER, ( widgetsConfig.getGameResolution().getViewportWidth() - internalWidget.getEffectiveWidth() ) / 2, 200 );
             
+            AbstractPropertiesKeeper.attachKeeper( internalWidget, true );
             __WCPrivilegedAccess.sortWidgets( widgetsConfig );
         }
         
