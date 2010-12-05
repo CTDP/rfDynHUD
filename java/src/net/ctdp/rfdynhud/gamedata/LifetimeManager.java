@@ -204,10 +204,10 @@ class LifetimeManager implements TelemetryData.TelemetryDataUpdateListener
         
         telemData.engineLifetime = (float)( ( engineLifetime100Percent * raceLengthPercentage ) - ( engineLifetimeLoss * LOSS_CORRECTION_FACTOR ) );
         
-        telemData.brakeDiscThicknessFL = (float)( brakeDiscThicknessFL100Percent - ( brakeDiscThicknessFLLoss * LOSS_CORRECTION_FACTOR * recipRaceLengthPercentage ) );
-        telemData.brakeDiscThicknessFR = (float)( brakeDiscThicknessFR100Percent - ( brakeDiscThicknessFRLoss * LOSS_CORRECTION_FACTOR * recipRaceLengthPercentage ) );
-        telemData.brakeDiscThicknessRL = (float)( brakeDiscThicknessRL100Percent - ( brakeDiscThicknessRLLoss * LOSS_CORRECTION_FACTOR * recipRaceLengthPercentage ) );
-        telemData.brakeDiscThicknessRR = (float)( brakeDiscThicknessRR100Percent - ( brakeDiscThicknessRRLoss * LOSS_CORRECTION_FACTOR * recipRaceLengthPercentage ) );
+        telemData.brakeDiscThicknessFL = (float)( brakeDiscThicknessFL100Percent - ( brakeDiscThicknessFLLoss * recipRaceLengthPercentage ) );
+        telemData.brakeDiscThicknessFR = (float)( brakeDiscThicknessFR100Percent - ( brakeDiscThicknessFRLoss * recipRaceLengthPercentage ) );
+        telemData.brakeDiscThicknessRL = (float)( brakeDiscThicknessRL100Percent - ( brakeDiscThicknessRLLoss * recipRaceLengthPercentage ) );
+        telemData.brakeDiscThicknessRR = (float)( brakeDiscThicknessRR100Percent - ( brakeDiscThicknessRRLoss * recipRaceLengthPercentage ) );
         
         lastOilTemperature = telemData.getEngineOilTemperatureC();
         lastEngineRevs = telemData.getEngineRPM();

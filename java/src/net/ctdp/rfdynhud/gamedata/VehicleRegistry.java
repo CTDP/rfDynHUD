@@ -96,9 +96,9 @@ class VehicleRegistry
         }
     }
     
-    public final VehicleInfo getVehicleForDriver( String driverName )
+    public final VehicleInfo getVehicleForDriver( String vehicleName )
     {
-        return ( driverVehileMap.get( driverName ) );
+        return ( driverVehileMap.get( vehicleName ) );
     }
     
     public VehicleRegistry()

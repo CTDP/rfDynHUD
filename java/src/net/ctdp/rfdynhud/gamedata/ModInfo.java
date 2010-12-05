@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.jagatoo.util.ini.AbstractIniParser;
 import org.jagatoo.util.ini.IniLine;
@@ -78,7 +79,7 @@ public class ModInfo
     {
         // 'line' is trimmed and starts with "Vehicle Filter".
         
-        String[] vehicleFilter = null;
+        ArrayList<String> vehicleFilter = new ArrayList<String>();
         
         String value = parseValuePart( line, 14 );
         
@@ -89,42 +90,34 @@ public class ModInfo
             if ( value.startsWith( "or:" ) )
                 value = value.substring( 3 ).trim();
             
-            vehicleFilter = value.split( " " );
+            String[] vf = value.split( " " );
             
-            for ( int i = 0; i < vehicleFilter.length; i++ )
+            for ( int i = 0; i < vf.length; i++ )
             {
-                vehicleFilter[i] = vehicleFilter[i].trim();
-            }
-        }
-        
-        if ( vehicleFilter != null )
-        {
-            int n = 0;
-            for ( int i = 0; i < vehicleFilter.length; i++ )
-            {
-                if ( !vehicleFilter[i].equals( "" ) )
-                    n++;
-            }
-            
-            if ( n == 0 )
-            {
-                vehicleFilter = null;
-            }
-            else if ( n < vehicleFilter.length )
-            {
-                String[] tmp = new String[ n ];
-                int j = 0;
-                for ( int i = 0; i < vehicleFilter.length; i++ )
-                {
-                    if ( !vehicleFilter[i].equals( "" ) )
-                        tmp[j++] = vehicleFilter[i];
-                }
+                String vf2 = vf[i].trim();
                 
-                vehicleFilter = tmp;
+                if ( !vf2.equals( "" ) )
+                {
+                    if ( vf2.indexOf( ',' ) >= 0 )
+                    {
+                        String[] vf3 = vf2.split( "," );
+                        for ( int j = 0; j < vf3.length; j++ )
+                        {
+                            vf3[j] = vf3[j].trim();
+                            
+                            if ( !vf3[j].equals( "" ) )
+                                vehicleFilter.add( vf3[j] );
+                        }
+                    }
+                    else
+                    {
+                        vehicleFilter.add( vf2 );
+                    }
+                }
             }
         }
         
-        return ( vehicleFilter );
+        return ( vehicleFilter.toArray( new String[ vehicleFilter.size() ] ) );
     }
     
     private static File parseVehiclesDir( String line )

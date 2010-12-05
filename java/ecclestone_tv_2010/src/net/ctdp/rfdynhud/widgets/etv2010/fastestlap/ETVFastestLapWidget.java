@@ -24,6 +24,7 @@ import net.ctdp.rfdynhud.gamedata.Laptime;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
+import net.ctdp.rfdynhud.gamedata.VehicleInfo;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
@@ -173,6 +174,17 @@ public class ETVFastestLapWidget extends ETVTimingWidgetBase
             ETVUtils.drawDataBackground( offsetX + coords.mainFieldLeftB + coords.rowOffset0, offsetY + 1 * ( coords.rowHeight + gap ), coords.mainFieldWidthB, coords.rowHeight, dataBackgroundColorFastest.getColor(), texture, false );
     }
     
+    private static String getShorterTeamName( VehicleInfo vi )
+    {
+        String tn1 = vi.getTeamName();
+        String tn2 = vi.getFullTeamName();
+        
+        if ( tn1.length() < tn2.length() )
+            return ( tn1 );
+        
+        return ( tn2 );
+    }
+    
     @Override
     public void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
     {
@@ -185,11 +197,11 @@ public class ETVFastestLapWidget extends ETVTimingWidgetBase
             String teamName;
             if ( vsi.isPlayer() )
             {
-                teamName = gameData.getVehicleInfo().getTeamName();
+                teamName = getShorterTeamName( gameData.getVehicleInfo() );
             }
             else if ( vsi.getVehicleInfo() != null )
             {
-                teamName = vsi.getVehicleInfo().getTeamName();
+                teamName = getShorterTeamName( vsi.getVehicleInfo() );
             }
             else
             {
@@ -201,7 +213,10 @@ public class ETVFastestLapWidget extends ETVTimingWidgetBase
             }
             
             drivernameString.draw( offsetX, offsetY, vsi.getDriverNameShort( getShowNamesInAllUppercase() ), texture, false );
+            
+            texture.getTextureCanvas().pushClip( offsetX + coords.rowOffset0 + coords.dataLeftA, offsetY + 1 * ( coords.rowHeight + itemGap.getIntValue() ), coords.dataWidthA, coords.rowHeight, true );
             teamnameString.draw( offsetX, offsetY, teamName, texture, false );
+            texture.getTextureCanvas().popClip();
             captionString.draw( offsetX, offsetY, Loc.caption_fastestLap, texture, false );;
             laptimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( fastestLaptime.getValue() ), texture, false );;
         }

@@ -35,6 +35,7 @@ class Coords
     public int mainFieldLeftB;
     
     public int dataLeftA;
+    public int dataWidthA;
     public int dataCenterB;
     
     public final int rowOffset0 = 0;
@@ -85,12 +86,14 @@ class Coords
             float dScale = images.getDataImageScale( rowHeight );
             
             this.dataCenterB = width - mainFieldWidthB + images.getDataDataCenterS( dScale, mainFieldWidthB );
+            this.dataWidthA = images.getDataDataWidthS( dScale, mainFieldWidthA );
         }
         else
         {
             final int triangWidth = ETVUtils.getTriangleWidth( rowHeight );
             
-            this.dataCenterB = width - mainFieldWidthB + triangWidth + ( mainFieldWidthB - triangWidth - triangWidth ) / 2;
+            this.dataCenterB = width - mainFieldWidthB/* + triangWidth */+ ( mainFieldWidthB - triangWidth - triangWidth ) / 2;
+            this.dataWidthA = dataLeftA + mainFieldWidthA - 3 * ETVUtils.getTriangleWidth( rowHeight );
         }
     }
 }
