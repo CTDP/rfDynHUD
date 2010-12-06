@@ -85,6 +85,9 @@ public class Laptime
     
     public final float getSector1And2()
     {
+        if ( ( sector1 <= 0f ) || ( sector2 <= 0f ) )
+            return ( -1f );
+        
         return ( sector1 + sector2 );
     }
     

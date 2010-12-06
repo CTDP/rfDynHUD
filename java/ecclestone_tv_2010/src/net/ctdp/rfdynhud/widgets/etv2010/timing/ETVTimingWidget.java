@@ -173,6 +173,12 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         if ( !isEditorMode && ( ls == LapState.AFTER_SECTOR1_START ) && ( vsi.getStintLength() < 2.0f ) )
             ls = LapState.SOMEWHERE;
         
+        if ( ( ( ls == LapState.BEFORE_SECTOR1_END ) || ( ls == LapState.AFTER_SECTOR2_START ) ) && ( refTime.getSector1() <= 0f ) )
+            ls = LapState.SOMEWHERE;
+        
+        if ( ( ( ls == LapState.BEFORE_SECTOR2_END ) || ( ls == LapState.AFTER_SECTOR3_START ) ) && ( refTime.getSector2( true ) <= 0f ) )
+            ls = LapState.SOMEWHERE;
+        
         lapState.update( ls );
         
         if ( isEditorMode || ( ls != LapState.AFTER_SECTOR1_START ) )
@@ -201,8 +207,16 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         
         if ( displayType.getEnumValue() == DisplayType.IF_LAP_VALID )
         {
-            //return ( !vsi.getLaptime( vsi.getCurrentLap() ).isOutlap() );
-            return ( ( ls != LapState.OUTLAP ) && !vsi.isInPits() && ( vsi.getLaptime( vsi.getCurrentLap() ) != null ) && ( vsi.getLaptime( vsi.getCurrentLap() ).isInlap() != Boolean.TRUE ) );
+            if ( vsi.isInPits() )
+                return ( false );
+            
+            if ( ls == LapState.OUTLAP )
+                return ( false );
+            
+            if ( ( vsi.getLaptime( vsi.getCurrentLap() ) == null ) || ( vsi.getLaptime( vsi.getCurrentLap() ).isInlap() == Boolean.TRUE ) )
+                return ( false );
+            
+            return ( true );
         }
         
         if ( refTime == null )
@@ -463,20 +477,26 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             {
                 relLaptime.update( relLaptime.getResetValue() );
             }
-            else if ( ( ls == LapState.OUTLAP ) ||  ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
+            else if ( ( ls == LapState.OUTLAP ) || ( ls == LapState.SOMEWHERE ) || ls.isBeforeSectorEnd() )
             {
+                float lt = -1f;
                 switch ( vsi.getSector() )
                 {
                     case 1:
-                        relLaptime.update( referenceTimeAbs.getSector1() );
+                        lt = referenceTimeAbs.getSector1();
                         break;
                     case 2:
-                        relLaptime.update( referenceTimeAbs.getSector2( true ) );
+                        lt = referenceTimeAbs.getSector2( true );
                         break;
                     case 3:
-                        relLaptime.update( referenceTimeAbs.getLapTime() );
+                        lt = referenceTimeAbs.getLapTime();
                         break;
                 }
+                
+                if ( lt <= 0f )
+                    lt = relLaptime.getResetValue();
+                
+                relLaptime.update( lt );
             }
             else if ( ls.isAfterSectorStart() )
             {

@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGenerator;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGeneratorImpl;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
+import net.ctdp.rfdynhud.util.TimingUtil;
 
 /**
  * 
@@ -310,7 +311,13 @@ public class ScoringInfo
                         vsi.data = data;
                         vsi.setDriverName( data.getDriverName(), joinedID );
                         
-                        RFDHLog.debug( "[DEBUG]: Player joined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ) );
+                        RFDHLog.debug( "[DEBUG]: Player joined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ), ", fastest lap: " + TimingUtil.getTimeAsLaptimeString( vsi.getBestLapTime() ) );
+                        
+                        //if ( vsi.getBestLapTime() > 0f )
+                        {
+                            vsi.fastestLaptime = new Laptime( 0, -1f, -1f, -1f, false, false, true );
+                            vsi.fastestLaptime.laptime = vsi.getBestLapTime();
+                        }
                         
                         changedVSIs.add( new Object[] { +1, vsi } );
                     }
@@ -319,11 +326,11 @@ public class ScoringInfo
                         vehicleScoringInfo[firstFree++] = vsi;
                         vsi.data = data;
                         
-                        RFDHLog.debug( "[DEBUG]: Player rejoined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ) );
+                        RFDHLog.debug( "[DEBUG]: Player rejoined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ), ", fastest lap: " + TimingUtil.getTimeAsLaptimeString( vsi.getBestLapTime() ) );
                         
                         if ( ( vsi.fastestLaptime == null ) && ( vsi.getBestLapTime() > 0f ) )
                         {
-                            vsi.fastestLaptime = new Laptime( 0, 0f, 0f, 0f, false, false, true );
+                            vsi.fastestLaptime = new Laptime( 0, -1f, -1f, -1f, false, false, true );
                             vsi.fastestLaptime.laptime = vsi.getBestLapTime();
                         }
                         
@@ -1567,7 +1574,7 @@ public class ScoringInfo
             for ( i0 = 0; i0 < vehicleScoringInfo2.length; i0++ )
             {
                 Laptime lt_ = vehicleScoringInfo2[i0].getFastestLaptime();
-                if ( lt_ != null )
+                if ( ( lt_ != null ) && ( lt_.getLapTime() > 0f ) && lt_.isFinished() )
                     break;
             }
             

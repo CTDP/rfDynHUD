@@ -315,7 +315,8 @@ public class VehicleScoringInfo
         stintStartLap = -1;
         oldLap = -1;
         laptimes.clear();
-        fastestLaptime = null;
+        if ( laptimes.size() > 0 )
+            fastestLaptime = null;
         oldAverageLaptime = null;
         averageLaptime = null;
     }
@@ -323,6 +324,8 @@ public class VehicleScoringInfo
     void onSessionStarted()
     {
         resetDerivateData();
+        
+        fastestLaptime = null;
     }
     
     void onSessionEnded()
