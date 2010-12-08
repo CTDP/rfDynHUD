@@ -120,9 +120,16 @@ class ScoringInfoCapsule
         
         int st = (int)ByteUtil.readLong( buffer, OFFSET_SESSION_TYPE );
         
-        if ( st == 9 )
+        if ( st > 7 )
         {
-            // The rf dev exe v1.295 supports more session types. 9 is race.
+            // The rf dev exe v1.295 supports more session types. 9 is warmup and 10 is race.
+            
+            if ( st == 8 )
+                return ( SessionType.QUALIFYING );
+            
+            if ( st == 9 )
+                return ( SessionType.WARMUP );
+            
             return ( SessionType.RACE );
         }
         
