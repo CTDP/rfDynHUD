@@ -843,6 +843,16 @@ public class VehiclePhysics
             private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
             
             /**
+             * Gets the lower bound of the temperature range in Kelvin, where brakes will operate optimally.
+             * 
+             * @return the lower bound of the temperature range, where brakes will operate optimally.
+             */
+            public final float getOptimumTemperaturesLowerBoundK()
+            {
+                return ( optimumTemperaturesLowerBound - MeasurementUnits.Convert.ZERO_KELVIN );
+            }
+            
+            /**
              * Gets the lower bound of the temperature range in Celsius, where brakes will operate optimally.
              * 
              * @return the lower bound of the temperature range, where brakes will operate optimally.
@@ -873,6 +883,16 @@ public class VehiclePhysics
                     return ( getOptimumTemperaturesLowerBoundF() );
                 
                 return ( getOptimumTemperaturesLowerBoundC() );
+            }
+            
+            /**
+             * Gets the upper bound of the temperature range in Kelvin, where brakes will operate optimally.
+             * 
+             * @return the upper bound of the temperature range, where brakes will operate optimally.
+             */
+            public final float getOptimumTemperaturesUpperBoundK()
+            {
+                return ( optimumTemperaturesUpperBound - MeasurementUnits.Convert.ZERO_KELVIN );
             }
             
             /**

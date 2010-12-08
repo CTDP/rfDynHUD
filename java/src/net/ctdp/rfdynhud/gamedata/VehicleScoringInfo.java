@@ -40,6 +40,7 @@ public class VehicleScoringInfo
        
     VehicleScoringInfoCapsule data = null;
     
+    private String originalName = null;
     private String name = null;
     private String nameUC = null;
     private String nameShort = null;
@@ -131,13 +132,14 @@ public class VehicleScoringInfo
         if ( isPlayer() )
         {
             name = editorPresets.getDriverName();
+            originalName = name;
             data.setDriverName( name );
             nameUC = null;
             nameShort = null;
             nameShortUC = null;
             nameTLC = null;
             nameTLCLC = null;
-            nameID = data.refreshID();
+            nameID = data.refreshID( true );
             nameId = nameID.intValue();
         }
         
@@ -331,10 +333,13 @@ public class VehicleScoringInfo
     void onSessionEnded()
     {
         resetDerivateData();
+        
+        fastestLaptime = null;
     }
     
-    void setDriverName( String name, Integer id )
+    void setDriverName( String originalName, String name, Integer id )
     {
+        this.originalName = originalName;
         this.name = name;
         this.nameUC = null;
         this.nameShort = null;
@@ -393,7 +398,9 @@ public class VehicleScoringInfo
     {
         if ( ( nameShort == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
         {
-            nameShort = ThreeLetterCodeManager.getShortForm( getDriverName( false ), getDriverID(), scoringInfo.getThreeLetterCodeGenerator() );
+            //String driverName = getDriverName( false );
+            String driverName = originalName;
+            nameShort = ThreeLetterCodeManager.getShortForm( driverName, getDriverID(), scoringInfo.getThreeLetterCodeGenerator() );
             lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
         }
         
@@ -429,7 +436,9 @@ public class VehicleScoringInfo
     {
         if ( ( nameTLC == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
         {
-            nameTLC = ThreeLetterCodeManager.getThreeLetterCode( getDriverName( false ), getDriverID(), scoringInfo.getThreeLetterCodeGenerator() );
+            //String driverName = getDriverName( false );
+            String driverName = originalName;
+            nameTLC = ThreeLetterCodeManager.getThreeLetterCode( driverName, getDriverID(), scoringInfo.getThreeLetterCodeGenerator() );
             lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
         }
         

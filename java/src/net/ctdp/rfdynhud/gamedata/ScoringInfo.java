@@ -241,7 +241,7 @@ public class ScoringInfo
             {
                 //idCapsuleMap.put( vehicleScoringInfoCapsules[i].refreshID(), vehicleScoringInfoCapsules[i] );
                 
-                Integer id = vehicleScoringInfoCapsules[i].refreshID();
+                Integer id = vehicleScoringInfoCapsules[i].refreshID( true );
                 
                 if ( idCapsuleMap.containsKey( id ) )
                 {
@@ -251,7 +251,7 @@ public class ScoringInfo
                     vehicleScoringInfoCapsules[i].postfixDriverName( String.valueOf( pf ), -1 );
                     //Logger.log( vehicleScoringInfoCapsules[i].getDriverName() );
                     nameDuplicatesMap.put( id, pf.intValue() + 1 );
-                    id = vehicleScoringInfoCapsules[i].refreshID();
+                    id = vehicleScoringInfoCapsules[i].refreshID( false );
                 }
                 
                 //Logger.log( "Found data for " + vehicleScoringInfoCapsules[i].getDriverName() + ", assigned id " + id + "." );
@@ -309,7 +309,7 @@ public class ScoringInfo
                     {
                         vsi = vehicleScoringInfo[firstFree++];
                         vsi.data = data;
-                        vsi.setDriverName( data.getDriverName(), joinedID );
+                        vsi.setDriverName( data.getOriginalName(), data.getDriverName(), joinedID );
                         
                         RFDHLog.debug( "[DEBUG]: Player joined: ", vsi.getDriverName(), ", id = ", joinedID, ", index = ", ( firstFree - 1 ), ", fastest lap: " + TimingUtil.getTimeAsLaptimeString( vsi.getBestLapTime() ) );
                         

@@ -89,6 +89,13 @@ class VehicleScoringInfoCapsule
     private static int nextId = 1;
     private Integer id = null;
     
+    private String originalName = null;
+    
+    final String getOriginalName()
+    {
+        return ( originalName );
+    }
+    
     private static class HashItem
     {
         private final byte[] buffer = new byte[ MAX_DRIVER_NAME_LENGTH ];
@@ -149,7 +156,7 @@ class VehicleScoringInfoCapsule
         return ( buffer );
     }
     
-    Integer refreshID()
+    Integer refreshID( boolean storeOriginalName )
     {
         id = idMap.get( this );
         if ( id == null )
@@ -157,6 +164,9 @@ class VehicleScoringInfoCapsule
             id = nextId++;
             idMap.put( new HashItem( this ), id );
         }
+        
+        if ( storeOriginalName )
+            originalName = getDriverName();
         
         return ( id );
     }
