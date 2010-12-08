@@ -68,25 +68,46 @@ class VehiclePhysicsParser
             return ( f1 );
     }
     
-    private static final int parseInt( int f0, int f1, String op )
+    private static final double parseDouble( double d0, double d1, String op )
     {
         if ( op == null )
-            return ( f1 );
+            return ( d1 );
         
         if ( op.equals( "+=" ) )
-            return ( f0 + f1 );
+            return ( d0 + d1 );
         
         if ( op.equals( "-=" ) )
-            return ( f0 - f1 );
+            return ( d0 - d1 );
         
         if ( op.equals( "*=" ) )
-            return ( f0 * f1 );
+            return ( d0 * d1 );
         
         if ( op.equals( "/=" ) )
-            return ( f0 / f1 );
+            return ( d0 / d1 );
         
         //if ( op.equals( "=" ) )
-            return ( f1 );
+            return ( d1 );
+    }
+    
+    private static final int parseInt( int i0, int i1, String op )
+    {
+        if ( op == null )
+            return ( i1 );
+        
+        if ( op.equals( "+=" ) )
+            return ( i0 + i1 );
+        
+        if ( op.equals( "-=" ) )
+            return ( i0 - i1 );
+        
+        if ( op.equals( "*=" ) )
+            return ( i0 * i1 );
+        
+        if ( op.equals( "/=" ) )
+            return ( i0 / i1 );
+        
+        //if ( op.equals( "=" ) )
+            return ( i1 );
     }
     
     private static final String[] parseTuple( String value )
@@ -743,7 +764,7 @@ class VehiclePhysicsParser
                 else if ( key.equalsIgnoreCase( "BrakeResponseCurve" ) )
                     parseResponseCurve( value, physics.getBrakes().getBrake( Wheel.FRONT_LEFT ) );
                 else if ( key.equalsIgnoreCase( "BrakeWearRate" ) )
-                    physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).wearRate = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).wearRate, Float.parseFloat( value ), op );
+                    physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).wearRate = parseDouble( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).wearRate, Double.parseDouble( value ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFailure" ) )
                 {
                     String[] values = parseTuple( value );
@@ -754,6 +775,8 @@ class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torqueBase = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torqueBase, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.FRONT_LEFT ), op );
+                else if ( key.equals( "BrakeOptimumTemp" ) )
+                    physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).brakeOptimumTemp = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).brakeOptimumTemp, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
@@ -764,7 +787,7 @@ class VehiclePhysicsParser
                 else if ( key.equalsIgnoreCase( "BrakeResponseCurve" ) )
                     parseResponseCurve( value, physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ) );
                 else if ( key.equalsIgnoreCase( "BrakeWearRate" ) )
-                    physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).wearRate = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).wearRate, Float.parseFloat( value ), op );
+                    physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).wearRate = parseDouble( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).wearRate, Double.parseDouble( value ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFailure" ) )
                 {
                     String[] values = parseTuple( value );
@@ -775,6 +798,8 @@ class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torqueBase = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torqueBase, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.FRONT_RIGHT ), op );
+                else if ( key.equals( "BrakeOptimumTemp" ) )
+                    physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).brakeOptimumTemp = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).brakeOptimumTemp, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
@@ -785,7 +810,7 @@ class VehiclePhysicsParser
                 else if ( key.equalsIgnoreCase( "BrakeResponseCurve" ) )
                     parseResponseCurve( value, physics.getBrakes().getBrake( Wheel.REAR_LEFT ) );
                 else if ( key.equalsIgnoreCase( "BrakeWearRate" ) )
-                    physics.getBrakes().getBrake( Wheel.REAR_LEFT ).wearRate = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).wearRate, Float.parseFloat( value ), op );
+                    physics.getBrakes().getBrake( Wheel.REAR_LEFT ).wearRate = parseDouble( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).wearRate, Double.parseDouble( value ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFailure" ) )
                 {
                     String[] values = parseTuple( value );
@@ -796,6 +821,8 @@ class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torqueBase = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torqueBase, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.REAR_LEFT ), op );
+                else if ( key.equals( "BrakeOptimumTemp" ) )
+                    physics.getBrakes().getBrake( Wheel.REAR_LEFT ).brakeOptimumTemp = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).brakeOptimumTemp, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
@@ -806,7 +833,7 @@ class VehiclePhysicsParser
                 else if ( key.equalsIgnoreCase( "BrakeResponseCurve" ) )
                     parseResponseCurve( value, physics.getBrakes().getBrake( Wheel.REAR_RIGHT ) );
                 else if ( key.equalsIgnoreCase( "BrakeWearRate" ) )
-                    physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).wearRate = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).wearRate, Float.parseFloat( value ), op );
+                    physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).wearRate = parseDouble( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).wearRate, Double.parseDouble( value ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFailure" ) )
                 {
                     String[] values = parseTuple( value );
@@ -817,6 +844,8 @@ class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torqueBase = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torqueBase, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.REAR_RIGHT ), op );
+                else if ( key.equals( "BrakeOptimumTemp" ) )
+                    physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).brakeOptimumTemp = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).brakeOptimumTemp, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).brakeFadeRange = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).brakeFadeRange, Float.parseFloat( value ), op );
             }
@@ -1481,5 +1510,7 @@ class VehiclePhysicsParser
             findAndLoadForcedUpgrades( upgradesList, vehicleFile.getParentFile(), trackName );
         
         new VEHParser( vehicleFile, simplifyUpgradesList( upgradesList ), physics ).parse( vehicleFile );
+        
+        physics.finish();
     }
 }

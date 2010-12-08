@@ -274,6 +274,10 @@ public class VehiclePhysics
         {
         }
         
+        void finish()
+        {
+        }
+        
         /**
          * Gets the engine's name.
          * 
@@ -824,18 +828,18 @@ public class VehiclePhysics
          */
         public static class WheelBrake
         {
-            public static final float DEFAULT_BRAKE_FADE_RANGE = Float.MAX_VALUE / 2f;
-            
+            private boolean brakeResponseCurveSet = false;
             private float optimumTemperaturesLowerBound;
             private float optimumTemperaturesUpperBound;
             private float coldTemperature;
             private float overheatingTemperature;
             private float wearIncreasePerDegreeOverOptimum;
             private float wearDecreasePerDegreeBelowOptimum;
-            float brakeFadeRange = DEFAULT_BRAKE_FADE_RANGE;
+            float brakeOptimumTemp = -Float.MAX_VALUE / 2;
+            float brakeFadeRange = 0f;
             
             private final PhysicsSetting discRange = new PhysicsSetting();
-            float wearRate;
+            double wearRate;
             float discFailureAverage;
             float discFailureVariance;
             float torqueBase;
@@ -1044,6 +1048,7 @@ public class VehiclePhysics
                 this.optimumTemperaturesLowerBound = optimumTemperaturesLowerBound;
                 this.optimumTemperaturesUpperBound = optimumTemperaturesUpperBound;
                 this.overheatingTemperature = overheatingTemperature;
+                this.brakeResponseCurveSet = true;
             }
             
             /**
@@ -1100,7 +1105,7 @@ public class VehiclePhysics
              * 
              * @return Brake disc wear per second in optimum temperature range.
              */
-            public final float getWearRate()
+            public final double getWearRate()
             {
                 return ( wearRate );
             }
@@ -1247,7 +1252,20 @@ public class VehiclePhysics
             
             void reset()
             {
-                brakeFadeRange = DEFAULT_BRAKE_FADE_RANGE;
+                brakeOptimumTemp = -Float.MAX_VALUE / 2f;
+                brakeFadeRange = 0f;
+                brakeResponseCurveSet = false;
+            }
+            
+            void finish()
+            {
+                if ( !brakeResponseCurveSet )
+                {
+                    this.coldTemperature = brakeOptimumTemp - brakeFadeRange;
+                    this.optimumTemperaturesLowerBound = brakeOptimumTemp;
+                    this.optimumTemperaturesUpperBound = brakeOptimumTemp;
+                    this.overheatingTemperature = brakeOptimumTemp + brakeFadeRange;
+                }
             }
             
     		WheelBrake()
@@ -1291,6 +1309,14 @@ public class VehiclePhysics
             brakeFrontRight.reset();
             brakeRearLeft.reset();
             brakeRearRight.reset();
+        }
+        
+        void finish()
+        {
+            brakeFrontLeft.finish();
+            brakeFrontRight.finish();
+            brakeRearLeft.finish();
+            brakeRearRight.finish();
         }
     }
     
@@ -2152,6 +2178,12 @@ public class VehiclePhysics
         tcBestGripRearRight = null;
     }
     
+    void finish()
+    {
+        engine.finish();
+        brakes.finish();
+    }
+    
     void applyMeasurementUnits( MeasurementUnits measurementUnits )
     {
         this.engine.measurementUnits = measurementUnits;
@@ -2207,11 +2239,6 @@ public class VehiclePhysics
 	        brakes.brakeRearLeft.setTemperatures( 200f, 450f, 750f, 1050f );
 	        brakes.brakeRearRight.setTemperatures( 200f, 450f, 750f, 1050f );
             
-	        brakes.brakeFrontLeft.brakeFadeRange = Brakes.WheelBrake.DEFAULT_BRAKE_FADE_RANGE;
-            brakes.brakeFrontRight.brakeFadeRange = Brakes.WheelBrake.DEFAULT_BRAKE_FADE_RANGE;
-            brakes.brakeRearLeft.brakeFadeRange = Brakes.WheelBrake.DEFAULT_BRAKE_FADE_RANGE;
-            brakes.brakeRearRight.brakeFadeRange = Brakes.WheelBrake.DEFAULT_BRAKE_FADE_RANGE;
-	        
 	        brakes.brakeFrontLeft.discRange.set( 0.023f, 0.001f, 6 );
             brakes.brakeFrontLeft.wearRate = 5.770e-011f;
             brakes.brakeFrontLeft.discFailureAverage = 1.45e-02f;
