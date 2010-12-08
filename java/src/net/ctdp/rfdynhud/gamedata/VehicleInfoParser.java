@@ -38,6 +38,14 @@ class VehicleInfoParser extends AbstractIniParser
         return ( true );
     }
     
+    private static final Throwable getRootCause( Throwable t )
+    {
+        if ( t.getCause() == null )
+            return ( t );
+        
+        return ( getRootCause( t.getCause() ) );
+    }
+    
     @Override
     protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
     {
@@ -117,7 +125,7 @@ class VehicleInfoParser extends AbstractIniParser
         }
         catch ( Throwable t )
         {
-            RFDHLog.exception( "WARNING: Parsing exception in VEH file \"" + filename + "\" in line #" + lineNr + ". Message: " + t.getMessage() );
+            RFDHLog.exception( "WARNING: Parsing exception in VEH file \"" + filename + "\" in line #" + lineNr + "(" + getRootCause( t ).getClass().getSimpleName() + "). Message: " + t.getMessage() );
         }
         
         return ( true );

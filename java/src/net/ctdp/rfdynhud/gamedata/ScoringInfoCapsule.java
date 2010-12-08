@@ -120,6 +120,12 @@ class ScoringInfoCapsule
         
         int st = (int)ByteUtil.readLong( buffer, OFFSET_SESSION_TYPE );
         
+        if ( st == 9 )
+        {
+            // The rf dev exe v1.295 supports more session types. 9 is race.
+            return ( SessionType.RACE );
+        }
+        
         return ( SessionType.values()[st] );
     }
     
