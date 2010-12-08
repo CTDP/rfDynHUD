@@ -751,7 +751,7 @@ class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).discFailureVariance = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).discFailureVariance, Float.parseFloat( values[1] ), op );
                 }
                 else if ( key.equalsIgnoreCase( "BrakeTorque" ) )
-                    physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torque, Float.parseFloat( value ), op );
+                    physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torqueBase = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_LEFT ).torqueBase, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.FRONT_LEFT ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
@@ -772,7 +772,7 @@ class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).discFailureVariance = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).discFailureVariance, Float.parseFloat( values[1] ), op );
                 }
                 else if ( key.equalsIgnoreCase( "BrakeTorque" ) )
-                    physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torque, Float.parseFloat( value ), op );
+                    physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torqueBase = parseFloat( physics.getBrakes().getBrake( Wheel.FRONT_RIGHT ).torqueBase, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.FRONT_RIGHT ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
@@ -793,7 +793,7 @@ class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.REAR_LEFT ).discFailureVariance = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).discFailureVariance, Float.parseFloat( values[1] ), op );
                 }
                 else if ( key.equalsIgnoreCase( "BrakeTorque" ) )
-                    physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torque, Float.parseFloat( value ), op );
+                    physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torqueBase = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_LEFT ).torqueBase, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.REAR_LEFT ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )
@@ -814,7 +814,7 @@ class VehiclePhysicsParser
                     physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).discFailureVariance = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).discFailureVariance, Float.parseFloat( values[1] ), op );
                 }
                 else if ( key.equalsIgnoreCase( "BrakeTorque" ) )
-                    physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torque = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torque, Float.parseFloat( value ), op );
+                    physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torqueBase = parseFloat( physics.getBrakes().getBrake( Wheel.REAR_RIGHT ).torqueBase, Float.parseFloat( value ), op );
                 else if ( key.equalsIgnoreCase( "PressureRange" ) )
                     parsePhysicsSetting( value, physics.getTirePressureRange( Wheel.REAR_RIGHT ), op );
                 else if ( key.equalsIgnoreCase( "BrakeFadeRange" ) )

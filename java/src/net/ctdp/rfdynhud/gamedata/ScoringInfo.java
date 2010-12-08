@@ -574,34 +574,16 @@ public class ScoringInfo
             
             if ( sessionLimit == SessionLimit.TIME )
             {
-                /*
-                int raceLaps = getEstimatedMaxLaps( leader );
+                double modRaceSeconds = gameData.getModInfo().getRaceDuration();
+                double raceSeconds = getEndTime();
                 
-                if ( raceLaps > 0 )
-                {
-                    double oldRLP = raceLengthPercentage;
-                    raceLengthPercentage = ( raceLaps + 1 ) / trackRaceLaps;
-                    
-                    if ( raceLengthPercentage != oldRLP )
-                    {
-                        LifetimeManager.INSTANCE.applyActualLifetime( gameData, oldRLP, raceLengthPercentage );
-                    }
-                }
-                else
-                {
-                    raceLengthPercentage = 1.0;
-                }
-                */
-                
-                float modRaceSeconds = gameData.getModInfo().getRaceDuration();
-                float raceSeconds = getEndTime();
-                
-                if ( raceSeconds > 0f )
+                if ( raceSeconds > 0.0 )
                 {
                     // Time limit is always in minutes without fractions. rFactor adds some seconds to the end time.
-                    raceSeconds = (float)Math.floor( raceSeconds / 60f ) * 60f;
+                    raceSeconds = Math.floor( raceSeconds / 60.0 ) * 60.0;
                     
-                    raceLengthPercentage = ( raceSeconds + 150f ) / modRaceSeconds;
+                    //raceLengthPercentage = ( raceSeconds + 150.0 ) / modRaceSeconds;
+                    raceLengthPercentage = ( raceSeconds + 150.0 * ( ( modRaceSeconds - raceSeconds ) / modRaceSeconds ) ) / modRaceSeconds;
                 }
                 else
                 {
@@ -612,7 +594,8 @@ public class ScoringInfo
             {
                 double raceLaps = getEstimatedMaxLaps( leader );
                 
-                raceLengthPercentage = ( raceLaps + 1 ) / trackRaceLaps;
+                //raceLengthPercentage = ( raceLaps + 1 ) / trackRaceLaps;
+                raceLengthPercentage = ( raceLaps + ( ( trackRaceLaps - raceLaps ) / trackRaceLaps ) ) / trackRaceLaps;
             }
         }
         else

@@ -838,7 +838,7 @@ public class VehiclePhysics
             float wearRate;
             float discFailureAverage;
             float discFailureVariance;
-            float torque;
+            float torqueBase;
             
             private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
             
@@ -929,6 +929,16 @@ public class VehiclePhysics
             }
             
             /**
+             * Gets the temperature level in Kelvin under and at which brakes are cold and won't work well.
+             * 
+             * @return the temperature level under and at which brakes are cold.
+             */
+            public final float getColdTemperatureK()
+            {
+                return ( coldTemperature - MeasurementUnits.Convert.ZERO_KELVIN );
+            }
+            
+            /**
              * Gets the temperature level in Celsius under and at which brakes are cold and won't work well.
              * 
              * @return the temperature level under and at which brakes are cold.
@@ -959,6 +969,16 @@ public class VehiclePhysics
                     return ( getColdTemperatureF() );
                 
                 return ( getColdTemperatureC() );
+            }
+            
+            /**
+             * Gets the temperature level in Kelvin above at at which brakes are overheating and won't work well and increase more than regularly.
+             * 
+             * @return the temperature level above at at which brakes are overheating.
+             */
+            public final float getOverheatingTemperatureK()
+            {
+                return ( overheatingTemperature - MeasurementUnits.Convert.ZERO_KELVIN );
             }
             
             /**
@@ -1177,12 +1197,51 @@ public class VehiclePhysics
             }
             
             /**
-             * Gets brake torque.
+             * Gets brake torque base.
              * 
-             * @return brake torque.
+             * @return brake torque base.
              */
-            public final float getTorque()
+            public final float getTorqueBase()
             {
+                return ( torqueBase );
+            }
+            
+            /**
+             * Computes the actual brake torque for the given brake temperature.
+             * 
+             * @param brakeTempK the brake temperature in Kelvin
+             * 
+             * @return the actual brake torque for the given brake temperature.
+             */
+            public final double computeTorque( float brakeTempK )
+            {
+                double torque = getTorqueBase();
+                
+                //RFDHLog.debugCS( brakeTempK, getColdTemperatureK(), getOptimumTemperaturesLowerBoundK(), getOptimumTemperaturesUpperBoundK(), getOverheatingTemperatureK() );
+                
+                if ( brakeTempK < getColdTemperatureK() )
+                {
+                    torque *= 0.5;
+                }
+                else if ( brakeTempK < getOptimumTemperaturesLowerBoundK() )
+                {
+                    final double coldRange = getOptimumTemperaturesLowerBoundK() - getColdTemperatureK();
+                    final double brakeFadeColdMult = ( coldRange > 0.0 ) ? ( Math.PI / coldRange ) : 0.0;
+                    
+                    torque *= ( 0.75 + ( 0.25 * Math.cos( ( brakeTempK - getOptimumTemperaturesLowerBoundK() ) * brakeFadeColdMult ) ) );
+                }
+                else if ( brakeTempK > getOverheatingTemperatureK() )
+                {
+                    torque *= 0.5;
+                }
+                else if ( brakeTempK > getOptimumTemperaturesUpperBoundK() )
+                {
+                    final double hotRange = getOverheatingTemperatureK() - getOptimumTemperaturesUpperBoundK();
+                    final double brakeFadeHotMult = ( hotRange > 0.0 ) ? ( Math.PI / hotRange ) : 0.0;
+                    
+                    torque *= ( 0.75 + ( 0.25 * Math.cos( ( brakeTempK - getOptimumTemperaturesUpperBoundK() ) * brakeFadeHotMult ) ) );
+                }
+                
                 return ( torque );
             }
             
@@ -2157,25 +2216,25 @@ public class VehiclePhysics
             brakes.brakeFrontLeft.wearRate = 5.770e-011f;
             brakes.brakeFrontLeft.discFailureAverage = 1.45e-02f;
             brakes.brakeFrontLeft.discFailureVariance = 7.00e-04f;
-            brakes.brakeFrontLeft.torque = 4100.0f;
+            brakes.brakeFrontLeft.torqueBase = 4100.0f;
             
             brakes.brakeFrontRight.discRange.set( 0.023f, 0.001f, 6 );
             brakes.brakeFrontRight.wearRate = 5.770e-011f;
             brakes.brakeFrontRight.discFailureAverage = 1.45e-02f;
             brakes.brakeFrontRight.discFailureVariance = 7.00e-04f;
-            brakes.brakeFrontRight.torque = 4100.0f;
+            brakes.brakeFrontRight.torqueBase = 4100.0f;
             
             brakes.brakeRearLeft.discRange.set( 0.023f, 0.001f, 6 );
             brakes.brakeRearLeft.wearRate = 5.770e-011f;
             brakes.brakeRearLeft.discFailureAverage = 1.45e-02f;
             brakes.brakeRearLeft.discFailureVariance = 7.00e-04f;
-            brakes.brakeRearLeft.torque = 4100.0f;
+            brakes.brakeRearLeft.torqueBase = 4100.0f;
             
             brakes.brakeRearRight.discRange.set( 0.023f, 0.001f, 6 );
             brakes.brakeRearRight.wearRate = 5.770e-011f;
             brakes.brakeRearRight.discFailureAverage = 1.45e-02f;
             brakes.brakeRearRight.discFailureVariance = 7.00e-04f;
-            brakes.brakeRearRight.torque = 4100.0f;
+            brakes.brakeRearRight.torqueBase = 4100.0f;
             
 	        
 	        brakes.balance.set( 0.3f, 0.002f, 151 );
