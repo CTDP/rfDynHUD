@@ -10,7 +10,17 @@
         p, li
         {
             font-family: Arial;
-            font-size: 15pt;
+            font-size: 12pt;
+        }
+        
+        .vi
+        {
+            color: #C10000;
+        }
+        
+        .new
+        {
+            color: red;
         }
     </style>
     
@@ -30,26 +40,32 @@ clauses carefully. We will happily answer all your questions, if you got some, b
 </p>
 
 <p>
-<strong>Configuration files - overlay.ini</strong><br />
-The &quot;config&quot; folder contains rfDynHUD configuration files.
+<strong>Configuration files - overlay*.ini</strong><br />
+The &quot;config&quot; folder contains rfDynHUD configuration files. The default location of this folder is under the plugin folder itself.
+But this can be changed through the <i>rfdynhud.ini</i> file to be found in the plugin's root folder.
 </p>
 
 <p>
-The plugin supports individual configurations for each mod, car and session and even specific ones for being in the garage.
-If no specific configurations are found, the default configuration will be used. This default configuration is expected in
-the &quot;config&quot; folder under the name &quot;overlay.ini&quot;. Use the editor to create a valid configuration of your
-preference.
+The plugin supports individual configurations for each mod, car and session type and even specific ones for being in the garage.
+The plugin always tries to load the most specific one and falls back to more general ones whenever it doesn't find a specific one.
+If no specific configurations are found, the default configuration (<i>overlay.ini</i>) will be used. Use the editor to create a valid
+configuration of your preference.<br />
+<br />
+<span class="vi">So if you want one single configuration for everything, simply delete all overlay_*.ini files and
+just leave the overlay.ini.</span> Don't save the same configuration under all possible names. This is nonsense.
+And don't accidently delete files like <i>input_bindings.ini</i> or <i>three_letter_codes.ini</i>, etc. 
 </p>
 
 <p>
 Mod-specific configurations are searched for in subfolders named like the mod. So if you want to create a specific config for the
-&quot;F1CTDP06&quot; mod, you have to save the config file in a subfolder of the config folder called &quot;F1CTDP06&quot;
-and config file is to be named &quot;overlay.ini&quot;.
+&quot;F1CTDP06&quot; mod, you have to save an &quot;overlay*.ini&quot; config file in a subfolder of the config folder called
+&quot;F1CTDP06&quot;.
 </p>
 
 <p>
-If you want to use an individual configuration for a car, which's class is called &quot;CarClass&quot; of the Mod &quot;MyMod&quot;,
-the config file must be stored as &quot;MyMod\overlay_CarClass.ini&quot;.
+If you want to use an individual configuration for a car called &quot;MyFunnyCar&quot; of the Mod &quot;MyMod&quot;,
+the config file must be stored as &quot;MyMod\overlay_MyFunnyCar.ini&quot;. The rfdynhud.log file will tell you about the exact
+car name.
 </p>
 
 <p>
@@ -61,12 +77,11 @@ Valid identifiers are:
     <li>PRACTICE2</li>
     <li>PRACTICE3</li>
     <li>PRACTICE4</li>
-    <li>PRACTICE</li>
+    <li>PRACTICE (wildcard for PRACTICE1, PRACTICE2, etc.)</li>
     <li>QUALIFYING</li>
     <li>WARMUP</li>
     <li>RACE</li>
 </ul>
-PRACTICE is a wildcard for PREACTICE1, PRACTICE2, etc.
 </p>
 
 <p>
@@ -74,16 +89,16 @@ Please refer to the log file to know the names of the mod and car, if you don't 
 </p>
 
 <p>
-If the mod is &quot;F1CTDP06&quot; and the car is &quot;F1 2006&quot; and the session type is &quot;PRACTICE3&quot;,
+If the mod is &quot;F1CTDP06&quot; and the car is &quot;Scuderia Ferrari Marlboro 2006&quot; and the session type is &quot;PRACTICE3&quot;,
 the search order is as follows.
 <ol>
-    <li>F1CTDP06\overlay_F1 2006_PRACTICE3.ini</li>
-    <li>F1CTDP06\overlay_F1 2006_PRACTICE.ini</li>
+    <li>F1CTDP06\overlay_Scuderia Ferrari Marlboro 2006_PRACTICE3.ini</li>
+    <li>F1CTDP06\overlay_Scuderia Ferrari Marlboro 2006_PRACTICE.ini</li>
     <li>F1CTDP06\overlay_PRACTICE3.ini</li>
     <li>F1CTDP06\overlay_PRACTICE.ini</li>
     <li>overlay_PRACTICE3.ini</li>
     <li>overlay_PRACTICE.ini</li>
-    <li>F1CTDP06\overlay_F1 2006.ini</li>
+    <li>F1CTDP06\overlay_Scuderia Ferrari Marlboro 2006.ini</li>
     <li>F1CTDP06\overlay.ini</li>
     <li>overlay.ini</li>
 </ol>
@@ -91,24 +106,18 @@ the search order is as follows.
 When you enter the cockpit and start in the garage the above order is worked down twice. The first time the prefix &quot;overlay&quot;
 is replaced by &quot;overlay_garage&quot;. When leaving the garage the overlay is reloaded only using the above order once.<br />
 <br />
+<div class="new">
+***new***
+</div>
 It is now possible to render an overlay on the session monitor preview. There is a small preview, that you know in the lower right of
 the session monitor and a fullscreen version, that you get to when clicking onto the small one. These two scenes don't use the regular overlay.ini,
-but are rendered, if and only if the above order matches a file using the prefix &quot;monitor_small&quot; resp. &quot;monitor_big&quot; in
+but are rendered, <u>if and only if</u> the above order matches a file using the prefix &quot;monitor_small&quot; resp. &quot;monitor_big&quot; in
 the first pass and &quot;monitor&quot; in the second pass. So you can use one configuration for both monitor screens. But since they are very
 different in scale, it is advisable to use two configurations.<br />
 <br />
 As a result you can use one single configuration for all sessions, mods and cars, if you delete all &quot;overlay*.ini&quot; files and only leave
 the &quot;overlay.ini&quot; file itself. If neither &quot;overlay_monitor_small*.ini&quot;, nor &quot;overlay_monitor_big*.ini&quot;, nor
 &quot;overlay_monitor*.ini&quot; exist, no overlay is rendered on the session monitor.
-</p>
-
-<p>
-If none of them could be found, the built-in factory default configuration is used. 
-</p>
-
-<p>
-Unfortunately we had to use a unique vehicle class for all cars for the &quot;CTDP F1 2006&quot; mod. So this mod doesn't support
-special configurations for any car.
 </p>
 
 <p>
@@ -126,10 +135,21 @@ normally generated. But for some names it can be usefull to define it yourself.
 </p>
 
 <p>
+All missing three-letter-codes and short forms are auto-generated and a note is placed in the <i>rfdynhud.log</i> file.<br />
+Three-letter-codes are generated using the first letter of the first name and the first two letters of the last name (e.g. John Doe =&gt; JDO).
+</p>
+
+<p>
 <strong>Configuration files - input bindings</strong><br />
-Another file, searched for in this folder, is the &quot;input_bindings.ini&quot;.
+Another file, searched for in this folder, is the &quot;<i>input_bindings.ini</i>&quot;.
 It keeps mappings of key-strokes or button-presses to input actions on named Widgets.
 Use the InputBindingsManager from within the editor to generate and maintain that file.
+</p>
+
+<p class="vi">
+Important!<br />
+Make sure to always bind the <i>IncBoost</i>, <i>DecBoost</i> and <i>TempBoost</i> actions exactly like you did in rFactor.
+Otherwise engine wear calculations will be wrong. If any of these bindings are missing, the plugin will display an in-game warning.
 </p>
 
 <p>
@@ -139,13 +159,17 @@ for each of the resolutions, that you see under the &quot;Resolutions&quot; menu
 resultion, that you want to use in the editor. But we encourage you to create a complete set of screenshots and send them to us, so
 that we can provide them as additional downloads.<br />
 After you created those screenshots copy them to a new folder under the editor\backgrounds folder in the plugin folder. There you'll
-find a folder called &quot;default&quot;, which contains the default screenshot-set. Now select the new set from the properties editor
-to the right after deletecting any Widget.
+find a folder called &quot;CTDPF106_Fer_T-Cam&quot;, which contains the default screenshot-set. Now select the new set from the properties editor
+to the right after deselecting any Widget (click on the background).
+</p>
+
+<p>
+Please don't mix your screenshots with the default ones and don't encourage anyone to do so.
 </p>
 
 <p>
 <strong>Editor - Basic workflow</strong><br />
-<p style="margin-top: 0;">
+<p style="margin-top: 0; padding-top: 0;">
 Add a new Widget by selecting an entry from the Widgets menu.
 </p>
 <p>
@@ -182,8 +206,8 @@ menu. This will create a new image file in your &quot;UserData\ScreenShots&quot;
 </p>
 
 <p>
-<strong>Translations</strong><br />
-Every Widget set (folders under Plugins\rfDynHUD\widget_sets) keeps files named &quot;localizations_.ini&quot;.
+<strong>Translations</strong> <span class="vi">***new***</span><br />
+Every Widget set (folders under Plugins\rfDynHUD\widget_sets) keeps files named &quot;localizations_*.ini&quot;.
 The * is usually something like &quot;en&quot; or &quot;de&quot;, but can be anything and only serves your recognition.
 These files are loaded in alphabetical order and settings from a file read later overwrite those from files read earlier.
 This way you can overwrite default translations without having to modify the original files.<br />
@@ -194,8 +218,14 @@ codepage = UTF-8
 language = en
 </pre>
 The codepage must be exactly the one, with which the file has been saved. Otherwise special characters might be messed up when the file is loaded.<br />
-The language id must match exactly the value from the rfdynhud.ini (main plugin's folder) for the setting language.<br />
+The language id must match exactly the value from the <i>rfdynhud.ini</i> (main plugin's folder) for the setting language.<br />
 All &quot;localization_*.ini&quot; files from these Widget set folders are read and all those with the selected language code are used, the others are ignored.
+</p>
+
+<p>
+<strong>Class scoring</strong> <span class="new">***new***</span><br />
+It is now possible to activate vehicle class relative scoring. Activate it in the editor after deselecting all Widgets (click on the background)
+and change the &quot;use class scoring&quot; property's value. Then the StandingsWidget (for example) will display cars in your class only.
 </p>
 
 <p>

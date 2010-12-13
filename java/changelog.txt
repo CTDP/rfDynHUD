@@ -18,10 +18,11 @@ v1.0.1 - 1.2.0
 
 Major:
 
+* Fixed engine and (esp.) brake wear/lifetime calculations.
 * Added support for rendering the overlay on the session monitor views.
 * When observing other vehicles the HUD displays data for this vehicle (as much as available).
-* Some Widgets are now auto-hidden when switching to AI control, since the rFactor Plugin interface doesn't give data for them in that case.
-* Added a localizations system (translations).
+* Some Widgets (or parts if them) are now auto-hidden when switching to AI control, since the rFactor Plugin interface doesn't provide data for them in that case.
+* Added a localizations system (translations) for Widgets.
 * Added support for imperial units.
 * Added MapWidget rotation according to the current vehicle's heading.
 * Added sector specific colors to MapWidget.
@@ -29,11 +30,10 @@ Major:
 * Added vehicle class relative scoring (configuration global option).
 * Added support for timed races (estimate max laps, calculate lifetime).
 * Improved early rendering of Widgets to reduce the gap when entering the cockpit.
-* Added padding properties.
 * Added rfdynhud.ini as central plugin configuration file to support localizations and custom config folders, etc.
 * RevMeterWidget: Rev limit from setup is now used. This enables you to actually use rev markes fixed in the background image.
 * RevMeterWidget: Digital max revs can now be boost level dependent.
-* Added pause detection.
+* Added pause detection. (esp. engine wear will not go down)
 * Added a data cache to restore fuel usage and fastest lap times per mod, car and track.
 * Added support for multiple displays.
 * Added SpeedoWidget.
@@ -42,47 +42,49 @@ Major:
 * Added a Director plugin and editor extension to control a remote in game rfDynHUD from a Director mode in the editor.
 * Added TinyPositionWidget.
 * Added ETVFastestLapWidget.
+* Added a basic RideHeightWidget.
+* Added a FuelNeedleWidget.
+* Added DashboardWidget.
+* Added ETVTelemetryWidget (Revs, Velocity, Trottle/Brake).
+* StartingLightWidget's visibility handling changed. Make sure, initialVisibility is on, if you don't plan to toggle it with an InputAction.
 
 Minor:
 
+* StartingLightWidget is now auto-sized based on the number of lights (track dependent).
+* Added padding properties to all Widgets.
 * Fixed laptimes to be properly displayed after finishing the race.
 * Added a "No Border" button to the border selector. (Simply sets the selected border alias to an empty string)
 * Dirty flag is now set when the %/px button is pressed for position and size properties.
 * Positioning property is now properly modified when dragging a Widget around. This also fixes the inability to move a centered Widget to the left or right boudary.
-* Added multiple visibility flags to properly handle visibility.
-* Improved StandingsWidget update frequency to only update when things can have changed.
-* Fixed clear rectangles for drawn strings (fixes very small StandingsWidgets).
-* Max revs are now handled better to improve the workaround for an rf-plugin-interface bug.
+* Improved StandingsWidget update frequency to only update when things can have changed (performance improvement).
 * The Widget name is now applied to the InputBindingsManager when a Widget is doubleclicked (instead of selection change).
 * An image can now be selected in the ImageSelector through a double click.
-* When adding a new Widget, it is now added to the center of the current viewport instead of absolute top left.
 * Editor: New magnet/rail effect (theoretically replaces the grid, but I left it in).
-* StartingLightWidget's visibility handling changed. Make sure, initialVisibility is on, if you don't plan to toggle it with an InputAction.
-* StartingLightWidget is now auto-sized based on the number of lights (track dependent).
 * RevMeterWidget: When the background image is changed, positions and sizes of elements are adjusted.
 * Moved border configurations from config/images/borders to config/borders
 * When saving a new configuration in the editor (Save As), a filename construction utility helps you to construct the correct filename.
 * Widgets menu in the editor looks nicer with small Widget icons.
-* Added a basic RideHeightWidget.
 * Added support for key combinations and hit counts for input bindings.
 * Added peak needle to the RevMeterWidget.
-* Tweaked rendering code to allow for overlapping Widgets.
 * Sub textures are now properly drawn in the editor.
 * Editor takes less memory now and doesn't consume any more than necessary.
-* Added a FuelNeedleWidget.
+* Fixed minimum clock frequency (some value updates look smoother).
 * Added Widget import tool.
+* Added a Widget copy tool.
 * Added Editor Panel zooming (CTRL + Mouse Wheel).
 * Added a way to select Widgets in background in the editor (context menu). Selections are also better preserved.
 * Added a management system for log files to archive a given number of log files for reference. See rfdynhud.ini 'numArchivedLogFiles'.
-* Added DashboardWidget.
-* Added ETVTelemetryWidget (Revs, Velocity, Trottle/Brake).
-* Fixed minimum clock frequency.
+* Tweaked rendering code to allow for overlapping Widgets.
+* When adding a new Widget, it is now added to the center of the current viewport instead of absolute top left.
+* Added multiple visibility flags to properly handle visibility.
+* Fixed clear rectangles for drawn strings (fixes very small StandingsWidgets).
+* Max revs are now handled better to improve the workaround for an rf-plugin-interface bug.
 
 TODO:
 
+* Allow for optional master d3d9.dll (DLL-chaining)
+* Improve multi-screen and viewport change detection.
 * Meta config (merge configurations)
-* Add master d3d9.dll
-* General profiling to tweak performance
 
 * Improve viewed vehicle detection (use me if close, read from application)
 * Render plugin in replay mode (theoretically not possible, needs application memory access)

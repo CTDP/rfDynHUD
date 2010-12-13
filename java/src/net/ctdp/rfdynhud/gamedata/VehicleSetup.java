@@ -417,7 +417,7 @@ public class VehicleSetup
             return ( rightTrackBar );
         }
         
-        public class ThirdSpring
+        public static class ThirdSpring
         {
             private float packer; // SUSPENSION::Front3rdPackerSetting=9//1.0 cm
             private int springRate; // SUSPENSION::Front3rdSpringSetting=30//60 N/mm
@@ -493,8 +493,8 @@ public class VehicleSetup
             }
         }
         
-        private final ThirdSpring font3dSpring = new ThirdSpring();
-        private final ThirdSpring rear3dSpring = new ThirdSpring();
+        private final ThirdSpring front3rdSpring = new ThirdSpring();
+        private final ThirdSpring rear3rdSpring = new ThirdSpring();
         
         /**
          * Gets an interface to the settings for the front third spring.
@@ -503,7 +503,7 @@ public class VehicleSetup
          */
         public final ThirdSpring getFront3dSpring()
         {
-            return ( font3dSpring );
+            return ( front3rdSpring );
         }
         
         /**
@@ -513,7 +513,7 @@ public class VehicleSetup
          */
         public final ThirdSpring getRear3dSpring()
         {
-            return ( rear3dSpring );
+            return ( rear3rdSpring );
         }
     }
     
@@ -834,6 +834,8 @@ public class VehicleSetup
      */
     public static class WheelAndTire
     {
+        private final Wheel wheel;
+        
         //private float camber; // FRONTLEFT::CamberSetting=24//-3.3 deg
         private int tirePressure; // FRONTLEFT::PressureSetting=25//120 kPa
         /*
@@ -851,6 +853,11 @@ public class VehicleSetup
         /*
         int brakePad; // FRONTLEFT::BrakePadSetting=2//3
         */
+        
+        public final Wheel getWheel()
+        {
+            return ( wheel );
+        }
         
         /*
          * FRONTLEFT::CamberSetting=24//-3.3 deg
@@ -977,12 +984,17 @@ public class VehicleSetup
             return ( brakePad );
         }
         */
+        
+        WheelAndTire( Wheel wheel )
+        {
+            this.wheel = wheel;
+        }
     }
     
-    final WheelAndTire flWheelAndTire = new WheelAndTire();
-    final WheelAndTire frWheelAndTire = new WheelAndTire();
-    final WheelAndTire rlWheelAndTire = new WheelAndTire();
-    final WheelAndTire rrWheelAndTire = new WheelAndTire();
+    final WheelAndTire flWheelAndTire = new WheelAndTire( Wheel.FRONT_LEFT );
+    final WheelAndTire frWheelAndTire = new WheelAndTire( Wheel.FRONT_RIGHT );
+    final WheelAndTire rlWheelAndTire = new WheelAndTire( Wheel.REAR_LEFT );
+    final WheelAndTire rrWheelAndTire = new WheelAndTire( Wheel.REAR_RIGHT );
     
     /**
      * Gets an interface to the settings of the wheel and tire, suspension and brake disc for the passed wheel.

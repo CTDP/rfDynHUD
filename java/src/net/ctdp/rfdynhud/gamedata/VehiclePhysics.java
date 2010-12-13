@@ -828,6 +828,8 @@ public class VehiclePhysics
          */
         public static class WheelBrake
         {
+            private final Wheel wheel;
+            
             private boolean brakeResponseCurveSet = false;
             private float optimumTemperaturesLowerBound;
             private float optimumTemperaturesUpperBound;
@@ -845,6 +847,11 @@ public class VehiclePhysics
             float torqueBase;
             
             private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+            
+            public final Wheel getWheel()
+            {
+                return ( wheel );
+            }
             
             /**
              * Gets the lower bound of the temperature range in Kelvin, where brakes will operate optimally.
@@ -1220,16 +1227,22 @@ public class VehiclePhysics
              */
             public final double computeTorque( float brakeTempK )
             {
+                // Get base brake torque from HDV.
                 double torque = getTorqueBase();
                 
                 //RFDHLog.debugCS( brakeTempK, getColdTemperatureK(), getOptimumTemperaturesLowerBoundK(), getOptimumTemperaturesUpperBoundK(), getOverheatingTemperatureK() );
                 
+                // Compare current temperature to the values from BrakeResponseCurve (converted to Kelvin).
+                
                 if ( brakeTempK < getColdTemperatureK() )
                 {
+                    // Brake torque is halfed when brakes are cold.
                     torque *= 0.5;
                 }
                 else if ( brakeTempK < getOptimumTemperaturesLowerBoundK() )
                 {
+                    // Brake temperature is between cold and lower optimum temp.
+                    
                     final double coldRange = getOptimumTemperaturesLowerBoundK() - getColdTemperatureK();
                     final double brakeFadeColdMult = ( coldRange > 0.0 ) ? ( Math.PI / coldRange ) : 0.0;
                     
@@ -1237,15 +1250,20 @@ public class VehiclePhysics
                 }
                 else if ( brakeTempK > getOverheatingTemperatureK() )
                 {
+                    // Brake torque is halfed when brakes are overheated.
                     torque *= 0.5;
                 }
                 else if ( brakeTempK > getOptimumTemperaturesUpperBoundK() )
                 {
+                    // Brake temperature is between upper optimum and overheating temp.
+                    
                     final double hotRange = getOverheatingTemperatureK() - getOptimumTemperaturesUpperBoundK();
                     final double brakeFadeHotMult = ( hotRange > 0.0 ) ? ( Math.PI / hotRange ) : 0.0;
                     
                     torque *= ( 0.75 + ( 0.25 * Math.cos( ( brakeTempK - getOptimumTemperaturesUpperBoundK() ) * brakeFadeHotMult ) ) );
                 }
+                
+                // Brake temperature is in optimum range.
                 
                 return ( torque );
             }
@@ -1268,15 +1286,16 @@ public class VehiclePhysics
                 }
             }
             
-    		WheelBrake()
+    		WheelBrake( Wheel wheel )
     		{
+    		    this.wheel = wheel;
     		}
         }
         
-        private final WheelBrake brakeFrontLeft = new WheelBrake();
-        private final WheelBrake brakeFrontRight = new WheelBrake();
-        private final WheelBrake brakeRearLeft = new WheelBrake();
-        private final WheelBrake brakeRearRight = new WheelBrake();
+        private final WheelBrake brakeFrontLeft = new WheelBrake( Wheel.FRONT_LEFT );
+        private final WheelBrake brakeFrontRight = new WheelBrake( Wheel.FRONT_RIGHT );
+        private final WheelBrake brakeRearLeft = new WheelBrake( Wheel.REAR_LEFT );
+        private final WheelBrake brakeRearRight = new WheelBrake( Wheel.REAR_RIGHT );
         
         /**
          * Gets the brake model of the given wheel.
@@ -1465,6 +1484,8 @@ public class VehiclePhysics
          */
         public static class CompoundWheel
         {
+            private final Wheel wheel;
+            
             private float dryLateralGrip;
             private float dryLongitudinalGrip;
             private float gripTempPress1;
@@ -1483,6 +1504,11 @@ public class VehiclePhysics
             private static final float[] DEFAULT_WEAR_GRIP = { 1.0f, 0.980f, 0.961f, 0.941f, 0.922f, 0.902f, 0.883f, 0.863f, 0.844f, 0.824f, 0.805f, 0.785f, 0.766f, 0.746f, 0.727f, 0.707f, 0.688f };
             
             private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+            
+            public final Wheel getWheel()
+            {
+                return ( wheel );
+            }
             
             void setDryGrip( float laterial, float longitudinal )
             {
@@ -1898,15 +1924,16 @@ public class VehiclePhysics
                 return ( w[w.length - 1] );
             }
             
-            CompoundWheel()
+            CompoundWheel( Wheel wheel )
             {
+                this.wheel = wheel;
             }
         }
         
-        private final CompoundWheel frontLeft = new CompoundWheel();
-        private final CompoundWheel frontRight = new CompoundWheel();
-        private final CompoundWheel rearLeft = new CompoundWheel();
-        private final CompoundWheel rearRight = new CompoundWheel();
+        private final CompoundWheel frontLeft = new CompoundWheel( Wheel.FRONT_LEFT );
+        private final CompoundWheel frontRight = new CompoundWheel( Wheel.FRONT_RIGHT );
+        private final CompoundWheel rearLeft = new CompoundWheel( Wheel.REAR_LEFT );
+        private final CompoundWheel rearRight = new CompoundWheel( Wheel.REAR_RIGHT );
         
         /**
          * Gets the {@link CompoundWheel} for the given wheel.

@@ -149,6 +149,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.IncBoost ) )
             {
                 String message = "No Input Binding for IncBoost, but bound in rFactor.";
+                RFDHLog.exception( "Warning: ", message );
                 //if ( warning == null )
                     warning = new String[] { message };
             }
@@ -160,6 +161,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.DecBoost ) )
             {
                 String message = "No Input Binding for DecBoost, but bound in rFactor.";
+                RFDHLog.exception( "Warning: ", message );
                 if ( warning == null )
                 {
                     warning = new String[] { message };
@@ -180,6 +182,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             if ( !rfDynHUD.getInputMappings().isActionMapped( KnownInputActions.TempBoost ) )
             {
                 String message = "No Input Binding for TempBoost, but bound in rFactor.";
+                RFDHLog.exception( "Warning: ", message );
                 if ( warning == null )
                 {
                     warning = new String[] { message };
