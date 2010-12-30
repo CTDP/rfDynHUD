@@ -146,18 +146,21 @@ class DataCache implements LiveGameData.GameDataUpdateListener, InputActionConsu
         if ( !checkSessionType( scoringInfo ) )
             return;
         
+        if ( laptime.getLapTime() <= 0f )
+            return;
+        
         Laptime cached;
         
         switch ( laptime.getType() )
         {
             case NORMAL:
                 cached = fastestNormalLaptimes.get( teamName );
-                if ( ( cached == null ) || ( ( laptime.getLapTime() > 0f ) && ( laptime.getLapTime() < cached.getLapTime() ) ) )
+                if ( ( cached == null ) || ( laptime.getLapTime() < cached.getLapTime() ) )
                     fastestNormalLaptimes.put( teamName, laptime );
                 break;
             case HOTLAP:
                 cached = fastestHotLaptimes.get( teamName );
-                if ( ( cached == null ) || ( ( laptime.getLapTime() > 0f ) && ( laptime.getLapTime() < cached.getLapTime() ) ) )
+                if ( ( cached == null ) || ( laptime.getLapTime() < cached.getLapTime() ) )
                     fastestHotLaptimes.put( teamName, laptime );
                 break;
             // We're not interested in other times.

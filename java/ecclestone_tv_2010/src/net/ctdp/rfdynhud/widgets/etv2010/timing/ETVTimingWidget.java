@@ -173,10 +173,10 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
         if ( !isEditorMode && ( ls == LapState.AFTER_SECTOR1_START ) && ( vsi.getStintLength() < 2.0f ) )
             ls = LapState.SOMEWHERE;
         
-        if ( ( ( ls == LapState.BEFORE_SECTOR1_END ) || ( ls == LapState.AFTER_SECTOR2_START ) ) && ( refTime.getSector1() <= 0f ) )
+        if ( ( ( ls == LapState.BEFORE_SECTOR1_END ) || ( ls == LapState.AFTER_SECTOR2_START ) ) && ( ( refTime == null ) || ( refTime.getSector1() <= 0f ) ) )
             ls = LapState.SOMEWHERE;
         
-        if ( ( ( ls == LapState.BEFORE_SECTOR2_END ) || ( ls == LapState.AFTER_SECTOR3_START ) ) && ( refTime.getSector2( true ) <= 0f ) )
+        if ( ( ( ls == LapState.BEFORE_SECTOR2_END ) || ( ls == LapState.AFTER_SECTOR3_START ) ) && ( ( refTime == null ) || ( refTime.getSector2( true ) <= 0f ) ) )
             ls = LapState.SOMEWHERE;
         
         lapState.update( ls );

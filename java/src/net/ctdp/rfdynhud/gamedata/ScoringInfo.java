@@ -1550,6 +1550,7 @@ public class ScoringInfo
                     secondFastestLapVSI = vehicleScoringInfo2[1];
                 }
                 
+                //RFDHLog.debug( TimingUtil.getTimeAsLaptimeString( getSessionTime() ) + ", " + fastestLapVSI.getLapsCompleted() + ": " + fastestLapVSI + ", " + fastestLapVSI.getFastestLaptime() );
                 return ( fastestLapVSI );
             }
             
