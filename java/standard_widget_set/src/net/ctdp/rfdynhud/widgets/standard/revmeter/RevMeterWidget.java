@@ -543,8 +543,9 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         
         float rpm = getValue( gameData, isEditorMode );
         //float maxRPM = telemData.getEngineMaxRPM();
-        float maxRPM = gameData.getPhysics().getEngine().getMaxRPM( gameData.getSetup().getEngine().getRevLimit() );
-        float boostMaxRPM = gameData.getPhysics().getEngine().getMaxRPM( maxRPM, boost.getValue() );
+        float baseMaxRPM = gameData.getSetup().getEngine().getRevLimit();
+        float maxRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM );
+        float boostMaxRPM = gameData.getPhysics().getEngine().getMaxRPM( baseMaxRPM, boost.getValue() );
         
         if ( displayRPMString1.getBooleanValue() && ( needsCompleteRedraw || clock.c() ) )
         {
