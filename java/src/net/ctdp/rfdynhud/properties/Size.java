@@ -703,6 +703,24 @@ public class Size extends AbstractSize
                     return ( getWidth() );
                 }
                 
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public Object getDefaultValue()
+                {
+                    return ( null );
+                }
+                
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public boolean hasDefaultValue()
+                {
+                    return ( false );
+                }
+                
                 @Override
                 public void onButtonClicked( Object button )
                 {
@@ -790,6 +808,24 @@ public class Size extends AbstractSize
                 public Object getValue()
                 {
                     return ( getHeight() );
+                }
+                
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public Object getDefaultValue()
+                {
+                    return ( null );
+                }
+                
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public boolean hasDefaultValue()
+                {
+                    return ( false );
                 }
                 
                 @Override

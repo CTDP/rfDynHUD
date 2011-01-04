@@ -86,6 +86,6 @@ TODO:
 * Improve multi-screen and viewport change detection.
 * Meta config (merge configurations)
 
-* Improve viewed vehicle detection (use me if close, read from application)
+* Improve viewed vehicle detection (use mine if unclear, read from application)
 * Render plugin in replay mode (theoretically not possible, needs application memory access)
 * MapWidget/TrackPositionWidget: Display pace car (impossible, not in VehicleScoringInfo)

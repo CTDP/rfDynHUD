@@ -135,6 +135,32 @@ public abstract class Property
      */
     public abstract Object getValue();
     
+    /**
+     * Gets the default (initial) value fo this property.
+     * 
+     * @return the default value fo this property.
+     */
+    public abstract Object getDefaultValue();
+    
+    /**
+     * Gets, whether this property currently has its default (initial) value.
+     * 
+     * @return whether this property currently has its default (initial) value.
+     */
+    public boolean hasDefaultValue()
+    {
+        Object value = getValue();
+        Object defaultValue = getDefaultValue();
+        
+        if ( value == null )
+            return ( defaultValue == null );
+        
+        if ( defaultValue == null )
+            return ( false );
+        
+        return ( value.equals( defaultValue ) );
+    }
+    
     void triggerKeepersOnPropertyChanged( Object oldValue, Object newValue )
     {
         if ( keeper != null )

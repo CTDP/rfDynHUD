@@ -25,10 +25,21 @@ package net.ctdp.rfdynhud.properties;
  */
 public class FloatProperty extends Property
 {
+    private final float defaultValue;
+    
     private float value;
     
     private final float minValue;
     private final float maxValue;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Float getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * Gets the minimum value.
@@ -207,6 +218,8 @@ public class FloatProperty extends Property
     FloatProperty( String name, String nameForDisplay, float defaultValue, float minValue, float maxValue, boolean readonly, boolean initialize )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.FLOAT, null, null );
+        
+        this.defaultValue = defaultValue;
         
         this.minValue = minValue;
         this.maxValue = maxValue;

@@ -34,11 +34,22 @@ import org.jagatoo.util.io.FileUtils;
  */
 public class PathnameProperty extends Property
 {
+    private final String defaultValue;
+    
     private final File base;
     private final String basePath;
     
     private String value = null;
     private File file = null;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * {@inheritDoc}
@@ -204,6 +215,8 @@ public class PathnameProperty extends Property
     protected PathnameProperty( String name, String nameForDisplay, String defaultValue, File base, boolean readonly )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.FILENAME, "...", "Browse file..." );
+        
+        this.defaultValue = defaultValue;
         
         this.base = base;
         this.basePath = FileUtils.getCanonicalFile( base ).getAbsolutePath() + File.separator;

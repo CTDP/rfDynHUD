@@ -25,10 +25,21 @@ package net.ctdp.rfdynhud.properties;
  */
 public class IntProperty extends Property
 {
+    private final int defaultValue;
+    
     private int value;
     
     private final int minValue;
     private final int maxValue;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * Gets the minimum value.
@@ -193,6 +204,8 @@ public class IntProperty extends Property
     IntProperty( String name, String nameForDisplay, int defaultValue, int minValue, int maxValue, boolean readonly, boolean initialize )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.INTEGER, null, null );
+        
+        this.defaultValue = defaultValue;
         
         this.minValue = minValue;
         this.maxValue = maxValue;

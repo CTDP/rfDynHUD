@@ -28,8 +28,19 @@ import org.jagatoo.util.Tools;
  */
 public class ArrayProperty<E extends Object> extends Property
 {
+    private final E defaultValue;
+    
     private E[] array;
     private E value;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public E getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * Gets the data array.
@@ -169,6 +180,7 @@ public class ArrayProperty<E extends Object> extends Property
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.ARRAY, buttonText, null );
         
+        this.defaultValue = defaultValue;
         this.array = array;
         
         setSelectedValue( defaultValue, true );

@@ -27,7 +27,18 @@ package net.ctdp.rfdynhud.properties;
  */
 public class EnumProperty<E extends Enum<E>> extends Property
 {
+    private final E defaultValue;
+    
     private E value;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public E getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * {@inheritDoc}
@@ -154,6 +165,8 @@ public class EnumProperty<E extends Enum<E>> extends Property
     public EnumProperty( String name, String nameForDisplay, E defaultValue, boolean readonly )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.ENUM, null, null );
+        
+        this.defaultValue = defaultValue;
         
         setEnumValue( defaultValue, true );
     }

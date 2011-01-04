@@ -25,8 +25,19 @@ package net.ctdp.rfdynhud.properties;
  */
 public class StringProperty extends Property
 {
+    private final String defaultValue;
+    
     private final boolean forceTrimOnSet;
     private String value;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * {@inheritDoc}
@@ -149,6 +160,8 @@ public class StringProperty extends Property
     protected StringProperty( String name, String nameForDisplay, String defaultValue, boolean forceTrimOnSet, boolean readonly, PropertyEditorType propEdType )
     {
         super( name, nameForDisplay, readonly, propEdType, null, null );
+        
+        this.defaultValue = defaultValue;
         
         this.forceTrimOnSet = forceTrimOnSet;
         

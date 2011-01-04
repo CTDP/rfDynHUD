@@ -52,6 +52,8 @@ import org.openmali.vecmath2.util.ColorUtils;
  */
 public class ConfigurationLoader implements PropertyLoader
 {
+    public static final Object DEFAULT_PLACEHOLDER = "~DEFAULT~";
+    
     private ConfigurationCandidatesIterator candidatesIterator = new ConfigurationCandidatesIterator();
     private final ConfigurationLoadListener loadListener;
     
@@ -139,7 +141,10 @@ public class ConfigurationLoader implements PropertyLoader
     {
         if ( property.isMatchingKey( effectiveKey ) )
         {
-            property.loadValue( this, currentValue );
+            if ( DEFAULT_PLACEHOLDER.equals( currentValue ) )
+                property.setValue( property.getDefaultValue() );
+            else
+                property.loadValue( this, currentValue );
             
             return ( true );
         }

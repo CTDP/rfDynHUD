@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import org.jagatoo.util.ini.IniWriter;
 
-import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 
 /**
@@ -29,8 +29,12 @@ import net.ctdp.rfdynhud.util.PropertyWriter;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DefaultPropertyWriter implements PropertyWriter
+public class DefaultPropertyWriter extends PropertyWriter
 {
+    public static final Object DEFAULT_PLACEHOLDER = ConfigurationLoader.DEFAULT_PLACEHOLDER;
+    
+    private final boolean handleDefaults;
+    
     private final IniWriter writer;
     
     private String keyPrefix = null;
@@ -51,8 +55,11 @@ public class DefaultPropertyWriter implements PropertyWriter
     }
     
     @Override
-    public void writeProperty( String key, Object value, String comment ) throws IOException
+    public void writeProperty( String key, Object value, boolean isDefaultValue, String comment ) throws IOException
     {
+        if ( handleDefaults && isDefaultValue )
+            value = DEFAULT_PLACEHOLDER;
+        
         if ( keyPrefix == null )
             writer.writeSetting( key, value, comment );
         else
@@ -60,37 +67,26 @@ public class DefaultPropertyWriter implements PropertyWriter
     }
     
     @Override
-    public void writeProperty( String key, Object value, Boolean quoteValue, String comment ) throws IOException
+    public void writeProperty( String key, Object value, boolean isDefaultValue, Boolean quoteValue, String comment ) throws IOException
     {
+        if ( handleDefaults && isDefaultValue )
+            value = DEFAULT_PLACEHOLDER;
+        
         if ( keyPrefix == null )
             writer.writeSetting( key, value, quoteValue, comment );
         else
             writer.writeSetting( keyPrefix + key, value, quoteValue, comment );
     }
     
-    @Override
-    public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
-    {
-        if ( keyPrefix == null )
-            writer.writeSetting( property.getName(), property.getValueForConfigurationFile(), quoteValue, comment );
-        else
-            writer.writeSetting( keyPrefix + property.getName(), property.getValueForConfigurationFile(), quoteValue, comment );
-    }
-    
-    @Override
-    public final void writeProperty( Property property, String comment ) throws IOException
-    {
-        writeProperty( property, property.quoteValueInConfigurationFile(), comment );
-    }
-    
-    public DefaultPropertyWriter( IniWriter writer, String keyPrefix )
+    public DefaultPropertyWriter( IniWriter writer, String keyPrefix, boolean handleDefaults )
     {
         this.writer = writer;
         this.keyPrefix = keyPrefix;
+        this.handleDefaults = handleDefaults;
     }
     
-    public DefaultPropertyWriter( IniWriter writer )
+    public DefaultPropertyWriter( IniWriter writer, boolean handleDefaults )
     {
-        this( writer, null );
+        this( writer, null, handleDefaults );
     }
 }

@@ -25,7 +25,17 @@ package net.ctdp.rfdynhud.properties;
  */
 public class BooleanProperty extends Property
 {
+    private final boolean defaultValue;
     private boolean value;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Boolean getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * {@inheritDoc}
@@ -143,6 +153,8 @@ public class BooleanProperty extends Property
     public BooleanProperty( String name, String nameForDisplay, boolean defaultValue, boolean readonly )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.BOOLEAN, null, null );
+        
+        this.defaultValue = defaultValue;
         
         setBooleanValue( defaultValue, true );
     }

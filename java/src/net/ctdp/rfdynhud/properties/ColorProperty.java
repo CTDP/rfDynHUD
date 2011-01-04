@@ -36,8 +36,19 @@ public class ColorProperty extends Property
     
     public static final Color FALLBACK_COLOR = Color.MAGENTA;
     
+    private final String defaultValue;
+    
     private String colorKey;
     private Color color = null;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     public static String getDefaultNamedColorValue( String name )
     {
@@ -251,6 +262,8 @@ public class ColorProperty extends Property
     public ColorProperty( String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.COLOR, null, null );
+        
+        this.defaultValue = defaultValue;
         
         setColor( defaultValue, true );
     }

@@ -31,6 +31,8 @@ public class BorderProperty extends Property
 {
     public static final String DEFAULT_BORDER_NAME = "StandardBorder";
     
+    private final String defaultValue;
+    
     private String borderAlias;
     private BorderWrapper border = null;
     
@@ -38,6 +40,15 @@ public class BorderProperty extends Property
     private final IntProperty paddingLeft;
     private final IntProperty paddingRight;
     private final IntProperty paddingBottom;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     public static String getDefaultBorderValue( String name )
     {
@@ -254,6 +265,8 @@ public class BorderProperty extends Property
     public BorderProperty( String name, String nameForDisplay, String defaultValue, boolean readonly, IntProperty paddingTop, IntProperty paddingLeft, IntProperty paddingRight, IntProperty paddingBottom )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.BORDER, null, null );
+        
+        this.defaultValue = defaultValue;
         
         this.paddingTop = paddingTop;
         this.paddingLeft = paddingLeft;

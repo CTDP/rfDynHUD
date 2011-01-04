@@ -129,6 +129,18 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         }
         
         @Override
+        public Object getDefaultValue()
+        {
+            return ( null );
+        }
+        
+        @Override
+        public boolean hasDefaultValue()
+        {
+            return ( false );
+        }
+        
+        @Override
         public void loadValue( PropertyLoader loader, String value )
         {
         }
@@ -537,7 +549,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         try
         {
             writer = new IniWriter( userSettingsFile );
-            PropertyWriter confWriter = new DefaultPropertyWriter( writer );
+            PropertyWriter confWriter = new DefaultPropertyWriter( writer, false );
             
             writer.writeGroup( "General" );
             writer.writeSetting( "resolution", gameResolution.getResolutionString() );

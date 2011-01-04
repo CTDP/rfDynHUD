@@ -43,11 +43,22 @@ public class FontProperty extends Property
     private static final BufferedImage METRICS_PROVIDER_IMAGE = new BufferedImage( 16, 16, BufferedImage.TYPE_INT_BGR );
     private static final Graphics2D METRICS_PROVIDER = METRICS_PROVIDER_IMAGE.createGraphics();
     
+    private final String defaultValue;
+    
     private String fontKey;
     private Font font = null;
     private Boolean antiAliased = null;
     
     private FontMetrics metrics = null;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     public static String getDefaultNamedFontValue( String name )
     {
@@ -341,6 +352,8 @@ public class FontProperty extends Property
     public FontProperty( String name, String nameForDisplay, String defaultValue, boolean readonly )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.FONT, null, null );
+        
+        this.defaultValue = defaultValue;
         
         setFont( defaultValue, true );
     }

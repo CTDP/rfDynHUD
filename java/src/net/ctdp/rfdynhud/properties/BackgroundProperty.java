@@ -67,6 +67,15 @@ public class BackgroundProperty extends Property
     private BackgroundType backgroundType = null;
     
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultValue()
+    {
+        return ( defaultValue );
+    }
+    
+    /**
      * Gets the current type of this background.
      * 
      * @return the current type of this background.

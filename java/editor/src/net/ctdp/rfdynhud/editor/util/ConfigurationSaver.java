@@ -184,7 +184,7 @@ public class ConfigurationSaver
         iniWriter.writeSetting( "Design_Grid", "(" + gridOffsetX + "," + gridOffsetY + ";" + gridSizeX + "," + gridSizeY + ")" );
         
         iniWriter.writeGroup( "Global" );
-        widgetsConfig.saveProperties( new DefaultPropertyWriter( iniWriter ) );
+        widgetsConfig.saveProperties( new DefaultPropertyWriter( iniWriter, true ) );
         
         iniWriter.writeGroup( "NamedColors" );
         HashSet<String> usedColorNames = getUsedColorNames( widgetsConfig );
@@ -215,7 +215,7 @@ public class ConfigurationSaver
             iniWriter.writeSetting( alias, widgetsConfig.getBorderName( alias ) );
         }
         
-        DefaultPropertyWriter confWriter = new DefaultPropertyWriter( iniWriter );
+        DefaultPropertyWriter confWriter = new DefaultPropertyWriter( iniWriter, true );
         
         __WCPrivilegedAccess.sortWidgets( widgetsConfig );
         

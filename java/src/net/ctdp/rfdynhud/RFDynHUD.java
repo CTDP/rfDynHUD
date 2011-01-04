@@ -44,7 +44,7 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 2, 0, null, 97 );
+    public static final Version VERSION = new Version( 1, 2, 1, "Beta", 98 );
     
     private final SupportedGames gameId;
     
@@ -252,7 +252,7 @@ public class RFDynHUD
         //ByteOrderInitializer.setByteOrder( 3, 0, 1, 2 );
         //ByteOrderInitializer.setByteOrder( 1, 2, 3, 0 );
         
-        RFDHLog.println( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "...", false );
+        RFDHLog.print( "    Creating overlay texture interface for resolution " + gameResX + "x" + gameResY + "..." );
         
         this.drawingManager = new WidgetsDrawingManager( false, gameResX, gameResY );
         RFDHLog.println( " done." );

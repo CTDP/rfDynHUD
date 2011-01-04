@@ -355,7 +355,7 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
             iniWriter.writeGroup( "[HEADER]" );
             iniWriter.writeSetting( "formatVersion", FORMAT_VERSION );
             
-            PropertyWriter writer = new DefaultPropertyWriter( iniWriter );
+            PropertyWriter writer = new DefaultPropertyWriter( iniWriter, false );
             
             for ( int i = 0; i < statesSets.size(); i++ )
             {

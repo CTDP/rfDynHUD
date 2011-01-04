@@ -712,6 +712,24 @@ public class Position
                     return ( getPositioning() );
                 }
                 
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public Object getDefaultValue()
+                {
+                    return ( null );
+                }
+                
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public boolean hasDefaultValue()
+                {
+                    return ( false );
+                }
+                
                 @Override
                 public void loadValue( PropertyLoader loader, String value )
                 {
@@ -770,6 +788,24 @@ public class Position
                 public Object getValue()
                 {
                     return ( getX() );
+                }
+                
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public Object getDefaultValue()
+                {
+                    return ( null );
+                }
+                
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public boolean hasDefaultValue()
+                {
+                    return ( false );
                 }
                 
                 @Override
@@ -851,6 +887,24 @@ public class Position
                 public Object getValue()
                 {
                     return ( getY() );
+                }
+                
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public Object getDefaultValue()
+                {
+                    return ( null );
+                }
+                
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public boolean hasDefaultValue()
+                {
+                    return ( false );
                 }
                 
                 @Override

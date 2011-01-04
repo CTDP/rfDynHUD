@@ -28,7 +28,18 @@ public class TimeProperty extends Property
 {
     private static final long ONE_SECOND = 1000000000L;
     
+    private final long defaultValue;
+    
     private long value;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * {@inheritDoc}
@@ -109,23 +120,13 @@ public class TimeProperty extends Property
         return ( value );
     }
     
-    /**
-     * Sets the property's value.
-     * 
-     * @param time the new value in the format &quot;00:00:00&quot;.
-     * @param firstTime
-     * 
-     * @return changed?
-     */
-    private boolean setTimeValue( String time, boolean firstTime )
+    private static long parseTimeValue( String time )
     {
         if ( time != null )
             time = time.trim();
         
         if ( ( time == null ) || ( time.length() == 0 ) )
-        {
-            return ( setNanoValue( 0L, firstTime ) );
-        }
+            return ( 0L );
         
         long nanos = 0L;
         
@@ -166,7 +167,7 @@ public class TimeProperty extends Property
             }
         }
         
-        return ( setNanoValue( nanos, firstTime ) );
+        return ( nanos );
     }
     
     /**
@@ -178,7 +179,7 @@ public class TimeProperty extends Property
      */
     public final boolean setTimeValue( String time )
     {
-        return ( setTimeValue( time, false ) );
+        return ( setNanoValue( parseTimeValue( time ), false ) );
     }
     
     /**
@@ -252,7 +253,11 @@ public class TimeProperty extends Property
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.TIME, null, null );
         
-        setTimeValue( defaultValue, true );
+        long time = parseTimeValue( defaultValue );
+        
+        this.defaultValue = time;
+        
+        setNanoValue( time, true );
     }
     
     /**

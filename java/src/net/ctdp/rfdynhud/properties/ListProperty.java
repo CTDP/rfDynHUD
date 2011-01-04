@@ -31,8 +31,19 @@ import org.jagatoo.util.Tools;
  */
 public class ListProperty<E extends Object, L extends Collection<E>> extends Property
 {
+    private final E defaultValue;
+    
     private L list;
     private E value;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public E getDefaultValue()
+    {
+        return ( defaultValue );
+    }
     
     /**
      * Gets the data list.
@@ -181,6 +192,8 @@ public class ListProperty<E extends Object, L extends Collection<E>> extends Pro
     public ListProperty( String name, String nameForDisplay, E defaultValue, L list, boolean readonly, String buttonText )
     {
         super( name, nameForDisplay, readonly, PropertyEditorType.LIST, buttonText, null );
+        
+        this.defaultValue = defaultValue;
         
         this.list = list;
         
