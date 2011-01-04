@@ -1,4 +1,4 @@
-v1.0.0 - 1.0.1
+v1.0.0 -> 1.0.1
 
 * Fixed 30-50 seconds freeze when switching back on the plugin when started with AI control.
 * Fixed redraw bug for the MapWidget and TrackPositionWidget.
@@ -14,7 +14,7 @@ v1.0.0 - 1.0.1
 * Added estimated (at the end of the race) engine lifetime marker to the WearWidget.
 * Moved readme.html from the config folder to the root plugin folder.
 
-v1.0.1 - 1.2.0
+v1.0.1 -> 1.2.0
 
 Major:
 
@@ -80,9 +80,12 @@ Minor:
 * Fixed clear rectangles for drawn strings (fixes very small StandingsWidgets).
 * Max revs are now handled better to improve the workaround for an rf-plugin-interface bug.
 
+v1.2.0 -> 1.2.1
+
+* Added d3d9.dll chaining to allow for other d3d9.dlls like softth to cooperate with rfDynHUD.
+
 TODO:
 
-* Allow for optional master d3d9.dll (DLL-chaining)
 * Improve multi-screen and viewport change detection.
 * Meta config (merge configurations)
 

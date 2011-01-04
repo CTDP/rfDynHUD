@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.jagatoo.util.ini.IniWriter;
 
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.util.ConfigurationLoader;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 
@@ -29,7 +30,7 @@ import net.ctdp.rfdynhud.util.PropertyWriter;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class DefaultPropertyWriter extends PropertyWriter
+public class DefaultPropertyWriter implements PropertyWriter
 {
     public static final Object DEFAULT_PLACEHOLDER = ConfigurationLoader.DEFAULT_PLACEHOLDER;
     
@@ -76,6 +77,18 @@ public class DefaultPropertyWriter extends PropertyWriter
             writer.writeSetting( key, value, quoteValue, comment );
         else
             writer.writeSetting( keyPrefix + key, value, quoteValue, comment );
+    }
+    
+    @Override
+    public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
+    {
+        writeProperty( property.getName(), property.getValueForConfigurationFile(), property.hasDefaultValue(), quoteValue, comment );
+    }
+    
+    @Override
+    public void writeProperty( Property property, String comment ) throws IOException
+    {
+        writeProperty( property.getName(), property.getValueForConfigurationFile(), property.hasDefaultValue(), property.quoteValueInConfigurationFile(), comment );
     }
     
     public DefaultPropertyWriter( IniWriter writer, String keyPrefix, boolean handleDefaults )

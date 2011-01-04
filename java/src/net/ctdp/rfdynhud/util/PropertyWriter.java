@@ -26,19 +26,13 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public abstract class PropertyWriter
+public interface PropertyWriter
 {
     public abstract void writeProperty( String key, Object value, boolean isDefaultValue, Boolean quoteValue, String comment ) throws IOException;
     
     public abstract void writeProperty( String key, Object value, boolean isDefaultValue, String comment ) throws IOException;
     
-    public void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException
-    {
-        writeProperty( property.getName(), property.getValueForConfigurationFile(), property.hasDefaultValue(), quoteValue, comment );
-    }
+    public abstract void writeProperty( Property property, Boolean quoteValue, String comment ) throws IOException;
     
-    public final void writeProperty( Property property, String comment ) throws IOException
-    {
-        writeProperty( property.getName(), property.getValueForConfigurationFile(), property.hasDefaultValue(), property.quoteValueInConfigurationFile(), comment );
-    }
+    public abstract void writeProperty( Property property, String comment ) throws IOException;
 }
