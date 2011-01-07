@@ -17,6 +17,7 @@ void loggui( const char* message, const unsigned int value, const bool newLine )
 void loggui( const char* message, const unsigned int value );
 void loggui2( const char* message, const unsigned int value1, const unsigned int value2, const bool newLine );
 void loggui2( const char* message, const unsigned int value1, const unsigned int value2 );
+void loggResolution( const unsigned short resX, const unsigned short resY );
 void loggui3( const char* message, const unsigned int value1, const unsigned int value2, const unsigned int value3, const bool newLine );
 void loggui3( const char* message, const unsigned int value1, const unsigned int value2, const unsigned int value3 );
 void loggui4( const char* message, const unsigned int value1, const unsigned int value2, const unsigned int value3, const unsigned int value4, const bool newLine );

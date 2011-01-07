@@ -525,6 +525,20 @@ void loggui2( const char* message, const unsigned int value1, const unsigned int
     loggui2( message, value1, value2, true );
 }
 
+void loggResolution( const unsigned short resX, const unsigned short resY )
+{
+    if ( LOG_FILENAME != NULL )
+    {
+        FILE* f;
+        fopen_s( &f, LOG_FILENAME, "a" );
+        if ( f )
+        {
+            fprintf( f, "Game resolution: %dx%d\n", resX, resY );
+            fclose( f );
+        }
+    }
+}
+
 void loggui3( const char* message, const unsigned int value1, const unsigned int value2, const unsigned int value3, const bool newLine )
 {
     if ( LOG_FILENAME != NULL )

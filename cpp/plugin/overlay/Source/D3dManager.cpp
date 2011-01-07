@@ -182,7 +182,7 @@ void D3DManager::initialize( void* d3dDev, const unsigned short _resX, const uns
     resX = _resX;
     resY = _resY;
     
-    loggui2( "Game resolution: ", resX, resY );
+    loggResolution( resX, resY );
     
     textureManager = _textureManager;
     
