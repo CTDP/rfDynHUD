@@ -64,6 +64,23 @@ LRESULT CALLBACK CallWndProc( int nCode, WPARAM wParam, LPARAM lParam )
     return ( CallNextHookEx( hook, nCode, wParam, lParam ) );
 }
 
+char* getParentD3D9DLL()
+{
+    char* rfPath = getRFactorPath();
+    int rfPathLen = strlen( rfPath );
+    char* parentD3D = (char*)malloc( MAX_PATH * sizeof( char) );
+    memcpy( parentD3D, rfPath, rfPathLen );
+    memcpy( parentD3D + rfPathLen, "\\d3d9_2.dll", 12 );
+    free( rfPath );
+    if ( checkFileExists( parentD3D, false ) == 0 )
+    {
+        UINT len = GetSystemDirectory( parentD3D, MAX_PATH );
+        memcpy( parentD3D + len, "\\d3d9.dll", 10 );
+    }
+    
+    return ( parentD3D );
+}
+
 BOOL WINAPI DllMain( HMODULE hDll, DWORD dwReason, PVOID pvReserved )
 {
     if ( dwReason == DLL_PROCESS_ATTACH )
@@ -74,23 +91,15 @@ BOOL WINAPI DllMain( HMODULE hDll, DWORD dwReason, PVOID pvReserved )
         
         DisableThreadLibraryCalls( hDll );
         
-        char sysd3d[MAX_PATH];
-        UINT len = GetSystemDirectory( sysd3d, MAX_PATH );
-        memcpy( sysd3d + len, "\\d3d9.dll", 10 );
-        /*
-        FILE* fff;
-        fopen_s( &fff, "sysdir.log", "w" );
-        fprintf( fff, sysd3d );
-        fclose( fff );
-        */
+        char* parentD3D = getParentD3D9DLL();
         
-        HMODULE hMod = LoadLibrary( sysd3d );
+        HMODULE hMod = LoadLibrary( parentD3D );
         if ( hMod == NULL )
         {
             //MessageBox( NULL, "Error loading original 32 bit d3d9.dll", "Error loading original 32 bit d3d9.dll", MB_OK );
             initPluginIniFilename( getRFactorPath(), getPluginPath() );
             initLogFilename( getRFactorPath(), getPluginPath() );
-            logg3( "Error loading original 32 bit d3d9.dll from \"", sysd3d, "\"." );
+            logg3( "Error loading original 32 bit d3d9.dll from \"", parentD3D, "\"." );
             return ( FALSE );
         }
         

@@ -53,7 +53,7 @@ public:
      * @param numRectangles an array of at least 'numTextures' length, that keeps the number of (used) rectangles per texture
      * @param rectangles the (used) rectangles per source texture. Each rectangle takes four short values (left, top, width, height) in the buffer.
      */
-    virtual void setupTextures( const unsigned char numTextures, const unsigned short* textureSizes, const unsigned char* numRectangles, const unsigned short* rectangles ) = 0;
+    virtual bool setupTextures( const unsigned char numTextures, const unsigned short* textureSizes, const unsigned char* numRectangles, const unsigned short* rectangles ) = 0;
     
     /**
      * Renders the given textures and updates them in case.

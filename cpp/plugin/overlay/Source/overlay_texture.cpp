@@ -1024,7 +1024,7 @@ IDirect3DVertexBuffer9* createVertexBuffer( LPDIRECT3DDEVICE9 device, TextureAtl
     return ( vertexBuffer );
 }
 
-void OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, const unsigned short height, const bool forceCompleteUpdate )
+bool OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, const unsigned short height, const bool forceCompleteUpdate )
 {
     //__int64 t0 = getSystemMicroTime();
 
@@ -1053,6 +1053,10 @@ void OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, con
     if ( m_overlayTexture == NULL )
     {
         m_overlayTexture = createTexture( m_device, m_texWidth, m_texHeight, true );
+        
+        if ( m_overlayTexture == NULL )
+            return ( false );
+        
         m_completeTextureUpdateForced = true;
     }
     
@@ -1063,6 +1067,10 @@ void OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, con
             if ( m_proxyTexture == NULL )
             {
                 m_proxyTexture = createTexture( m_device, m_texWidth, m_texHeight, false );
+                
+                if ( m_proxyTexture == NULL )
+                    return ( false );
+                
                 m_completeTextureUpdateForced = true;
             }
         }
@@ -1077,6 +1085,9 @@ void OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, con
             if ( m_vertexBuffer == NULL )
             {
                 m_vertexBuffer = createVertexBuffer( m_device, m_atlas );
+                
+                if ( m_vertexBuffer == NULL )
+                    return ( false );
             }
             
             m_completeTextureUpdateForced = m_completeTextureUpdateForced || forceCompleteUpdate;
@@ -1095,9 +1106,11 @@ void OverlayTextureManagerImpl::setupD3DTexture( const unsigned short width, con
     
     //__int64 t1 = getSystemMicroTime();
     //loggDTs( "setupTextures took ", t0, t1 );
+    
+    return ( true );
 }
 
-void OverlayTextureManagerImpl::setupTextures( const unsigned char numTextures, const unsigned short* textureSizes, const unsigned char* numRectangles, const unsigned short* rectangles )
+bool OverlayTextureManagerImpl::setupTextures( const unsigned char numTextures, const unsigned short* textureSizes, const unsigned char* numRectangles, const unsigned short* rectangles )
 {
     logg( "Building texture atlas... ", false );
     //__int64 t0 = getSystemMicroTime();
@@ -1120,7 +1133,7 @@ void OverlayTextureManagerImpl::setupTextures( const unsigned char numTextures, 
         m_sourceTexPitches[i] = (unsigned int)m_sourceTexWidths[i] * 4;
     }
     
-    setupD3DTexture( m_atlas->getWidth(), m_atlas->getHeight(), true );
+    return ( setupD3DTexture( m_atlas->getWidth(), m_atlas->getHeight(), true ) );
 }
 
 void OverlayTextureManagerImpl::releaseInternal( const bool intern, const bool released )

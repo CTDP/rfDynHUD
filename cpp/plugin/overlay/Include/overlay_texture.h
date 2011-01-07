@@ -134,13 +134,13 @@ private:
     const unsigned short* getDirtyRectsBuffer( unsigned short** dirtyRectsBuffers, const unsigned char texIndex );
     void copyDirtyRectsToTexture( const unsigned char numTextures, unsigned short** dirtyRectsBuffers, PixelBufferCallback* pixBuffCallback );
     
-    void setupD3DTexture( const unsigned short width, const unsigned short height, const bool forceCompleteUpdate );
+    bool setupD3DTexture( const unsigned short width, const unsigned short height, const bool forceCompleteUpdate );
     
     void releaseInternal( const bool intern, const bool released );
     
 public:
     
-    void setupTextures( const unsigned char numTextures, const unsigned short* textureSizes, const unsigned char* numRectangles, const unsigned short* rectangles );
+    bool setupTextures( const unsigned char numTextures, const unsigned short* textureSizes, const unsigned char* numRectangles, const unsigned short* rectangles );
     
     void render( const float postScaleX, const float postScaleY, const unsigned char numTextures, unsigned short** dirtyRectsBuffers, PixelBufferCallback* pixBuffCallback, char* visibleFlags, char* rectangleVisibleFlags, const char* isTransformed, const float* translations, const unsigned short* rotCenters, const float* rotations, const float* scales, const unsigned short* clipRects );
     

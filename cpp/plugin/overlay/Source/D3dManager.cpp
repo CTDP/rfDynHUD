@@ -46,9 +46,10 @@ void _onTextureRequested()
         logg( "Texture requested. Updating textures..." );
         
         handshake->jvmConn.d3dFuncs.updateAllTextureInfos();
-        textureManager->setupTextures( handshake->jvmConn.d3dFuncs.getNumTextures(), handshake->jvmConn.d3dFuncs.textureSizes, handshake->jvmConn.d3dFuncs.numUsedRectangles, handshake->jvmConn.d3dFuncs.usedRectangles );
-        
-        logg( "Textures successfully updated." );
+        if ( textureManager->setupTextures( handshake->jvmConn.d3dFuncs.getNumTextures(), handshake->jvmConn.d3dFuncs.textureSizes, handshake->jvmConn.d3dFuncs.numUsedRectangles, handshake->jvmConn.d3dFuncs.usedRectangles ) )
+            logg( "Textures successfully updated." );
+        else
+            logg( "Textures update failed." );
     }
 }
 
@@ -229,9 +230,10 @@ void D3DManager::postReset( void* d3dDev, const unsigned short resX, const unsig
         logg( "postReset(). Updating Textures..." );
         
         handshake->jvmConn.d3dFuncs.updateAllTextureInfos();
-        textureManager->setupTextures( handshake->jvmConn.d3dFuncs.getNumTextures(), handshake->jvmConn.d3dFuncs.textureSizes, handshake->jvmConn.d3dFuncs.numUsedRectangles, handshake->jvmConn.d3dFuncs.usedRectangles );
-        
-        logg( "Textures successfully updated." );
+        if ( textureManager->setupTextures( handshake->jvmConn.d3dFuncs.getNumTextures(), handshake->jvmConn.d3dFuncs.textureSizes, handshake->jvmConn.d3dFuncs.numUsedRectangles, handshake->jvmConn.d3dFuncs.usedRectangles ) )
+            logg( "Textures successfully updated." );
+        else
+            logg( "Textures update failed." );
     }
 }
 
