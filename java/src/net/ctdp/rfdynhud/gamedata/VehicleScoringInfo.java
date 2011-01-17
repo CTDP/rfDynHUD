@@ -770,7 +770,7 @@ public class VehicleScoringInfo
      */
     public final Laptime getFastestLaptime()
     {
-        if ( isPlayer() )
+        if ( isPlayer() && DataCache.checkSessionType( scoringInfo ) )
         {
             Laptime cached = Laptime.isHotlap( gameData ) ? cachedFastestHotLaptime : cachedFastestNormalLaptime;
             

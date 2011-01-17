@@ -295,7 +295,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
         if ( isEditorMode )
             this.maxNumVehicles = 23;
         else
-            this.maxNumVehicles = gameData.getModInfo().getMaxOpponents() + 1;
+            this.maxNumVehicles = Math.min( gameData.getModInfo().getMaxOpponents() + 1, 256 );
     }
     
     /**

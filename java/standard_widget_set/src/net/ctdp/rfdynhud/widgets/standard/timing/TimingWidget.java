@@ -176,11 +176,20 @@ public class TimingWidget extends Widget
         if ( vsi == gameData.getScoringInfo().getViewedVehicleScoringInfo() )
         {
             if ( vsi.getStintLength() < 1.9f )
+            {
                 lastLapDisplayTime = -1f;
+            }
             else if ( lastLapDisplayDelay.getIntValue() < 0 )
-                lastLapDisplayTime = vsi.getLapStartTime() + ( vsi.getLaptime( vsi.getLapsCompleted() ).getSector1() * -lastLapDisplayDelay.getIntValue() / 100f );
+            {
+                if ( vsi.getLaptime( vsi.getLapsCompleted() ) == null ) // Should not be possible, but it happens!
+                    lastLapDisplayTime = -1f;
+                else
+                    lastLapDisplayTime = vsi.getLapStartTime() + ( vsi.getLaptime( vsi.getLapsCompleted() ).getSector1() * -lastLapDisplayDelay.getIntValue() / 100f );
+            }
             else
+            {
                 lastLapDisplayTime = vsi.getLapStartTime() + ( lastLapDisplayDelay.getIntValue() / 1000f );
+            }
         }
     }
     

@@ -359,4 +359,9 @@ public final class RFDHLog
     private RFDHLog()
     {
     }
+    
+    static
+    {
+        error( "Initialized logging system with log level ", LOG.getLogLevel().name(), "." );
+    }
 }

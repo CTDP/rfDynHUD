@@ -200,7 +200,7 @@ public class ModInfo
     
     private void parseRFM( File rfmFile )
     {
-        maxOpponents = 0;
+        maxOpponents = Integer.MAX_VALUE;
         raceDuration = -1f;
         
         BufferedReader br = null;

@@ -69,7 +69,6 @@ public class MapWidget extends Widget
 {
     private final BooleanProperty rotationEnabled = new BooleanProperty( "rotationEnabled", false );
     
-    
     private final ColorProperty roadColorSec1 = new ColorProperty( "roadColorSec1", "colorSec1", "#000000" );
     private final ColorProperty roadBoundaryColorSec1 = new ColorProperty( "roadBoundaryColorSec1", "boundaryColorSec1", "#FFFFFF" );
     private final ColorProperty roadColorSec2 = new ColorProperty( "roadColorSec2", "colorSec2", "#000000" );

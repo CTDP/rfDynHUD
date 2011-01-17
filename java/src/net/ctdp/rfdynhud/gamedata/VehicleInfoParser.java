@@ -100,22 +100,22 @@ class VehicleInfoParser extends AbstractIniParser
                 else if ( key.equalsIgnoreCase( "TeamStarts" ) )
                 {
                     if ( value.length() > 0 )
-                        info.teamStarts = Integer.parseInt( value );
+                        info.teamStarts = value;
                 }
                 else if ( key.equalsIgnoreCase( "TeamPoles" ) )
                 {
                     if ( value.length() > 0 )
-                        info.teamPoles = Integer.parseInt( value );
+                        info.teamPoles = value;
                 }
                 else if ( key.equalsIgnoreCase( "TeamWins" ) )
                 {
                     if ( value.length() > 0 )
-                        info.teamWins = Integer.parseInt( value );
+                        info.teamWins = value;
                 }
                 else if ( key.equalsIgnoreCase( "TeamWorldChampionships" ) )
                 {
                     if ( value.length() > 0 )
-                        info.teamWorldChampionships = Integer.parseInt( value );
+                        info.teamWorldChampionships = value;
                 }
                 else if ( key.equalsIgnoreCase( "Category" ) )
                 {

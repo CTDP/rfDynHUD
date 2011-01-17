@@ -36,10 +36,10 @@ public class VehicleInfo
     String fullTeamName = null;
     String teamFounded = null;
     String teamHeadquarters = null;
-    int teamStarts = -1;
-    int teamPoles = -1;
-    int teamWins = -1;
-    int teamWorldChampionships = -1;
+    String teamStarts = "N/A";
+    String teamPoles = "N/A";
+    String teamWins = "N/A";
+    String teamWorldChampionships = "N/A";
     
     String category = null;
     
@@ -57,10 +57,10 @@ public class VehicleInfo
         fullTeamName = null;
         teamFounded = null;
         teamHeadquarters = null;
-        teamStarts = -1;
-        teamPoles = -1;
-        teamWins = -1;
-        teamWorldChampionships = -1;
+        teamStarts = "N/A";
+        teamPoles = "N/A";
+        teamWins = "N/A";
+        teamWorldChampionships = "N/A";
         
         category = null;
     }
@@ -120,22 +120,22 @@ public class VehicleInfo
         return ( teamHeadquarters );
     }
     
-    public final int getTeamStarts()
+    public final String getTeamStarts()
     {
         return ( teamStarts );
     }
     
-    public final int getTeamPoles()
+    public final String getTeamPoles()
     {
         return ( teamPoles );
     }
     
-    public final int getTeamWins()
+    public final String getTeamWins()
     {
         return ( teamWins );
     }
     
-    public final int getTeamWorldChampionships()
+    public final String getTeamWorldChampionships()
     {
         return ( teamWorldChampionships );
     }
