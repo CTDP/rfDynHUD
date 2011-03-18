@@ -25,4 +25,12 @@ package net.ctdp.rfdynhud.gamedata;
 public class __GameIDHelper
 {
     public static SupportedGames gameId = null;
+    
+    public static void initGameID( SupportedGames gameId )
+    {
+        __GameIDHelper.gameId = gameId;
+        
+        @SuppressWarnings( "unused" )
+        GameFileSystem gfs = GameFileSystem.INSTANCE;
+    }
 }

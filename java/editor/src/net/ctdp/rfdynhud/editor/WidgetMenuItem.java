@@ -95,32 +95,39 @@ public class WidgetMenuItem extends JMenuItem
     @Override
     protected void paintComponent( Graphics g )
     {
-        Boolean checkState = Boolean.valueOf( this.isSelected() );
-        
-        if ( !iconDrawn || ( checkState != lastCheckState ) )
+        try
         {
-            widget.prepareForMenuItem();
+            Boolean checkState = Boolean.valueOf( this.isSelected() );
             
-            Rect2i innerRect = WidgetsEditorPanel.getWidgetInnerRect( widget );
-            TransformableTexture[] subTextures = widget.getSubTextures( editor.getGameData(), true, innerRect.getWidth(), innerRect.getHeight() );
-            
-            __WPrivilegedAccess.updateVisibility( widget, editor.getGameData(), true );
-            
-            texture.clear( true, null );
-            widget.drawWidget( fakeClock, true, editor.getGameData(), true, texture, false );
-            
-            WidgetsEditorPanel.drawSubTextures( widget, subTextures, texture.getTextureCanvas() );
-            
-            if ( checkState )
+            if ( !iconDrawn || ( checkState != lastCheckState ) )
             {
-                texture.getTextureCanvas().setClip( (Rect2i)null );
+                widget.prepareForMenuItem();
                 
-                //texture.copyImageDataFrom( CHECK_IMAGE, 0, 0, CHECK_IMAGE.getWidth(), CHECK_IMAGE.getHeight(), 2, texture.getHeight() - 2 - CHECK_IMAGE.getHeight(), CHECK_IMAGE.getWidth(), CHECK_IMAGE.getHeight(), false, false, null );
-                texture.getTextureCanvas().drawImage( CHECK_IMAGE, 2, texture.getHeight() - 2 - CHECK_IMAGE.getHeight() );
+                Rect2i innerRect = WidgetsEditorPanel.getWidgetInnerRect( widget );
+                TransformableTexture[] subTextures = widget.getSubTextures( editor.getGameData(), true, innerRect.getWidth(), innerRect.getHeight() );
+                
+                __WPrivilegedAccess.updateVisibility( widget, editor.getGameData(), true );
+                
+                texture.clear( true, null );
+                widget.drawWidget( fakeClock, true, editor.getGameData(), true, texture, false );
+                
+                WidgetsEditorPanel.drawSubTextures( widget, subTextures, texture.getTextureCanvas() );
+                
+                if ( checkState )
+                {
+                    texture.getTextureCanvas().setClip( (Rect2i)null );
+                    
+                    //texture.copyImageDataFrom( CHECK_IMAGE, 0, 0, CHECK_IMAGE.getWidth(), CHECK_IMAGE.getHeight(), 2, texture.getHeight() - 2 - CHECK_IMAGE.getHeight(), CHECK_IMAGE.getWidth(), CHECK_IMAGE.getHeight(), false, false, null );
+                    texture.getTextureCanvas().drawImage( CHECK_IMAGE, 2, texture.getHeight() - 2 - CHECK_IMAGE.getHeight() );
+                }
+                
+                iconDrawn = true;
+                lastCheckState = checkState;
             }
-            
-            iconDrawn = true;
-            lastCheckState = checkState;
+        }
+        catch ( Throwable t )
+        {
+            RFDHLog.print( t );
         }
         
         super.paintComponent( g );

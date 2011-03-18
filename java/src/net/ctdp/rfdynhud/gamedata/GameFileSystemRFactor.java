@@ -20,6 +20,8 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.File;
 import java.io.IOException;
 
+import net.ctdp.rfdynhud.util.PluginINI;
+
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
 
@@ -34,14 +36,17 @@ class GameFileSystemRFactor extends GameFileSystem
      * {@inheritDoc}
      */
     @Override
-    protected File findGameFolder( File pluginFolder )
+    protected File findGameFolder( PluginINI pluginINI, File pluginFolder )
     {
         File f = pluginFolder.getParentFile();
+        String exeFilename = pluginINI.getGeneralExeFilename();
+        if ( exeFilename == null )
+            exeFilename = "rFactor.exe";
         
-        while ( !new File( f, "rFactor.exe" ).exists() && !isRoot( f ) )
+        while ( !new File( f, exeFilename ).exists() && !isRoot( f ) )
             f = f.getParentFile();
         
-        if ( new File( f, "rFactor.exe" ).exists() )
+        if ( new File( f, exeFilename ).exists() )
             return ( f.getAbsoluteFile() );
         
         if ( isRoot( pluginFolder ) )
@@ -54,7 +59,7 @@ class GameFileSystemRFactor extends GameFileSystem
      * {@inheritDoc}
      */
     @Override
-    protected File findLocationsFolder( File gameFolder )
+    protected File findLocationsFolder( PluginINI pluginINI, File gameFolder )
     {
         return ( getPathFromGameConfigINI( "TracksDir", "GameData\\Locations\\" ) );
     }
@@ -147,13 +152,13 @@ class GameFileSystemRFactor extends GameFileSystem
      * {@inheritDoc}
      */
     @Override
-    protected File findGameScreenshotsFolder( File gameFolder )
+    protected File findGameScreenshotsFolder( PluginINI pluginINI, File gameFolder )
     {
         return ( getPathFromGameConfigINI( "ScreenShotsDir", "UserData" + File.separator + "ScreenShots" ) );
     }
     
-    public GameFileSystemRFactor()
+    public GameFileSystemRFactor( PluginINI pluginINI )
     {
-        super();
+        super( pluginINI );
     }
 }

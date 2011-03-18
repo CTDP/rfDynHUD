@@ -1,0 +1,19 @@
+Number=11
+Team="Honda F1 Racing"
+PitGroup="Group6"
+Driver="Rubens Barrichello"
+Description="#11 Rubens Barrichello"
+Engine="Honda RA806E"
+Manufacturer="Honda"
+Classes="CTDPF1_2006,RA106"
+
+FullTeamName="Honda Racing F1 Team"
+TeamFounded=1964
+TeamHeadquarters="Brackley, UK"
+TeamStarts=63
+TeamPoles=1
+TeamWins=2
+TeamWorldChampionships=0
+
+
+Category="CTDP F1 2006"

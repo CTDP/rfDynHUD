@@ -21,6 +21,8 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+
 /**
  * Insert class comment here.
  * 
@@ -31,13 +33,26 @@ public class OverlayFileFilter extends FileFilter implements java.io.FileFilter
     @Override
     public boolean accept( File f )
     {
-        if ( !f.isFile() )
-            return ( false );
-        
         String name = f.getName().toLowerCase();
         
-        if ( !name.contains( "overlay" ) || !name.endsWith( ".ini" ) )
+        if ( !f.isFile() )
+        {
+            if ( f.isDirectory() )
+            {
+                if ( name.equals( ".svn" ) )
+                    return ( false );
+                else if ( f.getParentFile().equals( GameFileSystem.INSTANCE.getConfigFolder() ) && name.equals( "data" ) )
+                    return ( false );
+            }
+            else
+            {
+                return ( false );
+            }
+        }
+        else if ( !name.contains( "overlay" ) || !name.endsWith( ".ini" ) )
+        {
             return ( false );
+        }
         
         /*
         if ( name.equals( "overlay.ini" ) )

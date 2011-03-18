@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,8 +43,15 @@ import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
  */
 public class WidgetFactory
 {
-    private static final List<Class<Widget>> widgetClasses;
-    private static final Map<String, Class<Widget>> widgetClassNameClassMap;
+    private static List<Class<Widget>> widgetClasses = null;
+    private static Map<String, Class<Widget>> widgetClassNameClassMap = null;
+    
+    private static Collection<String> excludedJars = null;
+    
+    public static void setExcludedJars( Collection<String> excludedJars )
+    {
+        WidgetFactory.excludedJars = excludedJars;
+    }
     
     private static void findWidgetSetJars( File folder, List<URL> jars )
     {
@@ -54,15 +62,37 @@ public class WidgetFactory
                 if ( !f.getName().equals( ".svn" ) )
                     findWidgetSetJars( f, jars );
             }
-            else if ( f.getName().toLowerCase().endsWith( ".jar" ) )
+            else
             {
-                try
+                String filenameLC = f.getAbsolutePath().toLowerCase();
+                
+                if ( filenameLC.endsWith( ".jar" ) )
                 {
-                    jars.add( f.toURI().toURL() );
-                }
-                catch ( Throwable t )
-                {
-                    RFDHLog.exception( t );
+                    boolean accepted = true;
+                    
+                    if ( excludedJars != null )
+                    {
+                        for ( String exclJar : excludedJars )
+                        {
+                            if ( !accepted )
+                                break;
+                            
+                            if ( filenameLC.endsWith( exclJar ) )
+                                accepted = false;
+                        }
+                    }
+                    
+                    if ( accepted )
+                    {
+                        try
+                        {
+                            jars.add( f.toURI().toURL() );
+                        }
+                        catch ( Throwable t )
+                        {
+                            RFDHLog.exception( t );
+                        }
+                    }
                 }
             }
         }
@@ -137,8 +167,11 @@ public class WidgetFactory
         return ( classes );
     }
     
-    static
+    private static void init()
     {
+        if ( widgetClasses != null )
+            return;
+        
         widgetClasses = findWidgetClasses();
         
         widgetClassNameClassMap = new HashMap<String, Class<Widget>>();
@@ -151,6 +184,8 @@ public class WidgetFactory
     @SuppressWarnings( "unchecked" )
     public static final Class<Widget>[] getWidgetClasses()
     {
+        init();
+        
         return ( widgetClasses.toArray( new Class[ widgetClasses.size() ] ) );
     }
     
@@ -174,6 +209,8 @@ public class WidgetFactory
      */
     private static Widget createWidget( Class<Widget> clazz, String name, WidgetsConfiguration widgetsConfig, boolean loadingAssembled )
     {
+        init();
+        
         Widget widget = null;
         
         try
@@ -245,6 +282,8 @@ public class WidgetFactory
      */
     public static Class<Widget> getWidgetClass( String className )
     {
+        init();
+        
         Class<Widget> clazz = widgetClassNameClassMap.get( className );
         
         if ( clazz == null )

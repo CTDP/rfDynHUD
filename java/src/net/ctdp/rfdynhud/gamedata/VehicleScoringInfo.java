@@ -46,13 +46,13 @@ public class VehicleScoringInfo
     private String nameShort = null;
     private String nameShortUC = null;
     private String nameTLC = null;
-    private String nameTLCLC = null;
+    private String nameTLCUC = null;
     private int nameId = 0;
     private Integer nameID = null;
     
     private short place = -1;
     
-    private int lastTLCMrgUpdateId = -1;
+    private int lastTLCMgrUpdateId = -1;
     
     private String vehClass = null;
     private static int nextClassId = 1;
@@ -138,7 +138,7 @@ public class VehicleScoringInfo
             nameShort = null;
             nameShortUC = null;
             nameTLC = null;
-            nameTLCLC = null;
+            nameTLCUC = null;
             nameID = data.refreshID( true );
             nameId = nameID.intValue();
         }
@@ -345,7 +345,7 @@ public class VehicleScoringInfo
         this.nameShort = null;
         this.nameShortUC = null;
         this.nameTLC = null;
-        this.nameTLCLC = null;
+        this.nameTLCUC = null;
         this.nameID = id;
         this.nameId = id.intValue();
     }
@@ -396,12 +396,12 @@ public class VehicleScoringInfo
      */
     public final String getDriverNameShort( boolean upperCase )
     {
-        if ( ( nameShort == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
+        if ( ( nameShort == null ) || ( lastTLCMgrUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
         {
             //String driverName = getDriverName( false );
             String driverName = originalName;
             nameShort = ThreeLetterCodeManager.getShortForm( driverName, getDriverID(), scoringInfo.getThreeLetterCodeGenerator() );
-            lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
+            lastTLCMgrUpdateId = ThreeLetterCodeManager.getUpdateId();
         }
         
         if ( upperCase )
@@ -434,20 +434,20 @@ public class VehicleScoringInfo
      */
     public final String getDriverNameTLC( boolean upperCase )
     {
-        if ( ( nameTLC == null ) || ( lastTLCMrgUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
+        if ( ( nameTLC == null ) || ( lastTLCMgrUpdateId < ThreeLetterCodeManager.getUpdateId() ) )
         {
             //String driverName = getDriverName( false );
             String driverName = originalName;
             nameTLC = ThreeLetterCodeManager.getThreeLetterCode( driverName, getDriverID(), scoringInfo.getThreeLetterCodeGenerator() );
-            lastTLCMrgUpdateId = ThreeLetterCodeManager.getUpdateId();
+            lastTLCMgrUpdateId = ThreeLetterCodeManager.getUpdateId();
         }
         
-        if ( !upperCase )
+        if ( upperCase )
         {
-            if ( nameTLCLC == null )
-                nameTLCLC = nameTLC.toLowerCase();
+            if ( nameTLCUC == null )
+                nameTLCUC = nameTLC.toUpperCase();
             
-            return ( nameTLCLC );
+            return ( nameTLCUC );
         }
         
         return ( nameTLC );

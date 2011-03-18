@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.gamedata;
 import java.io.File;
 
 import net.ctdp.rfdynhud.RFDynHUD;
-import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
 import net.ctdp.rfdynhud.input.InputMapping;
 import net.ctdp.rfdynhud.input.KnownInputActions;
 import net.ctdp.rfdynhud.properties.AbstractPropertiesKeeper;
@@ -221,7 +220,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      * {@inheritDoc}
      */
     @Override
-    public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig )
+    public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData GameData, boolean isEditorMode )
     {
         /*
         int n = widgetsConfig.getNumWidgets();
@@ -236,7 +235,7 @@ public class GameEventsManager implements ConfigurationLoadListener
      * {@inheritDoc}
      */
     @Override
-    public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig )
+    public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData GameData, boolean isEditorMode )
     {
         needsOnVehicleControlChangedEvent = true;
         texturesRequested = true;
@@ -244,7 +243,7 @@ public class GameEventsManager implements ConfigurationLoadListener
         
         eventsDispatcher.fireAfterWidgetsConfigurationLoaded( renderListenersManager, gameData, widgetsConfig );
         
-        widgetsManager.collectTextures( gameData, __EDPrivilegedAccess.isEditorMode );
+        widgetsManager.collectTextures( gameData, isEditorMode );
         //if ( usePlayer )
             widgetsManager.clearCompleteTexture();
         
@@ -399,10 +398,11 @@ public class GameEventsManager implements ConfigurationLoadListener
             String modName = gameData.getModInfo().getName();
             SessionType sessionType = gameData.getScoringInfo().getSessionType();
             VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+            String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
             String vehicleName = gameData.getVehicleInfo().getTeamName();
-            if ( ( vehicleName == null ) || ( vehicleName.length() == 0 ) )
-                vehicleName = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
-            __UtilPrivilegedAccess.reloadConfiguration( loader, smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleName, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, force );
+            if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
+                vehicleName = null;
+            __UtilPrivilegedAccess.reloadConfiguration( loader, smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, vehicleName, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, force );
             
             if ( texturesRequested )
             {
@@ -755,35 +755,35 @@ public class GameEventsManager implements ConfigurationLoadListener
     {
         byte result = 1;
         
-        if ( !isInGarage ) // For now we don't support reentering the garage with a special configuration, because of the inaccurate check.
-            return ( result );
-        
-        boolean isInGarage = checkIsInGarage();
-        
-        if ( this.isInGarage && !isInGarage )
+        if ( isInGarage ) // For now we don't support reentering the garage with a special configuration, because of the inaccurate check.
         {
-            this.isInGarage = false;
-            eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
+            boolean isInGarage = checkIsInGarage();
             
-            if ( !isEditorMode )
+            if ( this.isInGarage && !isInGarage )
             {
-                result = reloadConfigAndSetupTexture( false );
+                this.isInGarage = false;
+                eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
                 
-                if ( result != 0 )
-                    eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
+                if ( !isEditorMode )
+                {
+                    result = reloadConfigAndSetupTexture( false );
+                    
+                    if ( result != 0 )
+                        eventsDispatcher.fireOnGarageExited( gameData, isEditorMode );
+                }
             }
-        }
-        else if ( !this.isInGarage && isInGarage )
-        {
-            this.isInGarage = true;
-            eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
-            
-            if ( !isEditorMode )
+            else if ( !this.isInGarage && isInGarage )
             {
-                result = reloadConfigAndSetupTexture( false );
+                this.isInGarage = true;
+                eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
                 
-                if ( result != 0 )
-                    eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
+                if ( !isEditorMode )
+                {
+                    result = reloadConfigAndSetupTexture( false );
+                    
+                    if ( result != 0 )
+                        eventsDispatcher.fireOnGarageEntered( gameData, isEditorMode );
+                }
             }
         }
         
@@ -865,12 +865,13 @@ public class GameEventsManager implements ConfigurationLoadListener
                 if ( !gameData.isInRealtimeMode() || gameData.getScoringInfo().getSessionType().isRace() )
                 {
                     String modName = gameData.getModInfo().getName();
+                    String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
                     String vehicleName = gameData.getVehicleInfo().getTeamName();
-                    if ( ( vehicleName == null ) || ( vehicleName.length() == 0 ) )
-                        vehicleName = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
+                    if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
+                        vehicleName = null;
                     SessionType sessionType = gameData.getScoringInfo().getSessionType();
                     String trackName = gameData.getTrackInfo().getTrackName();
-                    RFDHLog.printlnEx( "Session started. (Mod: \"" + modName + "\", Car: \"" + vehicleName + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
+                    RFDHLog.printlnEx( "Session started. (Mod: \"" + modName + "\", Vehicle-Class: \"" + vehicleClass + "\", Car: \"" + ( vehicleName == null ? "N/A" : vehicleName ) + "\", Session: \"" + sessionType.name() + "\", Track: \"" + trackName + "\")" );
                     
                     String trackname = gameData.getTrackInfo().getTrackName();
                     if ( !trackname.equals( lastTrackname ) )

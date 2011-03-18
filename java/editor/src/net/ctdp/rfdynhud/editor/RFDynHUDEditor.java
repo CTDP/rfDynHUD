@@ -45,6 +45,9 @@ import javax.swing.text.html.HTMLDocument;
 
 import net.ctdp.rfdynhud.RFDynHUD;
 import net.ctdp.rfdynhud.editor.WidgetImportManager.ImportDecision;
+import net.ctdp.rfdynhud.editor.commandline.EditorArguments;
+import net.ctdp.rfdynhud.editor.commandline.EditorArgumentsHandler;
+import net.ctdp.rfdynhud.editor.commandline.EditorArgumentsRegistry;
 import net.ctdp.rfdynhud.editor.director.DirectorManager;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
@@ -91,6 +94,9 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetFactory;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 
+import org.jagatoo.commandline.ArgumentsRegistry;
+import org.jagatoo.commandline.CommandlineParser;
+import org.jagatoo.commandline.CommandlineParsingException;
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.gui.awt_swing.GUITools;
 import org.jagatoo.util.ini.AbstractIniParser;
@@ -105,7 +111,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
 {
     static
     {
-        __EDPrivilegedAccess.isEditorMode = true;
+        __EDPrivilegedAccess.editorClassLoader = RFDynHUDEditor.class.getClassLoader();
     }
     
     private static final String BASE_WINDOW_TITLE = "rFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
@@ -1574,23 +1580,21 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     {
         try
         {
-            //InputStream in = new FileInputStream( "data/game_data/commentary_info" );
-            InputStream in = LiveGameData.class.getResourceAsStream( "/data/game_data/commentary_info" );
+            ClassLoader classLoader = RFDynHUDEditor.class.getClassLoader();
+            
+            InputStream in = classLoader.getResourceAsStream( "data/game_data/commentary_info" );
             __GDPrivilegedAccess.loadFromStream( in, gameData.getCommentaryRequestInfo(), true );
             in.close();
             
-            //in = new FileInputStream( "data/game_data/graphics_info" );
-            in = LiveGameData.class.getResourceAsStream( "/data/game_data/graphics_info" );
+            in = classLoader.getResourceAsStream( "data/game_data/graphics_info" );
             __GDPrivilegedAccess.loadFromStream( in, gameData.getGraphicsInfo(), true );
             in.close();
             
-            //in = new FileInputStream( "data/game_data/scoring_info" );
-            in = LiveGameData.class.getResourceAsStream( "/data/game_data/scoring_info" );
+            in = classLoader.getResourceAsStream( "data/game_data/scoring_info" );
             __GDPrivilegedAccess.loadFromStream( in, gameData.getScoringInfo(), editorPresets );
             in.close();
             
-            //in = new FileInputStream( "data/game_data/telemetry_data" );
-            in = LiveGameData.class.getResourceAsStream( "/data/game_data/telemetry_data" );
+            in = classLoader.getResourceAsStream( "data/game_data/telemetry_data" );
             __GDPrivilegedAccess.loadFromStream( in, gameData.getTelemetryData(), true );
             in.close();
             
@@ -1820,8 +1824,39 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         AbstractPropertiesKeeper.attachKeeper( editorPanel.getSettings() );
     }
     
+    private static final EditorArguments parseCommandLine( String[] args ) throws CommandlineParsingException
+    {
+        EditorArgumentsHandler handler = new EditorArgumentsHandler();
+        
+        ArgumentsRegistry argReg = EditorArgumentsRegistry.createStandardArgumentsRegistry();
+        CommandlineParser parser = new CommandlineParser( argReg, handler );
+        parser.parseCommandline( args );
+        
+        if ( handler.helpRequested() )
+        {
+            argReg.dump();
+            System.exit( 0 );
+        }
+        
+        return ( handler.getArguments() );
+    }
+    
     public static void main( String[] args )
     {
+        EditorArguments arguments = null;
+        
+        try
+        {
+            arguments = parseCommandLine( args );
+        }
+        catch ( CommandlineParsingException e )
+        {
+            e.printStackTrace();
+            return;
+        }
+        
+        WidgetFactory.setExcludedJars( arguments.getExcludedJars() );
+        
         try
         {
             //Logger.setStdStreams();

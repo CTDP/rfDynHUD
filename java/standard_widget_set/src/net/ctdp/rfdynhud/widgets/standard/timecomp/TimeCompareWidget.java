@@ -344,7 +344,7 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( abbreviate );
         propsCont.addProperty( displaySectors );

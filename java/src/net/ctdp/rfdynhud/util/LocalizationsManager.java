@@ -168,10 +168,10 @@ public class LocalizationsManager
         if ( map.size() > 0 )
             return;
         
-        if ( ResourceManager.isJarMode() )
-            update( GameFileSystem.INSTANCE.getPluginINI(), new File( GameFileSystem.INSTANCE.getPluginFolder(), "widget_sets" ) );
-        else
+        if ( ResourceManager.isCompleteIDEMode() )
             update( GameFileSystem.INSTANCE.getPluginINI(), GameFileSystem.INSTANCE.getPluginFolder() );
+        else
+            update( GameFileSystem.INSTANCE.getPluginINI(), new File( GameFileSystem.INSTANCE.getPluginFolder(), "widget_sets" ) );
     }
     
     public final String getLocalization( Class<? extends Widget> widgetClass, String key )

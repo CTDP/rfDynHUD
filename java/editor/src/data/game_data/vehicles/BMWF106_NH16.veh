@@ -1,0 +1,19 @@
+Number=16
+Team="BMW Sauber F1 2006"
+PitGroup="Group8"
+Driver="Nick Heidfeld"
+Description="#16 Nick Heidfeld"
+Engine="BMW P86"
+Manufacturer="BMW"
+Classes="CTDPF1_2006,F1.06"
+
+FullTeamName="Intel BMW Sauber"
+TeamFounded=2005
+TeamHeadquarters="Hinwil, Switzerland"
+TeamStarts=18
+TeamPoles=0
+TeamWins=0
+TeamWorldChampionships=0
+
+
+Category="CTDP F1 2006"

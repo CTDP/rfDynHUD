@@ -114,10 +114,22 @@ public class ProfileInfo
     
     private long updateId = 0L;
     
-    private String modName = null;
+    private File lastUsedTrackFile = null;
+    
+    private String raceCastEmail = null; // The email you are registered with on racecast.rfactor.net
+    private String raceCastPassword = null; // Your password on racecast.rfactor.net
     private File vehFile = null;
     private String teamName = null;
-    private File lastUsedTrackFile = null;
+    private String nationality = null;
+    private String birthDate = null;
+    private String location = null;
+    private String modName = null; // The current rFactor game file (*.RFM) to load
+    private String helmet = null;
+    private Integer uniqueID = null; // Helps to uniquely identify in multiplayer (along with name) if leaving and coming back
+    private Integer startingDriver = null; // Zero-based index of starting driver (0=driver1, 1=driver2, 2=driver3, etc.)
+    private Integer aiControlsDriver = null; // Bitfield defining which drivers the AI controls (0=none, 1=driver1, 2=driver2, 3=driver1+driver2, etc.)
+    private Float driverHotswapDelay = null; // Delay in seconds between switching controls to AI or remote driver
+    
     private Float multiRaceLength = null;
     private Boolean showCurrentLap = null;
     private Integer numReconLaps = null;
@@ -164,9 +176,20 @@ public class ProfileInfo
         profileFolder = null;
         plrFile = null;
         
-        modName = "N/A";
+        raceCastEmail = null;
+        raceCastPassword = null;
         vehFile = null;
         teamName = "N/A";
+        nationality = null;
+        birthDate = null;
+        location = null;
+        modName = "N/A";
+        helmet = null;
+        uniqueID = null;
+        startingDriver = null;
+        aiControlsDriver = null;
+        driverHotswapDelay = null;
+        
         lastUsedTrackFile = null;
         multiRaceLength = 1.0f;
         showCurrentLap = true;
@@ -221,13 +244,13 @@ public class ProfileInfo
                     }
                     else if ( group.equalsIgnoreCase( "DRIVER" ) )
                     {
-                        if ( key.equalsIgnoreCase( "Game Description" ) )
+                        if ( key.equalsIgnoreCase( "RaceCast Email" ) )
                         {
-                            value = value.trim();
-                            if ( value.toLowerCase().endsWith( ".rfm" ) )
-                                modName = value.substring( 0, value.length() - 4 );
-                            else
-                                modName = value;
+                            raceCastEmail = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "RaceCast Password" ) )
+                        {
+                            raceCastPassword = value;
                         }
                         else if ( key.equalsIgnoreCase( "Vehicle File" ) )
                         {
@@ -236,6 +259,46 @@ public class ProfileInfo
                         else if ( key.equalsIgnoreCase( "Team" ) )
                         {
                             teamName = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "Nationality" ) )
+                        {
+                            nationality = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "Birth Date" ) )
+                        {
+                            birthDate = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "Location" ) )
+                        {
+                            location = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "Game Description" ) )
+                        {
+                            value = value.trim();
+                            if ( value.toLowerCase().endsWith( ".rfm" ) )
+                                modName = value.substring( 0, value.length() - 4 );
+                            else
+                                modName = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "Helmet" ) )
+                        {
+                            helmet = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "Unique ID" ) )
+                        {
+                            uniqueID = Integer.parseInt( value );
+                        }
+                        else if ( key.equalsIgnoreCase( "Starting Driver" ) )
+                        {
+                            startingDriver = Integer.parseInt( value );
+                        }
+                        else if ( key.equalsIgnoreCase( "AI Controls Driver" ) )
+                        {
+                            aiControlsDriver = Integer.parseInt( value );
+                        }
+                        else if ( key.equalsIgnoreCase( "Driver Hotswap Delay" ) )
+                        {
+                            driverHotswapDelay = Float.parseFloat( value );
                         }
                     }
                     else if ( group.equalsIgnoreCase( "Game Options" ) )
@@ -348,13 +411,23 @@ public class ProfileInfo
     }
     
     /**
-     * Gets the current mod's name.
+     * Gets the email you are registered with on racecast.rfactor.net
      * 
-     * @return the current mod's name.
+     * @return the email you are registered with on racecast.rfactor.net
      */
-    final String getModName()
+    public final String getRaceCastEmail()
     {
-        return ( modName );
+        return ( raceCastEmail );
+    }
+    
+    /**
+     * Gets your password on racecast.rfactor.net
+     * 
+     * @return Your password on racecast.rfactor.net
+     */
+    public final String getRaceCastPassword()
+    {
+        return ( raceCastPassword );
     }
     
     /**
@@ -375,6 +448,96 @@ public class ProfileInfo
     public final String getTeamName()
     {
         return ( teamName );
+    }
+    
+    /**
+     * Gets the player's nationality.
+     * 
+     * @return the player's nationality.
+     */
+    public final String getNationality()
+    {
+        return ( nationality );
+    }
+    
+    /**
+     * Gets the player's birth date. Should be in the format &quot;YYYY-MM-DD&quot;.
+     * 
+     * @return the player's birth date.
+     */
+    public final String getBirthDate()
+    {
+        return ( birthDate );
+    }
+    
+    /**
+     * Gets the player's location.
+     * 
+     * @return the player's location.
+     */
+    public final String getLocation()
+    {
+        return ( location );
+    }
+    
+    /**
+     * Gets the current mod's name.
+     * 
+     * @return the current mod's name.
+     */
+    final String getModName()
+    {
+        return ( modName );
+    }
+    
+    /**
+     * Gets the player's helmet.
+     * 
+     * @return the player's helmet.
+     */
+    public final String getHelmet()
+    {
+        return ( helmet );
+    }
+    
+    /**
+     * Helps to uniquely identify in multiplayer (along with name) if leaving and coming back
+     * 
+     * @return the player's unique ID.
+     */
+    public final Integer getUniqueID()
+    {
+        return ( uniqueID );
+    }
+    
+    /**
+     * Zero-based index of starting driver (0=driver1, 1=driver2, 2=driver3, etc.)
+     * 
+     * @return the starting driver.
+     */
+    public final Integer getStartingDriver()
+    {
+        return ( startingDriver );
+    }
+    
+    /**
+     * Bitfield defining which drivers the AI controls (0=none, 1=driver1, 2=driver2, 3=driver1+driver2, etc.)
+     * 
+     * @return the &quot;AI  Control Driver&quot; setting.
+     */
+    public final Integer getAIControlsDriver()
+    {
+        return ( aiControlsDriver );
+    }
+    
+    /**
+     * Delay in seconds between switching controls to AI or remote driver.
+     * 
+     * @return the driver hotswap delay in seconds.
+     */
+    public final Float getDriverHotswapDelay()
+    {
+        return ( driverHotswapDelay );
     }
     
     /**

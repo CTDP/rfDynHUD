@@ -21,6 +21,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import org.jagatoo.util.io.FileUtils;
+
 import net.ctdp.rfdynhud.util.PluginINI;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ResourceManager;
@@ -35,7 +37,7 @@ public abstract class GameFileSystem
 {
     private final File pluginFolder = __UtilHelper.PLUGIN_FOLDER;
     private final String pluginPath = pluginFolder.getAbsolutePath();
-    private final PluginINI pluginINI = __UtilHelper.PLUGIN_INI;
+    private final PluginINI pluginINI;
     private final File gameFolder;
     private final String gamePath;
     private final File locationsFolder;
@@ -77,30 +79,32 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the game's root folder.
      * 
+     * @param ini the plugin's main config file
      * @param pluginFolder the plugin's main folder
      * 
      * @return the game's root folder.
      */
-    protected abstract File findGameFolder( File pluginFolder );
+    protected abstract File findGameFolder( PluginINI ini, File pluginFolder );
     
     /**
      * Called once at instantiation time to initialize the game's &quot;Locations&quot; folder.
      * 
+     * @param ini the plugin's main config file
      * @param gameFolder the game's root folder
      * 
      * @return the game's &quot;Locations&quot; folder.
      */
-    protected abstract File findLocationsFolder( File gameFolder );
+    protected abstract File findLocationsFolder( PluginINI ini, File gameFolder );
     
     /**
      * Called once at instantiation time to initialize the plugin's config folder.
      * 
+     * @param pluginINI the plugin's main config file
      * @param pluginFolder the plugin's main folder
-     * @param pluginINI an interface to the main plugin's ini file
      * 
      * @return the plugin's config folder.
      */
-    protected File findConfigFolder( File pluginFolder, PluginINI pluginINI )
+    protected File findConfigFolder( PluginINI pluginINI, File pluginFolder )
     {
         return ( pluginINI.getGeneralConfigFolder() );
     }
@@ -108,11 +112,12 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the widget sets' folder.
      * 
+     * @param pluginINI the plugin's main config file
      * @param pluginFolder the plugin's main folder
      * 
      * @return the widget sets' folder.
      */
-    protected File findWidgetSetsFolder( File pluginFolder )
+    protected File findWidgetSetsFolder( PluginINI pluginINI, File pluginFolder )
     {
         return ( new File( pluginFolder, "widget_sets" ).getAbsoluteFile() );
     }
@@ -120,11 +125,12 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the sub plugins' folder.
      * 
+     * @param pluginINI the plugin's main config file
      * @param pluginFolder the plugin's main folder
      * 
      * @return the sub plugins' folder.
      */
-    protected File findSubPluginsFolder( File pluginFolder )
+    protected File findSubPluginsFolder( PluginINI pluginINI, File pluginFolder )
     {
         return ( new File( pluginFolder, "plugins" ).getAbsoluteFile() );
     }
@@ -132,12 +138,12 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's cache folder.
      * 
+     * @param pluginINI the plugin's main config file
      * @param pluginFolder the plugin's main folder
-     * @param pluginINI an interface to the main plugin's ini file
      * 
      * @return the plugin's cache folder.
      */
-    protected File findCacheFolder( File pluginFolder, PluginINI pluginINI )
+    protected File findCacheFolder( PluginINI pluginINI, File pluginFolder )
     {
         return ( pluginINI.getGeneralCacheFolder() );
     }
@@ -145,13 +151,13 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's border folder.
      * 
+     * @param pluginINI the plugin's main config file
      * @param pluginFolder the plugin's main folder
-     * @param pluginINI an interface to the main plugin's ini file
      * @param configFolder the plugin's config folder
      * 
      * @return the plugin's border folder.
      */
-    protected File findBordersFolder( File pluginFolder, PluginINI pluginINI, File configFolder )
+    protected File findBordersFolder( PluginINI pluginINI, File pluginFolder, File configFolder )
     {
         return ( new File( new File( configFolder, "data" ), "borders" ).getAbsoluteFile() );
     }
@@ -159,13 +165,13 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's images folder.
      * 
+     * @param pluginINI the plugin's main config file
      * @param pluginFolder the plugin's main folder
-     * @param pluginINI an interface to the main plugin's ini file
      * @param configFolder the plugin's config folder
      * 
      * @return the plugin's image's folder.
      */
-    protected File findImagesFolder( File pluginFolder, PluginINI pluginINI, File configFolder )
+    protected File findImagesFolder( PluginINI pluginINI, File pluginFolder, File configFolder )
     {
         return ( new File( new File( configFolder, "data" ), "images" ).getAbsoluteFile() );
     }
@@ -173,17 +179,17 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the plugin's editor folder.
      * 
+     * @param pluginINI the plugin's main config file
      * @param pluginFolder the plugin's main folder
-     * @param pluginINI an interface to the main plugin's ini file
      * 
      * @return the plugin's editor folder.
      */
-    protected File findEditorFolder( File pluginFolder, PluginINI pluginINI )
+    protected File findEditorFolder( PluginINI pluginINI, File pluginFolder )
     {
-        if ( ResourceManager.isJarMode() )
-            return ( new File( pluginFolder, "editor" ).getAbsoluteFile() );
+        if ( ResourceManager.isCompleteIDEMode() )
+            return ( new File( FileUtils.getCanonicalFile( "yyy_data" ), "editor" ) );
         
-        return ( new File( new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "yyy_data" ), "editor" ).getAbsoluteFile() );
+        return ( new File( pluginFolder, "editor" ).getAbsoluteFile() );
     }
     
     /**
@@ -199,11 +205,12 @@ public abstract class GameFileSystem
     /**
      * Called once at instantiation time to initialize the game's screenshots folder.
      * 
+     * @param pluginINI the plugin's main config file
      * @param gameFolder the game's root folder
      * 
      * @return the game's screenshots folder.
      */
-    protected abstract File findGameScreenshotsFolder( File gameFolder );
+    protected abstract File findGameScreenshotsFolder( PluginINI pluginINI, File gameFolder );
     
     
     /**
@@ -435,46 +442,48 @@ public abstract class GameFileSystem
         return ( gameScreenshotsFolder );
     }
     
-    protected GameFileSystem()
+    protected GameFileSystem( PluginINI pluginINI )
     {
-        if ( ResourceManager.isJarMode() )
-            this.gameFolder = findGameFolder( pluginFolder );
-        else
+        this.pluginINI = pluginINI;
+        
+        if ( ResourceManager.isCompleteIDEMode() )
             this.gameFolder = readDevGameFolder();
+        else
+            this.gameFolder = findGameFolder( pluginINI, pluginFolder );
         
         this.gamePath = gameFolder.getAbsolutePath();
         
-        this.locationsFolder = findLocationsFolder( gameFolder );
+        this.locationsFolder = findLocationsFolder( pluginINI, gameFolder );
         this.locationsPath = locationsFolder.getAbsolutePath();
         
-        this.configFolder = findConfigFolder( pluginFolder, pluginINI );
+        this.configFolder = findConfigFolder( pluginINI, pluginFolder );
         this.configPath = configFolder.getAbsolutePath();
         
-        this.bordersFolder = findBordersFolder( pluginFolder, pluginINI, configFolder );
+        this.bordersFolder = findBordersFolder( pluginINI, pluginFolder, configFolder );
         this.bordersPath = bordersFolder.getAbsolutePath();
         
-        this.widgetSetsFolder = findWidgetSetsFolder( pluginFolder );
+        this.widgetSetsFolder = findWidgetSetsFolder( pluginINI, pluginFolder );
         this.widgetSetsPath = ( widgetSetsFolder == null ) ? null : widgetSetsFolder.getAbsolutePath();
         
-        this.subPluginsFolder = findSubPluginsFolder( pluginFolder );
+        this.subPluginsFolder = findSubPluginsFolder( pluginINI, pluginFolder );
         this.subPluginsPath = ( subPluginsFolder == null ) ? null : subPluginsFolder.getAbsolutePath();
         
-        this.cacheFolder = findCacheFolder( pluginFolder, pluginINI );
+        this.cacheFolder = findCacheFolder( pluginINI, pluginFolder );
         this.cachePath = ( cacheFolder == null ) ? null : cacheFolder.getAbsolutePath();
         
-        this.imagesFolder = findImagesFolder( pluginFolder, pluginINI, configFolder );
+        this.imagesFolder = findImagesFolder( pluginINI, pluginFolder, configFolder );
         this.imagesPath = imagesFolder.getAbsolutePath();
         
-        this.editorFolder = findEditorFolder( pluginFolder, pluginINI );
+        this.editorFolder = findEditorFolder( pluginINI, pluginFolder );
         this.editorPath = editorFolder.getAbsolutePath();
         
-        this.gameScreenshotsFolder = findGameScreenshotsFolder( gameFolder );
+        this.gameScreenshotsFolder = findGameScreenshotsFolder( pluginINI, gameFolder );
     }
     
-    private static GameFileSystem createInstance( SupportedGames gameId )
+    private static GameFileSystem createInstance( SupportedGames gameId, PluginINI pluginINI )
     {
         if ( gameId == SupportedGames.rFactor )
-            return ( new GameFileSystemRFactor() );
+            return ( new GameFileSystemRFactor( pluginINI ) );
         
         throw new Error( "Unsupported game: " + gameId );
     }
@@ -482,5 +491,5 @@ public abstract class GameFileSystem
     /**
      * This is the public singleton instance of this class.
      */
-    public static final GameFileSystem INSTANCE = GameFileSystem.createInstance( __GameIDHelper.gameId );
+    public static final GameFileSystem INSTANCE = GameFileSystem.createInstance( __GameIDHelper.gameId, __UtilHelper.PLUGIN_INI );
 }

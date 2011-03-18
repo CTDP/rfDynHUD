@@ -216,7 +216,7 @@ public class ThreeLetterCodeManager
         
         String tlc = addTLC( driverName, driverID, tlcGenerator.generateThreeLetterCode( driverName ) );
         
-        RFDHLog.printlnEx( "No three letter code found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated \"" + tlc + "\"." );
+        RFDHLog.printlnEx( "No three letter code found for driver \"" + driverName + "\" in the " + INI_FILENAME + ". Generated \"" + tlc.toUpperCase() + "\"." );
         
         return ( tlc );
     }

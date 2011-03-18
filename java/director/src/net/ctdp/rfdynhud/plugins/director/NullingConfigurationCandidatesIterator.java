@@ -35,9 +35,9 @@ public class NullingConfigurationCandidatesIterator extends ConfigurationCandida
     }
     
     @Override
-    public void collectCandidates( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleName, SessionType sessionType )
+    public void collectCandidates( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
     {
         if ( !nulling )
-            super.collectCandidates( smallMonitor, bigMonitor, isInGarage, modName, vehicleName, sessionType );
+            super.collectCandidates( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, vehicleName, sessionType );
     }
 }

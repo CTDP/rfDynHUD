@@ -359,4 +359,33 @@ public class ModInfo
     {
         this.profileInfo = profileInfo;
     }
+    
+    /**
+     * Gets the RFM filenames of all installed mods.
+     * 
+     * @return the RFM filenames of all installed mods.
+     */
+    public static String[] getInstalledModNames()
+    {
+        File[] rfms = new File( GameFileSystem.INSTANCE.getGameFolder(), "rfm" ).listFiles();
+        
+        if ( rfms == null )
+            return ( null );
+        
+        ArrayList<String> names = new ArrayList<String>();
+        
+        for ( File rfm : rfms )
+        {
+            String name = rfm.getName();
+            if ( rfm.isFile() && name.toLowerCase().endsWith( ".rfm" ) )
+            {
+                if ( name.length() == 4 )
+                    names.add( "" );
+                else
+                    names.add( name.substring( 0, name.length() - 4 ) );
+            }
+        }
+        
+        return ( names.toArray( new String[ names.size() ] ) );
+    }
 }

@@ -34,6 +34,7 @@ import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
+import net.ctdp.rfdynhud.util.Delay;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
@@ -59,7 +60,7 @@ public class RideHeightWidget extends Widget
     private float minRL = Float.MAX_VALUE;
     private float minRR = Float.MAX_VALUE;
     
-    private long t0 = -1;
+    private final Delay delay = new Delay();
     
     private DrawnString headerString = null;
     private DrawnString flString = null;
@@ -78,7 +79,7 @@ public class RideHeightWidget extends Widget
     {
         super.onRealtimeEntered( gameData, isEditorMode );
         
-        t0 = gameData.getScoringInfo().getSessionNanos();
+        delay.reset();
     }
     
     /**
@@ -136,9 +137,7 @@ public class RideHeightWidget extends Widget
         minRL = Math.min( minRL, telemData.getRideHeight( Wheel.REAR_LEFT ) );
         minRR = Math.min( minRR, telemData.getRideHeight( Wheel.REAR_RIGHT ) );
         
-        boolean c2 = gameData.getScoringInfo().getSessionNanos() - t0 > 1000000000L;
-        
-        if ( needsCompleteRedraw || c2 )
+        if ( needsCompleteRedraw || delay.isTimeUp( gameData.getScoringInfo() ) )
         {
             minFL = Math.max( 0f, minFL * 100f );
             minFR = Math.max( 0f, minFR * 100f );
@@ -163,7 +162,7 @@ public class RideHeightWidget extends Widget
             minRL = Float.MAX_VALUE;
             minRR = Float.MAX_VALUE;
             
-            t0 = gameData.getScoringInfo().getSessionNanos();
+            delay.start( gameData.getScoringInfo(), 1000000000L );
         }
     }
     

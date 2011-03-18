@@ -18,6 +18,7 @@
 package net.ctdp.rfdynhud.editor.util;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -42,9 +44,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.JTextComponent;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 
 public class SaveAsDialog extends JDialog implements ActionListener
@@ -115,6 +119,8 @@ public class SaveAsDialog extends JDialog implements ActionListener
         }
     }
     
+    private static final Color DISABLED_TEXT_COLOR = new JTextField().getDisabledTextColor();
+    
     private final RFDynHUDEditor editor;
     
     private JRadioButton rdoConstruct = null;
@@ -128,7 +134,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
     private JLabel lblVehicle = null;
     private JLabel lblSession = null;
     
-    private JTextField tbxMod = null;
+    private JComboBox cbxMod = null;
     private ButtonGroup bgSituation = null;
     private JRadioButton[] rdoSituation = null;
     private JTextField tbxVehicle = null;
@@ -165,7 +171,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
     {
         String filename = "";
         
-        String mod = tbxMod.getText().trim();
+        String mod = String.valueOf( cbxMod.getEditor().getItem() ).trim();
         if ( !mod.equals( "" ) )
             filename += mod + File.separator;
         
@@ -203,7 +209,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         
         TitledBorder tbConstruct = new TitledBorder( "Construct" );
         if ( !isConstruct )
-            tbConstruct.setTitleColor( tbxMod.getDisabledTextColor() );
+            tbConstruct.setTitleColor( DISABLED_TEXT_COLOR );
         
         constructFrame.setBorder( tbConstruct );
         
@@ -212,7 +218,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
         lblVehicle.setEnabled( isConstruct );
         lblSession.setEnabled( isConstruct );
         
-        tbxMod.setEnabled( isConstruct );
+        cbxMod.setEnabled( isConstruct );
         for ( int i = 0; i < rdoSituation.length; i++ )
             rdoSituation[i].setEnabled( isConstruct );
         tbxVehicle.setEnabled( isConstruct );
@@ -328,7 +334,18 @@ public class SaveAsDialog extends JDialog implements ActionListener
                 path = path.substring( p + 1 );
             
             String mod = path;
-            tbxMod.setText( mod );
+            boolean found = false;
+            for ( int i = 0; !found && i < cbxMod.getItemCount(); i++ )
+            {
+                if ( ( (String)cbxMod.getItemAt( i ) ).equalsIgnoreCase( mod ) )
+                {
+                    cbxMod.setSelectedIndex( i );
+                    found = true;
+                }
+            }
+            
+            if ( !found )
+                cbxMod.getEditor().setItem( mod );
             
             if ( !folder.exists() )
             {
@@ -585,10 +602,12 @@ public class SaveAsDialog extends JDialog implements ActionListener
         
         JPanel pr = new JPanel( new GridLayout( numRows, 1 ) );
         
-        tbxMod = new JTextField( "" );
-        tbxMod.setActionCommand( Actions.MOD.name() );
-        tbxMod.addActionListener( this );
-        tbxMod.getDocument().addDocumentListener( new DocumentListener()
+        cbxMod = new JComboBox( ModInfo.getInstalledModNames() );
+        cbxMod.setEditable( true );
+        cbxMod.setSelectedIndex( -1 );
+        cbxMod.setActionCommand( Actions.MOD.name() );
+        cbxMod.addActionListener( this );
+        ( (JTextComponent)cbxMod.getEditor().getEditorComponent() ).getDocument().addDocumentListener( new DocumentListener()
         {
             @Override
             public void removeUpdate( DocumentEvent e )
@@ -608,7 +627,7 @@ public class SaveAsDialog extends JDialog implements ActionListener
                 onActionPerformed( Actions.MOD );
             }
         } );
-        pr.add( tbxMod );
+        pr.add( cbxMod );
         
         bgSituation = new ButtonGroup();
         

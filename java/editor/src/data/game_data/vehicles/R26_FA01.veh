@@ -1,0 +1,19 @@
+Number=1
+Team="Mild Seven Renault F1 Team"
+PitGroup="Group1"
+Driver="Fernando Alonso"
+Description="#01 Fernando Alonso"
+Engine="Renault RS26"
+Manufacturer="Renault"
+Classes="CTDPF1_2006,R26"
+
+FullTeamName="Mild Seven Renault F1 Team"
+TeamFounded=1977
+TeamHeadquarters="Enstone, Oxfordshire, United Kingdom"
+TeamStarts=238
+TeamPoles=50
+TeamWins=33
+TeamWorldChampionships=2
+
+
+Category="CTDP F1 2006"

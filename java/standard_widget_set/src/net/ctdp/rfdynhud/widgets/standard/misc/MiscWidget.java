@@ -386,9 +386,9 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 }
                 
                 if ( fastestLap.isValid() )
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", TimingUtil.getTimeAsLaptimeString( fastestLap.getValue() ) + " (" + fastestLapper + ")" }, scoringAlignment, padding, scoringColWidths, texture );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_fastest_lap_prefix + ":", TimingUtil.getTimeAsLaptimeString( fastestLap.getValue() ) + " (" + fastestLapper + ")" }, scoringAlignment, padding, scoringColWidths, texture );
                 else
-                    scoringString3.drawColumns( offsetX, offsetY, new String[] { "Fst. Lap:", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, scoringColWidths, texture );
+                    scoringString3.drawColumns( offsetX, offsetY, new String[] { Loc.scoring_fastest_lap_prefix + ":", Loc.scoring_fastest_lap_na }, scoringAlignment, padding, scoringColWidths, texture );
             }
         }
         
@@ -633,7 +633,7 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( displayScoring );
         propsCont.addProperty( displayTiming );

@@ -26,10 +26,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
-import net.ctdp.rfdynhud.editor.__EDPrivilegedAccess;
+import net.ctdp.rfdynhud.util.AbstractThreeLetterCodeGenerator;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGenerator;
-import net.ctdp.rfdynhud.util.ThreeLetterCodeGeneratorImpl;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeManager;
 import net.ctdp.rfdynhud.util.TimingUtil;
 
@@ -158,7 +157,7 @@ public class ScoringInfo
     private String playerFilename = null;
     private String trackName = null;
     
-    private ThreeLetterCodeGenerator tlcGenerator = new ThreeLetterCodeGeneratorImpl();
+    private ThreeLetterCodeGenerator tlcGenerator = AbstractThreeLetterCodeGenerator.initThreeLetterCodeGenerator( GameFileSystem.INSTANCE.getPluginINI().getThreeLetterCodeGeneratorClass() );
     
     private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
     private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();
@@ -280,10 +279,13 @@ public class ScoringInfo
                             RFDHLog.debug( "[DEBUG]: ", vsi.getDriverName(), " left the game." );
                             
                             leftVSICache.put( vsi.getDriverID(), vsi );
-                            vehicleScoringInfo[i] = vehicleScoringInfo[j];
-                            vehicleScoringInfo[j] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
-                            i--;
-                            j--;
+                            if ( j > 0 ) // Shouldn't be possible, but...
+                            {
+                                vehicleScoringInfo[i] = vehicleScoringInfo[j];
+                                vehicleScoringInfo[j] = new VehicleScoringInfo( this, gameData.getProfileInfo(), gameData );
+                                i--;
+                                j--;
+                            }
                         }
                         else
                         {
@@ -481,59 +483,6 @@ public class ScoringInfo
         return ( tlcGenerator );
     }
     
-    final void updateSessionTime( long timestamp )
-    {
-        extrapolationNanos = timestamp - lastUpdateTimestamp;
-        
-        gamePausedCache = gamePausedCache || gameData.isGamePaused();
-        
-        if ( gamePausedCache )
-        {
-            extrapolationNanos = 0L;
-        }
-        
-        extrapolationTime = extrapolationNanos / 1000000000.0f;
-        
-        sessionNanos = sessionBaseNanos + extrapolationNanos;
-        sessionTime = sessionNanos / 1000000000.0f;
-        
-        int n = getNumVehicles();
-        for ( int i = 0; i < n; i++ )
-        {
-            getVehicleScoringInfo( i ).resetExtrapolatedValues();
-        }
-    }
-    
-    /**
-     * Gets the nano seconds, the current session is running.
-     * 
-     * @return the nano seconds, the current session is running.
-     */
-    public final long getSessionNanos()
-    {
-        return ( sessionNanos );
-    }
-    
-    /**
-     * Returns the nano seconds since the last ScoringInfo update.
-     * 
-     * @return the nano seconds since the last ScoringInfo update.
-     */
-    public final long getExtrapolationNanos()
-    {
-        return ( extrapolationNanos );
-    }
-    
-    /**
-     * Returns the seconds since the last ScoringInfo update.
-     * 
-     * @return the seconds since the last ScoringInfo update.
-     */
-    public final float getExtrapolationTime()
-    {
-        return ( extrapolationTime );
-    }
-    
     void applyEditorPresets( EditorPresets editorPresets )
     {
         if ( editorPresets == null )
@@ -545,12 +494,12 @@ public class ScoringInfo
         FuelUsageRecorder.MASTER_FUEL_USAGE_RECORDER.applyEditorPresets( gameData, editorPresets );
     }
     
-    private void updateRaceLengthPercentage()
+    private void updateRaceLengthPercentage( boolean isEditorMode )
     {
         if ( getSessionType().isRace() )
         {
             double trackRaceLaps = gameData.getTrackInfo().getRaceLaps();
-            if ( __EDPrivilegedAccess.isEditorMode )
+            if ( isEditorMode )
                 trackRaceLaps = 70;
             else if ( trackRaceLaps < 0.0 ) // corrupt GDB file?
             {
@@ -634,7 +583,7 @@ public class ScoringInfo
             
             if ( sessionJustStarted > 0 )
             {
-                updateRaceLengthPercentage();
+                updateRaceLengthPercentage( editorPresets != null );
                 rlpUpdated = true;
                 
                 for ( int i = 0; i < n; i++ )
@@ -648,14 +597,14 @@ public class ScoringInfo
             
             if ( getLeadersVehicleScoringInfo().isLapJustStarted() && !rlpUpdated )
             {
-                updateRaceLengthPercentage();
+                updateRaceLengthPercentage( editorPresets != null );
                 rlpUpdated = true;
             }
             
             GamePhase gamePhase = getGamePhase();
             if ( ( gamePhase != lastGamePhase ) && !rlpUpdated )
             {
-                updateRaceLengthPercentage();
+                updateRaceLengthPercentage( editorPresets != null );
                 rlpUpdated = true;
             }
             lastGamePhase = gamePhase;
@@ -997,6 +946,59 @@ public class ScoringInfo
     public final SessionType getSessionType()
     {
         return ( data.getSessionType() );
+    }
+    
+    final void updateSessionTime( long timestamp )
+    {
+        extrapolationNanos = timestamp - lastUpdateTimestamp;
+        
+        gamePausedCache = gamePausedCache || gameData.isGamePaused();
+        
+        if ( gamePausedCache )
+        {
+            extrapolationNanos = 0L;
+        }
+        
+        extrapolationTime = extrapolationNanos / 1000000000.0f;
+        
+        sessionNanos = sessionBaseNanos + extrapolationNanos;
+        sessionTime = sessionNanos / 1000000000.0f;
+        
+        int n = getNumVehicles();
+        for ( int i = 0; i < n; i++ )
+        {
+            getVehicleScoringInfo( i ).resetExtrapolatedValues();
+        }
+    }
+    
+    /**
+     * Gets the nano seconds, the current session is running.
+     * 
+     * @return the nano seconds, the current session is running.
+     */
+    public final long getSessionNanos()
+    {
+        return ( sessionNanos );
+    }
+    
+    /**
+     * Returns the nano seconds since the last ScoringInfo update.
+     * 
+     * @return the nano seconds since the last ScoringInfo update.
+     */
+    public final long getExtrapolationNanos()
+    {
+        return ( extrapolationNanos );
+    }
+    
+    /**
+     * Returns the seconds since the last ScoringInfo update.
+     * 
+     * @return the seconds since the last ScoringInfo update.
+     */
+    public final float getExtrapolationTime()
+    {
+        return ( extrapolationTime );
     }
     
     /**
@@ -1443,7 +1445,7 @@ public class ScoringInfo
             for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
             {
                 float fs_ = vehicleScoringInfo2[i].getBestLapTime();
-                if ( fs_ < fs )
+                if ( ( fs_ > 0f ) && ( fs_ < fs ) )
                 {
                     fastestSector1VSI = vehicleScoringInfo2[i];
                     fs = fs_;
@@ -1469,7 +1471,7 @@ public class ScoringInfo
             for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
             {
                 float fs_ = vehicleScoringInfo2[i].getBestSector2( false );
-                if ( fs_ < fs )
+                if ( ( fs_ > 0f ) && ( fs_ < fs ) )
                 {
                     fastestSector2VSI = vehicleScoringInfo2[i];
                     fs = fs_;
@@ -1495,7 +1497,7 @@ public class ScoringInfo
             for ( int i = 1; i < vehicleScoringInfo2.length; i++ )
             {
                 float fs_ = vehicleScoringInfo2[i].getBestSector3();
-                if ( fs_ < fs )
+                if ( ( fs_ > 0f ) && ( fs_ < fs ) )
                 {
                     fastestSector3VSI = vehicleScoringInfo2[i];
                     fs = fs_;

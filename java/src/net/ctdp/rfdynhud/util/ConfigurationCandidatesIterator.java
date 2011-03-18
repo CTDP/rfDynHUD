@@ -66,118 +66,81 @@ public class ConfigurationCandidatesIterator implements Iterator<File>
         candidates.add( new File( configFolder, filename ) );
     }
     
-    protected void addSmallMonitorCandidates( File configFolder, String modName, String vehicleName, SessionType sessionType )
+    protected void addSpecificCandidates( File configFolder, String modName, String prefix, String vehicleClass, String vehicleName, SessionType sessionType )
     {
         boolean isPractice = sessionType.isPractice();
         
-        addCandidate( configFolder, modName, "overlay_monitor_small_" + vehicleName + "_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_monitor_small_" + vehicleName + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor_small_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_monitor_small_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, "overlay_monitor_small_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, "overlay_monitor_small_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor_small_" + vehicleName + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor_small.ini" );
-        addCandidate( configFolder, "overlay_monitor_small.ini" );
-    }
-    
-    protected void addBigMonitorCandidates( File configFolder, String modName, String vehicleName, SessionType sessionType )
-    {
-        boolean isPractice = sessionType.isPractice();
+        String prefix2 = prefix + "_";
         
-        addCandidate( configFolder, modName, "overlay_monitor_big_" + vehicleName + "_" + sessionType.name() + ".ini" );
+        if ( vehicleName != null )
+            addCandidate( configFolder, modName, prefix2 + vehicleName + "_" + sessionType.name() + ".ini" );
+        addCandidate( configFolder, modName, prefix2 + vehicleClass + "_" + sessionType.name() + ".ini" );
         if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_monitor_big_" + vehicleName + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor_big_" + sessionType.name() + ".ini" );
+        {
+            if ( vehicleName != null )
+                addCandidate( configFolder, modName, prefix2 + vehicleName + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
+            addCandidate( configFolder, modName, prefix2 + vehicleClass + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
+        }
+        addCandidate( configFolder, modName, prefix2 + sessionType.name() + ".ini" );
         if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_monitor_big_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, "overlay_monitor_big_" + sessionType.name() + ".ini" );
+            addCandidate( configFolder, modName, prefix2 + SessionType.PRACTICE_WILDCARD + ".ini" );
+        addCandidate( configFolder, prefix2 + sessionType.name() + ".ini" );
         if ( isPractice )
-            addCandidate( configFolder, "overlay_monitor_big_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor_big_" + vehicleName + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor_big.ini" );
-        addCandidate( configFolder, "overlay_monitor_big.ini" );
+            addCandidate( configFolder, prefix2 + SessionType.PRACTICE_WILDCARD + ".ini" );
+        if ( vehicleName != null )
+            addCandidate( configFolder, modName, prefix2 + vehicleName + ".ini" );
+        addCandidate( configFolder, modName, prefix2 + vehicleClass + ".ini" );
+        addCandidate( configFolder, modName, prefix + ".ini" );
+        addCandidate( configFolder, prefix + ".ini" );
     }
     
-    protected void addMonitorCandidates( File configFolder, String modName, String vehicleName, SessionType sessionType )
+    protected void addSmallMonitorCandidates( File configFolder, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
     {
-        boolean isPractice = sessionType.isPractice();
-        
-        addCandidate( configFolder, modName, "overlay_monitor_" + vehicleName + "_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_monitor_" + vehicleName + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_monitor_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, "overlay_monitor_big_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, "overlay_monitor_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor_" + vehicleName + ".ini" );
-        addCandidate( configFolder, modName, "overlay_monitor.ini" );
-        addCandidate( configFolder, "overlay_monitor.ini" );
+        addSpecificCandidates( configFolder, modName, "overlay_monitor_small", vehicleClass, vehicleName, sessionType );
     }
     
-    protected void addGarageCandidates( File configFolder, String modName, String vehicleName, SessionType sessionType )
+    protected void addBigMonitorCandidates( File configFolder, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
     {
-        boolean isPractice = sessionType.isPractice();
-        
-        addCandidate( configFolder, modName, "overlay_garage_" + vehicleName + "_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_garage_" + vehicleName + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_garage_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_garage_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, "overlay_garage_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, "overlay_garage_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_garage_" + vehicleName + ".ini" );
-        addCandidate( configFolder, modName, "overlay_garage.ini" );
-        addCandidate( configFolder, "overlay_garage.ini" );
+        addSpecificCandidates( configFolder, modName, "overlay_monitor_big", vehicleClass, vehicleName, sessionType );
     }
     
-    protected void addRegularCandidates( File configFolder, String modName, String vehicleName, SessionType sessionType )
+    protected void addMonitorCandidates( File configFolder, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
     {
-        boolean isPractice = sessionType.isPractice();
-        
-        addCandidate( configFolder, modName, "overlay_" + vehicleName + "_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_" + vehicleName + "_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, modName, "overlay_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, "overlay_" + sessionType.name() + ".ini" );
-        if ( isPractice )
-            addCandidate( configFolder, "overlay_" + SessionType.PRACTICE_WILDCARD + ".ini" );
-        addCandidate( configFolder, modName, "overlay_" + vehicleName + ".ini" );
-        addCandidate( configFolder, modName, "overlay.ini" );
-        addCandidate( configFolder, "overlay.ini" );
+        addSpecificCandidates( configFolder, modName, "overlay_monitor", vehicleClass, vehicleName, sessionType );
     }
     
-    public void collectCandidates( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleName, SessionType sessionType )
+    protected void addGarageCandidates( File configFolder, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
+    {
+        addSpecificCandidates( configFolder, modName, "overlay_garage", vehicleClass, vehicleName, sessionType );
+    }
+    
+    protected void addRegularCandidates( File configFolder, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
+    {
+        addSpecificCandidates( configFolder, modName, "overlay", vehicleClass, vehicleName, sessionType );
+    }
+    
+    public void collectCandidates( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType )
     {
         final File configFolder = GameFileSystem.INSTANCE.getConfigFolder();
         
         if ( smallMonitor )
         {
-            addSmallMonitorCandidates( configFolder, modName, vehicleName, sessionType );
-            addMonitorCandidates( configFolder, modName, vehicleName, sessionType );
+            addSmallMonitorCandidates( configFolder, modName, vehicleClass, vehicleName, sessionType );
+            addMonitorCandidates( configFolder, modName, vehicleClass, vehicleName, sessionType );
         }
         else if ( bigMonitor )
         {
-            addBigMonitorCandidates( configFolder, modName, vehicleName, sessionType );
-            addMonitorCandidates( configFolder, modName, vehicleName, sessionType );
+            addBigMonitorCandidates( configFolder, modName, vehicleClass, vehicleName, sessionType );
+            addMonitorCandidates( configFolder, modName, vehicleClass, vehicleName, sessionType );
         }
         else
         {
             if ( isInGarage )
             {
-                addGarageCandidates( configFolder, modName, vehicleName, sessionType );
+                addGarageCandidates( configFolder, modName, vehicleClass, vehicleName, sessionType );
             }
             
-            addRegularCandidates( configFolder, modName, vehicleName, sessionType );
+            addRegularCandidates( configFolder, modName, vehicleClass, vehicleName, sessionType );
         }
     }
     

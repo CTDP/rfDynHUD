@@ -63,6 +63,16 @@ public class StringValue
         return ( hasChanged( true ) );
     }
     
+    /*
+    private final boolean update( String newValue, boolean setUnchanged )
+    {
+        if ( setUnchanged )
+            this.oldValue = value;
+        this.value = newValue;
+        
+        return ( hasChanged( false ) );
+    }
+    */
     private final boolean update( String newValue, boolean forceSetUnchanged )
     {
         if ( forceSetUnchanged || !hasChanged( false ) )

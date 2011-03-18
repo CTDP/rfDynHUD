@@ -38,7 +38,7 @@ import org.jagatoo.util.Tools;
  */
 public class WidgetBackground
 {
-    private static final boolean isEditorMode = __EDPrivilegedAccess.isEditorMode;
+    private static final boolean isEditorMode = ( __EDPrivilegedAccess.editorClassLoader != null );
     
     private final Widget widget;
     private final BackgroundProperty property;

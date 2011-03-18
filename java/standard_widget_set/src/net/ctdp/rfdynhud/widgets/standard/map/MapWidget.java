@@ -819,7 +819,7 @@ public class MapWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( rotationEnabled );
         

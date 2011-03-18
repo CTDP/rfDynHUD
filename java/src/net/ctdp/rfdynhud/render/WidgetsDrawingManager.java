@@ -126,9 +126,15 @@ public class WidgetsDrawingManager
         
         widgetSubTextures = new TransformableTexture[ numWidgets ][];
         
+        int j = 0;
         for ( int i = 0; i < numWidgets; i++ )
         {
             Widget widget = widgetsConfig.getWidget( i );
+            
+            if ( !oneTextureForAllWidgets && widget.hasMasterCanvas( isEditorMode ) )
+            {
+                j++;
+            }
             
             TransformableTexture[] subTextures = widget.getSubTextures( gameData, isEditorMode, widget.getSize().getEffectiveWidth() - widget.getBorder().getInnerLeftWidth() - widget.getBorder().getInnerRightWidth(), widget.getSize().getEffectiveHeight() - widget.getBorder().getInnerTopHeight() - widget.getBorder().getInnerBottomHeight() );
             if ( ( subTextures != null ) && ( subTextures.length > 0 ) )
@@ -142,7 +148,15 @@ public class WidgetsDrawingManager
                     textures = tmp;
                 }
                 
-                System.arraycopy( subTextures, 0, textures, numTextures, subTextures.length );
+                //System.arraycopy( subTextures, 0, textures, numTextures, subTextures.length );
+                
+                // Shift succeeding textures, so that we can insert sub textures.
+                System.arraycopy( textures, j, textures, j + subTextures.length, numTextures - j );
+                
+                // Insert sub textures.
+                System.arraycopy( subTextures, 0, textures, j, subTextures.length );
+                
+                j += subTextures.length;
                 numTextures += subTextures.length;
             }
             else
@@ -254,6 +268,8 @@ public class WidgetsDrawingManager
                     }
                     
                     rectOffset = widgetTextures[i].fillBuffer( widget.isVisible(), 0, 0, k++, rectOffset, textureInfoBuffer );
+                    if ( widgetSubTextures[i] != null )
+                        k += widgetSubTextures[i].length; // skip sub textures
                     testRectOffset += widgetTextures[i].getNumUsedRectangles();
                     
                     if ( dirty )
@@ -268,11 +284,20 @@ public class WidgetsDrawingManager
                         }
                     }
                 }
+                else if ( widgetSubTextures[i] != null )
+                {
+                    k += widgetSubTextures[i].length; // skip sub textures
+                }
             }
         }
         
+        k = 0;
+        
         for ( int i = 0; i < widgetSubTextures.length; i++ )
         {
+            if ( !oneTextureForAllWidgets && ( widgetTextures[i] != null ) )
+                k++; // skip widget texture
+            
             Widget widget = widgetsConfig.getWidget( i );
             TransformableTexture[] subTextures = widgetSubTextures[i];
             if ( subTextures != null )

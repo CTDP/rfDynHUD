@@ -65,7 +65,7 @@ Mod-specific configurations are searched for in subfolders named like the mod. S
 <p>
 If you want to use an individual configuration for a car called &quot;MyFunnyCar&quot; of the Mod &quot;MyMod&quot;,
 the config file must be stored as &quot;MyMod\overlay_MyFunnyCar.ini&quot;. The rfdynhud.log file will tell you about the exact
-car name.
+car name. If you set the log level (in rfdynhud.ini) to DEBUG, you will even be promted the exact order of probed file names.
 </p>
 
 <p>
@@ -89,16 +89,19 @@ Please refer to the log file to know the names of the mod and car, if you don't 
 </p>
 
 <p>
-If the mod is &quot;F1CTDP06&quot; and the car is &quot;Scuderia Ferrari Marlboro 2006&quot; and the session type is &quot;PRACTICE3&quot;,
-the search order is as follows.
+If the mod is &quot;F1CTDP06&quot; and the vehicle class is &quot;F12006&quot; and the car is &quot;Scuderia Ferrari Marlboro 2006&quot;
+and the session type is &quot;PRACTICE3&quot;, the search order is as follows.
 <ol>
     <li>F1CTDP06\overlay_Scuderia Ferrari Marlboro 2006_PRACTICE3.ini</li>
+    <li>F1CTDP06\overlay_F12006_PRACTICE3.ini</li>
     <li>F1CTDP06\overlay_Scuderia Ferrari Marlboro 2006_PRACTICE.ini</li>
+    <li>F1CTDP06\overlay_F12006_PRACTICE.ini</li>
     <li>F1CTDP06\overlay_PRACTICE3.ini</li>
     <li>F1CTDP06\overlay_PRACTICE.ini</li>
     <li>overlay_PRACTICE3.ini</li>
     <li>overlay_PRACTICE.ini</li>
     <li>F1CTDP06\overlay_Scuderia Ferrari Marlboro 2006.ini</li>
+    <li>F1CTDP06\overlay_F12006.ini</li>
     <li>F1CTDP06\overlay.ini</li>
     <li>overlay.ini</li>
 </ol>

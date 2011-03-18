@@ -1,0 +1,19 @@
+Number=6
+Team="Scuderia Ferrari Marlboro 2006"
+PitGroup="Group3"
+Driver="Felipe Massa"
+Description="#06 Felipe Massa"
+Engine="Ferrari 056"
+Manufacturer="Ferrari"
+Classes="CTDPF1_2006,F248"
+
+FullTeamName="Scuderia Ferrari Marlboro"
+TeamFounded=1950
+TeamHeadquarters="Maranello, Italy"
+TeamStarts=739
+TeamPoles=190
+TeamWins=192
+TeamWorldChampionships=14
+
+
+Category="CTDP F1 2006"

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007-2010, JAGaToo Project Group all rights reserved.
+ * Copyright (c) 2007-2011, JAGaToo Project Group all rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,11 +29,17 @@
  */
 package org.jagatoo.util.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+
+import org.jagatoo.util.streams.StreamUtils;
 
 /**
  * Utility methods for files.
@@ -84,17 +90,184 @@ public class FileUtils
         }
     }
     
-    public static void deleteFolderRecursively( File folder )
+    /**
+     * Deletes directory at path recursively.
+     * 
+     * @param path
+     * @param includeSelf also delete the passed directory itself?
+     * 
+     * @throws IOException 
+     */
+    public static void deleteFolderRecursively( File path, boolean includeSelf ) throws IOException
     {
-        for ( File f : folder.listFiles() )
+        if ( !path.isDirectory() )
+            throw new IllegalArgumentException( "The passed file is not a directory." );
+        
+        File[] files = path.listFiles();
+        
+        if ( files == null )
+            return;
+        
+        for ( int i = 0; i < files.length; i++ )
         {
+            File f = files[i];
+            
             if ( f.isFile() )
-                f.delete();
+            {
+                if ( !f.delete() )
+                {
+                    throw new IOException( "Couldn't delete file: " + f.getAbsolutePath() );
+                }
+            }
             else
-                deleteFolderRecursively( f );
+            {
+                deleteFolderRecursively( f, true );
+            }
         }
         
-        folder.delete();
+        if ( includeSelf && !path.delete() )
+        {
+            throw new IOException( "Couldn't delete directory: " + path.getAbsolutePath() );
+        }
+    }
+    
+    /**
+     * Deletes directory at path recursively.
+     * 
+     * @param path
+     * @param includeSelf also delete the passed directory itself?
+     * 
+     * @throws IOException 
+     */
+    public static void deleteFolderRecursively( String path, boolean includeSelf ) throws IOException
+    {
+        deleteFolderRecursively( new File( path ), includeSelf );
+    }
+    
+    /**
+     * Deletes directory at path recursively.
+     * 
+     * @param path
+     * 
+     * @throws IOException 
+     */
+    public static void deleteFolderRecursively( File path ) throws IOException
+    {
+        deleteFolderRecursively( path, true );
+    }
+    
+    /**
+     * Deletes directory at path recursively.
+     * 
+     * @param path
+     * 
+     * @throws IOException 
+     */
+    public static void deleteFolderRecursively( String path ) throws IOException
+    {
+        deleteFolderRecursively( new File( path ), true );
+    }
+    
+    /**
+     * writes string contents to file file
+     * 
+     * @param contents
+     * @param file
+     * 
+     * @throws IOException
+     */
+    public static void writeStringToFile( CharSequence contents, File file ) throws IOException
+    {
+        PrintStream ps = null;
+        
+        try
+        {
+            ps = new PrintStream( file );
+            
+            ps.print( contents );
+            
+            ps.close();
+        }
+        finally
+        {
+            if ( ps != null )
+                //try { ps.close(); } catch ( IOException e ) {}
+                ps.close();
+        }
+    }
+    
+    /**
+     * writes string contents to file file
+     * 
+     * @param contents
+     * @param filename
+     * 
+     * @throws IOException
+     */
+    public static void writeStringToFile( CharSequence contents, String filename ) throws IOException
+    {
+        writeStringToFile( contents, new File( filename ) );
+    }
+    
+    /**
+     * Reads text-file file and returns contents as one big byte-array.
+     * 
+     * @param file
+     * @return a byte-array
+     * 
+     * @throws IOException
+     */
+    public static byte[] getFileAsByteArray( File file ) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)file.length() );
+        
+        StreamUtils.transferBytes( new FileInputStream( file ), baos, true, true );
+        
+        return ( baos.toByteArray() );
+    }
+    
+    /**
+     * Reads text-file file and returns contents as one big string.
+     * 
+     * @param file
+     * @return string
+     * 
+     * @throws IOException
+     */
+    public static String getFileAsString( File file ) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)file.length() );
+        
+        StreamUtils.transferBytes( new FileInputStream( file ), baos, true, true );
+        
+        return ( baos.toString() );
+    }
+    
+    /**
+     * 
+     * @param file
+     * @param charset_name
+     * 
+     * @return
+     * @throws IOException
+     * @throws UnsupportedEncodingException 
+     */
+    public static String getFileAsString( File file, String charset_name ) throws IOException, UnsupportedEncodingException
+    {
+        return ( new String( getFileAsByteArray( file ), charset_name ) );
+    }
+    
+    /**
+     * 
+     * @param file
+     * @param charset
+     * 
+     * @return
+     * @throws IOException
+     */
+    public static String getFileAsString( File file, Charset charset ) throws IOException
+    {
+        return( new String( getFileAsByteArray( file ), charset ) );
     }
     
     public static final File getCanonicalFile( File file )
@@ -110,6 +283,19 @@ public class FileUtils
         {
             return ( file.getAbsoluteFile() );
         }
+    }
+    
+    /**
+     * Returns the canonical representation of the given file using {@link File#getCanonicalFile()}.
+     * If this fails, the result of {@link File#getAbsoluteFile()} is returned.
+     * 
+     * @param filename
+     * 
+     * @return the canonical representation of the given file.
+     */
+    public static final File getCanonicalFile( String filename )
+    {
+        return ( getCanonicalFile( new File( filename ) ) );
     }
     
     private FileUtils()

@@ -30,7 +30,7 @@ import net.ctdp.rfdynhud.util.PropertyWriter;
  */
 public class __EDPrivilegedAccess
 {
-    public static boolean isEditorMode = false;
+    public static ClassLoader editorClassLoader = null;
     
     public static final void getEditorPresetsProperties( EditorPresets editorPresets, PropertiesContainer propsCont )
     {

@@ -1,0 +1,15 @@
+<p>
+The <strong>useHardwareStretching</strong> property tells, whether to let the graphics card stretch the image to widget size
+or to do this in software mode.
+</p>
+
+<p>
+In hardware mode the resulting texture has the size of the original image. This may be smaller than the actual widget size,
+which results in smaller memory footprint and possibly better rendering performance.<br />
+On the down side the graphics card may not scale the image as nicely as in software mode.
+</p>
+
+<p>
+In software mode (the default) the resulting texture has exactly widget size and takes that much memory.
+In software mode we can do as much as we can to scale the image in highest quality.
+</p>

@@ -1072,7 +1072,7 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( fontColor_me );
         propsCont.addProperty( fontColor_out );

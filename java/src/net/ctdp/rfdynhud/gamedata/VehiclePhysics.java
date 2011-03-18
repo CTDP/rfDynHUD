@@ -2367,6 +2367,7 @@ public class VehiclePhysics
         loadDefaults();
     }
     
+    /*
     public static void main( String[] args )
     {
         VehiclePhysics vp = new VehiclePhysics();
@@ -2378,4 +2379,5 @@ public class VehiclePhysics
         System.out.println( "FL: temp: opt-temp: " + cw.getOptimumTemperatureC() + ", grip-loss/°above: " + cw.gripLossPerDegreeAboveOptimum );
         System.out.println( tc.getWheel( Wheel.FRONT_LEFT ).getGripFactorByTemperatureC( 111.05894f ) );
     }
+    */
 }

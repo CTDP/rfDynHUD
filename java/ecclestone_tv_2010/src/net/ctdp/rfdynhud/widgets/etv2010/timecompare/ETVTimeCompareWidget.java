@@ -635,7 +635,7 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( displayEveryXLaps );
         propsCont.addProperty( visibleTime );

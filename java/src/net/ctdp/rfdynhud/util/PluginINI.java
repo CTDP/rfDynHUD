@@ -21,6 +21,7 @@ import java.io.File;
 
 import org.jagatoo.util.errorhandling.ParsingException;
 import org.jagatoo.util.ini.AbstractIniParser;
+import org.jagatoo.util.io.FileUtils;
 
 /**
  * Abstraction of the main ini file for the plugin.
@@ -29,7 +30,7 @@ import org.jagatoo.util.ini.AbstractIniParser;
  */
 public class PluginINI
 {
-    private static final File IDE_DATA_FOLDER = ResourceManager.isJarMode() ? null : new File( __UtilHelper.stripDotDots( new File( "." ).getAbsolutePath() ), "yyy_data" ).getAbsoluteFile();
+    private static final File IDE_DATA_FOLDER = ResourceManager.isCompleteIDEMode() ? FileUtils.getCanonicalFile( "yyy_data" ) : null;
     
     public static final String FILENAME = "rfdynhud.ini";
     
@@ -39,15 +40,20 @@ public class PluginINI
     private long lastModified = -1;
     
     private String general_language = null;
+    private String general_exeFilename = null;
     private File general_logFolder = null;
     private File general_configFolder = null;
     private File general_cacheFolder = null;
+    private String general_threeLetterCodeGenerator = null;
     
     private void reset()
     {
         general_language = null;
+        general_exeFilename = null;
+        general_logFolder = null;
         general_configFolder = null;
         general_cacheFolder = null;
+        general_threeLetterCodeGenerator = null;
     }
     
     private static String parsePath( String path )
@@ -103,17 +109,17 @@ public class PluginINI
         File f = new File( configPath );
         if ( !f.isAbsolute() )
         {
-            if ( ResourceManager.isJarMode() )
-                f = new File( pluginFolder, configPath );
+            if ( ResourceManager.isCompleteIDEMode() )
+                f = new File( IDE_DATA_FOLDER, fallback );
             else
-                f = new File( IDE_DATA_FOLDER, fallback ).getAbsoluteFile();
+                f = new File( pluginFolder, configPath );
         }
         
-        f = __UtilHelper.stripDotDots( f.getAbsolutePath() );
+        f = FileUtils.getCanonicalFile( f );
         
         //RFDHLog.printlnEx( "Using " + name + " folder \"" + f.getAbsolutePath() + "\"." );
         
-        if ( ResourceManager.isJarMode() || !name.equals( "log" ) )
+        if ( !ResourceManager.isCompleteIDEMode() || !name.equals( "log" ) )
         {
             try
             {
@@ -147,26 +153,34 @@ public class PluginINI
                     if ( group == null )
                     {
                     }
-                    else if ( group.equals( "GENERAL" ) )
+                    else if ( group.equalsIgnoreCase( "GENERAL" ) )
                     {
-                        if ( key.equals( "language" ) )
+                        if ( key.equalsIgnoreCase( "language" ) )
                         {
                             general_language = value;
                         }
-                        else if ( key.equals( "logFolder" ) )
+                        else if ( key.equalsIgnoreCase( "exeFilename" ) )
+                        {
+                            general_exeFilename = value;
+                        }
+                        else if ( key.equalsIgnoreCase( "logFolder" ) )
                         {
                             general_logFolder = getFolder( "log", value, "log" );
                         }
-                        else if ( key.equals( "configFolder" ) )
+                        else if ( key.equalsIgnoreCase( "configFolder" ) )
                         {
                             general_configFolder = getFolder( "config", value, "config" );
                         }
-                        else if ( key.equals( "cacheFolder" ) )
+                        else if ( key.equalsIgnoreCase( "cacheFolder" ) )
                         {
                             if ( ( value == null ) || value.equals( "" ) )
                                 general_cacheFolder = null;
                             else
                                 general_cacheFolder = getFolder( "cache", value, "cache" );
+                        }
+                        else if ( key.equalsIgnoreCase( "threeLetterCodeGenerator" ) )
+                        {
+                            general_threeLetterCodeGenerator = value;
                         }
                     }
                     
@@ -193,6 +207,18 @@ public class PluginINI
         update();
         
         return ( general_language );
+    }
+    
+    /**
+     * Gets the exe filename from GENERAL group.
+     * 
+     * @return the exe filename from GENERAL group.
+     */
+    public final String getGeneralExeFilename()
+    {
+        update();
+        
+        return ( general_exeFilename );
     }
     
     /**
@@ -229,6 +255,18 @@ public class PluginINI
         update();
         
         return ( general_cacheFolder );
+    }
+    
+    /**
+     * Gets the class name of the threeLetterCodeGenrator setting from GENERAL group.
+     * 
+     * @return the threeLetterCodeGenrator setting from GENERAL group.
+     */
+    public final String getThreeLetterCodeGeneratorClass()
+    {
+        update();
+        
+        return ( general_threeLetterCodeGenerator );
     }
     
     public PluginINI( File pluginFolder )

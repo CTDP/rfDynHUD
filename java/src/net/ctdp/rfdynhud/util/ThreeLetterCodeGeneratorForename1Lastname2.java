@@ -22,38 +22,13 @@ package net.ctdp.rfdynhud.util;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class ThreeLetterCodeGeneratorImpl implements ThreeLetterCodeGenerator
+public class ThreeLetterCodeGeneratorForename1Lastname2 extends AbstractThreeLetterCodeGenerator
 {
     @Override
-    public String generateThreeLetterCode( String driverName )
+    protected String generateThreeLetterCodeFromForeAndLastName( String driverName, int lastSpacePos )
     {
-        if ( driverName.length() <= 3 )
-        {
-            return ( driverName.toUpperCase() );
-        }
-        
-        int sp = driverName.lastIndexOf( ' ' );
-        if ( sp == -1 )
-        {
-            return ( driverName.substring( 0, 3 ).toUpperCase() );
-        }
-        
-        String tlc = driverName.charAt( 0 ) + driverName.substring( sp + 1, Math.min( sp + 3, driverName.length() ) ).toUpperCase();
+        String tlc = driverName.charAt( 0 ) + driverName.substring( lastSpacePos + 1, Math.min( lastSpacePos + 3, driverName.length() ) );
         
         return ( tlc );
-    }
-    
-    @Override
-    public String generateShortForm( String driverName )
-    {
-        int sp = driverName.lastIndexOf( ' ' );
-        if ( sp == -1 )
-        {
-            return ( driverName );
-        }
-        
-        String sf = driverName.charAt( 0 ) + ". " + driverName.substring( sp + 1 );
-        
-        return ( sf );
     }
 }

@@ -438,7 +438,7 @@ public class TimingWidget extends Widget
             
             if ( needsCompleteRedraw )
             {
-                ownFastestLapHeaderString.draw( offsetX, offsetY, "Own fastest Lap:", texture );
+                ownFastestLapHeaderString.draw( offsetX, offsetY, Loc.own_fastest_prefix + ":", texture );
             }
             
             int lap_ = Math.round( lap * 10000f );
@@ -604,7 +604,7 @@ public class TimingWidget extends Widget
             
             if ( needsCompleteRedraw )
             {
-                currLapHeaderString.draw( offsetX, offsetY, "Current Lap:", texture );
+                currLapHeaderString.draw( offsetX, offsetY, Loc.current_prefix + ":", texture );
             }
             
             Laptime ownFastestLaptime = myVSI.getFastestLaptime();
@@ -980,7 +980,7 @@ public class TimingWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( displayAbsFastest );
         propsCont.addProperty( cumulativeSectors );

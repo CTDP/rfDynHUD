@@ -777,6 +777,7 @@ public class ConfigurationLoader implements PropertyLoader
      * @param bigMonitor
      * @param isInGarage
      * @param modName
+     * @param vehicleClass
      * @param vehicleName
      * @param sessionType
      * @param widgetsConfig
@@ -784,7 +785,7 @@ public class ConfigurationLoader implements PropertyLoader
      * @param isEditorMode
      * @param force
      */
-    void reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleName, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, boolean force )
+    void reloadConfiguration( boolean smallMonitor, boolean bigMonitor, boolean isInGarage, String modName, String vehicleClass, String vehicleName, SessionType sessionType, WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode, boolean force )
     {
         if ( force || !widgetsConfig.isValid() )
         {
@@ -798,13 +799,17 @@ public class ConfigurationLoader implements PropertyLoader
         {
             if ( isDefaultLoadingEnabled() )
             {
+                RFDHLog.debug( "DEBUG: (Re-)Loading overlay configuration..." );
+                
                 ConfigurationCandidatesIterator it = getCandidatesIterator();
                 it.reset();
-                it.collectCandidates( smallMonitor, bigMonitor, isInGarage, modName, vehicleName, sessionType );
+                it.collectCandidates( smallMonitor, bigMonitor, isInGarage, modName, vehicleClass, vehicleName, sessionType );
                 
                 while ( it.hasNext() )
                 {
                     f = it.next();
+                    
+                    RFDHLog.debug( "DEBUG: Trying overlay configuration file \"", f.getAbsolutePath(), "\"... ", ( f.exists() ? "found." : "not found." ) );
                     
                     if ( f.exists() )
                     {

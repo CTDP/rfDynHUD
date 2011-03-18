@@ -252,7 +252,7 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     {
         forceAndSetDirty( true );
         
-        if ( __EDPrivilegedAccess.isEditorMode )
+        if ( __EDPrivilegedAccess.editorClassLoader != null )
         {
             if ( ( property == zIndex ) && ( getConfiguration() != null ) )
             {
@@ -272,7 +272,7 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      */
     protected void onPositionChanged( RelativePositioning oldPositioning, int oldX, int oldY, RelativePositioning newPositioning, int newX, int newY )
     {
-        if ( __EDPrivilegedAccess.isEditorMode )
+        if ( __EDPrivilegedAccess.editorClassLoader != null )
         {
             if ( getMasterWidget() == null )
             {
@@ -302,7 +302,7 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      */
     protected void onSizeChanged( int oldWidth, int oldHeight, int newWidth, int newHeight )
     {
-        if ( __EDPrivilegedAccess.isEditorMode )
+        if ( __EDPrivilegedAccess.editorClassLoader != null )
         {
             if ( getMasterWidget() == null )
             {
@@ -643,6 +643,16 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
             y += getMasterWidget().getBorder().getInnerTopHeight() + getMasterWidget().getAbsoluteOffsetY();
         
         return ( y );
+    }
+    
+    /**
+     * Sets the {@link Widget}'s z-index relative to other {@link Widget}s in the same configuration.
+     * 
+     * @param zIndex the new z-index
+     */
+    public void setZIndex( int zIndex )
+    {
+        this.zIndex.setIntValue( zIndex );
     }
     
     /**

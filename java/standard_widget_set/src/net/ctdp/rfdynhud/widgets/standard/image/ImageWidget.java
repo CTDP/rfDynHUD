@@ -20,14 +20,16 @@ package net.ctdp.rfdynhud.widgets.standard.image;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.StringProperty;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
+import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -41,6 +43,8 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class ImageWidget extends Widget
 {
+    private final StringProperty visibleIf = new StringProperty( "visibleIf", "" );
+    
     private final ImagePropertyWithTexture imageName = new ImagePropertyWithTexture( "imageName", "standard/ctdp.png" )
     {
         @Override
@@ -49,10 +53,15 @@ public class ImageWidget extends Widget
             super.onValueChanged( oldValue, newValue );
             
             forceCompleteRedraw( true );
+            transTexDirty = true;
         }
     };
     
-    private final StringProperty visibleIf = new StringProperty( "visibleIf", "" );
+    private TransformableTexture transTex = null;
+    private boolean usingTransTex = false;
+    private boolean transTexDirty = false;
+    
+    private final BooleanProperty useHardwareStretching = new BooleanProperty( "useHardwareStretching", "hardwareStretching", false );
     
     private Widget visibleIfWidget = null;
     
@@ -60,6 +69,28 @@ public class ImageWidget extends Widget
     public WidgetPackage getWidgetPackage()
     {
         return ( StandardWidgetSet.WIDGET_PACKAGE );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasMasterCanvas( boolean isEditorMode )
+    {
+        return ( !useHardwareStretching.getBooleanValue() || isEditorMode );
+    }
+    
+    protected ImagePropertyWithTexture getImageNameProperty()
+    {
+        return ( imageName );
+    }
+    
+    protected TransformableTexture getTransformableTexture()
+    {
+        if ( usingTransTex )
+            return ( transTex );
+        
+        return ( null );
     }
     
     /**
@@ -87,6 +118,23 @@ public class ImageWidget extends Widget
     @Override
     protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
+        if ( useHardwareStretching.getBooleanValue() && !isEditorMode )
+        {
+            transTex = imageName.getImage().getTransformableTexture();
+            transTexDirty = false;
+            
+            float scaleX = (float)widgetInnerWidth / transTex.getWidth();
+            float scaleY = (float)widgetInnerHeight / transTex.getHeight();
+            transTex.setScale( scaleX, scaleY );
+            
+            collector.add( transTex );
+            
+            usingTransTex = true;
+        }
+        else
+        {
+            usingTransTex = false;
+        }
     }
     
     /**
@@ -105,13 +153,21 @@ public class ImageWidget extends Widget
         return ( result );
     }
     
+    protected void initTextureSize( int width, int height, boolean isEditorMode )
+    {
+        getImageNameProperty().updateSize( width, height, isEditorMode );
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
     protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory dsf, TextureImage2D texture, int width, int height )
     {
-        imageName.updateSize( width, height, isEditorMode );
+        if ( !useHardwareStretching.getBooleanValue() || isEditorMode )
+        {
+            initTextureSize( width, height, isEditorMode );
+        }
     }
     
     @Override
@@ -119,10 +175,20 @@ public class ImageWidget extends Widget
     {
         if ( needsCompleteRedraw )
         {
-            if ( getMasterWidget() == null )
-                texture.clear( imageName.getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
+            if ( usingTransTex )
+            {
+                if ( transTexDirty )
+                {
+                    imageName.getImage().drawScaled( 0, 0, imageName.getImage().getBaseWidth(), imageName.getImage().getBaseHeight(), transTex.getTexture(), true );
+                }
+            }
             else
-                texture.drawImage( imageName.getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
+            {
+                if ( getMasterWidget() == null )
+                    texture.clear( getImageNameProperty().getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
+                else
+                    texture.drawImage( getImageNameProperty().getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
+            }
         }
     }
     
@@ -135,8 +201,9 @@ public class ImageWidget extends Widget
     {
         super.saveProperties( writer );
         
-        writer.writeProperty( imageName, "The displayed image's name." );
         writer.writeProperty( visibleIf, "Name of the Widget, that needs to be visible for this Widget to be visible, too." );
+        writer.writeProperty( getImageNameProperty(), "The displayed image's name." );
+        writer.writeProperty( useHardwareStretching, "Whether to use hardware image stretching or software mode." );
     }
     
     /**
@@ -147,8 +214,23 @@ public class ImageWidget extends Widget
     {
         super.loadProperty( loader );
         
-        if ( loader.loadProperty( imageName ) );
-        else if ( loader.loadProperty( visibleIf ) );
+        if ( loader.loadProperty( visibleIf ) );
+        else if ( loader.loadProperty( getImageNameProperty() ) );
+        else if ( loader.loadProperty( useHardwareStretching ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
+        
+        if ( getMasterWidget() == null )
+        {
+            propsCont.addProperty( visibleIf );
+        }
     }
     
     /**
@@ -159,14 +241,10 @@ public class ImageWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
-        propsCont.addProperty( imageName );
-        
-        if ( getMasterWidget() == null )
-        {
-            propsCont.addProperty( visibleIf );
-        }
+        propsCont.addProperty( getImageNameProperty() );
+        propsCont.addProperty( useHardwareStretching );
     }
     
     @Override

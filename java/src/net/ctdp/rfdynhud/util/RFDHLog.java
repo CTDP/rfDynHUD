@@ -58,7 +58,7 @@ public final class RFDHLog
         {
         }
         
-        if ( !ResourceManager.isJarMode() || !FOLDER.exists() )
+        if ( ResourceManager.isIDEMode() || !FOLDER.exists() )
             return ( new ConsoleLog( LogLevel.PROFILE ) );
         
         try
@@ -74,7 +74,7 @@ public final class RFDHLog
     private static final File FOLDER = __UtilHelper.LOG_FOLDER;
     private static final String CORE_BASE_NAME = "rfdynhud";
     private static final String EDITOR_BASE_NAME = "rfdynhud_editor";
-    private static File FILE = new File( FOLDER, __EDPrivilegedAccess.isEditorMode ? EDITOR_BASE_NAME + ".log" : CORE_BASE_NAME + ".log" ).getAbsoluteFile();
+    private static File FILE = new File( FOLDER, ( __EDPrivilegedAccess.editorClassLoader != null ) ? EDITOR_BASE_NAME + ".log" : CORE_BASE_NAME + ".log" ).getAbsoluteFile();
     private static LogHandler LOG = createLogHandler( FILE );
     
     static
@@ -362,6 +362,8 @@ public final class RFDHLog
     
     static
     {
+        System.out.flush();
         error( "Initialized logging system with log level ", LOG.getLogLevel().name(), "." );
+        System.err.flush();
     }
 }

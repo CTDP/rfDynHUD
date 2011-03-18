@@ -17,8 +17,7 @@
  */
 package net.ctdp.rfdynhud.util;
 
-import java.io.IOException;
-import java.net.URL;
+import java.io.File;
 
 /**
  * 
@@ -26,61 +25,72 @@ import java.net.URL;
  */
 public class ResourceManager
 {
-    private static Boolean jarMode = null;
-    private static URL dataDir = null;
+    private static boolean needsUpdate = true;
     
-    public static final boolean isJarMode()
-    {
-        if ( jarMode == null )
-        {
-            String classpath = System.getProperty( "java.class.path" );
-            jarMode = classpath.contains( "rfdynhud.jar" ) || classpath.contains( "rfdynhud_editor.jar" );
-        }
-        
-        return ( jarMode.booleanValue() );
-    }
+    private static boolean ideMode = true;
+    private static File rfdynhud_jar = null;
+    private static File rfdynhud_editor_jar = null;
     
-    public static URL getDataDirectory()
+    public static final void update()
     {
-        if ( dataDir == null )
+        if ( needsUpdate )
         {
-            try
-            {
-                if ( isJarMode() )
-                {
-                    dataDir = ResourceManager.class.getClassLoader().getResource( "data/" );
-                }
-                else
-                {
-                    java.io.File dir = new java.io.File( System.getProperty( "java.class.path" ) );
-                    dir = dir.getParentFile();
-                    dir = new java.io.File( dir, "data" );
-                    
-                    dataDir = dir.toURI().toURL();
-                }
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();
-            }
-        }
-        
-        return ( dataDir );
-    }
-    
-    public static URL getDataResource( String name )
-    {
-        try
-        {
-            if ( isJarMode() )
-                return ( ResourceManager.class.getClassLoader().getResource( "data/" + name ) );
+            // reset defaults
+            ideMode = false;
+            rfdynhud_jar = null;
+            rfdynhud_editor_jar = null;
             
-            return ( new URL( getDataDirectory(), name ) );
+            String classpath = System.getProperty( "java.class.path" );
+            String separator = System.getProperty( "path.separator" );
+            
+            for ( String s : classpath.split( separator ) )
+            {
+                File f = new File( s );
+                
+                if ( f.isDirectory() )
+                {
+                    // We're obviously running inside of an IDE.
+                    ideMode = true;
+                }
+                else if ( f.getName().equalsIgnoreCase( "rfdynhud.jar" ) )
+                {
+                    rfdynhud_jar = f;
+                }
+                else if ( f.getName().equalsIgnoreCase( "rfdynhud_editor.jar" ) )
+                {
+                    rfdynhud_editor_jar = f;
+                }
+            }
+            
+            needsUpdate = false;
         }
-        catch ( IOException e )
-        {
-            e.printStackTrace();
-            return ( null );
-        }
+    }
+    
+    public static final boolean isCompleteIDEMode()
+    {
+        update();
+        
+        return ( ideMode && ( rfdynhud_jar == null ) );
+    }
+    
+    public static final boolean isIDEMode()
+    {
+        update();
+        
+        return ( ideMode );
+    }
+    
+    public static final File getRFDynHUD_Jar()
+    {
+        update();
+        
+        return ( rfdynhud_jar );
+    }
+    
+    public static final File getRFDynHUDEditor_Jar()
+    {
+        update();
+        
+        return ( rfdynhud_editor_jar );
     }
 }

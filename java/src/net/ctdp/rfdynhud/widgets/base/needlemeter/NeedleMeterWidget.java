@@ -1072,7 +1072,7 @@ public abstract class NeedleMeterWidget extends Widget
      */
     protected boolean getSpecificPropertiesFirst( PropertiesContainer propsCont, boolean forceAll )
     {
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
         addMinValuePropertyToContainer( propsCont, forceAll );
         addMaxValuePropertyToContainer( propsCont, forceAll );

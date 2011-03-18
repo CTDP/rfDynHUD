@@ -59,8 +59,8 @@ public class WidgetsConfiguration implements PropertiesKeeper
 {
     public static interface ConfigurationLoadListener
     {
-        public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig );
-        public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig );
+        public void beforeWidgetsConfigurationCleared( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode );
+        public void afterWidgetsConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode );
     }
     
     private int id = 0;
@@ -195,7 +195,7 @@ public class WidgetsConfiguration implements PropertiesKeeper
     void clear( LiveGameData gameData, boolean isEditorMode, ConfigurationLoadListener clearListener )
     {
         if ( clearListener != null )
-            clearListener.beforeWidgetsConfigurationCleared( this );
+            clearListener.beforeWidgetsConfigurationCleared( this, gameData, isEditorMode );
         
         //localStores.clear();
         
@@ -280,6 +280,44 @@ public class WidgetsConfiguration implements PropertiesKeeper
     }
     
     /**
+     * Searches the {@link Widget}s in the {@link WidgetsConfiguration} for those of the passed type.
+     * 
+     * @param <W> the return type
+     * @param clazz the return type restriction
+     * @param includeSubclasses whether to search for the specific class only or also for subclasses of it
+     * 
+     * @return the first matching {@link Widget} or <code>null</code>.
+     */
+    @SuppressWarnings( "unchecked" )
+    public final <W extends Widget> W getWidgetByClass( Class<W> clazz, boolean includeSubclasses )
+    {
+        int n = getNumWidgets();
+        
+        if ( includeSubclasses )
+        {
+            for ( int i = 0; i < n; i++ )
+            {
+                Widget w = getWidget( i );
+                
+                if ( clazz.isAssignableFrom( w.getClass() ) )
+                    return ( (W)w );
+            }
+        }
+        else
+        {
+            for ( int i = 0; i < n; i++ )
+            {
+                Widget w = getWidget( i );
+                
+                if ( clazz == w.getClass() )
+                    return ( (W)w );
+            }
+        }
+        
+        return ( null );
+    }
+    
+    /**
      * Sets the dirty flags on all {@link Widget}s.
      */
     public void setAllDirtyFlags()
@@ -347,7 +385,7 @@ public class WidgetsConfiguration implements PropertiesKeeper
         }
         
         if ( loadListener != null )
-            loadListener.afterWidgetsConfigurationLoaded( this );
+            loadListener.afterWidgetsConfigurationLoaded( this, gameData, isEditorMode );
     }
     
     private void fixVirtualNamedFonts()

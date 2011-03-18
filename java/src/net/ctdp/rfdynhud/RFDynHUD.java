@@ -44,7 +44,7 @@ import org.jagatoo.util.versioning.Version;
  */
 public class RFDynHUD
 {
-    public static final Version VERSION = new Version( 1, 2, 1, "Beta", 99 );
+    public static final Version VERSION = new Version( 1, 2, 1, "Beta", 101 );
     
     private final SupportedGames gameId;
     
@@ -245,7 +245,7 @@ public class RFDynHUD
             throw new Error( "Unsupported game" );
         
         this.gameId = gameId;
-        __GameIDHelper.gameId = gameId;
+        __GameIDHelper.initGameID( gameId );
         
         ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
         //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );

@@ -537,7 +537,7 @@ public class ControlsWidget extends Widget
     {
         super.getProperties( propsCont, forceAll );
         
-        propsCont.addGroup( "Specific" );
+        propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( horizontalBars );
         propsCont.addProperty( swapThrottleAndBrake );

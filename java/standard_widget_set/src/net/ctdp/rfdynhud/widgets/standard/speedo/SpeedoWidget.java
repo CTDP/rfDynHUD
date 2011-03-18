@@ -151,7 +151,7 @@ public class SpeedoWidget extends NeedleMeterWidget
     protected boolean getSpecificPropertiesFirst( PropertiesContainer propsCont, boolean forceAll )
     {
         if ( !super.getSpecificPropertiesFirst( propsCont, forceAll ) )
-            propsCont.addGroup( "Specific" );
+            propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( maxVelocity );
         

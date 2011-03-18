@@ -234,7 +234,7 @@ public class FontUtils
     
     public static void loadCustomFonts()
     {
-        File folder = new File( ResourceManager.isJarMode() ? GameFileSystem.INSTANCE.getPluginFolder() : GameFileSystem.INSTANCE.getConfigFolder().getParentFile(), "fonts" );
+        File folder = new File( ResourceManager.isCompleteIDEMode() ? GameFileSystem.INSTANCE.getConfigFolder().getParentFile() : GameFileSystem.INSTANCE.getPluginFolder(), "fonts" );
         
         if ( !folder.exists() )
             return;
