@@ -43,13 +43,16 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.RFDHLog;
 
 import org.jagatoo.image.DirectBufferedImage;
+import org.jagatoo.util.streams.StreamUtils;
 import org.openmali.types.twodee.Rect2i;
 import org.openmali.vecmath2.util.ColorUtils;
 
@@ -2109,6 +2112,34 @@ public class TextureImage2D
     public static final int getStringHeight( String s, FontProperty font )
     {
         return ( (int)getStringBounds( s, font.getFont(), font.isAntiAliased() ).getHeight() );
+    }
+    
+    private static final String readHeightString()
+    {
+        String heightString = "Ay0";
+        
+        try
+        {
+            heightString = StreamUtils.getStringFromStream( TextureImage2D.class.getClassLoader().getResourceAsStream( TextureImage2D.class.getPackage().getName().replace( '.', '/' ) + "/height_string.txt" ) );
+        }
+        catch ( IOException e )
+        {
+            RFDHLog.exception( e );
+        }
+        
+        return ( heightString );
+    }
+    
+    private static final String HEIGHT_STRING = readHeightString();
+    
+    public static final int getLineHeight( java.awt.Font font, boolean antiAliased )
+    {
+        return ( getStringHeight( HEIGHT_STRING, font, antiAliased ) );
+    }
+    
+    public static final int getLineHeight( FontProperty font )
+    {
+        return ( getStringHeight( HEIGHT_STRING, font ) );
     }
     
     public static final int getFontAscent( java.awt.Font font )
