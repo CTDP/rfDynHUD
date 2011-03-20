@@ -26,19 +26,18 @@ import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
 
 /**
@@ -66,13 +65,13 @@ public class Lesson3Widget_Properties extends Widget
      * This color uses a named color.
      * This Widget must implement the getDefaultNamedColorValue() method like below.
      */
-    private final ColorProperty hotColor = new ColorProperty( "hotColor", LessonsWidgetSet.MY_FONT_COLOR_NAME );
+    private final ColorProperty hotColor = new ColorProperty( "hotColor", LessonsWidgetSet.MY_FONT_COLOR.getKey() );
     
     /*
      * This font uses a named font.
      * This Widget must implement the getDefaultNamedFontValue() method like below.
      */
-    private final FontProperty myFont = new FontProperty( "myFont", LessonsWidgetSet.MY_FONT_NAME );
+    private final FontProperty myFont = new FontProperty( "myFont", LessonsWidgetSet.MY_FONT.getKey() );
     
     /*
      * This is a simple selection on 'MyEnum'.
@@ -84,86 +83,21 @@ public class Lesson3Widget_Properties extends Widget
     
     private final FloatValue v = new FloatValue( -1f, 0.1f );
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public Lesson3Widget_Properties()
     {
-        return ( LessonsWidgetSet.WIDGET_PACKAGE );
+        super( LessonsWidgetSet.INSTANCE, LessonsWidgetSet.WIDGET_PACKAGE, 11.0f, 5.0f );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getDefaultNamedColorValue( String name )
+    public void prepareForMenuItem()
     {
-        String result = super.getDefaultNamedColorValue( name );
+        super.prepareForMenuItem();
         
-        if ( result != null )
-            return ( result );
-        
-        result = LessonsWidgetSet.getDefaultNamedColorValue( name );
-        
-        return ( result );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDefaultNamedFontValue( String name )
-    {
-        String result = super.getDefaultNamedFontValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        result = LessonsWidgetSet.getDefaultNamedFontValue( name );
-        
-        return ( result );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
-    {
-    }
-    
-    @Override
-    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
-    {
-        int h = TextureImage2D.getStringHeight( "XXX", getFontProperty() );
-        
-        ds = drawnStringFactory.newDrawnString( "ds", 0, 0, Alignment.LEFT, false, myFont.getFont(), myFont.isAntiAliased(), getFontColor() );
-        ds2 = drawnStringFactory.newDrawnString( "ds2", 0, height - h, Alignment.LEFT, false, myFont.getFont(), myFont.isAntiAliased(), getFontColor() );
-    }
-    
-    @Override
-    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
-    {
-        v.update( gameData.getTelemetryData().getTireTemperature( Wheel.FRONT_LEFT ) );
-        
-        if ( needsCompleteRedraw || ( clock.c() && v.hasChanged() ) )
-        {
-            String tireTempFL = NumberUtil.formatFloat( v.getValue(), 1, true );
-            
-            /*
-             * If the tire temperature is higher than 80°, we use our 'hotColor' value for the font.
-             */
-            Color color = getFontColor();
-            if ( v.getValue() < 70.0f )
-                color = coldColor.getColor();
-            else if ( v.getValue() > 80.0f )
-                color = hotColor.getColor();
-            
-            ds.draw( offsetX, offsetY, tireTempFL, color, texture );
-        }
-        
-        if ( needsCompleteRedraw )
-        {
-            ds2.draw( offsetX, offsetY, myEnum.getEnumValue().getText(), texture );
-        }
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
+        myFont.setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     @Override
@@ -191,10 +125,10 @@ public class Lesson3Widget_Properties extends Widget
          * Here we load our properties from the configuration file.
          * To do as less string compares as possible and to keep the loading code compact,
          * we use this trick with if/else if and a trailing semicolon.
-		 * 
-		 * So this code asks each listed property, if it claims owership over the property key,
-		 * that is currently loaded through the provided PropertyLoader. And if and only if it does,
-		 * the method finishes immediately without probing the following properties.
+         * 
+         * So this code asks each listed property, if it claims owership over the property key,
+         * that is currently loaded through the provided PropertyLoader. And if and only if it does,
+         * the method finishes immediately without probing the following properties.
          */
         
         if ( loader.loadProperty( coldColor ) );
@@ -242,16 +176,43 @@ public class Lesson3Widget_Properties extends Widget
      * {@inheritDoc}
      */
     @Override
-    public void prepareForMenuItem()
+    protected void initSubTextures( LiveGameData gameData, boolean isEditorMode, int widgetInnerWidth, int widgetInnerHeight, SubTextureCollector collector )
     {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
-        myFont.setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
-    public Lesson3Widget_Properties()
+    @Override
+    protected void initialize( LiveGameData gameData, boolean isEditorMode, DrawnStringFactory drawnStringFactory, TextureImage2D texture, int width, int height )
     {
-        super( 11.0f, 5.0f );
+        int h = TextureImage2D.getStringHeight( "XXX", getFontProperty() );
+        
+        ds = drawnStringFactory.newDrawnString( "ds", 0, 0, Alignment.LEFT, false, myFont.getFont(), myFont.isAntiAliased(), getFontColor() );
+        ds2 = drawnStringFactory.newDrawnString( "ds2", 0, height - h, Alignment.LEFT, false, myFont.getFont(), myFont.isAntiAliased(), getFontColor() );
+    }
+    
+    @Override
+    protected void drawWidget( Clock clock, boolean needsCompleteRedraw, LiveGameData gameData, boolean isEditorMode, TextureImage2D texture, int offsetX, int offsetY, int width, int height )
+    {
+        v.update( gameData.getTelemetryData().getTireTemperature( Wheel.FRONT_LEFT ) );
+        
+        if ( needsCompleteRedraw || ( clock.c() && v.hasChanged() ) )
+        {
+            String tireTempFL = NumberUtil.formatFloat( v.getValue(), 1, true );
+            
+            /*
+             * If the tire temperature is higher than 80°, we use our 'hotColor' value for the font.
+             */
+            Color color = getFontColor();
+            if ( v.getValue() < 70.0f )
+                color = coldColor.getColor();
+            else if ( v.getValue() > 80.0f )
+                color = hotColor.getColor();
+            
+            ds.draw( offsetX, offsetY, tireTempFL, color, texture );
+        }
+        
+        if ( needsCompleteRedraw )
+        {
+            ds2.draw( offsetX, offsetY, myEnum.getEnumValue().getText(), texture );
+        }
     }
 }

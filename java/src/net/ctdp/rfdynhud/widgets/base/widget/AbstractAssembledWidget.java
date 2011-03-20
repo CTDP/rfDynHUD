@@ -1043,15 +1043,17 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
     /**
      * Creates a new Widget.
      * 
+     * @param widgetSet the {@link WidgetSet} this {@link Widget} belongs to
+     * @param widgetPackage the package in the editor
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
      * @param heightPercent height parameter treated as percents
      * @param initParts this parameter must exist in your contructor and has to be forwarded to this
      */
-    protected AbstractAssembledWidget( float width, boolean widthPercent, float height, boolean heightPercent, boolean initParts )
+    protected AbstractAssembledWidget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, boolean widthPercent, float height, boolean heightPercent, boolean initParts )
     {
-        super( width, widthPercent, height, heightPercent );
+        super( widgetSet, widgetPackage, width, widthPercent, height, heightPercent );
         
         this._initParts = initParts;
         if ( initParts )
@@ -1070,12 +1072,14 @@ public abstract class AbstractAssembledWidget extends StatefulWidget<Object, Obj
     /**
      * Creates a new Widget.
      * 
+     * @param widgetSet the {@link WidgetSet} this {@link Widget} belongs to
+     * @param widgetPackage the package in the editor
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      * @param initParts this parameter must exist in your contructor and has to be forwarded to this
      */
-    protected AbstractAssembledWidget( float width, float height, boolean initParts )
+    protected AbstractAssembledWidget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, float height, boolean initParts )
     {
-        this( width, true, height, true, initParts );
+        this( widgetSet, widgetPackage, width, true, height, true, initParts );
     }
 }

@@ -48,6 +48,7 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.etv2010._base.ETVWidgetBase;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVWidgetSet;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
 
 /**
@@ -80,6 +81,55 @@ public class ETVSessionStateWidget extends ETVWidgetBase
     private static final Alignment[] colAligns = new Alignment[] { Alignment.RIGHT, Alignment.CENTER, Alignment.RIGHT };
     private final int[] colWidths = new int[ 3 ];
     private static final int colPadding = 10;
+    
+    public ETVSessionStateWidget()
+    {
+        super( ETVWidgetSet.INSTANCE, ETVWidgetSet.WIDGET_PACKAGE, 12.0f, 2.54f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( sessionLimitPreference, "If a session is limited by both laps and time, this limit will be displayed." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( sessionLimitPreference ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getItemGapProperty( PropertiesContainer propsCont, boolean forceAll )
+    {
+        // No super call. We don't need the item gap here!
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( sessionLimitPreference );
+    }
     
     /**
      * {@inheritDoc}
@@ -319,53 +369,4 @@ public class ETVSessionStateWidget extends ETVWidgetBase
         }
     }
     
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( sessionLimitPreference, "If a session is limited by both laps and time, this limit will be displayed." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( sessionLimitPreference ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void getItemGapProperty( PropertiesContainer propsCont, boolean forceAll )
-    {
-        // No super call. We don't need the item gap here!
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( sessionLimitPreference );
-    }
-    
-    public ETVSessionStateWidget()
-    {
-        super( 12.0f, 2.54f );
-    }
 }

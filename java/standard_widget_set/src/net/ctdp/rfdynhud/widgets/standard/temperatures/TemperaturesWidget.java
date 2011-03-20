@@ -35,8 +35,8 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.DelayProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -46,11 +46,10 @@ import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -60,7 +59,7 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
  */
 public class TemperaturesWidget extends Widget
 {
-    private final FontProperty font2 = new FontProperty( "font2", FontProperty.SMALLER_FONT_NAME );
+    private final FontProperty font2 = new FontProperty( "font2", StandardWidgetSet.SMALLER_FONT.getKey() );
     
     private final BooleanProperty displayEngine = new BooleanProperty( "displayEngine", true );
     private final BooleanProperty displayWaterTemp = new BooleanProperty( "displayWaterTemp", true );
@@ -128,10 +127,111 @@ public class TemperaturesWidget extends Widget
     private int[] oldBrakeTemps = { -1, -1, -1, -1 };
     private long lastBrakeTempTime = -1L;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public TemperaturesWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_TELEMETRY );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE_TELEMETRY, 17.8125f, 30.416667f );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        gap = 1;
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( font2, "The used (smaller) font." );
+        writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
+        writer.writeProperty( displayWaterTemp, "Display water temperature?" );
+        writer.writeProperty( engineHeight.getHeightProperty( "engineHeight", "height" ), "The height of the engine bar." );
+        writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
+        writer.writeProperty( tireIcon, "The image name for the tire icon." );
+        writer.writeProperty( tireSize.getWidthProperty( "tireWidth", "width" ), "The width of a tire image." );
+        writer.writeProperty( tireSize.getHeightProperty( "tireHeight", "height" ), "The height of a tire image." );
+        writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
+        writer.writeProperty( brakeDiscIcon, "The image name for the brake disc icon." );
+        writer.writeProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ), "The width of a brake image." );
+        writer.writeProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ), "The height of a brake image." );
+        writer.writeProperty( brakeTempsPeakDelay, "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.getSourceVersion().getBuild() < 70 )
+        {
+            if ( loader.getCurrentKey().equals( "brakeTempsPeekDelay" ) )
+                brakeTempsPeakDelay.loadValue( loader, loader.getCurrentValue() );
+        }
+        
+        if ( loader.loadProperty( font2 ) );
+        else if ( loader.loadProperty( displayEngine ) );
+        else if ( loader.loadProperty( displayWaterTemp ) );
+        else if ( loader.loadProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) ) );
+        else if ( loader.loadProperty( displayTires ) );
+        else if ( loader.loadProperty( tireIcon ) );
+        else if ( loader.loadProperty( tireSize.getWidthProperty( "tireWidth", "width" ) ) );
+        else if ( loader.loadProperty( tireSize.getHeightProperty( "tireHeight", "height" ) ) );
+        else if ( loader.loadProperty( displayBrakes ) );
+        else if ( loader.loadProperty( brakeDiscIcon ) );
+        else if ( loader.loadProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) ) );
+        else if ( loader.loadProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) ) );
+        else if ( loader.loadProperty( brakeTempsPeakDelay ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addFontPropertiesToContainer( propsCont, forceAll );
+        
+        propsCont.addProperty( font2 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Engine" );
+        
+        propsCont.addProperty( displayEngine );
+        propsCont.addProperty( displayWaterTemp );
+        propsCont.addProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) );
+        
+        propsCont.addGroup( "Tires" );
+        
+        propsCont.addProperty( displayTires );
+        propsCont.addProperty( tireIcon );
+        propsCont.addProperty( tireSize.getWidthProperty( "tireWidth", "width" ) );
+        propsCont.addProperty( tireSize.getHeightProperty( "tireHeight", "height" ) );
+        
+        propsCont.addGroup( "Brakes" );
+        
+        propsCont.addProperty( displayBrakes );
+        propsCont.addProperty( brakeDiscIcon );
+        propsCont.addProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) );
+        propsCont.addProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) );
+        propsCont.addProperty( brakeTempsPeakDelay );
     }
     
     @Override
@@ -774,113 +874,5 @@ public class TemperaturesWidget extends Widget
                 drawBrake( brakeTempRR, physics.getBrakes().getBrake( Wheel.REAR_RIGHT ), texture, offsetX + brakeTempRRString.getAbsX() - brakeWidth - 3, offsetY + brakeTempRRString.getAbsY() );
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( font2, "The used (smaller) font." );
-        writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
-        writer.writeProperty( displayWaterTemp, "Display water temperature?" );
-        writer.writeProperty( engineHeight.getHeightProperty( "engineHeight", "height" ), "The height of the engine bar." );
-        writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
-        writer.writeProperty( tireIcon, "The image name for the tire icon." );
-        writer.writeProperty( tireSize.getWidthProperty( "tireWidth", "width" ), "The width of a tire image." );
-        writer.writeProperty( tireSize.getHeightProperty( "tireHeight", "height" ), "The height of a tire image." );
-        writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
-        writer.writeProperty( brakeDiscIcon, "The image name for the brake disc icon." );
-        writer.writeProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ), "The width of a brake image." );
-        writer.writeProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ), "The height of a brake image." );
-        writer.writeProperty( brakeTempsPeakDelay, "(in milliseconds) If greater than 0, the brake temperatures will stay on their peek values after a turn for the chosen amount of milliseconds." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.getSourceVersion().getBuild() < 70 )
-        {
-            if ( loader.getCurrentKey().equals( "brakeTempsPeekDelay" ) )
-                brakeTempsPeakDelay.loadValue( loader, loader.getCurrentValue() );
-        }
-        
-        if ( loader.loadProperty( font2 ) );
-        else if ( loader.loadProperty( displayEngine ) );
-        else if ( loader.loadProperty( displayWaterTemp ) );
-        else if ( loader.loadProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) ) );
-        else if ( loader.loadProperty( displayTires ) );
-        else if ( loader.loadProperty( tireIcon ) );
-        else if ( loader.loadProperty( tireSize.getWidthProperty( "tireWidth", "width" ) ) );
-        else if ( loader.loadProperty( tireSize.getHeightProperty( "tireHeight", "height" ) ) );
-        else if ( loader.loadProperty( displayBrakes ) );
-        else if ( loader.loadProperty( brakeDiscIcon ) );
-        else if ( loader.loadProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) ) );
-        else if ( loader.loadProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) ) );
-        else if ( loader.loadProperty( brakeTempsPeakDelay ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.addFontPropertiesToContainer( propsCont, forceAll );
-        
-        propsCont.addProperty( font2 );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Engine" );
-        
-        propsCont.addProperty( displayEngine );
-        propsCont.addProperty( displayWaterTemp );
-        propsCont.addProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) );
-        
-        propsCont.addGroup( "Tires" );
-        
-        propsCont.addProperty( displayTires );
-        propsCont.addProperty( tireIcon );
-        propsCont.addProperty( tireSize.getWidthProperty( "tireWidth", "width" ) );
-        propsCont.addProperty( tireSize.getHeightProperty( "tireHeight", "height" ) );
-        
-        propsCont.addGroup( "Brakes" );
-        
-        propsCont.addProperty( displayBrakes );
-        propsCont.addProperty( brakeDiscIcon );
-        propsCont.addProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) );
-        propsCont.addProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) );
-        propsCont.addProperty( brakeTempsPeakDelay );
-    }
-    
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        gap = 1;
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
-    }
-    
-    public TemperaturesWidget()
-    {
-        super( 17.8125f, 30.416667f );
     }
 }

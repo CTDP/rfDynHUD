@@ -18,22 +18,17 @@
 package net.ctdp.rfdynhud.widgets.lessons.lesson5;
 
 import java.awt.Font;
-import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.input.InputAction;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
 
 /**
@@ -62,10 +57,20 @@ public class Lesson5Widget_InputActions extends Widget
     
     private final IntValue value = new IntValue();
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public Lesson5Widget_InputActions()
     {
-        return ( LessonsWidgetSet.WIDGET_PACKAGE );
+        super( LessonsWidgetSet.INSTANCE, LessonsWidgetSet.WIDGET_PACKAGE, 5.0f, 5.0f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     @Override
@@ -126,39 +131,5 @@ public class Lesson5Widget_InputActions extends Widget
         {
             ds.draw( offsetX, offsetY, value.getValueAsString(), texture );
         }
-    }
-    
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-    }
-    
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-    }
-    
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
-    }
-    
-    public Lesson5Widget_InputActions()
-    {
-        super( 5.0f, 5.0f );
     }
 }

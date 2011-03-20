@@ -26,19 +26,18 @@ import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -62,10 +61,56 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
     private int colPadding = 10;
     private int[] colWidths = null;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public TimeCompareWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_TIMING );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE_TIMING, 24.0625f, 13.916667f );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        colPadding = 4;
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 3, false, true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( abbreviate, "Whether to abbreviate \"Sector\" to \"Sec\", or not." );
+        writer.writeProperty( displaySectors, "Display sector times?" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( abbreviate ) );
+        else if ( loader.loadProperty( displaySectors ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( abbreviate );
+        propsCont.addProperty( displaySectors );
     }
     
     /**
@@ -309,58 +354,5 @@ public class TimeCompareWidget extends StatefulWidget<Object, LocalStore>
             
             timeStrings[numDisplayedLaps].drawColumns( offsetX, offsetY, s, colAligns, colPadding, colWidths, texture );
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( abbreviate, "Whether to abbreviate \"Sector\" to \"Sec\", or not." );
-        writer.writeProperty( displaySectors, "Display sector times?" );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( abbreviate ) );
-        else if ( loader.loadProperty( displaySectors ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( abbreviate );
-        propsCont.addProperty( displaySectors );
-    }
-    
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        colPadding = 4;
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 3, false, true );
-    }
-    
-    public TimeCompareWidget()
-    {
-        super( 24.0625f, 13.916667f );
     }
 }

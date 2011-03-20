@@ -29,8 +29,6 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 
-import org.jagatoo.logging.LogLevel;
-
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.ModInfo;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
@@ -42,23 +40,24 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.MapTools;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
+
+import org.jagatoo.logging.LogLevel;
 
 /**
  * The {@link MapWidget} renders a map overview of the current track.
@@ -113,19 +112,19 @@ public class MapWidget extends Widget
     
     private boolean needsBGClear = false;
     
-    private final ColorProperty markColorNormal = new ColorProperty( "markColorNormal", "colorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
-    private final ColorProperty markColorLeader = new ColorProperty( "markColorLeader", "colorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
-    private final ColorProperty markColorMe = new ColorProperty( "markColorMe", "colorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
+    private final ColorProperty markColorNormal = new ColorProperty( "markColorNormal", "colorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL.getKey() );
+    private final ColorProperty markColorLeader = new ColorProperty( "markColorLeader", "colorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER.getKey() );
+    private final ColorProperty markColorMe = new ColorProperty( "markColorMe", "colorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME.getKey() );
     private final BooleanProperty useMyColorForMe1st = new BooleanProperty( "useMyColorForMe1st", false );
-    private final ColorProperty markColorNextInFront = new ColorProperty( "markColorNextInFront", "colorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
-    private final ColorProperty markColorNextBehind = new ColorProperty( "markColorNextBehind", "colorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
+    private final ColorProperty markColorNextInFront = new ColorProperty( "markColorNextInFront", "colorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT.getKey() );
+    private final ColorProperty markColorNextBehind = new ColorProperty( "markColorNextBehind", "colorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND.getKey() );
     
     private final BooleanProperty displayPositionNumbers = new BooleanProperty( "displayPosNumbers", true );
     
     private final BooleanProperty displayNameLabels = new BooleanProperty( "displayNameLabels", false );
     private final EnumProperty<LabelPositioning> nameLabelPos = new EnumProperty<LabelPositioning>( "nameLabelPos", LabelPositioning.BELOW_RIGHT );
-    private final FontProperty nameLabelFont = new FontProperty( "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT_NAME );
-    private final ColorProperty nameLabelFontColor = new ColorProperty( "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final FontProperty nameLabelFont = new FontProperty( "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT.getKey() );
+    private final ColorProperty nameLabelFontColor = new ColorProperty( "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL.getKey() );
     
     private int maxDisplayedVehicles = -1;
     
@@ -138,10 +137,142 @@ public class MapWidget extends Widget
     
     private final Point2D.Float position = new Point2D.Float();
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public MapWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 16f, 24f );
+        
+        getBorderProperty().setBorder( "" );
+        getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT.getKey() );
+        getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR.getKey() );
+    }
+    
+    @Override
+    protected String getInitialBackground()
+    {
+        return ( BackgroundProperty.COLOR_INDICATOR + "#00000000" );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        roadWidth.setIntValue( 4 );
+        pitlaneRoadWidth = 1f;
+        //baseItemRadius.setIntValue( 20 );
+        itemRadius = 3;
+        itemBlackBorderWidth = 0;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( rotationEnabled, "Map rotation enabled?" );
+        
+        writer.writeProperty( roadColorSec1, "The color used for the road and sector 1 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadBoundaryColorSec1, "The color used for the road boundary and sector 1 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadColorSec2, "The color used for the road and sector 2 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadBoundaryColorSec2, "The color used for the road boundary and sector 2 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadColorSec3, "The color used for the road and sector 3 in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadBoundaryColorSec3, "The color used for the road boundary and sector 3 in #RRGGBBAA (hex)." );
+        writer.writeProperty( pitlaneColor, "The color used for the pitlane in #RRGGBBAA (hex)." );
+        writer.writeProperty( roadWidth, "The width of the roadin absolute pixels." );
+        
+        writer.writeProperty( baseItemRadius, "The abstract radius for any displayed driver item." );
+        writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
+        writer.writeProperty( useMyColorForMe1st, "Use 'markColorMe' for my item when I am at 1st place?" );
+        writer.writeProperty( markColorNextInFront, "The color used for the car in front of you in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
+        writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
+        writer.writeProperty( displayNameLabels, "Display name label near the position markers?" );
+        writer.writeProperty( nameLabelPos, "Positioning of the name labels." );
+        writer.writeProperty( nameLabelFont, "Font for the name labels." );
+        writer.writeProperty( nameLabelFontColor, "Font color for the name labels." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( rotationEnabled ) );
+        
+        else if ( loader.loadProperty( roadColorSec1 ) );
+        else if ( loader.loadProperty( roadBoundaryColorSec1 ) );
+        else if ( loader.loadProperty( roadColorSec2 ) );
+        else if ( loader.loadProperty( roadBoundaryColorSec2 ) );
+        else if ( loader.loadProperty( roadColorSec3 ) );
+        else if ( loader.loadProperty( roadBoundaryColorSec3 ) );
+        else if ( loader.loadProperty( pitlaneColor ) );
+        else if ( loader.loadProperty( roadWidth ) );
+        
+        else if ( loader.loadProperty( baseItemRadius ) );
+        else if ( loader.loadProperty( markColorNormal ) );
+        else if ( loader.loadProperty( markColorLeader ) );
+        else if ( loader.loadProperty( markColorMe ) );
+        else if ( loader.loadProperty( useMyColorForMe1st ) );
+        else if ( loader.loadProperty( markColorNextInFront ) );
+        else if ( loader.loadProperty( markColorNextBehind ) );
+        else if ( loader.loadProperty( displayPositionNumbers ) );
+        else if ( loader.loadProperty( displayNameLabels ) );
+        else if ( loader.loadProperty( nameLabelPos ) );
+        else if ( loader.loadProperty( nameLabelFont ) );
+        else if ( loader.loadProperty( nameLabelFontColor ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( rotationEnabled );
+        
+        propsCont.addGroup( "Road" );
+        
+        propsCont.addProperty( roadColorSec1 );
+        propsCont.addProperty( roadBoundaryColorSec1 );
+        propsCont.addProperty( roadColorSec2 );
+        propsCont.addProperty( roadBoundaryColorSec2 );
+        propsCont.addProperty( roadColorSec3 );
+        propsCont.addProperty( roadBoundaryColorSec3 );
+        propsCont.addProperty( pitlaneColor );
+        propsCont.addProperty( roadWidth );
+        
+        propsCont.addGroup( "Items" );
+        
+        propsCont.addProperty( baseItemRadius );
+        
+        propsCont.addProperty( markColorNormal );
+        propsCont.addProperty( markColorLeader );
+        propsCont.addProperty( markColorMe );
+        propsCont.addProperty( useMyColorForMe1st );
+        propsCont.addProperty( markColorNextInFront );
+        propsCont.addProperty( markColorNextBehind );
+        
+        propsCont.addProperty( displayPositionNumbers );
+        
+        propsCont.addProperty( displayNameLabels );
+        //if ( displayNameLabels.getBooleanValue() || forceAll )
+        {
+            //propsCont.addProperty( nameLabelPos );
+            propsCont.addProperty( nameLabelFont );
+            propsCont.addProperty( nameLabelFontColor );
+        }
     }
     
     /**
@@ -159,38 +290,6 @@ public class MapWidget extends Widget
             for ( int i = 0; i < itemStates.length; i++ )
                 itemStates[i] = 0;
         }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDefaultNamedColorValue( String name )
-    {
-        String result = super.getDefaultNamedColorValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        result = StandardWidgetSet.getDefaultNamedColorValue( name );
-        
-        return ( result );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDefaultNamedFontValue( String name )
-    {
-        String result = super.getDefaultNamedFontValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        result = StandardWidgetSet.getDefaultNamedFontValue( name );
-        
-        return ( result );
     }
     
     /**
@@ -742,144 +841,5 @@ public class MapWidget extends Widget
             for ( int i = numVehicles; i < maxDisplayedVehicles; i++ )
                 subTextures[subTexOff + i].setVisible( false );
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( rotationEnabled, "Map rotation enabled?" );
-        
-        writer.writeProperty( roadColorSec1, "The color used for the road and sector 1 in #RRGGBBAA (hex)." );
-        writer.writeProperty( roadBoundaryColorSec1, "The color used for the road boundary and sector 1 in #RRGGBBAA (hex)." );
-        writer.writeProperty( roadColorSec2, "The color used for the road and sector 2 in #RRGGBBAA (hex)." );
-        writer.writeProperty( roadBoundaryColorSec2, "The color used for the road boundary and sector 2 in #RRGGBBAA (hex)." );
-        writer.writeProperty( roadColorSec3, "The color used for the road and sector 3 in #RRGGBBAA (hex)." );
-        writer.writeProperty( roadBoundaryColorSec3, "The color used for the road boundary and sector 3 in #RRGGBBAA (hex)." );
-        writer.writeProperty( pitlaneColor, "The color used for the pitlane in #RRGGBBAA (hex)." );
-        writer.writeProperty( roadWidth, "The width of the roadin absolute pixels." );
-        
-        writer.writeProperty( baseItemRadius, "The abstract radius for any displayed driver item." );
-        writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
-        writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
-        writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
-        writer.writeProperty( useMyColorForMe1st, "Use 'markColorMe' for my item when I am at 1st place?" );
-        writer.writeProperty( markColorNextInFront, "The color used for the car in front of you in #RRGGBBAA (hex)." );
-        writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
-        writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
-        writer.writeProperty( displayNameLabels, "Display name label near the position markers?" );
-        writer.writeProperty( nameLabelPos, "Positioning of the name labels." );
-        writer.writeProperty( nameLabelFont, "Font for the name labels." );
-        writer.writeProperty( nameLabelFontColor, "Font color for the name labels." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( rotationEnabled ) );
-        
-        else if ( loader.loadProperty( roadColorSec1 ) );
-        else if ( loader.loadProperty( roadBoundaryColorSec1 ) );
-        else if ( loader.loadProperty( roadColorSec2 ) );
-        else if ( loader.loadProperty( roadBoundaryColorSec2 ) );
-        else if ( loader.loadProperty( roadColorSec3 ) );
-        else if ( loader.loadProperty( roadBoundaryColorSec3 ) );
-        else if ( loader.loadProperty( pitlaneColor ) );
-        else if ( loader.loadProperty( roadWidth ) );
-        
-        else if ( loader.loadProperty( baseItemRadius ) );
-        else if ( loader.loadProperty( markColorNormal ) );
-        else if ( loader.loadProperty( markColorLeader ) );
-        else if ( loader.loadProperty( markColorMe ) );
-        else if ( loader.loadProperty( useMyColorForMe1st ) );
-        else if ( loader.loadProperty( markColorNextInFront ) );
-        else if ( loader.loadProperty( markColorNextBehind ) );
-        else if ( loader.loadProperty( displayPositionNumbers ) );
-        else if ( loader.loadProperty( displayNameLabels ) );
-        else if ( loader.loadProperty( nameLabelPos ) );
-        else if ( loader.loadProperty( nameLabelFont ) );
-        else if ( loader.loadProperty( nameLabelFontColor ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( rotationEnabled );
-        
-        propsCont.addGroup( "Road" );
-        
-        propsCont.addProperty( roadColorSec1 );
-        propsCont.addProperty( roadBoundaryColorSec1 );
-        propsCont.addProperty( roadColorSec2 );
-        propsCont.addProperty( roadBoundaryColorSec2 );
-        propsCont.addProperty( roadColorSec3 );
-        propsCont.addProperty( roadBoundaryColorSec3 );
-        propsCont.addProperty( pitlaneColor );
-        propsCont.addProperty( roadWidth );
-        
-        propsCont.addGroup( "Items" );
-        
-        propsCont.addProperty( baseItemRadius );
-        
-        propsCont.addProperty( markColorNormal );
-        propsCont.addProperty( markColorLeader );
-        propsCont.addProperty( markColorMe );
-        propsCont.addProperty( useMyColorForMe1st );
-        propsCont.addProperty( markColorNextInFront );
-        propsCont.addProperty( markColorNextBehind );
-        
-        propsCont.addProperty( displayPositionNumbers );
-        
-        propsCont.addProperty( displayNameLabels );
-        //if ( displayNameLabels.getBooleanValue() || forceAll )
-        {
-            //propsCont.addProperty( nameLabelPos );
-            propsCont.addProperty( nameLabelFont );
-            propsCont.addProperty( nameLabelFontColor );
-        }
-    }
-    
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        roadWidth.setIntValue( 4 );
-        pitlaneRoadWidth = 1f;
-        //baseItemRadius.setIntValue( 20 );
-        itemRadius = 3;
-        itemBlackBorderWidth = 0;
-    }
-    
-    @Override
-    protected String getInitialBackground()
-    {
-        return ( BackgroundProperty.COLOR_INDICATOR + "#00000000" );
-    }
-    
-    public MapWidget()
-    {
-        super( 16f, 24f );
-        
-        getBorderProperty().setBorder( "" );
-        getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
-        getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );
     }
 }

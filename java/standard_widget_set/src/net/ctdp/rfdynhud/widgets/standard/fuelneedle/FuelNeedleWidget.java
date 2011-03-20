@@ -29,22 +29,21 @@ import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Position;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
 import net.ctdp.rfdynhud.values.AbstractSize;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.base.needlemeter.NeedleMeterWidget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -113,13 +112,92 @@ public class FuelNeedleWidget extends NeedleMeterWidget
     private final FactoredIntProperty lowFuelBlinkTime = new FactoredIntProperty( "lowFuelBlinkTime", "blinkTime", 1000000, 0, 500, 0, 5000 );
     private final IntervalManager lowFuelBlinkManager = new IntervalManager( lowFuelBlinkTime );
     
+    public FuelNeedleWidget()
+    {
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 16.3125f, 21.75f );
+        
+        getBorderProperty().setBorder( "" );
+        lastMarkerBig.setBooleanValue( true );
+        displayValue.setBooleanValue( false );
+        displayMarkers.setBooleanValue( false );
+        displayMarkerNumbers.setBooleanValue( false );
+        needleMountY.setIntValue( 520 );
+        needleRotationForMinValue.setFloatValue( -44 );
+        needleRotationForMaxValue.setFloatValue( +42 );
+    }
+    
+    @Override
+    protected boolean hasText()
+    {
+        return ( false );
+    }
+    
+    @Override
+    protected void initParentProperties()
+    {
+        super.initParentProperties();
+        
+        markersBigStep.setIntValue( 100 );
+        markersSmallStep.setIntValue( 10 );
+    }
+    
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( lowFuelWarningImageNameOff, "Image name for the off-state of the low fuel warning." );
+        writer.writeProperty( lowFuelWarningImageNameOn, "Image name for the on-state of the low fuel warning." );
+        writer.writeProperty( lowFuelWarningImagePositionPositioningProperty, "Positioning type for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePositionXProperty, "X-position for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePositionYProperty, "Y-position for the low-fuel-warning image." );
+        //writer.writeProperty( lowFuelWarningImageWidthProperty, "Width for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImageHeightProperty, "Height for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningLaps, "Number of laps to start warning before out of fuel." );
+        writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
+    }
+    
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( lowFuelWarningImageNameOff ) );
+        else if ( loader.loadProperty( lowFuelWarningImageNameOn ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionPositioningProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionXProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionYProperty ) );
+        //else if ( loader.loadProperty( lowFuelWarningImageWidthProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImageHeightProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningLaps ) );
+        else if ( loader.loadProperty( lowFuelBlinkTime ) );
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public WidgetPackage getWidgetPackage()
+    protected void addMaxValuePropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        // We don't need this here!
+    }
+    
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Low Fuel Warning" );
+        
+        propsCont.addProperty( lowFuelWarningImageNameOff );
+        propsCont.addProperty( lowFuelWarningImageNameOn );
+        propsCont.addProperty( lowFuelWarningImagePositionPositioningProperty );
+        propsCont.addProperty( lowFuelWarningImagePositionXProperty );
+        propsCont.addProperty( lowFuelWarningImagePositionYProperty );
+        //propsCont.addProperty( lowFuelWarningImageWidthProperty );
+        propsCont.addProperty( lowFuelWarningImageHeightProperty );
+        propsCont.addProperty( lowFuelWarningLaps );
+        propsCont.addProperty( lowFuelBlinkTime );
     }
     
     @Override
@@ -427,93 +505,5 @@ public class FuelNeedleWidget extends NeedleMeterWidget
             
             lowFuelWarningImageOn.setVisible( lowFuelBlinkManager.getState() );
         }
-    }
-    
-    @Override
-    protected void initParentProperties()
-    {
-        super.initParentProperties();
-        
-        markersBigStep.setIntValue( 100 );
-        markersSmallStep.setIntValue( 10 );
-    }
-    
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( lowFuelWarningImageNameOff, "Image name for the off-state of the low fuel warning." );
-        writer.writeProperty( lowFuelWarningImageNameOn, "Image name for the on-state of the low fuel warning." );
-        writer.writeProperty( lowFuelWarningImagePositionPositioningProperty, "Positioning type for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImagePositionXProperty, "X-position for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImagePositionYProperty, "Y-position for the low-fuel-warning image." );
-        //writer.writeProperty( lowFuelWarningImageWidthProperty, "Width for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImageHeightProperty, "Height for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningLaps, "Number of laps to start warning before out of fuel." );
-        writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
-    }
-    
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( lowFuelWarningImageNameOff ) );
-        else if ( loader.loadProperty( lowFuelWarningImageNameOn ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePositionPositioningProperty ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePositionXProperty ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePositionYProperty ) );
-        //else if ( loader.loadProperty( lowFuelWarningImageWidthProperty ) );
-        else if ( loader.loadProperty( lowFuelWarningImageHeightProperty ) );
-        else if ( loader.loadProperty( lowFuelWarningLaps ) );
-        else if ( loader.loadProperty( lowFuelBlinkTime ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addMaxValuePropertyToContainer( PropertiesContainer propsCont, boolean forceAll )
-    {
-        // We don't need this here!
-    }
-    
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Low Fuel Warning" );
-        
-        propsCont.addProperty( lowFuelWarningImageNameOff );
-        propsCont.addProperty( lowFuelWarningImageNameOn );
-        propsCont.addProperty( lowFuelWarningImagePositionPositioningProperty );
-        propsCont.addProperty( lowFuelWarningImagePositionXProperty );
-        propsCont.addProperty( lowFuelWarningImagePositionYProperty );
-        //propsCont.addProperty( lowFuelWarningImageWidthProperty );
-        propsCont.addProperty( lowFuelWarningImageHeightProperty );
-        propsCont.addProperty( lowFuelWarningLaps );
-        propsCont.addProperty( lowFuelBlinkTime );
-    }
-    
-    @Override
-    protected boolean hasText()
-    {
-        return ( false );
-    }
-    
-    public FuelNeedleWidget()
-    {
-        super( 16.3125f, 21.75f );
-        
-        getBorderProperty().setBorder( "" );
-        lastMarkerBig.setBooleanValue( true );
-        displayValue.setBooleanValue( false );
-        displayMarkers.setBooleanValue( false );
-        displayMarkerNumbers.setBooleanValue( false );
-        needleMountY.setIntValue( 520 );
-        needleRotationForMinValue.setFloatValue( -44 );
-        needleRotationForMaxValue.setFloatValue( +42 );
     }
 }

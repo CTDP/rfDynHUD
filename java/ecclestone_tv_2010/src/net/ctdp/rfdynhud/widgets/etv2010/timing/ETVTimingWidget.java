@@ -49,6 +49,7 @@ import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets.etv2010._base.ETVTimingWidgetBase;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVWidgetSet;
 
 /**
  * The {@link ETVTimingWidget} displays the current lap time.
@@ -94,6 +95,94 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     private int referencePlace = 0;
     
     private final BoolValue hasRefTime = new BoolValue();
+    
+    public ETVTimingWidget()
+    {
+        super( ETVWidgetSet.INSTANCE, ETVWidgetSet.WIDGET_PACKAGE, 20.0f, 8.496094f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        positionItemGap.setIntValue( 0 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( positionFontSize, "Font size for the position in percent relative to the normal font size." );
+        writer.writeProperty( alwaysShowFull1000, "Show full thousands in compare time, even if sector not completed?" );
+        writer.writeProperty( positionItemGap, "The gap between the main elements and the position element in pixels." );
+        
+        writer.writeProperty( displayType, "Always display or just at sector boundaries or always if valid time was made?" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( positionFontSize ) );
+        else if ( loader.loadProperty( alwaysShowFull1000 ) );
+        else if ( loader.loadProperty( positionItemGap ) );
+        else if ( loader.loadProperty( displayType ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
+        
+        propsCont.addProperty( displayType );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getPropertiesForParentGroup( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesForParentGroup( propsCont, forceAll );
+        
+        propsCont.addProperty( positionFontSize );
+        propsCont.addProperty( alwaysShowFull1000 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getItemGapProperty( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getItemGapProperty( propsCont, forceAll );
+        
+        propsCont.addProperty( positionItemGap );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+    }
     
     /**
      * {@inheritDoc}
@@ -195,10 +284,12 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             return ( true );
         }
         
+        /*
         if ( scoringInfo.getSessionType().isRace() )
         {
             return ( false );
         }
+        */
         
         if ( displayType.getEnumValue() == DisplayType.ALWAYS )
         {
@@ -210,7 +301,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             if ( vsi.isInPits() )
                 return ( false );
             
-            if ( ls == LapState.OUTLAP )
+            if ( !scoringInfo.getSessionType().isRace() && ( ls == LapState.OUTLAP ) )
                 return ( false );
             
             if ( ( vsi.getLaptime( vsi.getCurrentLap() ) == null ) || ( vsi.getLaptime( vsi.getCurrentLap() ).isInlap() == Boolean.TRUE ) )
@@ -554,94 +645,5 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
                 }
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( positionFontSize, "Font size for the position in percent relative to the normal font size." );
-        writer.writeProperty( alwaysShowFull1000, "Show full thousands in compare time, even if sector not completed?" );
-        writer.writeProperty( positionItemGap, "The gap between the main elements and the position element in pixels." );
-        
-        writer.writeProperty( displayType, "Always display or just at sector boundaries or always if valid time was made?" );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( positionFontSize ) );
-        else if ( loader.loadProperty( alwaysShowFull1000 ) );
-        else if ( loader.loadProperty( positionItemGap ) );
-        else if ( loader.loadProperty( displayType ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
-        
-        propsCont.addProperty( displayType );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void getPropertiesForParentGroup( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getPropertiesForParentGroup( propsCont, forceAll );
-        
-        propsCont.addProperty( positionFontSize );
-        propsCont.addProperty( alwaysShowFull1000 );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void getItemGapProperty( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getItemGapProperty( propsCont, forceAll );
-        
-        propsCont.addProperty( positionItemGap );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        positionItemGap.setIntValue( 0 );
-    }
-    
-    public ETVTimingWidget()
-    {
-        super( 20.0f, 8.496094f );
     }
 }

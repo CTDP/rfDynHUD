@@ -28,18 +28,17 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TextureImage2D.TextDirection;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -172,10 +171,97 @@ public class ControlsWidget extends Widget
         }
     };
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public ControlsWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 9.9f, 16.5f );
+        
+        setPadding( 3, 3, 3, 3 );
+        
+        getFontProperty().setFont( "DokChampa", Font.BOLD, 22, true, true );
+        getFontColorProperty().setColor( "#FFFFFF" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
+        labelOffset.setIntValue( 3 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( horizontalBars, "Extend the bars horizontally instead of vertically?" );
+        writer.writeProperty( swapThrottleAndBrake, "Swap throttle and brake order?" );
+        writer.writeProperty( displayClutch, "Display the clutch bar?" );
+        writer.writeProperty( clutchImage, "The image for the clutch bar. (overrules the color)" );
+        writer.writeProperty( clutchColor, "The color used for the clutch bar in the format #RRGGBB (hex)." );
+        writer.writeProperty( displayBrake, "Display the brake bar?" );
+        writer.writeProperty( brakeImage, "The image for the brake bar. (overrules the color)" );
+        writer.writeProperty( brakeColor, "The color used for the brake bar in the format #RRGGBB (hex)." );
+        writer.writeProperty( displayThrottle, "Display the throttle bar?" );
+        writer.writeProperty( throttleImage, "The image for the throttle bar. (overrules the color)" );
+        writer.writeProperty( throttleColor, "The color used for the throttle bar in the format #RRGGBB (hex)." );
+        writer.writeProperty( gap, "Gap between the bars" );
+        writer.writeProperty( labelOffset, "The offset for bar text from the left or bottom boundary of the bar." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( horizontalBars ) );
+        else if ( loader.loadProperty( swapThrottleAndBrake ) );
+        else if ( loader.loadProperty( displayClutch ) );
+        else if ( loader.loadProperty( clutchImage ) );
+        else if ( loader.loadProperty( clutchColor ) );
+        else if ( loader.loadProperty( displayBrake ) );
+        else if ( loader.loadProperty( brakeImage ) );
+        else if ( loader.loadProperty( brakeColor ) );
+        else if ( loader.loadProperty( displayThrottle ) );
+        else if ( loader.loadProperty( throttleImage ) );
+        else if ( loader.loadProperty( throttleColor ) );
+        else if ( loader.loadProperty( gap ) );
+        else if ( loader.loadProperty( labelOffset ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( horizontalBars );
+        propsCont.addProperty( swapThrottleAndBrake );
+        propsCont.addProperty( displayClutch );
+        propsCont.addProperty( clutchImage );
+        propsCont.addProperty( clutchColor );
+        propsCont.addProperty( displayBrake );
+        propsCont.addProperty( brakeImage );
+        propsCont.addProperty( brakeColor );
+        propsCont.addProperty( displayThrottle );
+        propsCont.addProperty( throttleImage );
+        propsCont.addProperty( throttleColor );
+        propsCont.addProperty( gap );
+        propsCont.addProperty( labelOffset );
     }
     
     /**
@@ -480,99 +566,5 @@ public class ControlsWidget extends Widget
             if ( displayThrottle.getBooleanValue() )
                 texThrottle.setClipRect( 0, h - throttle, texThrottle.getWidth(), throttle, true );
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( horizontalBars, "Extend the bars horizontally instead of vertically?" );
-        writer.writeProperty( swapThrottleAndBrake, "Swap throttle and brake order?" );
-        writer.writeProperty( displayClutch, "Display the clutch bar?" );
-        writer.writeProperty( clutchImage, "The image for the clutch bar. (overrules the color)" );
-        writer.writeProperty( clutchColor, "The color used for the clutch bar in the format #RRGGBB (hex)." );
-        writer.writeProperty( displayBrake, "Display the brake bar?" );
-        writer.writeProperty( brakeImage, "The image for the brake bar. (overrules the color)" );
-        writer.writeProperty( brakeColor, "The color used for the brake bar in the format #RRGGBB (hex)." );
-        writer.writeProperty( displayThrottle, "Display the throttle bar?" );
-        writer.writeProperty( throttleImage, "The image for the throttle bar. (overrules the color)" );
-        writer.writeProperty( throttleColor, "The color used for the throttle bar in the format #RRGGBB (hex)." );
-        writer.writeProperty( gap, "Gap between the bars" );
-        writer.writeProperty( labelOffset, "The offset for bar text from the left or bottom boundary of the bar." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( horizontalBars ) );
-        else if ( loader.loadProperty( swapThrottleAndBrake ) );
-        else if ( loader.loadProperty( displayClutch ) );
-        else if ( loader.loadProperty( clutchImage ) );
-        else if ( loader.loadProperty( clutchColor ) );
-        else if ( loader.loadProperty( displayBrake ) );
-        else if ( loader.loadProperty( brakeImage ) );
-        else if ( loader.loadProperty( brakeColor ) );
-        else if ( loader.loadProperty( displayThrottle ) );
-        else if ( loader.loadProperty( throttleImage ) );
-        else if ( loader.loadProperty( throttleColor ) );
-        else if ( loader.loadProperty( gap ) );
-        else if ( loader.loadProperty( labelOffset ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( horizontalBars );
-        propsCont.addProperty( swapThrottleAndBrake );
-        propsCont.addProperty( displayClutch );
-        propsCont.addProperty( clutchImage );
-        propsCont.addProperty( clutchColor );
-        propsCont.addProperty( displayBrake );
-        propsCont.addProperty( brakeImage );
-        propsCont.addProperty( brakeColor );
-        propsCont.addProperty( displayThrottle );
-        propsCont.addProperty( throttleImage );
-        propsCont.addProperty( throttleColor );
-        propsCont.addProperty( gap );
-        propsCont.addProperty( labelOffset );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
-        labelOffset.setIntValue( 3 );
-    }
-    
-    public ControlsWidget()
-    {
-        super( 9.9f, 16.5f );
-        
-        setPadding( 3, 3, 3, 3 );
-        
-        getFontProperty().setFont( "DokChampa", Font.BOLD, 22, true, true );
-        getFontColorProperty().setColor( "#FFFFFF" );
     }
 }

@@ -20,18 +20,17 @@ package net.ctdp.rfdynhud.widgets.lessons.lesson6;
 import java.awt.Font;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
+import net.ctdp.rfdynhud.gamedata.Wheel;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
 
 /**
@@ -45,10 +44,20 @@ public class Lesson6Widget_Localizations extends Widget
     
     private final FloatValue v = new FloatValue( -1f, 0.1f );
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public Lesson6Widget_Localizations()
     {
-        return ( LessonsWidgetSet.WIDGET_PACKAGE );
+        super( LessonsWidgetSet.INSTANCE, LessonsWidgetSet.WIDGET_PACKAGE, 14.0f, 5.0f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 7, false, true );
     }
     
     @Override
@@ -102,21 +111,5 @@ public class Lesson6Widget_Localizations extends Widget
             
             ds.draw( offsetX, offsetY, tireTempFL, texture );
         }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 7, false, true );
-    }
-    
-    public Lesson6Widget_Localizations()
-    {
-        super( 14.0f, 5.0f );
     }
 }

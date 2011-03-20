@@ -599,7 +599,7 @@ public class EditorMenuBar extends JMenuBar
         }
         */
         
-        WidgetPackage rootPackage = new WidgetPackage( "", 0 );
+        WidgetPackage rootPackage = new WidgetPackage( null, "" );
         
         ArrayList<WidgetPackage> widgetPackages = new ArrayList<WidgetPackage>();
         ArrayList<Class<Widget>> classes = new ArrayList<Class<Widget>>();

@@ -87,6 +87,9 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     //public static final int NEEDED_DATA_SETUP = 4;
     public static final int NEEDED_DATA_ALL = NEEDED_DATA_TELEMETRY | NEEDED_DATA_SCORING/* | NEEDED_DATA_SETUP*/;
     
+    private final WidgetSet widgetSet;
+    private final WidgetPackage widgetPackage;
+    
     private WidgetsConfiguration config = null;
     
     private boolean dirtyFlag = true;
@@ -120,7 +123,7 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     private final IntProperty paddingRight = new IntProperty( "paddingRight", "right", 0, 0, 1000, false );
     private final IntProperty paddingBottom = new IntProperty( "paddingBottom", "bottom", 0, 0, 1000, false );
     
-    private final BorderProperty border = new BorderProperty( "border", BorderProperty.DEFAULT_BORDER_NAME, paddingTop, paddingLeft, paddingRight, paddingBottom );
+    private final BorderProperty border = new BorderProperty( "border", BorderProperty.DEFAULT_BORDER.getKey(), paddingTop, paddingLeft, paddingRight, paddingBottom );
     
     /**
      * Gets the initial value for the background property.
@@ -129,7 +132,7 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      */
     protected String getInitialBackground()
     {
-        return ( BackgroundProperty.COLOR_INDICATOR + ColorProperty.STANDARD_BACKGROUND_COLOR_NAME );
+        return ( BackgroundProperty.COLOR_INDICATOR + ColorProperty.STANDARD_BACKGROUND_COLOR.getKey() );
     }
     
     final boolean overridesDrawBackground = ClassUtil.overridesMethod( Widget.class, this.getClass(), "drawBackground", LiveGameData.class, boolean.class, TextureImage2D.class, int.class, int.class, int.class, int.class, boolean.class );
@@ -153,8 +156,8 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     } : null;
     private final WidgetBackground background = canHaveBackground() || overridesDrawBackground ? new WidgetBackground( this, backgroundProperty ) : null;
     
-    private final FontProperty font = new FontProperty( "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty fontColor = new ColorProperty( "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    private final FontProperty font = new FontProperty( "font", FontProperty.STANDARD_FONT.getKey() );
+    private final ColorProperty fontColor = new ColorProperty( "fontColor", ColorProperty.STANDARD_FONT_COLOR.getKey() );
     
     private TransformableTexture[] subTextures = null;
     
@@ -348,6 +351,27 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     }
     
     /**
+     * Gets the {@link WidgetSet} this {@link Widget} belongs to.
+     * 
+     * @return the {@link WidgetSet} this {@link Widget} belongs to.
+     */
+    public final WidgetSet getWidgetSet()
+    {
+        return ( widgetSet );
+    }
+    
+    /**
+     * Gets the package to group the Widget in the editor.
+     * This can be an <code>null</code> to be displayed in the root or a slash separated path.
+     * 
+     * @return the package to group the Widget in the editor.
+     */
+    public final WidgetPackage getWidgetPackage()
+    {
+        return ( widgetPackage );
+    }
+    
+    /**
      * Gets the default value for the given border alias/name.
      * 
      * @param name the border name to query
@@ -356,7 +380,14 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      */
     public String getDefaultBorderValue( String name )
     {
-        return ( BorderProperty.getDefaultBorderValue( name ) );
+        String result = BorderProperty.getDefaultBorderValue( name );
+        
+        if ( ( result == null ) && ( getWidgetSet() != null ) )
+        {
+            result = getWidgetSet().getDefaultBorderValue( name );
+        }
+        
+        return ( result );
     }
     
     /**
@@ -368,7 +399,14 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      */
     public String getDefaultNamedColorValue( String name )
     {
-        return ( ColorProperty.getDefaultNamedColorValue( name ) );
+        String result = ColorProperty.getDefaultNamedColorValue( name );
+        
+        if ( ( result == null ) && ( getWidgetSet() != null ) )
+        {
+            result = getWidgetSet().getDefaultNamedColorValue( name );
+        }
+        
+        return ( result );
     }
     
     /**
@@ -380,16 +418,15 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
      */
     public String getDefaultNamedFontValue( String name )
     {
-        return ( FontProperty.getDefaultNamedFontValue( name ) );
+        String result = FontProperty.getDefaultNamedFontValue( name );
+        
+        if ( ( result == null ) && ( getWidgetSet() != null ) )
+        {
+            result = getWidgetSet().getDefaultNamedFontValue( name );
+        }
+        
+        return ( result );
     }
-    
-    /**
-     * Gets the package to group the Widget in the editor.
-     * This can be an <code>null</code> to be displayed in the root or a slash separated path.
-     * 
-     * @return the package to group the Widget in the editor.
-     */
-    public abstract WidgetPackage getWidgetPackage();
     
     void setConfiguration( WidgetsConfiguration config )
     {
@@ -2118,13 +2155,18 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     /**
      * Creates a new {@link Widget}.
      * 
+     * @param widgetSet the {@link WidgetSet} this {@link Widget} belongs to
+     * @param widgetPackage the package in the editor
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
      * @param heightPercent height parameter treated as percents
      */
-    protected Widget( float width, boolean widthPercent, float height, boolean heightPercent )
+    protected Widget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, boolean widthPercent, float height, boolean heightPercent )
     {
+        this.widgetSet = widgetSet;
+        this.widgetPackage = widgetPackage;
+        
         this.size = Size.newGlobalSize( this, width, widthPercent, height, heightPercent );
         this.innerSize = new InnerSize( size, border );
         this.position = Position.newGlobalPosition( this, RelativePositioning.TOP_LEFT, 0f, true, 0f, true, size );
@@ -2142,11 +2184,13 @@ public abstract class Widget implements Cloneable, PropertiesKeeper
     /**
      * Creates a new {@link Widget}.
      * 
+     * @param widgetSet the {@link WidgetSet} this {@link Widget} belongs to
+     * @param widgetPackage the package in the editor
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      */
-    protected Widget( float width, float height )
+    protected Widget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, float height )
     {
-        this( width, true, height, true );
+        this( widgetSet, widgetPackage, width, true, height, true );
     }
 }

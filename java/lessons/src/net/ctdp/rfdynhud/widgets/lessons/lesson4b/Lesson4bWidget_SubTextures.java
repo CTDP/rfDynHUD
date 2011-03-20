@@ -23,19 +23,18 @@ import java.io.IOException;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
 
 /**
@@ -67,10 +66,49 @@ public class Lesson4bWidget_SubTextures extends Widget
     private DrawnString ds = null;
     private DrawnString lapString = null;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public Lesson4bWidget_SubTextures()
     {
-        return ( LessonsWidgetSet.WIDGET_PACKAGE );
+        super( LessonsWidgetSet.INSTANCE, LessonsWidgetSet.WIDGET_PACKAGE, 27.0f, 6.0f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 6, false, true );
+    }
+    
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( subImage, "An image." );
+        writer.writeProperty( myFontColor, "Font color for my custom text." );
+    }
+    
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( subImage ) );
+        else if ( loader.loadProperty( myFontColor ) );
+    }
+    
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "My own Properties" );
+        
+        propsCont.addProperty( subImage );
+        propsCont.addProperty( myFontColor );
     }
     
     @Override
@@ -132,50 +170,5 @@ public class Lesson4bWidget_SubTextures extends Widget
              */
             lapString.draw( 0, 0, lapNumber.getValueAsString(), subImage.getTexture(), subTexture.getTexture() );
         }
-    }
-    
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( subImage, "An image." );
-        writer.writeProperty( myFontColor, "Font color for my custom text." );
-    }
-    
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( subImage ) );
-        else if ( loader.loadProperty( myFontColor ) );
-    }
-    
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "My own Properties" );
-        
-        propsCont.addProperty( subImage );
-        propsCont.addProperty( myFontColor );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 6, false, true );
-    }
-    
-    public Lesson4bWidget_SubTextures()
-    {
-        super( 27.0f, 6.0f );
     }
 }

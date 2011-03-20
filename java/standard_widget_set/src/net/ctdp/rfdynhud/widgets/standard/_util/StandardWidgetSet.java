@@ -22,64 +22,99 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
-import java.net.URL;
 
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.FontUtils;
+import net.ctdp.rfdynhud.util.StringMapping;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetSet;
 
-public class StandardWidgetSet
+public class StandardWidgetSet extends WidgetSet
 {
-    private static final URL getIcon( String name )
+    public static StandardWidgetSet INSTANCE = new StandardWidgetSet();
+    
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( INSTANCE, "CTDP/Standard", WidgetPackage.CTDP_ICON, INSTANCE.getIcon( "net/ctdp/rfdynhud/widgets/standard/widgets.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE_TELEMETRY = new WidgetPackage( INSTANCE, "CTDP/Telemetry", WidgetPackage.CTDP_ICON, INSTANCE.getIcon( "net/ctdp/rfdynhud/widgets/standard/telemetry.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE_TIMING = new WidgetPackage( INSTANCE, "CTDP/Timing", WidgetPackage.CTDP_ICON, INSTANCE.getIcon( "net/ctdp/rfdynhud/widgets/standard/timing.png" ) );
+    public static final WidgetPackage WIDGET_PACKAGE_EXTRA = new WidgetPackage( INSTANCE, "CTDP/Extra", WidgetPackage.CTDP_ICON, WidgetPackage.EXTRA_ICON );
+    
+    public static final StringMapping STANDARD_FONT2 = new StringMapping( "StandardFont2", FontUtils.getFontString( "Dialog", Font.BOLD, 12, true, true ) );
+    public static final StringMapping STANDARD_FONT3 = new StringMapping( "StandardFont3", FontUtils.getFontString( "Dialog", Font.BOLD, 11, true, true ) );
+    public static final StringMapping SMALLER_FONT = new StringMapping( "SmallerFont", FontUtils.getFontString( "Dialog", Font.BOLD, 13, true, true ) );
+    public static final StringMapping SMALLER_FONT3 = new StringMapping( "SmallerFont3", FontUtils.getFontString( "Dialog", Font.BOLD, 9, true, true ) );
+    public static final StringMapping BIGGER_FONT = new StringMapping( "BiggerFont", FontUtils.getFontString( "Dialog", Font.PLAIN, 14, true, true ) );
+    
+    public static final StringMapping POSITION_ITEM_FONT = new StringMapping( "PositionItemFont", FontUtils.getFontString( "Verdana", Font.BOLD, 9, true, true ) );
+    
+    public static final StringMapping POSITION_ITEM_FONT_COLOR = new StringMapping( "PositionItemFontColor", "#000000" );
+    public static final StringMapping POSITION_ITEM_COLOR_NORMAL = new StringMapping( "PositionItemColorNormal","#FFFFFFC0"  );
+    public static final StringMapping POSITION_ITEM_COLOR_LEADER = new StringMapping( "PositionItemColorLeader", "#FF0000C0" );
+    public static final StringMapping POSITION_ITEM_COLOR_ME = new StringMapping( "PositionItemColorMe", "#00FF00C0" );
+    public static final StringMapping POSITION_ITEM_COLOR_NEXT_IN_FRONT = new StringMapping( "PositionItemColorNextInFront", "#0000FFC0" );
+    public static final StringMapping POSITION_ITEM_COLOR_NEXT_BEHIND = new StringMapping( "PositionItemColorNextBehind", "#FFFF00C0" );
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultBorderValue( String name )
     {
-        return ( StandardWidgetSet.class.getClassLoader().getResource( name ) );
+        return ( super.getDefaultBorderValue( name ) );
     }
     
-    private static int VERSION = WidgetPackage.composeVersion( 1, 2, 0 );
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Standard", VERSION, WidgetPackage.CTDP_ICON, getIcon( "net/ctdp/rfdynhud/widgets/standard/widgets.png" ) );
-    public static final WidgetPackage WIDGET_PACKAGE_TELEMETRY = new WidgetPackage( "CTDP/Telemetry", VERSION, WidgetPackage.CTDP_ICON, getIcon( "net/ctdp/rfdynhud/widgets/standard/telemetry.png" ) );
-    public static final WidgetPackage WIDGET_PACKAGE_TIMING = new WidgetPackage( "CTDP/Timing", VERSION, WidgetPackage.CTDP_ICON, getIcon( "net/ctdp/rfdynhud/widgets/standard/timing.png" ) );
-    public static final WidgetPackage WIDGET_PACKAGE_EXTRA = new WidgetPackage( "CTDP/Extra", VERSION, WidgetPackage.CTDP_ICON, WidgetPackage.EXTRA_ICON );
-    
-    public static final String POSITION_ITEM_FONT_COLOR_NAME = "PositionItemFontColor";
-    public static final String POSITION_ITEM_COLOR_NORMAL = "PositionItemColorNormal";
-    public static final String POSITION_ITEM_COLOR_LEADER = "PositionItemColorLeader";
-    public static final String POSITION_ITEM_COLOR_ME = "PositionItemColorMe";
-    public static final String POSITION_ITEM_COLOR_NEXT_IN_FRONT = "PositionItemColorNextInFront";
-    public static final String POSITION_ITEM_COLOR_NEXT_BEHIND = "PositionItemColorNextBehind";
-    
-    public static final String POSITION_ITEM_FONT_NAME = "PositionItemFont";
-    
-    public static String getDefaultNamedColorValue( String name )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedFontValue( String name )
     {
-        if ( name.equals( POSITION_ITEM_FONT_COLOR_NAME ) )
-            return ( "#000000" );
+        if ( name.equals( STANDARD_FONT2.getKey() ) )
+            return ( STANDARD_FONT2.getValue() );
         
-        if ( name.equals( POSITION_ITEM_COLOR_NORMAL ) )
-            return ( "#FFFFFFC0" );
+        if ( name.equals( STANDARD_FONT3.getKey() ) )
+            return ( STANDARD_FONT3.getValue() );
         
-        if ( name.equals( POSITION_ITEM_COLOR_LEADER ) )
-            return ( "#FF0000C0" );
+        if ( name.equals( SMALLER_FONT.getKey() ) )
+            return ( SMALLER_FONT.getValue() );
         
-        if ( name.equals( POSITION_ITEM_COLOR_ME ) )
-            return ( "#00FF00C0" );
+        if ( name.equals( SMALLER_FONT3.getKey() ) )
+            return ( SMALLER_FONT3.getValue() );
         
-        if ( name.equals( POSITION_ITEM_COLOR_NEXT_IN_FRONT ) )
-            return ( "#0000FFC0" );
+        if ( name.equals( BIGGER_FONT.getKey() ) )
+            return ( BIGGER_FONT.getValue() );
         
-        if ( name.equals( POSITION_ITEM_COLOR_NEXT_BEHIND ) )
-            return ( "#FFFF00C0" );
+        if ( name.equals( POSITION_ITEM_FONT.getKey() ) )
+            return ( POSITION_ITEM_FONT.getValue() );
         
-        return ( null );
+        return ( super.getDefaultNamedFontValue( name ) );
     }
     
-    public static String getDefaultNamedFontValue( String name )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultNamedColorValue( String name )
     {
-        if ( name.equals( POSITION_ITEM_FONT_NAME ) )
-            return ( FontUtils.getFontString( "Verdana", Font.BOLD, 9, true, true ) );
+        if ( name.equals( POSITION_ITEM_FONT_COLOR.getKey() ) )
+            return ( POSITION_ITEM_FONT_COLOR.getValue() );
         
-        return ( null );
+        if ( name.equals( POSITION_ITEM_COLOR_NORMAL.getKey() ) )
+            return ( POSITION_ITEM_COLOR_NORMAL.getValue() );
+        
+        if ( name.equals( POSITION_ITEM_COLOR_LEADER.getKey() ) )
+            return ( POSITION_ITEM_COLOR_LEADER.getValue() );
+        
+        if ( name.equals( POSITION_ITEM_COLOR_ME.getKey() ) )
+            return ( POSITION_ITEM_COLOR_ME.getValue() );
+        
+        if ( name.equals( POSITION_ITEM_COLOR_NEXT_IN_FRONT.getKey() ) )
+            return ( POSITION_ITEM_COLOR_NEXT_IN_FRONT.getValue() );
+        
+        if ( name.equals( POSITION_ITEM_COLOR_NEXT_BEHIND.getKey() ) )
+            return ( POSITION_ITEM_COLOR_NEXT_BEHIND.getValue() );
+        
+        return ( super.getDefaultNamedColorValue( name ) );
     }
     
     public static java.awt.Dimension getPositionItemSize( int radius, LabelPositioning namePositioning, Font nameFont, boolean nameFontAntialiased )
@@ -198,5 +233,10 @@ public class StandardWidgetSet
         }
         
         return ( circleOffsetY );
+    }
+    
+    private StandardWidgetSet()
+    {
+        super( composeVersion( 1, 2, 1 ) );
     }
 }

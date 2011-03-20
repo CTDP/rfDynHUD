@@ -24,11 +24,10 @@ import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.needlemeter.NeedleMeterWidget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -40,77 +39,18 @@ public class SpeedoWidget extends NeedleMeterWidget
 {
     private final IntProperty maxVelocity = new IntProperty( "maxVelocity", 340, 1, 1000 );
     
-    @Override
-    protected String getInitialBackground()
+    public SpeedoWidget()
     {
-        return ( BackgroundProperty.IMAGE_INDICATOR + "standard/rev_meter_bg.png" );
-    }
-    
-    @Override
-    protected int getMarkersBigStepLowerLimit()
-    {
-        return ( 20 );
-    }
-    
-    @Override
-    protected int getMarkersSmallStepLowerLimit()
-    {
-        return ( 5 );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public WidgetPackage getWidgetPackage()
-    {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
-    }
-    
-    /*
-    @Override
-    protected FontProperty getValueFont()
-    {
-        return ( getFontProperty() );
-    }
-    
-    @Override
-    protected ColorProperty getValueFontColor()
-    {
-        return ( getFontColorProperty() );
-    }
-    */
-    
-    @Override
-    protected float getMinDataValue( LiveGameData gameData, boolean isEditorMode )
-    {
-        return ( 0 );
-    }
-    
-    @Override
-    protected float getMaxDataValue( LiveGameData gameData, boolean isEditorMode )
-    {
-        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
-            return ( maxVelocity.getFloatValue() * SpeedUnits.Convert.KPH_TO_MPH );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 16.3125f, 21.75f );
         
-        return ( maxVelocity.getFloatValue() );
+        getBorderProperty().setBorder( "" );
+        lastMarkerBig.setBooleanValue( true );
     }
     
     @Override
-    protected float getValue( LiveGameData gameData, boolean isEditorMode )
+    protected boolean hasText()
     {
-        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
-        
-        if ( vsi.isPlayer() )
-            return ( gameData.getTelemetryData().getScalarVelocity() );
-        
-        return ( vsi.getScalarVelocity() );
-    }
-    
-    @Override
-    protected String getMarkerLabelForValue( LiveGameData gameData, boolean isEditorMode, float value )
-    {
-        return ( String.valueOf( (int)value ) );
+        return ( false );
     }
     
     @Override
@@ -165,16 +105,66 @@ public class SpeedoWidget extends NeedleMeterWidget
     }
     
     @Override
-    protected boolean hasText()
+    protected String getInitialBackground()
     {
-        return ( false );
+        return ( BackgroundProperty.IMAGE_INDICATOR + "standard/rev_meter_bg.png" );
     }
     
-    public SpeedoWidget()
+    @Override
+    protected int getMarkersBigStepLowerLimit()
     {
-        super( 16.3125f, 21.75f );
+        return ( 20 );
+    }
+    
+    @Override
+    protected int getMarkersSmallStepLowerLimit()
+    {
+        return ( 5 );
+    }
+    
+    /*
+    @Override
+    protected FontProperty getValueFont()
+    {
+        return ( getFontProperty() );
+    }
+    
+    @Override
+    protected ColorProperty getValueFontColor()
+    {
+        return ( getFontColorProperty() );
+    }
+    */
+    
+    @Override
+    protected float getMinDataValue( LiveGameData gameData, boolean isEditorMode )
+    {
+        return ( 0 );
+    }
+    
+    @Override
+    protected float getMaxDataValue( LiveGameData gameData, boolean isEditorMode )
+    {
+        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
+            return ( maxVelocity.getFloatValue() * SpeedUnits.Convert.KPH_TO_MPH );
         
-        getBorderProperty().setBorder( "" );
-        lastMarkerBig.setBooleanValue( true );
+        return ( maxVelocity.getFloatValue() );
+    }
+    
+    @Override
+    protected float getValue( LiveGameData gameData, boolean isEditorMode )
+    {
+        VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
+        
+        if ( vsi.isPlayer() )
+            return ( gameData.getTelemetryData().getScalarVelocity() );
+        
+        return ( vsi.getScalarVelocity() );
+    }
+    
+    @Override
+    protected String getMarkerLabelForValue( LiveGameData gameData, boolean isEditorMode, float value )
+    {
+        return ( String.valueOf( (int)value ) );
     }
 }

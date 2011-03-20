@@ -20,14 +20,13 @@ package net.ctdp.rfdynhud.widgets.internal;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.Hidden;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 /**
  * This {@link Widget} displays information, if something went wrong
@@ -45,12 +44,6 @@ public class InternalWidget extends Widget
     public void setMessage( String... message )
     {
         this.message = message;
-    }
-    
-    @Override
-    public WidgetPackage getWidgetPackage()
-    {
-        return ( null );
     }
     
     /**
@@ -95,6 +88,6 @@ public class InternalWidget extends Widget
     
     public InternalWidget()
     {
-        super( 30.0f, 10.0f );
+        super( null, null, 30.0f, 10.0f );
     }
 }

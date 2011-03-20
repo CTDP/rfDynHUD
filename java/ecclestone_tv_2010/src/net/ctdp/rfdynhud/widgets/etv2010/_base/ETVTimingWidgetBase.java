@@ -20,21 +20,28 @@ package net.ctdp.rfdynhud.widgets.etv2010._base;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.properties.ColorProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.util.PropertyWriter;
-import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetSet;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVWidgetSet;
 
 public abstract class ETVTimingWidgetBase extends ETVWidgetBase
 {
-    protected final ColorProperty captionBackgroundColor1st = new ColorProperty( "captionBgColor1st", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR_1ST );
-    protected final ColorProperty dataBackgroundColor1st = new ColorProperty( "dataBgColor1st", ETVUtils.ETV_DATA_BACKGROUND_COLOR_1ST );
-    protected final ColorProperty dataBackgroundColorFastest = new ColorProperty( "dataBgColorFastest", ETVUtils.ETV_DATA_BACKGROUND_COLOR_FASTEST );
-    protected final ColorProperty dataBackgroundColorFaster = new ColorProperty( "dataBgColorFaster", ETVUtils.ETV_DATA_BACKGROUND_COLOR_FASTER );
-    protected final ColorProperty dataBackgroundColorSlower = new ColorProperty( "dataBgColorSlower", ETVUtils.ETV_DATA_BACKGROUND_COLOR_SLOWER );
-    protected final ColorProperty dataColorFastest = new ColorProperty( "dataColorFastest", ETVUtils.ETV_DATA_FONT_COLOR_FASTEST );
-    protected final ColorProperty dataColorFaster = new ColorProperty( "dataColorFaster", ETVUtils.ETV_DATA_FONT_COLOR_FASTER );
-    protected final ColorProperty dataColorSlower = new ColorProperty( "dataColorSlower", ETVUtils.ETV_DATA_FONT_COLOR_SLOWER );
+    protected final ColorProperty captionBackgroundColor1st = new ColorProperty( "captionBgColor1st", ETVWidgetSet.ETV_CAPTION_BACKGROUND_COLOR_1ST.getKey() );
+    protected final ColorProperty dataBackgroundColor1st = new ColorProperty( "dataBgColor1st", ETVWidgetSet.ETV_DATA_BACKGROUND_COLOR_1ST.getKey() );
+    protected final ColorProperty dataBackgroundColorFastest = new ColorProperty( "dataBgColorFastest", ETVWidgetSet.ETV_DATA_BACKGROUND_COLOR_FASTEST.getKey() );
+    protected final ColorProperty dataBackgroundColorFaster = new ColorProperty( "dataBgColorFaster", ETVWidgetSet.ETV_DATA_BACKGROUND_COLOR_FASTER.getKey() );
+    protected final ColorProperty dataBackgroundColorSlower = new ColorProperty( "dataBgColorSlower", ETVWidgetSet.ETV_DATA_BACKGROUND_COLOR_SLOWER.getKey() );
+    protected final ColorProperty dataColorFastest = new ColorProperty( "dataColorFastest", ETVWidgetSet.ETV_DATA_FONT_COLOR_FASTEST.getKey() );
+    protected final ColorProperty dataColorFaster = new ColorProperty( "dataColorFaster", ETVWidgetSet.ETV_DATA_FONT_COLOR_FASTER.getKey() );
+    protected final ColorProperty dataColorSlower = new ColorProperty( "dataColorSlower", ETVWidgetSet.ETV_DATA_FONT_COLOR_SLOWER.getKey() );
+    
+    public ETVTimingWidgetBase( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, float height )
+    {
+        super( widgetSet, widgetPackage, width, height );
+    }
     
     /**
      * {@inheritDoc}
@@ -123,10 +130,5 @@ public abstract class ETVTimingWidgetBase extends ETVWidgetBase
     public void getProperties( PropertiesContainer propsCont, boolean forceAll )
     {
         super.getProperties( propsCont, forceAll );
-    }
-    
-    public ETVTimingWidgetBase( float width, float height )
-    {
-        super( width, height );
     }
 }

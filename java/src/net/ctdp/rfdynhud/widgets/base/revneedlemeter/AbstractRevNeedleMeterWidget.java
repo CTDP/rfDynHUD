@@ -47,6 +47,8 @@ import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.needlemeter.NeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetSet;
 
 /**
  * The {@link AbstractRevNeedleMeterWidget} displays rev/RPM information.
@@ -694,9 +696,9 @@ public abstract class AbstractRevNeedleMeterWidget extends NeedleMeterWidget
         gearFont.setFont( "Dialog", Font.PLAIN, 8, false, true );
     }
     
-    public AbstractRevNeedleMeterWidget( float width, float height )
+    public AbstractRevNeedleMeterWidget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, float height )
     {
-        super( width, height );
+        super( widgetSet, widgetPackage, width, height );
         
         getBorderProperty().setBorder( "" );
     }

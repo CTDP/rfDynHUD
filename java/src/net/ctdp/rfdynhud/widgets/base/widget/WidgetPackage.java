@@ -38,10 +38,20 @@ public class WidgetPackage implements Comparable<WidgetPackage>
     public static final URL CTDP_ICON = WidgetPackage.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/ctdp.png" );
     public static final URL EXTRA_ICON = WidgetPackage.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/extra/extra.png" );
     
+    private final WidgetSet widgetSet;
     private final String name;
-    private final int version;
     private final URL[] iconURLs;
     private Icon[] icons = null;
+    
+    /**
+     * Gets the {@link WidgetSet} this {@link WidgetPackage} belongs to.
+     * 
+     * @return the {@link WidgetSet} this {@link WidgetPackage} belongs to.
+     */
+    public final WidgetSet getWidgetSet()
+    {
+        return ( widgetSet );
+    }
     
     /**
      * Gets the package's name.
@@ -51,48 +61,6 @@ public class WidgetPackage implements Comparable<WidgetPackage>
     public final String getName()
     {
         return ( name );
-    }
-    
-    /**
-     * Composes one 32 bit integer from major, minor and revision numbers.
-     * 
-     * @param major major field
-     * @param minor minor field
-     * @param revision revision field
-     * 
-     * @return a 32 bit integer for the version.
-     */
-    public static final int composeVersion( int major, int minor, int revision )
-    {
-        major = ( ( major + 1 ) & 0xFF ) << 23; // 8 bits for major (max 255)
-        minor = ( ( minor + 1 ) & 0x400 ) << 13; // 10 bits for minor (max 1023)
-        revision = ( revision & 0x2000 ) << 0; // 13 bits for revision (max 8191)
-        
-        return ( major | minor | revision );
-    }
-    
-    /**
-     * Gets a comparable version indicator for this {@link WidgetPackage}.
-     * 
-     * @return a comparable version indicator for this {@link WidgetPackage}.
-     */
-    public final int getVersion()
-    {
-        return ( version );
-    }
-    
-    public final String getVersionString()
-    {
-        int version = getVersion();
-        
-        if ( version <= 0x7FFFFF ) // > 2^23-1
-            return ( String.valueOf( version ) );
-        
-        int major = ( ( version >>> 23 ) - 1 ) & 0xFF;
-        int minor = ( ( version >>> 13 ) - 1 ) & 0x400;
-        int revision = ( version >>> 0 ) & 0x2000;
-        
-        return ( major + "." + minor + "." + revision );
     }
     
     private static Icon[] createIconArray( URL[] iconURLs )
@@ -171,14 +139,14 @@ public class WidgetPackage implements Comparable<WidgetPackage>
     /**
      * Creates a new {@link WidgetPackage} instance.
      * 
+     * @param widgetSet the {@link WidgetSet} this package belongs to
      * @param name the package name. This can be <code>null</code> or an empty string to denote the root of the menu or a slash separated path.
-     * @param version see {@link #composeVersion(int, int, int)}
      * @param iconURLs URLs to icons for the editor
      */
-    public WidgetPackage( String name, int version, URL... iconURLs )
+    public WidgetPackage( WidgetSet widgetSet, String name, URL... iconURLs )
     {
+        this.widgetSet = widgetSet;
         this.name = ( name == null ) ? "" : name;
-        this.version = version;
         this.iconURLs = ( iconURLs == null || iconURLs.length == 0 ) ? null : iconURLs;
     }
     
@@ -216,23 +184,23 @@ public class WidgetPackage implements Comparable<WidgetPackage>
     /**
      * Creates a new {@link WidgetPackage} instance.
      * 
+     * @param widgetSet the {@link WidgetSet} this package belongs to
      * @param name the package name. This can be <code>null</code> or an empty string to denote the root of the menu or a slash separated path.
-     * @param version see {@link #composeVersion(int, int, int)}
      * @param iconFiles files for icons for the editor
      */
-    public WidgetPackage( String name, int version, File... iconFiles )
+    public WidgetPackage( WidgetSet widgetSet, String name, File... iconFiles )
     {
-        this( name, version, createURLsArray( iconFiles ) );
+        this( widgetSet, name, createURLsArray( iconFiles ) );
     }
     
     /**
      * Creates a new {@link WidgetPackage} instance.
      * 
+     * @param widgetSet the {@link WidgetSet} this package belongs to
      * @param name the package name. This can be <code>null</code> or an empty string to denote the root of the menu or a slash separated path.
-     * @param version see {@link #composeVersion(int, int, int)}
      */
-    public WidgetPackage( String name, int version )
+    public WidgetPackage( WidgetSet widgetSet, String name )
     {
-        this( name, version, (URL[])null );
+        this( widgetSet, name, (URL[])null );
     }
 }

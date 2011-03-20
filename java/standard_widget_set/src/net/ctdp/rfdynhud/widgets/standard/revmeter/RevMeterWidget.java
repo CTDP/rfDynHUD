@@ -56,6 +56,7 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.revneedlemeter.AbstractRevNeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetSet;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -137,7 +138,7 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
     private int boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY;
     protected final IntProperty boostNumberPosX = new IntProperty( "boostNumberPosX", "numberPosX", 392 );
     protected final IntProperty boostNumberPosY = new IntProperty( "boostNumberPosY", "numberPosY", 544 );
-    protected final FontProperty boostNumberFont = new FontProperty( "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT_NAME );
+    protected final FontProperty boostNumberFont = new FontProperty( "boostNumberFont", "numberFont", FontProperty.STANDARD_FONT.getKey() );
     protected final ColorProperty boostNumberFontColor = new ColorProperty( "boostNumberFontColor", "numberFontColor", "#FF0000" );
     
     protected final BooleanProperty displayRPMString1 = new BooleanProperty( "displayRPMString1", "displayRPMString", true );
@@ -146,8 +147,8 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
     protected final BooleanProperty useBoostRevLimit1 = new BooleanProperty( "useBoostRevLimit1", "useBoostRevLimit", false );
     protected final IntProperty rpmPosX1 = new IntProperty( "rpmPosX1", "rpmPosX", 170 );
     protected final IntProperty rpmPosY1 = new IntProperty( "rpmPosY1", "rpmPosY", 603 );
-    protected final FontProperty rpmFont1 = new FontProperty( "rpmFont1", "font", FontProperty.STANDARD_FONT_NAME );
-    protected final ColorProperty rpmFontColor1 = new ColorProperty( "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    protected final FontProperty rpmFont1 = new FontProperty( "rpmFont1", "font", FontProperty.STANDARD_FONT.getKey() );
+    protected final ColorProperty rpmFontColor1 = new ColorProperty( "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR.getKey() );
     protected final StringProperty rpmJoinString1 = new StringProperty( "rpmJoinString1", "rpmJoinString", " / " );
     
     protected final BooleanProperty displayRPMString2 = new BooleanProperty( "displayRPMString2", "displayRPMString", false );
@@ -156,8 +157,8 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
     protected final BooleanProperty useBoostRevLimit2 = new BooleanProperty( "useBoostRevLimit2", "useBoostRevLimit", false );
     protected final IntProperty rpmPosX2 = new IntProperty( "rpmPosX2", "rpmPosX", 170 );
     protected final IntProperty rpmPosY2 = new IntProperty( "rpmPosY2", "rpmPosY", 603 );
-    protected final FontProperty rpmFont2 = new FontProperty( "rpmFont2", "font", FontProperty.STANDARD_FONT_NAME );
-    protected final ColorProperty rpmFontColor2 = new ColorProperty( "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    protected final FontProperty rpmFont2 = new FontProperty( "rpmFont2", "font", FontProperty.STANDARD_FONT.getKey() );
+    protected final ColorProperty rpmFontColor2 = new ColorProperty( "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR.getKey() );
     protected final StringProperty rpmJoinString2 = new StringProperty( "rpmJoinString2", "rpmJoinString", " / " );
     
     private DrawnString rpmString1 = null;
@@ -165,6 +166,355 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
     private DrawnString boostString = null;
     
     private final IntValue boost = new IntValue();
+    
+    public RevMeterWidget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, float height )
+    {
+        super( widgetSet, widgetPackage, width, height );
+        
+        int initialShiftLights = getInitialNumberOfShiftLights();
+        if ( initialShiftLights != 0 )
+        {
+            numShiftLights.setIntValue( initialShiftLights );
+            initShiftLights( 0, numShiftLights.getIntValue() );
+        }
+    }
+    
+    public RevMeterWidget()
+    {
+        this( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 16.3125f, 21.75f );
+    }
+    
+    protected int getInitialNumberOfShiftLights()
+    {
+        return ( 2 );
+    }
+    
+    @Override
+    protected void saveMarkersProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveMarkersProperties( writer );
+        
+        writer.writeProperty( revMarkersMediumColor, "The color used to draw the rev markers for medium boost." );
+        writer.writeProperty( revMarkersHighColor, "The color used to draw the rev markers for high revs." );
+        writer.writeProperty( fillHighBackground, "Fill the rev markers' background with medium and high color instead of coloring the markers." );
+        writer.writeProperty( interpolateMarkerColors, "Interpolate medium and high colors." );
+    }
+    
+    protected void saveShiftLightsProperties( PropertyWriter writer ) throws IOException
+    {
+        writer.writeProperty( numShiftLights, "The number of shift lights to render." );
+        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+            shiftLights[i].saveProperties( writer );
+    }
+    
+    protected void saveBoostProperties( PropertyWriter writer ) throws IOException
+    {
+        writer.writeProperty( displayBoostBar, "Display a graphical bar for engine boost mapping?" );
+        writer.writeProperty( boostBarPosX, "The x-position of the boost bar." );
+        writer.writeProperty( boostBarPosY, "The y-position of the boost bar." );
+        writer.writeProperty( boostBarWidth, "The width of the boost bar." );
+        writer.writeProperty( boostBarHeight, "The height of the boost bar." );
+        
+        writer.writeProperty( displayBoostNumber, "Display a number for engine boost mapping?" );
+        writer.writeProperty( boostNumberBackgroundImageName, "The name of the image to render behind the boost number." );
+        writer.writeProperty( boostNumberPosX, "The x-position of the boost number." );
+        writer.writeProperty( boostNumberPosY, "The y-position of the boost number." );
+        writer.writeProperty( boostNumberFont, "The font used to draw the boost number." );
+        writer.writeProperty( boostNumberFontColor, "The font color used to draw the boost bar." );
+    }
+    
+    protected void saveDigiRevsProperties( PropertyWriter writer ) throws IOException
+    {
+        writer.writeProperty( displayRPMString1, "whether to display the digital RPM/Revs string or not" );
+        writer.writeProperty( displayCurrRPM1, "whether to display the current revs or to hide them" );
+        writer.writeProperty( displayMaxRPM1, "whether to display the maximum revs or to hide them" );
+        writer.writeProperty( useBoostRevLimit1, "whether to use boost level to display max RPM" );
+        writer.writeProperty( rpmPosX1, "The offset in (background image space) pixels from the right of the Widget, where the text is to be placed." );
+        writer.writeProperty( rpmPosY1, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
+        writer.writeProperty( rpmFont1, "The font used to draw the RPM." );
+        writer.writeProperty( rpmFontColor1, "The font color used to draw the RPM." );
+        writer.writeProperty( rpmJoinString1, "The String to use to join the current and max RPM." );
+        
+        writer.writeProperty( displayRPMString2, "whether to display the digital RPM/Revs string or not" );
+        writer.writeProperty( displayCurrRPM2, "whether to display the current revs or to hide them" );
+        writer.writeProperty( displayMaxRPM2, "whether to display the maximum revs or to hide them" );
+        writer.writeProperty( useBoostRevLimit2, "whether to use boost level to display max RPM" );
+        writer.writeProperty( rpmPosX2, "The offset in (background image space) pixels from the right of the Widget, where the text is to be placed." );
+        writer.writeProperty( rpmPosY2, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
+        writer.writeProperty( rpmFont2, "The font used to draw the RPM." );
+        writer.writeProperty( rpmFontColor2, "The font color used to draw the RPM." );
+        writer.writeProperty( rpmJoinString2, "The String to use to join the current and max RPM." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        saveShiftLightsProperties( writer );
+        
+        saveBoostProperties( writer );
+        
+        saveDigiRevsProperties( writer );
+    }
+    
+    private boolean loadShiftLightProperty( PropertyLoader loader )
+    {
+        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+            if ( shiftLights[i].loadProperty( loader ) )
+                return ( true );
+        
+        return ( false );
+    }
+    
+    private void handleBackwardsCompatiblity( PropertyLoader loader )
+    {
+        if ( loader.getCurrentKey().equals( "displayRevMarkers" ) )
+            displayMarkers.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "displayRevMarkerNumbers" ) )
+            displayMarkerNumbers.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersInnerRadius" ) )
+            markersInnerRadius.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersLength" ) )
+            markersLength.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersBigStep" ) )
+            markersBigStep.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersSmallStep" ) )
+            markersSmallStep.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersColor" ) )
+            markersColor.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersFont" ) )
+            markersFont.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "revMarkersFontColor" ) )
+            markersFontColor.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "displayVelocity" ) )
+            displayValue.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityBackgroundImageName" ) )
+            valueBackgroundImageName.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityPosX" ) )
+            valuePosX.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityPosY" ) )
+            valuePosY.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityFont" ) )
+            valueFont.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "velocityFontColor" ) )
+            valueFontColor.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "needleAxisBottomOffset" ) )
+            needlePivotBottomOffset.loadValue( loader, loader.getCurrentValue() );
+        else if ( loader.getCurrentKey().equals( "rotationForZeroRPM" ) )
+            { needleRotationForMinValue.loadValue( loader, loader.getCurrentValue() ); needleRotationForMinValue.setFloatValue( -needleRotationForMinValue.getFloatValue() ); }
+        else if ( loader.getCurrentKey().equals( "rotationForMaxRPM" ) )
+            { needleRotationForMaxValue.loadValue( loader, loader.getCurrentValue() ); needleRotationForMaxValue.setFloatValue( -needleRotationForMaxValue.getFloatValue() ); }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.getSourceVersion().getBuild() < 70 )
+        {
+            handleBackwardsCompatiblity( loader );
+        }
+        
+        if ( loader.loadProperty( numShiftLights ) )
+        {
+            for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+                shiftLights[i] = new ShiftLight( this, i + 1 );
+        }
+        else if ( loadShiftLightProperty( loader ) );
+        
+        else if ( loader.loadProperty( revMarkersMediumColor ) );
+        else if ( loader.loadProperty( revMarkersHighColor ) );
+        else if ( loader.loadProperty( fillHighBackground ) );
+        else if ( loader.loadProperty( interpolateMarkerColors ) );
+        
+        else if ( loader.loadProperty( displayBoostBar ) );
+        else if ( loader.loadProperty( boostBarPosX ) );
+        else if ( loader.loadProperty( boostBarPosY ) );
+        else if ( loader.loadProperty( boostBarWidth ) );
+        else if ( loader.loadProperty( boostBarHeight ) );
+        else if ( loader.loadProperty( displayBoostNumber ) );
+        else if ( loader.loadProperty( boostNumberBackgroundImageName ) );
+        else if ( loader.loadProperty( boostNumberPosX ) );
+        else if ( loader.loadProperty( boostNumberPosY ) );
+        else if ( loader.loadProperty( boostNumberFont ) );
+        else if ( loader.loadProperty( boostNumberFontColor ) );
+        
+        else if ( loader.loadProperty( displayRPMString1 ) );
+        else if ( loader.loadProperty( displayCurrRPM1 ) );
+        else if ( loader.loadProperty( displayMaxRPM1 ) );
+        else if ( loader.loadProperty( useBoostRevLimit1 ) );
+        else if ( loader.loadProperty( rpmPosX1 ) );
+        else if ( loader.loadProperty( rpmPosY1 ) );
+        else if ( loader.loadProperty( rpmFont1 ) );
+        else if ( loader.loadProperty( rpmFontColor1 ) );
+        else if ( loader.loadProperty( rpmJoinString1 ) );
+        
+        else if ( loader.loadProperty( displayRPMString2 ) );
+        else if ( loader.loadProperty( displayCurrRPM2 ) );
+        else if ( loader.loadProperty( displayMaxRPM2 ) );
+        else if ( loader.loadProperty( useBoostRevLimit2 ) );
+        else if ( loader.loadProperty( rpmPosX2 ) );
+        else if ( loader.loadProperty( rpmPosY2 ) );
+        else if ( loader.loadProperty( rpmFont2 ) );
+        else if ( loader.loadProperty( rpmFontColor2 ) );
+        else if ( loader.loadProperty( rpmJoinString2 ) );
+        
+        if ( ( loader.getSourceVersion().getBuild() < 70 ) && loader.getCurrentKey().equals( "/" ) )
+        {
+            // Properties loading has finished for this Widget and the sourceversion is outdated.
+            if ( this.getNeedleImage() == null )
+                peakNeedleImageName.setImageName( "" );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void getMarkersProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getMarkersProperties( propsCont, forceAll );
+        
+        propsCont.addProperty( revMarkersMediumColor );
+        propsCont.addProperty( revMarkersHighColor );
+        propsCont.addProperty( fillHighBackground );
+        propsCont.addProperty( interpolateMarkerColors );
+    }
+    
+    /**
+     * Collects the properties for the shift lights.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void getShiftLightsProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addGroup( "Shift Lights" );
+        
+        propsCont.addProperty( numShiftLights );
+        
+        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
+            shiftLights[i].getProperties( propsCont, forceAll );
+        
+        if ( forceAll )
+        {
+            if ( numShiftLights.getIntValue() < 1 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT1.getProperties( propsCont, forceAll );
+            if ( numShiftLights.getIntValue() < 2 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT2.getProperties( propsCont, forceAll );
+            if ( numShiftLights.getIntValue() < 3 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT3.getProperties( propsCont, forceAll );
+            if ( numShiftLights.getIntValue() < 4 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT4.getProperties( propsCont, forceAll );
+            if ( numShiftLights.getIntValue() < 5 )
+                ShiftLight.DEFAULT_SHIFT_LIGHT5.getProperties( propsCont, forceAll );
+        }
+    }
+    
+    /**
+     * Collects the properties for the engine boost.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void getBoostProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addGroup( "Engine Boost" );
+        
+        propsCont.addProperty( displayBoostBar );
+        propsCont.addProperty( boostBarPosX );
+        propsCont.addProperty( boostBarPosY );
+        propsCont.addProperty( boostBarWidth );
+        propsCont.addProperty( boostBarHeight );
+        propsCont.addProperty( displayBoostNumber );
+        propsCont.addProperty( boostNumberBackgroundImageName );
+        propsCont.addProperty( boostNumberPosX );
+        propsCont.addProperty( boostNumberPosY );
+        propsCont.addProperty( boostNumberFont );
+        propsCont.addProperty( boostNumberFontColor );
+    }
+    
+    /**
+     * Collects the properties for the digital revs.
+     * 
+     * @param propsCont the container to add the properties to
+     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
+     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
+     */
+    protected void getDigiRevsProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        propsCont.addGroup( "DigitalRevs1" );
+        
+        propsCont.addProperty( displayRPMString1 );
+        propsCont.addProperty( displayCurrRPM1 );
+        propsCont.addProperty( displayMaxRPM1 );
+        propsCont.addProperty( useBoostRevLimit1 );
+        propsCont.addProperty( rpmPosX1 );
+        propsCont.addProperty( rpmPosY1 );
+        propsCont.addProperty( rpmFont1 );
+        propsCont.addProperty( rpmFontColor1 );
+        propsCont.addProperty( rpmJoinString1 );
+        
+        propsCont.addGroup( "DigitalRevs2" );
+        
+        propsCont.addProperty( displayRPMString2 );
+        propsCont.addProperty( displayCurrRPM2 );
+        propsCont.addProperty( displayMaxRPM2 );
+        propsCont.addProperty( useBoostRevLimit2 );
+        propsCont.addProperty( rpmPosX2 );
+        propsCont.addProperty( rpmPosY2 );
+        propsCont.addProperty( rpmFont2 );
+        propsCont.addProperty( rpmFontColor2 );
+        propsCont.addProperty( rpmJoinString2 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDigiValuePropertiesGroupName()
+    {
+        return ( "Velocity" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        getShiftLightsProperties( propsCont, forceAll );
+        
+        getBoostProperties( propsCont, forceAll );
+        
+        getDigiRevsProperties( propsCont, forceAll );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean cloneProperty( Property src, Property trg )
+    {
+        boolean result = super.cloneProperty( src, trg );
+        
+        if ( trg == numShiftLights )
+            return ( true );
+        
+        return ( result );
+    }
     
     @Override
     protected String getInitialBackground()
@@ -197,12 +547,6 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
             rpmPosX2.setIntValue( Math.round( rpmPosX2.getIntValue() * deltaScaleX ) );
             rpmPosY2.setIntValue( Math.round( rpmPosY2.getIntValue() * deltaScaleY ) );
         }
-    }
-    
-    @Override
-    public WidgetPackage getWidgetPackage()
-    {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
     }
     
     @Override
@@ -596,354 +940,5 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
         
         if ( boostNumberBackgroundTexture != null )
             boostNumberBackgroundTexture.setTranslation( boostNumberBackgroundTexPosX, boostNumberBackgroundTexPosY );
-    }
-    
-    @Override
-    protected void saveMarkersProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveMarkersProperties( writer );
-        
-        writer.writeProperty( revMarkersMediumColor, "The color used to draw the rev markers for medium boost." );
-        writer.writeProperty( revMarkersHighColor, "The color used to draw the rev markers for high revs." );
-        writer.writeProperty( fillHighBackground, "Fill the rev markers' background with medium and high color instead of coloring the markers." );
-        writer.writeProperty( interpolateMarkerColors, "Interpolate medium and high colors." );
-    }
-    
-    protected void saveShiftLightsProperties( PropertyWriter writer ) throws IOException
-    {
-        writer.writeProperty( numShiftLights, "The number of shift lights to render." );
-        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
-            shiftLights[i].saveProperties( writer );
-    }
-    
-    protected void saveBoostProperties( PropertyWriter writer ) throws IOException
-    {
-        writer.writeProperty( displayBoostBar, "Display a graphical bar for engine boost mapping?" );
-        writer.writeProperty( boostBarPosX, "The x-position of the boost bar." );
-        writer.writeProperty( boostBarPosY, "The y-position of the boost bar." );
-        writer.writeProperty( boostBarWidth, "The width of the boost bar." );
-        writer.writeProperty( boostBarHeight, "The height of the boost bar." );
-        
-        writer.writeProperty( displayBoostNumber, "Display a number for engine boost mapping?" );
-        writer.writeProperty( boostNumberBackgroundImageName, "The name of the image to render behind the boost number." );
-        writer.writeProperty( boostNumberPosX, "The x-position of the boost number." );
-        writer.writeProperty( boostNumberPosY, "The y-position of the boost number." );
-        writer.writeProperty( boostNumberFont, "The font used to draw the boost number." );
-        writer.writeProperty( boostNumberFontColor, "The font color used to draw the boost bar." );
-    }
-    
-    protected void saveDigiRevsProperties( PropertyWriter writer ) throws IOException
-    {
-        writer.writeProperty( displayRPMString1, "whether to display the digital RPM/Revs string or not" );
-        writer.writeProperty( displayCurrRPM1, "whether to display the current revs or to hide them" );
-        writer.writeProperty( displayMaxRPM1, "whether to display the maximum revs or to hide them" );
-        writer.writeProperty( useBoostRevLimit1, "whether to use boost level to display max RPM" );
-        writer.writeProperty( rpmPosX1, "The offset in (background image space) pixels from the right of the Widget, where the text is to be placed." );
-        writer.writeProperty( rpmPosY1, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
-        writer.writeProperty( rpmFont1, "The font used to draw the RPM." );
-        writer.writeProperty( rpmFontColor1, "The font color used to draw the RPM." );
-        writer.writeProperty( rpmJoinString1, "The String to use to join the current and max RPM." );
-        
-        writer.writeProperty( displayRPMString2, "whether to display the digital RPM/Revs string or not" );
-        writer.writeProperty( displayCurrRPM2, "whether to display the current revs or to hide them" );
-        writer.writeProperty( displayMaxRPM2, "whether to display the maximum revs or to hide them" );
-        writer.writeProperty( useBoostRevLimit2, "whether to use boost level to display max RPM" );
-        writer.writeProperty( rpmPosX2, "The offset in (background image space) pixels from the right of the Widget, where the text is to be placed." );
-        writer.writeProperty( rpmPosY2, "The offset in (background image space) pixels from the top of the Widget, where the text is to be placed." );
-        writer.writeProperty( rpmFont2, "The font used to draw the RPM." );
-        writer.writeProperty( rpmFontColor2, "The font color used to draw the RPM." );
-        writer.writeProperty( rpmJoinString2, "The String to use to join the current and max RPM." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        saveShiftLightsProperties( writer );
-        
-        saveBoostProperties( writer );
-        
-        saveDigiRevsProperties( writer );
-    }
-    
-    private boolean loadShiftLightProperty( PropertyLoader loader )
-    {
-        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
-            if ( shiftLights[i].loadProperty( loader ) )
-                return ( true );
-        
-        return ( false );
-    }
-    
-    private void handleBackwardsCompatiblity( PropertyLoader loader )
-    {
-        if ( loader.getCurrentKey().equals( "displayRevMarkers" ) )
-            displayMarkers.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "displayRevMarkerNumbers" ) )
-            displayMarkerNumbers.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "revMarkersInnerRadius" ) )
-            markersInnerRadius.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "revMarkersLength" ) )
-            markersLength.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "revMarkersBigStep" ) )
-            markersBigStep.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "revMarkersSmallStep" ) )
-            markersSmallStep.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "revMarkersColor" ) )
-            markersColor.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "revMarkersFont" ) )
-            markersFont.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "revMarkersFontColor" ) )
-            markersFontColor.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "displayVelocity" ) )
-            displayValue.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "velocityBackgroundImageName" ) )
-            valueBackgroundImageName.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "velocityPosX" ) )
-            valuePosX.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "velocityPosY" ) )
-            valuePosY.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "velocityFont" ) )
-            valueFont.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "velocityFontColor" ) )
-            valueFontColor.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "needleAxisBottomOffset" ) )
-            needlePivotBottomOffset.loadValue( loader, loader.getCurrentValue() );
-        else if ( loader.getCurrentKey().equals( "rotationForZeroRPM" ) )
-            { needleRotationForMinValue.loadValue( loader, loader.getCurrentValue() ); needleRotationForMinValue.setFloatValue( -needleRotationForMinValue.getFloatValue() ); }
-        else if ( loader.getCurrentKey().equals( "rotationForMaxRPM" ) )
-            { needleRotationForMaxValue.loadValue( loader, loader.getCurrentValue() ); needleRotationForMaxValue.setFloatValue( -needleRotationForMaxValue.getFloatValue() ); }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.getSourceVersion().getBuild() < 70 )
-        {
-            handleBackwardsCompatiblity( loader );
-        }
-        
-        if ( loader.loadProperty( numShiftLights ) )
-        {
-            for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
-                shiftLights[i] = new ShiftLight( this, i + 1 );
-        }
-        else if ( loadShiftLightProperty( loader ) );
-        
-        else if ( loader.loadProperty( revMarkersMediumColor ) );
-        else if ( loader.loadProperty( revMarkersHighColor ) );
-        else if ( loader.loadProperty( fillHighBackground ) );
-        else if ( loader.loadProperty( interpolateMarkerColors ) );
-        
-        else if ( loader.loadProperty( displayBoostBar ) );
-        else if ( loader.loadProperty( boostBarPosX ) );
-        else if ( loader.loadProperty( boostBarPosY ) );
-        else if ( loader.loadProperty( boostBarWidth ) );
-        else if ( loader.loadProperty( boostBarHeight ) );
-        else if ( loader.loadProperty( displayBoostNumber ) );
-        else if ( loader.loadProperty( boostNumberBackgroundImageName ) );
-        else if ( loader.loadProperty( boostNumberPosX ) );
-        else if ( loader.loadProperty( boostNumberPosY ) );
-        else if ( loader.loadProperty( boostNumberFont ) );
-        else if ( loader.loadProperty( boostNumberFontColor ) );
-        
-        else if ( loader.loadProperty( displayRPMString1 ) );
-        else if ( loader.loadProperty( displayCurrRPM1 ) );
-        else if ( loader.loadProperty( displayMaxRPM1 ) );
-        else if ( loader.loadProperty( useBoostRevLimit1 ) );
-        else if ( loader.loadProperty( rpmPosX1 ) );
-        else if ( loader.loadProperty( rpmPosY1 ) );
-        else if ( loader.loadProperty( rpmFont1 ) );
-        else if ( loader.loadProperty( rpmFontColor1 ) );
-        else if ( loader.loadProperty( rpmJoinString1 ) );
-        
-        else if ( loader.loadProperty( displayRPMString2 ) );
-        else if ( loader.loadProperty( displayCurrRPM2 ) );
-        else if ( loader.loadProperty( displayMaxRPM2 ) );
-        else if ( loader.loadProperty( useBoostRevLimit2 ) );
-        else if ( loader.loadProperty( rpmPosX2 ) );
-        else if ( loader.loadProperty( rpmPosY2 ) );
-        else if ( loader.loadProperty( rpmFont2 ) );
-        else if ( loader.loadProperty( rpmFontColor2 ) );
-        else if ( loader.loadProperty( rpmJoinString2 ) );
-        
-        if ( ( loader.getSourceVersion().getBuild() < 70 ) && loader.getCurrentKey().equals( "/" ) )
-        {
-            // Properties loading has finished for this Widget and the sourceversion is outdated.
-            if ( this.getNeedleImage() == null )
-                peakNeedleImageName.setImageName( "" );
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void getMarkersProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getMarkersProperties( propsCont, forceAll );
-        
-        propsCont.addProperty( revMarkersMediumColor );
-        propsCont.addProperty( revMarkersHighColor );
-        propsCont.addProperty( fillHighBackground );
-        propsCont.addProperty( interpolateMarkerColors );
-    }
-    
-    /**
-     * Collects the properties for the shift lights.
-     * 
-     * @param propsCont the container to add the properties to
-     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
-     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
-     */
-    protected void getShiftLightsProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        propsCont.addGroup( "Shift Lights" );
-        
-        propsCont.addProperty( numShiftLights );
-        
-        for ( int i = 0; i < numShiftLights.getIntValue(); i++ )
-            shiftLights[i].getProperties( propsCont, forceAll );
-        
-        if ( forceAll )
-        {
-            if ( numShiftLights.getIntValue() < 1 )
-                ShiftLight.DEFAULT_SHIFT_LIGHT1.getProperties( propsCont, forceAll );
-            if ( numShiftLights.getIntValue() < 2 )
-                ShiftLight.DEFAULT_SHIFT_LIGHT2.getProperties( propsCont, forceAll );
-            if ( numShiftLights.getIntValue() < 3 )
-                ShiftLight.DEFAULT_SHIFT_LIGHT3.getProperties( propsCont, forceAll );
-            if ( numShiftLights.getIntValue() < 4 )
-                ShiftLight.DEFAULT_SHIFT_LIGHT4.getProperties( propsCont, forceAll );
-            if ( numShiftLights.getIntValue() < 5 )
-                ShiftLight.DEFAULT_SHIFT_LIGHT5.getProperties( propsCont, forceAll );
-        }
-    }
-    
-    /**
-     * Collects the properties for the engine boost.
-     * 
-     * @param propsCont the container to add the properties to
-     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
-     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
-     */
-    protected void getBoostProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        propsCont.addGroup( "Engine Boost" );
-        
-        propsCont.addProperty( displayBoostBar );
-        propsCont.addProperty( boostBarPosX );
-        propsCont.addProperty( boostBarPosY );
-        propsCont.addProperty( boostBarWidth );
-        propsCont.addProperty( boostBarHeight );
-        propsCont.addProperty( displayBoostNumber );
-        propsCont.addProperty( boostNumberBackgroundImageName );
-        propsCont.addProperty( boostNumberPosX );
-        propsCont.addProperty( boostNumberPosY );
-        propsCont.addProperty( boostNumberFont );
-        propsCont.addProperty( boostNumberFontColor );
-    }
-    
-    /**
-     * Collects the properties for the digital revs.
-     * 
-     * @param propsCont the container to add the properties to
-     * @param forceAll If <code>true</code>, all properties provided by this {@link Widget} must be added.
-     *                 If <code>false</code>, only the properties, that are relevant for the current {@link Widget}'s situation have to be added, some can be ignored.
-     */
-    protected void getDigiRevsProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        propsCont.addGroup( "DigitalRevs1" );
-        
-        propsCont.addProperty( displayRPMString1 );
-        propsCont.addProperty( displayCurrRPM1 );
-        propsCont.addProperty( displayMaxRPM1 );
-        propsCont.addProperty( useBoostRevLimit1 );
-        propsCont.addProperty( rpmPosX1 );
-        propsCont.addProperty( rpmPosY1 );
-        propsCont.addProperty( rpmFont1 );
-        propsCont.addProperty( rpmFontColor1 );
-        propsCont.addProperty( rpmJoinString1 );
-        
-        propsCont.addGroup( "DigitalRevs2" );
-        
-        propsCont.addProperty( displayRPMString2 );
-        propsCont.addProperty( displayCurrRPM2 );
-        propsCont.addProperty( displayMaxRPM2 );
-        propsCont.addProperty( useBoostRevLimit2 );
-        propsCont.addProperty( rpmPosX2 );
-        propsCont.addProperty( rpmPosY2 );
-        propsCont.addProperty( rpmFont2 );
-        propsCont.addProperty( rpmFontColor2 );
-        propsCont.addProperty( rpmJoinString2 );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String getDigiValuePropertiesGroupName()
-    {
-        return ( "Velocity" );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        getShiftLightsProperties( propsCont, forceAll );
-        
-        getBoostProperties( propsCont, forceAll );
-        
-        getDigiRevsProperties( propsCont, forceAll );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean cloneProperty( Property src, Property trg )
-    {
-        boolean result = super.cloneProperty( src, trg );
-        
-        if ( trg == numShiftLights )
-            return ( true );
-        
-        return ( result );
-    }
-    
-    protected int getInitialNumberOfShiftLights()
-    {
-        return ( 2 );
-    }
-    
-    public RevMeterWidget( float width, float height )
-    {
-        super( width, height );
-        
-        int initialShiftLights = getInitialNumberOfShiftLights();
-        if ( initialShiftLights != 0 )
-        {
-            numShiftLights.setIntValue( initialShiftLights );
-            initShiftLights( 0, numShiftLights.getIntValue() );
-        }
-    }
-    
-    public RevMeterWidget()
-    {
-        this( 16.3125f, 21.75f );
     }
 }

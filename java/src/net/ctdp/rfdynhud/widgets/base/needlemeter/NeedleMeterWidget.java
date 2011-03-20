@@ -53,6 +53,8 @@ import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetSet;
 
 /**
  * The {@link NeedleMeterWidget} is an abstract {@link Widget} implementation
@@ -174,7 +176,7 @@ public abstract class NeedleMeterWidget extends Widget
     protected final IntProperty valuePosY = new IntProperty( "valuePosY", "posY", 100 );
     private int valueBackgroundTexPosX, valueBackgroundTexPosY;
     
-    protected final FontProperty valueFont = new FontProperty( "valueFont", "font", FontProperty.STANDARD_FONT_NAME );
+    protected final FontProperty valueFont = new FontProperty( "valueFont", "font", FontProperty.STANDARD_FONT.getKey() );
     protected final ColorProperty valueFontColor = new ColorProperty( "valueFontColor", "fontColor", "#1A261C" );
     
     private DrawnString valueString = null;
@@ -1196,14 +1198,16 @@ public abstract class NeedleMeterWidget extends Widget
     /**
      * Creates a new {@link NeedleMeterWidget}.
      * 
+     * @param widgetSet the {@link WidgetSet} this {@link Widget} belongs to
+     * @param widgetPackage the package in the editor
      * @param width negative numbers for (screen_width - width)
      * @param widthPercent width parameter treated as percents
      * @param height negative numbers for (screen_height - height)
      * @param heightPercent height parameter treated as percents
      */
-    public NeedleMeterWidget( float width, boolean widthPercent, float height, boolean heightPercent )
+    public NeedleMeterWidget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, boolean widthPercent, float height, boolean heightPercent )
     {
-        super( width, widthPercent, height, heightPercent );
+        super( widgetSet, widgetPackage, width, widthPercent, height, heightPercent );
         
         initParentProperties();
     }
@@ -1211,11 +1215,13 @@ public abstract class NeedleMeterWidget extends Widget
     /**
      * Creates a new {@link NeedleMeterWidget}.
      * 
+     * @param widgetSet the {@link WidgetSet} this {@link Widget} belongs to
+     * @param widgetPackage the package in the editor
      * @param width negative numbers for (screen_width - width)
      * @param height negative numbers for (screen_height - height)
      */
-    public NeedleMeterWidget( float width, float height )
+    public NeedleMeterWidget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, float height )
     {
-        this( width, true, height, true );
+        this( widgetSet, widgetPackage, width, true, height, true );
     }
 }

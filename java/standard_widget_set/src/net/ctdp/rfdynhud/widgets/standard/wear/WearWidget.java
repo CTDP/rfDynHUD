@@ -33,8 +33,8 @@ import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImagePropertyWithTexture;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.render.ByteOrderManager;
 import net.ctdp.rfdynhud.render.DrawnString;
@@ -43,12 +43,11 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -67,7 +66,7 @@ public class WearWidget extends Widget
         ;
     }
     
-    private final FontProperty font2 = new FontProperty( "font2", FontProperty.SMALLER_FONT_NAME );
+    private final FontProperty font2 = new FontProperty( "font2", StandardWidgetSet.SMALLER_FONT.getKey() );
     
     private final Size engineHeight = Size.newLocalSize( this, 0f, true, 10.0f, true );
     
@@ -164,10 +163,123 @@ public class WearWidget extends Widget
     private float engineLifetimeLossPerLap = -1f;
     private boolean testLifetimeAtLapStart = false;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public WearWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_TELEMETRY );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE_TELEMETRY, 17.8125f, 30.416667f );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        gap = 1;
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( font2, "The used (smaller) font." );
+        
+        writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
+        writer.writeProperty( engineHeight.getHeightProperty( "engineHeight", "height" ), "The height of the engine bar." );
+        writer.writeProperty( hundredPercentBase, "The value range to be used as 100% base." );
+        writer.writeProperty( displayWearPercent, "Display wear in percentage numbers?" );
+        writer.writeProperty( estimationImageName, "Image to display where the engine is expected to explode." );
+        writer.writeProperty( failImageName, "Image to display, if the engine WILL fail before the end of the race." );
+        
+        writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
+        writer.writeProperty( displayCompoundName, "Display the tire compound name in the header?" );
+        writer.writeProperty( tireIcon, "The image name for the tire icon." );
+        writer.writeProperty( tireSize.getWidthProperty( "tireWidth", "width" ), "The width of a tire image." );
+        writer.writeProperty( tireSize.getHeightProperty( "tireHeight", "height" ), "The height of a tire image." );
+        writer.writeProperty( swapTireWearGripMeaning, "Swap bar and line display for wear and grip?" );
+        
+        writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
+        writer.writeProperty( brakeDiscIcon, "The image name for the brake disc icon." );
+        writer.writeProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ), "The width of a brake image." );
+        writer.writeProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ), "The height of a brake image." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( font2 ) );
+        
+        else if ( loader.loadProperty( displayEngine ) );
+        else if ( loader.loadProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) ) );
+        else if ( loader.loadProperty( hundredPercentBase ) );
+        else if ( loader.loadProperty( displayWearPercent ) );
+        else if ( loader.loadProperty( estimationImageName ) );
+        else if ( loader.loadProperty( failImageName ) );
+        
+        else if ( loader.loadProperty( displayTires ) );
+        else if ( loader.loadProperty( displayCompoundName ) );
+        else if ( loader.loadProperty( tireIcon ) );
+        else if ( loader.loadProperty( tireSize.getWidthProperty( "tireWidth", "width" ) ) );
+        else if ( loader.loadProperty( tireSize.getHeightProperty( "tireHeight", "height" ) ) );
+        else if ( loader.loadProperty( swapTireWearGripMeaning ) );
+        
+        else if ( loader.loadProperty( displayBrakes ) );
+        else if ( loader.loadProperty( brakeDiscIcon ) );
+        else if ( loader.loadProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) ) );
+        else if ( loader.loadProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addFontPropertiesToContainer( propsCont, forceAll );
+        
+        propsCont.addProperty( font2 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Engine" );
+        
+        propsCont.addProperty( displayEngine );
+        propsCont.addProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) );
+        propsCont.addProperty( hundredPercentBase );
+        propsCont.addProperty( displayWearPercent );
+        propsCont.addProperty( estimationImageName );
+        propsCont.addProperty( failImageName );
+        
+        propsCont.addGroup( "Tires" );
+        
+        propsCont.addProperty( displayTires );
+        propsCont.addProperty( displayCompoundName );
+        propsCont.addProperty( tireIcon );
+        propsCont.addProperty( tireSize.getWidthProperty( "tireWidth", "width" ) );
+        propsCont.addProperty( tireSize.getHeightProperty( "tireHeight" ) );
+        propsCont.addProperty( swapTireWearGripMeaning );
+        
+        propsCont.addGroup( "Brakes" );
+        
+        propsCont.addProperty( displayBrakes );
+        propsCont.addProperty( brakeDiscIcon );
+        propsCont.addProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) );
+        propsCont.addProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) );
     }
     
     @Override
@@ -1080,125 +1192,5 @@ public class WearWidget extends Widget
                 drawBrake( brakeDiscThickness, wheel, brake, setup, texture, offsetX + left, offsetY + top );
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( font2, "The used (smaller) font." );
-        
-        writer.writeProperty( displayEngine, "Display the engine part of the Widget?" );
-        writer.writeProperty( engineHeight.getHeightProperty( "engineHeight", "height" ), "The height of the engine bar." );
-        writer.writeProperty( hundredPercentBase, "The value range to be used as 100% base." );
-        writer.writeProperty( displayWearPercent, "Display wear in percentage numbers?" );
-        writer.writeProperty( estimationImageName, "Image to display where the engine is expected to explode." );
-        writer.writeProperty( failImageName, "Image to display, if the engine WILL fail before the end of the race." );
-        
-        writer.writeProperty( displayTires, "Display the tire part of the Widget?" );
-        writer.writeProperty( displayCompoundName, "Display the tire compound name in the header?" );
-        writer.writeProperty( tireIcon, "The image name for the tire icon." );
-        writer.writeProperty( tireSize.getWidthProperty( "tireWidth", "width" ), "The width of a tire image." );
-        writer.writeProperty( tireSize.getHeightProperty( "tireHeight", "height" ), "The height of a tire image." );
-        writer.writeProperty( swapTireWearGripMeaning, "Swap bar and line display for wear and grip?" );
-        
-        writer.writeProperty( displayBrakes, "Display the brakes of the Widget?" );
-        writer.writeProperty( brakeDiscIcon, "The image name for the brake disc icon." );
-        writer.writeProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ), "The width of a brake image." );
-        writer.writeProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ), "The height of a brake image." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( font2 ) );
-        
-        else if ( loader.loadProperty( displayEngine ) );
-        else if ( loader.loadProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) ) );
-        else if ( loader.loadProperty( hundredPercentBase ) );
-        else if ( loader.loadProperty( displayWearPercent ) );
-        else if ( loader.loadProperty( estimationImageName ) );
-        else if ( loader.loadProperty( failImageName ) );
-        
-        else if ( loader.loadProperty( displayTires ) );
-        else if ( loader.loadProperty( displayCompoundName ) );
-        else if ( loader.loadProperty( tireIcon ) );
-        else if ( loader.loadProperty( tireSize.getWidthProperty( "tireWidth", "width" ) ) );
-        else if ( loader.loadProperty( tireSize.getHeightProperty( "tireHeight", "height" ) ) );
-        else if ( loader.loadProperty( swapTireWearGripMeaning ) );
-        
-        else if ( loader.loadProperty( displayBrakes ) );
-        else if ( loader.loadProperty( brakeDiscIcon ) );
-        else if ( loader.loadProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) ) );
-        else if ( loader.loadProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.addFontPropertiesToContainer( propsCont, forceAll );
-        
-        propsCont.addProperty( font2 );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Engine" );
-        
-        propsCont.addProperty( displayEngine );
-        propsCont.addProperty( engineHeight.getHeightProperty( "engineHeight", "height" ) );
-        propsCont.addProperty( hundredPercentBase );
-        propsCont.addProperty( displayWearPercent );
-        propsCont.addProperty( estimationImageName );
-        propsCont.addProperty( failImageName );
-        
-        propsCont.addGroup( "Tires" );
-        
-        propsCont.addProperty( displayTires );
-        propsCont.addProperty( displayCompoundName );
-        propsCont.addProperty( tireIcon );
-        propsCont.addProperty( tireSize.getWidthProperty( "tireWidth", "width" ) );
-        propsCont.addProperty( tireSize.getHeightProperty( "tireHeight" ) );
-        propsCont.addProperty( swapTireWearGripMeaning );
-        
-        propsCont.addGroup( "Brakes" );
-        
-        propsCont.addProperty( displayBrakes );
-        propsCont.addProperty( brakeDiscIcon );
-        propsCont.addProperty( brakeSize.getWidthProperty( "brakeWidth", "width" ) );
-        propsCont.addProperty( brakeSize.getHeightProperty( "brakeHeight", "height" ) );
-    }
-    
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        gap = 1;
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
-    }
-    
-    public WearWidget()
-    {
-        super( 17.8125f, 30.416667f );
     }
 }

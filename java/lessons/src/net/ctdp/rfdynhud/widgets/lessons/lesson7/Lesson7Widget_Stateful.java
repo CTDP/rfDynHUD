@@ -21,13 +21,12 @@ import java.awt.Font;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
 
 /**
@@ -44,10 +43,20 @@ public class Lesson7Widget_Stateful extends StatefulWidget<MyGeneralStore, MyLoc
     private DrawnString ds_general = null;
     private DrawnString ds_local = null;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public Lesson7Widget_Stateful()
     {
-        return ( LessonsWidgetSet.WIDGET_PACKAGE );
+        super( LessonsWidgetSet.INSTANCE, LessonsWidgetSet.WIDGET_PACKAGE, 14.0f, 5.0f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     @Override
@@ -92,21 +101,5 @@ public class Lesson7Widget_Stateful extends StatefulWidget<MyGeneralStore, MyLoc
             ds_general.draw( offsetX, offsetY, String.valueOf( getGeneralStore().value ), texture );
             ds_local.draw( offsetX, offsetY, String.valueOf( getLocalStore().value ), texture );
         }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
-    }
-    
-    public Lesson7Widget_Stateful()
-    {
-        super( 14.0f, 5.0f );
     }
 }

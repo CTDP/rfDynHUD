@@ -48,6 +48,7 @@ import net.ctdp.rfdynhud.values.StandingsView;
 import net.ctdp.rfdynhud.values.StringValue;
 import net.ctdp.rfdynhud.widgets.etv2010._base.ETVWidgetBase;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVWidgetSet;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
 
 /**
@@ -57,8 +58,8 @@ import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
  */
 public class ETVStandingsWidget extends ETVWidgetBase
 {
-    private final ColorProperty captionBackgroundColor1st = new ColorProperty( "captionBgColor1st", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR_1ST );
-    private final ColorProperty dataBackgroundColor1st = new ColorProperty( "dataBgColor1st", ETVUtils.ETV_DATA_BACKGROUND_COLOR_1ST );
+    private final ColorProperty captionBackgroundColor1st = new ColorProperty( "captionBgColor1st", ETVWidgetSet.ETV_CAPTION_BACKGROUND_COLOR_1ST.getKey() );
+    private final ColorProperty dataBackgroundColor1st = new ColorProperty( "dataBgColor1st", ETVWidgetSet.ETV_DATA_BACKGROUND_COLOR_1ST.getKey() );
     
     private final BooleanProperty forceLeaderDisplayed = new BooleanProperty( "forceLeaderDisplayed", "forceLeaderDispl", true );
     private final BooleanProperty showFastestLapsInRace = new BooleanProperty( "showFastestLapsInRace", "showFastLapsRace", true );
@@ -94,6 +95,104 @@ public class ETVStandingsWidget extends ETVWidgetBase
     private IntValue[] lap = null;
     private float displayTime;
     private int lastVisibleIndex = -1;
+    
+    public ETVStandingsWidget()
+    {
+        super( ETVWidgetSet.INSTANCE, ETVWidgetSet.WIDGET_PACKAGE, 14.0f, 10f * 2.5f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        itemHeight.setEffectiveSize( itemHeight.getEffectiveWidth(), 5 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
+        writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
+        writer.writeProperty( itemHeight.getHeightProperty( "itemHeight" ), "The height of one item." );
+        writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
+        writer.writeProperty( showFastestLapsInRace, "Display fastest lap flags in race session?" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( captionBackgroundColor1st ) );
+        else if ( loader.loadProperty( dataBackgroundColor1st ) );
+        else if ( loader.loadProperty( itemHeight.getHeightProperty( "itemHeight" ) ) );
+        else if ( loader.loadProperty( forceLeaderDisplayed ) );
+        else if ( loader.loadProperty( showFastestLapsInRace ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getPropertiesCaptionBG( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesCaptionBG( propsCont, forceAll );
+        
+        if ( forceAll || !useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( captionBackgroundColor1st );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getPropertiesDataBG( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getPropertiesDataBG( propsCont, forceAll );
+        
+        if ( forceAll || !useImages.getBooleanValue() )
+        {
+            propsCont.addProperty( dataBackgroundColor1st );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( itemHeight.getHeightProperty( "itemHeight" ) );
+        propsCont.addProperty( forceLeaderDisplayed );
+        propsCont.addProperty( showFastestLapsInRace );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getMinHeight( LiveGameData gameData, boolean isEditorMode )
+    {
+        return ( 5 );
+    }
     
     private final boolean getUseClassScoring()
     {
@@ -448,104 +547,5 @@ public class ETVStandingsWidget extends ETVWidgetBase
         }
         
         oldNumItems = numDrivers;
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( captionBackgroundColor1st, "The background color for the \"Position\" caption for first place." );
-        writer.writeProperty( dataBackgroundColor1st, "The background color for the data area, for first place." );
-        writer.writeProperty( itemHeight.getHeightProperty( "itemHeight" ), "The height of one item." );
-        writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
-        writer.writeProperty( showFastestLapsInRace, "Display fastest lap flags in race session?" );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( captionBackgroundColor1st ) );
-        else if ( loader.loadProperty( dataBackgroundColor1st ) );
-        else if ( loader.loadProperty( itemHeight.getHeightProperty( "itemHeight" ) ) );
-        else if ( loader.loadProperty( forceLeaderDisplayed ) );
-        else if ( loader.loadProperty( showFastestLapsInRace ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getPropertiesCaptionBG( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getPropertiesCaptionBG( propsCont, forceAll );
-        
-        if ( forceAll || !useImages.getBooleanValue() )
-        {
-            propsCont.addProperty( captionBackgroundColor1st );
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getPropertiesDataBG( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getPropertiesDataBG( propsCont, forceAll );
-        
-        if ( forceAll || !useImages.getBooleanValue() )
-        {
-            propsCont.addProperty( dataBackgroundColor1st );
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( itemHeight.getHeightProperty( "itemHeight" ) );
-        propsCont.addProperty( forceLeaderDisplayed );
-        propsCont.addProperty( showFastestLapsInRace );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getMinHeight( LiveGameData gameData, boolean isEditorMode )
-    {
-        return ( 5 );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        itemHeight.setEffectiveSize( itemHeight.getEffectiveWidth(), 5 );
-    }
-    
-    public ETVStandingsWidget()
-    {
-        super( 14.0f, 10f * 2.5f );
     }
 }

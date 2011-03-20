@@ -65,10 +65,88 @@ public class ImageWidget extends Widget
     
     private Widget visibleIfWidget = null;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public ImageWidget( WidgetPackage widgetPackage )
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        super( StandardWidgetSet.INSTANCE, widgetPackage, 17.0f, 8.6f );
+        
+        //getBackgroundProperty().setColorValue( "#00000000" );
+    }
+    
+    public ImageWidget()
+    {
+        this( StandardWidgetSet.WIDGET_PACKAGE );
+    }
+    
+    @Override
+    protected boolean canHaveBorder()
+    {
+        return ( false );
+    }
+    
+    @Override
+    protected boolean canHaveBackground()
+    {
+        return ( false );
+    }
+    
+    @Override
+    protected boolean hasText()
+    {
+        return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( visibleIf, "Name of the Widget, that needs to be visible for this Widget to be visible, too." );
+        writer.writeProperty( getImageNameProperty(), "The displayed image's name." );
+        writer.writeProperty( useHardwareStretching, "Whether to use hardware image stretching or software mode." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( visibleIf ) );
+        else if ( loader.loadProperty( getImageNameProperty() ) );
+        else if ( loader.loadProperty( useHardwareStretching ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
+        
+        if ( getMasterWidget() == null )
+        {
+            propsCont.addProperty( visibleIf );
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( getImageNameProperty() );
+        propsCont.addProperty( useHardwareStretching );
     }
     
     /**
@@ -190,85 +268,5 @@ public class ImageWidget extends Widget
                     texture.drawImage( getImageNameProperty().getTexture(), 0, 0, width, height, offsetX, offsetY, width, height, true, null );
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( visibleIf, "Name of the Widget, that needs to be visible for this Widget to be visible, too." );
-        writer.writeProperty( getImageNameProperty(), "The displayed image's name." );
-        writer.writeProperty( useHardwareStretching, "Whether to use hardware image stretching or software mode." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( visibleIf ) );
-        else if ( loader.loadProperty( getImageNameProperty() ) );
-        else if ( loader.loadProperty( useHardwareStretching ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
-        
-        if ( getMasterWidget() == null )
-        {
-            propsCont.addProperty( visibleIf );
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( getImageNameProperty() );
-        propsCont.addProperty( useHardwareStretching );
-    }
-    
-    @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    
-    @Override
-    protected boolean canHaveBackground()
-    {
-        return ( false );
-    }
-    
-    @Override
-    protected boolean hasText()
-    {
-        return ( false );
-    }
-    
-    public ImageWidget()
-    {
-        super( 17.0f, 8.6f );
-        
-        //getBackgroundProperty().setColorValue( "#00000000" );
     }
 }

@@ -25,18 +25,17 @@ import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.properties.FloatProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.base.widget.__WPrivilegedAccess;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
@@ -83,10 +82,65 @@ public class StartingLightWidget extends Widget
     private final IntValue numLights = new IntValue();
     private float visibleTime = -1f;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public StartingLightWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_TIMING );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE_TIMING, 11.328125f, true, 8.3984375f, true );
+    }
+    
+    @Override
+    protected boolean hasText()
+    {
+        return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( offImageProp, "The image name for the off-lights." );
+        writer.writeProperty( onImageProp, "The image name for the on-lights." );
+        writer.writeProperty( numRows, "The number of light rows." );
+        writer.writeProperty( visibleTimeAfterLightsOff, "Amount of seconds, the Widget stays visible after all lights have gone off." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.getSourceVersion().getBuild() < 70 )
+        {
+            if ( loader.getCurrentKey().equals( "initialVisibility" ) )
+                __WPrivilegedAccess.setInputVisible( this, true );
+        }
+        
+        if ( loader.loadProperty( offImageProp ) );
+        else if ( loader.loadProperty( onImageProp ) );
+        else if ( loader.loadProperty( numRows ) );
+        else if ( loader.loadProperty( visibleTimeAfterLightsOff ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( offImageProp );
+        propsCont.addProperty( onImageProp );
+        propsCont.addProperty( numRows );
+        propsCont.addProperty( visibleTimeAfterLightsOff );
     }
     
     @Override
@@ -247,67 +301,5 @@ public class StartingLightWidget extends Widget
                 offX2 += img.getWidth();
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( offImageProp, "The image name for the off-lights." );
-        writer.writeProperty( onImageProp, "The image name for the on-lights." );
-        writer.writeProperty( numRows, "The number of light rows." );
-        writer.writeProperty( visibleTimeAfterLightsOff, "Amount of seconds, the Widget stays visible after all lights have gone off." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.getSourceVersion().getBuild() < 70 )
-        {
-            if ( loader.getCurrentKey().equals( "initialVisibility" ) )
-                __WPrivilegedAccess.setInputVisible( this, true );
-        }
-        
-        if ( loader.loadProperty( offImageProp ) );
-        else if ( loader.loadProperty( onImageProp ) );
-        else if ( loader.loadProperty( numRows ) );
-        else if ( loader.loadProperty( visibleTimeAfterLightsOff ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( offImageProp );
-        propsCont.addProperty( onImageProp );
-        propsCont.addProperty( numRows );
-        propsCont.addProperty( visibleTimeAfterLightsOff );
-    }
-    
-    @Override
-    protected boolean hasText()
-    {
-        return ( false );
-    }
-    
-    public StartingLightWidget()
-    {
-        super( 11.328125f, true, 8.3984375f, true );
     }
 }

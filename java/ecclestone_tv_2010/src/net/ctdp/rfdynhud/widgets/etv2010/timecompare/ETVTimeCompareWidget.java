@@ -43,6 +43,7 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.etv2010._base.ETVTimingWidgetBase;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVWidgetSet;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
 
@@ -80,6 +81,52 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
     private boolean waitingForNextBehind = false;
     private short decisionPlace = 0;
     private float hideTime = -1f;
+    
+    public ETVTimeCompareWidget()
+    {
+        super( ETVWidgetSet.INSTANCE, ETVWidgetSet.WIDGET_PACKAGE, 40.7f, 8.496094f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( displayEveryXLaps, "Show the Widget every x laps." );
+        writer.writeProperty( visibleTime, "Time in seconds to keep the Widget visible." );
+        writer.writeProperty( preferNextInFront, "Whether to prefer next in front, even if next behind is closer." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( displayEveryXLaps ) );
+        else if ( loader.loadProperty( visibleTime ) );
+        else if ( loader.loadProperty( preferNextInFront ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( displayEveryXLaps );
+        propsCont.addProperty( visibleTime );
+        propsCont.addProperty( preferNextInFront );
+    }
     
     private final boolean getUseClassScoring()
     {
@@ -598,52 +645,5 @@ public class ETVTimeCompareWidget extends ETVTimingWidgetBase
         {
             drawStructure( gameData, isEditorMode, texture, offsetX, offsetY );
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( displayEveryXLaps, "Show the Widget every x laps." );
-        writer.writeProperty( visibleTime, "Time in seconds to keep the Widget visible." );
-        writer.writeProperty( preferNextInFront, "Whether to prefer next in front, even if next behind is closer." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( displayEveryXLaps ) );
-        else if ( loader.loadProperty( visibleTime ) );
-        else if ( loader.loadProperty( preferNextInFront ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( displayEveryXLaps );
-        propsCont.addProperty( visibleTime );
-        propsCont.addProperty( preferNextInFront );
-    }
-    
-    public ETVTimeCompareWidget()
-    {
-        super( 40.7f, 8.496094f );
     }
 }

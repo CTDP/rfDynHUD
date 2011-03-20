@@ -22,10 +22,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-import org.jagatoo.logging.LogLevel;
-import org.jagatoo.util.errorhandling.ParsingException;
-import org.jagatoo.util.ini.AbstractIniParser;
-
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.FilenameProperty;
@@ -36,9 +32,12 @@ import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.standard.image.ImageWidget;
+
+import org.jagatoo.logging.LogLevel;
+import org.jagatoo.util.errorhandling.ParsingException;
+import org.jagatoo.util.ini.AbstractIniParser;
 
 /**
  * This is an {@link ImageWidget} extension, that selects an individual image for each driver.
@@ -56,10 +55,42 @@ public class ImageForDriverWidget extends ImageWidget
     
     private int currentViewedDriverId = -1;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public ImageForDriverWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_EXTRA );
+        super( StandardWidgetSet.WIDGET_PACKAGE_EXTRA );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( iniFile, "Name of the ini file to load mappings from." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( iniFile ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addProperty( iniFile );
     }
     
     private void updateImage( VehicleScoringInfo viewedVSI )
@@ -177,43 +208,5 @@ public class ImageForDriverWidget extends ImageWidget
         }
         
         super.drawWidget( clock, needsCompleteRedraw, gameData, isEditorMode, texture, offsetX, offsetY, width, height );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( iniFile, "Name of the ini file to load mappings from." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( iniFile ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addProperty( iniFile );
-    }
-    
-    public ImageForDriverWidget()
-    {
-        super();
     }
 }

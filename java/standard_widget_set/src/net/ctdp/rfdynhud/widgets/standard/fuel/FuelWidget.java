@@ -35,9 +35,9 @@ import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PosSizeProperty;
 import net.ctdp.rfdynhud.properties.Position;
+import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.properties.Size;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
@@ -47,8 +47,8 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.FontUtils;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.valuemanagers.IntervalManager;
 import net.ctdp.rfdynhud.values.AbstractSize;
@@ -57,7 +57,6 @@ import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -73,7 +72,7 @@ public class FuelWidget extends Widget
     private static final InputAction INPUT_ACTION_INC_PITSTOP_FUEL = new InputAction( "IncPitstopFuelAction" );
     private static final InputAction INPUT_ACTION_DEC_PITSTOP_FUEL = new InputAction( "DecPitstopFuelAction" );
     
-    private final FontProperty font2 = new FontProperty( "font2", FontProperty.STANDARD_FONT3_NAME );
+    private final FontProperty font2 = new FontProperty( "font2", StandardWidgetSet.STANDARD_FONT3.getKey() );
     
     private final BooleanProperty displayFuelBar = new BooleanProperty( "displayFuelBar", true );
     private final BooleanProperty displayTankSize = new BooleanProperty( "displayTankSize", true );
@@ -90,7 +89,7 @@ public class FuelWidget extends Widget
     private final ColorProperty fuelBarBackgroundColor = new ColorProperty( "fuelBarBackgroundColor", "fuelBarBGColor", "#000000" );
     private final ColorProperty fuelBarColor = new ColorProperty( "fuelBarColor", "#54760B" );
     private final FontProperty tankSizeFont = new FontProperty( "tankSizeFont", FontUtils.getFontString( "Monospaced", Font.PLAIN, 9, true, false ) );
-    private final FontProperty fuelFont = new FontProperty( "fuelFont", FontProperty.STANDARD_FONT_NAME );
+    private final FontProperty fuelFont = new FontProperty( "fuelFont", FontProperty.STANDARD_FONT.getKey() );
     private final ColorProperty fuelFontColor = new ColorProperty( "fuelFontColor", "#FFFFFFCD" );
     private final BooleanProperty roundUpRemainingLaps = new BooleanProperty( "roundUpRemainingLaps", "roundUpRemLaps", false );
     
@@ -180,10 +179,144 @@ public class FuelWidget extends Widget
     private int oldFuel = -1;
     private float oldAverage = -1f;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public FuelWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 17.8f, true, 13.5f, true );
+        
+        this.fuelBarWidth = Size.newLocalSize( this, 26.f, true, 0f, true );
+        
+        getFontProperty().setFont( "StandardFont2" );
+        
+        setPadding( 4, 4, 4, 4 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( font2, "The used (smaller) font." );
+        
+        writer.writeProperty( displayFuelBar, "Render the fuel bar?" );
+        writer.writeProperty( displayTankSize, "Display the tank size information?" );
+        writer.writeProperty( displayFuelLoad, "Display fuel load information?" );
+        writer.writeProperty( displayFuelWeight, "Display fuel weight information?" );
+        writer.writeProperty( displayFuelLaps, "Display fuel load in laps?" );
+        writer.writeProperty( displayFuelUsage, "Display fuel usage information?" );
+        writer.writeProperty( displayPitstopInfo, "Display pitstop calculation information?" );
+        
+        writer.writeProperty( horizontalFuelBar, "Whether to render the fuel bar as a horizontal instead of a vertical bar." );
+        writer.writeProperty( fuelBarImage, "An image to paint the fuel bar from." );
+        writer.writeProperty( fuelBarBackgroundColor, "The color used for the fuel bar's background." );
+        writer.writeProperty( fuelBarColor, "The color used for the fuel bar." );
+        writer.writeProperty( tankSizeFont, "The used font for max fuel load (tank size)." );
+        writer.writeProperty( fuelFont, "The used font for fuel load." );
+        writer.writeProperty( fuelFontColor, "The color to use for fuel load in the format #RRGGBB (hex)." );
+        writer.writeProperty( roundUpRemainingLaps, "Round up remaining fuel laps to include the current lap?" );
+        
+        writer.writeProperty( lowFuelWarningImageNameOff, "Image name for the off-state of the low fuel warning." );
+        writer.writeProperty( lowFuelWarningImageNameOn, "Image name for the on-state of the low fuel warning." );
+        writer.writeProperty( lowFuelWarningImagePositionPositioningProperty, "Positioning type for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePositionXProperty, "X-position for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImagePositionYProperty, "Y-position for the low-fuel-warning image." );
+        //writer.writeProperty( lowFuelWarningImageWidthProperty, "Width for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningImageHeightProperty, "Height for the low-fuel-warning image." );
+        writer.writeProperty( lowFuelWarningLaps, "Number of laps to start warning before out of fuel." );
+        writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( font2 ) );
+        
+        else if ( loader.loadProperty( displayFuelBar ) );
+        else if ( loader.loadProperty( displayTankSize ) );
+        else if ( loader.loadProperty( displayFuelLoad ) );
+        else if ( loader.loadProperty( displayFuelWeight ) );
+        else if ( loader.loadProperty( displayFuelLaps ) );
+        else if ( loader.loadProperty( displayFuelUsage ) );
+        else if ( loader.loadProperty( displayPitstopInfo ) );
+        
+        else if ( loader.loadProperty( horizontalFuelBar ) );
+        else if ( loader.loadProperty( fuelBarImage ) );
+        else if ( loader.loadProperty( fuelBarBackgroundColor ) );
+        else if ( loader.loadProperty( fuelBarColor ) );
+        else if ( loader.loadProperty( tankSizeFont ) );
+        else if ( loader.loadProperty( fuelFont ) );
+        else if ( loader.loadProperty( fuelFontColor ) );
+        else if ( loader.loadProperty( roundUpRemainingLaps ) );
+        
+        else if ( loader.loadProperty( lowFuelWarningImageNameOff ) );
+        else if ( loader.loadProperty( lowFuelWarningImageNameOn ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionPositioningProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionXProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImagePositionYProperty ) );
+        //else if ( loader.loadProperty( lowFuelWarningImageWidthProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningImageHeightProperty ) );
+        else if ( loader.loadProperty( lowFuelWarningLaps ) );
+        else if ( loader.loadProperty( lowFuelBlinkTime ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addFontPropertiesToContainer( propsCont, forceAll );
+        
+        propsCont.addProperty( font2 );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Optional Content" );
+        
+        propsCont.addProperty( displayFuelBar );
+        propsCont.addProperty( displayTankSize );
+        propsCont.addProperty( displayFuelLoad );
+        propsCont.addProperty( displayFuelWeight );
+        propsCont.addProperty( displayFuelLaps );
+        propsCont.addProperty( displayFuelUsage );
+        propsCont.addProperty( displayPitstopInfo );
+        
+        propsCont.addGroup( "Fuel Bar" );
+        
+        propsCont.addProperty( horizontalFuelBar );
+        propsCont.addProperty( fuelBarImage );
+        propsCont.addProperty( fuelBarBackgroundColor );
+        propsCont.addProperty( fuelBarColor );
+        propsCont.addProperty( tankSizeFont );
+        propsCont.addProperty( fuelFont );
+        propsCont.addProperty( fuelFontColor );
+        propsCont.addProperty( roundUpRemainingLaps );
+        
+        propsCont.addGroup( "Low Fuel Warning" );
+        
+        propsCont.addProperty( lowFuelWarningImageNameOff );
+        propsCont.addProperty( lowFuelWarningImageNameOn );
+        propsCont.addProperty( lowFuelWarningImagePositionPositioningProperty );
+        propsCont.addProperty( lowFuelWarningImagePositionXProperty );
+        propsCont.addProperty( lowFuelWarningImagePositionYProperty );
+        //propsCont.addProperty( lowFuelWarningImageWidthProperty );
+        propsCont.addProperty( lowFuelWarningImageHeightProperty );
+        propsCont.addProperty( lowFuelWarningLaps );
+        propsCont.addProperty( lowFuelBlinkTime );
     }
     
     /**
@@ -904,146 +1037,5 @@ public class FuelWidget extends Widget
                 }
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( font2, "The used (smaller) font." );
-        
-        writer.writeProperty( displayFuelBar, "Render the fuel bar?" );
-        writer.writeProperty( displayTankSize, "Display the tank size information?" );
-        writer.writeProperty( displayFuelLoad, "Display fuel load information?" );
-        writer.writeProperty( displayFuelWeight, "Display fuel weight information?" );
-        writer.writeProperty( displayFuelLaps, "Display fuel load in laps?" );
-        writer.writeProperty( displayFuelUsage, "Display fuel usage information?" );
-        writer.writeProperty( displayPitstopInfo, "Display pitstop calculation information?" );
-        
-        writer.writeProperty( horizontalFuelBar, "Whether to render the fuel bar as a horizontal instead of a vertical bar." );
-        writer.writeProperty( fuelBarImage, "An image to paint the fuel bar from." );
-        writer.writeProperty( fuelBarBackgroundColor, "The color used for the fuel bar's background." );
-        writer.writeProperty( fuelBarColor, "The color used for the fuel bar." );
-        writer.writeProperty( tankSizeFont, "The used font for max fuel load (tank size)." );
-        writer.writeProperty( fuelFont, "The used font for fuel load." );
-        writer.writeProperty( fuelFontColor, "The color to use for fuel load in the format #RRGGBB (hex)." );
-        writer.writeProperty( roundUpRemainingLaps, "Round up remaining fuel laps to include the current lap?" );
-        
-        writer.writeProperty( lowFuelWarningImageNameOff, "Image name for the off-state of the low fuel warning." );
-        writer.writeProperty( lowFuelWarningImageNameOn, "Image name for the on-state of the low fuel warning." );
-        writer.writeProperty( lowFuelWarningImagePositionPositioningProperty, "Positioning type for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImagePositionXProperty, "X-position for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImagePositionYProperty, "Y-position for the low-fuel-warning image." );
-        //writer.writeProperty( lowFuelWarningImageWidthProperty, "Width for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningImageHeightProperty, "Height for the low-fuel-warning image." );
-        writer.writeProperty( lowFuelWarningLaps, "Number of laps to start warning before out of fuel." );
-        writer.writeProperty( lowFuelBlinkTime, "Blink time in milli seconds for low fuel warning (0 to disable)." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( font2 ) );
-        
-        else if ( loader.loadProperty( displayFuelBar ) );
-        else if ( loader.loadProperty( displayTankSize ) );
-        else if ( loader.loadProperty( displayFuelLoad ) );
-        else if ( loader.loadProperty( displayFuelWeight ) );
-        else if ( loader.loadProperty( displayFuelLaps ) );
-        else if ( loader.loadProperty( displayFuelUsage ) );
-        else if ( loader.loadProperty( displayPitstopInfo ) );
-        
-        else if ( loader.loadProperty( horizontalFuelBar ) );
-        else if ( loader.loadProperty( fuelBarImage ) );
-        else if ( loader.loadProperty( fuelBarBackgroundColor ) );
-        else if ( loader.loadProperty( fuelBarColor ) );
-        else if ( loader.loadProperty( tankSizeFont ) );
-        else if ( loader.loadProperty( fuelFont ) );
-        else if ( loader.loadProperty( fuelFontColor ) );
-        else if ( loader.loadProperty( roundUpRemainingLaps ) );
-        
-        else if ( loader.loadProperty( lowFuelWarningImageNameOff ) );
-        else if ( loader.loadProperty( lowFuelWarningImageNameOn ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePositionPositioningProperty ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePositionXProperty ) );
-        else if ( loader.loadProperty( lowFuelWarningImagePositionYProperty ) );
-        //else if ( loader.loadProperty( lowFuelWarningImageWidthProperty ) );
-        else if ( loader.loadProperty( lowFuelWarningImageHeightProperty ) );
-        else if ( loader.loadProperty( lowFuelWarningLaps ) );
-        else if ( loader.loadProperty( lowFuelBlinkTime ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addFontPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.addFontPropertiesToContainer( propsCont, forceAll );
-        
-        propsCont.addProperty( font2 );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Optional Content" );
-        
-        propsCont.addProperty( displayFuelBar );
-        propsCont.addProperty( displayTankSize );
-        propsCont.addProperty( displayFuelLoad );
-        propsCont.addProperty( displayFuelWeight );
-        propsCont.addProperty( displayFuelLaps );
-        propsCont.addProperty( displayFuelUsage );
-        propsCont.addProperty( displayPitstopInfo );
-        
-        propsCont.addGroup( "Fuel Bar" );
-        
-        propsCont.addProperty( horizontalFuelBar );
-        propsCont.addProperty( fuelBarImage );
-        propsCont.addProperty( fuelBarBackgroundColor );
-        propsCont.addProperty( fuelBarColor );
-        propsCont.addProperty( tankSizeFont );
-        propsCont.addProperty( fuelFont );
-        propsCont.addProperty( fuelFontColor );
-        propsCont.addProperty( roundUpRemainingLaps );
-        
-        propsCont.addGroup( "Low Fuel Warning" );
-        
-        propsCont.addProperty( lowFuelWarningImageNameOff );
-        propsCont.addProperty( lowFuelWarningImageNameOn );
-        propsCont.addProperty( lowFuelWarningImagePositionPositioningProperty );
-        propsCont.addProperty( lowFuelWarningImagePositionXProperty );
-        propsCont.addProperty( lowFuelWarningImagePositionYProperty );
-        //propsCont.addProperty( lowFuelWarningImageWidthProperty );
-        propsCont.addProperty( lowFuelWarningImageHeightProperty );
-        propsCont.addProperty( lowFuelWarningLaps );
-        propsCont.addProperty( lowFuelBlinkTime );
-    }
-    
-    public FuelWidget()
-    {
-        super( 17.8f, true, 13.5f, true );
-        
-        this.fuelBarWidth = Size.newLocalSize( this, 26.f, true, 0f, true );
-        
-        getFontProperty().setFont( "StandardFont2" );
-        
-        setPadding( 4, 4, 4, 4 );
     }
 }

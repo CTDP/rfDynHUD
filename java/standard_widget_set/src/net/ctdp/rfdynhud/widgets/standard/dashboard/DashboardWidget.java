@@ -20,7 +20,6 @@ package net.ctdp.rfdynhud.widgets.standard.dashboard;
 import net.ctdp.rfdynhud.values.RelativePositioning;
 import net.ctdp.rfdynhud.widgets.base.widget.AbstractAssembledWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 import net.ctdp.rfdynhud.widgets.standard.fuelneedle.FuelNeedleWidget;
 import net.ctdp.rfdynhud.widgets.standard.revmeter.RevMeterWidget;
@@ -28,27 +27,14 @@ import net.ctdp.rfdynhud.widgets.standard.speedo.SpeedoWidget;
 
 public class DashboardWidget extends AbstractAssembledWidget
 {
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public DashboardWidget( boolean initParts )
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 33.6f, true, 23.0f, true, initParts );
     }
     
-    @Override
-    protected void arrangeParts( Widget[] parts )
+    public DashboardWidget()
     {
-        int innerWidth = this.getInnerSize().getEffectiveWidth();
-        int innerHeight = this.getInnerSize().getEffectiveHeight();
-        
-        int w1 = innerWidth * 45 / 100;
-        int w2 = innerWidth * 25 / 100;
-        
-        parts[0].getSize().setEffectiveSize( w1, w1 );
-        parts[1].getSize().setEffectiveSize( w2, w2 );
-        parts[2].getSize().setEffectiveSize( w1, w1 );
-        
-        parts[1].getPosition().setEffectivePosition( RelativePositioning.BOTTOM_CENTER, ( innerWidth - w2 ) / 2, innerHeight - w2 );
-        parts[2].getPosition().setEffectivePosition( RelativePositioning.TOP_RIGHT, innerWidth - w1, 0 );
+        this( true );
     }
     
     /**
@@ -70,13 +56,20 @@ public class DashboardWidget extends AbstractAssembledWidget
         return ( new Widget[] { speedo, fuel, revs } );
     }
     
-    public DashboardWidget( boolean initParts )
+    @Override
+    protected void arrangeParts( Widget[] parts )
     {
-        super( 33.6f, true, 23.0f, true, initParts );
-    }
-    
-    public DashboardWidget()
-    {
-        this( true );
+        int innerWidth = this.getInnerSize().getEffectiveWidth();
+        int innerHeight = this.getInnerSize().getEffectiveHeight();
+        
+        int w1 = innerWidth * 45 / 100;
+        int w2 = innerWidth * 25 / 100;
+        
+        parts[0].getSize().setEffectiveSize( w1, w1 );
+        parts[1].getSize().setEffectiveSize( w2, w2 );
+        parts[2].getSize().setEffectiveSize( w1, w1 );
+        
+        parts[1].getPosition().setEffectivePosition( RelativePositioning.BOTTOM_CENTER, ( innerWidth - w2 ) / 2, innerHeight - w2 );
+        parts[2].getPosition().setEffectivePosition( RelativePositioning.TOP_RIGHT, innerWidth - w1, 0 );
     }
 }

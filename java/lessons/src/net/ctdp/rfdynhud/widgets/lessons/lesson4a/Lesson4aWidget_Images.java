@@ -22,17 +22,16 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.properties.ImageProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
 
 /**
@@ -65,10 +64,64 @@ public class Lesson4aWidget_Images extends Widget
     
     private DrawnString ds = null;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public Lesson4aWidget_Images()
     {
-        return ( LessonsWidgetSet.WIDGET_PACKAGE );
+        super( LessonsWidgetSet.INSTANCE, LessonsWidgetSet.WIDGET_PACKAGE, 20.0f, 10.0f );
+        
+        /*
+         * If we don't want a background color for this Widget,
+         * we can execute the following line.
+         */
+        //getBackgroundColorProperty().setValue( null );
+    }
+    
+    /*
+     * We don't want a border for this Widget.
+     */
+    @Override
+    protected boolean canHaveBorder()
+    {
+        return ( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
+    }
+    
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( image1, "The background image." );
+        writer.writeProperty( image2, "Another image." );
+    }
+    
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( image1 ) );
+        else if ( loader.loadProperty( image2 ) );
+    }
+    
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "My own Properties" );
+        
+        propsCont.addProperty( image1 );
+        propsCont.addProperty( image2 );
     }
     
     /**
@@ -130,65 +183,5 @@ public class Lesson4aWidget_Images extends Widget
              */
             texture.drawImage( texImage2, offsetX + width - texImage2.getWidth() - 10, offsetY + height - texImage2.getHeight() - 10, true, null );
         }
-    }
-    
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( image1, "The background image." );
-        writer.writeProperty( image2, "Another image." );
-    }
-    
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( image1 ) );
-        else if ( loader.loadProperty( image2 ) );
-    }
-    
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "My own Properties" );
-        
-        propsCont.addProperty( image1 );
-        propsCont.addProperty( image2 );
-    }
-    
-    /*
-     * We don't want a border for this Widget.
-     */
-    @Override
-    protected boolean canHaveBorder()
-    {
-        return ( false );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
-    }
-    
-    public Lesson4aWidget_Images()
-    {
-        super( 20.0f, 10.0f );
-        
-        /*
-         * If we don't want a background color for this Widget,
-         * we can execute the following line.
-         */
-        //getBackgroundColorProperty().setValue( null );
     }
 }

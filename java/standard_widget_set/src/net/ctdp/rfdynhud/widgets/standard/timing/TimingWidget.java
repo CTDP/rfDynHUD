@@ -29,21 +29,20 @@ import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.BoolValue;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -115,10 +114,68 @@ public class TimingWidget extends Widget
     private final LongValue scoringInfoUpdateID = new LongValue();
     private final String[][] oldClStrings = new String[ 4 ][ 0 ];
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public TimingWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_TIMING );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE_TIMING, 24.0625f, 30.083334f );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        colPadding = 1;
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 3, false, true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( displayAbsFastest, "Display the absolute fastest lap part of the Widget?" );
+        writer.writeProperty( cumulativeSectors, "Display the second sector as a sum?" );
+        writer.writeProperty( forceCurrentCumulSectors, "Display the second sector as a sum even if the others not?" );
+        writer.writeProperty( lastLapDisplayDelay, "The time for which the last driven lap will keepbeing displayed (in milliseconds)." );
+        writer.writeProperty( slowerColor, "The font color to use for positive gaps." );
+        writer.writeProperty( fasterColor, "The font color to use for negative gaps." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( displayAbsFastest ) );
+        else if ( loader.loadProperty( cumulativeSectors ) );
+        else if ( loader.loadProperty( forceCurrentCumulSectors ) );
+        else if ( loader.loadProperty( lastLapDisplayDelay ) );
+        else if ( loader.loadProperty( slowerColor ) );
+        else if ( loader.loadProperty( fasterColor ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( displayAbsFastest );
+        propsCont.addProperty( cumulativeSectors );
+        propsCont.addProperty( forceCurrentCumulSectors );
+        propsCont.addProperty( lastLapDisplayDelay );
+        propsCont.addProperty( slowerColor );
+        propsCont.addProperty( fasterColor );
     }
     
     /**
@@ -937,70 +994,5 @@ public class TimingWidget extends Widget
                 }
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( displayAbsFastest, "Display the absolute fastest lap part of the Widget?" );
-        writer.writeProperty( cumulativeSectors, "Display the second sector as a sum?" );
-        writer.writeProperty( forceCurrentCumulSectors, "Display the second sector as a sum even if the others not?" );
-        writer.writeProperty( lastLapDisplayDelay, "The time for which the last driven lap will keepbeing displayed (in milliseconds)." );
-        writer.writeProperty( slowerColor, "The font color to use for positive gaps." );
-        writer.writeProperty( fasterColor, "The font color to use for negative gaps." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( displayAbsFastest ) );
-        else if ( loader.loadProperty( cumulativeSectors ) );
-        else if ( loader.loadProperty( forceCurrentCumulSectors ) );
-        else if ( loader.loadProperty( lastLapDisplayDelay ) );
-        else if ( loader.loadProperty( slowerColor ) );
-        else if ( loader.loadProperty( fasterColor ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( displayAbsFastest );
-        propsCont.addProperty( cumulativeSectors );
-        propsCont.addProperty( forceCurrentCumulSectors );
-        propsCont.addProperty( lastLapDisplayDelay );
-        propsCont.addProperty( slowerColor );
-        propsCont.addProperty( fasterColor );
-    }
-    
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        colPadding = 1;
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 3, false, true );
-    }
-    
-    public TimingWidget()
-    {
-        super( 24.0625f, 30.083334f );
     }
 }

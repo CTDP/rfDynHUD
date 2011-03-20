@@ -20,39 +20,66 @@ package net.ctdp.rfdynhud.widgets.lessons._util;
 import java.awt.Font;
 
 import net.ctdp.rfdynhud.util.FontUtils;
+import net.ctdp.rfdynhud.util.StringMapping;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetSet;
 
-public class LessonsWidgetSet
+/**
+ * This {@link WidgetSet} implementation serves as a utility class and keeps the {@link WidgetPackage} instance for each Lesson {@link Widget}.
+ * Each Lesson {@link Widget} must also get a reference to an instance of this class.
+ * 
+ * @author Marvin Froehlich
+ */
+public class LessonsWidgetSet extends WidgetSet
 {
     /*
-     * This is nothing special and also not complicated.
-     * This simply creates a version id, which can be used
-     * to cheaply compare different versions of this WidgetPackage.
-     * Make sure to increase the version number, at least
-     * if you release a new revision of your Widget set with
-     * more or less significant changes.
+     * Each Lesson {@link Widget} must also get a reference to an instance of this class.
+     * Hence we keep a static one here.
      */
-    private static final int version = WidgetPackage.composeVersion( 1, 2, 0 );
+    public static final LessonsWidgetSet INSTANCE = new LessonsWidgetSet();
     
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Lessons", version, WidgetPackage.CTDP_ICON, LessonsWidgetSet.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/lessons/lessons.png" ) );
+    /*
+     * This is a virtual package, that you can use to group your Widgets in the editor.
+     * 
+     * The value should always come from a static place like we do it here
+     * to make sure, that it is exactly the same for all contained Widgets.
+     * Though only the package name is the really important part.
+     */
+    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( INSTANCE, "CTDP/Lessons", WidgetPackage.CTDP_ICON, INSTANCE.getIcon( "net/ctdp/rfdynhud/widgets/lessons/lessons.png" ) );
     
-    public static final String MY_FONT_COLOR_NAME = "MyFontColor";
+    public static final StringMapping MY_FONT_COLOR = new StringMapping( "MyFontColor", "#FF0000" );
     
-    public static final String MY_FONT_NAME = "MyFont";
+    public static final StringMapping MY_FONT = new StringMapping( "MyFont", FontUtils.getFontString( "Monospaced", Font.BOLD, 13, true, true ) );
     
-    public static String getDefaultNamedColorValue( String name )
+    @Override
+    public String getDefaultNamedColorValue( String name )
     {
-        if ( name.equals( MY_FONT_COLOR_NAME ) )
-            return ( "#FF0000" );
+        if ( name.equals( MY_FONT_COLOR.getKey() ) )
+            return ( MY_FONT_COLOR.getValue() );
         
         return ( null );
     }
     
-    public static String getDefaultNamedFontValue( String name )
+    @Override
+    public String getDefaultNamedFontValue( String name )
     {
-        if ( name.equals( MY_FONT_NAME ) )
-            return ( FontUtils.getFontString( "Monospaced", Font.BOLD, 13, true, true ) );
+        if ( name.equals( MY_FONT.getKey() ) )
+            return ( MY_FONT.getValue() );
         
         return ( null );
+    }
+    
+    private LessonsWidgetSet()
+    {
+        /*
+         * This is nothing special and also not complicated.
+         * This simply creates a version id, which can be used
+         * to cheaply compare different versions of this WidgetPackage.
+         * Make sure to increase the version number, at least
+         * if you release a new revision of your Widget set with
+         * more or less significant changes.
+         */
+        super( composeVersion( 1, 2, 0 ) );
     }
 }

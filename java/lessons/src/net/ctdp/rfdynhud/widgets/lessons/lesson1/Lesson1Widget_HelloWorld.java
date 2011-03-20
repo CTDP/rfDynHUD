@@ -27,7 +27,6 @@ import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
 
 /**
@@ -50,17 +49,26 @@ public class Lesson1Widget_HelloWorld extends Widget
      */
     private DrawnString ds = null;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public Lesson1Widget_HelloWorld()
     {
         /*
-         * This is a virtual package, that you can use to group your Widgets in the editor.
-         * 
-         * The value should always come from a static place like we do it here
-         * to make sure, that it is exactly the same for all contained Widgets.
-         * Though only the package name is the really important part.
+         * In the constructor we pass in the default size of the Widget.
+         * We don't need to define a location, since this is done by the editor.
+         * In the below notation, we use percents, which is important
+         * to create proper sizes for all screen resolutions.
          */
-        return ( LessonsWidgetSet.WIDGET_PACKAGE );
+        super( LessonsWidgetSet.INSTANCE, LessonsWidgetSet.WIDGET_PACKAGE, 10.0f, 5.0f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
     }
     
     /**
@@ -119,27 +127,5 @@ public class Lesson1Widget_HelloWorld extends Widget
         {
             ds.draw( offsetX, offsetY, "Hello World", texture );
         }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
-    }
-    
-    public Lesson1Widget_HelloWorld()
-    {
-        /*
-         * In the constructor we pass in the default size of the Widget.
-         * We don't need to define a location, since this is done by the editor.
-         * In the below notation, we use percents, which is important
-         * to create proper sizes for all screen resolutions.
-         */
-        super( 10.0f, 5.0f );
     }
 }

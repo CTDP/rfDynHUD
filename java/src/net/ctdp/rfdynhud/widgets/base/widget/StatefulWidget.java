@@ -47,6 +47,34 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
     private LocalStore localStore = null;
     
     /**
+     * Creates a new Widget.
+     * 
+     * @param widgetSet the {@link WidgetSet} this {@link Widget} belongs to
+     * @param widgetPackage the package in the editor
+     * @param width negative numbers for (screen_width - width)
+     * @param widthPercent width parameter treated as percents
+     * @param height negative numbers for (screen_height - height)
+     * @param heightPercent height parameter treated as percents
+     */
+    protected StatefulWidget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, boolean widthPercent, float height, boolean heightPercent )
+    {
+        super( widgetSet, widgetPackage, width, widthPercent, height, heightPercent );
+    }
+    
+    /**
+     * Creates a new Widget.
+     * 
+     * @param widgetSet the {@link WidgetSet} this {@link Widget} belongs to
+     * @param widgetPackage the package in the editor
+     * @param width negative numbers for (screen_width - width)
+     * @param height negative numbers for (screen_height - height)
+     */
+    protected StatefulWidget( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, float height )
+    {
+        this( widgetSet, widgetPackage, width, true, height, true );
+    }
+    
+    /**
      * Creates a store object for all widgets of this type.
      * 
      * @return the general store object. <code>null</code> is explicitly permitted and default implementation simply returns <code>null</code>.
@@ -124,29 +152,5 @@ public abstract class StatefulWidget<GeneralStore, LocalStore> extends Widget
         }
         
         return ( localStore );
-    }
-    
-    /**
-     * Creates a new Widget.
-     * 
-     * @param width negative numbers for (screen_width - width)
-     * @param widthPercent width parameter treated as percents
-     * @param height negative numbers for (screen_height - height)
-     * @param heightPercent height parameter treated as percents
-     */
-    protected StatefulWidget( float width, boolean widthPercent, float height, boolean heightPercent )
-    {
-        super( width, widthPercent, height, heightPercent );
-    }
-    
-    /**
-     * Creates a new Widget.
-     * 
-     * @param width negative numbers for (screen_width - width)
-     * @param height negative numbers for (screen_height - height)
-     */
-    protected StatefulWidget( float width, float height )
-    {
-        this( width, true, height, true );
     }
 }

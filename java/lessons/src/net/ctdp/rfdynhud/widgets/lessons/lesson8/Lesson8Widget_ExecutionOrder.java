@@ -17,20 +17,14 @@
  */
 package net.ctdp.rfdynhud.widgets.lessons.lesson8;
 
-import java.io.IOException;
-
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
-import net.ctdp.rfdynhud.properties.PropertiesContainer;
 import net.ctdp.rfdynhud.render.BorderWrapper;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
-import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
 
 /**
@@ -43,10 +37,9 @@ import net.ctdp.rfdynhud.widgets.lessons._util.LessonsWidgetSet;
  */
 public class Lesson8Widget_ExecutionOrder extends Widget
 {
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public Lesson8Widget_ExecutionOrder()
     {
-        return ( LessonsWidgetSet.WIDGET_PACKAGE );
+        super( LessonsWidgetSet.INSTANCE, LessonsWidgetSet.WIDGET_PACKAGE, 5.0f, 5.0f );
     }
     
     @Override
@@ -132,28 +125,5 @@ public class Lesson8Widget_ExecutionOrder extends Widget
         // This method is executed when the configuration is unloaded.
         
         super.beforeConfigurationCleared( widgetsConfig, gameData, isEditorMode );
-    }
-    
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-    }
-    
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-    }
-    
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-    }
-    
-    public Lesson8Widget_ExecutionOrder()
-    {
-        super( 5.0f, 5.0f );
     }
 }

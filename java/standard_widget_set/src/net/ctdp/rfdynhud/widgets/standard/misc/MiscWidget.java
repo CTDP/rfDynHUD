@@ -29,16 +29,16 @@ import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.DelayProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.EnumValue;
 import net.ctdp.rfdynhud.values.FloatValue;
@@ -46,7 +46,6 @@ import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.values.ValidityTest;
 import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -98,10 +97,67 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
     private final Alignment[] velocityAlignment = new Alignment[] { Alignment.RIGHT, Alignment.LEFT, Alignment.LEFT };
     private static final int padding = 4;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public MiscWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 66.25f, 5.83f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
+        displayTiming.setBooleanValue( false );
+        displayVelocity.setBooleanValue( false );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( displayScoring, "Display the scoring part of the Widget?" );
+        writer.writeProperty( displayTiming, "Display the timing part of the Widget?" );
+        writer.writeProperty( displayVelocity, "Display the velocity and top speed part of the Widget?" );
+        writer.writeProperty( relTopspeedResetDelay, "The delay after which the relative topspeed is resetted (in milliseconds)." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( displayScoring ) );
+        else if ( loader.loadProperty( displayTiming ) );
+        else if ( loader.loadProperty( displayVelocity ) );
+        else if ( loader.loadProperty( relTopspeedResetDelay ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( displayScoring );
+        propsCont.addProperty( displayTiming );
+        propsCont.addProperty( displayVelocity );
+        
+        propsCont.addProperty( relTopspeedResetDelay );
     }
     
     /**
@@ -594,69 +650,5 @@ public class MiscWidget extends StatefulWidget<Object, LocalStore>
                 velocityString.drawColumns( offsetX, offsetY, new String[] { Loc.velocity_velocity_prefix + ":", String.valueOf( velocity ), speedUnits }, velocityAlignment, padding, velocityColWidths, texture );
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( displayScoring, "Display the scoring part of the Widget?" );
-        writer.writeProperty( displayTiming, "Display the timing part of the Widget?" );
-        writer.writeProperty( displayVelocity, "Display the velocity and top speed part of the Widget?" );
-        writer.writeProperty( relTopspeedResetDelay, "The delay after which the relative topspeed is resetted (in milliseconds)." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( displayScoring ) );
-        else if ( loader.loadProperty( displayTiming ) );
-        else if ( loader.loadProperty( displayVelocity ) );
-        else if ( loader.loadProperty( relTopspeedResetDelay ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( displayScoring );
-        propsCont.addProperty( displayTiming );
-        propsCont.addProperty( displayVelocity );
-        
-        propsCont.addProperty( relTopspeedResetDelay );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
-        displayTiming.setBooleanValue( false );
-        displayVelocity.setBooleanValue( false );
-    }
-    
-    public MiscWidget()
-    {
-        super( 66.25f, 5.83f );
     }
 }

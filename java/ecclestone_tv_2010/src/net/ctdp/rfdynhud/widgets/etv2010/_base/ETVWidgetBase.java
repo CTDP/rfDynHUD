@@ -31,8 +31,9 @@ import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
+import net.ctdp.rfdynhud.widgets.base.widget.WidgetSet;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages;
-import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVWidgetSet;
 
 public abstract class ETVWidgetBase extends Widget
 {
@@ -56,65 +57,56 @@ public abstract class ETVWidgetBase extends Widget
     
     private ETVImages images = null;
     
-    protected final ColorProperty captionBackgroundColor = new ColorProperty( "captionBgColor", ETVUtils.ETV_CAPTION_BACKGROUND_COLOR );
-    protected final ColorProperty captionColor = new ColorProperty( "captionColor", ETVUtils.ETV_CAPTION_FONT_COLOR );
-    protected final ColorProperty dataBackgroundColor = new ColorProperty( "dataBgColor", ETVUtils.ETV_DATA_BACKGROUND_COLOR );
+    protected final ColorProperty captionBackgroundColor = new ColorProperty( "captionBgColor", ETVWidgetSet.ETV_CAPTION_BACKGROUND_COLOR.getKey() );
+    protected final ColorProperty captionColor = new ColorProperty( "captionColor", ETVWidgetSet.ETV_CAPTION_FONT_COLOR.getKey() );
+    protected final ColorProperty dataBackgroundColor = new ColorProperty( "dataBgColor", ETVWidgetSet.ETV_DATA_BACKGROUND_COLOR.getKey() );
     
     protected final IntProperty itemGap = new IntProperty( "itemGap", 3, 0, 100 );
     
     protected final BooleanProperty showNamesInAllUppercase = new BooleanProperty( "showNamesInAllUppercase", "namesUpperCase", true );
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public ETVWidgetBase( WidgetSet widgetSet, WidgetPackage widgetPackage, float width, float height )
     {
-        return ( ETVUtils.WIDGET_PACKAGE );
+        super( widgetSet, widgetPackage, width, true, height, true );
+        
+        getFontColorProperty().setValue( ETVWidgetSet.ETV_DATA_FONT_COLOR.getKey() );
+        getFontProperty().setValue( ETVWidgetSet.ETV_FONT.getKey() );
+    }
+    
+    @Override
+    protected String getInitialBackground()
+    {
+        return ( BackgroundProperty.COLOR_INDICATOR + "#00000000" );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getDefaultNamedColorValue( String name )
+    public void prepareForMenuItem()
     {
-        String result = super.getDefaultNamedColorValue( name );
+        super.prepareForMenuItem();
         
-        if ( result != null )
-            return ( result );
+        useImages.setBooleanValue( false );
         
-        return ( ETVUtils.getDefaultNamedColorValue( name ) );
+        itemGap.setIntValue( 0 );
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 4, false, true );
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public String getDefaultNamedFontValue( String name )
+    protected boolean canHaveBorder()
     {
-        String result = super.getDefaultNamedFontValue( name );
-        
-        if ( result != null )
-            return ( result );
-        
-        return ( ETVUtils.getDefaultNamedFontValue( name ) );
+        return ( false );
     }
     
-    protected final ETVImages getImages()
+    /*
+    @Override
+    protected boolean hasText()
     {
-        if ( !useImages.getBooleanValue() )
-            return ( null );
-        
-        if ( images == null )
-        {
-            images = new ETVImages( imagesIni.getFileValue() );
-        }
-        
-        return ( images );
+        return ( false );
     }
-    
-    protected final boolean getShowNamesInAllUppercase()
-    {
-        return ( showNamesInAllUppercase.getBooleanValue() );
-    }
+    */
     
     /**
      * {@inheritDoc}
@@ -253,46 +245,21 @@ public abstract class ETVWidgetBase extends Widget
         getItemGapProperty( propsCont, forceAll );
     }
     
-    @Override
-    protected boolean canHaveBorder()
+    protected final ETVImages getImages()
     {
-        return ( false );
+        if ( !useImages.getBooleanValue() )
+            return ( null );
+        
+        if ( images == null )
+        {
+            images = new ETVImages( imagesIni.getFileValue() );
+        }
+        
+        return ( images );
     }
     
-    /*
-    @Override
-    protected boolean hasText()
+    protected final boolean getShowNamesInAllUppercase()
     {
-        return ( false );
-    }
-    */
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        useImages.setBooleanValue( false );
-        
-        itemGap.setIntValue( 0 );
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 4, false, true );
-    }
-    
-    @Override
-    protected String getInitialBackground()
-    {
-        return ( BackgroundProperty.COLOR_INDICATOR + "#00000000" );
-    }
-    
-    public ETVWidgetBase( float width, float height )
-    {
-        super( width, true, height, true );
-        
-        getFontColorProperty().setValue( ETVUtils.ETV_DATA_FONT_COLOR );
-        getFontProperty().setValue( ETVUtils.ETV_FONT );
+        return ( showNamesInAllUppercase.getBooleanValue() );
     }
 }

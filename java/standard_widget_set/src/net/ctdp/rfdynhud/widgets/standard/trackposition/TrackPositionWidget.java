@@ -30,19 +30,18 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
 import net.ctdp.rfdynhud.util.MapTools;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.LabelPositioning;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
@@ -78,19 +77,19 @@ public class TrackPositionWidget extends Widget
     
     private final ColorProperty lineColor = new ColorProperty( "lineColor", "#FFFFFF" );
     
-    private final ColorProperty markColorNormal = new ColorProperty( "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
-    private final ColorProperty markColorLeader = new ColorProperty( "markColorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER );
-    private final ColorProperty markColorMe = new ColorProperty( "markColorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME );
+    private final ColorProperty markColorNormal = new ColorProperty( "markColorNormal", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL.getKey() );
+    private final ColorProperty markColorLeader = new ColorProperty( "markColorLeader", StandardWidgetSet.POSITION_ITEM_COLOR_LEADER.getKey() );
+    private final ColorProperty markColorMe = new ColorProperty( "markColorMe", StandardWidgetSet.POSITION_ITEM_COLOR_ME.getKey() );
     private final BooleanProperty useMyColorForMe1st = new BooleanProperty( "useMyColorForMe1st", false );
-    private final ColorProperty markColorNextInFront = new ColorProperty( "markColorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT );
-    private final ColorProperty markColorNextBehind = new ColorProperty( "markColorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND );
+    private final ColorProperty markColorNextInFront = new ColorProperty( "markColorNextInFront", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_IN_FRONT.getKey() );
+    private final ColorProperty markColorNextBehind = new ColorProperty( "markColorNextBehind", StandardWidgetSet.POSITION_ITEM_COLOR_NEXT_BEHIND.getKey() );
     
     private final BooleanProperty displayPositionNumbers = new BooleanProperty( "displayPosNumbers", true );
     
     private final BooleanProperty displayNameLabels = new BooleanProperty( "displayNameLabels", false );
     private final EnumProperty<LabelPositioning> nameLabelPos = new EnumProperty<LabelPositioning>( "nameLabelPos", LabelPositioning.BELOW );
-    private final FontProperty nameLabelFont = new FontProperty( "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT_NAME );
-    private final ColorProperty nameLabelFontColor = new ColorProperty( "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL );
+    private final FontProperty nameLabelFont = new FontProperty( "nameLabelFont", StandardWidgetSet.POSITION_ITEM_FONT.getKey() );
+    private final ColorProperty nameLabelFontColor = new ColorProperty( "nameLabelFontColor", StandardWidgetSet.POSITION_ITEM_COLOR_NORMAL.getKey() );
     
     private int maxDisplayedVehicles = -1;
     
@@ -104,42 +103,100 @@ public class TrackPositionWidget extends Widget
     
     private int lineLength = 0;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public TrackPositionWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE, 35.0f, 5.859375f );
+        
+        getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT.getKey() );
+        getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR.getKey() );
+    }
+    
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        //baseItemRadius.setIntValue( 20 );
+        itemRadius = 3;
+        itemBlackBorderWidth = 0;
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getDefaultNamedColorValue( String name )
+    public void saveProperties( PropertyWriter writer ) throws IOException
     {
-        String result = super.getDefaultNamedColorValue( name );
+        super.saveProperties( writer );
         
-        if ( result != null )
-            return ( result );
-        
-        result = StandardWidgetSet.getDefaultNamedColorValue( name );
-        
-        return ( result );
+        writer.writeProperty( lineColor, "Color for the base line." );
+        writer.writeProperty( baseItemRadius, "The abstract radius for any displayed driver item." );
+        writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
+        writer.writeProperty( useMyColorForMe1st, "Use 'markColorMe' for my item when I am at 1st place?" );
+        writer.writeProperty( markColorNextInFront, "The color used for the car in front of you in #RRGGBBAA (hex)." );
+        writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
+        writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
+        writer.writeProperty( displayNameLabels, "Display name label near the position markers?" );
+        writer.writeProperty( nameLabelPos, "Positioning of the name labels." );
+        writer.writeProperty( nameLabelFont, "Font for the name labels." );
+        writer.writeProperty( nameLabelFontColor, "Font color for the name labels." );
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getDefaultNamedFontValue( String name )
+    public void loadProperty( PropertyLoader loader )
     {
-        String result = super.getDefaultNamedFontValue( name );
+        super.loadProperty( loader );
         
-        if ( result != null )
-            return ( result );
+        if ( loader.loadProperty( lineColor ) );
+        else if ( loader.loadProperty( baseItemRadius ) );
+        else if ( loader.loadProperty( markColorNormal ) );
+        else if ( loader.loadProperty( markColorLeader ) );
+        else if ( loader.loadProperty( markColorMe ) );
+        else if ( loader.loadProperty( useMyColorForMe1st ) );
+        else if ( loader.loadProperty( markColorNextInFront ) );
+        else if ( loader.loadProperty( markColorNextBehind ) );
+        else if ( loader.loadProperty( displayPositionNumbers ) );
+        else if ( loader.loadProperty( displayNameLabels ) );
+        else if ( loader.loadProperty( nameLabelPos ) );
+        else if ( loader.loadProperty( nameLabelFont ) );
+        else if ( loader.loadProperty( nameLabelFontColor ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
         
-        result = StandardWidgetSet.getDefaultNamedFontValue( name );
+        propsCont.addGroup( "Misc" );
         
-        return ( result );
+        propsCont.addProperty( lineColor );
+        
+        propsCont.addProperty( baseItemRadius );
+        
+        propsCont.addProperty( markColorNormal );
+        propsCont.addProperty( markColorLeader );
+        propsCont.addProperty( markColorMe );
+        propsCont.addProperty( useMyColorForMe1st );
+        propsCont.addProperty( markColorNextInFront );
+        propsCont.addProperty( markColorNextBehind );
+        
+        propsCont.addProperty( displayPositionNumbers );
+        
+        propsCont.addProperty( displayNameLabels );
+        //if ( displayNameLabels.getBooleanValue() || forceAll )
+        {
+            propsCont.addProperty( nameLabelPos );
+            propsCont.addProperty( nameLabelFont );
+            propsCont.addProperty( nameLabelFontColor );
+        }
     }
     
     /**
@@ -348,102 +405,5 @@ public class TrackPositionWidget extends Widget
         
         for ( int i = n; i < maxDisplayedVehicles; i++ )
             itemTextures[i].setVisible( false );
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( lineColor, "Color for the base line." );
-        writer.writeProperty( baseItemRadius, "The abstract radius for any displayed driver item." );
-        writer.writeProperty( markColorNormal, "The color used for all, but special cars in #RRGGBBAA (hex)." );
-        writer.writeProperty( markColorLeader, "The color used for the leader's car in #RRGGBBAA (hex)." );
-        writer.writeProperty( markColorMe, "The color used for your own car in #RRGGBBAA (hex)." );
-        writer.writeProperty( useMyColorForMe1st, "Use 'markColorMe' for my item when I am at 1st place?" );
-        writer.writeProperty( markColorNextInFront, "The color used for the car in front of you in #RRGGBBAA (hex)." );
-        writer.writeProperty( markColorNextBehind, "The color used for the car behind you in #RRGGBBAA (hex)." );
-        writer.writeProperty( displayPositionNumbers, "Display numbers on the position markers?" );
-        writer.writeProperty( displayNameLabels, "Display name label near the position markers?" );
-        writer.writeProperty( nameLabelPos, "Positioning of the name labels." );
-        writer.writeProperty( nameLabelFont, "Font for the name labels." );
-        writer.writeProperty( nameLabelFontColor, "Font color for the name labels." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( lineColor ) );
-        else if ( loader.loadProperty( baseItemRadius ) );
-        else if ( loader.loadProperty( markColorNormal ) );
-        else if ( loader.loadProperty( markColorLeader ) );
-        else if ( loader.loadProperty( markColorMe ) );
-        else if ( loader.loadProperty( useMyColorForMe1st ) );
-        else if ( loader.loadProperty( markColorNextInFront ) );
-        else if ( loader.loadProperty( markColorNextBehind ) );
-        else if ( loader.loadProperty( displayPositionNumbers ) );
-        else if ( loader.loadProperty( displayNameLabels ) );
-        else if ( loader.loadProperty( nameLabelPos ) );
-        else if ( loader.loadProperty( nameLabelFont ) );
-        else if ( loader.loadProperty( nameLabelFontColor ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( lineColor );
-        
-        propsCont.addProperty( baseItemRadius );
-        
-        propsCont.addProperty( markColorNormal );
-        propsCont.addProperty( markColorLeader );
-        propsCont.addProperty( markColorMe );
-        propsCont.addProperty( useMyColorForMe1st );
-        propsCont.addProperty( markColorNextInFront );
-        propsCont.addProperty( markColorNextBehind );
-        
-        propsCont.addProperty( displayPositionNumbers );
-        
-        propsCont.addProperty( displayNameLabels );
-        //if ( displayNameLabels.getBooleanValue() || forceAll )
-        {
-            propsCont.addProperty( nameLabelPos );
-            propsCont.addProperty( nameLabelFont );
-            propsCont.addProperty( nameLabelFontColor );
-        }
-    }
-    
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        //baseItemRadius.setIntValue( 20 );
-        itemRadius = 3;
-        itemBlackBorderWidth = 0;
-    }
-    
-    public TrackPositionWidget()
-    {
-        super( 35.0f, 5.859375f );
-        
-        getFontProperty().setFont( StandardWidgetSet.POSITION_ITEM_FONT_NAME );
-        getFontColorProperty().setColor( StandardWidgetSet.POSITION_ITEM_FONT_COLOR_NAME );
     }
 }

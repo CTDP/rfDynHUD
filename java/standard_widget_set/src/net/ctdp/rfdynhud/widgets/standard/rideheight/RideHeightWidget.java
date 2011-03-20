@@ -21,26 +21,25 @@ import java.awt.Font;
 import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.TelemetryData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
 import net.ctdp.rfdynhud.gamedata.Wheel;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.util.Delay;
 import net.ctdp.rfdynhud.util.NumberUtil;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -52,8 +51,8 @@ public class RideHeightWidget extends Widget
 {
     private final BooleanProperty displayHeader = new BooleanProperty( "displayHeader", true );
     
-    private final FontProperty headerFont = new FontProperty( "headerFont", "font", FontProperty.STANDARD_FONT_NAME );
-    private final ColorProperty headerFontColor = new ColorProperty( "headerFontColor", "fontColor", ColorProperty.STANDARD_FONT_COLOR_NAME );
+    private final FontProperty headerFont = new FontProperty( "headerFont", "font", FontProperty.STANDARD_FONT.getKey() );
+    private final ColorProperty headerFontColor = new ColorProperty( "headerFontColor", "fontColor", ColorProperty.STANDARD_FONT_COLOR.getKey() );
     
     private float minFL = Float.MAX_VALUE;
     private float minFR = Float.MAX_VALUE;
@@ -68,10 +67,61 @@ public class RideHeightWidget extends Widget
     private DrawnString rlString = null;
     private DrawnString rrString = null;
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public RideHeightWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_TELEMETRY );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE_TELEMETRY, 9.3f, 7.25f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( displayHeader, "Whether to display the header or not." );
+        writer.writeProperty( headerFont, "Font for the header." );
+        writer.writeProperty( headerFontColor, "Font color for the header" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( displayHeader ) );
+        else if ( loader.loadProperty( headerFont ) );
+        else if ( loader.loadProperty( headerFontColor ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Header" );
+        
+        propsCont.addProperty( displayHeader );
+        propsCont.addProperty( headerFont );
+        propsCont.addProperty( headerFontColor );
     }
     
     @Override
@@ -164,63 +214,5 @@ public class RideHeightWidget extends Widget
             
             delay.start( gameData.getScoringInfo(), 1000000000L );
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( displayHeader, "Whether to display the header or not." );
-        writer.writeProperty( headerFont, "Font for the header." );
-        writer.writeProperty( headerFontColor, "Font color for the header" );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( displayHeader ) );
-        else if ( loader.loadProperty( headerFont ) );
-        else if ( loader.loadProperty( headerFontColor ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Header" );
-        
-        propsCont.addProperty( displayHeader );
-        propsCont.addProperty( headerFont );
-        propsCont.addProperty( headerFontColor );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 9, false, true );
-    }
-    
-    public RideHeightWidget()
-    {
-        super( 9.3f, 7.25f );
     }
 }

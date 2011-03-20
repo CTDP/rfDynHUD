@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.properties;
 
 import java.awt.Color;
 
+import net.ctdp.rfdynhud.util.StringMapping;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -31,9 +32,10 @@ import org.openmali.vecmath2.util.ColorUtils;
  */
 public class ColorProperty extends Property
 {
-    public static final String STANDARD_BACKGROUND_COLOR_NAME = "StandardBackground";
-    public static final String STANDARD_FONT_COLOR_NAME = "StandardFontColor";
+    public static final StringMapping STANDARD_BACKGROUND_COLOR = new StringMapping( "StandardBackground", "#00000096" );
+    public static final StringMapping STANDARD_FONT_COLOR = new StringMapping( "StandardFontColor", "#C0BC3D" );
     
+    public static final String BLACK_TRANSPARENT = "#00000000";
     public static final Color FALLBACK_COLOR = Color.MAGENTA;
     
     private final String defaultValue;
@@ -52,11 +54,11 @@ public class ColorProperty extends Property
     
     public static String getDefaultNamedColorValue( String name )
     {
-        if ( name.equals( STANDARD_BACKGROUND_COLOR_NAME ) )
-            return ( "#00000096" );
+        if ( name.equals( STANDARD_BACKGROUND_COLOR.getKey() ) )
+            return ( STANDARD_BACKGROUND_COLOR.getValue() );
         
-        if ( name.equals( STANDARD_FONT_COLOR_NAME ) )
-            return ( "#C0BC3D" );
+        if ( name.equals( STANDARD_FONT_COLOR.getKey() ) )
+            return ( STANDARD_FONT_COLOR.getValue() );
         
         return ( null );
     }

@@ -22,18 +22,17 @@ import java.io.IOException;
 
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
 import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.IntValue;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -47,10 +46,53 @@ public class TinyPositionWidget extends Widget
     
     private final IntValue v = new IntValue();
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public TinyPositionWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_EXTRA );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE_EXTRA, 9.3f, 5.1f );
+        
+        getBorderProperty().setBorder( "" );
+        getBackgroundProperty().setColorValue( "#00000000" );
+        getFontProperty().setFont( "DS-DIGITAL", Font.PLAIN, 60, true, true );
+        getFontColorProperty().setColor( "#BBBBBB" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "DS-DIGITAL", Font.PLAIN, 22, false, true );
+        getFontColorProperty().setColor( "#666666" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
     }
     
     /**
@@ -85,55 +127,5 @@ public class TinyPositionWidget extends Widget
         {
             ds.draw( offsetX, offsetY, place + "/" + num, texture );
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "DS-DIGITAL", Font.PLAIN, 22, false, true );
-        getFontColorProperty().setColor( "#666666" );
-    }
-    
-    public TinyPositionWidget()
-    {
-        super( 9.3f, 5.1f );
-        
-        getBorderProperty().setBorder( "" );
-        getBackgroundProperty().setColorValue( "#00000000" );
-        getFontProperty().setFont( "DS-DIGITAL", Font.PLAIN, 60, true, true );
-        getFontColorProperty().setColor( "#BBBBBB" );
     }
 }

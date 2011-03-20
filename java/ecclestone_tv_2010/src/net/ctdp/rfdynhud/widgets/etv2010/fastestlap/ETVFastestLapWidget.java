@@ -41,6 +41,7 @@ import net.ctdp.rfdynhud.values.FloatValue;
 import net.ctdp.rfdynhud.widgets.etv2010._base.ETVTimingWidgetBase;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVImages.BGType;
 import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVWidgetSet;
 
 /**
  * The {@link ETVFastestLapWidget} displays the current lap time.
@@ -59,6 +60,44 @@ public class ETVFastestLapWidget extends ETVTimingWidgetBase
     private DrawnString laptimeString = null;
     
     private static final FloatValue fastestLaptime = new FloatValue();
+    
+    public ETVFastestLapWidget()
+    {
+        super( ETVWidgetSet.INSTANCE, ETVWidgetSet.WIDGET_PACKAGE, 26.75f, 5.6f );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( visibleTime, "Time in seconds to keep the Widget visible." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( visibleTime ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
+        
+        propsCont.addProperty( visibleTime );
+    }
     
     private void updateFastestLap( ScoringInfo scoringInfo )
     {
@@ -220,44 +259,5 @@ public class ETVFastestLapWidget extends ETVTimingWidgetBase
             captionString.draw( offsetX, offsetY, Loc.caption_fastestLap, texture, false );;
             laptimeString.draw( offsetX, offsetY, TimingUtil.getTimeAsLaptimeString( fastestLaptime.getValue() ), texture, false );;
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( visibleTime, "Time in seconds to keep the Widget visible." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( visibleTime ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addVisibilityPropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.addVisibilityPropertiesToContainer( propsCont, forceAll );
-        
-        propsCont.addProperty( visibleTime );
-    }
-    
-    public ETVFastestLapWidget()
-    {
-        super( 26.75f, 5.6f );
     }
 }

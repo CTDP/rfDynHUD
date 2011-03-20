@@ -23,13 +23,7 @@ import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 public class AssembledWidget extends AbstractAssembledWidget
 {
-    private static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Extra", WidgetPackage.composeVersion( 1, 2, 0 ), WidgetPackage.CTDP_ICON, WidgetPackage.EXTRA_ICON );
-    
-    @Override
-    public WidgetPackage getWidgetPackage()
-    {
-        return ( WIDGET_PACKAGE );
-    }
+    private static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( null, "CTDP/Extra", WidgetPackage.CTDP_ICON, WidgetPackage.EXTRA_ICON );
     
     @Override
     protected void arrangeParts( Widget[] parts )
@@ -51,7 +45,7 @@ public class AssembledWidget extends AbstractAssembledWidget
      */
     public AssembledWidget( boolean initParts )
     {
-        super( 33.6f, true, 23.0f, true, false );
+        super( null, WIDGET_PACKAGE, 33.6f, true, 23.0f, true, false );
     }
     
     public AssembledWidget()

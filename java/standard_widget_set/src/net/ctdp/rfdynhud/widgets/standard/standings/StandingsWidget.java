@@ -24,32 +24,31 @@ import java.util.Arrays;
 import net.ctdp.rfdynhud.gamedata.FinishStatus;
 import net.ctdp.rfdynhud.gamedata.GamePhase;
 import net.ctdp.rfdynhud.gamedata.LiveGameData;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.gamedata.ScoringInfo;
 import net.ctdp.rfdynhud.gamedata.SessionType;
 import net.ctdp.rfdynhud.gamedata.VehicleScoringInfo;
-import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
 import net.ctdp.rfdynhud.input.InputAction;
 import net.ctdp.rfdynhud.properties.BooleanProperty;
 import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.EnumProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnString;
+import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.render.DrawnString.Alignment;
 import net.ctdp.rfdynhud.util.NumberUtil;
+import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.util.StandingsTools;
 import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.TimingUtil;
-import net.ctdp.rfdynhud.util.PropertyWriter;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.values.LongValue;
 import net.ctdp.rfdynhud.values.NameDisplayType;
 import net.ctdp.rfdynhud.values.StandingsView;
 import net.ctdp.rfdynhud.widgets.base.widget.StatefulWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 
 /**
@@ -105,10 +104,106 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
     
     private final float[] relTimes = new float[ 64 ];
     
-    @Override
-    public WidgetPackage getWidgetPackage()
+    public StandingsWidget()
     {
-        return ( StandardWidgetSet.WIDGET_PACKAGE_TIMING );
+        super( StandardWidgetSet.INSTANCE, StandardWidgetSet.WIDGET_PACKAGE_TIMING, 36.328125f, 14.916667f );
+        
+        getFontProperty().setFont( StandardWidgetSet.BIGGER_FONT.getKey() );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void prepareForMenuItem()
+    {
+        super.prepareForMenuItem();
+        
+        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( fontColor_me, "The font color used for myself in the format #RRGGBB (hex)." );
+        writer.writeProperty( fontColor_out, "The font color used for retired drivers in the format #RRGGBB (hex)." );
+        writer.writeProperty( fontColor_finished, "The font color used for finished drivers in the format #RRGGBB (hex)." );
+        writer.writeProperty( useAutoWidth, "Automatically compute and display the width?" );
+        writer.writeProperty( initialView, "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
+        //writer.writeProperty( allowAbsTimesView, "" );
+        //writer.writeProperty( allowRelToLeaderView, "" );
+        //writer.writeProperty( allowRelToMeView, "" );
+        writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
+        writer.writeProperty( nameDisplayType, "How to display driver names." );
+        writer.writeProperty( showLapsOrStops, "Whether to show the number of laps or stops done or not." );
+        writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
+        writer.writeProperty( showTopspeeds, "Whether to show a topspeeds column or not." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( fontColor_me ) );
+        else if ( loader.loadProperty( fontColor_out ) );
+        else if ( loader.loadProperty( fontColor_finished ) );
+        else if ( loader.loadProperty( useAutoWidth ) );
+        else if ( loader.loadProperty( initialView ) );
+        //else if ( loader.loadProperty( allowAbsTimesView ) );
+        //else if ( loader.loadProperty( allowRelToLeaderView ) );
+        //else if ( loader.loadProperty( allowRelToMeView ) );
+        else if ( loader.loadProperty( forceLeaderDisplayed ) );
+        else if ( loader.loadProperty( nameDisplayType ) );
+        else if ( loader.loadProperty( showLapsOrStops ) );
+        else if ( loader.loadProperty( abbreviate ) );
+        else if ( loader.loadProperty( showTopspeeds ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void addPositionAndSizePropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.addPositionAndSizePropertiesToContainer( propsCont, forceAll );
+        
+        propsCont.addProperty( useAutoWidth );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Misc" );
+        
+        propsCont.addProperty( fontColor_me );
+        propsCont.addProperty( fontColor_out );
+        propsCont.addProperty( fontColor_finished );
+        
+        propsCont.addProperty( initialView );
+        //propsCont.addProperty( allowAbsTimesView );
+        //propsCont.addProperty( allowRelToLeaderView );
+        //propsCont.addProperty( allowRelToMeView );
+        
+        propsCont.addProperty( forceLeaderDisplayed );
+        propsCont.addProperty( nameDisplayType );
+        propsCont.addProperty( showLapsOrStops );
+        if ( forceAll || showLapsOrStops.getBooleanValue() )
+            propsCont.addProperty( abbreviate );
+        propsCont.addProperty( showTopspeeds );
     }
     
     /**
@@ -1004,108 +1099,5 @@ public class StandingsWidget extends StatefulWidget<Object, LocalStore>
                 oldPosStrings[i] = currPosStrings[i];
             }
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( fontColor_me, "The font color used for myself in the format #RRGGBB (hex)." );
-        writer.writeProperty( fontColor_out, "The font color used for retired drivers in the format #RRGGBB (hex)." );
-        writer.writeProperty( fontColor_finished, "The font color used for finished drivers in the format #RRGGBB (hex)." );
-        writer.writeProperty( useAutoWidth, "Automatically compute and display the width?" );
-        writer.writeProperty( initialView, "the initial kind of standings view. Valid values: RELATIVE_TO_LEADER, RELATIVE_TO_ME." );
-        //writer.writeProperty( allowAbsTimesView, "" );
-        //writer.writeProperty( allowRelToLeaderView, "" );
-        //writer.writeProperty( allowRelToMeView, "" );
-        writer.writeProperty( forceLeaderDisplayed, "Display leader regardless of maximum displayed drivers setting?" );
-        writer.writeProperty( nameDisplayType, "How to display driver names." );
-        writer.writeProperty( showLapsOrStops, "Whether to show the number of laps or stops done or not." );
-        writer.writeProperty( abbreviate, "Whether to abbreviate \"Stops\", or not." );
-        writer.writeProperty( showTopspeeds, "Whether to show a topspeeds column or not." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( fontColor_me ) );
-        else if ( loader.loadProperty( fontColor_out ) );
-        else if ( loader.loadProperty( fontColor_finished ) );
-        else if ( loader.loadProperty( useAutoWidth ) );
-        else if ( loader.loadProperty( initialView ) );
-        //else if ( loader.loadProperty( allowAbsTimesView ) );
-        //else if ( loader.loadProperty( allowRelToLeaderView ) );
-        //else if ( loader.loadProperty( allowRelToMeView ) );
-        else if ( loader.loadProperty( forceLeaderDisplayed ) );
-        else if ( loader.loadProperty( nameDisplayType ) );
-        else if ( loader.loadProperty( showLapsOrStops ) );
-        else if ( loader.loadProperty( abbreviate ) );
-        else if ( loader.loadProperty( showTopspeeds ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void addPositionAndSizePropertiesToContainer( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.addPositionAndSizePropertiesToContainer( propsCont, forceAll );
-        
-        propsCont.addProperty( useAutoWidth );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Misc" );
-        
-        propsCont.addProperty( fontColor_me );
-        propsCont.addProperty( fontColor_out );
-        propsCont.addProperty( fontColor_finished );
-        
-        propsCont.addProperty( initialView );
-        //propsCont.addProperty( allowAbsTimesView );
-        //propsCont.addProperty( allowRelToLeaderView );
-        //propsCont.addProperty( allowRelToMeView );
-        
-        propsCont.addProperty( forceLeaderDisplayed );
-        propsCont.addProperty( nameDisplayType );
-        propsCont.addProperty( showLapsOrStops );
-        if ( forceAll || showLapsOrStops.getBooleanValue() )
-            propsCont.addProperty( abbreviate );
-        propsCont.addProperty( showTopspeeds );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        getFontProperty().setFont( "Dialog", Font.PLAIN, 5, false, true );
-    }
-    
-    public StandingsWidget()
-    {
-        super( 36.328125f, 14.916667f );
-        
-        getFontProperty().setFont( "BiggerFont" );
     }
 }

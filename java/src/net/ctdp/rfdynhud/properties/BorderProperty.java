@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.properties;
 
 import net.ctdp.rfdynhud.render.BorderCache;
 import net.ctdp.rfdynhud.render.BorderWrapper;
+import net.ctdp.rfdynhud.util.StringMapping;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -29,7 +30,7 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
  */
 public class BorderProperty extends Property
 {
-    public static final String DEFAULT_BORDER_NAME = "StandardBorder";
+    public static final StringMapping DEFAULT_BORDER = new StringMapping( "StandardBorder", "backgroundcolor_border.ini" );
     
     private final String defaultValue;
     
@@ -52,8 +53,8 @@ public class BorderProperty extends Property
     
     public static String getDefaultBorderValue( String name )
     {
-        if ( name.equals( DEFAULT_BORDER_NAME ) )
-            return ( "backgroundcolor_border.ini" );
+        if ( name.equals( DEFAULT_BORDER.getKey() ) )
+            return ( DEFAULT_BORDER.getValue() );
         
         return ( null );
     }

@@ -23,6 +23,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import net.ctdp.rfdynhud.util.FontUtils;
+import net.ctdp.rfdynhud.util.StringMapping;
 import net.ctdp.rfdynhud.widgets.WidgetsConfiguration;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
 
@@ -33,12 +34,7 @@ import net.ctdp.rfdynhud.widgets.base.widget.Widget;
  */
 public class FontProperty extends Property
 {
-    public static final String STANDARD_FONT_NAME = "StandardFont";
-    public static final String STANDARD_FONT2_NAME = "StandardFont2";
-    public static final String STANDARD_FONT3_NAME = "StandardFont3";
-    public static final String SMALLER_FONT_NAME = "SmallerFont";
-    public static final String SMALLER_FONT3_NAME = "SmallerFont3";
-    public static final String BIGGER_FONT_NAME = "BiggerFont";
+    public static final StringMapping STANDARD_FONT = new StringMapping( "StandardFont", FontUtils.getFontString( "Dialog", Font.BOLD, 13, true, true ) );
     
     private static final BufferedImage METRICS_PROVIDER_IMAGE = new BufferedImage( 16, 16, BufferedImage.TYPE_INT_BGR );
     private static final Graphics2D METRICS_PROVIDER = METRICS_PROVIDER_IMAGE.createGraphics();
@@ -62,23 +58,8 @@ public class FontProperty extends Property
     
     public static String getDefaultNamedFontValue( String name )
     {
-        if ( name.equals( STANDARD_FONT_NAME ) )
-            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 13, true, true ) );
-        
-        if ( name.equals( STANDARD_FONT2_NAME ) )
-            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 12, true, true ) );
-        
-        if ( name.equals( STANDARD_FONT3_NAME ) )
-            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 11, true, true ) );
-        
-        if ( name.equals( SMALLER_FONT_NAME ) )
-            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 13, true, true ) );
-        
-        if ( name.equals( SMALLER_FONT3_NAME ) )
-            return ( FontUtils.getFontString( "Dialog", Font.BOLD, 9, true, true ) );
-        
-        if ( name.equals( BIGGER_FONT_NAME ) )
-            return ( FontUtils.getFontString( "Dialog", Font.PLAIN, 14, true, true ) );
+        if ( name.equals( STANDARD_FONT.getKey() ) )
+            return ( STANDARD_FONT.getValue() );
         
         return ( null );
     }

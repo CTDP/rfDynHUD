@@ -18,102 +18,18 @@
 package net.ctdp.rfdynhud.widgets.etv2010._util;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
-import net.ctdp.rfdynhud.util.FontUtils;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
 
 import org.openmali.types.twodee.Rect2i;
 
 public class ETVUtils
 {
-    public static final WidgetPackage WIDGET_PACKAGE = new WidgetPackage( "CTDP/Ecclestone TV 2010", WidgetPackage.composeVersion( 1, 2, 0 ), WidgetPackage.CTDP_ICON, ETVUtils.class.getClassLoader().getResource( "net/ctdp/rfdynhud/widgets/etv2010/etv2010.png" ) );
-    
     private static final boolean AA_TRIANGLE = true;
-    
-    public static final String ETV_CAPTION_BACKGROUND_COLOR = "ETVCaptionBackgroundColor";
-    public static final String ETV_CAPTION_BACKGROUND_COLOR_1ST = "ETVCaptionBackgroundColor1st";
-    public static final String ETV_CAPTION_FONT_COLOR = "ETVCaptionFontColor";
-    public static final String ETV_DATA_BACKGROUND_COLOR_1ST = "ETVDataBackgroundColor1st";
-    public static final String ETV_DATA_BACKGROUND_COLOR = "ETVDataBackgroundColor";
-    public static final String ETV_DATA_BACKGROUND_COLOR_FASTEST = "ETVDataBackgroundColorFastest";
-    public static final String ETV_DATA_BACKGROUND_COLOR_FASTER = "ETVDataBackgroundColorFaster";
-    public static final String ETV_DATA_BACKGROUND_COLOR_SLOWER = "ETVDataBackgroundColorSlower";
-    public static final String ETV_DATA_FONT_COLOR = "ETVDataFontColor";
-    public static final String ETV_DATA_FONT_COLOR_FASTEST = "ETVDataFontColorFasterst";
-    public static final String ETV_DATA_FONT_COLOR_FASTER = "ETVDataFontColorFaster";
-    public static final String ETV_DATA_FONT_COLOR_SLOWER = "ETVDataFontColorSlower";
-    public static final String ETV_FONT = "ETVFont";
-    public static final String ETV_VELOCITY_FONT = "ETVVelocityFont";
-    public static final String ETV_REV_MARKERS_FONT = "ETVRevMarkersFont";
-    public static final String ETV_GEAR_FONT = "ETVGearFont";
-    public static final String ETV_CONTROLS_LABEL_FONT = "ETVControlsLabelFont";
-    
-    public static String getDefaultNamedColorValue( String name )
-    {
-        if ( name.equals( ETV_CAPTION_BACKGROUND_COLOR ) )
-            return ( "#787878" );
-        
-        if ( name.equals( ETV_CAPTION_BACKGROUND_COLOR_1ST ) )
-            return ( "#B10000" );
-        
-        if ( name.equals( ETV_CAPTION_FONT_COLOR ) )
-            return ( "#FFFFFF" );
-        
-        if ( name.equals( ETV_DATA_BACKGROUND_COLOR_1ST ) )
-            return ( "#230000" );
-        
-        if ( name.equals( ETV_DATA_BACKGROUND_COLOR ) )
-            return ( "#000000" );
-        
-        if ( name.equals( ETV_DATA_BACKGROUND_COLOR_FASTEST ) )
-            return ( "#C000D2" );
-        
-        if ( name.equals( ETV_DATA_BACKGROUND_COLOR_FASTER ) )
-            return ( "#008800" );
-        
-        if ( name.equals( ETV_DATA_BACKGROUND_COLOR_SLOWER ) )
-            return ( "#BAB802" );
-        
-        if ( name.equals( ETV_DATA_FONT_COLOR ) )
-            return ( "#FFFFFF" );
-        
-        if ( name.equals( ETV_DATA_FONT_COLOR_FASTEST ) )
-            return ( "#000000" );
-        
-        if ( name.equals( ETV_DATA_FONT_COLOR_FASTER ) )
-            return ( "#FFFFFF" );
-        
-        if ( name.equals( ETV_DATA_FONT_COLOR_SLOWER ) )
-            return ( "#000000" );
-        
-        return ( null );
-    }
-    
-    public static String getDefaultNamedFontValue( String name )
-    {
-        if ( name.equals( ETV_FONT ) )
-            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 16, true, true ) );
-        
-        if ( name.equals( ETV_VELOCITY_FONT ) )
-            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 18, true, true ) );
-        
-        if ( name.equals( ETV_REV_MARKERS_FONT ) )
-            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 18, true, true ) );
-        
-        if ( name.equals( ETV_GEAR_FONT ) )
-            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 30, true, true ) );
-        
-        if ( name.equals( ETV_CONTROLS_LABEL_FONT ) )
-            return ( FontUtils.getFontString( "DokChampa", Font.BOLD, 18, true, true ) );
-        
-        return ( null );
-    }
     
     public static final int getTriangleWidth( int itemHeight )
     {

@@ -33,19 +33,18 @@ import net.ctdp.rfdynhud.properties.ColorProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.ImageProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
-import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.ImageTemplate;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
 import net.ctdp.rfdynhud.render.TextureImage2D;
 import net.ctdp.rfdynhud.render.TransformableTexture;
-import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.util.PropertyWriter;
+import net.ctdp.rfdynhud.util.SubTextureCollector;
 import net.ctdp.rfdynhud.valuemanagers.Clock;
 import net.ctdp.rfdynhud.widgets.base.revneedlemeter.AbstractRevNeedleMeterWidget;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-import net.ctdp.rfdynhud.widgets.base.widget.WidgetPackage;
-import net.ctdp.rfdynhud.widgets.etv2010._util.ETVUtils;
+import net.ctdp.rfdynhud.widgets.etv2010._util.ETVWidgetSet;
 
 /**
  * This {@link Widget} attempts to imitate the 2010er TV overlay for F1 telemetry
@@ -60,8 +59,8 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
     
     private final BooleanProperty displayVelocityNumbers = new BooleanProperty( "displayVelocityNumbers", "displayNumbers", true );
     
-    private final FontProperty velocityNumberFont = new FontProperty( "velocityNumberFont", "font", ETVUtils.ETV_VELOCITY_FONT, false );
-    private final ColorProperty velocityNumberFontColor = new ColorProperty( "velocityNumberFontColor", "color", ETVUtils.ETV_CAPTION_FONT_COLOR, false );
+    private final FontProperty velocityNumberFont = new FontProperty( "velocityNumberFont", "font", ETVWidgetSet.ETV_VELOCITY_FONT.getKey(), false );
+    private final ColorProperty velocityNumberFontColor = new ColorProperty( "velocityNumberFontColor", "color", ETVWidgetSet.ETV_CAPTION_FONT_COLOR.getKey(), false );
     
     private final IntProperty velocityNumber1PosX = new IntProperty( "velocityNumber1PosX", "pos1X", 270 );
     private final IntProperty velocityNumber1PosY = new IntProperty( "velocityNumber1PosY", "pos1Y", 620 );
@@ -155,7 +154,7 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         }
     };
     
-    private final FontProperty controlsLabelFont = new FontProperty( "controlsLabelFont", "labelFont", ETVUtils.ETV_CONTROLS_LABEL_FONT )
+    private final FontProperty controlsLabelFont = new FontProperty( "controlsLabelFont", "labelFont", ETVWidgetSet.ETV_CONTROLS_LABEL_FONT.getKey() )
     {
         @Override
         protected void onValueChanged( String oldValue, String newValue )
@@ -185,24 +184,193 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         }
     };
     
+    public ETVTelemetryWidget()
+    {
+        super( ETVWidgetSet.INSTANCE, ETVWidgetSet.WIDGET_PACKAGE, 19.6915f, 21.75f );
+        
+        minValue.setFloatValue( 4000 );
+        
+        displayMarkers.setBooleanValue( false );
+        markersInnerRadius.setIntValue( 170 );
+        markersLength.setIntValue( 50 );
+        markersOnCircle.setBooleanValue( true );
+        firstMarkerNumberOffset.setFloatValue( +5 );
+        lastMarkerNumberOffset.setFloatValue( -5 );
+        markersBigStep.setIntValue( 2000 );
+        markersSmallStep.setIntValue( 1000 );
+        markersFont.setFont( ETVWidgetSet.ETV_REV_MARKERS_FONT.getKey() );
+        markersFontColor.setColor( "#FFFFFF" );
+        markersFontDropShadowColor.setColor( "#000000" );
+        markerNumbersCentered.setBooleanValue( true );
+        
+        needlePivotBottomOffset.setIntValue( -171 );
+        peakNeedlePivotBottomOffset.setIntValue( -226 );
+        
+        needleMountX.setIntValue( 506 );
+        needleMountY.setIntValue( 350 );
+        
+        needleRotationForMinValue.setFloatValue( -178 );
+        needleRotationForMaxValue.setFloatValue( +72.5f );
+        
+        displayValue.setBooleanValue( false );
+        displayGear.setBooleanValue( true );
+        gearPosX.setIntValue( 510 );
+        gearPosY.setIntValue( 345 );
+        gearFont.setFont( ETVWidgetSet.ETV_GEAR_FONT.getKey() );
+        gearFontColor.setColor( "#D9E0EB" );
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getDefaultNamedFontValue( String name )
+    public void prepareForMenuItem()
     {
-        String result = super.getDefaultNamedFontValue( name );
+        super.prepareForMenuItem();
         
-        if ( result != null )
-            return ( result );
-        
-        return ( ETVUtils.getDefaultNamedFontValue( name ) );
+        controlsLabelFont.setFont( "Dialog", Font.PLAIN, 4, false, true );
+        velocityNumberFont.setFont( "Dialog", Font.PLAIN, 4, false, true );
     }
     
     @Override
-    public WidgetPackage getWidgetPackage()
+    protected void saveDigiValueProperties( PropertyWriter writer ) throws IOException
     {
-        return ( ETVUtils.WIDGET_PACKAGE );
+        // We don't need these here!
+    }
+    
+    @Override
+    protected void getDigiValueProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        // We don't need these here!
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveProperties( PropertyWriter writer ) throws IOException
+    {
+        super.saveProperties( writer );
+        
+        writer.writeProperty( displayVelocityNumbers, "Display nicely positioned velocity numbers?" );
+        
+        writer.writeProperty( velocityNumberFont, "The font for the velocity numbers." );
+        writer.writeProperty( velocityNumberFontColor, "The font color for the velocity numbers." );
+        
+        writer.writeProperty( velocityNumber1PosX, "The x-position in background texture space for the first velocity number." );
+        writer.writeProperty( velocityNumber1PosY, "The y-position in background texture space for the first velocity number." );
+        writer.writeProperty( velocity2, "The second velocity." );
+        writer.writeProperty( velocityNumber2PosX, "The x-position in background texture space for the second velocity number." );
+        writer.writeProperty( velocity3, "The third velocity." );
+        writer.writeProperty( velocityNumber3PosX, "The x-position in background texture space for the third velocity number." );
+        writer.writeProperty( velocityNumber4PosX, "The x-position in background texture space for the fourth velocity number." );
+        writer.writeProperty( velocityNumber4PosY, "The y-position in background texture space for the fourth velocity number." );
+        writer.writeProperty( velocityUnitsPosX, "The x-position in background texture space for te units display." );
+        writer.writeProperty( velocityUnitsPosY, "The y-position in background texture space for te units display." );
+        
+        writer.writeProperty( maxVelocity, "The maximum velocity in km/h." );
+        writer.writeProperty( maxVelocityOverlay, "The image name for the max velocity overlay." );
+        writer.writeProperty( maxVelocityLeftOffset, "The x-offset in background image space for the max velocity overlay." );
+        writer.writeProperty( maxVelocityTopOffset, "The y-offset in background image space for the max velocity overlay." );
+        
+        writer.writeProperty( throttleImage, "The image for the throttle gauge." );
+        writer.writeProperty( brakeImage, "The image for the brake gauge." );
+        writer.writeProperty( controlsPosX, "The x-offset in background image space for the controls display." );
+        writer.writeProperty( controlsPosY, "The y-offset in background image space for the controls display." );
+        writer.writeProperty( controlsWidth, "The width in background image space for the controls display." );
+        writer.writeProperty( controlsHeight, "The height in background image space for the controls display." );
+        writer.writeProperty( controlsGap, "The gap in pixels between the throttle and brake bars." );
+        writer.writeProperty( controlsLabelFont, "The font for the controls labels." );
+        writer.writeProperty( controlsLabelFontColor, "The font color for the controls labels." );
+        writer.writeProperty( controlsLabelOffset, "The offset for bar text from the left boundary of the bar." );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadProperty( PropertyLoader loader )
+    {
+        super.loadProperty( loader );
+        
+        if ( loader.loadProperty( displayVelocityNumbers ) );
+        else if ( loader.loadProperty( velocityNumberFont ) );
+        else if ( loader.loadProperty( velocityNumberFont ) );
+        else if ( loader.loadProperty( velocityNumber1PosX ) );
+        else if ( loader.loadProperty( velocityNumber1PosY ) );
+        else if ( loader.loadProperty( velocity2 ) );
+        else if ( loader.loadProperty( velocityNumber2PosX ) );
+        else if ( loader.loadProperty( velocity3 ) );
+        else if ( loader.loadProperty( velocityNumber3PosX ) );
+        else if ( loader.loadProperty( velocityNumber4PosX ) );
+        else if ( loader.loadProperty( velocityNumber4PosY ) );
+        else if ( loader.loadProperty( velocityUnitsPosX ) );
+        else if ( loader.loadProperty( velocityUnitsPosY ) );
+        
+        else if ( loader.loadProperty( maxVelocity ) );
+        else if ( loader.loadProperty( maxVelocityOverlay ) );
+        else if ( loader.loadProperty( maxVelocityLeftOffset ) );
+        else if ( loader.loadProperty( maxVelocityTopOffset ) );
+        
+        else if ( loader.loadProperty( throttleImage ) );
+        else if ( loader.loadProperty( brakeImage ) );
+        else if ( loader.loadProperty( controlsPosX ) );
+        else if ( loader.loadProperty( controlsPosY ) );
+        else if ( loader.loadProperty( controlsWidth ) );
+        else if ( loader.loadProperty( controlsHeight ) );
+        else if ( loader.loadProperty( controlsGap ) );
+        else if ( loader.loadProperty( controlsLabelFont ) );
+        else if ( loader.loadProperty( controlsLabelFontColor ) );
+        else if ( loader.loadProperty( controlsLabelOffset ) );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
+    {
+        super.getProperties( propsCont, forceAll );
+        
+        propsCont.addGroup( "Velocity Numbers" );
+        
+        propsCont.addProperty( displayVelocityNumbers );
+        
+        if ( displayVelocityNumbers.getBooleanValue() || forceAll )
+        {
+            propsCont.addProperty( velocityNumberFont );
+            propsCont.addProperty( velocityNumberFontColor );
+            propsCont.addProperty( velocityNumber1PosX );
+            propsCont.addProperty( velocityNumber1PosY );
+            propsCont.addProperty( velocity2 );
+            propsCont.addProperty( velocityNumber2PosX );
+            propsCont.addProperty( velocity3 );
+            propsCont.addProperty( velocityNumber3PosX );
+            propsCont.addProperty( velocityNumber4PosX );
+            propsCont.addProperty( velocityNumber4PosY );
+            propsCont.addProperty( velocityUnitsPosX );
+            propsCont.addProperty( velocityUnitsPosY );
+        }
+        
+        propsCont.addGroup( "Max Velocity Overlay" );
+        
+        propsCont.addProperty( maxVelocity );
+        propsCont.addProperty( maxVelocityOverlay );
+        propsCont.addProperty( maxVelocityLeftOffset );
+        propsCont.addProperty( maxVelocityTopOffset );
+        
+        propsCont.addGroup( "Controls" );
+        
+        propsCont.addProperty( throttleImage );
+        propsCont.addProperty( brakeImage );
+        propsCont.addProperty( controlsPosX );
+        propsCont.addProperty( controlsPosY );
+        propsCont.addProperty( controlsWidth );
+        propsCont.addProperty( controlsHeight );
+        propsCont.addProperty( controlsGap );
+        propsCont.addProperty( controlsLabelFont );
+        propsCont.addProperty( controlsLabelFontColor );
+        propsCont.addProperty( controlsLabelOffset );
     }
     
     @Override
@@ -495,194 +663,5 @@ public class ETVTelemetryWidget extends AbstractRevNeedleMeterWidget
         
         texThrottle2.setClipRect( 0, 0, throttle, texThrottle2.getHeight(), true );
         texBrake2.setClipRect( 0, 0, brake, texBrake2.getHeight(), true );
-    }
-    
-    @Override
-    protected void saveDigiValueProperties( PropertyWriter writer ) throws IOException
-    {
-        // We don't need these here!
-    }
-    
-    @Override
-    protected void getDigiValueProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        // We don't need these here!
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveProperties( PropertyWriter writer ) throws IOException
-    {
-        super.saveProperties( writer );
-        
-        writer.writeProperty( displayVelocityNumbers, "Display nicely positioned velocity numbers?" );
-        
-        writer.writeProperty( velocityNumberFont, "The font for the velocity numbers." );
-        writer.writeProperty( velocityNumberFontColor, "The font color for the velocity numbers." );
-        
-        writer.writeProperty( velocityNumber1PosX, "The x-position in background texture space for the first velocity number." );
-        writer.writeProperty( velocityNumber1PosY, "The y-position in background texture space for the first velocity number." );
-        writer.writeProperty( velocity2, "The second velocity." );
-        writer.writeProperty( velocityNumber2PosX, "The x-position in background texture space for the second velocity number." );
-        writer.writeProperty( velocity3, "The third velocity." );
-        writer.writeProperty( velocityNumber3PosX, "The x-position in background texture space for the third velocity number." );
-        writer.writeProperty( velocityNumber4PosX, "The x-position in background texture space for the fourth velocity number." );
-        writer.writeProperty( velocityNumber4PosY, "The y-position in background texture space for the fourth velocity number." );
-        writer.writeProperty( velocityUnitsPosX, "The x-position in background texture space for te units display." );
-        writer.writeProperty( velocityUnitsPosY, "The y-position in background texture space for te units display." );
-        
-        writer.writeProperty( maxVelocity, "The maximum velocity in km/h." );
-        writer.writeProperty( maxVelocityOverlay, "The image name for the max velocity overlay." );
-        writer.writeProperty( maxVelocityLeftOffset, "The x-offset in background image space for the max velocity overlay." );
-        writer.writeProperty( maxVelocityTopOffset, "The y-offset in background image space for the max velocity overlay." );
-        
-        writer.writeProperty( throttleImage, "The image for the throttle gauge." );
-        writer.writeProperty( brakeImage, "The image for the brake gauge." );
-        writer.writeProperty( controlsPosX, "The x-offset in background image space for the controls display." );
-        writer.writeProperty( controlsPosY, "The y-offset in background image space for the controls display." );
-        writer.writeProperty( controlsWidth, "The width in background image space for the controls display." );
-        writer.writeProperty( controlsHeight, "The height in background image space for the controls display." );
-        writer.writeProperty( controlsGap, "The gap in pixels between the throttle and brake bars." );
-        writer.writeProperty( controlsLabelFont, "The font for the controls labels." );
-        writer.writeProperty( controlsLabelFontColor, "The font color for the controls labels." );
-        writer.writeProperty( controlsLabelOffset, "The offset for bar text from the left boundary of the bar." );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadProperty( PropertyLoader loader )
-    {
-        super.loadProperty( loader );
-        
-        if ( loader.loadProperty( displayVelocityNumbers ) );
-        else if ( loader.loadProperty( velocityNumberFont ) );
-        else if ( loader.loadProperty( velocityNumberFont ) );
-        else if ( loader.loadProperty( velocityNumber1PosX ) );
-        else if ( loader.loadProperty( velocityNumber1PosY ) );
-        else if ( loader.loadProperty( velocity2 ) );
-        else if ( loader.loadProperty( velocityNumber2PosX ) );
-        else if ( loader.loadProperty( velocity3 ) );
-        else if ( loader.loadProperty( velocityNumber3PosX ) );
-        else if ( loader.loadProperty( velocityNumber4PosX ) );
-        else if ( loader.loadProperty( velocityNumber4PosY ) );
-        else if ( loader.loadProperty( velocityUnitsPosX ) );
-        else if ( loader.loadProperty( velocityUnitsPosY ) );
-        
-        else if ( loader.loadProperty( maxVelocity ) );
-        else if ( loader.loadProperty( maxVelocityOverlay ) );
-        else if ( loader.loadProperty( maxVelocityLeftOffset ) );
-        else if ( loader.loadProperty( maxVelocityTopOffset ) );
-        
-        else if ( loader.loadProperty( throttleImage ) );
-        else if ( loader.loadProperty( brakeImage ) );
-        else if ( loader.loadProperty( controlsPosX ) );
-        else if ( loader.loadProperty( controlsPosY ) );
-        else if ( loader.loadProperty( controlsWidth ) );
-        else if ( loader.loadProperty( controlsHeight ) );
-        else if ( loader.loadProperty( controlsGap ) );
-        else if ( loader.loadProperty( controlsLabelFont ) );
-        else if ( loader.loadProperty( controlsLabelFontColor ) );
-        else if ( loader.loadProperty( controlsLabelOffset ) );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getProperties( PropertiesContainer propsCont, boolean forceAll )
-    {
-        super.getProperties( propsCont, forceAll );
-        
-        propsCont.addGroup( "Velocity Numbers" );
-        
-        propsCont.addProperty( displayVelocityNumbers );
-        
-        if ( displayVelocityNumbers.getBooleanValue() || forceAll )
-        {
-            propsCont.addProperty( velocityNumberFont );
-            propsCont.addProperty( velocityNumberFontColor );
-            propsCont.addProperty( velocityNumber1PosX );
-            propsCont.addProperty( velocityNumber1PosY );
-            propsCont.addProperty( velocity2 );
-            propsCont.addProperty( velocityNumber2PosX );
-            propsCont.addProperty( velocity3 );
-            propsCont.addProperty( velocityNumber3PosX );
-            propsCont.addProperty( velocityNumber4PosX );
-            propsCont.addProperty( velocityNumber4PosY );
-            propsCont.addProperty( velocityUnitsPosX );
-            propsCont.addProperty( velocityUnitsPosY );
-        }
-        
-        propsCont.addGroup( "Max Velocity Overlay" );
-        
-        propsCont.addProperty( maxVelocity );
-        propsCont.addProperty( maxVelocityOverlay );
-        propsCont.addProperty( maxVelocityLeftOffset );
-        propsCont.addProperty( maxVelocityTopOffset );
-        
-        propsCont.addGroup( "Controls" );
-        
-        propsCont.addProperty( throttleImage );
-        propsCont.addProperty( brakeImage );
-        propsCont.addProperty( controlsPosX );
-        propsCont.addProperty( controlsPosY );
-        propsCont.addProperty( controlsWidth );
-        propsCont.addProperty( controlsHeight );
-        propsCont.addProperty( controlsGap );
-        propsCont.addProperty( controlsLabelFont );
-        propsCont.addProperty( controlsLabelFontColor );
-        propsCont.addProperty( controlsLabelOffset );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void prepareForMenuItem()
-    {
-        super.prepareForMenuItem();
-        
-        controlsLabelFont.setFont( "Dialog", Font.PLAIN, 4, false, true );
-        velocityNumberFont.setFont( "Dialog", Font.PLAIN, 4, false, true );
-    }
-    
-    public ETVTelemetryWidget()
-    {
-        super( 19.6915f, 21.75f );
-        
-        minValue.setFloatValue( 4000 );
-        
-        displayMarkers.setBooleanValue( false );
-        markersInnerRadius.setIntValue( 170 );
-        markersLength.setIntValue( 50 );
-        markersOnCircle.setBooleanValue( true );
-        firstMarkerNumberOffset.setFloatValue( +5 );
-        lastMarkerNumberOffset.setFloatValue( -5 );
-        markersBigStep.setIntValue( 2000 );
-        markersSmallStep.setIntValue( 1000 );
-        markersFont.setFont( ETVUtils.ETV_REV_MARKERS_FONT );
-        markersFontColor.setColor( "#FFFFFF" );
-        markersFontDropShadowColor.setColor( "#000000" );
-        markerNumbersCentered.setBooleanValue( true );
-        
-        needlePivotBottomOffset.setIntValue( -171 );
-        peakNeedlePivotBottomOffset.setIntValue( -226 );
-        
-        needleMountX.setIntValue( 506 );
-        needleMountY.setIntValue( 350 );
-        
-        needleRotationForMinValue.setFloatValue( -178 );
-        needleRotationForMaxValue.setFloatValue( +72.5f );
-        
-        displayValue.setBooleanValue( false );
-        displayGear.setBooleanValue( true );
-        gearPosX.setIntValue( 510 );
-        gearPosY.setIntValue( 345 );
-        gearFont.setFont( ETVUtils.ETV_GEAR_FONT );
-        gearFontColor.setColor( "#D9E0EB" );
     }
 }
