@@ -53,6 +53,7 @@ import net.ctdp.rfdynhud.widgets.standard._util.StandardWidgetSet;
 public class TimingWidget extends Widget
 {
     private final BooleanProperty displayAbsFastest = new BooleanProperty( "displayAbsFastest", true );
+    private final BooleanProperty displayOwnFastest = new BooleanProperty( "displayOwnFastest", true );
     private final BooleanProperty cumulativeSectors = new BooleanProperty( "cumulativeSectors", false );
     private final BooleanProperty forceCurrentCumulSectors = new BooleanProperty( "forceCurrentCumulSectors", "forceCurrCumulSects", true );
     private final IntProperty lastLapDisplayDelay = new IntProperty( "lastLapDisplayDelay", 10000, -100, Integer.MAX_VALUE ); // ten seconds
@@ -137,6 +138,7 @@ public class TimingWidget extends Widget
         super.saveProperties( writer );
         
         writer.writeProperty( displayAbsFastest, "Display the absolute fastest lap part of the Widget?" );
+        writer.writeProperty( displayOwnFastest, "Display your own fastest lap part of the Widget?" );
         writer.writeProperty( cumulativeSectors, "Display the second sector as a sum?" );
         writer.writeProperty( forceCurrentCumulSectors, "Display the second sector as a sum even if the others not?" );
         writer.writeProperty( lastLapDisplayDelay, "The time for which the last driven lap will keepbeing displayed (in milliseconds)." );
@@ -153,6 +155,7 @@ public class TimingWidget extends Widget
         super.loadProperty( loader );
         
         if ( loader.loadProperty( displayAbsFastest ) );
+        else if ( loader.loadProperty( displayOwnFastest ) );
         else if ( loader.loadProperty( cumulativeSectors ) );
         else if ( loader.loadProperty( forceCurrentCumulSectors ) );
         else if ( loader.loadProperty( lastLapDisplayDelay ) );
@@ -171,6 +174,7 @@ public class TimingWidget extends Widget
         propsCont.addGroup( "Misc" );
         
         propsCont.addProperty( displayAbsFastest );
+        propsCont.addProperty( displayOwnFastest );
         propsCont.addProperty( cumulativeSectors );
         propsCont.addProperty( forceCurrentCumulSectors );
         propsCont.addProperty( lastLapDisplayDelay );
@@ -321,23 +325,44 @@ public class TimingWidget extends Widget
             //yRel = null;
         }
         
-        ownFastestLapHeaderString = dsf.newDrawnString( "ownFastestLapHeaderString", null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        ownSector1String = dsf.newDrawnString( "ownSector1String", null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        ownSector2String = dsf.newDrawnString( "ownSector2String", null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        if ( !cumulativeSectors.getBooleanValue() )
+        if ( displayOwnFastest.getBooleanValue() )
         {
-            ownSector3String = dsf.newDrawnString( "ownSector3String", null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-            yRel = ownSector3String;
+            ownFastestLapHeaderString = dsf.newDrawnString( "ownFastestLapHeaderString", null, yRel, left1, top, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            ownSector1String = dsf.newDrawnString( "ownSector1String", null, ownFastestLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            ownSector2String = dsf.newDrawnString( "ownSector2String", null, ownSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            if ( !cumulativeSectors.getBooleanValue() )
+            {
+                ownSector3String = dsf.newDrawnString( "ownSector3String", null, ownSector2String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+                yRel = ownSector3String;
+            }
+            else
+            {
+                ownSector3String = null;
+                yRel = ownSector2String;
+            }
+            ownFastestLapString = dsf.newDrawnString( "ownFastestLapString", null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            yRel = ownFastestLapString;
         }
         else
         {
+            ownFastestLapHeaderString = null;
+            ownSector1String = null;
+            ownSector2String = null;
             ownSector3String = null;
-            yRel = ownSector2String;
+            ownFastestLapString = null;
+            //yRel = null;
         }
-        ownFastestLapString = dsf.newDrawnString( "ownFastestLapString", null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         
-        currLapHeaderString = dsf.newDrawnString( "currLapHeaderString", null, ownFastestLapString, left1, sectionGap, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
-        currSector1String = dsf.newDrawnString( "currSector1String", null, currLapHeaderString, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+        if ( displayAbsFastest.getBooleanValue() || displayOwnFastest.getBooleanValue() )
+        {
+            currLapHeaderString = dsf.newDrawnString( "currLapHeaderString", null, yRel, left1, sectionGap, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
+            yRel = currLapHeaderString;
+        }
+        else
+        {
+            currLapHeaderString = null;
+        }
+        currSector1String = dsf.newDrawnString( "currSector1String", null, yRel, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         currSector2String = dsf.newDrawnString( "currSector2String", null, currSector1String, left2, 0, Alignment.LEFT, false, font, fontAntiAliased, fontColor );
         if ( !cumulativeSectors.getBooleanValue() && !forceCurrentCumulSectors.getBooleanValue() )
         {
@@ -487,6 +512,7 @@ public class TimingWidget extends Widget
             }
         }
         
+        if ( displayOwnFastest.getBooleanValue() )
         {
             // own fastest lap
             
@@ -607,7 +633,7 @@ public class TimingWidget extends Widget
                         s[2][0] = null;
                         s[2][1] = null;
                         s[2][2] = "";
-                        if ( myVSI != afVSI )
+                        if ( dispGapToAbs )
                             s[2][3] = "";
                     }
                     
@@ -659,7 +685,7 @@ public class TimingWidget extends Widget
         {
             // current lap
             
-            if ( needsCompleteRedraw )
+            if ( needsCompleteRedraw && ( currLapHeaderString != null ) )
             {
                 currLapHeaderString.draw( offsetX, offsetY, Loc.current_prefix + ":", texture );
             }
@@ -703,8 +729,9 @@ public class TimingWidget extends Widget
                 boolean afValid = afLap > 0f;
                 boolean ofValid = ofLap > 0f;
                 
-                final boolean dispAbsFastest = displayAbsFastest.getBooleanValue();
-                int cols = dispAbsFastest ? 5 : 4;
+                final boolean dispOwnFastest = displayOwnFastest.getBooleanValue() || ( !displayAbsFastest.getBooleanValue() && !displayOwnFastest.getBooleanValue() );
+                final boolean dispAbsFastest = displayAbsFastest.getBooleanValue() || ( !displayAbsFastest.getBooleanValue() && !displayOwnFastest.getBooleanValue() );
+                int cols = 3 + ( dispOwnFastest ? 1 : 0 ) + ( dispAbsFastest ? 1 : 0 );
                 String[][] s = new String[4][cols];
                 int[] colWidths = new int[cols];
                 final Alignment[] aligns = new Alignment[ cols ];
@@ -740,8 +767,7 @@ public class TimingWidget extends Widget
                     gapAFLap = lap - afLap;
                 }
                 
-                java.awt.Color sfColor1a = getFontColor();
-                java.awt.Color sfColor1b = getFontColor();
+                java.awt.Color[] sfColor1 = new java.awt.Color[] { getFontColor(), getFontColor() };
                 s[0][0] = Loc.timing_sector1_prefix + ":";
                 s[0][1] = null;
                 if ( sec1 > 0f )
@@ -756,26 +782,37 @@ public class TimingWidget extends Widget
                     }
                     else
                     {
-                        if ( ofValid && gapOFSec1Valid )
+                        int ii = 3;
+                        
+                        if ( dispOwnFastest )
                         {
-                            sfColor1a = ( gapOFSec1 < 0f )? fasterColor.getColor() : slowerColor.getColor();
-                            s[0][3] = "(" + TimingUtil.getTimeAsGapString( gapOFSec1 ) + ")";
+                            if ( ofValid && gapOFSec1Valid )
+                            {
+                                sfColor1[ii - 3] = ( gapOFSec1 < 0f ) ? fasterColor.getColor() : slowerColor.getColor();
+                                s[0][ii] = "(" + TimingUtil.getTimeAsGapString( gapOFSec1 ) + ")";
+                            }
+                            else
+                                s[0][ii] = "--.---";
+                            
+                            ii++;
                         }
-                        else
-                            s[0][3] = "--.---";
                         
                         if ( dispAbsFastest )
                         {
                             if ( afValid && !absFastestIsOwn )
+                            {
                                 if ( gapAFSec1Valid )
                                 {
-                                    sfColor1b = ( gapAFSec1 < 0f )? fasterColor.getColor() : slowerColor.getColor();
-                                    s[0][4] = "(" + TimingUtil.getTimeAsGapString( gapAFSec1 ) + ")";
+                                    sfColor1[ii - 3] = ( gapAFSec1 < 0f ) ? fasterColor.getColor() : slowerColor.getColor();
+                                    s[0][ii] = "(" + TimingUtil.getTimeAsGapString( gapAFSec1 ) + ")";
                                 }
                                 else
-                                    s[0][4] = "--.---";
+                                    s[0][ii] = "--.---";
+                            }
                             else
-                                s[0][4] = null;
+                                s[0][ii] = null;
+                            
+                            ii++;
                         }
                     }
                 }
@@ -788,8 +825,7 @@ public class TimingWidget extends Widget
                         s[0][4] = null;
                 }
                 
-                java.awt.Color sfColor2a = getFontColor();
-                java.awt.Color sfColor2b = getFontColor();
+                java.awt.Color[] sfColor2 = new java.awt.Color[] { getFontColor(), getFontColor() };
                 s[1][0] = Loc.timing_sector2_prefix + ":";
                 s[1][1] = null;
                 if ( sec2 > 0f )
@@ -804,26 +840,37 @@ public class TimingWidget extends Widget
                     }
                     else
                     {
-                        if ( ofValid && gapOFSec2Valid )
+                        int ii = 3;
+                        
+                        if ( dispOwnFastest )
                         {
-                            sfColor2a = ( gapOFSec2 < 0f )? fasterColor.getColor() : slowerColor.getColor();
-                            s[1][3] = "(" + TimingUtil.getTimeAsGapString( gapOFSec2 ) + ")";
+                            if ( ofValid && gapOFSec2Valid )
+                            {
+                                sfColor2[ii - 3] = ( gapOFSec2 < 0f ) ? fasterColor.getColor() : slowerColor.getColor();
+                                s[1][ii] = "(" + TimingUtil.getTimeAsGapString( gapOFSec2 ) + ")";
+                            }
+                            else
+                                s[1][ii] = "--.---";
+                            
+                            ii++;
                         }
-                        else
-                            s[1][3] = "--.---";
                         
                         if ( dispAbsFastest )
                         {
                             if ( afValid && !absFastestIsOwn )
+                            {
                                 if ( gapAFSec2Valid )
                                 {
-                                    sfColor2b = ( gapAFSec2 < 0f )? fasterColor.getColor() : slowerColor.getColor();
-                                    s[1][4] = "(" + TimingUtil.getTimeAsGapString( gapAFSec2 ) + ")";
+                                    sfColor2[ii - 3] = ( gapAFSec2 < 0f ) ? fasterColor.getColor() : slowerColor.getColor();
+                                    s[1][ii] = "(" + TimingUtil.getTimeAsGapString( gapAFSec2 ) + ")";
                                 }
                                 else
-                                    s[1][4] = "--.---";
+                                    s[1][ii] = "--.---";
+                            }
                             else
                                 s[1][4] = null;
+                            
+                            ii++;
                         }
                     }
                 }
@@ -836,8 +883,7 @@ public class TimingWidget extends Widget
                         s[1][4] = null;
                 }
                 
-                java.awt.Color sfColor3a = getFontColor();
-                java.awt.Color sfColor3b = getFontColor();
+                java.awt.Color[] sfColor3 = new java.awt.Color[] { getFontColor(), getFontColor() };
                 s[2][0] = Loc.timing_sector3_prefix + ":";
                 s[2][1] = null;
                 if ( !displayCumul )
@@ -854,26 +900,37 @@ public class TimingWidget extends Widget
                         }
                         else
                         {
-                            if ( ofValid && gapOFSec3Valid )
+                            int ii = 3;
+                            
+                            if ( dispOwnFastest )
                             {
-                                sfColor3a = ( gapOFSec3 < 0f )? fasterColor.getColor() : slowerColor.getColor();
-                                s[2][3] = "(" + TimingUtil.getTimeAsGapString( gapOFSec3 ) + ")";
+                                if ( ofValid && gapOFSec3Valid )
+                                {
+                                    sfColor3[ii - 3] = ( gapOFSec3 < 0f ) ? fasterColor.getColor() : slowerColor.getColor();
+                                    s[2][ii] = "(" + TimingUtil.getTimeAsGapString( gapOFSec3 ) + ")";
+                                }
+                                else
+                                    s[2][ii] = "--.---";
+                                
+                                ii++;
                             }
-                            else
-                                s[2][3] = "--.---";
                             
                             if ( dispAbsFastest )
                             {
                                 if ( afValid && !absFastestIsOwn )
+                                {
                                     if ( gapAFSec3Valid )
                                     {
-                                        sfColor3b = ( gapAFSec3 < 0f )? fasterColor.getColor() : slowerColor.getColor();
-                                        s[2][4] = "(" + TimingUtil.getTimeAsGapString( gapAFSec3 ) + ")";
+                                        sfColor3[ii - 3] = ( gapAFSec3 < 0f ) ? fasterColor.getColor() : slowerColor.getColor();
+                                        s[2][ii] = "(" + TimingUtil.getTimeAsGapString( gapAFSec3 ) + ")";
                                     }
                                     else
-                                        s[2][4] = "--.---";
+                                        s[2][ii] = "--.---";
+                                }
                                 else
-                                    s[2][4] = null;
+                                    s[2][ii] = null;
+                                
+                                ii++;
                             }
                         }
                     }
@@ -895,8 +952,7 @@ public class TimingWidget extends Widget
                         s[2][4] = null;
                 }
                 
-                java.awt.Color sfColorLa = getFontColor();
-                java.awt.Color sfColorLb = getFontColor();
+                java.awt.Color[] sfColorL = new java.awt.Color[] { getFontColor(), getFontColor() };
                 s[3][0] = Loc.timing_lap_prefix + ":";
                 s[3][1] = null;
                 if ( isEditorMode || ( ( lap > 0f ) && ( myVSI.getLapsCompleted() >= myVSI.getStintStartLap() ) ) )
@@ -904,23 +960,32 @@ public class TimingWidget extends Widget
                     s[3][2] = TimingUtil.getTimeAsLaptimeString( lap );
                     if ( isDelaying )
                     {
-                        if ( ofValid )
+                        int ii = 3;
+                        
+                        if ( dispOwnFastest )
                         {
-                            sfColorLa = ( gapOFLap < 0f )? fasterColor.getColor() : slowerColor.getColor();
-                            s[3][3] = "(" + TimingUtil.getTimeAsGapString( gapOFLap ) + ")";
+                            if ( ofValid )
+                            {
+                                sfColorL[ii - 3] = ( gapOFLap < 0f ) ? fasterColor.getColor() : slowerColor.getColor();
+                                s[3][ii] = "(" + TimingUtil.getTimeAsGapString( gapOFLap ) + ")";
+                            }
+                            else
+                                s[3][ii] = "--.---";
+                            
+                            ii++;
                         }
-                        else
-                            s[3][3] = "--.---";
                         
                         if ( dispAbsFastest )
                         {
                             if ( afValid && !absFastestIsOwn )
                             {
-                                sfColorLb = ( gapAFLap < 0f )? fasterColor.getColor() : slowerColor.getColor();
-                                s[3][4] = "(" + TimingUtil.getTimeAsGapString( gapAFLap ) + ")";
+                                sfColorL[ii - 3] = ( gapAFLap < 0f ) ? fasterColor.getColor() : slowerColor.getColor();
+                                s[3][ii] = "(" + TimingUtil.getTimeAsGapString( gapAFLap ) + ")";
                             }
                             else
-                                s[3][4] = null;
+                                s[3][ii] = null;
+                            
+                            ii++;
                         }
                     }
                     else
@@ -955,8 +1020,8 @@ public class TimingWidget extends Widget
                 if ( needsCompleteRedraw || !Arrays.equals( s[0], oldClStrings[0] ) )
                 {
                     System.arraycopy( s[0], 0, oldClStrings[0], 0, s[0].length );
-                    fontColors[3] = sfColor1a;
-                    fontColors[4] = sfColor1b;
+                    fontColors[3] = sfColor1[0];
+                    fontColors[4] = sfColor1[1];
                     currSector1String.drawColumns( offsetX, offsetY, s[0], aligns, colPadding, colWidths, fontColors, texture );
                 }
                 
@@ -965,8 +1030,8 @@ public class TimingWidget extends Widget
                 if ( needsCompleteRedraw || !Arrays.equals( s[1], oldClStrings[1] ) )
                 {
                     System.arraycopy( s[1], 0, oldClStrings[1], 0, s[1].length );
-                    fontColors[3] = sfColor2a;
-                    fontColors[4] = sfColor2b;
+                    fontColors[3] = sfColor2[0];
+                    fontColors[4] = sfColor2[1];
                     currSector2String.drawColumns( offsetX, offsetY, s[1], aligns, colPadding, colWidths, fontColors, texture );
                 }                
                 if ( !displayCumul )
@@ -976,8 +1041,8 @@ public class TimingWidget extends Widget
                     if ( needsCompleteRedraw || !Arrays.equals( s[2], oldClStrings[2] ) )
                     {
                         System.arraycopy( s[2], 0, oldClStrings[2], 0, s[2].length );
-                        fontColors[3] = sfColor3a;
-                        fontColors[4] = sfColor3b;
+                        fontColors[3] = sfColor3[0];
+                        fontColors[4] = sfColor3[1];
                         currSector3String.drawColumns( offsetX, offsetY, s[2], aligns, colPadding, colWidths, fontColors, texture );
                     }
                 }
@@ -988,8 +1053,8 @@ public class TimingWidget extends Widget
                 if ( needsCompleteRedraw || !Arrays.equals( s[3], oldClStrings[3] ) )
                 {
                     System.arraycopy( s[3], 0, oldClStrings[3], 0, s[3].length );
-                    fontColors[3] = sfColorLa;
-                    fontColors[4] = sfColorLb;
+                    fontColors[3] = sfColorL[0];
+                    fontColors[4] = sfColorL[1];
                     currLapString.drawColumns( offsetX, offsetY, s[3], aligns, colPadding, colWidths, fontColors, texture );
                 }
             }

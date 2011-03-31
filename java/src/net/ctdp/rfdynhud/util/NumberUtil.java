@@ -44,13 +44,25 @@ public class NumberUtil
      * @param f the number to format
      * @param numDecPlaces the maximum number of decimal places
      * @param forceFractions always format with maximum number of fractions?
+     * @param forceSign always show the sign?
      * 
      * @return the formatted String.
      */
-    public static final String formatFloat( float f, int numDecPlaces, boolean forceFractions )
+    public static final String formatFloat( float f, int numDecPlaces, boolean forceFractions, boolean forceSign )
     {
         if ( numDecPlaces == 0 )
         {
+            if ( forceSign )
+            {
+                if ( f == 0f )
+                    return ( "+0" );
+                
+                if ( f > 0f )
+                    return ( "+" + String.valueOf( Math.round( f ) ) );
+                
+                return ( String.valueOf( Math.round( f ) ) );
+            }
+            
             return ( String.valueOf( Math.round( f ) ) );
         }
         
@@ -71,7 +83,27 @@ public class NumberUtil
         
         formatter.setMaximumFractionDigits( numDecPlaces );
         formatter.setMinimumFractionDigits( forceFractions ? numDecPlaces : 0 );
+        
+        if ( forceSign && ( f >= 0f ) )
+        {
+            return ( "+" + formatter.format( f ) );
+        }
+        
         return ( formatter.format( f ) );
+    }
+    
+    /**
+     * Formats the given float to a String with the specified number of decimal places.
+     * 
+     * @param f the number to format
+     * @param numDecPlaces the maximum number of decimal places
+     * @param forceFractions always format with maximum number of fractions?
+     * 
+     * @return the formatted String.
+     */
+    public static final String formatFloat( float f, int numDecPlaces, boolean forceFractions )
+    {
+        return ( formatFloat( f, numDecPlaces, forceFractions, false ) );
     }
     
     /**
@@ -96,7 +128,10 @@ public class NumberUtil
     
     public static final String delta( int i )
     {
-        if ( i >= 0 )
+        if ( i == 0 )
+            return ( "+0" );
+        
+        if ( i > 0 )
             return ( "+" + i );
         
         return ( String.valueOf( i ) );
@@ -104,7 +139,10 @@ public class NumberUtil
     
     public static final String delta( float i )
     {
-        if ( i >= 0 )
+        if ( i == 0f )
+            return ( "+0" );
+        
+        if ( i > 0f )
             return ( "+" + i );
         
         return ( String.valueOf( i ) );
