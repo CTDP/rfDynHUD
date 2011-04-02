@@ -72,6 +72,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     
     protected final IntProperty positionItemGap = new IntProperty( "positionItemGap", 5, 0, 100 );
     
+    private final BooleanProperty visibleInRaceSession = new BooleanProperty( "visibleInRaceSession", "visibleInRace", false );
     private final EnumProperty<DisplayType> displayType = new EnumProperty<DisplayType>( "displayType", DisplayType.AT_SECTORS );
     
     private Font positionFont = null;
@@ -120,11 +121,12 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         super.saveProperties( writer );
         
+        writer.writeProperty( visibleInRaceSession, "Whether this Widget is displayed at all in the race session." );
+        writer.writeProperty( displayType, "Always display or just at sector boundaries or always if valid time was made?" );
+        
         writer.writeProperty( positionFontSize, "Font size for the position in percent relative to the normal font size." );
         writer.writeProperty( alwaysShowFull1000, "Show full thousands in compare time, even if sector not completed?" );
         writer.writeProperty( positionItemGap, "The gap between the main elements and the position element in pixels." );
-        
-        writer.writeProperty( displayType, "Always display or just at sector boundaries or always if valid time was made?" );
     }
     
     /**
@@ -135,10 +137,11 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         super.loadProperty( loader );
         
-        if ( loader.loadProperty( positionFontSize ) );
+        if ( loader.loadProperty( visibleInRaceSession ) );
+        else if ( loader.loadProperty( displayType ) );
+        else if ( loader.loadProperty( positionFontSize ) );
         else if ( loader.loadProperty( alwaysShowFull1000 ) );
         else if ( loader.loadProperty( positionItemGap ) );
-        else if ( loader.loadProperty( displayType ) );
     }
     
     /**
@@ -149,6 +152,7 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
     {
         super.addVisibilityPropertiesToContainer( propsCont, forceAll );
         
+        propsCont.addProperty( visibleInRaceSession );
         propsCont.addProperty( displayType );
     }
     
@@ -284,12 +288,10 @@ public class ETVTimingWidget extends ETVTimingWidgetBase
             return ( true );
         }
         
-        /*
         if ( scoringInfo.getSessionType().isRace() )
         {
-            return ( false );
+            return ( visibleInRaceSession.getBooleanValue() );
         }
-        */
         
         if ( displayType.getEnumValue() == DisplayType.ALWAYS )
         {
