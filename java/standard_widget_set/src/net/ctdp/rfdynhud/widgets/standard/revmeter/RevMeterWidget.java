@@ -145,21 +145,21 @@ public class RevMeterWidget extends AbstractRevNeedleMeterWidget
     protected final BooleanProperty displayCurrRPM1 = new BooleanProperty( "displayCurrRPM1", "displayCurrRPM", true );
     protected final BooleanProperty displayMaxRPM1 = new BooleanProperty( "displayMaxRPM1", "displayMaxRPM", true );
     protected final BooleanProperty useBoostRevLimit1 = new BooleanProperty( "useBoostRevLimit1", "useBoostRevLimit", false );
-    protected final IntProperty rpmPosX1 = new IntProperty( "rpmPosX1", "rpmPosX", 170 );
-    protected final IntProperty rpmPosY1 = new IntProperty( "rpmPosY1", "rpmPosY", 603 );
+    protected final IntProperty rpmPosX1 = new IntProperty( "rpmPosX1", "RPMPosX", 170 );
+    protected final IntProperty rpmPosY1 = new IntProperty( "rpmPosY1", "RPMPosY", 603 );
     protected final FontProperty rpmFont1 = new FontProperty( "rpmFont1", "font", FontProperty.STANDARD_FONT.getKey() );
     protected final ColorProperty rpmFontColor1 = new ColorProperty( "rpmFontColor1", "fontColor", ColorProperty.STANDARD_FONT_COLOR.getKey() );
-    protected final StringProperty rpmJoinString1 = new StringProperty( "rpmJoinString1", "rpmJoinString", " / " );
+    protected final StringProperty rpmJoinString1 = new StringProperty( "rpmJoinString1", "RPMJoinString", " / " );
     
     protected final BooleanProperty displayRPMString2 = new BooleanProperty( "displayRPMString2", "displayRPMString", false );
     protected final BooleanProperty displayCurrRPM2 = new BooleanProperty( "displayCurrRPM2", "displayCurrRPM", true );
     protected final BooleanProperty displayMaxRPM2 = new BooleanProperty( "displayMaxRPM2", "displayMaxRPM", true );
     protected final BooleanProperty useBoostRevLimit2 = new BooleanProperty( "useBoostRevLimit2", "useBoostRevLimit", false );
-    protected final IntProperty rpmPosX2 = new IntProperty( "rpmPosX2", "rpmPosX", 170 );
-    protected final IntProperty rpmPosY2 = new IntProperty( "rpmPosY2", "rpmPosY", 603 );
+    protected final IntProperty rpmPosX2 = new IntProperty( "rpmPosX2", "RPMPosX", 170 );
+    protected final IntProperty rpmPosY2 = new IntProperty( "rpmPosY2", "RPMPosY", 603 );
     protected final FontProperty rpmFont2 = new FontProperty( "rpmFont2", "font", FontProperty.STANDARD_FONT.getKey() );
     protected final ColorProperty rpmFontColor2 = new ColorProperty( "rpmFontColor2", "fontColor", ColorProperty.STANDARD_FONT_COLOR.getKey() );
-    protected final StringProperty rpmJoinString2 = new StringProperty( "rpmJoinString2", "rpmJoinString", " / " );
+    protected final StringProperty rpmJoinString2 = new StringProperty( "rpmJoinString2", "RPMJoinString", " / " );
     
     private DrawnString rpmString1 = null;
     private DrawnString rpmString2 = null;

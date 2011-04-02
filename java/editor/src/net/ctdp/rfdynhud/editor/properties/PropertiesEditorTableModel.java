@@ -88,6 +88,9 @@ public class PropertiesEditorTableModel extends HierarchicalTableModel<Property>
     
     public static HierarchicalTable<Property> newTable( RFDynHUDEditor editor, PropertiesEditor propsEditor )
     {
-        return ( new HierarchicalTable<Property>( new PropertiesEditorTableModel( editor, propsEditor ), new TableCellRendererProviderImpl() ) );
+        HierarchicalTable<Property> table = new HierarchicalTable<Property>( new PropertiesEditorTableModel( editor, propsEditor ), new TableCellRendererProviderImpl() );
+        table.setTableHeader( null );
+        
+        return ( table );
     }
 }

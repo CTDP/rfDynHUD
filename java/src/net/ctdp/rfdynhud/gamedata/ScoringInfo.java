@@ -157,7 +157,7 @@ public class ScoringInfo
     private String playerFilename = null;
     private String trackName = null;
     
-    private ThreeLetterCodeGenerator tlcGenerator = AbstractThreeLetterCodeGenerator.initThreeLetterCodeGenerator( GameFileSystem.INSTANCE.getPluginINI().getThreeLetterCodeGeneratorClass() );
+    private ThreeLetterCodeGenerator tlcGenerator = AbstractThreeLetterCodeGenerator.initThreeLetterCodeGenerator( GameFileSystem.INSTANCE.getPluginINI().getGeneralThreeLetterCodeGeneratorClass() );
     
     private final HashMap<Integer, VehicleScoringInfoCapsule> idCapsuleMap = new HashMap<Integer, VehicleScoringInfoCapsule>();
     private final HashMap<Integer, VehicleScoringInfo> leftVSICache = new HashMap<Integer, VehicleScoringInfo>();

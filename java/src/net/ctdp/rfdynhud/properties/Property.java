@@ -19,6 +19,9 @@ package net.ctdp.rfdynhud.properties;
 
 import java.net.URL;
 
+import net.ctdp.rfdynhud.gamedata.GameFileSystem;
+import net.ctdp.rfdynhud.util.RFDHLog;
+
 import org.jagatoo.util.strings.StringUtils;
 
 
@@ -30,6 +33,8 @@ import org.jagatoo.util.strings.StringUtils;
  */
 public abstract class Property
 {
+    private static DisplayNameGenerator displayNameGenerator = null;
+    
     private PropertiesKeeper keeper = null;
     
     private final String name;
@@ -42,6 +47,67 @@ public abstract class Property
     
     Object cellRenderer = null;
     Object cellEditor = null;
+    
+    private static DisplayNameGenerator newDefaultDisplayNameGenerator()
+    {
+        return ( new SpacedCamelCaseDisplayNameGenerator() );
+    }
+    
+    private static final DisplayNameGenerator getDisplayNameGenerator()
+    {
+        if ( displayNameGenerator == null )
+        {
+            String className = GameFileSystem.INSTANCE.getPluginINI().getEditorPropertyDisplayNameGeneratorClass();
+            if ( className == null )
+            {
+                displayNameGenerator = newDefaultDisplayNameGenerator();
+                return ( displayNameGenerator );
+            }
+            
+            Class<?> clazz = null;
+            
+            try
+            {
+                clazz = Class.forName( className );
+            }
+            catch ( ClassNotFoundException e )
+            {
+                displayNameGenerator = newDefaultDisplayNameGenerator();
+                
+                RFDHLog.exception( "WARNING: Could not find DisplayNameGenerator Class " + className + ". Using default " + displayNameGenerator.getClass().getName() + "." );
+                
+                return ( displayNameGenerator );
+            }
+            
+            if ( !DisplayNameGenerator.class.isAssignableFrom( clazz ) )
+            {
+                displayNameGenerator = newDefaultDisplayNameGenerator();
+                
+                RFDHLog.exception( "WARNING: Class defined for propertyDisplayNameGenrator in rfdynhud.ini does not implement net.ctdp.rfdynhud.properties.DisplayNameGenerator. Using default " + displayNameGenerator.getClass().getName() + "." );
+                
+                return ( displayNameGenerator );
+            }
+            
+            try
+            {
+                displayNameGenerator = (DisplayNameGenerator)clazz.newInstance();
+            }
+            catch ( InstantiationException e )
+            {
+                displayNameGenerator = newDefaultDisplayNameGenerator();
+                
+                RFDHLog.exception( "WARNING: Couldn't instantiate class " + className + " through the empty constructor. Falling back to default " + displayNameGenerator.getClass().getName() + "." );
+            }
+            catch ( IllegalAccessException e )
+            {
+                displayNameGenerator = newDefaultDisplayNameGenerator();
+                
+                RFDHLog.exception( "WARNING: Empty constructor is not accessible for class " + className + ". Falling back to default " + displayNameGenerator.getClass().getName() + "." );
+            }
+        }
+        
+        return ( displayNameGenerator );
+    }
     
     protected void onKeeperSet()
     {
@@ -230,42 +296,6 @@ public abstract class Property
         return ( clazz.getSimpleName() + "( \"" + getName() + "\" = \"" + String.valueOf( getValue() ) + "\" )" );
     }
     
-    private static String generateNameForDisplay( String nameForDisplay )
-    {
-        StringBuilder sb = new StringBuilder( String.valueOf( Character.toLowerCase( nameForDisplay.charAt( 0 ) ) ) );
-        
-        boolean lastUpper = Character.isUpperCase( nameForDisplay.charAt( 0 ) );
-        
-        for ( int i = 1; i < nameForDisplay.length(); i++ )
-        {
-            char ch = nameForDisplay.charAt( i );
-            
-            if ( Character.isUpperCase( ch ) )
-            {
-                if ( lastUpper )
-                {
-                    sb.setCharAt( sb.length() - 1, Character.toUpperCase( sb.charAt( sb.length() - 1 ) ) );
-                    sb.append( ch );
-                }
-                else
-                {
-                    sb.append( ' ' );
-                    sb.append( Character.toLowerCase( ch ) );
-                }
-                
-                lastUpper = true;
-            }
-            else
-            {
-                sb.append( ch );
-                
-                lastUpper = false;
-            }
-        }
-        
-        return ( sb.toString() );
-    }
-    
     private String getDocumentationSource( Class<?> clazz )
     {
         URL docURL = clazz.getClassLoader().getResource( clazz.getPackage().getName().replace( '.', '/' ) + "/doc/" + this.getName() + ".html" );
@@ -307,7 +337,7 @@ public abstract class Property
     {
         this.name = name;
         this.nameForDisplay = ( nameForDisplay == null ) ? name : nameForDisplay;
-        this.nameForDisplay2 = generateNameForDisplay( this.nameForDisplay );
+        this.nameForDisplay2 = getDisplayNameGenerator().generateNameForDisplay( this.nameForDisplay );
         this.readonly = readonly;
         this.editorType = editorType;
         this.buttonText = buttonText;

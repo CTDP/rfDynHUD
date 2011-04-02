@@ -45,6 +45,7 @@ public class PluginINI
     private File general_configFolder = null;
     private File general_cacheFolder = null;
     private String general_threeLetterCodeGenerator = null;
+    private String editor_propertyDisplayNameGenerator = null;
     
     private void reset()
     {
@@ -54,6 +55,7 @@ public class PluginINI
         general_configFolder = null;
         general_cacheFolder = null;
         general_threeLetterCodeGenerator = null;
+        editor_propertyDisplayNameGenerator = null;
     }
     
     private static String parsePath( String path )
@@ -183,6 +185,13 @@ public class PluginINI
                             general_threeLetterCodeGenerator = value;
                         }
                     }
+                    else if ( group.equalsIgnoreCase( "EDITOR" ) )
+                    {
+                        if ( key.equalsIgnoreCase( "propertyDisplayNameGenerator" ) )
+                        {
+                            editor_propertyDisplayNameGenerator = value;
+                        }
+                    }
                     
                     return ( true );
                 }
@@ -262,11 +271,23 @@ public class PluginINI
      * 
      * @return the threeLetterCodeGenrator setting from GENERAL group.
      */
-    public final String getThreeLetterCodeGeneratorClass()
+    public final String getGeneralThreeLetterCodeGeneratorClass()
     {
         update();
         
         return ( general_threeLetterCodeGenerator );
+    }
+    
+    /**
+     * Gets the class name of the propertyDisplayNameGenerator setting from EDITOR group.
+     * 
+     * @return the propertyDisplayNameGenerator setting from EDITOR group.
+     */
+    public final String getEditorPropertyDisplayNameGeneratorClass()
+    {
+        update();
+        
+        return ( editor_propertyDisplayNameGenerator );
     }
     
     public PluginINI( File pluginFolder )

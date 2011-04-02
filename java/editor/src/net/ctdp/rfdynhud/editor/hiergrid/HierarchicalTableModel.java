@@ -250,7 +250,7 @@ public abstract class HierarchicalTableModel<P extends Object> extends AbstractT
     
     /**
      * 
-     * @param changedPropertyName then ame of the changed property
+     * @param changedPropertyName the name of the changed property
      * @param selectedRow the currently selected row
      */
     public void apply( String changedPropertyName, int selectedRow )

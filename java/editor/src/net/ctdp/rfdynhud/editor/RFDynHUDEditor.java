@@ -112,6 +112,9 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     static
     {
         __EDPrivilegedAccess.editorClassLoader = RFDynHUDEditor.class.getClassLoader();
+        
+        //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
+        ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
     }
     
     private static final String BASE_WINDOW_TITLE = "rFactor dynamic HUD Editor v" + RFDynHUD.VERSION.toString();
@@ -1709,11 +1712,6 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         {
         }
         
-        //ByteOrderInitializer.setByteOrder( 3, 2, 1, 0 );
-        ByteOrderInitializer.setByteOrder( 0, 1, 2, 3 );
-        
-        __GameIDHelper.gameId = SupportedGames.rFactor; // make this dynamic somehow!
-        
         FontUtils.loadCustomFonts();
         
         initGameDataObjects();
@@ -1854,6 +1852,8 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
             e.printStackTrace();
             return;
         }
+        
+        __GameIDHelper.gameId = SupportedGames.rFactor; // make this dynamic somehow!
         
         WidgetFactory.setExcludedJars( arguments.getExcludedJars() );
         
