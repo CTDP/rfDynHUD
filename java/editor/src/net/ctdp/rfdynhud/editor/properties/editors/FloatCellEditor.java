@@ -15,55 +15,48 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.editor.properties;
+package net.ctdp.rfdynhud.editor.properties.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
+import javax.swing.JTextField;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
-import net.ctdp.rfdynhud.editor.util.FontChooser;
 import net.ctdp.rfdynhud.properties.Property;
-import net.ctdp.rfdynhud.widgets.base.widget.Widget;
-
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class FontCellEditor extends ValueCellEditor<Property, JPanel, JButton>
+public class FloatCellEditor extends ValueCellEditor<Property, JPanel, JTextField>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
+    private static final DecimalFormat FORMAT = new DecimalFormat( "0.#", DecimalFormatSymbols.getInstance( Locale.US ) );
+    static
+    {
+        FORMAT.setMaximumFractionDigits( 6 );
+    }
+    
     private final JPanel panel = new JPanel( new BorderLayout() );
-    private final JLabel label = new JLabel();
+    private final JTextField textfield = new JTextField();
     private final JButton button = new JButton();
-    
-    private int row = -1;
-    private int column = -1;
-    
-    private static FontChooser fontChooser = null;
     
     @Override
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
-        this.row = row;
-        this.column = column;
-        
         if ( property.getButtonText() == null )
         {
-            //button.setVisible( false );
-            button.setVisible( true );
-            button.setText( "..." );
-            button.setToolTipText( "Choose a Font" );
+            button.setVisible( false );
         }
         else
         {
@@ -72,40 +65,49 @@ public class FontCellEditor extends ValueCellEditor<Property, JPanel, JButton>
             button.setToolTipText( property.getButtonTooltip() );
         }
         
-        if ( isSelected || forEditor )
+        if ( isSelected && !forEditor )
         {
-            label.setBackground( table.getSelectionBackground() );
-            label.setForeground( table.getSelectionForeground() );
+            textfield.setBackground( table.getSelectionBackground() );
+            textfield.setForeground( table.getSelectionForeground() );
         }
         else
         {
-            label.setBackground( table.getBackground() );
-            label.setForeground( table.getStyle().getValueCellFontColor() );
+            textfield.setBackground( table.getBackground() );
+            textfield.setForeground( table.getStyle().getValueCellFontColor() );
         }
-        panel.setBackground( label.getBackground() );
-        label.setFont( table.getStyle().getValueCellFont() );
+        panel.setBackground( textfield.getBackground() );
+        textfield.setFont( table.getStyle().getValueCellFont() );
+        textfield.setBorder( null );
         
-        label.setText( (String)value );
+        textfield.setText( FORMAT.format( value ) );
     }
     
     @Override
     protected Object getCellEditorValueImpl() throws Throwable
     {
-        return ( label.getText() );
+        return ( Float.parseFloat( textfield.getText() ) );
     }
     
     @Override
     protected void applyOldValue( Object oldValue )
     {
+        textfield.setText( String.valueOf( oldValue ) );
     }
     
-    public FontCellEditor()
+    public FloatCellEditor()
     {
         super();
         
-        setComponent( panel, button );
+        setComponent( panel, textfield );
         
-        label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
+        textfield.addActionListener( new java.awt.event.ActionListener()
+        {
+            @Override
+            public void actionPerformed( java.awt.event.ActionEvent e )
+            {
+                finalizeEdit( false );
+            }
+        } );
         
         button.setMargin( new Insets( 0, 3, 0, 3 ) );
         
@@ -116,36 +118,13 @@ public class FontCellEditor extends ValueCellEditor<Property, JPanel, JButton>
             {
                 if ( getProperty() != null )
                 {
-                    JFrame frame = (JFrame)getTable().getRootPane().getParent();
-                    if ( fontChooser == null )
-                    {
-                        fontChooser = new FontChooser( (String)getProperty().getValue(), ( (Widget)getProperty().getKeeper() ).getConfiguration() );
-                    }
-                    
-                    String result = fontChooser.showDialog( frame, (String)getProperty().getValue(), ( (Widget)getProperty().getKeeper() ).getConfiguration() );
-                    
-                    if ( result != null )
-                    {
-                        getProperty().setValue( result );
-                        
-                        label.setText( (String)getProperty().getValue() );
-                        getTable().setValueAt( getCellEditorValue(), row, column );
-                        ( (PropertiesEditorTable)getTable() ).getRFDynHUDEditor().setDirtyFlag();
-                    }
-                    
-                    frame.repaint();
-                    
-                    if ( getProperty().getButtonText() != null )
-                        getProperty().onButtonClicked( button );
+                    getProperty().onButtonClicked( button );
+                    textfield.setText( String.valueOf( getProperty().getValue() ) );
                 }
-                
-                finalizeEdit( false );
             }
         } );
         
-        panel.add( label, BorderLayout.CENTER );
+        panel.add( textfield, BorderLayout.CENTER );
         panel.add( button, BorderLayout.EAST );
-        
-        label.setOpaque( true );
     }
 }

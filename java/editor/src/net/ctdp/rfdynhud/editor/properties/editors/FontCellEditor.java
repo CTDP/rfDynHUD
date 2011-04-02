@@ -15,42 +15,56 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.editor.properties;
+package net.ctdp.rfdynhud.editor.properties.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
+import net.ctdp.rfdynhud.editor.util.FontChooser;
 import net.ctdp.rfdynhud.properties.Property;
+import net.ctdp.rfdynhud.widgets.base.widget.Widget;
+
 
 /**
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class BooleanCellEditor extends ValueCellEditor<Property, JPanel, JCheckBox>
+public class FontCellEditor extends ValueCellEditor<Property, JPanel, JButton>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
-    private static EmptyBorder border = new EmptyBorder( 2, 2, 2, 2 );
-    
     private final JPanel panel = new JPanel( new BorderLayout() );
-    private final JCheckBox checkbox = new JCheckBox();
+    private final JLabel label = new JLabel();
     private final JButton button = new JButton();
+    
+    private int row = -1;
+    private int column = -1;
+    
+    private static FontChooser fontChooser = null;
     
     @Override
     protected void prepareComponent( JPanel component, HierarchicalTable<Property> table, Property property, Object value, boolean isSelected, boolean hasFocus, int row, int column, boolean forEditor )
     {
         super.prepareComponent( component, table, property, value, isSelected, hasFocus, row, column, forEditor );
         
+        this.row = row;
+        this.column = column;
+        
         if ( property.getButtonText() == null )
         {
-            button.setVisible( false );
+            //button.setVisible( false );
+            button.setVisible( true );
+            button.setText( "..." );
+            button.setToolTipText( "Choose a Font" );
         }
         else
         {
@@ -61,29 +75,24 @@ public class BooleanCellEditor extends ValueCellEditor<Property, JPanel, JCheckB
         
         if ( isSelected || forEditor )
         {
-            checkbox.setBackground( table.getSelectionBackground() );
-            checkbox.setForeground( table.getSelectionForeground() );
+            label.setBackground( table.getSelectionBackground() );
+            label.setForeground( table.getSelectionForeground() );
         }
         else
         {
-            checkbox.setBackground( table.getBackground() );
-            checkbox.setForeground( table.getStyle().getValueCellFontColor() );
+            label.setBackground( table.getBackground() );
+            label.setForeground( table.getStyle().getValueCellFontColor() );
         }
-        panel.setBackground( checkbox.getBackground() );
-        checkbox.setFont( table.getStyle().getValueCellFont() );
+        panel.setBackground( label.getBackground() );
+        label.setFont( table.getStyle().getValueCellFont() );
         
-        checkbox.setBorder( border );
-        
-        if ( value instanceof Boolean )
-            checkbox.setSelected( (Boolean)value );
-        else
-            checkbox.setSelected( Boolean.parseBoolean( String.valueOf( value ) ) );
+        label.setText( (String)value );
     }
     
     @Override
     protected Object getCellEditorValueImpl() throws Throwable
     {
-        return ( checkbox.isSelected() );
+        return ( label.getText() );
     }
     
     @Override
@@ -91,24 +100,15 @@ public class BooleanCellEditor extends ValueCellEditor<Property, JPanel, JCheckB
     {
     }
     
-    public BooleanCellEditor()
+    public FontCellEditor()
     {
         super();
         
-        setComponent( panel, checkbox );
+        setComponent( panel, button );
         
-        checkbox.setHorizontalAlignment( JCheckBox.CENTER );
+        label.setBorder( new EmptyBorder( 0, 3, 0, 0 ) );
         
-        checkbox.addActionListener( new java.awt.event.ActionListener()
-        {
-            @Override
-            public void actionPerformed( java.awt.event.ActionEvent e )
-            {
-                finalizeEdit( false );
-            }
-        } );
-        
-        button.setMargin( new Insets( 0, 3, 0 , 3 ) );
+        button.setMargin( new Insets( 0, 3, 0, 3 ) );
         
         button.addActionListener( new java.awt.event.ActionListener()
         {
@@ -117,18 +117,36 @@ public class BooleanCellEditor extends ValueCellEditor<Property, JPanel, JCheckB
             {
                 if ( getProperty() != null )
                 {
-                    getProperty().onButtonClicked( button );
+                    JFrame frame = (JFrame)getTable().getRootPane().getParent();
+                    if ( fontChooser == null )
+                    {
+                        fontChooser = new FontChooser( (String)getProperty().getValue(), ( (Widget)getProperty().getKeeper() ).getConfiguration() );
+                    }
                     
-                    Object value = getProperty().getValue();
-                    if ( value instanceof Boolean )
-                        checkbox.setSelected( (Boolean)value );
-                    else
-                        checkbox.setSelected( Boolean.parseBoolean( String.valueOf( value ) ) );
+                    String result = fontChooser.showDialog( frame, (String)getProperty().getValue(), ( (Widget)getProperty().getKeeper() ).getConfiguration() );
+                    
+                    if ( result != null )
+                    {
+                        getProperty().setValue( result );
+                        
+                        label.setText( (String)getProperty().getValue() );
+                        getTable().setValueAt( getCellEditorValue(), row, column );
+                        ( (PropertiesEditorTable)getTable() ).getRFDynHUDEditor().setDirtyFlag();
+                    }
+                    
+                    frame.repaint();
+                    
+                    if ( getProperty().getButtonText() != null )
+                        getProperty().onButtonClicked( button );
                 }
+                
+                finalizeEdit( false );
             }
         } );
         
-        panel.add( checkbox, BorderLayout.CENTER );
+        panel.add( label, BorderLayout.CENTER );
         panel.add( button, BorderLayout.EAST );
+        
+        label.setOpaque( true );
     }
 }

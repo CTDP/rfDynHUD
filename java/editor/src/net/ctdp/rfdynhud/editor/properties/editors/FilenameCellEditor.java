@@ -15,17 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.editor.properties;
+package net.ctdp.rfdynhud.editor.properties.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
+import javax.swing.JTextField;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
@@ -35,13 +32,12 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class EnumCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
+public class FilenameCellEditor extends ValueCellEditor<Property, JPanel, JTextField>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
     private final JPanel panel = new JPanel( new BorderLayout() );
-    private final JComboBox combobox = new JComboBox();
-    private final DefaultComboBoxModel model = (DefaultComboBoxModel)combobox.getModel();
+    private final JTextField textfield = new JTextField();
     private final JButton button = new JButton();
     
     @Override
@@ -62,32 +58,27 @@ public class EnumCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
         
         if ( isSelected && !forEditor )
         {
-            combobox.setBackground( table.getSelectionBackground() );
-            combobox.setForeground( table.getSelectionForeground() );
+            textfield.setBackground( table.getSelectionBackground() );
+            textfield.setForeground( table.getSelectionForeground() );
         }
         else
         {
-            combobox.setBackground( table.getBackground() );
-            combobox.setForeground( table.getStyle().getValueCellFontColor() );
+            textfield.setBackground( table.getBackground() );
+            textfield.setForeground( table.getStyle().getValueCellFontColor() );
         }
+        panel.setBackground( textfield.getBackground() );
+        textfield.setFont( table.getStyle().getValueCellFont() );
+        textfield.setBorder( null );
         
-        if ( isSelected )
-            panel.setBackground( table.getSelectionBackground() );
-        else
-            panel.setBackground( table.getBackground() );
+        textfield.setText( String.valueOf( value ) );
         
-        combobox.setFont( table.getStyle().getValueCellFont() );
-        
-        model.removeAllElements();
-        for ( Object o : value.getClass().getEnumConstants() )
-            model.addElement( o );
-        model.setSelectedItem( value );
+        textfield.setEditable( false );
     }
     
     @Override
     protected Object getCellEditorValueImpl() throws Throwable
     {
-        return ( combobox.getSelectedItem() );
+        return ( textfield.getText() );
     }
     
     @Override
@@ -95,42 +86,18 @@ public class EnumCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
     {
     }
     
-    public EnumCellEditor()
+    public FilenameCellEditor()
     {
         super();
         
-        setComponent( panel, combobox );
+        setComponent( panel, textfield );
         
-        combobox.addActionListener( new java.awt.event.ActionListener()
+        textfield.addActionListener( new java.awt.event.ActionListener()
         {
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
             {
-                //if ( getTable() != null )
-                //    getTable().editingStopped( null );
-                stopCellEditing();
-            }
-        } );
-        
-        combobox.addPopupMenuListener( new PopupMenuListener()
-        {
-            @Override
-            public void popupMenuWillBecomeVisible( PopupMenuEvent e )
-            {
-            }
-            
-            @Override
-            public void popupMenuWillBecomeInvisible( PopupMenuEvent e )
-            {
-                if ( getTable() != null )
-                    getTable().repaint();
-            }
-            
-            @Override
-            public void popupMenuCanceled( PopupMenuEvent e )
-            {
-                if ( getTable() != null )
-                    getTable().repaint();
+                finalizeEdit( false );
             }
         } );
         
@@ -144,12 +111,12 @@ public class EnumCellEditor extends ValueCellEditor<Property, JPanel, JComboBox>
                 if ( getProperty() != null )
                 {
                     getProperty().onButtonClicked( button );
-                    model.setSelectedItem( getProperty().getValue() );
+                    textfield.setText( String.valueOf( getProperty().getValue() ) );
                 }
             }
         } );
         
-        panel.add( combobox, BorderLayout.CENTER );
+        panel.add( textfield, BorderLayout.CENTER );
         panel.add( button, BorderLayout.EAST );
     }
 }

@@ -15,17 +15,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.editor.properties;
+package net.ctdp.rfdynhud.editor.properties.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
@@ -35,18 +33,14 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class FloatCellEditor extends ValueCellEditor<Property, JPanel, JTextField>
+public class BooleanCellEditor extends ValueCellEditor<Property, JPanel, JCheckBox>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
-    private static final DecimalFormat FORMAT = new DecimalFormat( "0.#", DecimalFormatSymbols.getInstance( Locale.US ) );
-    static
-    {
-        FORMAT.setMaximumFractionDigits( 6 );
-    }
+    private static EmptyBorder border = new EmptyBorder( 2, 2, 2, 2 );
     
     private final JPanel panel = new JPanel( new BorderLayout() );
-    private final JTextField textfield = new JTextField();
+    private final JCheckBox checkbox = new JCheckBox();
     private final JButton button = new JButton();
     
     @Override
@@ -65,42 +59,47 @@ public class FloatCellEditor extends ValueCellEditor<Property, JPanel, JTextFiel
             button.setToolTipText( property.getButtonTooltip() );
         }
         
-        if ( isSelected && !forEditor )
+        if ( isSelected || forEditor )
         {
-            textfield.setBackground( table.getSelectionBackground() );
-            textfield.setForeground( table.getSelectionForeground() );
+            checkbox.setBackground( table.getSelectionBackground() );
+            checkbox.setForeground( table.getSelectionForeground() );
         }
         else
         {
-            textfield.setBackground( table.getBackground() );
-            textfield.setForeground( table.getStyle().getValueCellFontColor() );
+            checkbox.setBackground( table.getBackground() );
+            checkbox.setForeground( table.getStyle().getValueCellFontColor() );
         }
-        panel.setBackground( textfield.getBackground() );
-        textfield.setFont( table.getStyle().getValueCellFont() );
-        textfield.setBorder( null );
+        panel.setBackground( checkbox.getBackground() );
+        checkbox.setFont( table.getStyle().getValueCellFont() );
         
-        textfield.setText( FORMAT.format( value ) );
+        checkbox.setBorder( border );
+        
+        if ( value instanceof Boolean )
+            checkbox.setSelected( (Boolean)value );
+        else
+            checkbox.setSelected( Boolean.parseBoolean( String.valueOf( value ) ) );
     }
     
     @Override
     protected Object getCellEditorValueImpl() throws Throwable
     {
-        return ( Float.parseFloat( textfield.getText() ) );
+        return ( checkbox.isSelected() );
     }
     
     @Override
     protected void applyOldValue( Object oldValue )
     {
-        textfield.setText( String.valueOf( oldValue ) );
     }
     
-    public FloatCellEditor()
+    public BooleanCellEditor()
     {
         super();
         
-        setComponent( panel, textfield );
+        setComponent( panel, checkbox );
         
-        textfield.addActionListener( new java.awt.event.ActionListener()
+        checkbox.setHorizontalAlignment( JCheckBox.CENTER );
+        
+        checkbox.addActionListener( new java.awt.event.ActionListener()
         {
             @Override
             public void actionPerformed( java.awt.event.ActionEvent e )
@@ -109,7 +108,7 @@ public class FloatCellEditor extends ValueCellEditor<Property, JPanel, JTextFiel
             }
         } );
         
-        button.setMargin( new Insets( 0, 3, 0, 3 ) );
+        button.setMargin( new Insets( 0, 3, 0 , 3 ) );
         
         button.addActionListener( new java.awt.event.ActionListener()
         {
@@ -119,12 +118,17 @@ public class FloatCellEditor extends ValueCellEditor<Property, JPanel, JTextFiel
                 if ( getProperty() != null )
                 {
                     getProperty().onButtonClicked( button );
-                    textfield.setText( String.valueOf( getProperty().getValue() ) );
+                    
+                    Object value = getProperty().getValue();
+                    if ( value instanceof Boolean )
+                        checkbox.setSelected( (Boolean)value );
+                    else
+                        checkbox.setSelected( Boolean.parseBoolean( String.valueOf( value ) ) );
                 }
             }
         } );
         
-        panel.add( textfield, BorderLayout.CENTER );
+        panel.add( checkbox, BorderLayout.CENTER );
         panel.add( button, BorderLayout.EAST );
     }
 }

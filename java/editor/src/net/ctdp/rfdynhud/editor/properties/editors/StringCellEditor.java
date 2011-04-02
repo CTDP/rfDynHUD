@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package net.ctdp.rfdynhud.editor.properties;
+package net.ctdp.rfdynhud.editor.properties.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
@@ -32,7 +32,7 @@ import net.ctdp.rfdynhud.properties.Property;
  * 
  * @author Marvin Froehlich (CTDP)
  */
-public class FilenameCellEditor extends ValueCellEditor<Property, JPanel, JTextField>
+public class StringCellEditor extends ValueCellEditor<Property, JPanel, JTextField>
 {
     private static final long serialVersionUID = -7299720233662747237L;
     
@@ -56,6 +56,28 @@ public class FilenameCellEditor extends ValueCellEditor<Property, JPanel, JTextF
             button.setToolTipText( property.getButtonTooltip() );
         }
         
+        /*
+        if ( isSelected )
+        {
+            if ( forEditor )
+            {
+                Color c = table.getSelectionBackground();
+                //c = new Color( 255 - (int)( ( 255 - c.getRed() ) * 0.8 ), 255 - (int)( ( 255 - c.getGreen() ) * 0.8 ), 255 - (int)( ( 255 - c.getBlue() ) * 0.8 ), c.getAlpha() );
+                textfield.setBackground( c );
+                textfield.setForeground( Color.BLACK );
+            }
+            else
+            {
+                textfield.setBackground( table.getSelectionBackground() );
+                textfield.setForeground( table.getSelectionForeground() );
+            }
+        }
+        else
+        {
+            textfield.setBackground( table.getBackground() );
+            textfield.setForeground( table.getStyle().getValueCellFontColor() );
+        }
+        */
         if ( isSelected && !forEditor )
         {
             textfield.setBackground( table.getSelectionBackground() );
@@ -71,8 +93,6 @@ public class FilenameCellEditor extends ValueCellEditor<Property, JPanel, JTextF
         textfield.setBorder( null );
         
         textfield.setText( String.valueOf( value ) );
-        
-        textfield.setEditable( false );
     }
     
     @Override
@@ -86,7 +106,7 @@ public class FilenameCellEditor extends ValueCellEditor<Property, JPanel, JTextF
     {
     }
     
-    public FilenameCellEditor()
+    public StringCellEditor()
     {
         super();
         
