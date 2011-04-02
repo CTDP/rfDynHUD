@@ -28,7 +28,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
-import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.util.FontChooser;
 import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.widgets.base.widget.Widget;
@@ -131,7 +131,7 @@ public class FontCellEditor extends ValueCellEditor<Property, JPanel, JButton>
                         
                         label.setText( (String)getProperty().getValue() );
                         getTable().setValueAt( getCellEditorValue(), row, column );
-                        ( (PropertiesEditorTable)getTable() ).getRFDynHUDEditor().setDirtyFlag();
+                        ( (PropertiesEditorTableModel)getTable().getModel() ).getRFDynHUDEditor().setDirtyFlag();
                     }
                     
                     frame.repaint();

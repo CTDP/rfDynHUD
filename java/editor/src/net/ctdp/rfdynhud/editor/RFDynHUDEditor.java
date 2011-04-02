@@ -51,13 +51,13 @@ import net.ctdp.rfdynhud.editor.commandline.EditorArgumentsRegistry;
 import net.ctdp.rfdynhud.editor.director.DirectorManager;
 import net.ctdp.rfdynhud.editor.help.HelpWindow;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
+import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.input.InputBindingsGUI;
 import net.ctdp.rfdynhud.editor.presets.EditorPresetsWindow;
 import net.ctdp.rfdynhud.editor.presets.ScaleType;
 import net.ctdp.rfdynhud.editor.properties.DefaultPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
-import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.properties.WidgetPropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.ConfigurationSaver;
@@ -171,7 +171,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
     private String directorConnectionStrings = null;
     
     private final PropertiesEditor propsEditor;
-    private final PropertiesEditorTable editorTable;
+    private final HierarchicalTable<Property> editorTable;
     private final JEditorPane docPanel;
     private boolean isSomethingDoced = false;
     
@@ -1757,7 +1757,7 @@ public class RFDynHUDEditor implements WidgetsEditorPanelListener, PropertySelec
         propsSplit.setPreferredSize( new Dimension( 300, Integer.MAX_VALUE ) );
         propsSplit.setMinimumSize( new Dimension( 300, 10 ) );
         
-        editorTable = new PropertiesEditorTable( this, propsEditor );
+        editorTable = PropertiesEditorTableModel.newTable( this, propsEditor );
         
         propsSplit.add( editorTable.createScrollPane() );
         

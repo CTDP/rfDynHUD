@@ -43,10 +43,11 @@ import net.ctdp.rfdynhud.editor.director.widgetstate.WidgetState;
 import net.ctdp.rfdynhud.editor.director.widgetstate.WidgetState.VisibleType;
 import net.ctdp.rfdynhud.editor.director.widgetstatesset.StatesSetsLoader;
 import net.ctdp.rfdynhud.editor.director.widgetstatesset.WidgetStatesSet;
+import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.PropertySelectionListener;
 import net.ctdp.rfdynhud.editor.properties.DefaultPropertiesContainer;
 import net.ctdp.rfdynhud.editor.properties.PropertiesEditor;
-import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.properties.PropertyChangeListener;
 import net.ctdp.rfdynhud.editor.util.DefaultPropertyWriter;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
@@ -87,7 +88,7 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
     
     private JPanel stateSetsPanel = null;
     private PropertiesEditor stateSetsModel = null;
-    private PropertiesEditorTable stateSetsTable;
+    private HierarchicalTable<Property> stateSetsTable;
     private JScrollPane stateSetsScrollPane;
     private JButton addStateButton = null;
     
@@ -134,7 +135,7 @@ public class DirectorManager implements PropertyChangeListener, PropertySelectio
         this.stateSetsModel = new PropertiesEditor();
         stateSetsModel.addProperty( stateSetsListProp );
         stateSetsModel.addChangeListener( this );
-        this.stateSetsTable = new PropertiesEditorTable( null, stateSetsModel );
+        this.stateSetsTable = PropertiesEditorTableModel.newTable( null, stateSetsModel );
         stateSetsTable.addPropertySelectionListener( this );
         this.stateSetsScrollPane = stateSetsTable.createScrollPane();
         stateSetsPanel.add( stateSetsScrollPane, BorderLayout.CENTER );

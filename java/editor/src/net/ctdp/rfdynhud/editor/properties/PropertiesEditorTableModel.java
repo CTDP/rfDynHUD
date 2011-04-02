@@ -18,7 +18,6 @@
 package net.ctdp.rfdynhud.editor.properties;
 
 import net.ctdp.rfdynhud.editor.RFDynHUDEditor;
-import net.ctdp.rfdynhud.editor.hiergrid.GridItemsContainer;
 import net.ctdp.rfdynhud.editor.hiergrid.GridItemsHandler;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTableModel;
@@ -37,11 +36,22 @@ public class PropertiesEditorTableModel extends HierarchicalTableModel<Property>
     
     public static final GridItemsHandler<Property> ITEMS_HANDLER = new GridItemsHandler<Property>();
     
+    private final RFDynHUDEditor editor;
+    private final PropertiesEditor propsEditor;
+    
+    public final RFDynHUDEditor getRFDynHUDEditor()
+    {
+        return ( editor );
+    }
+    
+    public final PropertiesEditor getPropertiesEditor()
+    {
+        return ( propsEditor );
+    }
+    
     @Override
     protected void setValueImpl( HierarchicalTable<Property> table, Property property, int index, Object newValue )
     {
-        final RFDynHUDEditor editor = ( (PropertiesEditorTable)table ).editor;
-        
         if ( editor != null )
         {
             if ( WidgetPropertyChangeListener.needsAreaClear( property ) )
@@ -50,7 +60,7 @@ public class PropertiesEditorTableModel extends HierarchicalTableModel<Property>
         
         Object oldValue = getValueImpl( table, property, index );
         property.setValue( newValue );
-        ( (PropertiesEditorTable)table ).propsEditor.invokeChangeListeners( property, oldValue, newValue, table.getSelectedRow(), table.getSelectedColumn() );
+        propsEditor.invokeChangeListeners( property, oldValue, newValue, table.getSelectedRow(), table.getSelectedColumn() );
         
         if ( ( editor != null ) && ( property.getKeeper() != null ) )
         {
@@ -68,8 +78,16 @@ public class PropertiesEditorTableModel extends HierarchicalTableModel<Property>
         return ( property.getValue() );
     }
     
-    public PropertiesEditorTableModel( GridItemsContainer<Property> data, int columnCount )
+    public PropertiesEditorTableModel( RFDynHUDEditor editor, PropertiesEditor propsEditor )
     {
-        super( ITEMS_HANDLER, data, columnCount );
+        super( ITEMS_HANDLER, propsEditor.getPropertiesList(), 2 );
+        
+        this.editor = editor;
+        this.propsEditor = propsEditor;
+    }
+    
+    public static HierarchicalTable<Property> newTable( RFDynHUDEditor editor, PropertiesEditor propsEditor )
+    {
+        return ( new HierarchicalTable<Property>( new PropertiesEditorTableModel( editor, propsEditor ), new TableCellRendererProviderImpl() ) );
     }
 }

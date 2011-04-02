@@ -29,7 +29,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
-import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.util.BackgroundSelector;
 import net.ctdp.rfdynhud.properties.BackgroundProperty;
 import net.ctdp.rfdynhud.properties.BackgroundProperty.BackgroundType;
@@ -190,7 +190,7 @@ public class BackgroundCellEditor extends ValueCellEditor<Property, JPanel, JBut
                         
                         getTable().setValueAt( getCellEditorValue(), row, column );
                         prop.setValue( getCellEditorValue() );
-                        ( (PropertiesEditorTable)getTable() ).getRFDynHUDEditor().setDirtyFlag();
+                        ( (PropertiesEditorTableModel)getTable().getModel() ).getRFDynHUDEditor().setDirtyFlag();
                     }
                     
                     frame.repaint();

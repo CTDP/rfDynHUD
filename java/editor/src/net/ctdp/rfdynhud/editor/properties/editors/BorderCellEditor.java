@@ -28,7 +28,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.ctdp.rfdynhud.editor.hiergrid.HierarchicalTable;
 import net.ctdp.rfdynhud.editor.hiergrid.ValueCellEditor;
-import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTable;
+import net.ctdp.rfdynhud.editor.properties.PropertiesEditorTableModel;
 import net.ctdp.rfdynhud.editor.util.BorderSelector;
 import net.ctdp.rfdynhud.gamedata.GameFileSystem;
 import net.ctdp.rfdynhud.properties.Property;
@@ -150,7 +150,7 @@ public class BorderCellEditor extends ValueCellEditor<Property, JPanel, JButton>
                             getTable().setValueAt( result, row, column );
                         }
                         
-                        ( (PropertiesEditorTable)getTable() ).getRFDynHUDEditor().setDirtyFlag();
+                        ( (PropertiesEditorTableModel)getTable().getModel() ).getRFDynHUDEditor().setDirtyFlag();
                         
                         frame.repaint();
                     }
