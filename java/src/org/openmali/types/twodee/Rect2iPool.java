@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007-2010, OpenMaLi Project Group all rights reserved.
+ * Copyright (c) 2007-2011, OpenMaLi Project Group all rights reserved.
  * 
  * Portions based on the Sun's javax.vecmath interface, Copyright by Sun
  * Microsystems or Kenji Hiranabe's alternative GC-cheap implementation.

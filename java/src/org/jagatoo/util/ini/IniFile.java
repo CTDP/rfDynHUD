@@ -151,6 +151,50 @@ public class IniFile
      * 
      * @return the settings's value for the given group and key or <code>null</code>, if not found.
      */
+    public final boolean settingExists( String group, String key )
+    {
+        String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
+        HashMap<String, String> map = settings.get( group_ );
+        
+        if ( map == null )
+            return ( false );
+        
+        return ( map.containsKey( caseSensitivity ? key : key.toLowerCase() ) );
+    }
+    
+    /**
+     * Gets the settings's value for the given group and key.
+     * 
+     * @param group
+     * @param key
+     * @param defaultValue the value to be returned, if the settings does not exist
+     * 
+     * @return the settings's value for the given group and key or 'defaultValue', if not found.
+     */
+    public final String getSetting( String group, String key, String defaultValue )
+    {
+        String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
+        HashMap<String, String> map = settings.get( group_ );
+        
+        if ( map == null )
+            return ( defaultValue );
+        
+        String value = map.get( caseSensitivity ? key : key.toLowerCase() );
+        
+        if ( value == null )
+            return ( defaultValue );
+        
+        return ( value );
+    }
+    
+    /**
+     * Gets the settings's value for the given group and key.
+     * 
+     * @param group
+     * @param key
+     * 
+     * @return the settings's value for the given group and key or <code>null</code>, if not found.
+     */
     public final String getSetting( String group, String key )
     {
         String group_ = ( group == null ) ? null : ( caseSensitivity ? group : group.toLowerCase() );
