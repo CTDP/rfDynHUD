@@ -31,6 +31,7 @@ import net.ctdp.rfdynhud.properties.EnumProperty;
 import net.ctdp.rfdynhud.properties.FontProperty;
 import net.ctdp.rfdynhud.properties.IntProperty;
 import net.ctdp.rfdynhud.properties.PropertiesContainer;
+import net.ctdp.rfdynhud.properties.Property;
 import net.ctdp.rfdynhud.properties.PropertyLoader;
 import net.ctdp.rfdynhud.render.DrawnStringFactory;
 import net.ctdp.rfdynhud.render.Texture2DCanvas;
@@ -96,7 +97,8 @@ public class TrackPositionWidget extends Widget
     private static final int ANTI_ALIAS_RADIUS_OFFSET = 1;
     
     private TransformableTexture[] itemTextures = null;
-    private int[] itemTextureOffsetsY = null;
+    private int middleOffsetY = 0;
+    private int[] itemLabelOffsetsY = null;
     private VehicleScoringInfo[] vsis = null;
     private int[] itemStates = null;
     private int numVehicles = -1;
@@ -203,6 +205,21 @@ public class TrackPositionWidget extends Widget
      * {@inheritDoc}
      */
     @Override
+    public void onPropertyChanged( Property property, Object oldValue, Object newValue )
+    {
+        super.onPropertyChanged( property, oldValue, newValue );
+        
+        if ( itemStates != null )
+        {
+            for ( int i = 0; i < itemStates.length; i++ )
+                itemStates[i] = 0;
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void afterConfigurationLoaded( WidgetsConfiguration widgetsConfig, LiveGameData gameData, boolean isEditorMode )
     {
         super.afterConfigurationLoaded( widgetsConfig, gameData, isEditorMode );
@@ -275,9 +292,17 @@ public class TrackPositionWidget extends Widget
         if ( itemTextures[0] == null )
             itemTextures[0] = new TransformableTexture( 1, 1, isEditorMode, false );
         
-        java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
+        java.awt.Dimension size = StandardWidgetSet.getPositionItemSize( itemRadius, null, null, false );
+        int itemHeightWithoutLabel = size.height;
+        
+        size = StandardWidgetSet.getPositionItemSize( itemRadius, displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, nameLabelFont.getFont(), nameLabelFont.isAntiAliased() );
         int w = size.width;
         int h = size.height;
+        
+        if ( nameLabelPos.getEnumValue() == LabelPositioning.ABOVE )
+            middleOffsetY = ( h - itemHeightWithoutLabel ) / 2;
+        else
+            middleOffsetY = ( itemHeightWithoutLabel - h ) / 2;
         
         if ( ( itemTextures[maxDisplayedVehicles - 1] == null ) || ( itemTextures[maxDisplayedVehicles - 1].getWidth() != w ) || ( itemTextures[maxDisplayedVehicles - 1].getHeight() != h ) )
         {
@@ -319,7 +344,7 @@ public class TrackPositionWidget extends Widget
         
         texCanvas.setColor( lineColor.getColor() );
         
-        texCanvas.fillRect( offsetX + linePadding, offsetY + ( height - lineHeight ) / 2, lineLength, lineHeight );
+        texCanvas.fillRect( offsetX + linePadding, offsetY + ( height - lineHeight ) / 2 + middleOffsetY, lineLength, lineHeight );
     }
     
     @Override
@@ -340,9 +365,9 @@ public class TrackPositionWidget extends Widget
         
         int n = Math.min( scoringInfo.getNumVehicles(), maxDisplayedVehicles );
         
-        if ( ( itemTextureOffsetsY == null ) || ( itemTextureOffsetsY.length < itemTextures.length ) )
+        if ( ( itemLabelOffsetsY == null ) || ( itemLabelOffsetsY.length < itemTextures.length ) )
         {
-            itemTextureOffsetsY = new int[ itemTextures.length ];
+            itemLabelOffsetsY = new int[ itemTextures.length ];
         }
         
         for ( int i = 0; i < numVehicles; i++ )
@@ -390,12 +415,12 @@ public class TrackPositionWidget extends Widget
                 {
                     itemStates[i] = itemState;
                     
-                    itemTextureOffsetsY[i] = StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, place, color, itemBlackBorderWidth, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
+                    itemLabelOffsetsY[i] = StandardWidgetSet.drawPositionItem( tt.getTexture(), 0, 0, itemRadius, place, color, itemBlackBorderWidth, displayPositionNumbers.getBooleanValue() ? font : null, posNumberFontAntiAliased, getFontColor(), displayNameLabels.getBooleanValue() ? nameLabelPos.getEnumValue() : null, vsi.getDriverNameTLC(), nameLabelFont.getFont(), nameLabelFont.isAntiAliased(), nameLabelFontColor.getColor() );
                 }
                 
                 int yOff3 = vsi.isInPits() ? -3 : 0;
                 
-                tt.setTranslation( linePadding + off2 + vsi.getNormalizedLapDistance() * lineLength - itemRadius, off2 + height / 2 - itemRadius - itemTextureOffsetsY[i] + yOff3 );
+                tt.setTranslation( linePadding + off2 + vsi.getNormalizedLapDistance() * lineLength - itemRadius, off2 + height / 2 - itemRadius - itemLabelOffsetsY[i] + yOff3 + middleOffsetY );
             }
             else
             {
