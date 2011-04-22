@@ -897,10 +897,15 @@ class VehiclePhysicsParser
     private static class CCHParser extends AbstractIniParser
     {
         private final String filename;
+        @SuppressWarnings( "unused" )
         private final String vehicleFile;
         
+        private boolean isInCareer = false;
+        private boolean isInVehicle = false;
         private boolean groupFound = false;
         private boolean upgradeListStarted = false;
+        
+        private String singlePlayerVehicle = null;
         
         private final ArrayList<Object[]> upgradesList = new ArrayList<Object[]>();
         
@@ -914,6 +919,9 @@ class VehiclePhysicsParser
         {
             if ( groupFound || upgradeListStarted )
                 return ( false );
+            
+            isInCareer = group.equalsIgnoreCase( "CAREER" );
+            isInVehicle = group.equalsIgnoreCase( "VEHICLE" );
             
             return ( true );
         }
@@ -944,7 +952,12 @@ class VehiclePhysicsParser
         @Override
         protected boolean onSettingParsed( int lineNr, String group, String key, String value, String comment ) throws ParsingException
         {
-            if ( upgradeListStarted )
+            if ( isInCareer )
+            {
+                if ( key.equalsIgnoreCase( "SinglePlayerVehicle" ) )
+                    this.singlePlayerVehicle = value;
+            }
+            else if ( upgradeListStarted )
             {
                 //if ( !key.equalsIgnoreCase( "Track Configuration" ) )
                 {
@@ -954,12 +967,10 @@ class VehiclePhysicsParser
                         upgradesList.add( upgrade );
                 }
             }
-            else if ( group == null )
+            else if ( isInVehicle )
             {
-            }
-            else if ( group.equals( "VEHICLE" ) )
-            {
-                if ( key.equalsIgnoreCase( "File" ) && value.equalsIgnoreCase( vehicleFile ) )
+                //if ( key.equalsIgnoreCase( "File" ) && value.equalsIgnoreCase( vehicleFile ) )
+                if ( key.equalsIgnoreCase( "File" ) && value.equalsIgnoreCase( singlePlayerVehicle ) )
                 {
                     groupFound = true;
                 }
