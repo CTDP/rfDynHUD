@@ -565,7 +565,7 @@ class VehiclePhysicsParser
         public static void parseTBCFile( File path, String filename, VehiclePhysics physics )
         {
             if ( !filename.toLowerCase().endsWith( ".tbc" ) )
-                filename = filename + ".tbc";
+                filename += ".tbc";
             
             File tireFile = locateFile( path, filename );
             if ( tireFile == null )

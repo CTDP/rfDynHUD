@@ -399,7 +399,7 @@ public class GameEventsManager implements ConfigurationLoadListener
             SessionType sessionType = gameData.getScoringInfo().getSessionType();
             VehicleScoringInfo vsi = gameData.getScoringInfo().getViewedVehicleScoringInfo();
             String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
-            String vehicleName = gameData.getVehicleInfo().getTeamName();
+            String vehicleName = gameData.getVehicleInfo().getTeamNameCleaned();
             if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
                 vehicleName = null;
             __UtilPrivilegedAccess.reloadConfiguration( loader, smallMonitor, bigMonitor, isInGarage && vsi.isPlayer(), modName, vehicleClass, vehicleName, sessionType, widgetsManager.getWidgetsConfiguration(), gameData, isEditorMode, force );
@@ -866,7 +866,7 @@ public class GameEventsManager implements ConfigurationLoadListener
                 {
                     String modName = gameData.getModInfo().getName();
                     String vehicleClass = gameData.getScoringInfo().getPlayersVehicleScoringInfo().getVehicleClass();
-                    String vehicleName = gameData.getVehicleInfo().getTeamName();
+                    String vehicleName = gameData.getVehicleInfo().getTeamNameCleaned();
                     if ( ( vehicleName != null ) && ( vehicleName.trim().length() == 0 ) )
                         vehicleName = null;
                     SessionType sessionType = gameData.getScoringInfo().getSessionType();

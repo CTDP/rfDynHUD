@@ -25,7 +25,8 @@ package net.ctdp.rfdynhud.gamedata;
 public class VehicleInfo
 {
     int carNumber = -1;
-    String teamName = null;
+    private String teamName = null;
+    private String teamNameCleaned = null;
     String pitGroup = null;
     String driverName = null;
     String driverDescription = null;
@@ -47,6 +48,7 @@ public class VehicleInfo
     {
         carNumber = -1;
         teamName = null;
+        teamNameCleaned = null;
         pitGroup = null;
         driverName = null;
         driverDescription = null;
@@ -70,9 +72,34 @@ public class VehicleInfo
         return ( carNumber );
     }
     
+    void setTeamName( String teamName )
+    {
+        this.teamName = teamName;
+        
+        int p0 = 0;
+        char ch = this.teamName.charAt( p0 );
+        while ( ( p0 < this.teamName.length() ) && Character.isWhitespace( ch ) || ( ch >= '0' && ch <= '9' ) )
+            p0++;
+        
+        if ( p0 == teamName.length() )
+            this.teamNameCleaned = this.teamName;
+        else
+            this.teamNameCleaned = this.teamName.substring( p0 );
+    }
+    
     public final String getTeamName()
     {
         return ( teamName );
+    }
+    
+    /**
+     * Since &quot;TeamName&quot; in the .VEH file is used for sorting, we trim a numeric prefix from the name here.
+     * 
+     * @return the cleaned team name.
+     */
+    public final String getTeamNameCleaned()
+    {
+        return ( teamNameCleaned );
     }
     
     public final String getPitGroup()

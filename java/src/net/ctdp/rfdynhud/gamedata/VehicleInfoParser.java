@@ -59,7 +59,7 @@ class VehicleInfoParser extends AbstractIniParser
                 }
                 else if ( key.equalsIgnoreCase( "Team" ) )
                 {
-                    info.teamName = value;
+                    info.setTeamName( value );
                 }
                 else if ( key.equalsIgnoreCase( "PitGroup" ) )
                 {

@@ -215,7 +215,7 @@ public class ETVFastestLapWidget extends ETVTimingWidgetBase
     
     private static String getShorterTeamName( VehicleInfo vi )
     {
-        String tn1 = vi.getTeamName();
+        String tn1 = vi.getTeamNameCleaned();
         String tn2 = vi.getFullTeamName();
         
         if ( tn1.length() < tn2.length() )
