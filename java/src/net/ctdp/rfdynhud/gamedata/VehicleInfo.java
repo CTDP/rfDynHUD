@@ -79,7 +79,7 @@ public class VehicleInfo
         int p0 = 0;
         char ch = this.teamName.charAt( p0 );
         while ( ( p0 < this.teamName.length() ) && Character.isWhitespace( ch ) || ( ch >= '0' && ch <= '9' ) )
-            p0++;
+            ch = this.teamName.charAt( ++p0 );
         
         if ( p0 == teamName.length() )
             this.teamNameCleaned = this.teamName;
