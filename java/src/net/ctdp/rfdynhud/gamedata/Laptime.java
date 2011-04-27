@@ -163,7 +163,7 @@ public class Laptime
     
     static final boolean isHotlap( LiveGameData gameData )
     {
-        float fuelUsage = ( gameData.getTelemetryData().getFuelUsageLastLap() > 0f ) ? gameData.getTelemetryData().getFuelUsageLastLap() : gameData.getTelemetryData().getFuelUsageAverage();
+        float fuelUsage = ( gameData.getTelemetryData().getFuelUsageLastLapL() > 0f ) ? gameData.getTelemetryData().getFuelUsageLastLapL() : gameData.getTelemetryData().getFuelUsageAverageL();
         
         return ( ( fuelUsage > 0f ) && gameData.getSetup().isUpdatedInTimeScope() && ( gameData.getSetup().getGeneral().getFuel( 0 ) / fuelUsage < 7.0f ) );
     }

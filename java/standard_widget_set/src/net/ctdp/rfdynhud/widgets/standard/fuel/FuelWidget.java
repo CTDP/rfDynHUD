@@ -817,7 +817,7 @@ public class FuelWidget extends Widget
         
         final float fuel = telemData.getFuel();
         final float fuelL = telemData.getFuelL();
-        final float avgFuelUsage = telemData.getFuelUsageAverage();
+        final float avgFuelUsage = telemData.getFuelUsageAverageL();
         final float lastFuelUsage = telemData.getFuelUsageLastLap();
         final float stintLength = !isEditorMode ? vsi.getStintLength() : 5.2f;
         
@@ -937,7 +937,7 @@ public class FuelWidget extends Widget
                         string = Loc.fuelUsageLastLap_na;
                     fuelUsageLastLapString.draw( offsetX, offsetY, string, texture );
                     
-                    string = NumberUtil.formatFloat( avgFuelUsage, 2, true ) + getFuelUnits( measurementUnits );
+                    string = NumberUtil.formatFloat( telemData.getFuelUsageAverage(), 2, true ) + getFuelUnits( measurementUnits );
                     fuelUsageAvgString.draw( offsetX, offsetY, string, texture );
                 }
             }

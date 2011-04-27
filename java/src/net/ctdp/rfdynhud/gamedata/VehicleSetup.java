@@ -19,6 +19,7 @@ package net.ctdp.rfdynhud.gamedata;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
 
 /**
@@ -29,6 +30,11 @@ import net.ctdp.rfdynhud.gamedata.VehiclePhysics.TireCompound;
 @SuppressWarnings( "unused" )
 public class VehicleSetup
 {
+    private static final float convert_N_m_s_to_LBS_in_s( int value )
+    {
+        return ( value * Convert.N_TO_LBS / Convert.MM_TO_INCH );
+    }
+    
     boolean updatedInTimeScope = false;
     
     /**
@@ -189,7 +195,7 @@ public class VehicleSetup
         }
         
         /**
-         * Get fuel in liters.
+         * Gets fuel in liters.
          * 
          * GENERAL::FuelSetting=94//100L (13laps)
          * GENERAL::Pitstop1Setting=71//75L (10laps)
@@ -208,7 +214,7 @@ public class VehicleSetup
         }
         
         /**
-         * Get fuel in galons.
+         * Gets fuel in galons.
          * 
          * GENERAL::FuelSetting=94//100L (13laps)
          * GENERAL::Pitstop1Setting=71//75L (10laps)
@@ -223,11 +229,11 @@ public class VehicleSetup
          */
         public final float getFuelGal( int pitstop )
         {
-            return ( getFuelL( pitstop ) * MeasurementUnits.Convert.LITERS_TO_GALONS );
+            return ( getFuelL( pitstop ) * Convert.LITERS_TO_GALONS );
         }
         
         /**
-         * Get fuel in the units selected in the PLR.
+         * Gets fuel in the units selected in the PLR.
          * 
          * GENERAL::FuelSetting=94//100L (13laps)
          * GENERAL::Pitstop1Setting=71//75L (10laps)
@@ -419,77 +425,265 @@ public class VehicleSetup
         
         public static class ThirdSpring
         {
+            private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+            
             private float packer; // SUSPENSION::Front3rdPackerSetting=9//1.0 cm
             private int springRate; // SUSPENSION::Front3rdSpringSetting=30//60 N/mm
             private int slowBump; // SUSPENSION::Front3rdSlowBumpSetting=15//2062 N/m/s
-            private int fastBump; // SUSPENSION::Front3rdFastBumpSetting=15//1031 N/m/s
             private int slowRebound; // SUSPENSION::Front3rdSlowReboundSetting=13//4062 N/m/s
+            private int fastBump; // SUSPENSION::Front3rdFastBumpSetting=15//1031 N/m/s
             private int fastRebound; // SUSPENSION::Front3rdFastReboundSetting=15//2344 N/m/s
             
             /**
+             * Gets the packer size in cm.
+             * 
              * SUSPENSION::Front3rdPackerSetting=9//1.0 cm
              * SUSPENSION::Rear3rdPackerSetting=19//2.0 cm
              * 
              * @return the packer size in cm.
              */
-            public final float getPacker()
+            public final float getPackerCM()
             {
                 return ( packer );
             }
             
             /**
+             * Gets the packer in inch.
+             * 
+             * SUSPENSION::Front3rdPackerSetting=9//1.0 cm
+             * SUSPENSION::Rear3rdPackerSetting=19//2.0 cm
+             * 
+             * @return the packer size in inch.
+             */
+            public final float getPackerIN()
+            {
+                return ( packer * Convert.CM_TO_INCH );
+            }
+            
+            /**
+             * Gets packer in the units selected in the PLR.
+             * 
+             * SUSPENSION::Front3rdPackerSetting=9//1.0 cm
+             * SUSPENSION::Rear3rdPackerSetting=19//2.0 cm
+             * 
+             * @return the packer size in the selected units.
+             */
+            public final float getPacker()
+            {
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getPackerIN() );
+                
+                return ( getPackerCM() );
+            }
+            
+            /**
+             * spring rate in N/mm
+             * 
              * SUSPENSION::Front3rdSpringSetting=30//60 N/mm
              * SUSPENSION::Rear3rdSpringSetting=25//50 N/mm
              * 
              * @return the spring rate in N/mm
              */
-            public final int getSpringRate()
+            public final int getSpringRateNmm()
             {
                 return ( springRate );
             }
             
             /**
+             * spring rate in lbs/in
+             * 
+             * SUSPENSION::Front3rdSpringSetting=30//60 N/mm
+             * SUSPENSION::Rear3rdSpringSetting=25//50 N/mm
+             * 
+             * @return the spring rate in lbs/in
+             */
+            public final int getSpringRateLBSin()
+            {
+                return ( (int)( springRate * Convert.N_TO_LBS / Convert.MM_TO_INCH ) );
+            }
+            
+            /**
+             * Gets spring rate in the units selected in the PLR.
+             * 
+             * SUSPENSION::Front3rdSpringSetting=30//60 N/mm
+             * SUSPENSION::Rear3rdSpringSetting=25//50 N/mm
+             * 
+             * @return the spring rate in the selected units.
+             */
+            public final int getSpringRate()
+            {
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getSpringRateLBSin() );
+                
+                return ( getSpringRateNmm() );
+            }
+            
+            /**
+             * slow bump in N/m/s
+             * 
              * SUSPENSION::Front3rdSlowBumpSetting=15//2062 N/m/s
              * SUSPENSION::Rear3rdSlowBumpSetting=15//2062 N/m/s
              * 
-             * @return the slow bump settings in N/m/s
+             * @return the slow bump settings in N/m/s.
              */
-            public final int getSlowBump()
+            public final int getSlowBumpNms()
             {
                 return ( slowBump );
             }
             
             /**
-             * SUSPENSION::Front3rdFastBumpSetting=15//1031 N/m/s
-             * SUSPENSION::Rear3rdFastBumpSetting=15//1031 N/m/s
+             * slow bump in LBS/in/s
              * 
-             * @return the fast bump settings in N/m/s
+             * SUSPENSION::Front3rdSlowBumpSetting=15//2062 N/m/s
+             * SUSPENSION::Rear3rdSlowBumpSetting=15//2062 N/m/s
+             * 
+             * @return the slow bump settings in LBS/in/s.
              */
-            public final int getFastBump()
+            public final float getSlowBumpLBSIns()
             {
-                return ( fastBump );
+                return ( convert_N_m_s_to_LBS_in_s( slowBump ) );
             }
             
             /**
+             * slow bump in the units selected in the PLR.
+             * 
+             * SUSPENSION::Front3rdSlowBumpSetting=15//2062 N/m/s
+             * SUSPENSION::Rear3rdSlowBumpSetting=15//2062 N/m/s
+             * 
+             * @return the slow bump settings in the selected units.
+             */
+            public final float getSlowBump()
+            {
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getSlowBumpLBSIns() );
+                
+                return ( getSlowBumpNms() );
+            }
+            
+            /**
+             * slow rebound in N/m/s
+             * 
              * SUSPENSION::Front3rdSlowReboundSetting=13//4062 N/m/s
              * SUSPENSION::Rear3rdSlowReboundSetting=15//4688 N/m/s
              * 
-             * @return the slow rebound settings in N/m/s
+             * @return the slow rebound settings in N/m/s.
              */
-            public final int getSlowRebound()
+            public final int getSlowReboundNms()
             {
                 return ( slowRebound );
             }
             
             /**
+             * slow rebound in LBS/in/s
+             * 
+             * SUSPENSION::Front3rdSlowReboundSetting=13//4062 N/m/s
+             * SUSPENSION::Rear3rdSlowReboundSetting=15//4688 N/m/s
+             * 
+             * @return the slow rebound settings in LBS/in/s.
+             */
+            public final float getSlowReboundLBSIns()
+            {
+                return ( convert_N_m_s_to_LBS_in_s( slowBump ) );
+            }
+            
+            /**
+             * slow rebound in the units selected in the PLR.
+             * 
+             * SUSPENSION::Front3rdSlowReboundSetting=13//4062 N/m/s
+             * SUSPENSION::Rear3rdSlowReboundSetting=15//4688 N/m/s
+             * 
+             * @return the slow rebound settings in the selected units.
+             */
+            public final float getSlowRebound()
+            {
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getSlowReboundLBSIns() );
+                
+                return ( getSlowReboundNms() );
+            }
+            
+            /**
+             * fast bump in N/m/s
+             * 
+             * SUSPENSION::Front3rdFastBumpSetting=15//1031 N/m/s
+             * SUSPENSION::Rear3rdFastBumpSetting=15//1031 N/m/s
+             * 
+             * @return the fast bump settings in N/m/s.
+             */
+            public final int getFastBumpNms()
+            {
+                return ( fastBump );
+            }
+            
+            /**
+             * fast bump in LBS/in/s
+             * 
+             * SUSPENSION::Front3rdFastBumpSetting=15//1031 N/m/s
+             * SUSPENSION::Rear3rdFastBumpSetting=15//1031 N/m/s
+             * 
+             * @return the fast bump settings in LBS/in/s.
+             */
+            public final float getFastBumpLBSIns()
+            {
+                return ( convert_N_m_s_to_LBS_in_s( fastBump ) );
+            }
+            
+            /**
+             * fast bump in the units selected in the PLR.
+             * 
+             * SUSPENSION::Front3rdFastBumpSetting=15//1031 N/m/s
+             * SUSPENSION::Rear3rdFastBumpSetting=15//1031 N/m/s
+             * 
+             * @return the fast bump settings the selected units.
+             */
+            public final float getFastBump()
+            {
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getFastBumpLBSIns() );
+                
+                return ( getFastBumpNms() );
+            }
+            
+            /**
+             * fast rebound in N/m/s
+             * 
              * SUSPENSION::Front3rdFastReboundSetting=15//2344 N/m/s
              * SUSPENSION::Rear3rdFastReboundSetting=15//2344 N/m/s
              * 
-             * @return the fast rebound settings in N/m/s
+             * @return the fast rebound settings in N/m/s.
              */
-            public final int getFastRebound()
+            public final int getFastReboundNms()
             {
                 return ( fastRebound );
+            }
+            
+            /**
+             * fast rebound in LBS/in/s
+             * 
+             * SUSPENSION::Front3rdFastReboundSetting=15//2344 N/m/s
+             * SUSPENSION::Rear3rdFastReboundSetting=15//2344 N/m/s
+             * 
+             * @return the fast rebound settings in LBS/in/s.
+             */
+            public final float getFastReboundLBSIns()
+            {
+                return ( convert_N_m_s_to_LBS_in_s( fastRebound ) );
+            }
+            
+            /**
+             * fast rebound in the units selected in the PLR.
+             * 
+             * SUSPENSION::Front3rdFastReboundSetting=15//2344 N/m/s
+             * SUSPENSION::Rear3rdFastReboundSetting=15//2344 N/m/s
+             * 
+             * @return the fast rebound settings in the selected units.
+             */
+            public final float getFastRebound()
+            {
+                if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                    return ( getFastReboundLBSIns() );
+                
+                return ( getFastReboundNms() );
             }
         }
         
@@ -517,7 +711,7 @@ public class VehicleSetup
         }
     }
     
-    //private final Suspension suspension = new Suspension();
+    private final Suspension suspension = new Suspension();
     
     /*
      * @return an interface to the settings for the suspension.
@@ -834,6 +1028,8 @@ public class VehicleSetup
      */
     public static class WheelAndTire
     {
+        private MeasurementUnits measurementUnits = MeasurementUnits.METRIC;
+        
         private final Wheel wheel;
         
         //private float camber; // FRONTLEFT::CamberSetting=24//-3.3 deg
@@ -869,16 +1065,48 @@ public class VehicleSetup
         */
         
         /**
+         * tire pressure in kPa
+         * 
          * FRONTLEFT::PressureSetting=25//120 kPa
          * 
          * @see VehiclePhysics#getTirePressureRange(Wheel)
          * 
-         * @return the initial tire pressure at mount time and room temperature in kPa
+         * @return the initial tire pressure at mount time and room temperature in kPa.
          */
-        public final int getTirePressure()
+        public final float getTirePressureKPa()
         {
-            // TODO: Provide in IMPERIAL units, too.
             return ( tirePressure );
+        }
+        
+        /**
+         * tire pressure in PSI.
+         * 
+         * FRONTLEFT::PressureSetting=25//120 kPa
+         * 
+         * @see VehiclePhysics#getTirePressureRange(Wheel)
+         * 
+         * @return the initial tire pressure at mount time and room temperature in PSI.
+         */
+        public final float getTirePressurePSI()
+        {
+            return ( tirePressure * Convert.KPA_TO_PSI );
+        }
+        
+        /**
+         * Gets initial tire pressure in the units selected in the PLR.
+         * 
+         * FRONTLEFT::PressureSetting=25//120 kPa
+         * 
+         * @see VehiclePhysics#getTirePressureRange(Wheel)
+         * 
+         * @return the initial tire pressure at mount time and room temperature in the selected units.
+         */
+        public final float getTirePressure()
+        {
+            if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                return ( getTirePressurePSI() );
+            
+            return ( getTirePressureKPa() );
         }
         
         /*
@@ -963,15 +1191,48 @@ public class VehicleSetup
         */
         
         /**
+         * brake disc thickness in meters
+         * 
          * FRONTLEFT::BrakeDiscSetting=5//2.8 cm
          * 
          * @see VehiclePhysics.Brakes.WheelBrake#getDiscRange()
          * 
          * @return the thickness of the brake disc in meters.
          */
-        public final float getBrakeDiscThickness()
+        public final float getBrakeDiscThicknessM()
         {
             return ( brakeDiscThickness );
+        }
+        
+        /**
+         * brake disc thickness in inch
+         * 
+         * FRONTLEFT::BrakeDiscSetting=5//2.8 cm
+         * 
+         * @see VehiclePhysics.Brakes.WheelBrake#getDiscRange()
+         * 
+         * @return the thickness of the brake disc in inch.
+         */
+        public final float getBrakeDiscThicknessIn()
+        {
+            return ( brakeDiscThickness * Convert.M_TO_INCH );
+        }
+        
+        /**
+         * brake disc thickness in the units selected in the PLR.
+         * 
+         * FRONTLEFT::BrakeDiscSetting=5//2.8 cm
+         * 
+         * @see VehiclePhysics.Brakes.WheelBrake#getDiscRange()
+         * 
+         * @return the thickness of the brake disc in the selected units.
+         */
+        public final float getBrakeDiscThickness()
+        {
+            if ( measurementUnits == MeasurementUnits.IMPERIAL )
+                return ( getBrakeDiscThicknessIn() );
+            
+            return ( getBrakeDiscThicknessM() );
         }
         
         /*
@@ -1028,6 +1289,12 @@ public class VehicleSetup
     void applyMeasurementUnits( MeasurementUnits measurementUnits )
     {
         this.general.measurementUnits = measurementUnits;
+        this.suspension.front3rdSpring.measurementUnits = measurementUnits;
+        this.suspension.rear3rdSpring.measurementUnits = measurementUnits;
+        this.flWheelAndTire.measurementUnits = measurementUnits;
+        this.frWheelAndTire.measurementUnits = measurementUnits;
+        this.rlWheelAndTire.measurementUnits = measurementUnits;
+        this.rrWheelAndTire.measurementUnits = measurementUnits;
     }
     
     VehicleSetup()

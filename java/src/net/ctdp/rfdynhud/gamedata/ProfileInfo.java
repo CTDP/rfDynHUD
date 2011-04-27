@@ -54,10 +54,65 @@ public class ProfileInfo
         
         public static final class Convert
         {
+            /**
+             * Zero degrees Kelvin in Celsius
+             */
             public static final float ZERO_KELVIN = -273.15f;
+            
+            /**
+             * Offset for Celsius to Fahrenheit conversion. You will also need to factor it by {@link #FAHRENHEIT_FACTOR}.
+             * Better use {@link #celsius2Fahrehheit(float)}.
+             */
             public static final float FAHRENHEIT_OFFSET = 32.0f;
+            
+            /**
+             * Factor for Celsius to Fahrenheit conversion. You will also need to offset it by {@link #FAHRENHEIT_OFFSET}.
+             * Better use {@link #celsius2Fahrehheit(float)}.
+             */
             public static final float FAHRENHEIT_FACTOR = 1.8f;
+            
+            /**
+             * Liters (l) to Gallons (gal)
+             */
             public static final float LITERS_TO_GALONS = 0.26417287f;
+            
+            /**
+             * Kilopascal (kPa) to PSI
+             */
+            public static final float KPA_TO_PSI = 0.14503773773375085503535504944423f;
+            
+            /**
+             * Centimenter (cm) to Inch (in)
+             */
+            public static final float CM_TO_INCH = 0.3937007874015748031496062992126f;
+            
+            /**
+             * Millimeter (mm) to Inch (in)
+             */
+            public static final float MM_TO_INCH = CM_TO_INCH / 10f;
+            
+            /**
+             * Meter (m) to Inch (in)
+             */
+            public static final float M_TO_INCH = CM_TO_INCH * 10f;
+            
+            /**
+             * Newton (N) to pound force (LBS)
+             */
+            public static final float N_TO_LBS = 5.71014715f;
+            
+            /**
+             * Converts a value in &quot;degrees Celsius&quot; to &quot;degrees Fahreheit&quot;.<br />
+             * Math: fahrenheit = {@link #FAHRENHEIT_OFFSET} + celsius * {@link #FAHRENHEIT_FACTOR}
+             * 
+             * @param celsius the value in Celsius.
+             * 
+             * @return the value in Fahrenheit.
+             */
+            public static final float celsius2Fahrehheit( float celsius )
+            {
+                return ( FAHRENHEIT_OFFSET + celsius * FAHRENHEIT_FACTOR );
+            }
             
             private Convert()
             {
@@ -93,11 +148,34 @@ public class ProfileInfo
         
         public static final class Convert
         {
+            /**
+             * meters per second (m/s) to miles per hour (mi/h)
+             */
             public static final float MPS_TO_MPH = 2.237f;
+            
+            /**
+             * meters per second (m/s) to kilometers per hour (km/h)
+             */
             public static final float MPS_TO_KPH = 3.6f; // 3600f / 1000f
+            
+            /**
+             * miles per hour (mi/h) to meters per second (m/s)
+             */
             public static final float MPH_TO_MPS = 0.44704f;
+            
+            /**
+             * kilometers per hour (km/h) miles per hour (mi/h)
+             */
             public static final float KPH_TO_MPS = 0.278f; // 3600f / 1000f
+            
+            /**
+             * kilometers per hour (km/h) to miles per hour (mi/h)
+             */
             public static final float KPH_TO_MPH = 0.62f;
+            
+            /**
+             * miles per hour (mi/h) to kilometers per hour (km/h)
+             */
             public static final float MPH_TO_KPH = 1.6099344f;
             
             private Convert()

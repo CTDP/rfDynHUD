@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import net.ctdp.rfdynhud.editor.EditorPresets;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
 import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
 import net.ctdp.rfdynhud.gamedata.VehiclePhysics.Engine;
 import net.ctdp.rfdynhud.util.RFDHLog;
 
@@ -376,13 +377,13 @@ public class TelemetryData
     }
     
     /**
-     * Gets the current brake disc thickness.
+     * Gets the current brake disc thickness in meters.
      * 
      * @param wheel
      * 
-     * @return
+     * @return the current brake disc thickness in meters.
      */
-    public final float getBrakeDiscThickness( Wheel wheel )
+    public final float getBrakeDiscThicknessM( Wheel wheel )
     {
         switch ( wheel )
         {
@@ -401,23 +402,96 @@ public class TelemetryData
     }
     
     /**
-     * Gets the fuel usage of the last (timed) lap.
+     * Gets the current brake disc thickness in inch.
      * 
-     * @return the fuel usage of the last (timed) lap.
+     * @param wheel
+     * 
+     * @return the current brake disc thickness in inch.
      */
-    public final float getFuelUsageLastLap()
+    public final float getBrakeDiscThicknessIn( Wheel wheel )
+    {
+        return ( getBrakeDiscThicknessM( wheel ) * Convert.M_TO_INCH );
+    }
+    
+    /**
+     * Gets the current brake disc thickness in the units selected in the PLR.
+     * 
+     * @param wheel
+     * 
+     * @return the current brake disc thickness in the selected units.
+     */
+    public final float getBrakeDiscThickness( Wheel wheel )
+    {
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getBrakeDiscThicknessIn( wheel ) );
+        
+        return ( getBrakeDiscThicknessM( wheel ) );
+    }
+    
+    /**
+     * Gets the fuel usage of the last (timed) lap in liters.
+     * 
+     * @return the fuel usage of the last (timed) lap in liters.
+     */
+    public final float getFuelUsageLastLapL()
     {
         return ( fuelUsageLastLap );
     }
     
     /**
-     * Gets the average fuel usage of all recorded (timed) laps.
+     * Gets the fuel usage of the last (timed) lap in gallons.
      * 
-     * @return the average fuel usage of all recorded (timed) laps.
+     * @return the fuel usage of the last (timed) lap in gallons.
+     */
+    public final float getFuelUsageLastLapGal()
+    {
+        return ( fuelUsageLastLap * Convert.LITERS_TO_GALONS );
+    }
+    
+    /**
+     * Gets the fuel usage of the last (timed) lap in the units selected in the PLR.
+     * 
+     * @return the fuel usage of the last (timed) lap in the selected units.
+     */
+    public final float getFuelUsageLastLap()
+    {
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getFuelUsageLastLapGal() );
+        
+        return ( getFuelUsageLastLapL() );
+    }
+    
+    /**
+     * Gets the average fuel usage of all recorded (timed) laps in liters.
+     * 
+     * @return the average fuel usage of all recorded (timed) laps in liters.
+     */
+    public final float getFuelUsageAverageL()
+    {
+        return ( fuelUsageAverage );
+    }
+    
+    /**
+     * Gets the average fuel usage of all recorded (timed) laps in gallons.
+     * 
+     * @return the average fuel usage of all recorded (timed) laps in gallons.
+     */
+    public final float getFuelUsageAverageGal()
+    {
+        return ( fuelUsageAverage * Convert.LITERS_TO_GALONS );
+    }
+    
+    /**
+     * Gets the average fuel usage of all recorded (timed) laps in the units selected in the PLR.
+     * 
+     * @return the average fuel usage of all recorded (timed) laps in the units selected in the PLR.
      */
     public final float getFuelUsageAverage()
     {
-        return ( fuelUsageAverage );
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getFuelUsageAverageGal() );
+        
+        return ( getFuelUsageAverageL() );
     }
     
     /**
@@ -717,7 +791,7 @@ public class TelemetryData
      */
     public final float getEngineWaterTemperatureF()
     {
-        return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getEngineWaterTemperatureC() * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
+        return ( Convert.celsius2Fahrehheit( getEngineWaterTemperatureC() ) );
     }
     
     /**
@@ -754,7 +828,7 @@ public class TelemetryData
      */
     public final float getEngineOilTemperatureF()
     {
-        return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getEngineOilTemperatureC() * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
+        return ( Convert.celsius2Fahrehheit( getEngineOilTemperatureC() ) );
     }
     
     /**
@@ -855,9 +929,9 @@ public class TelemetryData
     public final float getFuelGal()
     {
         if ( fuelLoad >= 0f )
-            return ( fuelLoad * MeasurementUnits.Convert.LITERS_TO_GALONS );
+            return ( fuelLoad * Convert.LITERS_TO_GALONS );
         
-        return ( getFuelL() * MeasurementUnits.Convert.LITERS_TO_GALONS );
+        return ( getFuelL() * Convert.LITERS_TO_GALONS );
     }
     
     /**
@@ -990,9 +1064,36 @@ public class TelemetryData
      * 
      * @return the current suspension deflection in meters.
      */
-    public final float getWheelSuspensionDeflection( Wheel wheel )
+    public final float getWheelSuspensionDeflectionM( Wheel wheel )
     {
         return ( data.getWheelSuspensionDeflection( wheel ) );
+    }
+    
+    /**
+     * Gets the current suspension deflection in inches.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current suspension deflection in inches.
+     */
+    public final float getWheelSuspensionDeflectionIn( Wheel wheel )
+    {
+        return ( data.getWheelSuspensionDeflection( wheel ) * Convert.M_TO_INCH );
+    }
+    
+    /**
+     * Gets the current suspension deflection in the units selected in the PLR.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current suspension deflection in the units selected in the PLR.
+     */
+    public final float getWheelSuspensionDeflection( Wheel wheel )
+    {
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getWheelSuspensionDeflectionIn( wheel ) );
+        
+        return ( getWheelSuspensionDeflectionM( wheel ) );
     }
     
     /**
@@ -1002,9 +1103,36 @@ public class TelemetryData
      * 
      * @return the current ride height in meters.
      */
-    public final float getRideHeight( Wheel wheel )
+    public final float getRideHeightM( Wheel wheel )
     {
         return ( data.getRideHeight( wheel ) );
+    }
+    
+    /**
+     * Gets the current ride height in inches.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current ride height in inches.
+     */
+    public final float getRideHeightIn( Wheel wheel )
+    {
+        return ( data.getRideHeight( wheel ) * Convert.M_TO_INCH );
+    }
+    
+    /**
+     * Gets the current ride height in the units selected in the PLR.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current ride height in the units selected in the PLR
+     */
+    public final float getRideHeight( Wheel wheel )
+    {
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getRideHeightIn( wheel ) );
+        
+        return ( getRideHeightM( wheel ) );
     }
     
     /**
@@ -1014,9 +1142,36 @@ public class TelemetryData
      * 
      * @return the current tire load in Newtons.
      */
-    public final float getTireLoad( Wheel wheel )
+    public final float getTireLoadN( Wheel wheel )
     {
         return ( data.getTireLoad( wheel ) );
+    }
+    
+    /**
+     * Gets the current tire load in LBS.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire load in LBS.
+     */
+    public final float getTireLoadLBS( Wheel wheel )
+    {
+        return ( data.getTireLoad( wheel ) * Convert.N_TO_LBS );
+    }
+    
+    /**
+     * Gets the current tire load in the units selected in the PLR.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire load in the selected units.
+     */
+    public final float getTireLoad( Wheel wheel )
+    {
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getTireLoadLBS( wheel ) );
+        
+        return ( getTireLoadN( wheel ) );
     }
     
     /**
@@ -1066,7 +1221,7 @@ public class TelemetryData
     {
         // float mBrakeTemp
         
-        return ( getBrakeTemperatureK( wheel ) + MeasurementUnits.Convert.ZERO_KELVIN );
+        return ( getBrakeTemperatureK( wheel ) + Convert.ZERO_KELVIN );
     }
     
     /**
@@ -1080,7 +1235,7 @@ public class TelemetryData
     {
         // float mBrakeTemp
         
-        return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getBrakeTemperatureC( wheel ) * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
+        return ( Convert.celsius2Fahrehheit( getBrakeTemperatureC( wheel ) ) );
     }
     
     /**
@@ -1092,14 +1247,10 @@ public class TelemetryData
      */
     public final float getBrakeTemperature( Wheel wheel )
     {
-        switch ( gameData.getProfileInfo().getMeasurementUnits() )
-        {
-            case IMPERIAL:
-                return ( getBrakeTemperatureF( wheel ) );
-            case METRIC:
-            default:
-                return ( getBrakeTemperatureC( wheel ) );
-        }
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getBrakeTemperatureF( wheel ) );
+        
+        return ( getBrakeTemperatureC( wheel ) );
     }
     
     /**
@@ -1109,9 +1260,36 @@ public class TelemetryData
      * 
      * @return the current tire pressure in kPa.
      */
-    public final float getTirePressure( Wheel wheel )
+    public final float getTirePressureKPa( Wheel wheel )
     {
         return ( data.getTirePressure( wheel ) );
+    }
+    
+    /**
+     * Gets the current tire pressure in PSI.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire pressure in PSI.
+     */
+    public final float getTirePressurePSI( Wheel wheel )
+    {
+        return ( data.getTirePressure( wheel ) * Convert.KPA_TO_PSI );
+    }
+    
+    /**
+     * Gets the current tire pressure in the units selected in the PLR.
+     * 
+     * @param wheel the queried wheel
+     * 
+     * @return the current tire pressure in the selected units.
+     */
+    public final float getTirePressure( Wheel wheel )
+    {
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getTirePressurePSI( wheel ) );
+        
+        return ( getTirePressureKPa( wheel ) );
     }
     
     /**
@@ -1124,7 +1302,7 @@ public class TelemetryData
      */
     public final float getTireTemperatureC( Wheel wheel, WheelPart part )
     {
-        return ( data.getTireTemperature( wheel, part ) + MeasurementUnits.Convert.ZERO_KELVIN );
+        return ( data.getTireTemperature( wheel, part ) + Convert.ZERO_KELVIN );
     }
     
     /**
@@ -1137,7 +1315,7 @@ public class TelemetryData
      */
     public final float getTireTemperatureF( Wheel wheel, WheelPart part )
     {
-        return ( MeasurementUnits.Convert.FAHRENHEIT_OFFSET + getTireTemperatureC( wheel, part ) * MeasurementUnits.Convert.FAHRENHEIT_FACTOR );
+        return ( Convert.celsius2Fahrehheit( getTireTemperatureC( wheel, part ) ) );
     }
     
     /**

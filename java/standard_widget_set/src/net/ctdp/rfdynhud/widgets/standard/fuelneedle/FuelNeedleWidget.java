@@ -456,7 +456,7 @@ public class FuelNeedleWidget extends NeedleMeterWidget
         VehicleScoringInfo vsi = scoringInfo.getPlayersVehicleScoringInfo();
         
         final float fuel = telemData.getFuel();
-        final float avgFuelUsage = telemData.getFuelUsageAverage();
+        final float avgFuelUsage = telemData.getFuelUsageAverageL();
         final float stintLength = !isEditorMode ? vsi.getStintLength() : 5.2f;
         
         if ( isEditorMode )

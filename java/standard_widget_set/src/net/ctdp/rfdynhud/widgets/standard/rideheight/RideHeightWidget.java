@@ -194,14 +194,6 @@ public class RideHeightWidget extends Widget
             minRL = Math.max( 0f, minRL * 100f );
             minRR = Math.max( 0f, minRR * 100f );
             
-            if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
-            {
-                minFL /= 2.54f;
-                minFR /= 2.54f;
-                minRL /= 2.54f;
-                minRR /= 2.54f;
-            }
-            
             flString.draw( offsetX, offsetY, NumberUtil.formatFloat( minFL, 1, true ), ( minFL <= 0f ? java.awt.Color.RED : null ), texture );
             frString.draw( offsetX, offsetY, NumberUtil.formatFloat( minFR, 1, true ), ( minFR <= 0f ? java.awt.Color.RED : null ), texture );
             rlString.draw( offsetX, offsetY, NumberUtil.formatFloat( minRL, 1, true ), ( minRL <= 0f ? java.awt.Color.RED : null ), texture );

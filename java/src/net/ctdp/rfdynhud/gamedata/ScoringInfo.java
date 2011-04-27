@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import net.ctdp.rfdynhud.editor.EditorPresets;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.SpeedUnits;
+import net.ctdp.rfdynhud.gamedata.ProfileInfo.MeasurementUnits.Convert;
 import net.ctdp.rfdynhud.util.AbstractThreeLetterCodeGenerator;
 import net.ctdp.rfdynhud.util.RFDHLog;
 import net.ctdp.rfdynhud.util.ThreeLetterCodeGenerator;
@@ -1219,9 +1222,42 @@ public class ScoringInfo
      * 
      * @return ambient temperature (Celsius)
      */
-    public final float getAmbientTemperature()
+    public final float getAmbientTemperatureK()
+    {
+        return ( data.getAmbientTemperature() + Convert.ZERO_KELVIN );
+    }
+    
+    /**
+     * Gets ambient temperature (Celsius)
+     * 
+     * @return ambient temperature (Celsius)
+     */
+    public final float getAmbientTemperatureC()
     {
         return ( data.getAmbientTemperature() );
+    }
+    
+    /**
+     * Gets ambient temperature (Fahrenheit)
+     * 
+     * @return ambient temperature (Fahrenheit)
+     */
+    public final float getAmbientTemperatureF()
+    {
+        return ( Convert.celsius2Fahrehheit( data.getAmbientTemperature() ) );
+    }
+    
+    /**
+     * Gets ambient temperature (PLR selected units)
+     * 
+     * @return ambient temperature (PLR selected units)
+     */
+    public final float getAmbientTemperature()
+    {
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getAmbientTemperatureF() );
+        
+        return ( getAmbientTemperatureC() );
     }
     
     /**
@@ -1229,19 +1265,93 @@ public class ScoringInfo
      * 
      * @return track temperature (Celsius)
      */
-    public final float getTrackTemperature()
+    public final float getTrackTemperatureK()
+    {
+        return ( data.getTrackTemperature() + Convert.ZERO_KELVIN );
+    }
+    
+    /**
+     * Gets track temperature (Celsius)
+     * 
+     * @return track temperature (Celsius)
+     */
+    public final float getTrackTemperatureC()
     {
         return ( data.getTrackTemperature() );
     }
     
     /**
-     * Gets wind speed
+     * Gets track temperature (Fahrenheit)
+     * 
+     * @return track temperature (Fahrenheit)
+     */
+    public final float getTrackTemperatureF()
+    {
+        return ( Convert.celsius2Fahrehheit( data.getTrackTemperature() ) );
+    }
+    
+    /**
+     * Gets track temperature (PLR selected units)
+     * 
+     * @return track temperature (PLR selected units)
+     */
+    public final float getTrackTemperature()
+    {
+        if ( gameData.getProfileInfo().getMeasurementUnits() == MeasurementUnits.IMPERIAL )
+            return ( getTrackTemperatureF() );
+        
+        return ( getTrackTemperatureC() );
+    }
+    
+    /**
+     * Gets wind speed in m/sec.
+     * 
+     * @param speed output buffer
+     */
+    public final void getWindSpeedMS( TelemVect3 speed )
+    {
+        data.getWindSpeed( speed );
+    }
+    
+    /**
+     * Gets wind speed in km/h.
+     * 
+     * @param speed output buffer
+     */
+    public final void getWindSpeedKph( TelemVect3 speed )
+    {
+        data.getWindSpeed( speed );
+        
+        speed.x *= SpeedUnits.Convert.MPS_TO_KPH;
+        speed.y *= SpeedUnits.Convert.MPS_TO_KPH;
+        speed.z *= SpeedUnits.Convert.MPS_TO_KPH;
+    }
+    
+    /**
+     * Gets wind speed in mi/h.
+     * 
+     * @param speed output buffer
+     */
+    public final void getWindSpeedMph( TelemVect3 speed )
+    {
+        data.getWindSpeed( speed );
+        
+        speed.x *= SpeedUnits.Convert.MPS_TO_MPH;
+        speed.y *= SpeedUnits.Convert.MPS_TO_MPH;
+        speed.z *= SpeedUnits.Convert.MPS_TO_MPH;
+    }
+    
+    /**
+     * Gets wind speed in km/h or mph depending on PLR settings.
      * 
      * @param speed output buffer
      */
     public final void getWindSpeed( TelemVect3 speed )
     {
-        data.getWindSpeed( speed );
+        if ( gameData.getProfileInfo().getSpeedUnits() == SpeedUnits.MPH )
+            getWindSpeedMph( speed );
+        else
+            getWindSpeedKph( speed );
     }
     
     /**
